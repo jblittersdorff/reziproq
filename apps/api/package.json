@@ -1,0 +1,32 @@
+{
+  "name": "@reziproq/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json && concurrently --raw --kill-others \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\" \"node --watch --enable-source-maps dist/main.js\"",
+    "start": "NODE_ENV=production node --enable-source-maps dist/main.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.3.2",
+    "@nestjs/core": "12.3.2",
+    "@nestjs/platform-express": "12.3.2",
+    "@nestjs/serve-static": "12.1.1",
+    "@reziproq/db": "workspace:*",
+    "@reziproq/shared": "workspace:*",
+    "express": "5.3.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "12.3.2",
+    "@types/express": "5.0.6",
+    "@types/node": "catalog:",
+    "concurrently": "10.0.6",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

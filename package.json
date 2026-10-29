@@ -1,0 +1,29 @@
+{
+  "name": "reziproq",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "dev": "pnpm --filter \"./packages/*\" build && pnpm --recursive --parallel dev",
+    "build": "pnpm --recursive build",
+    "start": "pnpm --filter @reziproq/api start",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "pnpm --recursive typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "pnpm --filter @reziproq/web test:e2e",
+    "db:generate": "pnpm --filter @reziproq/db db:generate",
+    "db:migrate": "pnpm --filter @reziproq/db db:migrate"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

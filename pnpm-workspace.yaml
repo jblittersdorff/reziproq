@@ -1,0 +1,37 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Neue Abhängigkeiten immer mit exakter Version eintragen
+saveExact: true
+
+# Versionen, die mehrere Pakete teilen
+catalog:
+  "@types/node": 26.6.6
+  typescript: 7.0.2
+  vitest: 5.0.5
+  zod: 4.6.7
+
+minimumReleaseAgeExclude:
+  - "@babel/core@8.0.10"
+  - "@babel/generator@8.0.10"
+  - "@babel/helpers@8.0.10"
+  - "@babel/parser@8.0.10"
+  - "@babel/traverse@8.0.10"
+  - "@babel/types@8.0.10"
+  - "@biomejs/biome@2.6.4"
+  - "@biomejs/cli-android-arm64@2.6.4"
+  - "@biomejs/cli-android-x64@2.6.4"
+  - "@biomejs/cli-darwin-arm64@2.6.4"
+  - "@biomejs/cli-darwin-x64@2.6.4"
+  - "@biomejs/cli-linux-arm64-musl@2.6.4"
+  - "@biomejs/cli-linux-arm64@2.6.4"
+  - "@biomejs/cli-linux-x64-musl@2.6.4"
+  - "@biomejs/cli-linux-x64@2.6.4"
+  - "@biomejs/cli-win32-arm64@2.6.4"
+  - "@biomejs/cli-win32-x64@2.6.4"
+  - "@rolldown/plugin-babel@0.3.0"
+
+# Nur diese Pakete dürfen bei der Installation Skripte ausführen
+allowBuilds:
+  esbuild: true
