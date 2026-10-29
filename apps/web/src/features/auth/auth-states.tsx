@@ -1,39 +1,68 @@
-import { IconAlertTriangle, IconLoader2, IconPlugConnectedX } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconLoader2,
+  IconLogin2,
+  IconPlugConnectedX,
+} from '@tabler/icons-react';
 import type { ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { useMessages } from '@/lib/i18n';
-import { authMessages } from './messages';
+import { useT } from '@/lib/i18n';
+
+/** Rahmen für alles vor dem Login: schmale Spalte mit dem Namen der App. */
+export function AuthPage({ children }: { children: ReactNode }) {
+  const t = useT();
+  return (
+    <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-16">
+      <h1 className="font-semibold text-xl">{t.app.name}</h1>
+      {children}
+    </main>
+  );
+}
 
 /** Ladezustand, solange die Sitzung geprüft oder der Login abgeschlossen wird. */
 export function AuthChecking() {
-  const t = useMessages(authMessages);
+  const t = useT();
   return (
     <p role="status" className="flex items-center gap-2 text-muted-foreground">
       <IconLoader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden />
-      {t.checking}
+      {t.auth.checking}
     </p>
   );
 }
 
 export function AuthFailed({ action }: { action: ReactNode }) {
-  const t = useMessages(authMessages);
+  const t = useT();
   return (
     <EmptyState
       icon={<IconAlertTriangle />}
-      title={t.failedTitle}
-      description={t.failedDescription}
+      title={t.auth.failedTitle}
+      description={t.auth.failedDescription}
       action={action}
     />
   );
 }
 
 export function AuthNotConfigured() {
-  const t = useMessages(authMessages);
+  const t = useT();
   return (
     <EmptyState
       icon={<IconPlugConnectedX />}
-      title={t.notConfiguredTitle}
-      description={t.notConfiguredDescription}
+      title={t.auth.notConfiguredTitle}
+      description={t.auth.notConfiguredDescription}
     />
+  );
+}
+
+export function SignIn({ onSignIn }: { onSignIn: () => void }) {
+  const t = useT();
+  return (
+    <div className="flex flex-col items-start gap-4">
+      <p className="text-muted-foreground">{t.auth.welcome}</p>
+      <Button onClick={onSignIn}>
+        <IconLogin2 />
+        {t.auth.signIn}
+      </Button>
+    </div>
   );
 }

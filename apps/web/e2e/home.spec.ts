@@ -31,7 +31,7 @@ test('Startseite bietet ohne Login nur die Anmeldung an', async ({ page }) => {
   await expect(page.getByText('API: ok')).toHaveCount(0);
 });
 
-test('Login mit PKCE zeigt danach Name und API-Status', async ({ page }) => {
+test('Login mit PKCE öffnet die Übersicht mit Name im Nutzer-Menü', async ({ page }) => {
   await fakeZitadel(page);
 
   // 1. Weiterleitung zu Zitadel: Authorization Code mit PKCE.
@@ -87,10 +87,9 @@ test('Login mit PKCE zeigt danach Name und API-Status', async ({ page }) => {
   });
 
   await expect(page).toHaveURL('http://localhost:5174/');
-  await expect(page.getByText('Ada Lovelace')).toBeVisible();
-  await expect(page.getByText('ada@example.com')).toBeVisible();
-  await expect(page.getByText('API: ok')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Abmelden' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeVisible();
+  const userMenu = page.getByRole('button', { name: /Ada Lovelace/ });
+  await expect(userMenu).toContainText('ada@example.com');
   expect(new URLSearchParams(tokenRequestBody).get('code_verifier')).toBeTruthy();
 
   // 4. Abmelden beendet die Sitzung bei Zitadel und kehrt zur App zurück.
@@ -98,7 +97,8 @@ test('Login mit PKCE zeigt danach Name und API-Status', async ({ page }) => {
   await page.route(`${issuer}/oidc/v1/end_session?**`, (route) =>
     route.fulfill({ body: 'Abgemeldet' }),
   );
-  await page.getByRole('button', { name: 'Abmelden' }).click();
+  await userMenu.click();
+  await page.getByRole('menuitem', { name: 'Abmelden' }).click();
   const logout = new URL((await endSession).url()).searchParams;
   expect(logout.get('post_logout_redirect_uri')).toBe('http://localhost:5174');
   expect(logout.get('id_token_hint')).toBe(idToken);

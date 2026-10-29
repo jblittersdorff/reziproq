@@ -46,6 +46,34 @@ describe('Farben nur aus den Design-Tokens', () => {
   });
 });
 
+// Schriftgrößen und Abstände kommen aus den Tokens: Tailwind-Klassen wie text-sm oder px-4 sind
+// auf --font-size-* und --spacing-unit umgestellt. Feste Werte im Code umgehen das.
+const sizePatterns: [string, RegExp][] = [
+  ['Tailwind-Wert in eckigen Klammern', /\b[\w-]+-\[-?[\d.]+(?:px|rem|em|pt)\]/],
+  ['feste Länge im Code', /['"`][^'"`\n]*\b\d+(?:\.\d+)?(?:px|rem|em|pt)\b[^'"`\n]*['"`]/],
+  ['feste Schriftgröße', /\bfontSize\s*:\s*['"`]?\d/],
+];
+
+describe('Schriftgrößen und Abstände nur aus den Design-Tokens', () => {
+  it('enthält in TypeScript-Dateien keine festen Längen', () => {
+    const files = sourceFiles(join(webRoot, 'src')).filter(
+      (file) => /\.tsx?$/.test(file) && !allowed.has(file) && !skipped.has(file),
+    );
+    const findings = files.flatMap((file) =>
+      readFileSync(file, 'utf8')
+        .split('\n')
+        .flatMap((line, index) =>
+          sizePatterns
+            .filter(([, pattern]) => pattern.test(line))
+            .map(([kind]) => `${relative(webRoot, file)}:${index + 1} ${kind}: ${line.trim()}`),
+        ),
+    );
+    expect(findings, 'Bitte Tailwind-Stufen oder Tokens aus src/styles/tokens.css nutzen').toEqual(
+      [],
+    );
+  });
+});
+
 // Kontrast nach WCAG 2.2: https://www.w3.org/TR/WCAG22/#dfn-contrast-ratio
 function luminance(hex: string): number {
   const channels = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255);
