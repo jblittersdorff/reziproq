@@ -14,8 +14,6 @@ export const homeMessages = defineMessages({
     apiChecking: 'API: wird geprüft …',
     apiDown: 'API: nicht erreichbar',
     meFailed: 'Dein Konto konnte nicht geladen werden.',
-    meMissingClaims:
-      'Name oder E-Mail fehlen im Zugangstoken. Prüfe die Action „Pre access token creation“ in Zitadel.',
   },
   en: {
     welcome: 'Sign in with your company account to open your supplier relationships.',
@@ -30,7 +28,5 @@ export const homeMessages = defineMessages({
     apiChecking: 'API: checking …',
     apiDown: 'API: not reachable',
     meFailed: 'Your account could not be loaded.',
-    meMissingClaims:
-      'Name or email is missing from the access token. Check the “Pre access token creation” action in Zitadel.',
   },
 });

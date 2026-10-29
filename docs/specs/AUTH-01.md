@@ -12,16 +12,24 @@
 ## Daten: welche Felder; was ist käuferprivat, geteilt oder lieferantenprivat
 
 - Tabelle organization: id (UUID, uuidv7()), name, created_at.
+- Tabelle app_user: id (sub aus dem Token), name, email, created_at, updated_at.
+  - Name und E-Mail kommen vom Userinfo-Endpunkt des Issuers.
+  - Dessen Adresse und die der Schlüssel (jwks_uri) liest die API aus
+    ZITADEL_ISSUER/.well-known/openid-configuration.
+  - Jeder Aufruf von /api/me aktualisiert sie.
+  - Personen gehören keiner einzelnen Beziehung. Die Zuordnung zu Organisationen und Row-Level
+    Security folgen mit der Mandanten-Session.
 - Die Organisation ist der Mandant selbst, also weder käuferprivat noch geteilt oder lieferantenprivat.
-- Row-Level Security kommt mit der Mandanten-Session; bis dahin liest und schreibt keine Route die Tabelle.
-- Name und E-Mail werden nicht gespeichert, nur aus dem Token gelesen.
+- Row-Level Security kommt mit der Mandanten-Session; bis dahin liest und schreibt keine Route die Tabelle organization.
 
 ## Ablauf: Schritte aus Nutzersicht
 
 1. Die Startseite zeigt ohne Login den Knopf „Anmelden“.
-2. Die App leitet zu Zitadel weiter (Authorization Code mit PKCE, Bibliothek oidc-client-ts).
+2. Die App leitet zu Zitadel weiter: Authorization Code mit PKCE über die Bibliothek oidc-client-ts,
+   Scopes openid profile email.
 3. Zitadel leitet zurück nach /auth/callback; die App tauscht den Code gegen Tokens.
-4. Die Startseite zeigt Name und E-Mail aus GET /api/me und „API: ok“, wenn GET /api/health antwortet.
+4. GET /api/me ruft mit demselben Token den Userinfo-Endpunkt auf und speichert Name und E-Mail in
+   app_user. Die Startseite zeigt die gespeicherten Werte und „API: ok“, wenn GET /api/health antwortet.
 5. „Abmelden“ beendet die Sitzung bei Zitadel und kehrt zur Startseite zurück.
 
 Voraussetzungen in Zitadel:
@@ -29,23 +37,33 @@ Voraussetzungen in Zitadel:
 - Die App ist vom Typ „User Agent“ mit PKCE.
 - Der Token-Typ ist JWT.
 - Die Redirect-URI ist <Adresse>/auth/callback, die Post-Logout-URI ist <Adresse>.
-- Zitadel schreibt Name und E-Mail nicht von sich aus ins Access Token. Eine Action am Auslöser
-  „Complement Token / Pre access token creation“ ergänzt die Claims name und email.
+- Die Projekt-ID steht ohne weiteren Scope in der Audience, weil Zitadel sie von sich aus einträgt.
 
 ## Fertig, wenn: prüfbare Kriterien, je Kriterium ein Test
 
 - GET /api/health ohne Login gibt 200 und {"status":"ok"}. Test: apps/api/src/modules/health/health.test.ts
 - GET /api/me ohne Token gibt 401. Test: apps/api/src/modules/me/me.test.ts
-- GET /api/me mit gültigem Token gibt Name und E-Mail. Test: me.test.ts
-- Diese Tokens geben 401 (Test: me.test.ts):
-  - falscher Issuer
-  - falsche Audience
-  - abgelaufenes Token
-  - fremde Signatur
-  - kaputtes Token
-  - Token ohne Name oder E-Mail
-- Die Tests laufen ohne Zitadel und ohne .env. Dafür stellen sie Tokens mit einem eigenen Schlüsselpaar aus.
-- Die Tabelle organization hat die drei Spalten. Test: packages/db/src/schema/organization.test.ts
+- GET /api/me mit gültigem Token holt Name und E-Mail mit demselben Token vom Userinfo-Endpunkt,
+  speichert sie in app_user und liefert sie aus der Datenbank. Test: me.test.ts
+- Ein zweiter Aufruf aktualisiert Name und E-Mail; created_at bleibt. Test: me.test.ts
+- 401 gibt es bei (Test: me.test.ts):
+  - falschem Issuer
+  - falscher Audience
+  - abgelaufenem Token
+  - fremder Signatur
+  - kaputtem Token
+  - Token ohne sub
+  - Ablehnung durch den Userinfo-Endpunkt
+  - Userinfo zu einer anderen Person
+- 502 gibt es in diesen Fällen (Test: me.test.ts):
+  - Userinfo liefert keinen Namen oder keine E-Mail.
+  - Zitadel meldet einen Fehler.
+  - Das Discovery-Dokument gehört zu einem anderen Issuer.
+- Die Tests brauchen keine Verbindung zu Zitadel und keine .env.
+  - Sie stellen Tokens mit einem eigenen Schlüsselpaar aus.
+  - Discovery, Schlüssel und Userinfo bilden sie als lokalen Server nach.
+  - Sie brauchen die Datenbank mit angewendeten Migrationen.
+- Die Tabellen organization und app_user haben ihre Spalten. Test: packages/db/src/schema/*.test.ts
 - Login mit PKCE, Anzeige von Name und „API: ok“ sowie Abmelden. Test: apps/web/e2e/home.spec.ts (Zitadel simuliert)
 
 ## Nicht Teil dieser Funktion

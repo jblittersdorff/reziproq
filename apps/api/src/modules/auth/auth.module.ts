@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { createRemoteJWKSet } from 'jose';
+import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
 import { env } from '../../config/env.js';
 import { AuthGuard } from './auth.guard.js';
+import { DISCOVERY_URL, OidcDiscovery } from './oidc-discovery.js';
 import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-verifier.js';
 
+@Global()
 @Module({
   providers: [
     {
@@ -15,16 +17,28 @@ import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-ver
       } satisfies AuthOptions,
     },
     {
-      // Zitadel veröffentlicht seine Schlüssel unter /oauth/v2/keys. Sie werden erst beim ersten
-      // Token geladen und zwischengespeichert; ohne Token gibt es keine Verbindung zu Zitadel.
-      provide: JWKS,
-      useFactory: (options: AuthOptions) =>
-        createRemoteJWKSet(new URL(`${options.issuer}/oauth/v2/keys`)),
+      provide: DISCOVERY_URL,
+      useFactory: (options: AuthOptions) => `${options.issuer}/.well-known/openid-configuration`,
       inject: [AUTH_OPTIONS],
+    },
+    OidcDiscovery,
+    {
+      // Die Schlüssel stehen unter jwks_uri aus der Discovery. Beides wird erst beim ersten Token
+      // geladen und zwischengespeichert; ohne Token gibt es keine Verbindung zu Zitadel.
+      provide: JWKS,
+      useFactory: (discovery: OidcDiscovery): JWTVerifyGetKey => {
+        let keys: JWTVerifyGetKey | undefined;
+        return async (header, token) => {
+          keys ??= createRemoteJWKSet(new URL((await discovery.get()).jwks_uri));
+          return keys(header, token);
+        };
+      },
+      inject: [OidcDiscovery],
     },
     TokenVerifier,
     // Gilt für alle Routen; Ausnahmen nur über @Public().
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
+  exports: [OidcDiscovery],
 })
 export class AuthModule {}

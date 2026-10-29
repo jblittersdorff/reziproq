@@ -4,7 +4,6 @@ import type { AuthProviderNoUserManagerProps } from 'react-oidc-context';
 export interface ZitadelSettings {
   issuer: string;
   clientId: string;
-  projectId: string;
 }
 
 /** Liest die Zitadel-Werte; null, solange einer davon in der .env fehlt. */
@@ -13,16 +12,15 @@ export function readZitadelSettings(
 ): ZitadelSettings | null {
   const issuer = env.ZITADEL_ISSUER?.replace(/\/+$/, '') ?? '';
   const clientId = env.ZITADEL_CLIENT_ID ?? '';
-  const projectId = env.ZITADEL_PROJECT_ID ?? '';
-  if (!issuer || !clientId || !projectId) return null;
-  return { issuer, clientId, projectId };
+  if (!issuer || !clientId) return null;
+  return { issuer, clientId };
 }
 
 export const callbackPath = '/auth/callback';
 
 /**
- * Login mit Authorization Code und PKCE über oidc-client-ts.
- * Der letzte Scope sorgt dafür, dass Zitadel die Projekt-ID als Audience ins Access Token schreibt.
+ * Login mit Authorization Code und PKCE über oidc-client-ts. Zitadel schreibt die Projekt-ID
+ * von sich aus in die Audience; profile und email braucht die API für den Userinfo-Endpunkt.
  */
 export function oidcConfig({
   settings,
@@ -42,7 +40,7 @@ export function oidcConfig({
     redirect_uri: `${origin}${callbackPath}`,
     post_logout_redirect_uri: origin,
     response_type: 'code',
-    scope: `openid profile email urn:zitadel:iam:org:project:id:${settings.projectId}:aud`,
+    scope: 'openid profile email',
     userStore: new WebStorageStateStore({ store: storage }),
     onSigninCallback,
   };

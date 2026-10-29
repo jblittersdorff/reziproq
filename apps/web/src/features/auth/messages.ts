@@ -8,7 +8,7 @@ export const authMessages = defineMessages({
     retry: 'Erneut anmelden',
     notConfiguredTitle: 'Login ist noch nicht eingerichtet',
     notConfiguredDescription:
-      'Trage ZITADEL_ISSUER, ZITADEL_CLIENT_ID und ZITADEL_PROJECT_ID in die .env ein und starte die App neu.',
+      'Trage ZITADEL_ISSUER und ZITADEL_CLIENT_ID in die .env ein und starte die App neu.',
     backHome: 'Zur Startseite',
   },
   en: {
@@ -18,7 +18,7 @@ export const authMessages = defineMessages({
     retry: 'Sign in again',
     notConfiguredTitle: 'Sign-in is not set up yet',
     notConfiguredDescription:
-      'Add ZITADEL_ISSUER, ZITADEL_CLIENT_ID and ZITADEL_PROJECT_ID to the .env file and restart the app.',
+      'Add ZITADEL_ISSUER and ZITADEL_CLIENT_ID to the .env file and restart the app.',
     backHome: 'Back to start page',
   },
 });

@@ -4,5 +4,4 @@
 interface ImportMetaEnv {
   readonly ZITADEL_ISSUER: string;
   readonly ZITADEL_CLIENT_ID: string;
-  readonly ZITADEL_PROJECT_ID: string;
 }

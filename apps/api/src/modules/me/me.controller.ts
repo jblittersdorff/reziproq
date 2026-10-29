@@ -1,16 +1,15 @@
-import { Controller, Get, UnauthorizedException } from '@nestjs/common';
-import { type MeResponse, meResponseSchema } from '@reziproq/shared';
-import type { JWTPayload } from 'jose';
+import { Controller, Get, Inject } from '@nestjs/common';
+import type { MeResponse } from '@reziproq/shared';
+import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { MeService } from './me.service.js';
 
 @Controller('me')
 export class MeController {
+  constructor(@Inject(MeService) private readonly me: MeService) {}
+
   @Get()
-  me(@CurrentUser() user: JWTPayload): MeResponse {
-    const result = meResponseSchema.safeParse(user);
-    if (!result.success) {
-      throw new UnauthorizedException('Das Token enthält keinen Namen oder keine E-Mail.');
-    }
-    return result.data;
+  get(@CurrentUser() auth: AuthContext): Promise<MeResponse> {
+    return this.me.syncFromUserinfo(auth);
   }
 }

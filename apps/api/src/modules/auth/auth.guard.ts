@@ -7,12 +7,17 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import type { JWTPayload } from 'jose';
 import { IS_PUBLIC } from './public.decorator.js';
 import { TokenVerifier } from './token-verifier.js';
 
+/** Wer die Anfrage stellt: die Nutzer-ID (sub) und das geprüfte Access Token. */
+export interface AuthContext {
+  userId: string;
+  accessToken: string;
+}
+
 export interface AuthenticatedRequest extends Request {
-  user?: JWTPayload;
+  auth?: AuthContext;
 }
 
 @Injectable()
@@ -35,7 +40,8 @@ export class AuthGuard implements CanActivate {
     const [scheme, token] = request.headers.authorization?.split(' ') ?? [];
     if (scheme?.toLowerCase() !== 'bearer' || !token) throw new UnauthorizedException();
 
-    request.user = await this.verifier.verify(token);
+    const { sub } = await this.verifier.verify(token);
+    request.auth = { userId: sub, accessToken: token };
     return true;
   }
 }

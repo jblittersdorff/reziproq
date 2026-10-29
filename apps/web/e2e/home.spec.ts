@@ -34,7 +34,7 @@ test('Startseite bietet ohne Login nur die Anmeldung an', async ({ page }) => {
 test('Login mit PKCE zeigt danach Name und API-Status', async ({ page }) => {
   await fakeZitadel(page);
 
-  // 1. Weiterleitung zu Zitadel: Authorization Code mit PKCE und Projekt-ID als Audience.
+  // 1. Weiterleitung zu Zitadel: Authorization Code mit PKCE.
   const authorize = page.waitForRequest(`${issuer}/oauth/v2/authorize?**`);
   await page.route(`${issuer}/oauth/v2/authorize?**`, (route) =>
     route.fulfill({ body: 'Zitadel-Login' }),
@@ -48,7 +48,7 @@ test('Login mit PKCE zeigt danach Name und API-Status', async ({ page }) => {
   expect(params.get('redirect_uri')).toBe('http://localhost:5174/auth/callback');
   expect(params.get('code_challenge_method')).toBe('S256');
   expect(params.get('code_challenge')).toBeTruthy();
-  expect(params.get('scope')).toContain('urn:zitadel:iam:org:project:id:project-1:aud');
+  expect(params.get('scope')).toBe('openid profile email');
 
   // 2. Zitadel tauscht den Code gegen Tokens; der Code-Verifier muss mitkommen.
   const now = Math.floor(Date.now() / 1000);

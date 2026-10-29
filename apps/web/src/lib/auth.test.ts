@@ -4,15 +4,13 @@ import { oidcConfig, readZitadelSettings } from './auth';
 const env = {
   ZITADEL_ISSUER: 'https://reziproq.zitadel.test/',
   ZITADEL_CLIENT_ID: 'client-1',
-  ZITADEL_PROJECT_ID: 'project-1',
 };
 
 describe('readZitadelSettings', () => {
-  it('liest alle drei Werte und entfernt den Schrägstrich am Ende', () => {
+  it('liest beide Werte und entfernt den Schrägstrich am Ende', () => {
     expect(readZitadelSettings(env)).toEqual({
       issuer: 'https://reziproq.zitadel.test',
       clientId: 'client-1',
-      projectId: 'project-1',
     });
   });
 
@@ -23,7 +21,7 @@ describe('readZitadelSettings', () => {
 });
 
 describe('oidcConfig', () => {
-  it('nutzt Authorization Code, den Callback und die Projekt-ID als Audience', () => {
+  it('nutzt Authorization Code, den Callback und die Scopes openid profile email', () => {
     const settings = readZitadelSettings(env);
     if (!settings) throw new Error('Einstellungen fehlen');
     const config = oidcConfig({
@@ -35,6 +33,6 @@ describe('oidcConfig', () => {
     expect(config.response_type).toBe('code');
     expect(config.redirect_uri).toBe('http://localhost:5173/auth/callback');
     expect(config.post_logout_redirect_uri).toBe('http://localhost:5173');
-    expect(config.scope).toBe('openid profile email urn:zitadel:iam:org:project:id:project-1:aud');
+    expect(config.scope).toBe('openid profile email');
   });
 });

@@ -9,7 +9,7 @@ describe('GET /api/health', () => {
   });
 
   afterAll(async () => {
-    await testApp.app.close();
+    await testApp.close();
   });
 
   it('antwortet ohne Login mit 200 und {"status":"ok"}', async () => {

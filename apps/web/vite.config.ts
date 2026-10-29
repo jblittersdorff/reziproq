@@ -9,7 +9,7 @@ const rootDir = fileURLToPath(new URL('../..', import.meta.url));
 
 // Nur diese Werte aus der gemeinsamen .env gelangen in den Browser; sie sind nicht geheim.
 // Alles andere (z. B. DATABASE_URL) bleibt auf dem Server.
-const publicEnv = ['ZITADEL_ISSUER', 'ZITADEL_CLIENT_ID', 'ZITADEL_PROJECT_ID'] as const;
+const publicEnv = ['ZITADEL_ISSUER', 'ZITADEL_CLIENT_ID'] as const;
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, 'ZITADEL_');

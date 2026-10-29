@@ -1,26 +1,30 @@
 import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { createLocalJWKSet, exportJWK, generateKeyPair, type JWTPayload, SignJWT } from 'jose';
+import { exportJWK, generateKeyPair, type JWTPayload, SignJWT } from 'jose';
 import { AppModule } from '../app.module.js';
 import { configureApp } from '../configure-app.js';
-import { JWKS } from '../modules/auth/token-verifier.js';
+import { DISCOVERY_URL } from '../modules/auth/oidc-discovery.js';
+import { startFakeZitadel } from './fake-zitadel.js';
 
 // Dieselben Werte setzt vitest.config.ts als Umgebungsvariablen.
 export const testIssuer = 'https://zitadel.test';
 export const testAudience = 'test-project';
 
 /**
- * Startet die echte App mit einem eigenen Schlüsselpaar anstelle der Zitadel-Schlüssel.
- * So lassen sich gültige und ungültige Tokens ohne Verbindung zu Zitadel prüfen.
+ * Startet die echte App gegen ein nachgebautes Zitadel mit eigenem Schlüsselpaar.
+ * Discovery, Schlüssel und Userinfo laufen über denselben Weg wie im Betrieb, nur lokal.
+ * `discoveryIssuer` simuliert ein Discovery-Dokument, das zu einem anderen Issuer gehört.
  */
-export async function startTestApp() {
+export async function startTestApp({ discoveryIssuer = testIssuer } = {}) {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const jwk = { ...(await exportJWK(publicKey)), kid: 'test-key', alg: 'RS256' };
 
+  const zitadel = await startFakeZitadel({ issuer: discoveryIssuer, jwk });
+
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-    .overrideProvider(JWKS)
-    .useValue(createLocalJWKSet({ keys: [jwk] }))
+    .overrideProvider(DISCOVERY_URL)
+    .useValue(zitadel.discoveryUrl)
     .compile();
   const app: INestApplication = moduleRef.createNestApplication();
   configureApp(app);
@@ -33,6 +37,8 @@ export async function startTestApp() {
     audience?: string;
     expiresAt?: number | string;
     key?: CryptoKey;
+    /** null erzeugt ein Token ohne sub. */
+    subject?: string | null;
   }
 
   const signToken = ({
@@ -41,18 +47,25 @@ export async function startTestApp() {
     audience = testAudience,
     expiresAt = '5m',
     key = privateKey,
-  }: TokenOptions = {}) =>
-    new SignJWT(claims)
-      .setProtectedHeader({ alg: 'RS256', kid: 'test-key' })
-      .setSubject('user-1')
+    subject = 'user-1',
+  }: TokenOptions = {}) => {
+    const jwt = new SignJWT(claims).setProtectedHeader({ alg: 'RS256', kid: 'test-key' });
+    if (subject !== null) jwt.setSubject(subject);
+    return jwt
       .setIssuer(issuer)
       .setAudience([audience, 'client-id'])
       .setIssuedAt()
       .setExpirationTime(expiresAt)
       .sign(key);
+  };
 
   const get = (path: string, token?: string, scheme = 'Bearer') =>
     fetch(`${baseUrl}${path}`, token ? { headers: { authorization: `${scheme} ${token}` } } : {});
 
-  return { app, get, signToken };
+  const close = async () => {
+    await app.close();
+    await zitadel.close();
+  };
+
+  return { app, get, signToken, zitadel, close };
 }

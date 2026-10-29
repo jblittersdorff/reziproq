@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { AuthChecking, AuthFailed, AuthNotConfigured } from '@/features/auth/auth-states';
-import { ApiError, healthQueryOptions, meQueryOptions } from '@/lib/api';
+import { healthQueryOptions, meQueryOptions } from '@/lib/api';
 import { zitadelSettings } from '@/lib/auth';
 import { useMessages } from '@/lib/i18n';
 import { homeMessages } from './messages';
@@ -57,8 +57,6 @@ function Account({ accessToken, onSignOut }: { accessToken: string; onSignOut: (
   const me = useQuery(meQueryOptions(accessToken));
   const health = useQuery(healthQueryOptions());
 
-  const missingClaims = me.error instanceof ApiError && me.error.status === 401;
-
   return (
     <div className="flex flex-col gap-6">
       <SettingsGroup title={t.account}>
@@ -80,7 +78,7 @@ function Account({ accessToken, onSignOut }: { accessToken: string; onSignOut: (
       </SettingsGroup>
       {me.isError && (
         <p role="alert" className="text-destructive text-sm">
-          {missingClaims ? t.meMissingClaims : t.meFailed}
+          {t.meFailed}
         </p>
       )}
       <div>

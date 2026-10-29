@@ -20,7 +20,6 @@ export default defineConfig({
     env: {
       ZITADEL_ISSUER: 'https://zitadel.test',
       ZITADEL_CLIENT_ID: 'web-client',
-      ZITADEL_PROJECT_ID: 'project-1',
     },
   },
 });

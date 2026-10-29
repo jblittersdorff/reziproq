@@ -17,15 +17,17 @@ export class TokenVerifier {
     @Inject(AUTH_OPTIONS) private readonly options: AuthOptions,
   ) {}
 
-  /** Prüft Signatur, Issuer, Audience und Ablaufzeit. Jeder Fehler am Token führt zu 401. */
-  async verify(token: string): Promise<JWTPayload> {
+  /** Prüft Signatur, Issuer, Audience, Ablaufzeit und sub. Jeder Fehler am Token führt zu 401. */
+  async verify(token: string): Promise<JWTPayload & { sub: string }> {
     try {
       const { payload } = await jwtVerify(token, this.keys, {
         issuer: this.options.issuer,
         audience: this.options.audience,
         algorithms: ['RS256', 'ES256', 'EdDSA'],
+        requiredClaims: ['sub'],
       });
-      return payload;
+      if (typeof payload.sub !== 'string' || payload.sub === '') throw new UnauthorizedException();
+      return { ...payload, sub: payload.sub };
     } catch (error) {
       if (error instanceof errors.JOSEError) throw new UnauthorizedException();
       throw error;
