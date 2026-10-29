@@ -31,9 +31,9 @@ const authConfig =
     settings: zitadelSettings,
     origin: window.location.origin,
     storage: window.sessionStorage,
-    // Code und State aus der Adresse entfernen und zur Startseite wechseln.
+    // Code und State aus der Adresse entfernen und zur Übersicht wechseln.
     onSigninCallback: () => {
-      void router.navigate({ to: '/', replace: true });
+      void router.navigate({ to: '/uebersicht', replace: true });
     },
   });
 

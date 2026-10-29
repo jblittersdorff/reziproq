@@ -1,17 +1,14 @@
 import { createContext, type ReactNode, use, useEffect, useState } from 'react';
 import { de, type Messages } from '@/locales/de';
 import { en } from '@/locales/en';
-import { readStored, writeStored } from './storage';
 
 export const locales = ['de', 'en'] as const;
 export type Locale = (typeof locales)[number];
 
-const storageKey = 'reziproq-locale';
-
+// Bis zur englischen Oberfläche (PLT-09) startet die App immer auf Deutsch.
+// Der Styleguide kann die Sprache trotzdem umschalten, um beide Texte zu prüfen.
 function initialLocale(): Locale {
-  const stored = readStored(storageKey);
-  if (stored === 'de' || stored === 'en') return stored;
-  return navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en';
+  return 'de';
 }
 
 interface LocaleContextValue {
@@ -28,10 +25,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const setLocale = (next: Locale) => {
-    setLocaleState(next);
-    writeStored(storageKey, next);
-  };
+  const setLocale = (next: Locale) => setLocaleState(next);
 
   return <LocaleContext value={{ locale, setLocale }}>{children}</LocaleContext>;
 }

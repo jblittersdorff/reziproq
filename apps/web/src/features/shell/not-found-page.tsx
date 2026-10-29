@@ -1,0 +1,29 @@
+import { IconMapQuestion } from '@tabler/icons-react';
+import { Link } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n';
+
+/** Freundliche Seite für unbekannte Adressen mit dem Weg zurück zur Übersicht. */
+export function NotFoundPage() {
+  const t = useT();
+
+  useEffect(() => {
+    document.title = `${t.notFound.title} – ${t.app.name}`;
+  }, [t]);
+
+  return (
+    <section className="flex flex-col items-center gap-4 rounded-xl bg-muted px-6 py-16 text-center">
+      <div className="flex size-20 items-center justify-center rounded-full bg-background text-muted-foreground">
+        <IconMapQuestion className="size-10" aria-hidden />
+      </div>
+      <div className="flex max-w-sm flex-col gap-1">
+        <h1 className="font-semibold text-xl">{t.notFound.title}</h1>
+        <p className="text-muted-foreground">{t.notFound.description}</p>
+      </div>
+      <Button asChild>
+        <Link to="/uebersicht">{t.notFound.back}</Link>
+      </Button>
+    </section>
+  );
+}

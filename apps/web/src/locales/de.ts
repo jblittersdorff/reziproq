@@ -1,5 +1,5 @@
 // Alle Texte der App auf Deutsch. Diese Datei ist die Quelle: en.ts muss dieselben Schlüssel haben,
-// sonst schlägt pnpm typecheck fehl.
+// sonst schlagen pnpm typecheck und der Test in locales.test.ts fehl.
 
 export const de = {
   app: {
@@ -7,16 +7,11 @@ export const de = {
     navigation: 'Hauptnavigation',
     openNavigation: 'Navigation öffnen',
     closeNavigation: 'Navigation schließen',
+    skipToContent: 'Zum Inhalt springen',
   },
 
   nav: {
     overview: 'Übersicht',
-    suppliers: 'Lieferanten',
-    relationships: 'Beziehungen',
-    pulse: 'Beziehungspuls',
-    jointBusinessPlans: 'Joint Business Plans',
-    qbrs: 'QBRs und Maßnahmen',
-    pnlImpact: 'P&L-Impact',
     settings: 'Einstellungen',
   },
 
@@ -38,83 +33,81 @@ export const de = {
     notConfiguredTitle: 'Login ist noch nicht eingerichtet',
     notConfiguredDescription:
       'Trage ZITADEL_ISSUER und ZITADEL_CLIENT_ID in die .env ein und starte die App neu.',
-    backHome: 'Zur Startseite',
+    backHome: 'Zur Übersicht',
   },
 
   comingWith: (release: string) => `Kommt mit Release ${release}`,
 
-  pages: {
-    overview: {
-      title: 'Übersicht',
-      purpose: 'Alles Wichtige zu deinen strategischen Lieferantenbeziehungen auf einen Blick.',
-      emptyTitle: 'Noch nichts zu zeigen',
-      emptyDescription: 'Die Übersicht füllt sich, sobald die ersten Lieferanten angelegt sind.',
-    },
+  overview: {
+    title: 'Übersicht',
+    greetingMorning: (firstName: string) => `Guten Morgen, ${firstName}`,
+    greetingDay: (firstName: string) => `Guten Tag, ${firstName}`,
+    greetingEvening: (firstName: string) => `Guten Abend, ${firstName}`,
+    greetingWithoutName: 'Willkommen bei Reziproq',
+    areas: 'Bereiche',
+  },
+
+  // Titel, Satz auf Kachel und Bereichsseite, und was auf der Seite entsteht (PLT-11).
+  areas: {
     suppliers: {
       title: 'Lieferanten',
-      purpose: 'Lieferanten nach Warengruppe und strategischer Bedeutung segmentieren.',
-      emptyTitle: 'Noch keine Lieferanten',
-      emptyDescription: 'Hier legst du Lieferanten an und ordnest sie Segmenten zu.',
+      sentence:
+        'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
+      emptyDescription:
+        'Hier entsteht die Segmentierung deiner Lieferanten nach Business Impact und Beziehungsqualität.',
     },
     relationships: {
       title: 'Beziehungen',
-      purpose: 'Jede Beziehung mit Playbook und klaren Rollen auf beiden Seiten führen.',
-      emptyTitle: 'Noch keine Beziehungen',
-      emptyDescription: 'Hier richtest du je Lieferant das Playbook und die Rollen ein.',
+      sentence:
+        'Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten.',
+      emptyDescription:
+        'Hier entstehen die Playbooks je Beziehungstyp mit Rollen und Ansprechpartnern auf beiden Seiten.',
     },
     pulse: {
       title: 'Beziehungspuls',
-      purpose: 'Regelmäßig messen, wie Käufer und Lieferant die Zusammenarbeit erleben.',
-      emptyTitle: 'Noch kein Puls',
+      sentence: 'Wie beide Seiten die Beziehung sehen – heute und gewünscht.',
       emptyDescription:
-        'Hier siehst du, wie sich die Zusammenarbeit aus beiden Sichten entwickelt.',
+        'Hier entsteht der Puls, mit dem Käufer und Lieferant die Beziehung regelmäßig einschätzen.',
     },
     jointBusinessPlans: {
       title: 'Joint Business Plans',
-      purpose: 'Gemeinsame Ziele und Initiativen mit dem Lieferanten planen.',
-      emptyTitle: 'Noch keine Joint Business Plans',
-      emptyDescription: 'Hier plant ihr gemeinsame Ziele und Initiativen für das Jahr.',
+      sentence: 'Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten.',
+      emptyDescription:
+        'Hier entstehen gemeinsame Pläne mit Zielen, Initiativen und KPIs für strategische Lieferanten.',
     },
     qbrs: {
       title: 'QBRs und Maßnahmen',
-      purpose: 'Quartalsgespräche vorbereiten und Maßnahmen bis zum Abschluss verfolgen.',
-      emptyTitle: 'Noch keine QBRs',
+      sentence: 'Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern.',
       emptyDescription:
-        'Hier bereitet ihr Quartalsgespräche vor und verfolgt die vereinbarten Maßnahmen.',
+        'Hier entstehen die Quartalsgespräche mit Fortschritt, Zusagen und Maßnahmen.',
     },
     pnlImpact: {
       title: 'P&L-Impact',
-      purpose:
-        'Die GuV-Wirkung gemeinsamer Initiativen nachvollziehen, von der Baseline bis zur Freigabe durch Controlling.',
-      emptyTitle: 'Noch keine Wirkung erfasst',
-      emptyDescription: 'Hier siehst du, welche Initiativen welche GuV-Zeile wie stark bewegen.',
-    },
-    settings: {
-      title: 'Einstellungen',
-      purpose: 'Darstellung und Konto verwalten.',
+      sentence: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.',
+      emptyDescription:
+        'Hier entsteht der Nachweis, welche Initiativen welche GuV-Zeile bewegen, bis zur Freigabe durch Controlling.',
     },
   },
 
   settings: {
+    title: 'Einstellungen',
+    purpose: 'Reziproq so einstellen, wie es für dich passt.',
     display: 'Darstellung',
     theme: 'Erscheinungsbild',
     themeDescription: 'System folgt der Einstellung deines Geräts.',
     themeSystem: 'System',
     themeLight: 'Hell',
     themeDark: 'Dunkel',
-    language: 'Sprache',
-    // Sprachnamen stehen immer in der eigenen Sprache.
-    languageDe: 'Deutsch',
-    languageEn: 'English',
-    account: 'Konto',
-    name: 'Name',
-    email: 'E-Mail',
-    connection: 'Verbindung',
-    loading: 'Lade …',
-    accountFailed: 'Dein Konto konnte nicht geladen werden.',
-    apiOk: 'API: ok',
-    apiChecking: 'API: wird geprüft …',
-    apiDown: 'API: nicht erreichbar',
+    organization: 'Organisation',
+    organizationTitle: 'Noch nichts einzustellen',
+    organizationDescription:
+      'Hier verwaltest du später deine Organisation. Nur Admins sehen diesen Abschnitt.',
+  },
+
+  notFound: {
+    title: 'Diese Seite gibt es nicht',
+    description: 'Vielleicht hat sich die Adresse geändert, oder sie enthält einen Tippfehler.',
+    back: 'Zur Übersicht',
   },
 };
 

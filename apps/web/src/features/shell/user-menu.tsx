@@ -47,6 +47,11 @@ export function UserMenu({ onNavigate }: { onNavigate?: (() => void) | undefined
             <DropdownMenuLabel className="flex flex-col">
               <span className="truncate font-medium text-sm">{me.data.name}</span>
               <span className="truncate text-muted-foreground text-sm">{me.data.email}</span>
+              {me.data.organization && (
+                <span className="truncate text-muted-foreground text-sm">
+                  {me.data.organization.name}
+                </span>
+              )}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
           </>

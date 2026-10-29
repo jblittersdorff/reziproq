@@ -5,6 +5,7 @@ import { OidcDiscovery } from '../auth/oidc-discovery.js';
 const userinfoSchema = z.object({
   sub: z.string().min(1),
   name: z.string().min(1),
+  given_name: z.string().optional(),
   email: z.email(),
 });
 

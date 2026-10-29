@@ -2,6 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    // dom für Code, den Playwright mit page.evaluate im Browser ausführt
+    "lib": ["es2024", "dom", "dom.iterable"],
     "types": ["node"]
   },
   "include": [

@@ -1,22 +1,17 @@
 import type { Messages } from './de';
 
-// Englische Texte; die Schlüssel kommen aus de.ts.
+// Englische Texte; die Schlüssel kommen aus de.ts. Die englische Oberfläche kommt mit PLT-09.
 export const en: Messages = {
   app: {
     name: 'Reziproq',
     navigation: 'Main navigation',
     openNavigation: 'Open navigation',
     closeNavigation: 'Close navigation',
+    skipToContent: 'Skip to content',
   },
 
   nav: {
     overview: 'Overview',
-    suppliers: 'Suppliers',
-    relationships: 'Relationships',
-    pulse: 'Relationship pulse',
-    jointBusinessPlans: 'Joint business plans',
-    qbrs: 'QBRs and actions',
-    pnlImpact: 'P&L impact',
     settings: 'Settings',
   },
 
@@ -38,80 +33,77 @@ export const en: Messages = {
     notConfiguredTitle: 'Sign-in is not set up yet',
     notConfiguredDescription:
       'Add ZITADEL_ISSUER and ZITADEL_CLIENT_ID to the .env file and restart the app.',
-    backHome: 'Back to start page',
+    backHome: 'Back to overview',
   },
 
   comingWith: (release: string) => `Coming with release ${release}`,
 
-  pages: {
-    overview: {
-      title: 'Overview',
-      purpose: 'Everything important about your strategic supplier relationships at a glance.',
-      emptyTitle: 'Nothing to show yet',
-      emptyDescription: 'The overview fills up as soon as the first suppliers are added.',
-    },
+  overview: {
+    title: 'Overview',
+    greetingMorning: (firstName: string) => `Good morning, ${firstName}`,
+    greetingDay: (firstName: string) => `Good afternoon, ${firstName}`,
+    greetingEvening: (firstName: string) => `Good evening, ${firstName}`,
+    greetingWithoutName: 'Welcome to Reziproq',
+    areas: 'Areas',
+  },
+
+  areas: {
     suppliers: {
       title: 'Suppliers',
-      purpose: 'Segment suppliers by category and strategic importance.',
-      emptyTitle: 'No suppliers yet',
-      emptyDescription: 'This is where you add suppliers and assign them to segments.',
+      sentence:
+        'Which suppliers really matter – by business impact and relationship quality, not just spend.',
+      emptyDescription:
+        'This is where supplier segmentation by business impact and relationship quality will live.',
     },
     relationships: {
       title: 'Relationships',
-      purpose: 'Run every relationship with a playbook and clear roles on both sides.',
-      emptyTitle: 'No relationships yet',
-      emptyDescription: 'This is where you set up the playbook and roles for each supplier.',
+      sentence: 'Rights and duties per relationship type, roles and contacts on both sides.',
+      emptyDescription:
+        'This is where playbooks per relationship type, with roles and contacts on both sides, will live.',
     },
     pulse: {
       title: 'Relationship pulse',
-      purpose: 'Regularly measure how buyer and supplier experience the collaboration.',
-      emptyTitle: 'No pulse yet',
-      emptyDescription: 'This is where you see how the collaboration develops from both sides.',
+      sentence: 'How both sides see the relationship – today and as desired.',
+      emptyDescription: 'This is where buyer and supplier will regularly assess the relationship.',
     },
     jointBusinessPlans: {
       title: 'Joint business plans',
-      purpose: 'Plan shared goals and initiatives with the supplier.',
-      emptyTitle: 'No joint business plans yet',
-      emptyDescription: 'This is where you plan shared goals and initiatives for the year.',
+      sentence: 'Shared goals, initiatives and KPIs with strategic suppliers.',
+      emptyDescription:
+        'This is where joint plans with goals, initiatives and KPIs for strategic suppliers will live.',
     },
     qbrs: {
       title: 'QBRs and actions',
-      purpose: 'Prepare quarterly business reviews and track actions until they are done.',
-      emptyTitle: 'No QBRs yet',
-      emptyDescription: 'This is where you prepare quarterly reviews and track the agreed actions.',
+      sentence: 'Review progress regularly, follow up on commitments, steer actions.',
+      emptyDescription:
+        'This is where quarterly reviews with progress, commitments and actions will live.',
     },
     pnlImpact: {
       title: 'P&L impact',
-      purpose:
-        'Trace the P&L effect of joint initiatives, from the baseline to sign-off by controlling.',
-      emptyTitle: 'No impact recorded yet',
+      sentence: 'Which value from the collaboration reaches the P&L – evidenced and signed off.',
       emptyDescription:
-        'This is where you see which initiatives move which P&L line, and by how much.',
-    },
-    settings: {
-      title: 'Settings',
-      purpose: 'Manage display and account.',
+        'This is where you will trace which initiatives move which P&L line, up to sign-off by controlling.',
     },
   },
 
   settings: {
+    title: 'Settings',
+    purpose: 'Set up Reziproq the way it suits you.',
     display: 'Display',
     theme: 'Appearance',
     themeDescription: 'System follows your device setting.',
     themeSystem: 'System',
     themeLight: 'Light',
     themeDark: 'Dark',
-    language: 'Language',
-    languageDe: 'Deutsch',
-    languageEn: 'English',
-    account: 'Account',
-    name: 'Name',
-    email: 'Email',
-    connection: 'Connection',
-    loading: 'Loading …',
-    accountFailed: 'Your account could not be loaded.',
-    apiOk: 'API: ok',
-    apiChecking: 'API: checking …',
-    apiDown: 'API: not reachable',
+    organization: 'Organization',
+    organizationTitle: 'Nothing to set up yet',
+    organizationDescription:
+      'This is where you will manage your organization. Only admins see this section.',
+  },
+
+  notFound: {
+    title: 'This page does not exist',
+    description: 'The address may have changed, or it contains a typo.',
+    back: 'Back to overview',
   },
 };

@@ -6,13 +6,16 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { Role } from '@reziproq/shared';
 import type { Request } from 'express';
 import { IS_PUBLIC } from './public.decorator.js';
-import { TokenVerifier } from './token-verifier.js';
+import { rolesFromToken } from './roles.js';
+import { AUTH_OPTIONS, type AuthOptions, TokenVerifier } from './token-verifier.js';
 
-/** Wer die Anfrage stellt: die Nutzer-ID (sub) und das geprüfte Access Token. */
+/** Wer die Anfrage stellt: Nutzer-ID (sub), Rollen und das geprüfte Access Token. */
 export interface AuthContext {
   userId: string;
+  roles: Role[];
   accessToken: string;
 }
 
@@ -27,6 +30,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     @Inject(Reflector) private readonly reflector: Reflector,
     @Inject(TokenVerifier) private readonly verifier: TokenVerifier,
+    @Inject(AUTH_OPTIONS) private readonly options: AuthOptions,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -40,8 +44,12 @@ export class AuthGuard implements CanActivate {
     const [scheme, token] = request.headers.authorization?.split(' ') ?? [];
     if (scheme?.toLowerCase() !== 'bearer' || !token) throw new UnauthorizedException();
 
-    const { sub } = await this.verifier.verify(token);
-    request.auth = { userId: sub, accessToken: token };
+    const payload = await this.verifier.verify(token);
+    request.auth = {
+      userId: payload.sub,
+      roles: rolesFromToken(payload, this.options.audience),
+      accessToken: token,
+    };
     return true;
   }
 }

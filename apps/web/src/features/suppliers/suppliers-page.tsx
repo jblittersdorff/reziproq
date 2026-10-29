@@ -1,5 +1,5 @@
-import { ComingSoonPage } from '@/features/shell/coming-soon-page';
+import { AreaPage } from '@/features/shell/area-page';
 
 export function SuppliersPage() {
-  return <ComingSoonPage page="suppliers" release="0.1" />;
+  return <AreaPage area="suppliers" />;
 }

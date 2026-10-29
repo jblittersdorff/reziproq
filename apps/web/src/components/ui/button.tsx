@@ -17,11 +17,12 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         link: 'text-primary underline-offset-4 hover:underline',
       },
+      // Klickflächen mindestens 44 × 44 px (PLT-11); sm nur für dichte Tabellen und Diagramme.
       size: {
-        default: 'h-9 px-4 has-[>svg]:px-3',
+        default: 'h-11 px-4 has-[>svg]:px-3',
         sm: 'h-8 gap-1 px-3 has-[>svg]:px-2',
-        lg: 'h-10 px-6 has-[>svg]:px-4',
-        icon: 'size-9',
+        lg: 'h-12 px-6 has-[>svg]:px-4',
+        icon: 'size-11',
       },
     },
     defaultVariants: {
