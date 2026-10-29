@@ -8,5 +8,11 @@ export default defineProject({
   },
   test: {
     name: 'api',
+    // Feste Testwerte haben Vorrang vor der .env; die Tests brauchen weder Zitadel noch eine Datenbank.
+    env: {
+      ZITADEL_ISSUER: 'https://zitadel.test',
+      ZITADEL_PROJECT_ID: 'test-project',
+      DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+    },
   },
 });
