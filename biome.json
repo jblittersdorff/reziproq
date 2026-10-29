@@ -6,7 +6,12 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/routeTree.gen.ts", "!**/drizzle/meta"]
+    "includes": [
+      "**",
+      "!**/routeTree.gen.ts",
+      "!**/drizzle/meta",
+      "!.claude/skills"
+    ]
   },
   "formatter": {
     "enabled": true,

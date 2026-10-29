@@ -1,0 +1,152 @@
+/*
+ * Design-Tokens von Reziproq – die einzige Stelle mit festen Farbwerten.
+ * Grundlage: docs/design/prinzipien.md und docs/design/visualisierung.md.
+ * Farben als Hex, damit auch die Diagramm-Bibliotheken sie verarbeiten können.
+ * Kontraste prüft src/styles/tokens.node.test.ts (WCAG AA).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Schrift: vier Größen, Zeilenhöhen im 4-Pixel-Raster */
+  --font-family-sans: system-ui, -apple-system, Inter, sans-serif;
+  --font-size-sm: 0.8125rem;
+  --line-height-sm: 1.25rem;
+  --font-size-base: 0.9375rem;
+  --line-height-base: 1.5rem;
+  --font-size-lg: 1.25rem;
+  --line-height-lg: 1.75rem;
+  --font-size-xl: 1.75rem;
+  --line-height-xl: 2.25rem;
+
+  /* Abstände: 1 Einheit = 4 Pixel */
+  --spacing-unit: 0.25rem;
+
+  /* Abgerundete Ecken */
+  --corner-sm: 0.25rem;
+  --corner-md: 0.5rem;
+  --corner-lg: 0.75rem;
+  --corner-xl: 1rem;
+
+  /* Ruhige Bewegung */
+  --motion-duration: 150ms;
+  --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Flächen und Text */
+  --background: #ffffff;
+  --foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #636366;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1d1d1f;
+  --secondary: #f0f0f2;
+  --secondary-foreground: #1d1d1f;
+  /* shadcn-Name: Hover-Fläche, nicht die Akzentfarbe */
+  --accent: #ececef;
+  --accent-foreground: #1d1d1f;
+  --border: #e3e3e8;
+  /* Rahmen von Eingabefeldern: mindestens 3:1 zum Hintergrund */
+  --input: #86868b;
+
+  /* Die eine Akzentfarbe: Hauptaktion und Auswahl */
+  --primary: #2b63c6;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e8effb;
+  --primary-soft-foreground: #1f4c9c;
+  --ring: #2b63c6;
+
+  /* Gedämpfte Statusfarben – nur für Status mit Bedeutung */
+  --success: #2e7d4f;
+  --success-soft: #e5f2ea;
+  --success-soft-foreground: #24643f;
+  --warning: #96650a;
+  --warning-soft: #faf0d9;
+  --warning-soft-foreground: #7a5208;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --destructive-soft: #fbe8e6;
+  --destructive-soft-foreground: #96201a;
+
+  /* Diagramme */
+  --chart-context: #a1a1a6;
+  --chart-accent: #2b63c6;
+  --chart-strong: #48484d;
+  --chart-negative: #b8b8bd;
+  --chart-grid: #e3e3e8;
+  --chart-axis: #636366;
+  --chart-label: #1d1d1f;
+  --chart-field: #f5f5f7;
+  --chart-buyer: #2b63c6;
+  --chart-supplier: #48484d;
+  /* Folgeskala von hell nach dunkel, mit passender Schriftfarbe je Stufe */
+  --chart-seq-1: #eef3fb;
+  --chart-seq-2: #c8d8f2;
+  --chart-seq-3: #93b2e6;
+  --chart-seq-4: #3f6fc8;
+  --chart-seq-5: #234a93;
+  --chart-seq-label-1: #1d1d1f;
+  --chart-seq-label-2: #1d1d1f;
+  --chart-seq-label-3: #1d1d1f;
+  --chart-seq-label-4: #ffffff;
+  --chart-seq-label-5: #ffffff;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #1c1c1e;
+  --foreground: #f5f5f7;
+  --muted: #2c2c2e;
+  --muted-foreground: #a1a1a6;
+  --card: #1c1c1e;
+  --card-foreground: #f5f5f7;
+  --popover: #2c2c2e;
+  --popover-foreground: #f5f5f7;
+  --secondary: #2c2c2e;
+  --secondary-foreground: #f5f5f7;
+  --accent: #3a3a3c;
+  --accent-foreground: #f5f5f7;
+  --border: #38383a;
+  --input: #7c7c80;
+
+  --primary: #7aa5f0;
+  --primary-foreground: #0f1f3d;
+  --primary-soft: #1e2b45;
+  --primary-soft-foreground: #a9c5f5;
+  --ring: #7aa5f0;
+
+  --success: #6cc08e;
+  --success-soft: #1d3326;
+  --success-soft-foreground: #8fd3aa;
+  --warning: #e0b04f;
+  --warning-soft: #3a2f17;
+  --warning-soft-foreground: #ecc778;
+  --destructive: #f07a72;
+  --destructive-foreground: #3d0d0a;
+  --destructive-soft: #3d1f1d;
+  --destructive-soft-foreground: #f5a39d;
+
+  --chart-context: #6e6e73;
+  --chart-accent: #7aa5f0;
+  --chart-strong: #d1d1d6;
+  --chart-negative: #5a5a5f;
+  --chart-grid: #38383a;
+  --chart-axis: #a1a1a6;
+  --chart-label: #f5f5f7;
+  --chart-field: #2c2c2e;
+  --chart-buyer: #7aa5f0;
+  --chart-supplier: #d1d1d6;
+  /* Im Dunkelmodus: niedrige Werte nah am Hintergrund, hohe Werte hell */
+  --chart-seq-1: #232b3a;
+  --chart-seq-2: #2a4170;
+  --chart-seq-3: #3b62a8;
+  --chart-seq-4: #6b98e8;
+  --chart-seq-5: #b3cdf6;
+  --chart-seq-label-1: #f5f5f7;
+  --chart-seq-label-2: #f5f5f7;
+  --chart-seq-label-3: #ffffff;
+  --chart-seq-label-4: #0f1f3d;
+  --chart-seq-label-5: #0f1f3d;
+}
