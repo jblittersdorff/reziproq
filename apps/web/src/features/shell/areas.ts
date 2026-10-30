@@ -1,31 +1,32 @@
 import { type AreaKey, areas as sharedAreas } from '@reziproq/shared';
-import {
-  IconActivityHeartbeat,
-  IconBuildingFactory2,
-  IconChecklist,
-  IconHeartHandshake,
-  IconReportMoney,
-  IconTargetArrow,
-} from '@tabler/icons-react';
 import type { LinkProps } from '@tanstack/react-router';
+import {
+  ActivityIcon,
+  FactoryIcon,
+  GoalIcon,
+  HandshakeIcon,
+  ListChecksIcon,
+  type LucideIcon,
+  ReceiptEuroIcon,
+} from 'lucide-react';
 
 export type { AreaKey };
 
 export interface Area {
   key: AreaKey;
   to: NonNullable<LinkProps['to']>;
-  icon: typeof IconChecklist;
+  icon: LucideIcon;
   /** Release, mit dem die Funktion kommt (PLT-11). */
   release: string;
 }
 
-const icons: Record<AreaKey, typeof IconChecklist> = {
-  suppliers: IconBuildingFactory2,
-  relationships: IconHeartHandshake,
-  pulse: IconActivityHeartbeat,
-  jointBusinessPlans: IconTargetArrow,
-  qbrs: IconChecklist,
-  pnlImpact: IconReportMoney,
+const icons: Record<AreaKey, LucideIcon> = {
+  suppliers: FactoryIcon,
+  relationships: HandshakeIcon,
+  pulse: ActivityIcon,
+  jointBusinessPlans: GoalIcon,
+  qbrs: ListChecksIcon,
+  pnlImpact: ReceiptEuroIcon,
 };
 
 /**

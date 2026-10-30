@@ -1,87 +1,23 @@
-import { IconMenu2, IconX } from '@tabler/icons-react';
-import { Outlet, useRouterState } from '@tanstack/react-router';
-import { useEffect, useRef, useState } from 'react';
-import { useAuth } from 'react-oidc-context';
+import { Outlet } from '@tanstack/react-router';
+import { MenuIcon, XIcon } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import {
-  AuthChecking,
-  AuthFailed,
-  AuthNotConfigured,
-  AuthPage,
-  SignIn,
-} from '@/features/auth/auth-states';
-import { ReauthNotice } from '@/features/auth/reauth-notice';
+import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { SupportBanner } from '@/features/support/support-banner';
-import { signedOut, signInState, zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
 export function AppLayout() {
-  // Ohne Zitadel-Werte gibt es keinen AuthProvider, also auch kein useAuth.
-  if (!zitadelSettings) {
-    return (
-      <AuthPage>
-        <AuthNotConfigured />
-      </AuthPage>
-    );
-  }
-  return <AuthGate />;
-}
-
-function AuthGate() {
-  const t = useT();
-  const auth = useAuth();
-  // Nach dem Abmelden zeigt die App „Anmelden“, statt sofort wieder zu Zitadel zu leiten (PLT-01).
-  const [justSignedOut] = useState(() => signedOut.isSet());
-  const redirecting = useRef(false);
-  const here = useRouterState({ select: (state) => state.location.href });
-
-  // Ohne Sitzung (auch nach dem Neuladen, die Tokens liegen nur im Speicher) geht es direkt zu
-  // Zitadel; danach zurück auf genau diese Seite.
-  const needsLogin =
-    !auth.isLoading && !auth.error && !auth.user && !auth.activeNavigator && !justSignedOut;
-  useEffect(() => {
-    if (!needsLogin || redirecting.current) return;
-    redirecting.current = true;
-    void auth.signinRedirect({ state: signInState(here) });
-  }, [needsLogin, auth, here]);
-
-  const signIn = () => {
-    signedOut.clear();
-    void auth.signinRedirect({ state: signInState(here) });
-  };
-
-  // Bis die Anmeldung abgeschlossen ist, nur der ruhige Ladezustand, nie Inhalte. Ist schon jemand
-  // angemeldet (z. B. Neuanmeldung im Popup), bleibt die Seite stehen, damit nichts verloren geht.
-  if (!auth.user && (auth.isLoading || needsLogin || auth.activeNavigator)) {
-    return (
-      <AuthPage>
-        <AuthChecking />
-      </AuthPage>
-    );
-  }
-  if (!auth.user) {
-    return (
-      <AuthPage>
-        {auth.error ? (
-          <AuthFailed action={<Button onClick={signIn}>{t.auth.retry}</Button>} />
-        ) : (
-          <SignIn onSignIn={signIn} />
-        )}
-      </AuthPage>
-    );
-  }
-  // Erneuerung gescheitert: Seite bleibt stehen, darüber der Hinweis zum neu Anmelden.
-  const renewalFailed = auth.user.expired || auth.error?.source === 'renewSilent';
   return (
-    <PromptProvider>
-      <Shell />
-      {renewalFailed && <ReauthNotice />}
-    </PromptProvider>
+    <RequireLogin>
+      <PromptProvider>
+        <Shell />
+      </PromptProvider>
+    </RequireLogin>
   );
 }
 
@@ -111,7 +47,7 @@ function Shell() {
           <Sheet open={navOpen} onOpenChange={setNavOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label={t.app.openNavigation}>
-                <IconMenu2 />
+                <MenuIcon />
               </Button>
             </SheetTrigger>
             <SheetContent>
@@ -121,7 +57,7 @@ function Shell() {
                 headerAction={
                   <SheetClose asChild>
                     <Button variant="ghost" size="icon" aria-label={t.app.closeNavigation}>
-                      <IconX />
+                      <XIcon />
                     </Button>
                   </SheetClose>
                 }

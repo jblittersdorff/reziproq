@@ -3,6 +3,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider } from 'react-oidc-context';
+import { ToastProvider } from './components/ui/toast';
 import { reportLogin } from './lib/api';
 import { oidcConfig, safeReturnTo, zitadelSettings } from './lib/auth';
 import { LocaleProvider } from './lib/i18n';
@@ -52,7 +53,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <ThemeProvider>
       <LocaleProvider>
-        {authConfig ? <AuthProvider {...authConfig}>{app}</AuthProvider> : app}
+        <ToastProvider>
+          {authConfig ? <AuthProvider {...authConfig}>{app}</AuthProvider> : app}
+        </ToastProvider>
       </LocaleProvider>
     </ThemeProvider>
   </StrictMode>,

@@ -1,5 +1,5 @@
-import { IconArrowsExchange, IconLogout, IconSelector, IconSettings } from '@tabler/icons-react';
 import { Link } from '@tanstack/react-router';
+import { ArrowLeftRightIcon, ChevronsUpDownIcon, LogOutIcon, SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import {
@@ -38,7 +38,7 @@ export function UserMenu({ onNavigate }: { onNavigate?: (() => void) | undefined
                 <span className="truncate text-muted-foreground text-sm">{me.data.email}</span>
               )}
             </span>
-            <IconSelector className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <ChevronsUpDownIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -64,13 +64,13 @@ export function UserMenu({ onNavigate }: { onNavigate?: (() => void) | undefined
           {/* Nur für das Betreiber-Team von Reziproq; entschieden per can() in der API (PLT-13). */}
           {me.data?.permissions.switchCustomer && (
             <DropdownMenuItem onSelect={() => setCustomersOpen(true)}>
-              <IconArrowsExchange />
+              <ArrowLeftRightIcon />
               {t.support.switchCustomer}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
             <Link to="/einstellungen" onClick={onNavigate}>
-              <IconSettings />
+              <SettingsIcon />
               {t.user.settings}
             </Link>
           </DropdownMenuItem>
@@ -81,7 +81,7 @@ export function UserMenu({ onNavigate }: { onNavigate?: (() => void) | undefined
               void auth.signoutRedirect();
             }}
           >
-            <IconLogout />
+            <LogOutIcon />
             {t.user.signOut}
           </DropdownMenuItem>
         </DropdownMenuContent>

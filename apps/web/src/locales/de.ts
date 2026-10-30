@@ -8,6 +8,8 @@ export const de = {
     openNavigation: 'Navigation öffnen',
     closeNavigation: 'Navigation schließen',
     skipToContent: 'Zum Inhalt springen',
+    notifications: 'Hinweise',
+    closeNotification: 'Hinweis schließen',
   },
 
   nav: {

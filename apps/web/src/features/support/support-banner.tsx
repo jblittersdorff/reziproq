@@ -1,4 +1,4 @@
-import { IconEye } from '@tabler/icons-react';
+import { EyeIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMe } from '@/features/auth/use-me';
@@ -26,7 +26,7 @@ export function SupportBanner() {
       role="status"
       className="flex flex-wrap items-center gap-3 rounded-lg bg-warning-soft px-4 py-2 text-warning-soft-foreground"
     >
-      <IconEye aria-hidden className="size-5 shrink-0" />
+      <EyeIcon aria-hidden className="size-5 shrink-0" />
       <p className="flex-1">{t.support.banner(customer.name)}</p>
       <Button variant="outline" onClick={leave}>
         {t.support.leave}

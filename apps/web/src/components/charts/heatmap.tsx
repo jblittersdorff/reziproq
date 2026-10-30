@@ -80,7 +80,7 @@ export function Heatmap({
           fontSize: fontSize.base,
           formatter: (params: { value: [number, number, number] }) => format(params.value[2]),
         },
-        itemStyle: { borderColor: colors.background, borderWidth: 4, borderRadius: 4 },
+        itemStyle: { borderColor: colors.surface, borderWidth: 4, borderRadius: 4 },
         emphasis: { disabled: true },
       },
     ],

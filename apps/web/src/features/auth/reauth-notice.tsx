@@ -1,4 +1,4 @@
-import { IconLogin2 } from '@tabler/icons-react';
+import { LogInIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { reportLogin } from '@/lib/api';
@@ -36,7 +36,7 @@ export function ReauthNotice() {
         <p className="text-muted-foreground text-sm">{t.auth.reauthDescription}</p>
       </div>
       <Button onClick={() => void signInAgain()}>
-        <IconLogin2 />
+        <LogInIcon />
         {t.auth.reauthAction}
       </Button>
     </div>
