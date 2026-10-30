@@ -96,7 +96,7 @@ export function StyleguidePage() {
             <a
               key={id}
               href={`#${id}`}
-              className="rounded-md px-3 py-1 text-base text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="rounded-md px-3 py-1 text-base text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               {t.sections[id]}
             </a>

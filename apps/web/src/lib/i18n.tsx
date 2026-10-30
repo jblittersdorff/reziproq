@@ -1,4 +1,6 @@
 import { createContext, type ReactNode, use, useEffect, useState } from 'react';
+import { de, type Messages } from '@/locales/de';
+import { en } from '@/locales/en';
 import { readStored, writeStored } from './storage';
 
 export const locales = ['de', 'en'] as const;
@@ -47,4 +49,11 @@ export function defineMessages<T>(messages: { de: T; en: NoInfer<T> }) {
 
 export function useMessages<T>(messages: { de: T; en: T }): T {
   return messages[useLocale().locale];
+}
+
+const catalogs = { de, en } satisfies Record<Locale, Messages>;
+
+/** Die Texte der App in der gewählten Sprache, aus src/locales/. */
+export function useT(): Messages {
+  return catalogs[useLocale().locale];
 }
