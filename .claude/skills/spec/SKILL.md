@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 Setze die Spec $ARGUMENTS um. Ist keine ID angegeben, nimm die erste Spec in docs/specs/README.md mit Status "offen", deren Abhängigkeiten alle "fertig" sind.
 
-1. Vorbereitung: Wechsle auf main und führe git pull aus. Ist der Arbeitsstand nicht sauber, hör auf und sag es mir. Setze Specs mit Status "PR offen", deren Pull Request gemergt ist (gh pr list --state merged), auf "fertig".
+1. Vorbereitung: Prüfe zuerst mit git status, ob der Arbeitsstand sauber ist. Ist er es nicht, hör auf und sag es mir, bevor du den Branch wechselst oder etwas holst. Wechsle dann auf main und führe git pull aus. Setze Specs mit Status "PR offen", deren Pull Request gemergt ist (gh pr list --state merged --limit 1000), auf "fertig".
 2. Lesen: docs/specs/README.md, die Spec, CLAUDE.md und bei Oberfläche den Skill ui-design. Ist eine Abhängigkeit nicht "fertig", hör auf und sag mir, welche fehlt.
 3. Branch: Lege spec/<ID>-<kurzname> an und setze den Status in der README auf "in Arbeit".
 4. Fragen und Plan: Stell mir zuerst alle offenen Fragen zur Spec. Zeig mir dann den Plan und warte auf mein OK, bevor du Code änderst.

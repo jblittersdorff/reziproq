@@ -112,7 +112,10 @@ describe('Lieferantenseite', () => {
   });
 
   it('zeigt bei leerer Liste den leeren Zustand aus der Spec', async () => {
-    api.suppliers = { status: 200, body: { suppliers: [], count: 0, totalSpend: [] } };
+    api.suppliers = {
+      status: 200,
+      body: { suppliers: [], count: 0, totalSpend: [], spendYear: null },
+    };
     renderAt('/lieferanten');
     expect(await screen.findByText('Noch keine Lieferanten.')).toBeDefined();
     expect(
@@ -133,6 +136,27 @@ describe('Lieferantenseite', () => {
     renderAt('/lieferanten');
     expect(await screen.findByText('Dir fehlt eine Rolle')).toBeDefined();
   });
+});
+
+describe('Wenn /api/me scheitert', () => {
+  // Die App versucht es zweimal erneut; danach muss ein Fehler statt „lädt …“ erscheinen.
+  it('zeigt die Lieferantenseite einen Fehler statt endlos „lädt …“', async () => {
+    api.meStatus = 503;
+    renderAt('/lieferanten');
+    expect(
+      await screen.findByText(
+        'Die Lieferanten konnten nicht geladen werden. Lade die Seite neu.',
+        {},
+        { timeout: 6000 },
+      ),
+    ).toBeDefined();
+  }, 10_000);
+
+  it('zeigt die Kachel einen Fehler statt endlos „lädt …“', async () => {
+    api.meStatus = 503;
+    renderAt('/uebersicht');
+    expect(await screen.findByText('Gerade nicht geladen', {}, { timeout: 6000 })).toBeDefined();
+  }, 10_000);
 });
 
 describe('Kachel Lieferanten auf der Übersicht', () => {

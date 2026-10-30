@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+
+import { promptLimits, promptRequestSchema } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -184,6 +186,22 @@ describe('Verlauf', () => {
         { role: 'user', content: 'Zweite Frage' },
       ],
     });
+  });
+
+  it('schickt auch nach vielen Fragen nie mehr Nachrichten, als die API annimmt', async () => {
+    api.prompt.events = [{ type: 'text', delta: 'Antwort.' }, { type: 'done' }];
+    await openWithShortcut();
+    for (let question = 1; question <= 12; question++) {
+      await askQuestion(`Frage ${question}`);
+      await waitFor(() => expect(api.promptRequests).toHaveLength(question));
+      // Erst wenn die Antwort fertig ist, zählt sie zum Verlauf.
+      await waitFor(() => expect(screen.getAllByText('Antwort.')).toHaveLength(question));
+    }
+    const last = promptRequestSchema.parse(api.promptRequests.at(-1));
+    // Ohne Begrenzung wären es 23 Nachrichten (11 Paare und die neue Frage).
+    expect(last.messages).toHaveLength(promptLimits.messages - 1);
+    expect(last.messages.at(-1)).toEqual({ role: 'user', content: 'Frage 12' });
+    expect(last.messages[0]?.role).toBe('user');
   });
 
   it('„Neu beginnen“ leert den Verlauf', async () => {

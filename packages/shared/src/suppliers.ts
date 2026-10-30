@@ -17,7 +17,12 @@ export type Supplier = z.infer<typeof supplierSchema>;
 export const suppliersResponseSchema = z.object({
   suppliers: z.array(supplierSchema),
   count: z.number().int(),
-  /** Gesamtspend je Währung; Beträge in verschiedenen Währungen werden nie addiert. */
+  /** Das Jahr, auf das sich totalSpend bezieht: das letzte Spend-Jahr; null ohne Lieferanten. */
+  spendYear: z.number().int().nullable(),
+  /**
+   * Gesamtspend des Jahres spendYear je Währung. Ältere Jahre und verschiedene Währungen werden
+   * nie zusammengezählt.
+   */
   totalSpend: z.array(moneySchema),
 });
 

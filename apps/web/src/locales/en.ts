@@ -122,6 +122,7 @@ export const en: Messages = {
       'To see suppliers, you need a buyer role in Reziproq. Contact your admin.',
     tileNoOrganization: 'Not assigned to an organization',
     tileNoPermission: 'No role for suppliers',
+    tileFailed: 'Not loaded right now',
   },
 
   prompt: {

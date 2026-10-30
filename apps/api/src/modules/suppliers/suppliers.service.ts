@@ -30,7 +30,13 @@ export class SuppliersService {
     }
 
     const suppliers = await withTenant(this.db, organization.id, (tx) => listSuppliers(tx));
-    return { suppliers, count: suppliers.length, totalSpend: totalByCurrency(suppliers) };
+    const spendYear = suppliers.length > 0 ? Math.max(...suppliers.map((s) => s.spendYear)) : null;
+    return {
+      suppliers,
+      count: suppliers.length,
+      spendYear,
+      totalSpend: totalByCurrency(suppliers.filter((s) => s.spendYear === spendYear)),
+    };
   }
 
   /**
@@ -41,6 +47,9 @@ export class SuppliersService {
     const { suppliers } = await this.list(auth);
     const contains = (value: string, part: string | undefined) =>
       !part || value.toLocaleLowerCase('de').includes(part.trim().toLocaleLowerCase('de'));
+    // Spend-Filter gelten in Euro. Beträge in anderen Währungen werden nicht umgerechnet und
+    // fallen bei gesetztem Filter heraus, statt falsch verglichen zu werden.
+    const spendFilter = filter.minSpendEuro !== undefined || filter.maxSpendEuro !== undefined;
     const euro = (supplier: Supplier) => supplier.annualSpend.amountCents / 100;
 
     const hits = suppliers.filter(
@@ -48,6 +57,7 @@ export class SuppliersService {
         contains(supplier.name, filter.name) &&
         contains(supplier.category, filter.warengruppe) &&
         (!filter.land || supplier.country === filter.land.toUpperCase()) &&
+        (!spendFilter || supplier.annualSpend.currency === 'EUR') &&
         (filter.minSpendEuro === undefined || euro(supplier) >= filter.minSpendEuro) &&
         (filter.maxSpendEuro === undefined || euro(supplier) <= filter.maxSpendEuro),
     );

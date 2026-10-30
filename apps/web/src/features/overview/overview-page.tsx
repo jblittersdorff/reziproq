@@ -70,7 +70,9 @@ function AreaStatus({ area }: { area: Area }) {
 
 function SuppliersStatus() {
   const t = useT();
-  const { me, allowed, data } = useSuppliers();
+  const { me, allowed, data, isError } = useSuppliers();
+  // Scheitert /me oder die Liste, nicht ewig „lädt …“ zeigen.
+  if (me.isError || isError) return <>{t.suppliers.tileFailed}</>;
   if (!me.data) return <>{t.suppliers.loading}</>;
   if (!me.data.organization) return <>{t.suppliers.tileNoOrganization}</>;
   if (!allowed) return <>{t.suppliers.tileNoPermission}</>;

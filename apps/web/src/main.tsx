@@ -3,7 +3,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider } from 'react-oidc-context';
-import { oidcConfig, zitadelSettings } from './lib/auth';
+import { oidcConfig, safeReturnTo, zitadelSettings } from './lib/auth';
 import { LocaleProvider } from './lib/i18n';
 import { ThemeProvider } from './lib/theme';
 import { routeTree } from './routeTree.gen';
@@ -31,9 +31,10 @@ const authConfig =
     settings: zitadelSettings,
     origin: window.location.origin,
     storage: window.sessionStorage,
-    // Code und State aus der Adresse entfernen und zur Übersicht wechseln.
-    onSigninCallback: () => {
-      void router.navigate({ to: '/uebersicht', replace: true });
+    // Code und State aus der Adresse entfernen und zur ursprünglich angefragten Seite wechseln.
+    onSigninCallback: (user) => {
+      const returnTo = (user?.state as { returnTo?: unknown } | undefined)?.returnTo;
+      router.history.replace(safeReturnTo(returnTo));
     },
   });
 

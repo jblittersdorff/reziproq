@@ -60,7 +60,8 @@ export function SuppliersPage() {
     );
   }
 
-  if (isError) {
+  // Scheitert schon /me, bleibt die Liste ausgeschaltet; dann den Fehler zeigen statt „lädt …“.
+  if (isError || me.isError) {
     return (
       <>
         <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
