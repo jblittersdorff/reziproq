@@ -144,6 +144,19 @@ export const en: Messages = {
     disclaimer: 'Answers are based only on data you are allowed to see. Please check.',
   },
 
+  support: {
+    switchCustomer: 'Switch customer',
+    dialogTitle: 'Switch to a customer',
+    dialogDescription: 'You then see Reziproq the way this customer does. Every access is logged.',
+    loading: 'Loading customers …',
+    failed: 'The customers could not be loaded.',
+    empty: 'There are no customers yet.',
+    banner: (customer: string) => `Operator view: ${customer}. Every access is logged.`,
+    leave: 'Leave',
+    chooseCustomer:
+      'You are not assigned to an organization. As an operator, choose “Switch customer” in the account menu.',
+  },
+
   organization: {
     missing: 'You are not assigned to an organization yet. Contact your admin.',
   },

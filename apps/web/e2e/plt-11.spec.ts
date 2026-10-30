@@ -39,7 +39,12 @@ async function signIn(page: Page, { admin = false } = {}) {
         firstName: 'Anna',
         email: 'anna.schmidt@beispiel-einkauf.de',
         organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
-        permissions: { viewOrganizationSettings: admin, viewSuppliers: true },
+        supportView: false,
+        permissions: {
+          viewOrganizationSettings: admin,
+          viewSuppliers: true,
+          switchCustomer: false,
+        },
       },
     }),
   );

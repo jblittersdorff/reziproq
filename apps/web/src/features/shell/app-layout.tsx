@@ -13,6 +13,7 @@ import {
 } from '@/features/auth/auth-states';
 import { useMe } from '@/features/auth/use-me';
 import { PromptProvider } from '@/features/prompt/prompt-provider';
+import { SupportBanner } from '@/features/support/support-banner';
 import { zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
@@ -115,6 +116,7 @@ function Shell() {
           tabIndex={-1}
           className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
         >
+          <SupportBanner />
           <MissingOrganizationNotice />
           <Outlet />
         </main>
@@ -130,7 +132,7 @@ function MissingOrganizationNotice() {
   if (!me.data || me.data.organization) return null;
   return (
     <p role="status" className="rounded-lg bg-warning-soft px-4 py-3 text-warning-soft-foreground">
-      {t.organization.missing}
+      {me.data.permissions.switchCustomer ? t.support.chooseCustomer : t.organization.missing}
     </p>
   );
 }

@@ -22,6 +22,21 @@ describe('can lieferanten.sehen', () => {
   });
 });
 
+describe('can kunden.wechseln', () => {
+  it('erlaubt den Wechsel in Kunden nur Betreibern, auch keinem Admin eines Kunden', () => {
+    expect(can({ roles: ['betreiber'] }, 'kunden.wechseln')).toBe(true);
+    for (const role of ['admin', 'nutzer', 'leser', 'controlling'] as const) {
+      expect(can({ roles: [role] }, 'kunden.wechseln')).toBe(false);
+    }
+  });
+
+  it('lässt Betreiber in einem Kunden Lieferanten und Prompt-Fenster nutzen', () => {
+    expect(can({ roles: ['betreiber'] }, 'lieferanten.sehen')).toBe(true);
+    expect(can({ roles: ['betreiber'] }, 'prompt.nutzen')).toBe(true);
+    expect(can({ roles: ['betreiber'] }, 'organisation.einstellungen.sehen')).toBe(false);
+  });
+});
+
 describe('rolesFromToken', () => {
   const grant = { '123': 'beispiel.zitadel.test' };
 

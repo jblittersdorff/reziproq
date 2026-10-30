@@ -1,4 +1,5 @@
 import {
+  customersResponseSchema,
   type ForbiddenCode,
   forbiddenCodes,
   healthResponseSchema,
@@ -7,9 +8,11 @@ import {
   type PromptRequest,
   promptEventSchema,
   suppliersResponseSchema,
+  supportHeader,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import type { z } from 'zod';
+import { getSupportCustomer } from './support';
 
 export class ApiError extends Error {
   constructor(
@@ -22,18 +25,31 @@ export class ApiError extends Error {
   }
 }
 
+/** In der Betreiber-Ansicht schickt jede Anfrage den gewählten Kunden mit (PLT-13). */
+function supportHeaders(): Record<string, string> {
+  const customer = getSupportCustomer();
+  return customer ? { [supportHeader]: customer.id } : {};
+}
+
 async function getJson<T extends z.ZodType>(
   path: string,
   schema: T,
   accessToken?: string,
 ): Promise<z.output<T>> {
-  const res = await fetch(
-    `/api${path}`,
-    accessToken ? { headers: { authorization: `Bearer ${accessToken}` } } : {},
-  );
+  const res = await fetch(`/api${path}`, {
+    headers: {
+      ...supportHeaders(),
+      ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
+    },
+  });
   if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res));
   return schema.parse(await res.json());
 }
+
+// 401 und 403 ändern sich durch Wiederholen nicht.
+const retryUnlessDenied = (failureCount: number, error: Error) =>
+  !(error instanceof ApiError && (error.status === 401 || error.status === 403)) &&
+  failureCount < 2;
 
 export const healthQueryOptions = () =>
   queryOptions({
@@ -45,9 +61,7 @@ export const meQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['me', accessToken],
     queryFn: () => getJson('/me', meResponseSchema, accessToken),
-    // Ein 401 ändert sich durch Wiederholen nicht.
-    retry: (failureCount, error) =>
-      !(error instanceof ApiError && error.status === 401) && failureCount < 2,
+    retry: retryUnlessDenied,
   });
 
 async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> {
@@ -56,11 +70,6 @@ async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> 
   const code = (body as { code?: unknown } | null)?.code;
   return forbiddenCodes.find((known) => known === code);
 }
-
-// 401 und 403 ändern sich durch Wiederholen nicht.
-const retryUnlessDenied = (failureCount: number, error: Error) =>
-  !(error instanceof ApiError && (error.status === 401 || error.status === 403)) &&
-  failureCount < 2;
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({
@@ -81,7 +90,11 @@ export async function streamPrompt(
 ): Promise<void> {
   const res = await fetch('/api/prompt', {
     method: 'POST',
-    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    headers: {
+      ...supportHeaders(),
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
     body: JSON.stringify({ messages }),
     signal,
   });
@@ -101,3 +114,10 @@ export async function streamPrompt(
   }
   if (buffer.trim()) onEvent(promptEventSchema.parse(JSON.parse(buffer)));
 }
+
+export const customersQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['betreiber-kunden', accessToken],
+    queryFn: () => getJson('/betreiber/kunden', customersResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });

@@ -149,6 +149,22 @@ export const de = {
     disclaimer: 'Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.',
   },
 
+  // Betreiber-Zugang (PLT-13)
+  support: {
+    switchCustomer: 'Kunde wechseln',
+    dialogTitle: 'In einen Kunden wechseln',
+    dialogDescription:
+      'Du siehst Reziproq dann so wie dieser Kunde. Jeder Zugriff wird protokolliert.',
+    loading: 'Kunden werden geladen …',
+    failed: 'Die Kunden konnten nicht geladen werden.',
+    empty: 'Es gibt noch keine Kunden.',
+    banner: (customer: string) =>
+      `Betreiber-Ansicht: ${customer}. Alle Zugriffe werden protokolliert.`,
+    leave: 'Verlassen',
+    chooseCustomer:
+      'Du bist keiner Organisation zugeordnet. Wähle als Betreiber im Konto-Menü „Kunde wechseln“.',
+  },
+
   organization: {
     missing: 'Du bist noch keiner Organisation zugeordnet. Wende dich an deinen Admin.',
   },

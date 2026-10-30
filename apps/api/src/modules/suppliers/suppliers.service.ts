@@ -21,7 +21,7 @@ export class SuppliersService {
     if (!can(auth, 'lieferanten.sehen')) {
       throw forbidden('keine_berechtigung', 'Dir fehlt eine Rolle, um Lieferanten zu sehen.');
     }
-    const organization = await this.organizations.forUser(auth.userId);
+    const organization = await this.organizations.current(auth);
     if (!organization) {
       throw forbidden('keine_organisation', 'Du bist noch keiner Organisation zugeordnet.');
     }

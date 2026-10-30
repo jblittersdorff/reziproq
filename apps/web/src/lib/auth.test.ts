@@ -21,7 +21,7 @@ describe('readZitadelSettings', () => {
 });
 
 describe('oidcConfig', () => {
-  it('nutzt Authorization Code, den Callback und die Scopes openid profile email', () => {
+  it('nutzt Authorization Code, den Callback, openid profile email und die Projektrollen', () => {
     const settings = readZitadelSettings(env);
     if (!settings) throw new Error('Einstellungen fehlen');
     const config = oidcConfig({
@@ -33,6 +33,6 @@ describe('oidcConfig', () => {
     expect(config.response_type).toBe('code');
     expect(config.redirect_uri).toBe('http://localhost:5173/auth/callback');
     expect(config.post_logout_redirect_uri).toBe('http://localhost:5173');
-    expect(config.scope).toBe('openid profile email');
+    expect(config.scope).toBe('openid profile email urn:zitadel:iam:org:projects:roles');
   });
 });

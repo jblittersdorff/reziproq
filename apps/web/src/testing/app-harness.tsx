@@ -1,4 +1,9 @@
-import type { MeResponse, PromptEvent, SuppliersResponse } from '@reziproq/shared';
+import type {
+  CustomersResponse,
+  MeResponse,
+  PromptEvent,
+  SuppliersResponse,
+} from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { cleanup, render } from '@testing-library/react';
@@ -26,7 +31,8 @@ export const anna: MeResponse = {
   firstName: 'Anna',
   email: 'anna@example.com',
   organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
-  permissions: { viewOrganizationSettings: false, viewSuppliers: true },
+  supportView: false,
+  permissions: { viewOrganizationSettings: false, viewSuppliers: true, switchCustomer: false },
 };
 
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
@@ -58,6 +64,15 @@ export const api = {
   prompt: { status: 200, events: [] as PromptEvent[], hold: false },
   /** Alle Anfragen an /api/prompt, z. B. um den mitgeschickten Verlauf zu prüfen. */
   promptRequests: [] as unknown[],
+  /** Kunden für Betreiber (PLT-13). */
+  customers: {
+    customers: [
+      { id: 'org-1', name: 'Beispiel-OEM (Demo)', country: 'DE' },
+      { id: 'org-2', name: 'Zweit-OEM (Demo)', country: 'AT' },
+    ],
+  } as CustomersResponse,
+  /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-kunde (oder null). */
+  requests: [] as { url: string; customer: string | null }[],
 };
 
 /** Streamt Ereignisse als NDJSON, eine Zeile je Ereignis, wie die echte API. */
@@ -77,10 +92,13 @@ function streamEvents(events: PromptEvent[], hold: boolean) {
 
 function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   const url = String(input);
-  const authorized = new Headers(init?.headers).get('authorization') === `Bearer ${accessToken}`;
+  const headers = new Headers(init?.headers);
+  const authorized = headers.get('authorization') === `Bearer ${accessToken}`;
+  api.requests.push({ url, customer: headers.get('x-reziproq-kunde') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   if (!authorized) return Response.json({ statusCode: 401 }, { status: 401 });
   if (url === '/api/me') return Response.json(api.me);
+  if (url === '/api/betreiber/kunden') return Response.json(api.customers);
   if (url === '/api/prompt') {
     api.promptRequests.push(JSON.parse(String(init?.body)));
     if (api.prompt.status !== 200) {
@@ -102,6 +120,8 @@ export function setUpApp() {
   api.suppliers = { status: 200, body: sampleSuppliers };
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
+  api.requests = [];
+  sessionStorage.clear();
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => fakeApi(input, init)),
