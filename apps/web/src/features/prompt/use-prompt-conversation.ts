@@ -1,4 +1,9 @@
-import type { PromptEvent, PromptRequest, Supplier } from '@reziproq/shared';
+import {
+  type PromptEvent,
+  type PromptRequest,
+  promptLimits,
+  type Supplier,
+} from '@reziproq/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { ApiError, streamPrompt } from '@/lib/api';
@@ -52,8 +57,12 @@ export function usePromptConversation({ onNavigate }: { onNavigate: (to: string)
   };
 
   const ask = async (question: string) => {
+    // Die API nimmt höchstens promptLimits.messages Nachrichten. Mitgeschickt werden deshalb nur
+    // die letzten vollständigen Frage-Antwort-Paare, die zusammen mit der neuen Frage hineinpassen.
+    const pairs = Math.floor((promptLimits.messages - 1) / 2);
     const history: PromptRequest['messages'] = turns
       .filter((turn) => turn.status === 'done' && turn.answer.trim())
+      .slice(-pairs)
       .flatMap((turn) => [
         { role: 'user' as const, content: turn.question },
         { role: 'assistant' as const, content: turn.answer },

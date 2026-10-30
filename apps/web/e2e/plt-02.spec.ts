@@ -48,6 +48,7 @@ async function signIn(page: Page) {
       json: {
         suppliers,
         count: suppliers.length,
+        spendYear: 2025,
         totalSpend: [
           {
             amountCents: suppliers.reduce((sum, s) => sum + s.annualSpend.amountCents, 0),

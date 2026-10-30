@@ -126,6 +126,7 @@ export const de = {
       'Um Lieferanten zu sehen, brauchst du in Reziproq eine Käufer-Rolle. Wende dich an deinen Admin.',
     tileNoOrganization: 'Keiner Organisation zugeordnet',
     tileNoPermission: 'Keine Rolle für Lieferanten',
+    tileFailed: 'Gerade nicht geladen',
   },
 
   // Prompt-Fenster (PLT-12)

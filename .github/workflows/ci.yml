@@ -31,3 +31,6 @@ jobs:
       - run: pnpm lint
       - run: pnpm --filter @reziproq/db db:migrate
       - run: pnpm test
+      # Oberflächentests im echten Browser; Zitadel und API werden darin nachgebaut.
+      - run: pnpm --filter @reziproq/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @reziproq/web test:e2e

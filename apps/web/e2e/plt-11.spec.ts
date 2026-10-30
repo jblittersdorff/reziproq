@@ -49,7 +49,7 @@ async function signIn(page: Page, { admin = false } = {}) {
     }),
   );
   await page.route('**/api/suppliers', (route) =>
-    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [] } }),
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
 }

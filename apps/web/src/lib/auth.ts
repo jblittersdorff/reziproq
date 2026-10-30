@@ -32,7 +32,7 @@ export function oidcConfig({
   origin: string;
   /** Die Sitzung endet mit dem Tab, wenn hier sessionStorage übergeben wird. */
   storage: Storage;
-  onSigninCallback: () => void;
+  onSigninCallback: NonNullable<AuthProviderNoUserManagerProps['onSigninCallback']>;
 }): AuthProviderNoUserManagerProps {
   return {
     authority: settings.issuer,
@@ -48,3 +48,21 @@ export function oidcConfig({
 }
 
 export const zitadelSettings = readZitadelSettings(import.meta.env);
+
+/**
+ * Wohin es nach dem Login geht: die Seite, die der Nutzer öffnen wollte (PLT-01).
+ * Nur Pfade dieser App; fremde Adressen wie //example.com würden sonst zum offenen Redirect.
+ */
+export function safeReturnTo(value: unknown): string {
+  if (typeof value !== 'string') return '/uebersicht';
+  if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) {
+    return '/uebersicht';
+  }
+  if (value.startsWith(callbackPath)) return '/uebersicht';
+  return value;
+}
+
+/** Merkt sich beim Start der Anmeldung die aktuelle Seite. */
+export const signInState = () => ({
+  returnTo: window.location.pathname + window.location.search + window.location.hash,
+});

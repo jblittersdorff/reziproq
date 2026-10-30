@@ -36,8 +36,14 @@ export const tools: Anthropic.Beta.BetaTool[] = [
         name: { type: 'string', description: 'Teil des Lieferantennamens' },
         warengruppe: { type: 'string', description: 'Teil der Warengruppe, z. B. Elektronik' },
         land: { type: 'string', description: 'ISO-Ländercode mit zwei Buchstaben' },
-        minSpendEuro: { type: 'number', description: 'Mindest-Jahresspend in Euro' },
-        maxSpendEuro: { type: 'number', description: 'Höchst-Jahresspend in Euro' },
+        minSpendEuro: {
+          type: 'number',
+          description: 'Mindest-Jahresspend in Euro; Beträge in anderen Währungen fallen heraus',
+        },
+        maxSpendEuro: {
+          type: 'number',
+          description: 'Höchst-Jahresspend in Euro; Beträge in anderen Währungen fallen heraus',
+        },
         sortierung: { type: 'string', enum: ['spend_absteigend', 'spend_aufsteigend', 'name'] },
         anzahl: { type: 'integer', minimum: 1, maximum: 20 },
       },
@@ -58,11 +64,14 @@ export const tools: Anthropic.Beta.BetaTool[] = [
   },
 ];
 
-const euro = new Intl.NumberFormat('de-DE', {
-  style: 'currency',
-  currency: 'EUR',
-  maximumFractionDigits: 0,
-});
+/** Betrag in seiner eigenen Währung, ohne Nachkommastellen, z. B. 4.820.000 € oder 900.000 $. */
+function formatSpend({ amountCents, currency }: Supplier['annualSpend']): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amountCents / 100);
+}
 
 /** Was die KI über einen Lieferanten erfährt: dieselben Werte wie auf der Karte. */
 function forModel(supplier: Supplier) {
@@ -70,7 +79,7 @@ function forModel(supplier: Supplier) {
     name: supplier.name,
     land: supplier.country,
     warengruppe: supplier.category,
-    jahresspend: euro.format(supplier.annualSpend.amountCents / 100),
+    jahresspend: formatSpend(supplier.annualSpend),
     spendJahr: supplier.spendYear,
   };
 }

@@ -53,12 +53,15 @@ export const sampleSuppliers: SuppliersResponse = {
     supplier('Alpen Sensorik GmbH (Demo)', 'AT', 'Elektronik', mio(2.26)),
   ],
   count: 3,
+  spendYear: 2025,
   totalSpend: [{ amountCents: mio(10.23), currency: 'EUR' }],
 };
 
 /** Antworten der nachgebauten API; jeder Test kann sie vor dem Rendern ändern. */
 export const api = {
   me: anna as MeResponse,
+  /** Status von GET /api/me; alles außer 200 lässt die Anfrage scheitern. */
+  meStatus: 200,
   suppliers: { status: 200, body: sampleSuppliers as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
   prompt: { status: 200, events: [] as PromptEvent[], hold: false },
@@ -97,7 +100,11 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   api.requests.push({ url, customer: headers.get('x-reziproq-kunde') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   if (!authorized) return Response.json({ statusCode: 401 }, { status: 401 });
-  if (url === '/api/me') return Response.json(api.me);
+  if (url === '/api/me') {
+    return api.meStatus === 200
+      ? Response.json(api.me)
+      : Response.json({ statusCode: api.meStatus }, { status: api.meStatus });
+  }
   if (url === '/api/betreiber/kunden') return Response.json(api.customers);
   if (url === '/api/prompt') {
     api.promptRequests.push(JSON.parse(String(init?.body)));
@@ -117,6 +124,7 @@ let consoleError: ReturnType<typeof vi.spyOn> | undefined;
 /** In beforeEach aufrufen: setzt API, Browser-Ersatz und Konsolen-Wächter zurück. */
 export function setUpApp() {
   api.me = anna;
+  api.meStatus = 200;
   api.suppliers = { status: 200, body: sampleSuppliers };
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];

@@ -14,7 +14,7 @@ import {
 import { useMe } from '@/features/auth/use-me';
 import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { SupportBanner } from '@/features/support/support-banner';
-import { zitadelSettings } from '@/lib/auth';
+import { signInState, zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
 
@@ -46,7 +46,11 @@ function AuthGate() {
     return (
       <AuthPage>
         <AuthFailed
-          action={<Button onClick={() => void auth.signinRedirect()}>{t.auth.retry}</Button>}
+          action={
+            <Button onClick={() => void auth.signinRedirect({ state: signInState() })}>
+              {t.auth.retry}
+            </Button>
+          }
         />
       </AuthPage>
     );
@@ -54,7 +58,7 @@ function AuthGate() {
   if (!auth.user || auth.user.expired) {
     return (
       <AuthPage>
-        <SignIn onSignIn={() => void auth.signinRedirect()} />
+        <SignIn onSignIn={() => void auth.signinRedirect({ state: signInState() })} />
       </AuthPage>
     );
   }

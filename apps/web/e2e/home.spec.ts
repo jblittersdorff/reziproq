@@ -121,3 +121,54 @@ test('Login mit PKCE landet auf /uebersicht mit Begrüßung und Name im Nutzer-M
   expect(logout.get('post_logout_redirect_uri')).toBe('http://localhost:5174');
   expect(logout.get('id_token_hint')).toBe(idToken);
 });
+
+test('Nach dem Login geht es zur ursprünglich angefragten Seite zurück', async ({ page }) => {
+  await fakeZitadel(page);
+  const authorize = page.waitForRequest(`${issuer}/oauth/v2/authorize?**`);
+  await page.route(`${issuer}/oauth/v2/authorize?**`, (route) =>
+    route.fulfill({ body: 'Zitadel-Login' }),
+  );
+
+  // Ohne Login direkt eine Unterseite öffnen und dort anmelden.
+  await page.goto('/lieferanten?suche=guss');
+  await page.getByRole('button', { name: 'Anmelden' }).click();
+  const state = new URL((await authorize).url()).searchParams.get('state');
+  await page.waitForURL(`${issuer}/**`);
+
+  const now = Math.floor(Date.now() / 1000);
+  const idToken = `${b64url({ alg: 'none' })}.${b64url({ iss: issuer, aud: 'web-client', sub: 'user-1', iat: now, exp: now + 3600 })}.`;
+  await page.route(`${issuer}/oauth/v2/token`, (route) =>
+    route.fulfill({
+      headers: cors,
+      json: {
+        access_token: 'access-token-1',
+        id_token: idToken,
+        token_type: 'Bearer',
+        expires_in: 3600,
+      },
+    }),
+  );
+  await page.route('**/api/me', (route) =>
+    route.fulfill({
+      json: {
+        name: 'Ada Lovelace',
+        firstName: 'Ada',
+        email: 'ada@example.com',
+        organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
+        supportView: false,
+        permissions: {
+          viewOrganizationSettings: false,
+          viewSuppliers: true,
+          switchCustomer: false,
+        },
+      },
+    }),
+  );
+  await page.route('**/api/suppliers', (route) =>
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
+  );
+
+  await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
+  await expect(page).toHaveURL('http://localhost:5174/lieferanten?suche=guss');
+  await expect(page.getByRole('heading', { level: 1, name: 'Lieferanten' })).toBeVisible();
+});

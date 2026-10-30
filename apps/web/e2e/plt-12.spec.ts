@@ -47,7 +47,7 @@ async function signIn(page: Page) {
     }),
   );
   await page.route('**/api/suppliers', (route) =>
-    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [] } }),
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
   );
   await page.route('**/api/prompt', (route) => {
     const question = route.request().postDataJSON().messages.at(-1).content as string;

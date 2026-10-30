@@ -181,3 +181,59 @@ describe('GET /api/suppliers', () => {
     expect(await res.json()).toMatchObject({ code: 'keine_berechtigung' });
   });
 });
+
+describe('GET /api/suppliers mit Spend aus verschiedenen Jahren', () => {
+  let testApp: Awaited<ReturnType<typeof startTestApp>>;
+  let db: Database;
+  const ids = {
+    oem: randomUUID(),
+    alt: randomUUID(),
+    neu: randomUUID(),
+    relAlt: randomUUID(),
+    relNeu: randomUUID(),
+  };
+  const user = `test-jahre-${randomUUID().slice(0, 8)}`;
+
+  beforeAll(async () => {
+    testApp = await startTestApp();
+    db = testApp.app.get(DATABASE);
+    const { organization, beziehung, beziehungKaeufer, appUser } = schema;
+    await db.insert(organization).values([
+      { id: ids.oem, name: `Jahre-OEM ${user}`, typ: 'kaeufer' },
+      { id: ids.alt, name: `Alt ${user}`, typ: 'lieferant' },
+      { id: ids.neu, name: `Neu ${user}`, typ: 'lieferant' },
+    ]);
+    await db.insert(beziehung).values([
+      { id: ids.relAlt, kaeuferOrgId: ids.oem, lieferantOrgId: ids.alt },
+      { id: ids.relNeu, kaeuferOrgId: ids.oem, lieferantOrgId: ids.neu },
+    ]);
+    await db.insert(beziehungKaeufer).values([
+      { beziehungId: ids.relAlt, warengruppe: 'Guss', jahresspendCent: 700_00, spendJahr: 2024 },
+      { beziehungId: ids.relNeu, warengruppe: 'Guss', jahresspendCent: 300_00, spendJahr: 2025 },
+    ]);
+    await db
+      .insert(appUser)
+      .values({ id: user, name: 'J', email: 'j@example.com', organizationId: ids.oem });
+  });
+
+  afterAll(async () => {
+    const { organization, beziehung, appUser } = schema;
+    await db.delete(appUser).where(sql`${appUser.id} = ${user}`);
+    await db.delete(beziehung).where(sql`${beziehung.kaeuferOrgId} = ${ids.oem}`);
+    await db.delete(organization).where(sql`${organization.id} in ${[ids.oem, ids.alt, ids.neu]}`);
+    await testApp.close();
+  });
+
+  it('zählt beim Gesamtspend nur das letzte Spend-Jahr und nennt es', async () => {
+    const token = await testApp.signToken({
+      subject: user,
+      claims: { 'urn:zitadel:iam:org:project:test-project:roles': { nutzer: { '1': 'test' } } },
+    });
+    const body = suppliersResponseSchema.parse(
+      await (await testApp.get('/api/suppliers', token)).json(),
+    );
+    expect(body.count).toBe(2);
+    expect(body.spendYear).toBe(2025);
+    expect(body.totalSpend).toEqual([{ amountCents: 300_00, currency: 'EUR' }]);
+  });
+});

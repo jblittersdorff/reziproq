@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { oidcConfig, readZitadelSettings } from './auth';
+import { oidcConfig, readZitadelSettings, safeReturnTo } from './auth';
 
 const env = {
   ZITADEL_ISSUER: 'https://reziproq.zitadel.test/',
@@ -34,5 +34,26 @@ describe('oidcConfig', () => {
     expect(config.redirect_uri).toBe('http://localhost:5173/auth/callback');
     expect(config.post_logout_redirect_uri).toBe('http://localhost:5173');
     expect(config.scope).toBe('openid profile email urn:zitadel:iam:org:projects:roles');
+  });
+});
+
+describe('safeReturnTo', () => {
+  it('führt nach dem Login zur ursprünglich angefragten Seite der App', () => {
+    expect(safeReturnTo('/lieferanten')).toBe('/lieferanten');
+    expect(safeReturnTo('/lieferanten?suche=guss#oben')).toBe('/lieferanten?suche=guss#oben');
+  });
+
+  it('nimmt keine fremden Adressen an und fällt auf die Übersicht zurück', () => {
+    for (const value of [
+      'https://example.com',
+      '//example.com',
+      '/\\example.com',
+      'lieferanten',
+      '/auth/callback?code=x',
+      undefined,
+      42,
+    ]) {
+      expect(safeReturnTo(value)).toBe('/uebersicht');
+    }
   });
 });
