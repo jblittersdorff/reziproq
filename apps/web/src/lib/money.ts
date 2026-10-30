@@ -6,7 +6,16 @@ const localeTags: Record<Locale, string> = { de: 'de-DE', en: 'en-GB' };
 export function formatMoney(
   money: Money,
   locale: Locale,
-  { compact = false, signed = false }: { compact?: boolean; signed?: boolean } = {},
+  {
+    compact = false,
+    signed = false,
+    wholeUnits = false,
+  }: {
+    compact?: boolean;
+    signed?: boolean;
+    /** Ohne Nachkommastellen, z. B. 4.820.000 € (Spend auf Lieferantenkarten, PLT-02). */
+    wholeUnits?: boolean;
+  } = {},
 ): string {
   if (!Number.isInteger(money.amountCents)) {
     throw new Error('Geldbeträge müssen ganze Cent sein');
@@ -15,7 +24,8 @@ export function formatMoney(
     style: 'currency',
     currency: money.currency,
     notation: compact ? 'compact' : 'standard',
-    maximumFractionDigits: compact ? 1 : 2,
+    minimumFractionDigits: wholeUnits ? 0 : undefined,
+    maximumFractionDigits: wholeUnits ? 0 : compact ? 1 : 2,
     signDisplay: signed ? 'exceptZero' : 'auto',
   }).format(money.amountCents / 100);
 }

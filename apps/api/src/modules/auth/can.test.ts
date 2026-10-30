@@ -13,6 +13,15 @@ describe('can', () => {
   });
 });
 
+describe('can lieferanten.sehen', () => {
+  it('erlaubt allen Käufer-Rollen die Lieferantenliste, ohne Rolle niemandem', () => {
+    for (const role of ['admin', 'nutzer', 'leser', 'controlling'] as const) {
+      expect(can({ roles: [role] }, 'lieferanten.sehen')).toBe(true);
+    }
+    expect(can({ roles: [] }, 'lieferanten.sehen')).toBe(false);
+  });
+});
+
 describe('rolesFromToken', () => {
   const grant = { '123': 'beispiel.zitadel.test' };
 

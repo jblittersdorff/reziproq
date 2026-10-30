@@ -4,20 +4,25 @@ import { organization } from './organization.js';
 
 describe('organization', () => {
   const config = getTableConfig(organization);
+  const column = (name: string) => config.columns.find((candidate) => candidate.name === name);
 
-  it('hat genau die Spalten id, name und created_at', () => {
+  it('hat die Spalten id, name, typ, land und created_at', () => {
     expect(config.name).toBe('organization');
-    expect(config.columns.map((column) => column.name)).toEqual(['id', 'name', 'created_at']);
+    expect(config.columns.map((c) => c.name)).toEqual(['id', 'name', 'typ', 'land', 'created_at']);
   });
 
   it('erzeugt id und created_at in der Datenbank', () => {
-    const [id, name, createdAt] = config.columns;
-    expect(id?.primary).toBe(true);
-    expect(id?.getSQLType()).toBe('uuid');
-    expect(id?.hasDefault).toBe(true);
-    expect(name?.notNull).toBe(true);
-    expect(createdAt?.getSQLType()).toBe('timestamp with time zone');
-    expect(createdAt?.notNull).toBe(true);
-    expect(createdAt?.hasDefault).toBe(true);
+    expect(column('id')?.primary).toBe(true);
+    expect(column('id')?.getSQLType()).toBe('uuid');
+    expect(column('id')?.hasDefault).toBe(true);
+    expect(column('name')?.notNull).toBe(true);
+    expect(column('created_at')?.getSQLType()).toBe('timestamp with time zone');
+    expect(column('created_at')?.hasDefault).toBe(true);
+  });
+
+  it('unterscheidet Käufer und Lieferant als Pflichtangabe; das Land ist optional', () => {
+    expect(column('typ')?.notNull).toBe(true);
+    expect(column('typ')?.enumValues).toEqual(['kaeufer', 'lieferant']);
+    expect(column('land')?.notNull).toBe(false);
   });
 });

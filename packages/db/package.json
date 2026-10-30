@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsc -p tsconfig.build.json && node dist/seed-cli.js"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",

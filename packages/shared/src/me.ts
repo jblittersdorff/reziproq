@@ -9,10 +9,11 @@ export const meResponseSchema = z.object({
   name: z.string().min(1),
   firstName: z.string().min(1),
   email: z.email(),
-  // Die Zuordnung zu einer Organisation kommt mit PLT-02; bis dahin immer null.
+  // null, solange die Person keiner Organisation zugeordnet ist (PLT-02).
   organization: z.object({ id: z.string(), name: z.string() }).nullable(),
   permissions: z.object({
     viewOrganizationSettings: z.boolean(),
+    viewSuppliers: z.boolean(),
   }),
 });
 

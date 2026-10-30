@@ -11,6 +11,7 @@ import {
   AuthPage,
   SignIn,
 } from '@/features/auth/auth-states';
+import { useMe } from '@/features/auth/use-me';
 import { zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
@@ -107,11 +108,24 @@ function Shell() {
         <main
           id="inhalt"
           tabIndex={-1}
-          className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
+          className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
         >
+          <MissingOrganizationNotice />
           <Outlet />
         </main>
       </div>
     </div>
+  );
+}
+
+/** Hinweis auf allen Seiten, solange die Person keiner Organisation zugeordnet ist (PLT-02). */
+function MissingOrganizationNotice() {
+  const t = useT();
+  const me = useMe();
+  if (!me.data || me.data.organization) return null;
+  return (
+    <p role="status" className="rounded-lg bg-warning-soft px-4 py-3 text-warning-soft-foreground">
+      {t.organization.missing}
+    </p>
   );
 }

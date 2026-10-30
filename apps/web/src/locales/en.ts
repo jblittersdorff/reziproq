@@ -101,6 +101,33 @@ export const en: Messages = {
       'This is where you will manage your organization. Only admins see this section.',
   },
 
+  suppliers: {
+    count: (count: number) => (count === 1 ? '1 supplier' : `${count} suppliers`),
+    totalSpend: (amount: string, year: number) => `${amount} annual spend ${year}`,
+    search: 'Search supplier or category',
+    searchPlaceholder: 'Name or category',
+    sort: 'Sort',
+    sortSpend: 'Spend, highest first',
+    sortName: 'Name, A to Z',
+    country: 'Country',
+    category: 'Category',
+    annualSpend: (year: number) => `Annual spend ${year}`,
+    loading: 'Loading suppliers …',
+    failed: 'The suppliers could not be loaded. Reload the page.',
+    emptyTitle: 'No suppliers yet.',
+    emptyDescription: 'With the import (coming in release 0.1) you load them from Excel.',
+    noResults: (query: string) => `No suppliers matching “${query}”.`,
+    noPermissionTitle: 'You are missing a role',
+    noPermissionDescription:
+      'To see suppliers, you need a buyer role in Reziproq. Contact your admin.',
+    tileNoOrganization: 'Not assigned to an organization',
+    tileNoPermission: 'No role for suppliers',
+  },
+
+  organization: {
+    missing: 'You are not assigned to an organization yet. Contact your admin.',
+  },
+
   notFound: {
     title: 'This page does not exist',
     description: 'The address may have changed, or it contains a typo.',

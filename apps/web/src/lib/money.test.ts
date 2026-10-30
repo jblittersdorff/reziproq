@@ -17,6 +17,12 @@ describe('formatMoney', () => {
     ).toBe('+€900k');
   });
 
+  it('zeigt auf Wunsch ganze Euro ohne Nachkommastellen im deutschen Format', () => {
+    expect(
+      formatMoney({ amountCents: 482_000_049, currency: 'EUR' }, 'de', { wholeUnits: true }),
+    ).toBe('4.820.000\u00a0€');
+  });
+
   it('lehnt Bruchteile von Cent ab', () => {
     expect(() => formatMoney({ amountCents: 10.5, currency: 'EUR' }, 'de')).toThrow();
   });
