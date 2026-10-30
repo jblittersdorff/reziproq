@@ -1,4 +1,5 @@
 import { Link, Navigate } from '@tanstack/react-router';
+import { useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { zitadelSettings } from '@/lib/auth';
@@ -16,6 +17,8 @@ export function CallbackPage() {
 function CallbackState() {
   const t = useT();
   const auth = useAuth();
+  // Beim ersten Zeichnen festhalten: Später hat onSigninCallback die Adresse schon geändert.
+  const [loginRunning] = useState(hasCode);
 
   if (auth.error) {
     return (
@@ -28,7 +31,13 @@ function CallbackState() {
       />
     );
   }
-  if (auth.isLoading) return <AuthChecking />;
+  // Mit Code in der Adresse führt onSigninCallback (main.tsx) zur angefragten Seite zurück.
+  // Selbst weiterzuleiten würde damit um die Wette laufen und sie überschreiben (PLT-01).
+  if (auth.isLoading || loginRunning) return <AuthChecking />;
   // Ohne laufenden Login (z. B. direkt aufgerufen) gibt es hier nichts zu tun.
   return <Navigate to="/uebersicht" replace />;
+}
+
+function hasCode(): boolean {
+  return new URLSearchParams(window.location.search).has('code');
 }

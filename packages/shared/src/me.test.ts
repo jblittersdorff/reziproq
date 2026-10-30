@@ -7,6 +7,7 @@ const ada = {
   email: 'ada@example.com',
   organization: null,
   supportView: false,
+  roles: ['betreiber'],
   permissions: { viewOrganizationSettings: false, viewSuppliers: false, switchCustomer: false },
 };
 
@@ -15,6 +16,11 @@ describe('meResponseSchema', () => {
     expect(meResponseSchema.parse(ada)).toEqual(ada);
     const withOrg = { ...ada, organization: { id: 'org-1', name: 'Beispiel-OEM' } };
     expect(meResponseSchema.parse(withOrg)).toEqual(withOrg);
+  });
+
+  it('nimmt ohne Rollen eine leere Liste an und lehnt unbekannte Rollen ab (PLT-01)', () => {
+    expect(meResponseSchema.parse({ ...ada, roles: undefined }).roles).toEqual([]);
+    expect(meResponseSchema.safeParse({ ...ada, roles: ['chef'] }).success).toBe(false);
   });
 
   it('lehnt fehlende oder ungültige Werte ab', () => {

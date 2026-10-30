@@ -43,6 +43,13 @@
       "when": 1793351681834,
       "tag": "0005_betreiber_zugriff",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793393006272,
+      "tag": "0006_anmeldung",
+      "breakpoints": true
     }
   ]
 }

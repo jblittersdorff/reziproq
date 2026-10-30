@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { fakeZitadel } from './fake-zitadel.js';
 
 // Tests zu docs/specs/PLT-02.md, die einen echten Browser brauchen: Spalten und Breite.
 
@@ -14,19 +15,8 @@ const suppliers = Array.from({ length: 8 }, (_, index) => ({
 }));
 
 async function signIn(page: Page) {
-  const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
-  const now = Math.floor(Date.now() / 1000);
-  const user = {
-    id_token: `${b64({ alg: 'none' })}.${b64({ iss: 'https://zitadel.test', aud: 'web-client', sub: 'user-1', exp: now + 3600 })}.`,
-    access_token: 'access-token-1',
-    token_type: 'Bearer',
-    scope: 'openid profile email',
-    profile: { sub: 'user-1' },
-    expires_at: now + 3600,
-  };
-  await page.addInitScript((value) => {
-    sessionStorage.setItem('oidc.user:https://zitadel.test:web-client', value);
-  }, JSON.stringify(user));
+  // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
+  await fakeZitadel(page);
   await page.route('**/api/me', (route) =>
     route.fulfill({
       json: {

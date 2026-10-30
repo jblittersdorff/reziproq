@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, type Page, test } from '@playwright/test';
+import { fakeZitadel } from './fake-zitadel.js';
 
 // Tests zu docs/specs/PLT-10.md, die einen echten Browser brauchen: Darstellung in Hell und
 // Dunkel, Tastatur, Bewegung, Diagrammfarben und Klickflächen.
@@ -12,19 +13,8 @@ const chartTokens = [
 ];
 
 async function signIn(page: Page) {
-  const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
-  const now = Math.floor(Date.now() / 1000);
-  const user = {
-    id_token: `${b64({ alg: 'none' })}.${b64({ iss: 'https://zitadel.test', aud: 'web-client', sub: 'user-1', exp: now + 3600 })}.`,
-    access_token: 'access-token-1',
-    token_type: 'Bearer',
-    scope: 'openid profile email',
-    profile: { sub: 'user-1' },
-    expires_at: now + 3600,
-  };
-  await page.addInitScript((value) => {
-    sessionStorage.setItem('oidc.user:https://zitadel.test:web-client', value);
-  }, JSON.stringify(user));
+  // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
+  await fakeZitadel(page);
   await page.route('**/api/me', (route) =>
     route.fulfill({
       json: {
@@ -82,9 +72,16 @@ const charts = [
   'Die Hebel heben die EBIT-Wirkung auf 9,8 Mio. €',
 ];
 
-test('Ohne Login zeigt /styleguide die Anmeldung', async ({ page }) => {
+test('Ohne Login leitet /styleguide zur Anmeldung weiter und zeigt bis dahin nichts', async ({
+  page,
+}) => {
+  const zitadel = await fakeZitadel(page);
+  zitadel.session.active = false;
   await page.goto('/styleguide');
-  await expect(page.getByRole('button', { name: 'Anmelden' })).toBeVisible();
+  await expect(page.getByText('Zitadel-Login')).toBeVisible();
+  expect(new URL(zitadel.authorizeRequests[0]?.get('redirect_uri') ?? '').pathname).toBe(
+    '/auth/callback',
+  );
   await expect(page.getByRole('heading', { name: 'Styleguide' })).toHaveCount(0);
 });
 
@@ -187,7 +184,7 @@ test('Der Umschalter gilt nur für den Styleguide', async ({ page }) => {
   await expect(page.locator('html')).toHaveClass(/dark/);
 
   await page.goto('/uebersicht');
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('#inhalt h1')).toBeVisible();
   await expect(page.locator('html')).not.toHaveClass(/dark/);
   expect(await page.evaluate(() => localStorage.getItem('reziproq-theme'))).toBeNull();
 });

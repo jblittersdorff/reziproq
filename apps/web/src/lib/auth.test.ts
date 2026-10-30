@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { oidcConfig, readZitadelSettings, safeReturnTo } from './auth';
 
@@ -27,13 +28,32 @@ describe('oidcConfig', () => {
     const config = oidcConfig({
       settings,
       origin: 'http://localhost:5173',
-      storage: {} as Storage,
       onSigninCallback: () => {},
     });
     expect(config.response_type).toBe('code');
     expect(config.redirect_uri).toBe('http://localhost:5173/auth/callback');
     expect(config.post_logout_redirect_uri).toBe('http://localhost:5173');
-    expect(config.scope).toBe('openid profile email urn:zitadel:iam:org:projects:roles');
+    expect(config.scope).toBe(
+      'openid profile email offline_access urn:zitadel:iam:org:projects:roles',
+    );
+  });
+
+  it('PLT-01: hält Tokens nur im Speicher und erneuert sie im Hintergrund per Refresh Token', async () => {
+    const settings = readZitadelSettings(env);
+    if (!settings) throw new Error('Einstellungen fehlen');
+    const config = oidcConfig({
+      settings,
+      origin: 'http://localhost:5173',
+      onSigninCallback: () => {},
+    });
+    expect(config.automaticSilentRenew).toBe(true);
+    expect(config.scope?.split(' ')).toContain('offline_access');
+    expect(config.popup_redirect_uri).toBe('http://localhost:5173/auth/callback');
+
+    const before = { local: localStorage.length, session: sessionStorage.length };
+    await config.userStore?.set('oidc.user:test', 'geheimes-token');
+    expect(await config.userStore?.get('oidc.user:test')).toBe('geheimes-token');
+    expect({ local: localStorage.length, session: sessionStorage.length }).toEqual(before);
   });
 });
 

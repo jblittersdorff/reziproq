@@ -57,12 +57,29 @@ export const healthQueryOptions = () =>
     queryFn: () => getJson('/health', healthResponseSchema),
   });
 
+// Das Token gehört nicht in den Schlüssel: Erneuert es sich im Hintergrund, soll nichts neu laden
+// und keine Seite kurz leer werden, sonst gehen Eingaben verloren (PLT-01). Abfragen nutzen beim
+// nächsten Laden trotzdem das aktuelle Token. Ein anderer Nutzer heißt immer neu laden, weil
+// Tokens nur im Speicher liegen; den Wechsel des Kunden leert use-support-switch.ts.
 export const meQueryOptions = (accessToken: string) =>
   queryOptions({
-    queryKey: ['me', accessToken],
+    queryKey: ['me'],
     queryFn: () => getJson('/me', meResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/**
+ * Meldet der API eine abgeschlossene Anmeldung; sie setzt last_login_at (PLT-01).
+ * Scheitert das, geht es trotzdem weiter: Die Anmeldung selbst ist gültig.
+ */
+export async function reportLogin(accessToken: string): Promise<void> {
+  try {
+    await fetch('/api/me/anmeldung', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+  } catch {}
+}
 
 async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> {
   if (res.status !== 403) return undefined;
@@ -73,7 +90,7 @@ async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> 
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({
-    queryKey: ['suppliers', accessToken],
+    queryKey: ['suppliers'],
     queryFn: () => getJson('/suppliers', suppliersResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
@@ -117,7 +134,7 @@ export async function streamPrompt(
 
 export const customersQueryOptions = (accessToken: string) =>
   queryOptions({
-    queryKey: ['betreiber-kunden', accessToken],
+    queryKey: ['betreiber-kunden'],
     queryFn: () => getJson('/betreiber/kunden', customersResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });

@@ -32,6 +32,7 @@ export const anna: MeResponse = {
   email: 'anna@example.com',
   organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
   supportView: false,
+  roles: ['nutzer'],
   permissions: { viewOrganizationSettings: false, viewSuppliers: true, switchCustomer: false },
 };
 

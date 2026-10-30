@@ -6,9 +6,9 @@ Diese zwölf Specs bauen das Fundament von Reziproq: Oberfläche, Anmeldung, Org
 
 | # | Spec | Funktion | Braucht vorher | Strang | Status |
 |---|---|---|---|---|---|
-| 1 | PLT-10 | Design und Styleguide | – | A Oberfläche | PR offen |
+| 1 | PLT-10 | Design und Styleguide | – | A Oberfläche | fertig |
 | 2 | PLT-11 | App-Rahmen und Startseite | PLT-10 | A Oberfläche | offen |
-| 3 | PLT-01 | Anmeldung und Abmeldung | – | C Fachdaten | offen |
+| 3 | PLT-01 | Anmeldung und Abmeldung | – | C Fachdaten | PR offen |
 | 4 | PLT-02 | Organisationen, Nutzer, Mandanten-Session | PLT-01 | B Fundament | offen |
 | 5 | PLT-04 | Drei Datenebenen | PLT-02 | B Fundament | offen |
 | 6 | PLT-08 | Audit-Trail | PLT-04 | B Fundament | offen |

@@ -36,6 +36,9 @@ export const de = {
     notConfiguredDescription:
       'Trage ZITADEL_ISSUER und ZITADEL_CLIENT_ID in die .env ein und starte die App neu.',
     backHome: 'Zur Übersicht',
+    reauthTitle: 'Bitte melde dich neu an',
+    reauthDescription: 'Deine Sitzung ist abgelaufen. Was du eingegeben hast, bleibt erhalten.',
+    reauthAction: 'Neu anmelden',
   },
 
   comingWith: (release: string) => `Kommt mit Release ${release}`,
@@ -104,6 +107,12 @@ export const de = {
     organizationTitle: 'Noch nichts einzustellen',
     organizationDescription:
       'Hier verwaltest du später deine Organisation. Nur Admins sehen diesen Abschnitt.',
+    account: 'Konto',
+    roles: 'Deine Rollen in Reziproq',
+    rolesDescription: 'So, wie sie im Token von Zitadel ankommen.',
+    rolesNone: 'Keine',
+    rolesNoneHint:
+      'Zitadel schickt keine Rollen im Token. Prüfe im Zitadel-Projekt „Rollen bei Authentifizierung mitgeben“ und ob dir eine Rolle zugewiesen ist. Danach ab- und wieder anmelden.',
   },
 
   // Lieferantenliste (PLT-02)

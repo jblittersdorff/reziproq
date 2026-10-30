@@ -1,4 +1,5 @@
 import { Building2Icon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
@@ -33,6 +34,28 @@ export function SettingsPage() {
       </SettingsGroup>
 
       {/* Ob der Abschnitt erscheint, entscheidet can() in der API, nicht die Oberfläche. */}
+      {/* Nur Anzeige: Welche Rollen die API im Token findet (PLT-01). Entschieden wird per can(). */}
+      {me.data && (
+        <SettingsGroup title={t.settings.account}>
+          <SettingsRow label={t.settings.roles} description={t.settings.rolesDescription}>
+            {me.data.roles.length > 0 ? (
+              <span className="flex flex-wrap justify-end gap-2">
+                {me.data.roles.map((role) => (
+                  <Badge key={role} variant="selected">
+                    {role}
+                  </Badge>
+                ))}
+              </span>
+            ) : (
+              <Badge variant="warning">{t.settings.rolesNone}</Badge>
+            )}
+          </SettingsRow>
+          {me.data.roles.length === 0 && (
+            <p className="px-4 py-3 text-muted-foreground text-sm">{t.settings.rolesNoneHint}</p>
+          )}
+        </SettingsGroup>
+      )}
+
       {me.data?.permissions.viewOrganizationSettings && (
         <section aria-labelledby="einstellungen-organisation" className="flex flex-col gap-2">
           <h2 id="einstellungen-organisation" className="px-4 font-semibold text-sm">
