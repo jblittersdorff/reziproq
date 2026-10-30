@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
  */
 const Dialog = DialogPrimitive.Root;
 const DialogTitle = DialogPrimitive.Title;
+const DialogTrigger = DialogPrimitive.Trigger;
+const DialogClose = DialogPrimitive.Close;
 
 function DialogContent({
   className,
@@ -42,4 +44,4 @@ function DialogContent({
   );
 }
 
-export { Dialog, DialogContent, DialogTitle };
+export { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger };

@@ -1,71 +1,23 @@
-import { IconMenu2, IconX } from '@tabler/icons-react';
 import { Outlet } from '@tanstack/react-router';
+import { MenuIcon, XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import {
-  AuthChecking,
-  AuthFailed,
-  AuthNotConfigured,
-  AuthPage,
-  SignIn,
-} from '@/features/auth/auth-states';
+import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { SupportBanner } from '@/features/support/support-banner';
-import { signInState, zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
 export function AppLayout() {
-  // Ohne Zitadel-Werte gibt es keinen AuthProvider, also auch kein useAuth.
-  if (!zitadelSettings) {
-    return (
-      <AuthPage>
-        <AuthNotConfigured />
-      </AuthPage>
-    );
-  }
-  return <AuthGate />;
-}
-
-function AuthGate() {
-  const t = useT();
-  const auth = useAuth();
-
-  if (auth.isLoading) {
-    return (
-      <AuthPage>
-        <AuthChecking />
-      </AuthPage>
-    );
-  }
-  if (auth.error) {
-    return (
-      <AuthPage>
-        <AuthFailed
-          action={
-            <Button onClick={() => void auth.signinRedirect({ state: signInState() })}>
-              {t.auth.retry}
-            </Button>
-          }
-        />
-      </AuthPage>
-    );
-  }
-  if (!auth.user || auth.user.expired) {
-    return (
-      <AuthPage>
-        <SignIn onSignIn={() => void auth.signinRedirect({ state: signInState() })} />
-      </AuthPage>
-    );
-  }
   return (
-    <PromptProvider>
-      <Shell />
-    </PromptProvider>
+    <RequireLogin>
+      <PromptProvider>
+        <Shell />
+      </PromptProvider>
+    </RequireLogin>
   );
 }
 
@@ -95,7 +47,7 @@ function Shell() {
           <Sheet open={navOpen} onOpenChange={setNavOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label={t.app.openNavigation}>
-                <IconMenu2 />
+                <MenuIcon />
               </Button>
             </SheetTrigger>
             <SheetContent>
@@ -105,7 +57,7 @@ function Shell() {
                 headerAction={
                   <SheetClose asChild>
                     <Button variant="ghost" size="icon" aria-label={t.app.closeNavigation}>
-                      <IconX />
+                      <XIcon />
                     </Button>
                   </SheetClose>
                 }

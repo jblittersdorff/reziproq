@@ -1,4 +1,4 @@
-import { IconBuilding } from '@tabler/icons-react';
+import { Building2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
@@ -39,7 +39,7 @@ export function SettingsPage() {
             {t.settings.organization}
           </h2>
           <EmptyState
-            icon={<IconBuilding aria-hidden />}
+            icon={<Building2Icon aria-hidden />}
             title={t.settings.organizationTitle}
             description={t.settings.organizationDescription}
           />

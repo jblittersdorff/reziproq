@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect } from 'react';
+import { Tile, TileIcon } from '@/components/ui/tile';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { type Area, areas } from '@/features/shell/areas';
@@ -37,21 +38,20 @@ export function OverviewPage() {
             const texts = t.areas[area.key];
             return (
               <li key={area.key}>
-                <Link
-                  to={area.to}
-                  className="flex h-full flex-col gap-4 rounded-xl bg-muted p-6 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  <span className="flex size-11 items-center justify-center rounded-full bg-background text-primary">
-                    <Icon className="size-6" aria-hidden />
-                  </span>
-                  <span className="flex flex-1 flex-col gap-1">
-                    <span className="font-semibold text-lg">{texts.title}</span>
-                    <span className="text-muted-foreground">{texts.sentence}</span>
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    <AreaStatus area={area} />
-                  </span>
-                </Link>
+                <Tile asChild size="lg" interactive>
+                  <Link to={area.to}>
+                    <TileIcon>
+                      <Icon aria-hidden />
+                    </TileIcon>
+                    <span className="flex flex-1 flex-col gap-1">
+                      <span className="font-semibold text-lg">{texts.title}</span>
+                      <span className="text-muted-foreground">{texts.sentence}</span>
+                    </span>
+                    <span className="text-muted-foreground text-sm">
+                      <AreaStatus area={area} />
+                    </span>
+                  </Link>
+                </Tile>
               </li>
             );
           })}

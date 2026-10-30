@@ -1,20 +1,30 @@
 /*
- * Design-Tokens von Reziproq – die einzige Stelle mit festen Farbwerten.
+ * Design-Tokens von Reziproq – die einzige Stelle mit festen Farben, Schriftgrößen, Abständen,
+ * Radien, Schatten, Breakpoints und Bewegung (PLT-10). Tailwind liest sie über @theme unten.
  * Grundlage: docs/design/prinzipien.md und docs/design/visualisierung.md.
  * Farben als Hex, damit auch die Diagramm-Bibliotheken sie verarbeiten können.
  * Kontraste prüft src/styles/tokens.node.test.ts (WCAG AA).
  */
 
-/* Fensterbreite: darunter gilt ein Fenster als schmal, und die Seitenleiste klappt ein (PLT-11).
-   Als Tailwind-Breakpoint nutzbar, z. B. sidebar:flex. */
-@theme {
+/* Breakpoints: Media Queries können keine CSS-Variablen lesen, daher stehen die Werte direkt hier.
+   Tailwinds eigene Breakpoints sind abgeschaltet, es gelten nur diese. „static“ legt sie zusätzlich
+   als Variablen an, damit der Styleguide sie anzeigen kann. */
+@theme static {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  /* Darunter gilt ein Fenster als schmal, und die Seitenleiste klappt ein (PLT-11),
+     z. B. sidebar:flex. */
   --breakpoint-sidebar: 64rem;
 }
 
 :root {
   color-scheme: light;
 
-  /* Schrift: vier Größen, Zeilenhöhen im 4-Pixel-Raster */
+  /* Schrift: vier Stufen – Großtitel (xl), Titel (lg), Text (base), Fußnote (sm).
+     Zeilenhöhen im 4-Pixel-Raster. Betonung über Schriftstärke, nicht über weitere Größen. */
   --font-family-sans: system-ui, -apple-system, Inter, sans-serif;
   --font-size-sm: 0.8125rem;
   --line-height-sm: 1.25rem;
@@ -33,6 +43,13 @@
   --corner-md: 0.5rem;
   --corner-lg: 0.75rem;
   --corner-xl: 1rem;
+
+  /* Sanfte Schatten: nur für Flächen, die über anderen liegen (Overlays, Menüs, Umschalter) */
+  --elevation-xs: 0 1px 2px #1d1d1f0f;
+  --elevation-sm: 0 1px 3px #1d1d1f14, 0 1px 2px #1d1d1f0a;
+  --elevation-md: 0 4px 12px #1d1d1f14, 0 1px 3px #1d1d1f0a;
+  --elevation-lg: 0 12px 32px #1d1d1f1a, 0 2px 6px #1d1d1f0a;
+  --elevation-xl: 0 24px 64px #1d1d1f24, 0 4px 12px #1d1d1f0f;
 
   /* Ruhige Bewegung */
   --motion-duration: 150ms;
@@ -86,6 +103,11 @@
   --chart-axis: #636366;
   --chart-label: #1d1d1f;
   --chart-field: #f5f5f7;
+  /* Fläche hinter der Grafik, z. B. Fugen zwischen Feldern, und der Tooltip */
+  --chart-surface: #ffffff;
+  --chart-tooltip: #ffffff;
+  --chart-tooltip-foreground: #1d1d1f;
+  --chart-tooltip-border: #e3e3e8;
   --chart-buyer: #2b63c6;
   --chart-supplier: #48484d;
   /* Folgeskala von hell nach dunkel, mit passender Schriftfarbe je Stufe */
@@ -137,6 +159,13 @@
   --destructive-soft: #3d1f1d;
   --destructive-soft-foreground: #f5a39d;
 
+  /* Auf dunklen Flächen braucht ein Schatten mehr Deckkraft, um sichtbar zu sein */
+  --elevation-xs: 0 1px 2px #00000052;
+  --elevation-sm: 0 1px 3px #0000005c, 0 1px 2px #00000033;
+  --elevation-md: 0 4px 12px #00000066, 0 1px 3px #00000033;
+  --elevation-lg: 0 12px 32px #00000080, 0 2px 6px #00000040;
+  --elevation-xl: 0 24px 64px #00000099, 0 4px 12px #0000004d;
+
   --chart-context: #6e6e73;
   --chart-accent: #7aa5f0;
   --chart-strong: #d1d1d6;
@@ -145,6 +174,10 @@
   --chart-axis: #a1a1a6;
   --chart-label: #f5f5f7;
   --chart-field: #2c2c2e;
+  --chart-surface: #1c1c1e;
+  --chart-tooltip: #2c2c2e;
+  --chart-tooltip-foreground: #f5f5f7;
+  --chart-tooltip-border: #38383a;
   --chart-buyer: #7aa5f0;
   --chart-supplier: #d1d1d6;
   /* Im Dunkelmodus: niedrige Werte nah am Hintergrund, hohe Werte hell */
@@ -158,4 +191,77 @@
   --chart-seq-label-3: #ffffff;
   --chart-seq-label-4: #0f1f3d;
   --chart-seq-label-5: #0f1f3d;
+}
+
+/* Tailwinds eingebaute Farben, Schriftgrößen, Radien und Schatten abschalten –
+   es gelten nur die Tokens oben. */
+@theme {
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+}
+
+@theme inline {
+  /* Keine Farben im eigentlichen Sinn, aber von Komponenten gebraucht */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-sans: var(--font-family-sans);
+
+  --text-sm: var(--font-size-sm);
+  --text-sm--line-height: var(--line-height-sm);
+  --text-base: var(--font-size-base);
+  --text-base--line-height: var(--line-height-base);
+  --text-lg: var(--font-size-lg);
+  --text-lg--line-height: var(--line-height-lg);
+  --text-xl: var(--font-size-xl);
+  --text-xl--line-height: var(--line-height-xl);
+
+  --spacing: var(--spacing-unit);
+
+  --radius-sm: var(--corner-sm);
+  --radius-md: var(--corner-md);
+  --radius-lg: var(--corner-lg);
+  --radius-xl: var(--corner-xl);
+
+  --shadow-xs: var(--elevation-xs);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-xl: var(--elevation-xl);
+
+  --default-transition-duration: var(--motion-duration);
+  --default-transition-timing-function: var(--motion-easing);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-overlay: var(--overlay);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground);
 }

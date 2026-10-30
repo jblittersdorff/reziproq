@@ -1,5 +1,5 @@
-import { IconArrowUp, IconRefresh, IconSparkles } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
+import { ArrowUpIcon, RefreshCwIcon, SparklesIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -64,7 +64,7 @@ function Conversation({ onClose }: { onClose: () => void }) {
   return (
     <>
       <form onSubmit={submit} className="flex items-center gap-2 border-border border-b p-3">
-        <IconSparkles aria-hidden className="ml-2 size-6 shrink-0 text-muted-foreground" />
+        <SparklesIcon aria-hidden className="ml-2 size-6 shrink-0 text-muted-foreground" />
         <input
           ref={input}
           // biome-ignore lint/a11y/noAutofocus: Das Fenster öffnet für genau diese Eingabe (PLT-12).
@@ -81,7 +81,7 @@ function Conversation({ onClose }: { onClose: () => void }) {
           aria-label={t.prompt.send}
           disabled={!question.trim() || busy}
         >
-          <IconArrowUp />
+          <ArrowUpIcon />
         </Button>
       </form>
 
@@ -125,7 +125,7 @@ function Conversation({ onClose }: { onClose: () => void }) {
               input.current?.focus();
             }}
           >
-            <IconRefresh />
+            <RefreshCwIcon />
             {t.prompt.restart}
           </Button>
         )}

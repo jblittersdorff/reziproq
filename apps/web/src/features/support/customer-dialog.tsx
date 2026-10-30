@@ -1,5 +1,5 @@
-import { IconBuilding } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { Building2Icon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { customersQueryOptions } from '@/lib/api';
@@ -72,7 +72,7 @@ function CustomerList({ onChosen }: { onChosen: () => void }) {
             }}
             className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current]:bg-primary-soft aria-[current]:text-primary-soft-foreground"
           >
-            <IconBuilding aria-hidden className="size-5 shrink-0 text-muted-foreground" />
+            <Building2Icon aria-hidden className="size-5 shrink-0 text-muted-foreground" />
             <span className="flex flex-1 flex-col">
               <span className="font-medium text-base">{customer.name}</span>
               {customer.country && (
