@@ -1,0 +1,23 @@
+# Lokale Datenbank für die Entwicklung: docker compose up -d
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: reziproq
+      POSTGRES_DB: reziproq
+      # Nur für die lokale Entwicklung; passt zum Standardwert in .env.example.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-reziproq_local}
+    ports:
+      # 5433 statt 5432, damit ein lokal installiertes PostgreSQL nicht im Weg ist.
+      - "5433:5432"
+    volumes:
+      # Ab PostgreSQL 18 liegt das Datenverzeichnis unterhalb von /var/lib/postgresql.
+      - reziproq-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reziproq -d reziproq"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  reziproq-pgdata:
