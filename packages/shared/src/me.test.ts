@@ -6,7 +6,8 @@ const ada = {
   firstName: 'Ada',
   email: 'ada@example.com',
   organization: null,
-  permissions: { viewOrganizationSettings: false, viewSuppliers: false },
+  supportView: false,
+  permissions: { viewOrganizationSettings: false, viewSuppliers: false, switchCustomer: false },
 };
 
 describe('meResponseSchema', () => {

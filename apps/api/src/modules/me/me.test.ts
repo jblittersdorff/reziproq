@@ -13,7 +13,11 @@ describe('GET /api/me', () => {
   // Eigene Nutzer-ID je Testlauf, damit parallele Läufe sich nicht stören.
   const userId = `test-${randomUUID()}`;
   const ada = { sub: userId, name: 'Ada Lovelace', given_name: 'Ada', email: 'ada@example.com' };
-  const noPermissions = { viewOrganizationSettings: false, viewSuppliers: false };
+  const noPermissions = {
+    viewOrganizationSettings: false,
+    viewSuppliers: false,
+    switchCustomer: false,
+  };
 
   const storedUser = async () =>
     (await db.select().from(schema.appUser).where(sql`${schema.appUser.id} = ${userId}`))[0];
@@ -50,6 +54,7 @@ describe('GET /api/me', () => {
       firstName: 'Ada',
       email: 'ada@example.com',
       organization: null,
+      supportView: false,
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);

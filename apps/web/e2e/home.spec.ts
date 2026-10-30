@@ -50,7 +50,7 @@ test('Login mit PKCE landet auf /uebersicht mit Begrüßung und Name im Nutzer-M
   expect(params.get('redirect_uri')).toBe('http://localhost:5174/auth/callback');
   expect(params.get('code_challenge_method')).toBe('S256');
   expect(params.get('code_challenge')).toBeTruthy();
-  expect(params.get('scope')).toBe('openid profile email');
+  expect(params.get('scope')).toBe('openid profile email urn:zitadel:iam:org:projects:roles');
 
   // 2. Zitadel tauscht den Code gegen Tokens; der Code-Verifier muss mitkommen.
   const now = Math.floor(Date.now() / 1000);
@@ -84,7 +84,12 @@ test('Login mit PKCE landet auf /uebersicht mit Begrüßung und Name im Nutzer-M
             firstName: 'Ada',
             email: 'ada@example.com',
             organization: null,
-            permissions: { viewOrganizationSettings: false, viewSuppliers: false },
+            supportView: false,
+            permissions: {
+              viewOrganizationSettings: false,
+              viewSuppliers: false,
+              switchCustomer: false,
+            },
           },
         })
       : route.fulfill({ status: 401, json: { statusCode: 401 } }),

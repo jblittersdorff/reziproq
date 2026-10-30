@@ -70,6 +70,26 @@ describe('Migrationen', () => {
     expect(user.rows).toEqual([{ organization_id: null }]);
   });
 
+  it('legen das Protokoll des Betreiber-Zugangs an, für reziproq_app nicht lesbar', async () => {
+    temp = await createTempDatabase();
+    await migrateTo(temp.db);
+    expect(await columns('betreiber_zugriff')).toEqual([
+      'id',
+      'nutzer_id',
+      'organization_id',
+      'aktion',
+      'zeitpunkt',
+    ]);
+    const db = temp.db;
+    const error = await db
+      .transaction(async (tx) => {
+        await tx.execute(sql`set local role reziproq_app`);
+        return tx.execute(sql`select * from betreiber_zugriff`);
+      })
+      .catch((caught: unknown) => caught);
+    expect(String((error as Error).cause)).toMatch(/permission denied/);
+  });
+
   it('verlangen Spend als ganze Cent, nicht negativ, mit ISO-Währung', async () => {
     temp = await createTempDatabase();
     await migrateTo(temp.db);

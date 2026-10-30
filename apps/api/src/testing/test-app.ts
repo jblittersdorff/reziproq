@@ -67,13 +67,26 @@ export async function startTestApp({
       .sign(key);
   };
 
-  const get = (path: string, token?: string, scheme = 'Bearer') =>
-    fetch(`${baseUrl}${path}`, token ? { headers: { authorization: `${scheme} ${token}` } } : {});
+  const get = (
+    path: string,
+    token?: string,
+    scheme = 'Bearer',
+    headers: Record<string, string> = {},
+  ) =>
+    fetch(`${baseUrl}${path}`, {
+      headers: { ...headers, ...(token ? { authorization: `${scheme} ${token}` } : {}) },
+    });
 
-  const post = (path: string, body: unknown, token?: string) =>
+  const post = (
+    path: string,
+    body: unknown,
+    token?: string,
+    headers: Record<string, string> = {},
+  ) =>
     fetch(`${baseUrl}${path}`, {
       method: 'POST',
       headers: {
+        ...headers,
         'content-type': 'application/json',
         ...(token ? { authorization: `Bearer ${token}` } : {}),
       },

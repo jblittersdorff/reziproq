@@ -33,17 +33,19 @@ export class MeService {
       .onConflictDoUpdate({ target: appUser.id, set: { ...values, updatedAt: sql`now()` } })
       .returning({ name: appUser.name, givenName: appUser.givenName, email: appUser.email });
     if (!user) throw new Error('app_user wurde nicht gespeichert.');
-    const organization = await this.organizations.forUser(auth.userId);
+    const organization = await this.organizations.current(auth);
 
     return {
       name: user.name,
       firstName: user.givenName || firstWord(user.name),
       email: user.email,
       organization: organization && { id: organization.id, name: organization.name },
+      supportView: auth.supportOrganization !== undefined,
       permissions: {
         viewOrganizationSettings: can(auth, 'organisation.einstellungen.sehen'),
         // Lieferanten nur für Käufer mit Rolle; so fragt die Oberfläche die Liste gar nicht erst an.
         viewSuppliers: organization?.typ === 'kaeufer' && can(auth, 'lieferanten.sehen'),
+        switchCustomer: can(auth, 'kunden.wechseln'),
       },
     };
   }

@@ -40,7 +40,8 @@ export function oidcConfig({
     redirect_uri: `${origin}${callbackPath}`,
     post_logout_redirect_uri: origin,
     response_type: 'code',
-    scope: 'openid profile email',
+    // Der letzte Scope lässt Zitadel die Projektrollen ins Token schreiben (PLT-13).
+    scope: 'openid profile email urn:zitadel:iam:org:projects:roles',
     userStore: new WebStorageStateStore({ store: storage }),
     onSigninCallback,
   };

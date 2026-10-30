@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { createRemoteJWKSet, type JWTVerifyGetKey } from 'jose';
 import { env } from '../../config/env.js';
+import { SupportAccessService } from '../support/support-access.service.js';
 import { AuthGuard } from './auth.guard.js';
 import { DISCOVERY_URL, OidcDiscovery } from './oidc-discovery.js';
 import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-verifier.js';
@@ -36,9 +37,10 @@ import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-ver
       inject: [OidcDiscovery],
     },
     TokenVerifier,
+    SupportAccessService,
     // Gilt für alle Routen; Ausnahmen nur über @Public().
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
-  exports: [OidcDiscovery],
+  exports: [OidcDiscovery, SupportAccessService],
 })
 export class AuthModule {}

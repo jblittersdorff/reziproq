@@ -4,3 +4,4 @@ export * from './me.js';
 export * from './money.js';
 export * from './prompt.js';
 export * from './suppliers.js';
+export * from './support.js';
