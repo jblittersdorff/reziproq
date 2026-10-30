@@ -7,4 +7,4 @@ Spec: docs/specs/...
 
 - [ ] Tests geschrieben und grün
 - [ ] Im Browser durchgeklickt
-- [ ] Berührt Login, Rechte, Datentrennung oder Datenmodell? Dann Review durch den Freelancer
+- [ ] Berührt Login, Rechte, Datentrennung oder Datenmodell? Dann hier nennen, was sich ändert und welche Tests es absichern

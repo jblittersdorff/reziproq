@@ -14,7 +14,8 @@ Setze die Spec $ARGUMENTS um. Ist keine ID angegeben, nimm die erste Spec in doc
 5. Umsetzen: Schreib für jedes Kriterium unter "Fertig, wenn" mindestens einen Test und nenne das Kriterium im Testnamen. Trag neue Tabellen ins Register der Datenebenen ein (PLT-04). Erzeuge Migrationen mit db:generate. Erweitere pnpm db:seed, wenn die Spec es verlangt.
 6. Prüfen: Führe pnpm typecheck, pnpm lint und pnpm test aus, bei Oberfläche auch Playwright. Behebe Fehler, bis alles grün ist. Schwäch nie einen Test ab und überspring keinen, nur damit es grün wird.
 7. Bericht: Zeig mir eine Tabelle Kriterium – Test – Ergebnis. Liste auf, was ich von Hand erledigen muss (z. B. Schritte in Zitadel, Befehle, was ich im Browser prüfen soll). Nenn jede Abweichung von der Spec. Die Spec passt du nur nach meinem OK an, und zwar im selben Pull Request.
-8. Pull Request: Setze den Status auf "PR offen", committe, pushe und erstelle einen Pull Request mit dem Titel "<ID> <Funktion>" nach unserer Vorlage. Merge nicht selbst.
-9. Danach aufhören. Beginn nicht die nächste Spec.
+8. Pull Request: Setze den Status auf "PR offen", committe, pushe und erstelle einen Pull Request mit dem Titel "<ID> <Funktion>" nach unserer Vorlage.
+9. Mergen: Warte auf die CI (gh pr checks --watch). Ist sie grün, merge den Pull Request (gh pr merge --merge) und hol main mit git pull. Ist sie rot, behebe die Ursache, pushe erneut und warte wieder; merge nie mit roter CI und schwäch keinen Test ab. Den Status "fertig" setzt der nächste Lauf in Schritt 1.
+10. Danach aufhören. Beginn nicht die nächste Spec.
 
 Lies niemals .env.
