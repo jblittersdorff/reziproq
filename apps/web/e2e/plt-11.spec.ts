@@ -184,6 +184,8 @@ test('Die Übersicht ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({
     ...areas.map((a) => a.title),
     'Einstellungen',
     'Anna Schmidt',
+    // Seit PLT-12: das Feld für das Prompt-Fenster unter der Begrüßung
+    'Frag Reziproq',
     ...areas.map((a) => a.title),
   ];
   const visited: string[] = [];
@@ -216,8 +218,8 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  // Nach dem Sprung ist die erste Kachel das nächste Ziel.
-  await expect(page.locator(':focus')).toContainText('Lieferanten');
+  // Nach dem Sprung ist das erste Ziel im Inhalt das Feld für das Prompt-Fenster (PLT-12).
+  await expect(page.locator(':focus')).toContainText('Frag Reziproq');
 });
 
 test('Hell und dunkel folgen der Systemeinstellung und lassen sich umschalten', async ({

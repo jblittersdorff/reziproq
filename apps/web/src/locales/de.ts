@@ -128,6 +128,27 @@ export const de = {
     tileNoPermission: 'Keine Rolle für Lieferanten',
   },
 
+  // Prompt-Fenster (PLT-12)
+  prompt: {
+    title: 'Frag Reziproq',
+    placeholder: 'Frag Reziproq …',
+    question: 'Deine Frage an Reziproq',
+    send: 'Fragen',
+    shortcutMac: '⌘ K',
+    shortcutOther: 'Strg K',
+    suggestions: 'Vorschläge',
+    suggestionTopSpend: 'Zeig mir die Lieferanten mit dem höchsten Spend',
+    suggestionElectronics: 'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
+    suggestionPulse: 'Öffne den Beziehungspuls',
+    answering: 'Reziproq antwortet …',
+    hits: 'Treffer',
+    noHits: 'Keine Treffer',
+    failed: 'Gerade keine Antwort möglich. Versuch es gleich noch einmal.',
+    rateLimited: 'Du hast gerade sehr viele Fragen gestellt. Warte eine Minute.',
+    restart: 'Neu beginnen',
+    disclaimer: 'Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.',
+  },
+
   organization: {
     missing: 'Du bist noch keiner Organisation zugeordnet. Wende dich an deinen Admin.',
   },

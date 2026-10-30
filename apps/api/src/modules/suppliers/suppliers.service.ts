@@ -32,6 +32,42 @@ export class SuppliersService {
     const suppliers = await withTenant(this.db, organization.id, (tx) => listSuppliers(tx));
     return { suppliers, count: suppliers.length, totalSpend: totalByCurrency(suppliers) };
   }
+
+  /**
+   * Suche für das Prompt-Fenster (PLT-12). Läuft über list(), also mit denselben Rechten und
+   * derselben Mandanten-Session wie GET /api/suppliers, und liefert höchstens 20 Treffer.
+   */
+  async search(auth: AuthContext, filter: SupplierFilter): Promise<Supplier[]> {
+    const { suppliers } = await this.list(auth);
+    const contains = (value: string, part: string | undefined) =>
+      !part || value.toLocaleLowerCase('de').includes(part.trim().toLocaleLowerCase('de'));
+    const euro = (supplier: Supplier) => supplier.annualSpend.amountCents / 100;
+
+    const hits = suppliers.filter(
+      (supplier) =>
+        contains(supplier.name, filter.name) &&
+        contains(supplier.category, filter.warengruppe) &&
+        (!filter.land || supplier.country === filter.land.toUpperCase()) &&
+        (filter.minSpendEuro === undefined || euro(supplier) >= filter.minSpendEuro) &&
+        (filter.maxSpendEuro === undefined || euro(supplier) <= filter.maxSpendEuro),
+    );
+    const sorted = [...hits].sort((a, b) => {
+      if (filter.sortierung === 'name') return a.name.localeCompare(b.name, 'de');
+      const diff = a.annualSpend.amountCents - b.annualSpend.amountCents;
+      return filter.sortierung === 'spend_aufsteigend' ? diff : -diff;
+    });
+    return sorted.slice(0, Math.min(filter.anzahl ?? 20, 20));
+  }
+}
+
+export interface SupplierFilter {
+  name?: string | undefined;
+  warengruppe?: string | undefined;
+  land?: string | undefined;
+  minSpendEuro?: number | undefined;
+  maxSpendEuro?: number | undefined;
+  sortierung?: 'spend_absteigend' | 'spend_aufsteigend' | 'name' | undefined;
+  anzahl?: number | undefined;
 }
 
 /**

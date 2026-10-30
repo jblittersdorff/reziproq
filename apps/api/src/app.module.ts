@@ -6,6 +6,7 @@ import { env } from './config/env.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { MeModule } from './modules/me/me.module.js';
+import { PromptModule } from './modules/prompt/prompt.module.js';
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 
 // Im Betrieb liefert die API auch die fertig gebaute Web-App aus.
@@ -19,6 +20,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     HealthModule,
     MeModule,
     SuppliersModule,
+    PromptModule,
     ...(env.NODE_ENV === 'production'
       ? [ServeStaticModule.forRoot({ rootPath: webDist, exclude: ['/api/{*path}'] })]
       : []),

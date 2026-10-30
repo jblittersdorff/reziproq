@@ -1,3 +1,4 @@
+import { type AreaKey, areas as sharedAreas } from '@reziproq/shared';
 import {
   IconActivityHeartbeat,
   IconBuildingFactory2,
@@ -7,9 +8,8 @@ import {
   IconTargetArrow,
 } from '@tabler/icons-react';
 import type { LinkProps } from '@tanstack/react-router';
-import type { Messages } from '@/locales/de';
 
-export type AreaKey = keyof Messages['areas'];
+export type { AreaKey };
 
 export interface Area {
   key: AreaKey;
@@ -19,18 +19,26 @@ export interface Area {
   release: string;
 }
 
+const icons: Record<AreaKey, typeof IconChecklist> = {
+  suppliers: IconBuildingFactory2,
+  relationships: IconHeartHandshake,
+  pulse: IconActivityHeartbeat,
+  jointBusinessPlans: IconTargetArrow,
+  qbrs: IconChecklist,
+  pnlImpact: IconReportMoney,
+};
+
 /**
- * Die sechs Bereiche von Reziproq in fester Reihenfolge. Seitenleiste, Kacheln auf der Übersicht
- * und Bereichsseiten lesen von hier, später auch das Prompt-Fenster (PLT-12).
+ * Die sechs Bereiche aus @reziproq/shared, ergänzt um ein Symbol. Seitenleiste, Kacheln und
+ * Bereichsseiten lesen von hier; die API nutzt dieselbe Liste für das Prompt-Fenster (PLT-12).
+ * Dass jeder Pfad eine Route hat, prüfen die Tests in plt-11.test.tsx.
  */
-export const areas: readonly Area[] = [
-  { key: 'suppliers', to: '/lieferanten', icon: IconBuildingFactory2, release: '0.1' },
-  { key: 'relationships', to: '/beziehungen', icon: IconHeartHandshake, release: '0.2' },
-  { key: 'pulse', to: '/puls', icon: IconActivityHeartbeat, release: '0.2' },
-  { key: 'jointBusinessPlans', to: '/jbp', icon: IconTargetArrow, release: '0.3' },
-  { key: 'qbrs', to: '/qbr', icon: IconChecklist, release: '0.3' },
-  { key: 'pnlImpact', to: '/pnl', icon: IconReportMoney, release: '1.0' },
-];
+export const areas: readonly Area[] = sharedAreas.map((area) => ({
+  key: area.key,
+  to: area.path,
+  icon: icons[area.key],
+  release: area.release,
+}));
 
 export function areaByKey(key: AreaKey): Area {
   const area = areas.find((candidate) => candidate.key === key);

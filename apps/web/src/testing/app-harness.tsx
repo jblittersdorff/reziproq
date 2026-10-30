@@ -1,4 +1,4 @@
-import type { MeResponse, SuppliersResponse } from '@reziproq/shared';
+import type { MeResponse, PromptEvent, SuppliersResponse } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { cleanup, render } from '@testing-library/react';
@@ -54,7 +54,26 @@ export const sampleSuppliers: SuppliersResponse = {
 export const api = {
   me: anna as MeResponse,
   suppliers: { status: 200, body: sampleSuppliers as unknown },
+  /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
+  prompt: { status: 200, events: [] as PromptEvent[], hold: false },
+  /** Alle Anfragen an /api/prompt, z. B. um den mitgeschickten Verlauf zu prüfen. */
+  promptRequests: [] as unknown[],
 };
+
+/** Streamt Ereignisse als NDJSON, eine Zeile je Ereignis, wie die echte API. */
+function streamEvents(events: PromptEvent[], hold: boolean) {
+  const encoder = new TextEncoder();
+  return new Response(
+    new ReadableStream({
+      start(controller) {
+        for (const event of events)
+          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+        if (!hold) controller.close();
+      },
+    }),
+    { headers: { 'content-type': 'application/x-ndjson' } },
+  );
+}
 
 function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   const url = String(input);
@@ -62,6 +81,13 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (url === '/api/health') return Response.json({ status: 'ok' });
   if (!authorized) return Response.json({ statusCode: 401 }, { status: 401 });
   if (url === '/api/me') return Response.json(api.me);
+  if (url === '/api/prompt') {
+    api.promptRequests.push(JSON.parse(String(init?.body)));
+    if (api.prompt.status !== 200) {
+      return Response.json({ statusCode: api.prompt.status }, { status: api.prompt.status });
+    }
+    return streamEvents(api.prompt.events, api.prompt.hold);
+  }
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
   }
@@ -74,6 +100,8 @@ let consoleError: ReturnType<typeof vi.spyOn> | undefined;
 export function setUpApp() {
   api.me = anna;
   api.suppliers = { status: 200, body: sampleSuppliers };
+  api.prompt = { status: 200, events: [], hold: false };
+  api.promptRequests = [];
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => fakeApi(input, init)),

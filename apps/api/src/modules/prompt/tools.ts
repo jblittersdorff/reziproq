@@ -1,0 +1,120 @@
+import type Anthropic from '@anthropic-ai/sdk';
+import { ForbiddenException } from '@nestjs/common';
+import { areaKeys, areas, type PromptEvent, type Supplier } from '@reziproq/shared';
+import { z } from 'zod';
+import type { AuthContext } from '../auth/auth.guard.js';
+import type { SuppliersService } from '../suppliers/suppliers.service.js';
+
+// Die einzigen Werkzeuge der KI (PLT-12), beide nur lesend. Die KI schreibt keine Abfragen und
+// ruft keine anderen Adressen auf; sie bekommt nur, was diese Funktionen zurückgeben.
+
+const searchInput = z.object({
+  name: z.string().max(200).optional(),
+  warengruppe: z.string().max(200).optional(),
+  land: z
+    .string()
+    .regex(/^[A-Za-z]{2}$/)
+    .optional(),
+  minSpendEuro: z.number().nonnegative().optional(),
+  maxSpendEuro: z.number().nonnegative().optional(),
+  sortierung: z.enum(['spend_absteigend', 'spend_aufsteigend', 'name']).optional(),
+  anzahl: z.number().int().min(1).max(20).optional(),
+});
+
+const openInput = z.object({ bereich: z.enum(areaKeys) });
+
+export const tools: Anthropic.Beta.BetaTool[] = [
+  {
+    name: 'lieferanten_suchen',
+    description:
+      'Sucht Lieferanten der eigenen Organisation nach Name, Warengruppe, Land (ISO-Code, z. B. DE) ' +
+      'und Jahresspend in Euro. Liefert höchstens 20 Treffer mit Name, Land, Warengruppe und ' +
+      'Jahresspend. Die Treffer sieht der Nutzer zusätzlich als Karten.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Teil des Lieferantennamens' },
+        warengruppe: { type: 'string', description: 'Teil der Warengruppe, z. B. Elektronik' },
+        land: { type: 'string', description: 'ISO-Ländercode mit zwei Buchstaben' },
+        minSpendEuro: { type: 'number', description: 'Mindest-Jahresspend in Euro' },
+        maxSpendEuro: { type: 'number', description: 'Höchst-Jahresspend in Euro' },
+        sortierung: { type: 'string', enum: ['spend_absteigend', 'spend_aufsteigend', 'name'] },
+        anzahl: { type: 'integer', minimum: 1, maximum: 20 },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'bereich_oeffnen',
+    description: `Öffnet einen Bereich von Reziproq in der Oberfläche. Bereiche: ${areas
+      .map((area) => `${area.key} (${area.name})`)
+      .join(', ')}.`,
+    input_schema: {
+      type: 'object',
+      properties: { bereich: { type: 'string', enum: [...areaKeys] } },
+      required: ['bereich'],
+      additionalProperties: false,
+    },
+  },
+];
+
+const euro = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 0,
+});
+
+/** Was die KI über einen Lieferanten erfährt: dieselben Werte wie auf der Karte. */
+function forModel(supplier: Supplier) {
+  return {
+    name: supplier.name,
+    land: supplier.country,
+    warengruppe: supplier.category,
+    jahresspend: euro.format(supplier.annualSpend.amountCents / 100),
+    spendJahr: supplier.spendYear,
+  };
+}
+
+const result = (
+  use: Anthropic.Beta.BetaToolUseBlock,
+  content: unknown,
+  isError = false,
+): Anthropic.Beta.BetaToolResultBlockParam => ({
+  type: 'tool_result',
+  tool_use_id: use.id,
+  content: JSON.stringify(content),
+  ...(isError ? { is_error: true } : {}),
+});
+
+/** Führt einen Werkzeugaufruf mit den Rechten der fragenden Person aus. */
+export async function runTool(
+  use: Anthropic.Beta.BetaToolUseBlock,
+  auth: AuthContext,
+  suppliers: SuppliersService,
+  emit: (event: PromptEvent) => void,
+): Promise<Anthropic.Beta.BetaToolResultBlockParam> {
+  if (use.name === 'lieferanten_suchen') {
+    const input = searchInput.safeParse(use.input);
+    if (!input.success) return result(use, { fehler: 'Ungültige Eingabe für die Suche.' }, true);
+    try {
+      const hits = await suppliers.search(auth, input.data);
+      emit({ type: 'suppliers', suppliers: hits });
+      return result(use, { anzahl: hits.length, treffer: hits.map(forModel) });
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        return result(use, { fehler: 'Der Nutzer darf keine Lieferanten sehen.' }, true);
+      }
+      throw error;
+    }
+  }
+
+  if (use.name === 'bereich_oeffnen') {
+    const input = openInput.safeParse(use.input);
+    const area = input.success && areas.find((candidate) => candidate.key === input.data.bereich);
+    if (!area) return result(use, { fehler: 'Diesen Bereich gibt es nicht.' }, true);
+    emit({ type: 'navigate', to: area.path });
+    return result(use, { geoeffnet: area.name });
+  }
+
+  return result(use, { fehler: `Unbekanntes Werkzeug: ${use.name}` }, true);
+}

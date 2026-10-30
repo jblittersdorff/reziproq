@@ -12,6 +12,7 @@ import {
   SignIn,
 } from '@/features/auth/auth-states';
 import { useMe } from '@/features/auth/use-me';
+import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
@@ -56,7 +57,11 @@ function AuthGate() {
       </AuthPage>
     );
   }
-  return <Shell />;
+  return (
+    <PromptProvider>
+      <Shell />
+    </PromptProvider>
+  );
 }
 
 function Shell() {

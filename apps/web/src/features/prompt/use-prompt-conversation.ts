@@ -1,0 +1,94 @@
+import type { PromptEvent, PromptRequest, Supplier } from '@reziproq/shared';
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from 'react-oidc-context';
+import { ApiError, streamPrompt } from '@/lib/api';
+
+export interface PromptTurn {
+  id: number;
+  question: string;
+  answer: string;
+  /** null, solange keine Suche lief; [] heißt „Keine Treffer“. */
+  suppliers: Supplier[] | null;
+  status: 'answering' | 'done' | 'failed' | 'rateLimited';
+}
+
+/**
+ * Gespräch im Prompt-Fenster. Es lebt nur, solange das Fenster offen ist, und wird nirgends
+ * gespeichert (PLT-12). Weitere Fragen schicken den bisherigen Verlauf mit.
+ */
+export function usePromptConversation({ onNavigate }: { onNavigate: (to: string) => void }) {
+  const auth = useAuth();
+  const [turns, setTurns] = useState<PromptTurn[]>([]);
+  const nextId = useRef(1);
+  const running = useRef<AbortController | null>(null);
+
+  // Schließt das Fenster, bricht auch eine laufende Antwort ab.
+  useEffect(() => () => running.current?.abort(), []);
+
+  const update = (id: number, change: (turn: PromptTurn) => PromptTurn) =>
+    setTurns((current) => current.map((turn) => (turn.id === id ? change(turn) : turn)));
+
+  const apply = (id: number, event: PromptEvent) => {
+    switch (event.type) {
+      case 'text':
+        update(id, (turn) => ({ ...turn, answer: turn.answer + event.delta }));
+        break;
+      case 'suppliers':
+        update(id, (turn) => ({
+          ...turn,
+          suppliers: [...(turn.suppliers ?? []), ...event.suppliers],
+        }));
+        break;
+      case 'navigate':
+        onNavigate(event.to);
+        break;
+      case 'done':
+        update(id, (turn) => ({ ...turn, status: 'done' }));
+        break;
+      case 'error':
+        update(id, (turn) => ({ ...turn, status: 'failed' }));
+        break;
+    }
+  };
+
+  const ask = async (question: string) => {
+    const history: PromptRequest['messages'] = turns
+      .filter((turn) => turn.status === 'done' && turn.answer.trim())
+      .flatMap((turn) => [
+        { role: 'user' as const, content: turn.question },
+        { role: 'assistant' as const, content: turn.answer },
+      ]);
+    const id = nextId.current++;
+    setTurns((current) => [
+      ...current,
+      { id, question, answer: '', suppliers: null, status: 'answering' },
+    ]);
+
+    running.current?.abort();
+    const controller = new AbortController();
+    running.current = controller;
+    try {
+      await streamPrompt(
+        auth.user?.access_token ?? '',
+        [...history, { role: 'user', content: question }],
+        (event) => apply(id, event),
+        controller.signal,
+      );
+      // Endet der Strom ohne „done“, gilt die Antwort als fehlgeschlagen.
+      update(id, (turn) => (turn.status === 'answering' ? { ...turn, status: 'failed' } : turn));
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      const rateLimited = error instanceof ApiError && error.status === 429;
+      update(id, (turn) => ({ ...turn, status: rateLimited ? 'rateLimited' : 'failed' }));
+    }
+  };
+
+  const reset = () => {
+    running.current?.abort();
+    setTurns([]);
+  };
+
+  const busy = turns.some((turn) => turn.status === 'answering');
+
+  return { turns, ask, reset, busy };
+}
