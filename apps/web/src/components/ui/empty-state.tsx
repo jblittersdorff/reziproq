@@ -8,9 +8,12 @@ function EmptyState({
   title,
   description,
   action,
+  size = 'default',
   className,
 }: {
   icon?: React.ReactNode;
+  /** lg: großes Symbol für ganze Seiten, die noch leer sind. */
+  size?: 'default' | 'lg';
   title: string;
   description: string;
   action?: React.ReactNode;
@@ -21,11 +24,17 @@ function EmptyState({
       data-slot="empty-state"
       className={cn(
         'flex flex-col items-center justify-center gap-3 rounded-lg bg-muted px-6 py-12 text-center',
+        size === 'lg' && 'gap-4 rounded-xl py-16',
         className,
       )}
     >
       {icon && (
-        <div className="flex size-10 items-center justify-center rounded-full bg-background text-muted-foreground [&_svg]:size-5">
+        <div
+          className={cn(
+            'flex items-center justify-center rounded-full bg-background text-muted-foreground',
+            size === 'lg' ? 'size-20 [&_svg]:size-10' : 'size-10 [&_svg]:size-5',
+          )}
+        >
           {icon}
         </div>
       )}

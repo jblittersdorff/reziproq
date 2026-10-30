@@ -7,6 +7,8 @@ export const appUser = pgTable('app_user', {
   // sub aus dem Zitadel-Token; keine UUID, sondern die Nutzer-ID von Zitadel.
   id: text().primaryKey(),
   name: text().notNull(),
+  // Vorname aus given_name von Zitadel; fehlt er, gilt das erste Wort des Namens.
+  givenName: text('given_name'),
   email: text().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

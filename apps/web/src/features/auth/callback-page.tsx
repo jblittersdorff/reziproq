@@ -22,7 +22,7 @@ function CallbackState() {
       <AuthFailed
         action={
           <Button variant="outline" asChild>
-            <Link to="/">{t.auth.backHome}</Link>
+            <Link to="/uebersicht">{t.auth.backHome}</Link>
           </Button>
         }
       />
@@ -30,5 +30,5 @@ function CallbackState() {
   }
   if (auth.isLoading) return <AuthChecking />;
   // Ohne laufenden Login (z. B. direkt aufgerufen) gibt es hier nichts zu tun.
-  return <Navigate to="/" replace />;
+  return <Navigate to="/uebersicht" replace />;
 }

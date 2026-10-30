@@ -31,7 +31,9 @@ test('Startseite bietet ohne Login nur die Anmeldung an', async ({ page }) => {
   await expect(page.getByText('API: ok')).toHaveCount(0);
 });
 
-test('Login mit PKCE öffnet die Übersicht mit Name im Nutzer-Menü', async ({ page }) => {
+test('Login mit PKCE landet auf /uebersicht mit Begrüßung und Name im Nutzer-Menü', async ({
+  page,
+}) => {
   await fakeZitadel(page);
 
   // 1. Weiterleitung zu Zitadel: Authorization Code mit PKCE.
@@ -76,7 +78,15 @@ test('Login mit PKCE öffnet die Übersicht mit Name im Nutzer-Menü', async ({ 
   // 3. Die API bekommt das Access Token und antwortet.
   await page.route('**/api/me', (route) =>
     route.request().headers().authorization === 'Bearer access-token-1'
-      ? route.fulfill({ json: { name: 'Ada Lovelace', email: 'ada@example.com' } })
+      ? route.fulfill({
+          json: {
+            name: 'Ada Lovelace',
+            firstName: 'Ada',
+            email: 'ada@example.com',
+            organization: null,
+            permissions: { viewOrganizationSettings: false },
+          },
+        })
       : route.fulfill({ status: 401, json: { statusCode: 401 } }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
@@ -86,8 +96,11 @@ test('Login mit PKCE öffnet die Übersicht mit Name im Nutzer-Menü', async ({ 
     waitUntil: 'commit',
   });
 
-  await expect(page).toHaveURL('http://localhost:5174/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeVisible();
+  // PLT-11: Nach dem Login landet man auf der Übersicht und wird mit Vornamen begrüßt.
+  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  await expect(
+    page.getByRole('heading', { level: 1, name: /^Guten (Morgen|Tag|Abend), Ada$/ }),
+  ).toBeVisible();
   const userMenu = page.getByRole('button', { name: /Ada Lovelace/ });
   await expect(userMenu).toContainText('ada@example.com');
   expect(new URLSearchParams(tokenRequestBody).get('code_verifier')).toBeTruthy();

@@ -1,5 +1,5 @@
-import { ComingSoonPage } from '@/features/shell/coming-soon-page';
+import { AreaPage } from '@/features/shell/area-page';
 
 export function PnlImpactPage() {
-  return <ComingSoonPage page="pnlImpact" release="1.0" />;
+  return <AreaPage area="pnlImpact" />;
 }

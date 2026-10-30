@@ -23,7 +23,7 @@ function SegmentedControl<T extends string>({
       {options.map((option) => (
         <label
           key={option.value}
-          className="relative cursor-pointer rounded-sm px-3 py-1 font-medium text-sm text-muted-foreground transition-colors has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+          className="relative flex min-h-11 cursor-pointer items-center rounded-sm px-4 font-medium text-sm text-muted-foreground transition-colors has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
         >
           <input
             type="radio"

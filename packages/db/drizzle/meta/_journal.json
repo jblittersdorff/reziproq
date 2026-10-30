@@ -15,6 +15,13 @@
       "when": 1793312147936,
       "tag": "0001_app_user",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793314295976,
+      "tag": "0002_app_user_given_name",
+      "breakpoints": true
     }
   ]
 }

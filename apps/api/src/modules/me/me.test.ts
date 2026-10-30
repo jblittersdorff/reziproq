@@ -12,7 +12,8 @@ describe('GET /api/me', () => {
   let db: Database;
   // Eigene Nutzer-ID je Testlauf, damit parallele Läufe sich nicht stören.
   const userId = `test-${randomUUID()}`;
-  const ada = { sub: userId, name: 'Ada Lovelace', email: 'ada@example.com' };
+  const ada = { sub: userId, name: 'Ada Lovelace', given_name: 'Ada', email: 'ada@example.com' };
+  const noPermissions = { viewOrganizationSettings: false };
 
   const storedUser = async () =>
     (await db.select().from(schema.appUser).where(sql`${schema.appUser.id} = ${userId}`))[0];
@@ -44,13 +45,54 @@ describe('GET /api/me', () => {
     const res = await testApp.get('/api/me', token);
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ name: 'Ada Lovelace', email: 'ada@example.com' });
+    expect(await res.json()).toEqual({
+      name: 'Ada Lovelace',
+      firstName: 'Ada',
+      email: 'ada@example.com',
+      organization: null,
+      permissions: noPermissions,
+    });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);
     expect(await storedUser()).toMatchObject({
       id: userId,
       name: 'Ada Lovelace',
+      givenName: 'Ada',
       email: 'ada@example.com',
     });
+  });
+
+  it('nimmt ohne given_name das erste Wort des Namens als Vornamen', async () => {
+    testApp.zitadel.replyUserinfo(() => ({
+      status: 200,
+      body: { sub: userId, name: 'Grace Brewster Hopper', email: 'grace@example.com' },
+    }));
+    const res = await testApp.get('/api/me', await testApp.signToken({ subject: userId }));
+    expect(await res.json()).toMatchObject({ firstName: 'Grace' });
+    expect(await storedUser()).toMatchObject({ givenName: null });
+  });
+
+  it.each([
+    ['admin', true],
+    ['nutzer', false],
+    ['leser', false],
+    ['controlling', false],
+  ] as const)(
+    'meldet für die Rolle %s die Organisationseinstellungen: %s',
+    async (role, allowed) => {
+      const token = await testApp.signToken({
+        subject: userId,
+        claims: { 'urn:zitadel:iam:org:project:test-project:roles': { [role]: { '1': 'test' } } },
+      });
+      const res = await testApp.get('/api/me', token);
+      expect(await res.json()).toMatchObject({
+        permissions: { viewOrganizationSettings: allowed },
+      });
+    },
+  );
+
+  it('gibt ohne Rollen im Token keine Organisationseinstellungen frei', async () => {
+    const res = await testApp.get('/api/me', await testApp.signToken({ subject: userId }));
+    expect(await res.json()).toMatchObject({ permissions: noPermissions });
   });
 
   it('aktualisiert Name und E-Mail beim nächsten Aufruf und behält created_at', async () => {
@@ -64,7 +106,7 @@ describe('GET /api/me', () => {
     }));
     const res = await testApp.get('/api/me', token);
 
-    expect(await res.json()).toEqual({ name: 'Ada King', email: 'ada.king@example.com' });
+    expect(await res.json()).toMatchObject({ name: 'Ada King', email: 'ada.king@example.com' });
     const second = await storedUser();
     expect(second?.createdAt).toEqual(first?.createdAt);
     expect(second?.updatedAt.getTime()).toBeGreaterThan(first?.updatedAt.getTime() ?? 0);

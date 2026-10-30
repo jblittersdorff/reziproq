@@ -5,6 +5,12 @@
  * Kontraste prüft src/styles/tokens.node.test.ts (WCAG AA).
  */
 
+/* Fensterbreite: darunter gilt ein Fenster als schmal, und die Seitenleiste klappt ein (PLT-11).
+   Als Tailwind-Breakpoint nutzbar, z. B. sidebar:flex. */
+@theme {
+  --breakpoint-sidebar: 64rem;
+}
+
 :root {
   color-scheme: light;
 

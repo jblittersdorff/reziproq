@@ -65,14 +65,22 @@ function Shell() {
 
   return (
     <div className="flex min-h-svh">
-      {/* Breite Fenster: feste Seitenleiste */}
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 bg-muted lg:block">
+      {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
+      <a
+        href="#inhalt"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
+      >
+        {t.app.skipToContent}
+      </a>
+
+      {/* Breite Fenster: feste Seitenleiste mit leichtem Glas-Effekt */}
+      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 bg-muted/90 backdrop-blur sidebar:block">
         <AppSidebar />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Schmale Fenster: Seitenleiste eingeklappt, Menü-Knopf blendet sie ein */}
-        <header className="sticky top-0 z-10 flex items-center gap-2 bg-background/95 px-2 py-2 backdrop-blur lg:hidden">
+        <header className="sticky top-0 z-10 flex items-center gap-2 bg-background/95 px-2 py-2 backdrop-blur sidebar:hidden">
           <Sheet open={navOpen} onOpenChange={setNavOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label={t.app.openNavigation}>
@@ -96,7 +104,11 @@ function Shell() {
           <span className="font-semibold text-base">{t.app.name}</span>
         </header>
 
-        <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-8 sm:px-8 lg:py-12">
+        <main
+          id="inhalt"
+          tabIndex={-1}
+          className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
+        >
           <Outlet />
         </main>
       </div>

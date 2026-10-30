@@ -5,15 +5,21 @@ import { appUser } from './app-user.js';
 describe('app_user', () => {
   const config = getTableConfig(appUser);
 
-  it('hat die Spalten id, name, email, created_at und updated_at', () => {
+  it('hat die Spalten id, name, given_name, email, created_at und updated_at', () => {
     expect(config.name).toBe('app_user');
     expect(config.columns.map((column) => column.name)).toEqual([
       'id',
       'name',
+      'given_name',
       'email',
       'created_at',
       'updated_at',
     ]);
+  });
+
+  it('erlaubt einen leeren Vornamen', () => {
+    const givenName = config.columns.find((column) => column.name === 'given_name');
+    expect(givenName?.notNull).toBe(false);
   });
 
   it('nutzt sub aus dem Token als Primärschlüssel', () => {
