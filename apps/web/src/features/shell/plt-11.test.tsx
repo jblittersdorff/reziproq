@@ -120,9 +120,12 @@ describe('Startseite', () => {
     expect(router.state.location.pathname).toBe(area.path);
   });
 
-  it('lässt den Platz für das Prompt-Fenster leer, ohne Eingabefeld', async () => {
+  // Seit PLT-12 steht dort das Feld, das das Prompt-Fenster öffnet; ein totes Eingabefeld gibt
+  // es weiterhin nicht (siehe features/prompt/plt-12.test.tsx).
+  it('zeigt unter der Begrüßung das Feld für das Prompt-Fenster, kein totes Eingabefeld', async () => {
     renderAt('/uebersicht');
     await screen.findByRole('heading', { level: 1 });
+    expect(screen.getByRole('button', { name: /Frag Reziproq/ })).toBeDefined();
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 });

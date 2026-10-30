@@ -124,6 +124,26 @@ export const en: Messages = {
     tileNoPermission: 'No role for suppliers',
   },
 
+  prompt: {
+    title: 'Ask Reziproq',
+    placeholder: 'Ask Reziproq …',
+    question: 'Your question to Reziproq',
+    send: 'Ask',
+    shortcutMac: '⌘ K',
+    shortcutOther: 'Ctrl K',
+    suggestions: 'Suggestions',
+    suggestionTopSpend: 'Show me the suppliers with the highest spend',
+    suggestionElectronics: 'Which suppliers do we have in the electronics category?',
+    suggestionPulse: 'Open the relationship pulse',
+    answering: 'Reziproq is answering …',
+    hits: 'Results',
+    noHits: 'No results',
+    failed: 'No answer possible right now. Please try again shortly.',
+    rateLimited: 'You have asked a lot of questions just now. Please wait a minute.',
+    restart: 'Start over',
+    disclaimer: 'Answers are based only on data you are allowed to see. Please check.',
+  },
+
   organization: {
     missing: 'You are not assigned to an organization yet. Contact your admin.',
   },

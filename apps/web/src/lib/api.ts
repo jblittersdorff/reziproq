@@ -3,6 +3,9 @@ import {
   forbiddenCodes,
   healthResponseSchema,
   meResponseSchema,
+  type PromptEvent,
+  type PromptRequest,
+  promptEventSchema,
   suppliersResponseSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
@@ -65,3 +68,36 @@ export const suppliersQueryOptions = (accessToken: string) =>
     queryFn: () => getJson('/suppliers', suppliersResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/**
+ * Stellt eine Frage an das Prompt-Fenster (PLT-12) und meldet jedes Ereignis der gestreamten
+ * Antwort, sobald seine Zeile vollständig angekommen ist.
+ */
+export async function streamPrompt(
+  accessToken: string,
+  messages: PromptRequest['messages'],
+  onEvent: (event: PromptEvent) => void,
+  signal: AbortSignal,
+): Promise<void> {
+  const res = await fetch('/api/prompt', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ messages }),
+    signal,
+  });
+  if (!res.ok || !res.body) throw new ApiError('/prompt', res.status, await forbiddenCode(res));
+
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += value;
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (line.trim()) onEvent(promptEventSchema.parse(JSON.parse(line)));
+    }
+  }
+  if (buffer.trim()) onEvent(promptEventSchema.parse(JSON.parse(buffer)));
+}

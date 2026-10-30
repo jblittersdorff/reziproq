@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useMe } from '@/features/auth/use-me';
+import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { type Area, areas } from '@/features/shell/areas';
 import { supplierSummary, useSuppliers } from '@/features/suppliers/use-suppliers';
 import { useT } from '@/lib/i18n';
@@ -27,8 +28,7 @@ export function OverviewPage() {
         {me.data ? greeting(me.data.firstName) : t.overview.greetingWithoutName}
       </h1>
 
-      {/* Platz für das Prompt-Fenster (PLT-12); bis dahin bewusst leer, kein totes Eingabefeld. */}
-      <div data-slot="prompt-platz" />
+      <PromptTrigger />
 
       <section aria-label={t.overview.areas} className="@container">
         <ul className="grid auto-rows-fr gap-4 @xl:grid-cols-2 @4xl:grid-cols-3">

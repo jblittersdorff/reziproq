@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, type TestingModuleBuilder } from '@nestjs/testing';
 import { exportJWK, generateKeyPair, type JWTPayload, SignJWT } from 'jose';
 import { AppModule } from '../app.module.js';
 import { configureApp } from '../configure-app.js';
@@ -16,16 +16,24 @@ export const testAudience = 'test-project';
  * Discovery, Schlüssel und Userinfo laufen über denselben Weg wie im Betrieb, nur lokal.
  * `discoveryIssuer` simuliert ein Discovery-Dokument, das zu einem anderen Issuer gehört.
  */
-export async function startTestApp({ discoveryIssuer = testIssuer } = {}) {
+export async function startTestApp({
+  discoveryIssuer = testIssuer,
+  configure = (builder: TestingModuleBuilder) => builder,
+}: {
+  discoveryIssuer?: string;
+  /** Ersetzt einzelne Bausteine, z. B. das Protokoll oder die Ratenbegrenzung. */
+  configure?: (builder: TestingModuleBuilder) => TestingModuleBuilder;
+} = {}) {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const jwk = { ...(await exportJWK(publicKey)), kid: 'test-key', alg: 'RS256' };
 
   const zitadel = await startFakeZitadel({ issuer: discoveryIssuer, jwk });
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-    .overrideProvider(DISCOVERY_URL)
-    .useValue(zitadel.discoveryUrl)
-    .compile();
+  const moduleRef = await configure(
+    Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(DISCOVERY_URL)
+      .useValue(zitadel.discoveryUrl),
+  ).compile();
   const app: INestApplication = moduleRef.createNestApplication();
   configureApp(app);
   await app.listen(0);
@@ -62,10 +70,20 @@ export async function startTestApp({ discoveryIssuer = testIssuer } = {}) {
   const get = (path: string, token?: string, scheme = 'Bearer') =>
     fetch(`${baseUrl}${path}`, token ? { headers: { authorization: `${scheme} ${token}` } } : {});
 
+  const post = (path: string, body: unknown, token?: string) =>
+    fetch(`${baseUrl}${path}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+
   const close = async () => {
     await app.close();
     await zitadel.close();
   };
 
-  return { app, get, signToken, zitadel, close };
+  return { app, get, post, signToken, zitadel, close };
 }
