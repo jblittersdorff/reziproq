@@ -38,12 +38,25 @@ async function signIn(page: Page, { admin = false } = {}) {
         name: 'Anna Schmidt',
         firstName: 'Anna',
         email: 'anna.schmidt@beispiel-einkauf.de',
-        organization: null,
-        permissions: { viewOrganizationSettings: admin },
+        organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
+        permissions: { viewOrganizationSettings: admin, viewSuppliers: true },
       },
     }),
   );
+  await page.route('**/api/suppliers', (route) =>
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [] } }),
+  );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
+}
+
+/**
+ * Wartet, bis die Seite im Rahmen fertig ist: Die Überschrift steht im Inhaltsbereich des Rahmens
+ * (#inhalt) und es laufen keine Anfragen mehr. Vorher könnte noch die Zwischenseite
+ * „Anmeldung wird geprüft“ zu sehen sein, die auch eine Überschrift hat.
+ */
+async function pageSettled(page: Page) {
+  await expect(page.locator('#inhalt h1')).toBeVisible();
+  await page.waitForLoadState('networkidle');
 }
 
 /** Alle sichtbaren Klickflächen, die kleiner als 44 × 44 px sind. */
@@ -145,7 +158,7 @@ for (const width of [1440, 390]) {
     await signIn(page, { admin: true });
     for (const path of allPaths) {
       await page.goto(path);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await pageSettled(page);
       expect(await tooSmallTargets(page), path).toEqual([]);
     }
 

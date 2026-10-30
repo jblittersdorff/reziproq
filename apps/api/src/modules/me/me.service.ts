@@ -4,6 +4,7 @@ import type { MeResponse } from '@reziproq/shared';
 import { InjectDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { OrganizationService } from '../organizations/organization.service.js';
 import { UserinfoClient } from './userinfo.client.js';
 
 const { appUser } = schema;
@@ -13,6 +14,7 @@ export class MeService {
   constructor(
     @InjectDatabase() private readonly db: Database,
     @Inject(UserinfoClient) private readonly userinfo: UserinfoClient,
+    @Inject(OrganizationService) private readonly organizations: OrganizationService,
   ) {}
 
   /**
@@ -31,15 +33,17 @@ export class MeService {
       .onConflictDoUpdate({ target: appUser.id, set: { ...values, updatedAt: sql`now()` } })
       .returning({ name: appUser.name, givenName: appUser.givenName, email: appUser.email });
     if (!user) throw new Error('app_user wurde nicht gespeichert.');
+    const organization = await this.organizations.forUser(auth.userId);
 
     return {
       name: user.name,
       firstName: user.givenName || firstWord(user.name),
       email: user.email,
-      // Die Zuordnung zu einer Organisation kommt mit PLT-02.
-      organization: null,
+      organization: organization && { id: organization.id, name: organization.name },
       permissions: {
         viewOrganizationSettings: can(auth, 'organisation.einstellungen.sehen'),
+        // Lieferanten nur für Käufer mit Rolle; so fragt die Oberfläche die Liste gar nicht erst an.
+        viewSuppliers: organization?.typ === 'kaeufer' && can(auth, 'lieferanten.sehen'),
       },
     };
   }

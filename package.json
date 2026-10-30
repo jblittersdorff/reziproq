@@ -18,7 +18,8 @@
     "test:watch": "vitest",
     "test:e2e": "pnpm --filter @reziproq/web test:e2e",
     "db:generate": "pnpm --filter @reziproq/db db:generate",
-    "db:migrate": "pnpm --filter @reziproq/db db:migrate"
+    "db:migrate": "pnpm --filter @reziproq/db db:migrate",
+    "db:seed": "pnpm --filter @reziproq/db db:seed"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",

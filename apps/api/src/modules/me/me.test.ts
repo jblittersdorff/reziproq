@@ -13,7 +13,7 @@ describe('GET /api/me', () => {
   // Eigene Nutzer-ID je Testlauf, damit parallele Läufe sich nicht stören.
   const userId = `test-${randomUUID()}`;
   const ada = { sub: userId, name: 'Ada Lovelace', given_name: 'Ada', email: 'ada@example.com' };
-  const noPermissions = { viewOrganizationSettings: false };
+  const noPermissions = { viewOrganizationSettings: false, viewSuppliers: false };
 
   const storedUser = async () =>
     (await db.select().from(schema.appUser).where(sql`${schema.appUser.id} = ${userId}`))[0];
@@ -89,6 +89,35 @@ describe('GET /api/me', () => {
       });
     },
   );
+
+  it('liefert die Organisation und gibt Käufern mit Rolle die Lieferanten frei', async () => {
+    const orgId = randomUUID();
+    await db
+      .insert(schema.organization)
+      .values({ id: orgId, name: `Me-Test-OEM ${userId}`, typ: 'kaeufer' });
+    try {
+      const token = await testApp.signToken({
+        subject: userId,
+        claims: { 'urn:zitadel:iam:org:project:test-project:roles': { leser: { '1': 'test' } } },
+      });
+      await testApp.get('/api/me', token);
+      await db
+        .update(schema.appUser)
+        .set({ organizationId: orgId })
+        .where(sql`${schema.appUser.id} = ${userId}`);
+      const res = await testApp.get('/api/me', token);
+      expect(await res.json()).toMatchObject({
+        organization: { id: orgId, name: `Me-Test-OEM ${userId}` },
+        permissions: { viewOrganizationSettings: false, viewSuppliers: true },
+      });
+    } finally {
+      await db
+        .update(schema.appUser)
+        .set({ organizationId: null })
+        .where(sql`${schema.appUser.id} = ${userId}`);
+      await db.delete(schema.organization).where(sql`${schema.organization.id} = ${orgId}`);
+    }
+  });
 
   it('gibt ohne Rollen im Token keine Organisationseinstellungen frei', async () => {
     const res = await testApp.get('/api/me', await testApp.signToken({ subject: userId }));

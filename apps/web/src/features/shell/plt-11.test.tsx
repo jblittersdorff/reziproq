@@ -1,11 +1,7 @@
 // @vitest-environment jsdom
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { LocaleProvider } from '@/lib/i18n';
-import { ThemeProvider } from '@/lib/theme';
-import { routeTree } from '@/routeTree.gen';
+import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
 
 // Tests zu docs/specs/PLT-11.md: App-Rahmen und Startseite.
 
@@ -20,80 +16,12 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
   zitadelSettings: { issuer: 'https://zitadel.test', clientId: 'web-client' },
 }));
 
-const signedIn = {
-  isLoading: false,
-  error: undefined,
-  user: { access_token: 'access-token-1', expired: false },
-  signinRedirect: vi.fn(),
-  signoutRedirect: vi.fn(),
-};
-
-const me = {
-  name: 'Anna Schmidt',
-  firstName: 'Anna',
-  email: 'anna@example.com',
-  organization: null,
-  permissions: { viewOrganizationSettings: false },
-};
-let meResponse = me;
-
-// Nachgebaute API: /api/me nur mit dem Token aus dem Login.
-function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
-  const url = String(input);
-  const authorization = new Headers(init?.headers).get('authorization');
-  if (url === '/api/health') return Response.json({ status: 'ok' });
-  if (url === '/api/me' && authorization === 'Bearer access-token-1') {
-    return Response.json(meResponse);
-  }
-  return Response.json({ statusCode: 401 }, { status: 401 });
-}
-
-function renderAt(path: string) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: [path] }),
-    context: { queryClient },
-  });
-  render(
-    <ThemeProvider>
-      <LocaleProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </LocaleProvider>
-    </ThemeProvider>,
-  );
-  return router;
-}
-
-let consoleError: ReturnType<typeof vi.spyOn>;
-
 beforeEach(() => {
   auth.state = signedIn;
-  meResponse = me;
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async (input, init) => fakeApi(input, init)),
-  );
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: false,
-    media: query,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  }));
-  consoleError = vi.spyOn(console, 'error');
+  setUpApp();
 });
 
-afterEach(() => {
-  cleanup();
-  vi.unstubAllGlobals();
-  vi.useRealTimers();
-  localStorage.clear();
-  // Keine Seite darf Fehler in die Konsole schreiben.
-  expect(consoleError).not.toHaveBeenCalled();
-  consoleError.mockRestore();
-});
+afterEach(tearDownApp);
 
 // Reihenfolge, Sätze, Routen und Releases aus der Tabelle in PLT-11.
 const areas = [
@@ -163,16 +91,23 @@ describe('Startseite', () => {
 
   it('zeigt genau sechs Kacheln in der Reihenfolge der Spec mit Satz und Release', async () => {
     renderAt('/uebersicht');
-    const tiles = within(await screen.findByRole('region', { name: 'Bereiche' })).getAllByRole(
-      'link',
-    );
+    const region = await screen.findByRole('region', { name: 'Bereiche' });
+    // Die Kennzahl der Lieferanten-Kachel kommt erst mit der Antwort der API.
+    await within(region).findByText(/^3 Lieferanten/);
+    const tiles = within(region).getAllByRole('link');
     expect(tiles).toHaveLength(6);
     tiles.forEach((tile, index) => {
       const area = areas[index];
       expect(tile.getAttribute('href')).toBe(area?.path);
       expect(tile.textContent).toContain(area?.title);
       expect(tile.textContent).toContain(area?.sentence);
-      expect(tile.textContent).toContain(`Kommt mit Release ${area?.release}`);
+      // Seit PLT-02 zeigt die Lieferanten-Kachel Kennzahlen statt des Release-Hinweises.
+      // Intl trennt Betrag und Währung mit einem geschützten Leerzeichen.
+      expect(tile.textContent?.replaceAll('\u00a0', ' ')).toContain(
+        area?.title === 'Lieferanten'
+          ? '3 Lieferanten · 10.230.000 € Jahresspend 2025'
+          : `Kommt mit Release ${area?.release}`,
+      );
     });
   });
 
@@ -221,7 +156,10 @@ describe('Seitenleiste', () => {
 });
 
 describe('Bereichsseiten', () => {
-  it.each(areas)('$path zeigt Titel, Satz und leeren Zustand mit Release', async (area) => {
+  // Lieferanten ist seit PLT-02 eine echte Seite (siehe features/suppliers/plt-02.test.tsx).
+  const comingSoon = areas.filter((area) => area.path !== '/lieferanten');
+
+  it.each(comingSoon)('$path zeigt Titel, Satz und leeren Zustand mit Release', async (area) => {
     renderAt(area.path);
     expect(await screen.findByRole('heading', { level: 1, name: area.title })).toBeDefined();
     expect(screen.getByText(area.sentence)).toBeDefined();
@@ -246,7 +184,7 @@ describe('Einstellungen', () => {
   });
 
   it('zeigt den Abschnitt Organisation nur, wenn die API ihn erlaubt', async () => {
-    meResponse = { ...me, permissions: { viewOrganizationSettings: true } };
+    api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: true } };
     renderAt('/einstellungen');
     expect(await screen.findByRole('heading', { level: 2, name: 'Organisation' })).toBeDefined();
   });

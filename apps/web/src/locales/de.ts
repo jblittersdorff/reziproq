@@ -104,6 +104,34 @@ export const de = {
       'Hier verwaltest du später deine Organisation. Nur Admins sehen diesen Abschnitt.',
   },
 
+  // Lieferantenliste (PLT-02)
+  suppliers: {
+    count: (count: number) => (count === 1 ? '1 Lieferant' : `${count} Lieferanten`),
+    totalSpend: (amount: string, year: number) => `${amount} Jahresspend ${year}`,
+    search: 'Lieferant oder Warengruppe suchen',
+    searchPlaceholder: 'Name oder Warengruppe',
+    sort: 'Sortieren',
+    sortSpend: 'Spend, höchster zuerst',
+    sortName: 'Name, A bis Z',
+    country: 'Land',
+    category: 'Warengruppe',
+    annualSpend: (year: number) => `Jahresspend ${year}`,
+    loading: 'Lieferanten werden geladen …',
+    failed: 'Die Lieferanten konnten nicht geladen werden. Lade die Seite neu.',
+    emptyTitle: 'Noch keine Lieferanten.',
+    emptyDescription: 'Mit dem Import (kommt in Release 0.1) lädst du sie aus Excel.',
+    noResults: (query: string) => `Keine Lieferanten zu „${query}“.`,
+    noPermissionTitle: 'Dir fehlt eine Rolle',
+    noPermissionDescription:
+      'Um Lieferanten zu sehen, brauchst du in Reziproq eine Käufer-Rolle. Wende dich an deinen Admin.',
+    tileNoOrganization: 'Keiner Organisation zugeordnet',
+    tileNoPermission: 'Keine Rolle für Lieferanten',
+  },
+
+  organization: {
+    missing: 'Du bist noch keiner Organisation zugeordnet. Wende dich an deinen Admin.',
+  },
+
   notFound: {
     title: 'Diese Seite gibt es nicht',
     description: 'Vielleicht hat sich die Adresse geändert, oder sie enthält einen Tippfehler.',

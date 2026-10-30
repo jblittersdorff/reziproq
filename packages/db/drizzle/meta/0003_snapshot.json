@@ -1,0 +1,292 @@
+{
+  "id": "db0c2103-8ec7-48de-a8bb-01d9c43fc0c5",
+  "prevId": "1d2f54e2-af0c-468d-8782-fbd386ae0776",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.app_user": {
+      "name": "app_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "given_name": {
+          "name": "given_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "app_user_organization_id_organization_id_fk": {
+          "name": "app_user_organization_id_organization_id_fk",
+          "tableFrom": "app_user",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.beziehung": {
+      "name": "beziehung",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "kaeufer_org_id": {
+          "name": "kaeufer_org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lieferant_org_id": {
+          "name": "lieferant_org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "beziehung_kaeufer_org_id_organization_id_fk": {
+          "name": "beziehung_kaeufer_org_id_organization_id_fk",
+          "tableFrom": "beziehung",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "kaeufer_org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "beziehung_lieferant_org_id_organization_id_fk": {
+          "name": "beziehung_lieferant_org_id_organization_id_fk",
+          "tableFrom": "beziehung",
+          "tableTo": "organization",
+          "columnsFrom": [
+            "lieferant_org_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "beziehung_paar": {
+          "name": "beziehung_paar",
+          "nullsNotDistinct": false,
+          "columns": [
+            "kaeufer_org_id",
+            "lieferant_org_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.beziehung_kaeufer": {
+      "name": "beziehung_kaeufer",
+      "schema": "",
+      "columns": {
+        "beziehung_id": {
+          "name": "beziehung_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "warengruppe": {
+          "name": "warengruppe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jahresspend_cent": {
+          "name": "jahresspend_cent",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "spend_jahr": {
+          "name": "spend_jahr",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "waehrung": {
+          "name": "waehrung",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'EUR'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "beziehung_kaeufer_beziehung_id_beziehung_id_fk": {
+          "name": "beziehung_kaeufer_beziehung_id_beziehung_id_fk",
+          "tableFrom": "beziehung_kaeufer",
+          "tableTo": "beziehung",
+          "columnsFrom": [
+            "beziehung_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "beziehung_kaeufer_spend_positiv": {
+          "name": "beziehung_kaeufer_spend_positiv",
+          "value": "\"beziehung_kaeufer\".\"jahresspend_cent\" >= 0"
+        },
+        "beziehung_kaeufer_waehrung_iso": {
+          "name": "beziehung_kaeufer_waehrung_iso",
+          "value": "\"beziehung_kaeufer\".\"waehrung\" ~ '^[A-Z]{3}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.organization": {
+      "name": "organization",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "typ": {
+          "name": "typ",
+          "type": "organization_typ",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "land": {
+          "name": "land",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "organization_land_iso": {
+          "name": "organization_land_iso",
+          "value": "\"organization\".\"land\" ~ '^[A-Z]{2}$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.organization_typ": {
+      "name": "organization_typ",
+      "schema": "public",
+      "values": [
+        "kaeufer",
+        "lieferant"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

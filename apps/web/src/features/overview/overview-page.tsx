@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useMe } from '@/features/auth/use-me';
-import { areas } from '@/features/shell/areas';
+import { type Area, areas } from '@/features/shell/areas';
+import { supplierSummary, useSuppliers } from '@/features/suppliers/use-suppliers';
 import { useT } from '@/lib/i18n';
 import { dayTime } from './greeting';
 
@@ -48,7 +49,7 @@ export function OverviewPage() {
                     <span className="text-muted-foreground">{texts.sentence}</span>
                   </span>
                   <span className="text-muted-foreground text-sm">
-                    {t.comingWith(area.release)}
+                    <AreaStatus area={area} />
                   </span>
                 </Link>
               </li>
@@ -58,4 +59,21 @@ export function OverviewPage() {
       </section>
     </div>
   );
+}
+
+/** Statuszeile einer Kachel: Kennzahl, sobald es Daten gibt, sonst das Release (PLT-11). */
+function AreaStatus({ area }: { area: Area }) {
+  const t = useT();
+  if (area.key === 'suppliers') return <SuppliersStatus />;
+  return <>{t.comingWith(area.release)}</>;
+}
+
+function SuppliersStatus() {
+  const t = useT();
+  const { me, allowed, data } = useSuppliers();
+  if (!me.data) return <>{t.suppliers.loading}</>;
+  if (!me.data.organization) return <>{t.suppliers.tileNoOrganization}</>;
+  if (!allowed) return <>{t.suppliers.tileNoPermission}</>;
+  if (!data) return <>{t.suppliers.loading}</>;
+  return <>{supplierSummary(data, t)}</>;
 }

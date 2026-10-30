@@ -84,7 +84,7 @@ test('Login mit PKCE landet auf /uebersicht mit Begrüßung und Name im Nutzer-M
             firstName: 'Ada',
             email: 'ada@example.com',
             organization: null,
-            permissions: { viewOrganizationSettings: false },
+            permissions: { viewOrganizationSettings: false, viewSuppliers: false },
           },
         })
       : route.fulfill({ status: 401, json: { statusCode: 401 } }),
