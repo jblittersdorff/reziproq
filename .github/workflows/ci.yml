@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: reziproq
+          POSTGRES_PASSWORD: reziproq_local
+          POSTGRES_DB: reziproq
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://reziproq:reziproq_local@localhost:5432/reziproq
+    steps:
+      - uses: actions/checkout@v7.0.1
+      # pnpm 12 wird erst ab pnpm/action-setup 6.1.0 unterstützt
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm --filter @reziproq/db db:migrate
+      - run: pnpm test

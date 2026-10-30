@@ -16,7 +16,8 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     // Gemeinsame Pakete direkt aus dem TypeScript-Quellcode laden (schnelles Neuladen).
-    conditions: ['@reziproq/source'],
+    // Vites Standardbedingungen bleiben erhalten.
+    conditions: ['@reziproq/source', 'module', 'browser', 'development|production'],
   },
   server: {
     port: 5173,
