@@ -8,6 +8,8 @@ export const en: Messages = {
     openNavigation: 'Open navigation',
     closeNavigation: 'Close navigation',
     skipToContent: 'Skip to content',
+    notifications: 'Notifications',
+    closeNotification: 'Close notification',
   },
 
   nav: {

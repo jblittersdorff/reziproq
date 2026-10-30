@@ -1,5 +1,5 @@
-import { IconLayoutDashboard, IconSettings } from '@tabler/icons-react';
 import { Link, type LinkProps } from '@tanstack/react-router';
+import { LayoutDashboardIcon, type LucideIcon, SettingsIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useT } from '@/lib/i18n';
 import { areas } from './areas';
@@ -26,7 +26,7 @@ export function AppSidebar({
         {headerAction}
       </div>
       <nav aria-label={t.app.navigation} className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        <NavLink to="/uebersicht" icon={IconLayoutDashboard} onNavigate={onNavigate}>
+        <NavLink to="/uebersicht" icon={LayoutDashboardIcon} onNavigate={onNavigate}>
           {t.nav.overview}
         </NavLink>
         {areas.map((area) => (
@@ -35,7 +35,7 @@ export function AppSidebar({
           </NavLink>
         ))}
         <div className="mt-auto pt-4">
-          <NavLink to="/einstellungen" icon={IconSettings} onNavigate={onNavigate}>
+          <NavLink to="/einstellungen" icon={SettingsIcon} onNavigate={onNavigate}>
             {t.nav.settings}
           </NavLink>
         </div>
@@ -52,7 +52,7 @@ function NavLink({
   children,
 }: {
   to: NonNullable<LinkProps['to']>;
-  icon: typeof IconSettings;
+  icon: LucideIcon;
   onNavigate?: (() => void) | undefined;
   children: ReactNode;
 }) {

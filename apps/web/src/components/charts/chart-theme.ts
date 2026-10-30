@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-// Diagramm-Theme für Recharts und ECharts – aus denselben Tokens wie die Oberfläche
-// (src/styles/tokens.css). Beide Bibliotheken brauchen echte Farbwerte statt var(--…),
+// Diagramm-Theme für Recharts und ECharts – nur aus den Diagramm-Tokens (--chart-*) in
+// src/styles/tokens.css, nie aus den Standardfarben der Bibliotheken (PLT-10). Beide Bibliotheken brauchen echte Farbwerte statt var(--…),
 // daher werden die Tokens zur Laufzeit gelesen und bei jedem Moduswechsel neu bestimmt.
 
-const colorTokens = {
+export const colorTokens = {
   context: '--chart-context',
   accent: '--chart-accent',
   strong: '--chart-strong',
@@ -15,10 +15,10 @@ const colorTokens = {
   field: '--chart-field',
   buyer: '--chart-buyer',
   supplier: '--chart-supplier',
-  background: '--background',
-  popover: '--popover',
-  popoverForeground: '--popover-foreground',
-  border: '--border',
+  surface: '--chart-surface',
+  tooltip: '--chart-tooltip',
+  tooltipForeground: '--chart-tooltip-foreground',
+  tooltipBorder: '--chart-tooltip-border',
 } as const;
 
 export type ChartColor = keyof typeof colorTokens;
@@ -83,9 +83,9 @@ export function echartsBase(theme: ChartTheme) {
     animationDuration: 200,
     textStyle: { fontFamily, fontSize: fontSize.sm, color: colors.label },
     tooltip: {
-      backgroundColor: colors.popover,
-      borderColor: colors.border,
-      textStyle: { color: colors.popoverForeground, fontFamily, fontSize: fontSize.sm },
+      backgroundColor: colors.tooltip,
+      borderColor: colors.tooltipBorder,
+      textStyle: { color: colors.tooltipForeground, fontFamily, fontSize: fontSize.sm },
     },
   };
 }

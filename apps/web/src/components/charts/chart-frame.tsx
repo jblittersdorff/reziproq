@@ -1,4 +1,4 @@
-import { IconChartDots } from '@tabler/icons-react';
+import { ChartScatterIcon } from 'lucide-react';
 import type * as React from 'react';
 
 import { EmptyState } from '@/components/ui/empty-state';
@@ -29,7 +29,11 @@ export function ChartFrame({
         {description && <span className="text-muted-foreground text-sm">{description}</span>}
       </figcaption>
       {isEmpty ? (
-        <EmptyState icon={<IconChartDots />} title={empty.title} description={empty.description} />
+        <EmptyState
+          icon={<ChartScatterIcon />}
+          title={empty.title}
+          description={empty.description}
+        />
       ) : (
         children
       )}

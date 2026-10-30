@@ -15,34 +15,56 @@ function initialPreference(): ThemePreference {
 interface ThemeContextValue {
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
+  /** Vorübergehender Modus einer einzelnen Seite, ohne die Wahl des Nutzers zu ändern. */
+  setOverride: (override: ThemePreference | null) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceState] = useState<ThemePreference>(initialPreference);
+  const [override, setOverride] = useState<ThemePreference | null>(null);
+  const effective = override ?? preference;
 
   useEffect(() => {
     const media = window.matchMedia(darkQuery);
     const apply = () => {
-      const dark = preference === 'dark' || (preference === 'system' && media.matches);
+      const dark = effective === 'dark' || (effective === 'system' && media.matches);
       document.documentElement.classList.toggle('dark', dark);
     };
     apply();
     media.addEventListener('change', apply);
     return () => media.removeEventListener('change', apply);
-  }, [preference]);
+  }, [effective]);
 
   const setPreference = (next: ThemePreference) => {
     setPreferenceState(next);
     writeStored(storageKey, next);
   };
 
-  return <ThemeContext value={{ preference, setPreference }}>{children}</ThemeContext>;
+  return <ThemeContext value={{ preference, setPreference, setOverride }}>{children}</ThemeContext>;
 }
 
 export function useTheme(): ThemeContextValue {
   const value = use(ThemeContext);
   if (!value) throw new Error('useTheme braucht einen ThemeProvider');
   return value;
+}
+
+/**
+ * Modus nur für die aufrufende Seite, z. B. den Umschalter im Styleguide (PLT-10).
+ * Wird nicht gespeichert; beim Verlassen der Seite gilt wieder die Wahl des Nutzers.
+ * Wirkt auf das ganze Dokument, damit auch Dialoge und Sheets im Portal mitwechseln.
+ */
+export function usePageTheme(): [ThemePreference, (preference: ThemePreference) => void] {
+  const { preference, setOverride } = useTheme();
+  // Startet mit der Wahl des Nutzers, damit beim Öffnen nichts umspringt.
+  const [pageTheme, setPageTheme] = useState<ThemePreference>(preference);
+
+  useEffect(() => {
+    setOverride(pageTheme);
+  }, [pageTheme, setOverride]);
+  useEffect(() => () => setOverride(null), [setOverride]);
+
+  return [pageTheme, setPageTheme];
 }

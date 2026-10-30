@@ -82,7 +82,7 @@ export function SegmentMatrix({
         // Feste Felder; Gruppen entstehen über die Lücken, nicht über Linien.
         markArea: {
           silent: true,
-          itemStyle: { color: colors.field, borderColor: colors.background, borderWidth: 4 },
+          itemStyle: { color: colors.field, borderColor: colors.surface, borderWidth: 4 },
           data: fields,
         },
       },

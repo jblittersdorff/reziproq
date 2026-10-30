@@ -1,9 +1,11 @@
 import type { Supplier } from '@reziproq/shared';
-import { IconAlertTriangle, IconBuildingFactory2, IconLock, IconSearch } from '@tabler/icons-react';
+import { FactoryIcon, LockIcon } from 'lucide-react';
 import { useId, useState } from 'react';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Input } from '@/components/ui/input';
+import { ErrorState } from '@/components/ui/error-state';
+import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { SearchInput } from '@/components/ui/search-input';
 import { PageHeader } from '@/features/shell/page-header';
 import { ApiError } from '@/lib/api';
 import { useT } from '@/lib/i18n';
@@ -52,7 +54,7 @@ export function SuppliersPage() {
         <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
         <EmptyState
           size="lg"
-          icon={<IconLock aria-hidden />}
+          icon={<LockIcon aria-hidden />}
           title={t.suppliers.noPermissionTitle}
           description={t.suppliers.noPermissionDescription}
         />
@@ -65,11 +67,7 @@ export function SuppliersPage() {
     return (
       <>
         <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
-        <EmptyState
-          icon={<IconAlertTriangle aria-hidden />}
-          title={t.suppliers.failed}
-          description=""
-        />
+        <ErrorState title={t.suppliers.failed} />
       </>
     );
   }
@@ -78,9 +76,7 @@ export function SuppliersPage() {
     return (
       <>
         <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
-        <p role="status" className="text-muted-foreground">
-          {t.suppliers.loading}
-        </p>
+        <LoadingState label={t.suppliers.loading} />
       </>
     );
   }
@@ -91,7 +87,7 @@ export function SuppliersPage() {
         <PageHeader title={title} purpose={supplierSummary(data, t)} />
         <EmptyState
           size="lg"
-          icon={<IconBuildingFactory2 aria-hidden />}
+          icon={<FactoryIcon aria-hidden />}
           title={t.suppliers.emptyTitle}
           description={t.suppliers.emptyDescription}
         />
@@ -106,20 +102,12 @@ export function SuppliersPage() {
       <PageHeader title={title} purpose={supplierSummary(data, t)} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="relative flex-1">
-          <IconSearch
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            type="search"
-            aria-label={t.suppliers.search}
-            placeholder={t.suppliers.searchPlaceholder}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className="h-12 rounded-lg pl-12 text-lg"
-          />
-        </div>
+        <SearchInput
+          aria-label={t.suppliers.search}
+          placeholder={t.suppliers.searchPlaceholder}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
         <div className="flex flex-col gap-1 sm:w-56">
           <label htmlFor={sortId} className="text-muted-foreground text-sm">
             {t.suppliers.sort}

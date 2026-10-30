@@ -1,12 +1,8 @@
-import {
-  IconAlertTriangle,
-  IconLoader2,
-  IconLogin2,
-  IconPlugConnectedX,
-} from '@tabler/icons-react';
+import { LogInIcon, TriangleAlertIcon, UnplugIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
 import { useT } from '@/lib/i18n';
 
 /** Rahmen für alles vor dem Login: schmale Spalte mit dem Namen der App. */
@@ -23,19 +19,14 @@ export function AuthPage({ children }: { children: ReactNode }) {
 /** Ladezustand, solange die Sitzung geprüft oder der Login abgeschlossen wird. */
 export function AuthChecking() {
   const t = useT();
-  return (
-    <p role="status" className="flex items-center gap-2 text-muted-foreground">
-      <IconLoader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden />
-      {t.auth.checking}
-    </p>
-  );
+  return <LoadingState label={t.auth.checking} />;
 }
 
 export function AuthFailed({ action }: { action: ReactNode }) {
   const t = useT();
   return (
     <EmptyState
-      icon={<IconAlertTriangle />}
+      icon={<TriangleAlertIcon />}
       title={t.auth.failedTitle}
       description={t.auth.failedDescription}
       action={action}
@@ -47,7 +38,7 @@ export function AuthNotConfigured() {
   const t = useT();
   return (
     <EmptyState
-      icon={<IconPlugConnectedX />}
+      icon={<UnplugIcon />}
       title={t.auth.notConfiguredTitle}
       description={t.auth.notConfiguredDescription}
     />
@@ -60,7 +51,7 @@ export function SignIn({ onSignIn }: { onSignIn: () => void }) {
     <div className="flex flex-col items-start gap-4">
       <p className="text-muted-foreground">{t.auth.welcome}</p>
       <Button onClick={onSignIn}>
-        <IconLogin2 />
+        <LogInIcon />
         {t.auth.signIn}
       </Button>
     </div>
