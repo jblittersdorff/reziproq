@@ -25,7 +25,7 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 - Rechte immer über can() im Backend prüfen, nie nur im Frontend
 - Keine Bewertung einzelner Personen, nur Organisationen, Funktionen und Beziehungen
 - Keine Zugangsdaten im Code, nur über Umgebungsvariablen
-- Neue Abhängigkeiten nur mit MIT-, Apache- oder BSD-Lizenz, Version fest gepinnt
+- Neue Abhängigkeiten nur mit MIT-, Apache-, BSD- oder ISC-Lizenz, Version fest gepinnt
 - Jede Änderung mit Test; vor dem Bauen die Spec in docs/specs/ lesen
 - Für jede Arbeit an der Oberfläche gilt der Skill ui-design
 - Alles in AWS entsteht über infra/ mit OpenTofu, nie per Hand in der Konsole
