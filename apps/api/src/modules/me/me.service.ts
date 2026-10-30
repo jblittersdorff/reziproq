@@ -19,14 +19,21 @@ export class MeService {
 
   /**
    * Holt Name, Vorname und E-Mail von Zitadel, speichert sie in app_user und liefert den
-   * gespeicherten Stand zusammen mit den Rechten der Person.
+   * gespeicherten Stand zusammen mit den Rechten der Person. Mit login wird zusätzlich
+   * last_login_at gesetzt.
    */
-  async syncFromUserinfo(auth: AuthContext): Promise<MeResponse> {
+  async syncFromUserinfo(auth: AuthContext, { login = false } = {}): Promise<MeResponse> {
     const info = await this.userinfo.fetch(auth.accessToken);
     // Userinfo muss zur selben Person gehören wie das Token (OpenID Connect Core 5.3.2).
     if (info.sub !== auth.userId) throw new UnauthorizedException();
 
-    const values = { name: info.name, givenName: info.given_name || null, email: info.email };
+    const values = {
+      name: info.name,
+      givenName: info.given_name || null,
+      email: info.email,
+      // Nur nach einer abgeschlossenen Anmeldung, nicht bei jedem Aufruf (PLT-01).
+      ...(login ? { lastLoginAt: sql`now()` } : {}),
+    };
     const [user] = await this.db
       .insert(appUser)
       .values({ id: auth.userId, ...values })
@@ -41,6 +48,7 @@ export class MeService {
       email: user.email,
       organization: organization && { id: organization.id, name: organization.name },
       supportView: auth.supportOrganization !== undefined,
+      roles: [...auth.roles],
       permissions: {
         viewOrganizationSettings: can(auth, 'organisation.einstellungen.sehen'),
         // Lieferanten nur für Käufer mit Rolle; so fragt die Oberfläche die Liste gar nicht erst an.

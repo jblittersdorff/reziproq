@@ -55,6 +55,7 @@ describe('GET /api/me', () => {
       email: 'ada@example.com',
       organization: null,
       supportView: false,
+      roles: [],
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);
@@ -127,6 +128,44 @@ describe('GET /api/me', () => {
   it('gibt ohne Rollen im Token keine Organisationseinstellungen frei', async () => {
     const res = await testApp.get('/api/me', await testApp.signToken({ subject: userId }));
     expect(await res.json()).toMatchObject({ permissions: noPermissions });
+  });
+
+  it('nennt die Rollen, die im Token stehen, und ignoriert unbekannte (PLT-01)', async () => {
+    const token = await testApp.signToken({
+      subject: userId,
+      claims: {
+        'urn:zitadel:iam:org:project:test-project:roles': {
+          betreiber: { org: 'reziproq' },
+          unbekannt: { org: 'reziproq' },
+        },
+      },
+    });
+    const res = await testApp.get('/api/me', token);
+    expect(await res.json()).toMatchObject({ roles: ['betreiber'] });
+  });
+
+  it('PLT-01: Beim ersten Login wird app_user angelegt, bei jedem Login last_login_at aktualisiert', async () => {
+    const token = await testApp.signToken({ subject: userId });
+
+    const first = await testApp.post('/api/me/anmeldung', {}, token);
+    expect(first.status).toBe(200);
+    expect(await first.json()).toMatchObject({ name: 'Ada Lovelace', email: 'ada@example.com' });
+    const created = await storedUser();
+    expect(created?.lastLoginAt).toBeInstanceOf(Date);
+
+    // Ein normaler Aufruf von /api/me ist keine Anmeldung.
+    await testApp.get('/api/me', token);
+    expect((await storedUser())?.lastLoginAt).toEqual(created?.lastLoginAt);
+
+    await testApp.post('/api/me/anmeldung', {}, token);
+    const second = await storedUser();
+    expect(second?.createdAt).toEqual(created?.createdAt);
+    expect(second?.lastLoginAt?.getTime()).toBeGreaterThan(created?.lastLoginAt?.getTime() ?? 0);
+  });
+
+  it('legt über /api/me ohne Anmeldung kein last_login_at an', async () => {
+    await testApp.get('/api/me', await testApp.signToken({ subject: userId }));
+    expect((await storedUser())?.lastLoginAt).toBeNull();
   });
 
   it('aktualisiert Name und E-Mail beim nächsten Aufruf und behält created_at', async () => {

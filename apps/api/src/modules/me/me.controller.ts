@@ -1,4 +1,4 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Post } from '@nestjs/common';
 import type { MeResponse } from '@reziproq/shared';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
@@ -11,5 +11,12 @@ export class MeController {
   @Get()
   get(@CurrentUser() auth: AuthContext): Promise<MeResponse> {
     return this.me.syncFromUserinfo(auth);
+  }
+
+  /** Die App meldet hier jede abgeschlossene Anmeldung; legt app_user an und setzt last_login_at. */
+  @Post('anmeldung')
+  @HttpCode(200)
+  login(@CurrentUser() auth: AuthContext): Promise<MeResponse> {
+    return this.me.syncFromUserinfo(auth, { login: true });
   }
 }

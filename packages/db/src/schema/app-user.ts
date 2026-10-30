@@ -14,6 +14,8 @@ export const appUser = pgTable('app_user', {
   organizationId: uuid('organization_id').references(() => organization.id, {
     onDelete: 'set null',
   }),
+  // Zeitpunkt der letzten abgeschlossenen Anmeldung; die App meldet sie nach jedem Login (PLT-01).
+  lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

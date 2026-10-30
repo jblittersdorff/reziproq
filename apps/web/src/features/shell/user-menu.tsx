@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMe } from '@/features/auth/use-me';
 import { CustomerDialog } from '@/features/support/customer-dialog';
+import { signedOut } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 
 /** Unten in der Seitenleiste: wer angemeldet ist, dazu Einstellungen und Abmelden. */
@@ -73,7 +74,13 @@ export function UserMenu({ onNavigate }: { onNavigate?: (() => void) | undefined
               {t.user.settings}
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => void auth.signoutRedirect()}>
+          <DropdownMenuItem
+            onSelect={() => {
+              // Danach „Anmelden“ zeigen statt sofort wieder zu Zitadel zu leiten (PLT-01).
+              signedOut.mark();
+              void auth.signoutRedirect();
+            }}
+          >
             <IconLogout />
             {t.user.signOut}
           </DropdownMenuItem>

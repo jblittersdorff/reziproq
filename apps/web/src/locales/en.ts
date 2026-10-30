@@ -34,6 +34,9 @@ export const en: Messages = {
     notConfiguredDescription:
       'Add ZITADEL_ISSUER and ZITADEL_CLIENT_ID to the .env file and restart the app.',
     backHome: 'Back to overview',
+    reauthTitle: 'Please sign in again',
+    reauthDescription: 'Your session has expired. Everything you entered stays where it is.',
+    reauthAction: 'Sign in again',
   },
 
   comingWith: (release: string) => `Coming with release ${release}`,
@@ -99,6 +102,12 @@ export const en: Messages = {
     organizationTitle: 'Nothing to set up yet',
     organizationDescription:
       'This is where you will manage your organization. Only admins see this section.',
+    account: 'Account',
+    roles: 'Your roles in Reziproq',
+    rolesDescription: 'As they arrive in the token from Zitadel.',
+    rolesNone: 'None',
+    rolesNoneHint:
+      'Zitadel sends no roles in the token. In the Zitadel project, check “Assert roles on authentication” and whether a role is assigned to you. Then sign out and in again.',
   },
 
   suppliers: {

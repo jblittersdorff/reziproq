@@ -1,6 +1,6 @@
 import { IconMenu2, IconX } from '@tabler/icons-react';
-import { Outlet } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Outlet, useRouterState } from '@tanstack/react-router';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -11,10 +11,11 @@ import {
   AuthPage,
   SignIn,
 } from '@/features/auth/auth-states';
+import { ReauthNotice } from '@/features/auth/reauth-notice';
 import { useMe } from '@/features/auth/use-me';
 import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { SupportBanner } from '@/features/support/support-banner';
-import { signInState, zitadelSettings } from '@/lib/auth';
+import { signedOut, signInState, zitadelSettings } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { AppSidebar } from './app-sidebar';
 
@@ -34,37 +35,52 @@ export function AppLayout() {
 function AuthGate() {
   const t = useT();
   const auth = useAuth();
+  // Nach dem Abmelden zeigt die App „Anmelden“, statt sofort wieder zu Zitadel zu leiten (PLT-01).
+  const [justSignedOut] = useState(() => signedOut.isSet());
+  const redirecting = useRef(false);
+  const here = useRouterState({ select: (state) => state.location.href });
 
-  if (auth.isLoading) {
+  // Ohne Sitzung (auch nach dem Neuladen, die Tokens liegen nur im Speicher) geht es direkt zu
+  // Zitadel; danach zurück auf genau diese Seite.
+  const needsLogin =
+    !auth.isLoading && !auth.error && !auth.user && !auth.activeNavigator && !justSignedOut;
+  useEffect(() => {
+    if (!needsLogin || redirecting.current) return;
+    redirecting.current = true;
+    void auth.signinRedirect({ state: signInState(here) });
+  }, [needsLogin, auth, here]);
+
+  const signIn = () => {
+    signedOut.clear();
+    void auth.signinRedirect({ state: signInState(here) });
+  };
+
+  // Bis die Anmeldung abgeschlossen ist, nur der ruhige Ladezustand, nie Inhalte. Ist schon jemand
+  // angemeldet (z. B. Neuanmeldung im Popup), bleibt die Seite stehen, damit nichts verloren geht.
+  if (!auth.user && (auth.isLoading || needsLogin || auth.activeNavigator)) {
     return (
       <AuthPage>
         <AuthChecking />
       </AuthPage>
     );
   }
-  if (auth.error) {
+  if (!auth.user) {
     return (
       <AuthPage>
-        <AuthFailed
-          action={
-            <Button onClick={() => void auth.signinRedirect({ state: signInState() })}>
-              {t.auth.retry}
-            </Button>
-          }
-        />
+        {auth.error ? (
+          <AuthFailed action={<Button onClick={signIn}>{t.auth.retry}</Button>} />
+        ) : (
+          <SignIn onSignIn={signIn} />
+        )}
       </AuthPage>
     );
   }
-  if (!auth.user || auth.user.expired) {
-    return (
-      <AuthPage>
-        <SignIn onSignIn={() => void auth.signinRedirect({ state: signInState() })} />
-      </AuthPage>
-    );
-  }
+  // Erneuerung gescheitert: Seite bleibt stehen, darüber der Hinweis zum neu Anmelden.
+  const renewalFailed = auth.user.expired || auth.error?.source === 'renewSilent';
   return (
     <PromptProvider>
       <Shell />
+      {renewalFailed && <ReauthNotice />}
     </PromptProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { fakeZitadel } from './fake-zitadel.js';
 
 // Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: Layout, Maße, Tastatur.
 
@@ -15,23 +16,12 @@ const areas = [
 const allPaths = ['/uebersicht', ...areas.map((a) => a.path), '/einstellungen', '/gibt-es-nicht'];
 
 /**
- * Nachgebauter Login: legt eine Sitzung so ab, wie oidc-client-ts sie nach dem Login speichert,
- * und beantwortet die API-Aufrufe. Den echten Ablauf mit PKCE prüft home.spec.ts.
+ * Nachgebauter Login über ein Zitadel, das sofort zurückleitet, dazu die API-Aufrufe.
+ * Die Einzelheiten des Ablaufs mit PKCE prüfen home.spec.ts und plt-01.spec.ts.
  */
 async function signIn(page: Page, { admin = false } = {}) {
-  const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
-  const now = Math.floor(Date.now() / 1000);
-  const user = {
-    id_token: `${b64({ alg: 'none' })}.${b64({ iss: 'https://zitadel.test', aud: 'web-client', sub: 'user-1', exp: now + 3600 })}.`,
-    access_token: 'access-token-1',
-    token_type: 'Bearer',
-    scope: 'openid profile email',
-    profile: { sub: 'user-1' },
-    expires_at: now + 3600,
-  };
-  await page.addInitScript((value) => {
-    sessionStorage.setItem('oidc.user:https://zitadel.test:web-client', value);
-  }, JSON.stringify(user));
+  // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
+  await fakeZitadel(page);
   await page.route('**/api/me', (route) =>
     route.fulfill({
       json: {
@@ -56,8 +46,8 @@ async function signIn(page: Page, { admin = false } = {}) {
 
 /**
  * Wartet, bis die Seite im Rahmen fertig ist: Die Überschrift steht im Inhaltsbereich des Rahmens
- * (#inhalt) und es laufen keine Anfragen mehr. Vorher könnte noch die Zwischenseite
- * „Anmeldung wird geprüft“ zu sehen sein, die auch eine Überschrift hat.
+ * (#inhalt) und es laufen keine Anfragen mehr. Vorher ist noch die Zwischenseite
+ * „Anmeldung wird geprüft“ zu sehen, die auch eine Überschrift hat – seit PLT-01 bei jedem Aufruf.
  */
 async function pageSettled(page: Page) {
   await expect(page.locator('#inhalt h1')).toBeVisible();
@@ -123,7 +113,7 @@ test.describe('Bei 390 px Breite', () => {
     await signIn(page);
     for (const path of allPaths) {
       await page.goto(path);
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await pageSettled(page);
       await expect(page.getByRole('navigation', { name: 'Hauptnavigation' })).toBeHidden();
       await expect(page.getByRole('button', { name: 'Navigation öffnen' })).toBeVisible();
       const overflow = await page.evaluate(
@@ -169,7 +159,7 @@ for (const width of [1440, 390]) {
 
     // Auch in eingeblendeter Seitenleiste und offenem Nutzer-Menü.
     await page.goto('/uebersicht');
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await pageSettled(page);
     if (width < 1024) await page.getByRole('button', { name: 'Navigation öffnen' }).click();
     await page.getByRole('button', { name: /Anna Schmidt/ }).click();
     await expect(page.getByRole('menuitem', { name: 'Abmelden' })).toBeVisible();
@@ -181,7 +171,7 @@ test('Die Übersicht ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await page.goto('/uebersicht');
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await pageSettled(page);
 
   const expected = [
     'Zum Inhalt springen',
@@ -218,7 +208,7 @@ test('Die Übersicht ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({
 test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page }) => {
   await signIn(page);
   await page.goto('/uebersicht');
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await pageSettled(page);
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');

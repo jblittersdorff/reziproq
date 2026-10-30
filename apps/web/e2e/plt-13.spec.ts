@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
+import { fakeZitadel } from './fake-zitadel.js';
 
 // Tests zu docs/specs/PLT-13.md im echten Browser: Kunde wechseln, Hinweisleiste, Maße.
 
@@ -11,19 +12,8 @@ const customers = [
 
 /** Nachgebauter Login als Betreiber; die API antwortet je nach mitgeschicktem Kunden. */
 async function signInAsOperator(page: Page) {
-  const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
-  const now = Math.floor(Date.now() / 1000);
-  const user = {
-    id_token: `${b64({ alg: 'none' })}.${b64({ iss: 'https://zitadel.test', aud: 'web-client', sub: 'user-1', exp: now + 3600 })}.`,
-    access_token: 'access-token-1',
-    token_type: 'Bearer',
-    scope: 'openid profile email',
-    profile: { sub: 'user-1' },
-    expires_at: now + 3600,
-  };
-  await page.addInitScript((value) => {
-    sessionStorage.setItem('oidc.user:https://zitadel.test:web-client', value);
-  }, JSON.stringify(user));
+  // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
+  await fakeZitadel(page);
 
   const seen: (string | null)[] = [];
   await page.route('**/api/**', (route) => {

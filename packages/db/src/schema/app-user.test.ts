@@ -5,7 +5,7 @@ import { appUser } from './app-user.js';
 describe('app_user', () => {
   const config = getTableConfig(appUser);
 
-  it('hat die Spalten id, name, given_name, email, organization_id, created_at und updated_at', () => {
+  it('hat die Spalten id, name, given_name, email, organization_id, last_login_at, created_at und updated_at', () => {
     expect(config.name).toBe('app_user');
     expect(config.columns.map((column) => column.name)).toEqual([
       'id',
@@ -13,9 +13,15 @@ describe('app_user', () => {
       'given_name',
       'email',
       'organization_id',
+      'last_login_at',
       'created_at',
       'updated_at',
     ]);
+  });
+
+  it('kennt vor dem ersten Login noch keinen Login-Zeitpunkt (PLT-01)', () => {
+    const lastLogin = config.columns.find((column) => column.name === 'last_login_at');
+    expect(lastLogin?.notNull).toBe(false);
   });
 
   it('erlaubt einen leeren Vornamen', () => {

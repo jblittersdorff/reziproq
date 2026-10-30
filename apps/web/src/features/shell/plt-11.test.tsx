@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
 
@@ -211,13 +211,19 @@ describe('Unbekannte Adresse', () => {
 });
 
 describe('Ohne Login', () => {
+  // Seit PLT-01: geschützte Seiten leiten direkt zu Zitadel weiter und merken sich die Seite.
   it.each([...navEntries.map((e) => e.path), '/gibt-es-nicht'])(
-    '%s zeigt die Anmeldung statt der Seite',
+    '%s leitet zur Anmeldung weiter und zeigt bis dahin keine Inhalte',
     async (path) => {
-      auth.state = { ...signedIn, user: null };
+      const signinRedirect = vi.fn();
+      auth.state = { ...signedIn, user: null, signinRedirect };
       renderAt(path);
-      expect(await screen.findByRole('button', { name: 'Anmelden' })).toBeDefined();
+      expect((await screen.findByRole('status')).textContent).toBe('Anmeldung wird geprüft …');
+      await waitFor(() =>
+        expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: path } }),
+      );
       expect(screen.queryByRole('navigation')).toBeNull();
+      expect(document.getElementById('inhalt')).toBeNull();
       expect(fetch).not.toHaveBeenCalledWith('/api/me', expect.anything());
     },
   );
