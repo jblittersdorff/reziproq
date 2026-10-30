@@ -24,6 +24,16 @@ export async function createTempDatabase() {
   url.pathname = `/${name}`;
   const { db, pool } = createDatabase(url.toString());
 
+  // Beim Löschen mit FORCE beendet PostgreSQL Verbindungen, die gerade noch abgebaut werden
+  // (Code 57P01). Das ist beim Aufräumen erwartet; jeden anderen Fehler weiterreichen.
+  pool.on('error', (error: Error & { code?: string }) => {
+    if (error.code !== '57P01') {
+      queueMicrotask(() => {
+        throw error;
+      });
+    }
+  });
+
   return {
     db,
     pool,
