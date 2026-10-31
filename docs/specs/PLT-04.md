@@ -1,6 +1,6 @@
 # PLT-04 Drei Datenebenen
 
-Release 0.1 · Reihenfolge 5 · baut auf PLT-02 · Grundlage für jede weitere Tabelle
+Release 0.1 · baut auf PLT-02 · Grundlage für jede weitere Tabelle
 
 ## Ziel
 
@@ -66,6 +66,6 @@ Je Kriterium ein Test. Alle laufen gegen eine echte PostgreSQL-Datenbank, lokal 
 ## Nicht Teil dieser Funktion
 
 - Rechte innerhalb einer Organisation (PLT-05)
-- Freigabe-Abläufe in der Oberfläche, z. B. „an Lieferanten freigeben“ (SEG-07, JBP-04)
+- Freigabe-Abläufe in der Oberfläche, z. B. „an Lieferanten freigeben“ (SEG-10, JBP-06)
 - Kundenwechsler für Lieferanten (LIF-02)
 - Feinrechte mit OpenFGA (nach 1.0)

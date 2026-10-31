@@ -1,0 +1,55 @@
+# SPL-07 Freigabe und Versionen des Lieferantenplans
+
+Release 0.2 · baut auf SPL-01, SPL-03, SPL-06, PLT-05 · deckt ab SPL-07, SPL-09
+
+## Ziel
+
+Als SRO gebe ich den Lieferantenplan gemeinsam mit dem Sponsor frei. Danach ist er die verbindliche interne Linie gegenüber dem Lieferanten und bleibt in seiner Version unverändert.
+
+## Wer darf was
+
+| Rolle | Darf |
+|---|---|
+| SRO | Plan zur Freigabe schicken und freigeben. |
+| Sponsor der Beziehung | Freigeben oder mit Begründung zurückgeben. |
+| Käufer: alle mit Zugriff | Versionen sehen und vergleichen. |
+| Lieferant | Nie. |
+
+## Daten
+
+| Tabelle | Felder | Art |
+|---|---|---|
+| `plan_approval` | `plan_id`, `user_id`, `role` (`sro`, `sponsor`), `decision` (`approved`, `returned`), `comment`, `decided_at` | `buyer_private` |
+
+- **Status:** `draft` → `in_review` → `approved`.
+- **Freigegeben** ist der Plan, wenn SRO und ein Sponsor zugestimmt haben. Gibt es keinen Sponsor, genügt der SRO, mit Hinweis.
+- **Neue Version:** Wer einen freigegebenen Plan ändert, erzeugt eine Kopie als neue Version im Entwurf. Die alte wird `superseded`.
+
+## Ablauf
+
+1. Auf der Plan-Seite: **Zur Freigabe**. Davor zeigt die Seite offene Beiträge und fehlende Themen als Hinweis.
+2. Die Freigebenden bekommen eine Mail (QS-01) und sehen die Anfrage unter „Fällig bei mir“.
+3. **Freigabe-Seite** (`/…/lieferantenplan/freigabe`):
+   - Plan in Leseansicht
+   - Knöpfe **Freigeben** und **Zurückgeben**, Zurückgeben mit Pflichtbegründung
+4. Nach der Freigabe:
+   - Der Plan ist gesperrt.
+   - Der Zyklus-Schritt Lieferantenplan ist erledigt (ZYK-01).
+   - Die Kopfzeile zeigt „Freigegeben am …“.
+5. **Versionen** (`/…/lieferantenplan/versionen`): Liste aller Versionen. Zwei lassen sich vergleichen, Änderungen je Abschnitt sind hervorgehoben.
+
+## Fertig, wenn
+
+Je Kriterium ein Test.
+
+- [ ] Freigegeben erst mit SRO und Sponsor bzw. nur SRO, wenn kein Sponsor im Team ist.
+- [ ] Eine freigegebene Version lässt sich nicht ändern. Bearbeiten erzeugt eine neue Version.
+- [ ] Zurückgeben setzt den Status auf Entwurf und verlangt eine Begründung.
+- [ ] Der Vergleich zeigt geänderte Ziele, Themen und Zusammenfassung.
+- [ ] Die Freigabe erledigt den Zyklus-Schritt Lieferantenplan.
+- [ ] Ein Test geht alle Tabellen des Lieferantenplans durch: Der Test-Lieferant sieht keine Zeile (SPL-09).
+
+## Nicht Teil dieser Funktion
+
+- PDF für interne Gremien (QS-03)
+- KI-Entwurf der Zusammenfassung (SPL-10)

@@ -1,6 +1,6 @@
 # PLT-13 Betreiber-Zugang zu Kunden
 
-Release 0.1 · neu, baut auf PLT-02 (Datentrennung), PLT-11 (Rahmen) und PLT-12 (Prompt-Fenster) auf
+Release 0.1 · baut auf PLT-02 (Datentrennung), PLT-11 (Rahmen) und PLT-12 (Prompt-Fenster) auf · umgesetzt mit PR #7 · **UMB-01 passt sie an die Specs für 1.0 an:** eigene Seite statt Fenster, Flag `is_operator` statt Zitadel-Rolle, Protokoll `support_access_log`, Header `x-reziproq-support-org`
 
 ## Ziel
 

@@ -1,6 +1,6 @@
-# PLT-12 Prompt-Fenster
+# PLT-12 Fragen-Seite
 
-Release 0.1 · Reihenfolge 12 · baut auf PLT-11, PLT-03, PLT-05, PLT-06 · neu, steht noch nicht in der Anforderungsliste
+Release 0.1 · baut auf PLT-11, PLT-03, PLT-05, PLT-06, NAV-06 · deckt ab PLT-12, NAV-11 · überarbeitet am 31.10.2026: eigene Seite statt Overlay
 
 ## Ziel
 
@@ -10,86 +10,66 @@ Als Nutzer frage ich Reziproq in einfachen Sätzen nach meinen Lieferanten oder 
 
 | Rolle | Darf |
 |---|---|
-| Käufer: alle Rollen | Prompt-Fenster öffnen, Fragen stellen, Antworten und Treffer sehen, zu Seiten springen. |
-| Die KI selbst | Sieht genau das, was der fragende Nutzer sehen darf. Sie arbeitet über dieselben Dienste wie die Oberfläche, mit Mandanten-Session (PLT-02) und `can()` (PLT-05). Sie hat keinen eigenen Datenbankzugriff. |
-| Lieferant | Nicht Teil. Ab Release 0.2 nur mit geteilten Daten. |
+| Käufer: alle Rollen | Fragen stellen, Antworten und Treffer sehen, zu Seiten springen. |
+| Die KI | Sieht genau das, was der fragende Nutzer sehen darf. Sie arbeitet über dieselben Dienste wie die Oberfläche, mit Mandanten-Session und `can()`, und hat keinen eigenen Datenbankzugriff. |
+| Lieferant | Nicht Teil. |
 
 ## Daten
 
 - Keine neuen Fachdaten.
-- Frage und Antwort leben nur in der laufenden Sitzung im Browser und werden nicht gespeichert.
-- Das Protokoll enthält nur Zeitpunkt, Nutzer-ID, Organisation, Dauer, Anzahl Tokens und Erfolg oder Fehler. Den Text von Frage oder Antwort enthält es nie.
-- Die KI nutzt nur diese Werkzeuge, alle nur lesend:
+- Fragen und Antworten liegen nur im Browser, solange die Seite offen ist.
+- Das Protokoll enthält nur Zeitpunkt, Nutzer-ID, Organisation, Dauer, Tokens und Erfolg, nie Text.
+- Die Werkzeuge der KI lesen nur:
 
-| Werkzeug | Macht | Daten |
-|---|---|---|
-| `lieferanten_suchen` | Sucht Lieferanten nach Name, Land, BU, Warengruppe, Mindest- oder Höchstspend und Jahr. Sortiert, höchstens 20 Treffer. | Derselbe Dienst wie die Lieferantenseite (PLT-03, PLT-06) |
-| `bereich_oeffnen` | Schickt die Oberfläche zu einem der festen Bereiche aus PLT-11 | Keine |
+| Werkzeug | Macht |
+|---|---|
+| `lieferanten_suchen` | Sucht nach Name, Land, BU, Warengruppe, Spend und Jahr. Liefert höchstens 20 Treffer über denselben Dienst wie die Lieferantenliste. |
+| `seite_oeffnen` | Nennt eine feste Route: einen Hauptbereich oder einen Bereich eines Lieferanten, z. B. `/lieferanten/<id>/strategie/spend`. |
 
-- Die KI schreibt keine Datenbankabfragen und ruft keine anderen Adressen auf.
-- **KI-Anbieter** über die Umgebungsvariable `AI_PROVIDER` (Eintrag in `.env.example`):
-  - `test` (Standard): festes Testmodell ohne Schlüssel, für lokale Entwicklung und die automatische Prüfung.
-  - `anthropic`: Claude über einen eigenen API-Schlüssel aus der Claude Console. Nur mit Beispieldaten.
-  - `bedrock`: Claude über Amazon Bedrock in der EU. Pflicht für echte Kundendaten, kommt mit der Testumgebung ab März 2027.
-- Modellname über `AI_MODEL`, nicht fest im Code.
-- Umgesetzt mit dem Vercel AI SDK, damit der Anbieterwechsel nur eine Einstellung ist.
+- Die KI schreibt keine Datenbankabfragen.
+- Anbieter über `AI_PROVIDER`: `test` (Standard, ohne Schlüssel), `anthropic` (nur mit Beispieldaten), `bedrock` (ab Staging, Pflicht für echte Daten).
+- Das Modell kommt aus `AI_MODEL`. Umgesetzt mit dem Vercel AI SDK.
 
 ## Ablauf
 
-1. Auf der Übersicht steht unter der Begrüßung ein großes Eingabefeld: „Frag Reziproq …“.
-2. Von jeder Seite aus öffnet **Cmd+K** (Mac) oder **Ctrl+K** (Windows) dasselbe Fenster als Overlay in der Bildmitte, wie Spotlight. Der Fokus liegt sofort im Feld.
-3. Im leeren Fenster stehen drei Vorschläge als Knöpfe. Ein Klick übernimmt den Text:
+1. **Fragen** (`/fragen`) ist eine eigene Seite: oben ein großes Eingabefeld, darunter drei Vorschläge:
    - „Zeig mir die Lieferanten mit dem höchsten Spend“
    - „Welche Lieferanten haben wir in der Warengruppe Elektronik?“
-   - „Öffne den Beziehungspuls“
-4. Der Nutzer tippt und drückt Enter. Die Antwort erscheint Wort für Wort darunter.
-5. Gefundene Lieferanten erscheinen unter dem Text als Karten wie auf der Lieferantenseite. Ein Klick öffnet ihr Detail-Panel.
-6. Bei „Öffne …“ wechselt die Seite, und das Fenster schließt sich.
-7. Folgefragen beziehen sich auf die vorige, solange das Fenster offen ist. „Neu beginnen“ leert den Verlauf.
-8. Esc oder ein Klick daneben schließt das Fenster.
-9. Unter dem Feld steht klein: „Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.“
+   - „Öffne den Spend von Beispiel AG (Demo)“
+2. **Cmd+K** (Mac) bzw. **Ctrl+K** öffnet die Seite von überall. Das Feld auf Start (NAV-05) springt mit der Frage dorthin (`/fragen?q=…`).
+3. Die Antwort erscheint Wort für Wort. Treffer stehen darunter als Karten und führen zum Lieferanten.
+4. Bei „Öffne …“ zeigt die Antwort einen Knopf zur Zielseite. Ein Klick öffnet sie, Zurück führt wieder zu Fragen.
+5. Folgefragen beziehen sich auf die vorige, bis „Neu beginnen“ oder bis die Seite verlassen wird.
+6. Unter dem Feld steht: „Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.“
 
 ### Regeln für die KI
 
-Diese Regeln stehen im System-Prompt.
+Sie stehen im System-Prompt:
 
-- Antwortet in der Sprache des Nutzers (PLT-09), kurz, Ergebnis zuerst.
-- Nennt nur Zahlen und Namen, die aus einem Werkzeug kommen. Fehlen Daten, sagt sie das, statt zu schätzen.
-- Bewertet keine Personen.
-- Gibt keine Empfehlungen zu Segment oder Beziehungstyp. Das entscheidet der SRO mit der Segmentierung.
-- Bei Fragen außerhalb von Reziproq sagt sie kurz, wofür sie da ist.
-
-### Gestaltung
-
-- Großes Eingabefeld mit großem Radius und einem dezenten Symbol links.
-- Overlay mit leicht abgedunkeltem, unscharfem Hintergrund.
-- Ruhiger Ladezustand, z. B. drei pulsierende Punkte.
-- Fehlerzustand: „Gerade keine Antwort möglich. Versuch es gleich noch einmal.“
-- Alles aus Tokens und Styleguide (PLT-10), Klickflächen mindestens 44 × 44 px.
+- Sie antwortet in der Sprache des Nutzers, kurz, mit dem Ergebnis zuerst.
+- Sie nennt nur Zahlen und Namen aus Werkzeugen. Fehlt etwas, sagt sie das.
+- Sie bewertet keine Personen und gibt keine Empfehlung zu Segmenten.
 
 ## Fertig, wenn
 
-Je Kriterium ein Test. Alle Tests laufen mit `AI_PROVIDER=test`, ohne Schlüssel und ohne Internet.
+Je Kriterium ein Test. Alle laufen mit `AI_PROVIDER=test`, ohne Schlüssel und ohne Internet.
 
-- [ ] Cmd+K und Ctrl+K öffnen das Fenster auf jeder Seite, mit dem Fokus im Feld. Esc schließt es.
-- [ ] Das Feld auf der Übersicht öffnet dasselbe Fenster.
-- [ ] Die drei Vorschläge erscheinen im leeren Fenster. Ein Klick übernimmt den Text.
-- [ ] „Öffne den Beziehungspuls“ führt zu `/puls` und schließt das Fenster.
-- [ ] Eine Frage nach Lieferanten ruft `lieferanten_suchen` auf. Gezeigte Karten und Zahlen stimmen mit der Datenbank überein.
-- [ ] Ein Nutzer des Zweit-OEM bekommt nie Lieferanten oder Werte des Test-OEM, auch wenn er ausdrücklich danach fragt.
-- [ ] Ohne Login antwortet der Endpunkt mit 401. Ein Nutzer ohne Organisation bekommt 403.
-- [ ] Liefert das Werkzeug nichts, zeigt die Oberfläche „Keine Treffer“.
-- [ ] Die Antwort streamt. Lade- und Fehlerzustand sind sichtbar.
+- [ ] Cmd+K und Ctrl+K öffnen `/fragen` mit Fokus im Feld. Zurück führt zur Ausgangsseite.
+- [ ] `/fragen?q=…` stellt die Frage beim Öffnen.
+- [ ] Ein Klick auf einen Vorschlag übernimmt ihn.
+- [ ] Eine Frage nach Lieferanten ruft `lieferanten_suchen` auf. Karten und Zahlen stimmen mit der Datenbank überein.
+- [ ] Ein Nutzer des Zweit-OEM bekommt nie Daten des Test-OEM, auch nicht auf ausdrückliche Frage.
+- [ ] Ohne Login gibt es 401, ohne Organisation 403.
+- [ ] Keine Treffer zeigt „Keine Treffer“. Lade- und Fehlerzustand sind sichtbar.
 - [ ] Das Protokoll enthält keinen Text aus Frage oder Antwort.
-- [ ] Die API startet nicht, wenn `AI_PROVIDER=anthropic` und `NODE_ENV=production`.
-- [ ] Die Zahl der Anfragen je Nutzer und Minute ist begrenzt. Der Wert steht in der Konfiguration. Darüber erscheint eine freundliche Meldung.
-- [ ] Die automatische Prüfung auf GitHub bleibt ohne Schlüssel grün.
+- [ ] Die API startet nicht mit `AI_PROVIDER=anthropic` und `NODE_ENV=production`.
+- [ ] Die Anfragen je Nutzer und Minute sind begrenzt, der Wert steht in der Konfiguration.
+- [ ] Es gibt kein Overlay und kein Fenster (Prüfung aus PLT-10).
 
 ## Nicht Teil dieser Funktion
 
-- Daten per Prompt anlegen oder ändern. Das kommt später und dann nur als Entwurf, der erst nach Klick auf „Freigeben“ gilt.
-- Gespeicherter Verlauf über die Sitzung hinaus
-- Prompt-Fenster für Lieferanten-Nutzer (0.2)
-- Anbindung an Amazon Bedrock (mit der Testumgebung ab März 2027)
-- Dateien hochladen, Spracheingabe
-- KI-Erklärungen zu Abweichungen (SEG-08) und Pre-Read-Entwürfe (QBR-05)
+- Daten per Prompt anlegen oder ändern
+- Gespeicherter Verlauf
+- Fragen für Lieferanten
+- Suche über Initiativen und Maßnahmen (QS-05)
+- KI-Entwürfe in Modulen (SEG-11, PUL-08, SPL-10, QBR-07)

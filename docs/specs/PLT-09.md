@@ -1,6 +1,6 @@
 # PLT-09 Deutsch und Englisch
 
-Release 0.1 · Reihenfolge 11 · baut auf PLT-11 · kann jederzeit nach PLT-11 kommen, weil alle Texte schon in der Übersetzungsdatei stehen
+Release 0.1 · baut auf PLT-11 · kann jederzeit nach PLT-11 kommen, weil alle Texte schon in der Übersetzungsdatei stehen
 
 ## Ziel
 
@@ -36,7 +36,7 @@ Als Nutzer arbeite ich in Deutsch oder Englisch. Jede Seite ist in beiden Sprach
 
 ## Ablauf
 
-1. Der Nutzer öffnet **Einstellungen** und wählt unter **Sprache** Deutsch oder Englisch.
+1. Der Nutzer öffnet **Profil** (`/profil`) und wählt unter **Sprache** Deutsch oder Englisch.
 2. Die Oberfläche wechselt sofort, ohne Neuladen und ohne Neuanmeldung.
 3. Beträge, Daten und Zahlen erscheinen im Format der Sprache. Die Währung bleibt die des Betrags.
 4. Beim nächsten Login gilt die gespeicherte Sprache, auch auf einem anderen Gerät.
