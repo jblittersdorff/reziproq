@@ -17,7 +17,9 @@ Stand: 31.10.2026. Grundlage:
   - Tabellen mit englischen Namen und dem neuen Beziehungsmodell
 - **Bestehende Daten** sind nur Demo- und Testdaten. Das Risiko ist gering, wenn die Migrationen sie mitnehmen.
 - **Vier Umbau-Specs:** UMB-01 bis UMB-04.
-- **14 Meilensteine** zu je zwei Wochen, also rund 27 Wochen ab dem 2.11.2026. Ende ist damit Mitte Mai 2027, Release 1.0 bleibt Ende Juni.
+- **Arbeitsweise:** Es gibt derzeit einen Gründer. Der Plan folgt deshalb einem **Kernpfad** statt drei paralleler Stränge (Entscheidung 17).
+- **Kernpfad:** 38 Specs bzw. Teile in 16 Meilensteinen (M0 bis M15, meist zwei Wochen), vom 2.11.2026 bis zum 4.6.2027, mit einer Woche Pause über Weihnachten. Release 0.1 ist am 9.4.2027 komplett. Danach lässt sich Reziproq mit einem ersten Kunden testen.
+- **Vorschlag für Release 1.0 Ende Juni:** genau dieser Kernpfad. Feedback, Gemeinsamer Plan, Wirkung und der Rest folgen in Blöcken danach (Abschnitt 5.3).
 
 ## 2. Stand
 
@@ -78,17 +80,17 @@ Nicht mehr in den neuen Specs: **PLT-13 Betreiber-Zugang**. Er ist gebaut (PR #7
 | K17 | Rollenanzeige unter Einstellungen (Zusatz aus PLT-01) | `settings-page.tsx`, `/me.roles` | PLT-05 | Zeigt künftig die Rolle aus der Datenbank auf `/profil`; der Zitadel-Bezug entfällt | klein | keins |
 | K18 | Sprache nur im Browser-Zustand, startet immer auf Deutsch | `web/src/lib/i18n.tsx` | PLT-09 | `app_user.locale`, Umschalter auf `/profil` | – (in PLT-09) | keins |
 | K19 | KI-Konfiguration und SDK | `api/src/config/env.ts`, `modules/prompt/anthropic-model.ts`, `.env.example` | PLT-12 | `AI_PROVIDER`/`AI_MODEL`, Vercel AI SDK (Apache-2.0), Anbieter `bedrock` | mittel | keins (Umgebungsvariablen umbenennen) |
-| K20 | Abschnitt „Organisation“ für alle Mitglieder (unsere Abweichung in PR #14) gegenüber neuem PLT-11 „Weg zu den Einstellungen nur für Admin“ | `settings-page.tsx`, `ContentGate` in `app-layout.tsx` | PLT-02, PLT-05, PLT-11 | Entscheidung offen (Frage 4) | klein | keins |
+| K20 | Abschnitt „Organisation“ für alle Mitglieder (unsere Abweichung in PR #14) gegenüber neuem PLT-11 „Weg zu den Einstellungen nur für Admin“ | `settings-page.tsx`, `ContentGate` in `app-layout.tsx` | PLT-02, PLT-05, PLT-11 | Entscheidung 4: `/profil` zeigt allen den Weg zu `/einstellungen/organisation`, nur lesen | klein | keins |
 | K21 | Unsere Anpassungen stehen nicht in den neuen Fassungen: Rollenanzeige, Popup, `reziproq_api`, `db:roles`, Kundenliste für Betreiber, Beispieldaten mit 15 Lieferanten | `docs/specs/PLT-01.md`, `PLT-02.md`, `PLT-11.md`, `README.md` | alle | **UMB-04** | klein | keins |
 | K22 | Beispieldaten passen nicht zum neuen Muster: Test-Lieferant ohne Beziehung; Spend nur ein Jahr; keine USt-IdNr.; „Beispiel AG (Demo)“ aus den Vorschlägen in PLT-12 fehlt | `packages/db/src/seed.ts` | PLT-03, PLT-12 | Behebt PLT-03 (Seed); „Beispiel AG (Demo)“ ergänzen | klein | keins |
-| K23 | Migrationen aus parallelen Branches kollidieren im Drizzle-Journal | `packages/db/drizzle/meta/_journal.json` | alle Stränge | Regel: Migration erst nach dem Rebase auf `main` erzeugen, je Woche nur ein Strang mit Migration zugleich am Mergen | – | gering |
+| K23 | Migrationen aus parallelen Branches kollidieren im Drizzle-Journal | `packages/db/drizzle/meta/_journal.json` | alle Stränge | Allein entfällt das. Bei mehreren Personen: Migration erst nach dem Rebase auf `main` erzeugen | – | gering |
 
 ### 3.2 Widersprüche zwischen den neuen Specs
 
 | # | Was | Specs | Vorschlag |
 |---|---|---|---|
 | W1 | „Bis PLT-05 gilt jeder Nutzer als Admin“, aber PLT-02 ist mit Zitadel-Rollen umgesetzt, und PLT-05 legt Rollen in die Datenbank | PLT-02, PLT-11, PLT-05 | Satz streichen; bis PLT-05 gelten die Zitadel-Rollen weiter |
-| W2 | Organisation und Mitglieder sieht jeder (PLT-02, PLT-05: „Organisation und Mitglieder sehen: alle Rollen“), aber der Weg zu den Einstellungen ist nur für Admins sichtbar | PLT-02, PLT-05, PLT-11 | Frage 4 |
+| W2 | Organisation und Mitglieder sieht jeder (PLT-02, PLT-05: „Organisation und Mitglieder sehen: alle Rollen“), aber der Weg zu den Einstellungen ist nur für Admins sichtbar | PLT-02, PLT-05, PLT-11 | Entscheidung 4 |
 | W3 | `/…/plan/freigabe` und `/…/plan/versionen` gibt es zweimal: Lieferantenplan (unter `/strategie/plan`) und Gemeinsamer Plan (`/lieferanten/<id>/plan`) | SPL-01, SPL-07, JBP-01, JBP-06 | Lieferantenplan unter `/lieferanten/<id>/strategie/lieferantenplan/…` |
 | W4 | „Zu Initiative zusammenführen“ braucht Initiativen; `jbp_topic` hat kein Feld für die Initiative | JBP-02, JBP-03 | Zusammenführen nach JBP-03 verschieben, Verknüpfung über `initiative_topic` |
 | W5 | Teilnehmende des Lieferanten sind `org_private` der Lieferantenseite, werden aber vom Käufer angelegt. Antworten kommen ohne Anmeldung, also ohne Mandanten-Session. `survey_response` soll `org_private` sein, hat aber keine `org_id`. | PUL-02 | Teilnehmende als `shared` mit `owner_org_id` (einladende Seite) und `visibility = internal`; Antworten über eine eng gefasste Datenbankfunktion mit Token (wie die Anmeldefunktionen aus PLT-02); `org_id` der antwortenden Seite ergänzen |
@@ -100,11 +102,11 @@ Nicht mehr in den neuen Specs: **PLT-13 Betreiber-Zugang**. Er ist gebaut (PR #7
 | W11 | PLT-12 steht in Strang A, braucht aber NAV-06 und PLT-06, und ist großteils schon gebaut | README | Als Umbau in Woche 6 einplanen |
 | W12 | NAV-05: „Bis PLT-12 ist das Feld nicht da“, die Fragen-Funktion gibt es aber schon | NAV-05 | Feld führt zu `/fragen` (nach K4) |
 
-## 4. Umbau-Specs (Vorschlag, noch keine Dateien)
+## 4. Umbau-Specs (noch keine Dateien, kommen mit UMB-04)
 
 ### UMB-01 Betreiber-Zugang nach dem neuen Muster
 
-Release 0.1 · baut auf PLT-11, PLT-05 · ersetzt den Dialog aus PLT-13
+Release 0.1 · baut auf PLT-11, PLT-05a · ersetzt den Dialog aus PLT-13
 
 **Ziel:** Als Mitarbeiter von Reziproq wechsle ich auf einer eigenen Seite in einen Kunden und sehe die App wie er. Jeder Zugriff ist protokolliert.
 
@@ -114,7 +116,7 @@ Release 0.1 · baut auf PLT-11, PLT-05 · ersetzt den Dialog aus PLT-13
 
 **Daten:**
 - `betreiber_zugriff` wird zu `support_access_log`, Art `global` (nur Betrieb), ohne Lesezugriff für die API-Rolle. Die bestehenden Einträge bleiben.
-- Betreiber-Recht: wie in Frage 1 entschieden. Vorschlag: Flag `is_operator` an `app_user`, gesetzt per Skript `pnpm operator:set <email>`. Rollen liegen nach PLT-05 in der Datenbank.
+- Betreiber-Recht: Flag `is_operator` an `app_user`, gesetzt per Skript `pnpm operator:set <email>` (Entscheidung 2). Die Zitadel-Rolle `betreiber` entfällt.
 - Header `x-reziproq-kunde` wird zu `x-reziproq-support-org`, Speicherschlüssel entsprechend. So bleibt „Kunde“ frei für `app.customer_org_id` (LIF-02).
 
 **Ablauf:**
@@ -189,7 +191,8 @@ Release 0.1 · keine Abhängigkeit · nur Dokumente
 - `PLT-13.md` bleibt, angepasst an UMB-01.
 - `UMB-01.md` bis `UMB-03.md` kommen dazu.
 - In PLT-01, PLT-02 und PLT-11 die Entscheidungen aus PR #11 und #14 nachtragen: `reziproq_api`/`db:roles`, Kundenliste für Betreiber, 15 Demo-Lieferanten, Rollenanzeige.
-- W1, W3, W4, W7, W8, W9 und W10 nach den Antworten auf die offenen Fragen korrigieren.
+- W1, W3, W4, W5, W6, W7, W8, W9 und W10 nach den Entscheidungen in Abschnitt 6 korrigieren.
+- Release-Spalte der README nach Abschnitt 7.1 anpassen und den Kernpfad aus Abschnitt 5.2 als Reihenfolge eintragen.
 - `CLAUDE.md`: Regel zur GuV-Wirkung präzisieren (W8).
 - Status: PLT-01 und PLT-02 auf „fertig“, die teilweise umgesetzten auf „offen“ mit Vermerk.
 
@@ -199,12 +202,13 @@ Release 0.1 · keine Abhängigkeit · nur Dokumente
 
 ## 5. Plan
 
-**Regeln:**
-- Eine Spec je Person und Woche.
-- Woche 1 beginnt am Montag, dem 2.11.2026.
-- Strangwechsel gegenüber der README sind mit ↔ markiert. Sie halten die Stränge ausgelastet und vermeiden gleichzeitige Änderungen an denselben Ordnern.
-- **Migrationen:** Je Woche erzeugt nur der Strang mit Datenbank-Arbeit seine Migration nach dem Rebase (K23).
-- **Zu groß für einen PR** und geteilt: PLT-03 (a/b), PLT-05 (a/b), PLT-07 (a/b), PUL-02 (a/b), QBR-01 (a/b), LIF-01 (a/b). Beide Teile liegen in derselben Woche, es sind zwei PRs nacheinander.
+### 5.1 Regeln
+
+- **Eine Person, eine Spec je Woche.** Kleine Umbau-Specs (UMB-01, UMB-02, UMB-03) laufen in derselben Woche mit, weil sie nur einen bis zwei Tage brauchen.
+- **Woche 1** beginnt am Montag, dem 2.11.2026. In der Woche vom 21.12. ruht die Arbeit, sie zählt nicht mit.
+- **Sichtbares zuerst:** Wo die Abhängigkeiten es erlauben, wechseln sich Fundament und sichtbare Seiten ab. So gibt es alle zwei Wochen etwas Neues im Browser.
+- **Stränge:** Die Spalte „Strang“ der README gilt nur noch als Herkunft. Kommen weitere Personen dazu, lassen sich die Blöcke aus 5.3 wieder auf Stränge verteilen.
+- **Zu groß für einen PR** und geteilt in zwei PRs nacheinander: PLT-03, PLT-05, PLT-07, PUL-02, QBR-01, LIF-01.
 
 **Vorschläge zum Teilen:**
 
@@ -217,332 +221,296 @@ Release 0.1 · keine Abhängigkeit · nur Dokumente
 | QBR-01 | Termine mit Agenda, Teilnehmenden und Protokoll | Live-Abschnitte, Abschließen mit Einfrieren, Termin-Quelle |
 | LIF-01 | Einladung und Annahme mit nachgebautem Zitadel | Anlage der Zitadel-Organisation über die Verwaltungsschnittstelle |
 
-### M0 · 2.–3.11. · Dokumente
+**Abweichung von der README-Reihenfolge:** PLT-03 ist in a und b geteilt. PLT-03a braucht nur PLT-04 und kommt deshalb vor PLT-08. PLT-03b mit dem Verlauf folgt nach PLT-08. Alle übrigen Abhängigkeiten der README und der Kopfzeilen der Specs (W9) sind eingehalten.
 
-| Strang | Specs |
+### 5.2 Kernpfad bis Release 1.0
+
+#### M0 · 2.–3.11. · Dokumente
+
+- **Specs:** UMB-04
+- **Demo:** keine Oberfläche. `docs/specs/README.md` zeigt alle Specs mit Status und den Kernpfad.
+
+#### M1 · Woche 1–2 · Neuer Rahmen ohne Pop-ups
+
+| Woche | Spec |
 |---|---|
-| alle | UMB-04 (ein PR, nur Dokumente) |
-
-**Demo:** keine Oberfläche. `docs/specs/README.md` zeigt 75 Specs mit Status.
-
-### M1 · Woche 1–2 · Neuer Rahmen ohne Pop-ups
-
-| Strang | Woche 1 | Woche 2 |
-|---|---|---|
-| A | PLT-10 (Umbau) | PLT-11 |
-| B | PLT-04 | PLT-08 |
-| C | UMB-02 | PLT-03a |
+| 1 | PLT-10 (Umbau), dazu UMB-02 |
+| 2 | PLT-11 |
 
 **Demo:**
 - `/styleguide`: Leisten, Pfad, Formularseite, Schritte, Bestätigung auf der Seite, Rückmeldezeile; kein Dialog mehr
-- `/start`, `/lieferanten`, `/portfolio`, `/wirkung`, `/fragen`, `/profil`, `/einstellungen`
-- bei 390 px: Menüknopf, dann `/menu`
-- `/lieferanten` mit 15 Demo-Lieferanten, Spend zweier Jahre, Anzahl und Gesamtspend
+- `/start`, `/lieferanten`, `/portfolio`, `/wirkung`, `/fragen`, `/profil`, `/einstellungen` mit Titel und leerem Zustand
+- bei 390 px: Menüknopf, dann `/menu` als eigene Seite
 - Zurück-Pfeil und Browser-Zurück über drei Ebenen
+- Neuanmeldung ohne Popup: Text eingeben, Token ablaufen lassen, neu anmelden, Text steht noch da
+
+**Seed:** unverändert.
+
+#### M2 · Woche 3–4 · Datenebenen und neues Beziehungsmodell
+
+| Woche | Spec |
+|---|---|
+| 3 | PLT-04 |
+| 4 | PLT-03a |
+
+**Demo:**
+- `/lieferanten`: 15 Demo-Lieferanten mit eigener Nummer und dem Spend des letzten vollen Jahres, Anzahl und Gesamtspend; Suche und Sortierung in der Adresse
+- als Zweit-OEM: drei gemeinsame Lieferanten mit eigenen Werten
 
 **Seed:**
 - Beziehungen im neuen Modell, USt-IdNr. je Lieferant, Spend 2024 und 2025
 - Test-Lieferant als `draft` bei beiden OEMs
 - „Beispiel AG (Demo)“
 
-### M2 · Woche 3–4 · Lieferanten pflegen, Rollen und Sprache
+#### M3 · Woche 5–6 · Verlauf und Lieferanten pflegen
 
-| Strang | Woche 3 | Woche 4 |
-|---|---|---|
-| A | PLT-09 | PUL-01 ↔ (vorgezogen, Abhängigkeit PLT-09 erfüllt) |
-| B | PLT-05a | PLT-05b |
-| C | PLT-03b | UMB-01 |
+| Woche | Spec |
+|---|---|
+| 5 | PLT-08 |
+| 6 | PLT-03b |
 
 **Demo:**
 - `/lieferanten/neu`: anlegen, mit Hinweis „wird verknüpft“ bei vorhandener USt-IdNr.
-- `/lieferanten/<id>/strategie/profil`: Verlauf, Bearbeiten, Beziehung beenden mit Bestätigung
-- `/lieferanten/<id>/strategie/spend`
+- `/lieferanten/<id>/strategie/profil`: Verlauf, Bearbeiten, Beziehung beenden mit Bestätigung auf der Seite
+- `/lieferanten/<id>/strategie/spend` mit Jahr hinzufügen
 - `/lieferanten?beendet=1`
-- `/einstellungen/organisation` und `/einstellungen/organisation/<nutzer>`
-- `/lieferanten/<id>/beziehung/team`
-- `/profil`: Sprache auf Englisch, alle Seiten auf Englisch
-- `/einstellungen/fragebogen`
-- `/betreiber/kunden`
+- `/styleguide`: Baustein Verlauf
 
-**Seed:**
-- Rollen: je OEM ein Admin, ein Nutzer, ein Leser
-- Teams mit SRO für fünf Lieferanten
-- Standard-Fragebögen
+**Seed:** Verlaufseinträge zu drei Lieferanten.
 
-### M3 · Woche 5–6 · Arbeitsbereich, Stammdaten, Import, Fragen
+#### M4 · Woche 7–8 · Rollen, Team und Betreiber-Seite
 
-| Strang | Woche 5 | Woche 6 |
-|---|---|---|
-| A | NAV-06 | PLT-12 (Umbau) |
-| B | QS-01 | SEG-01 |
-| C | PLT-06 | PLT-07a, PLT-07b |
-
-**Demo:**
-- `/lieferanten/<id>` mit lokaler Leiste, Kopf, sechs Kacheln und dem Kennzeichen „Intern“
-- `/lieferanten/<id>/strategie` mit Kacheln
-- `/einstellungen/business-units`, `/einstellungen/warengruppen`
-- Zuordnung auf `/…/profil/zuordnung`
-- Import: `lieferanten-50.xlsx` mit drei Fehlerzeilen
-- Fragen:
-  - Cmd+K öffnet `/fragen`
-  - „Welche Lieferanten haben wir in der Warengruppe Elektronik?“
-- E-Mails: `http://localhost:8025` (Mailpit) mit einer Testmail auf Deutsch und Englisch
-- `/einstellungen/segmentmodell`
-
-**Seed:**
-- je OEM drei BUs und sechs Warengruppen in zwei Ebenen, eigene Werte beim Zweit-OEM
-- Standard-Segmentmodell
-- `docs/demo/lieferanten-50.xlsx`
-
-### M4 · Woche 7–8 · Bewertungsrunde und Feedback
-
-| Strang | Woche 7 | Woche 8 |
-|---|---|---|
-| A | PUL-02a, PUL-02b | SPL-04 |
-| B | SEG-03 | SEG-04 |
-| C | UMB-03 | PLB-01 |
-
-**Demo:**
-- Bewertungsrunde:
-  - `/portfolio/runden/neu` in vier Schritten
-  - Einladungen in Mailpit
-  - `/bewertungen` und `/bewertungen/<id>` mit Reglern, Pause, Zusammenfassung mit Matrix
-- Feedback:
-  - Welle starten auf `/lieferanten/<id>/beziehung/feedback`
-  - `/umfrage/<token>` auf dem Smartphone
-- `/lieferanten/<id>/strategie/spend` mit gestapeltem Diagramm Ist und Plan
-- `/einstellungen/spielregeln` mit Vorschau je Typ
-
-**Seed:**
-- eine offene Runde beim Test-OEM mit zehn Lieferanten und Bewertungen in Teilen abgegeben
-- Spend je BU und Warengruppe mit Planjahr
-- Standardkatalog Spielregeln und Formate
-- Kontakte bei fünf Lieferanten
-
-### M5 · Woche 9–10 · Start, Segmentierung, Lieferantenzugang
-
-| Strang | Woche 9 | Woche 10 |
-|---|---|---|
-| A | NAV-05 | SPL-05 |
-| B | LIF-01a, LIF-01b | LIF-02 |
-| C | SEG-05 | SEG-06 |
-
-**Demo:**
-- `/start` mit „Fällig bei mir“ (offene Bewertungen), `/start/faellig`
-- `/lieferanten/<id>/strategie/segmentierung`: Matrix, Tabelle, Heatmap, Klick auf ein Kriterium
-- konsolidieren: Kopf zeigt Ist → Soll
-- Lieferantenzugang:
-  - `/lieferanten/<id>/beziehung/team/einladen`
-  - Mail in Mailpit
-  - `/einladung/<token>`
-  - als Lieferant `/kunden` und `/kunden/<beziehung>`
-- `/lieferanten/<id>/strategie/profil` mit Finanzen und „Unser Anteil“
-
-**Seed:**
-- vollständig abgegebene Bewertungen für sechs Lieferanten, eine Konsolidierung
-- Finanzkennzahlen für drei Lieferanten
-- Test-Lieferant beim Test-OEM eingeladen
-
-### M6 · Woche 11–12 · Portfolio und Fokus, Release 0.1 fast komplett
-
-| Strang | Woche 11 | Woche 12 |
-|---|---|---|
-| A | PUL-03 | PLB-03 ↔ |
-| B | LIF-03 | PLB-04 |
-| C | SEG-07 | SEG-02 |
-
-**Demo:**
-- Portfolio:
-  - `/portfolio` mit Kacheln
-  - `/portfolio/matrix` mit 50 Lieferanten und Filter
-  - `/portfolio/offen`, `/portfolio/fokus` mit Vorschlägen
-- Feedback-Ergebnis `/…/beziehung/feedback/<welle>`: Hantel-Diagramm, drei größte Lücken
-- als Lieferant `/kunden/<beziehung>/eigene-sicht`
-- `/lieferanten/<id>/beziehung/spielregeln`: Vorschlag übernehmen, intern freigeben
-- Team beider Seiten
-
-**Seed:**
-- 50 Lieferanten über `lieferanten-50.xlsx` als Seed-Option
-- Konsolidierungen für 20 Lieferanten
-- eine aufgedeckte Welle mit je drei Antworten
-- acht Fokuslieferanten
-
-### M7 · Woche 13–14 · Zyklus und Freigabe an den Lieferanten
-
-| Strang | Woche 13 | Woche 14 |
-|---|---|---|
-| A | NAV-12 | QBR-01a, QBR-01b |
-| B | ZYK-01 | ZYK-02 |
-| C | SEG-10 | SPL-01 |
-
-**Demo:**
-- Lieferantenliste mit Filtern: `/lieferanten?bu=…&wg=…&typ=…&fokus=1&meine=1`
-- Zyklus:
-  - Zyklus-Leiste und „Nächster Schritt“ auf dem Überblick
-  - `/lieferanten/<id>/zyklus/termin`
-  - `/einstellungen/zyklus`
-- `/…/spielregeln/teilen`, danach als Lieferant Typ im Kopf
-- Termine:
-  - `/lieferanten/<id>/umsetzung/termine/<id>` mit Agenda, Protokoll, Abschließen
-  - Termin auf Start beider Seiten
-- `/lieferanten/<id>/strategie/lieferantenplan`
-
-**Seed:**
-- Zyklen für alle Fokuslieferanten, JBP-Termine verteilt, einer überfällig
-- zwei Termine je Fokuslieferant
-
-### M8 · Woche 15–16 · Lieferantenplan, Maßnahmen, Kontaktpunkte
-
-| Strang | Woche 15 | Woche 16 |
-|---|---|---|
-| A | QBR-03 | QBR-04 |
-| B | ZYK-04 | PLB-06 ↔ |
-| C | SPL-03 | SPL-06 |
-
-**Demo:**
-- `/lieferanten/<id>/umsetzung/massnahmen` mit Filtern, `/start/massnahmen`
-- Erinnerung und Eskalation in Mailpit (Datum vorgegeben)
-- `/portfolio/zyklen`
-- `/lieferanten/<id>/beziehung/kontaktpunkte` mit Bild und Lücken
-- Lieferantenplan:
-  - Beiträge anfordern, Beitrag auf Start
-  - strategische Themen
-
-**Seed:**
-- Maßnahmen beider Seiten, zwei überfällig
-- Kontaktpunkte für drei Lieferanten
-- Ziele und Themen im Plan
-
-### M9 · Woche 17–18 · Release 0.2 komplett, erste KI-Entwürfe
-
-| Strang | Woche 17 | Woche 18 |
-|---|---|---|
-| A | PUL-06 | PUL-08 ↔ |
-| B | SEG-11 ↔ (legt `ai_draft` an) | SPL-10 ↔ |
-| C | SPL-07 | JBP-01 |
-
-**Demo:**
-- Maßnahme aus einer Lücke, „Ihr habt gesagt, wir haben gehandelt“, Verlauf über zwei Wellen
-- „Abweichungen erklären“ auf der Segmentierungsseite (`AI_PROVIDER=test`)
-- Lieferantenplan:
-  - `/…/lieferantenplan/freigabe` und `/versionen`
-  - Entwurf der Zusammenfassung vorschlagen
-- `/lieferanten/<id>/plan` und `/plan/vorbereitung`
-- Freitexte zusammenfassen
-
-**Seed:**
-- zweite aufgedeckte Welle
-- freigegebener Lieferantenplan für drei Lieferanten
-
-### M10 · Woche 19–20 · Gemeinsamer Plan
-
-| Strang | Woche 19 | Woche 20 |
-|---|---|---|
-| A | Puffer: Feinschliff 0.2, Performance-Messungen aus NAV-05 und ZYK-04 | Puffer |
-| B | Puffer: Testlauf mit Testnutzern 0.2 | Puffer |
-| C | JBP-02 | JBP-03 |
-
-**Demo:**
-- `/…/plan/themen` mit zwei Spalten, „Aus Lieferantenplan übernehmen“
-- `/…/plan/initiativen` als Liste und Roadmap
-
-**Seed:** Themen beider Seiten und 15 Initiativen über drei Jahre.
-
-### M11 · Woche 21–22 · Zusagen, Wirkung, Kommentare
-
-| Strang | Woche 21 | Woche 22 |
-|---|---|---|
-| A | QS-02 | QS-05 ↔ |
-| B | PNL-01 | PNL-03 |
-| C | JBP-05 | JBP-06 |
-
-**Demo:**
-- `/…/plan/zusagen`
-- Freigabe des Gemeinsamen Plans durch beide Seiten, Versionen vergleichen
-- `/lieferanten/<id>/wirkung` mit Hebel und GuV-Zeile, Baseline einfrieren, Reifegrad erhöhen
-- Kommentare intern und geteilt, mit Erwähnung
-- Treffer beim Tippen auf `/fragen`
-
-**Seed:**
-- Zusagen
-- Wirkungen für zehn Initiativen, Baselines
-- `pnl_line`-Standardzeilen
-
-### M12 · Woche 23–24 · Scorecard und Monatswerte
-
-| Strang | Woche 23 | Woche 24 |
-|---|---|---|
-| A | ZYK-05 ↔ | Puffer |
-| B | PNL-05 | PNL-06 |
-| C | JBP-07 | JBP-09 |
-
-**Demo:**
-- `/…/plan/scorecard` und Unterschrift beider Seiten
-- Ist-Werte per CSV, Stand „auf Kurs“
-- Monatswerte mit Diagramm
-- `/wirkung/freigaben` und Prüfseite für Controlling
-- `/lieferanten/<id>/zyklus/neu` und `/zyklus/archiv`
-
-**Seed:**
-- Scorecards mit zwölf Monatswerten
-- Monatswerte Plan und Ist
-- ein Controlling-Nutzer
-
-### M13 · Woche 25–26 · Teilung, Brücke, Pre-Read
-
-| Strang | Woche 25 | Woche 26 |
-|---|---|---|
-| A | QBR-06 | QS-03 |
-| B | PNL-07 | PNL-10 |
-| C | Puffer | QBR-07 ↔ |
-
-**Demo:**
-- Teilung, eigener Nutzen beim Lieferanten
-- P&L-Brücke je Lieferant
-- `/wirkung` mit Pipeline und Portfolio, Geschäftsjahr ab April
-- Pre-Read als PDF vom Termin
-- PDFs von Plan und Feedback
-- `/einstellungen/export`
-- KI-Entwurf für den Pre-Read
-
-**Seed:** Teilungsregeln und Savings-Referenzen, Geschäftsjahr ab April beim Zweit-OEM.
-
-### M14 · Woche 27 · Release 1.0 komplett
-
-| Strang | Woche 27 |
+| Woche | Spec |
 |---|---|
-| A | Puffer, Testlauf mit Testnutzern |
-| B | PNL-11 |
-| C | FS-01 |
+| 7 | PLT-05a |
+| 8 | PLT-05b, dazu UMB-01 |
 
 **Demo:**
-- „Excel herunterladen“ auf `/wirkung`
-- `/hinweise`, `/hinweise/<id>`: annehmen erzeugt eine interne Maßnahme
-- Anzahl der Hinweise auf Start und im Überblick
+- `/profil`: eigene Rolle, Weg zu `/einstellungen/organisation` (für alle, nur lesen)
+- `/einstellungen/organisation/<nutzer>`: Rolle und Controlling ändern (Admin)
+- als Leser: kein Knopf „Lieferant hinzufügen“, die API antwortet mit 403
+- `/lieferanten/<id>/beziehung/team` und `/…/team/bearbeiten`
+- `/betreiber/kunden`: Wechsel in Test-OEM, Hinweisleiste, Verlassen
 
-**Seed:** je Regel aus FS-01 eine auslösende Lage.
+**Seed:**
+- je OEM ein Admin, ein Nutzer, ein Leser, ein Controlling-Haken
+- Teams mit SRO für fünf Lieferanten
 
-**Gesamt:**
-- 75 Specs (71 neu und 4 Umbau) in 27 Wochen
-- rund sechs Wochen Puffer in den Wochen 19, 20, 24 und 25
-- Ende Mitte Mai 2027; bis Release 1.0 Ende Juni bleiben rund sechs Wochen
+#### M5 · Woche 9–10 · Arbeitsbereich je Lieferant und Englisch
 
-## 6. Offene Fragen
+| Woche | Spec |
+|---|---|
+| 9 | NAV-06 |
+| 10 | PLT-09 |
 
-1. **Betreiber-Zugang (PLT-13):** Er fehlt in den 71 Specs. Behalten wir ihn (UMB-01, mit eigener Seite statt Dialog) oder entfällt er?
-2. **Betreiber-Recht nach PLT-05:** Rollen liegen dann in der Datenbank. Soll `betreiber` als Flag `is_operator` in die Datenbank (per Skript gesetzt) oder als einzige Rolle weiter aus Zitadel kommen?
-3. **Neuanmeldung (UMB-02):** Redirect mit kurz gespeichertem Formularentwurf statt Popup-Fenster, einverstanden? Oder ist das Popup eine erlaubte Ausnahme?
-4. **Organisation sehen:** PLT-02 und PLT-05 erlauben jedem Mitglied, Organisation und Mitglieder zu sehen. PLT-11 zeigt den Weg zu den Einstellungen nur Admins. Vorschlag: `/profil` zeigt allen den Weg zu `/einstellungen/organisation` (nur lesen), alles andere unter Einstellungen nur Admins.
-5. **Rollen aus Zitadel übernehmen (K15):** Einmalige Migration der heutigen Zitadel-Rollen nach `org_role` (admin bleibt admin, nutzer wird member, leser wird viewer, controlling wird `is_controlling`), danach Zitadel-Rollen nicht mehr lesen. Einverstanden?
-6. **KI-SDK:** Umstieg von `@anthropic-ai/sdk` auf das Vercel AI SDK (`ai`, Apache-2.0, gepinnt) und Umbenennung der Umgebungsvariablen in `AI_PROVIDER`/`AI_MODEL`, wie PLT-12 verlangt?
-7. **Lieferantenplan-Adressen (W3):** Lieferantenplan unter `/lieferanten/<id>/strategie/lieferantenplan/…`, damit er sich nicht mit dem Gemeinsamen Plan unter `/plan/…` überschneidet?
-8. **Zusammenführen von Themen (W4):** in JBP-03 verschieben?
-9. **Feedback ohne Anmeldung (W5):** Teilnehmende als geteilte Zeilen der einladenden Seite und Antworten über eine eng gefasste Datenbankfunktion mit Token, einverstanden?
-10. **Erwähnungen (W6):** Vorschlagsliste fest unter dem Feld statt einer aufklappenden Liste, einverstanden?
-11. **Erinnerungstage (W7):** eigene Tabelle `org_setting` statt `cycle_settings`?
-12. **CLAUDE.md (W8):** Regel zur GuV-Wirkung auf „sobald Wirkung eingerichtet ist“ präzisieren?
-13. **Strangwechsel:** PUL-01 und PLB-03 zu A, PLB-06, SEG-11 und SPL-10 zu B, PUL-08 zu A, QS-05 und ZYK-05 zu A, QBR-07 zu C. Passt das, oder sollen die Stränge der README fest bleiben (dann länger als 27 Wochen)?
-14. **Soll-Specs:** SEG-11, PUL-08, SPL-10, QBR-07 und QS-05 sind „Soll“. Vorziehen wie geplant (Woche 17 bis 26) oder ans Ende stellen und bei Zeitnot streichen?
-15. **Teilen zu großer Specs:** Sind die sechs Teilungen (PLT-03, PLT-05, PLT-07, PUL-02, QBR-01, LIF-01) als je zwei PRs in Ordnung?
-16. **Beispieldaten:** 50 Lieferanten fest im Seed oder nur als Import-Datei `lieferanten-50.xlsx` mit einer Seed-Option?
-17. **Arbeiten zu dritt:** Die README rechnet mit drei Gründern, es gibt derzeit einen. Sollen die drei Stränge trotzdem als Reihenfolge gelten (dann rund dreimal so lang, etwa 75 Wochen), oder priorisieren wir einen Strang?
+**Demo:**
+- `/lieferanten/<id>`:
+  - lokale Leiste, Kopf mit SRO
+  - sechs Kacheln, Release-Hinweise
+  - Kennzeichen „Intern“ im Bereich Strategie
+- `/lieferanten/<id>/strategie` mit Kacheln
+- `/profil`: Sprache Englisch, alle Seiten auf Englisch, auch nach erneuter Anmeldung
+
+**Seed:** `app_user.locale` für einen Testnutzer auf `en`.
+
+#### M6 · Woche 11–12 · Stammdaten und Import
+
+| Woche | Spec |
+|---|---|
+| 11 | PLT-06, dazu UMB-03 |
+| 12 | PLT-07a, PLT-07b |
+
+**Demo:**
+- `/einstellungen/business-units`, `/einstellungen/warengruppen`
+- `/lieferanten/<id>/strategie/profil/zuordnung`; Haupt-Warengruppe auf den Karten
+- Import:
+  - `/lieferanten/importieren`
+  - `docs/demo/lieferanten-50.xlsx` mit drei Fehlerzeilen, Fehlerdatei herunterladen
+  - zweiter Import meldet „unverändert“
+
+**Seed:**
+- je OEM drei BUs und sechs Warengruppen in zwei Ebenen; der Zweit-OEM mit eigenen Werten
+- Zuordnung aller Demo-Lieferanten
+- Seed-Option `pnpm db:seed --viele` lädt die 50 Lieferanten
+
+#### M7 · Woche 13–14 · Fragen-Seite und E-Mails
+
+| Woche | Spec |
+|---|---|
+| 13 | PLT-12 (Umbau) |
+| 14 | QS-01 |
+
+**Demo:**
+- Cmd+K öffnet `/fragen`
+- „Welche Lieferanten haben wir in der Warengruppe Elektronik?“, Treffer als Karten
+- „Öffne den Spend von Beispiel AG (Demo)“ führt zur Spend-Seite
+- `http://localhost:8025` (Mailpit): Testmail auf Deutsch und Englisch
+
+**Seed:** keine Änderung. `docker-compose.yml` bekommt Mailpit.
+
+#### M8 · Woche 15–16 · Segmentmodell und Bewertungsrunde
+
+| Woche | Spec |
+|---|---|
+| 15 | SEG-01 |
+| 16 | SEG-03 |
+
+**Demo:**
+- `/einstellungen/segmentmodell`: Kriterien, Gewichte, Grenzen, Typen; Entwurf aktivieren
+- `/portfolio/runden/neu` in vier Schritten, Einladungen in Mailpit
+- `/portfolio/runden/<id>` mit Fortschritt
+
+**Seed:** Standard-Segmentmodell für beide OEMs, eine offene Runde mit zehn Lieferanten.
+
+#### M9 · Woche 17–18 · Bewerten und Start
+
+| Woche | Spec |
+|---|---|
+| 17 | SEG-04 |
+| 18 | NAV-05 |
+
+**Demo:**
+- `/bewertungen` und `/bewertungen/<id>`: Regler Ist und Soll, später fortsetzen, Zusammenfassung mit Matrix, abgeben
+- `/start`: „Fällig bei mir“ mit offenen Bewertungen, `/start/faellig`; Fragefeld führt zu `/fragen?q=…`
+
+**Seed:** Bewertungen teils abgegeben, teils als Entwurf.
+
+#### M10 · Woche 19–20 · Segmentierung je Lieferant
+
+| Woche | Spec |
+|---|---|
+| 19 | SEG-05 |
+| 20 | SEG-06 |
+
+**Demo:**
+- `/lieferanten/<id>/strategie/segmentierung`:
+  - Matrix, Tabelle je BU und Warengruppe, Heatmap der Abweichungen
+  - Klick auf ein Kriterium zeigt die Begründungen
+- Konsolidieren in mehreren Schritten; danach zeigt der Kopf Ist → Soll
+
+**Seed:** vollständig abgegebene Bewertungen für sechs Lieferanten, eine Konsolidierung.
+
+#### M11 · Woche 21–22 · Portfolio und Fokus (Release 0.1 komplett)
+
+| Woche | Spec |
+|---|---|
+| 21 | SEG-07 |
+| 22 | SEG-02 |
+
+**Demo:**
+- `/portfolio` mit Kacheln
+- `/portfolio/matrix` mit Filter (mit `--viele` 50 Lieferanten)
+- `/portfolio/offen`
+- `/portfolio/fokus` mit Vorschlägen und Begründung; Abzeichen „Fokus“ auf Karten und im Kopf
+
+**Seed:** Konsolidierungen für zwanzig Lieferanten, acht Fokuslieferanten.
+
+#### M12 · Woche 23–24 · Filter und Lieferanten einladen
+
+| Woche | Spec |
+|---|---|
+| 23 | NAV-12 |
+| 24 | LIF-01a, LIF-01b |
+
+**Demo:**
+- `/lieferanten?bu=…&wg=…&typ=…&fokus=1&meine=1`; Zurück aus einem Lieferanten behält die Filter
+- `/lieferanten/<id>/beziehung/team/einladen`, Mail in Mailpit, `/einladung/<token>` in drei Schritten
+
+**Seed:** eine offene Einladung beim Test-Lieferanten.
+
+#### M13 · Woche 25–26 · Lieferantenzugang und Spielregel-Katalog
+
+| Woche | Spec |
+|---|---|
+| 25 | LIF-02 |
+| 26 | PLB-01 |
+
+**Demo:**
+- als Lieferant: `/start`, `/kunden`, `/kunden/<beziehung>` ohne Bereich Strategie; Kundenwechsel behält den Bereich
+- `/einstellungen/spielregeln`: Rechte, Pflichten, Formate, Vorschau je Typ
+
+**Seed:**
+- Test-Lieferant bei beiden OEMs aktiv, mit zwei Nutzern
+- Standardkatalog Spielregeln und Formate
+
+#### M14 · Woche 27–28 · Spielregeln je Beziehung und Freigabe an den Lieferanten
+
+| Woche | Spec |
+|---|---|
+| 27 | PLB-03 |
+| 28 | SEG-10 |
+
+**Demo:**
+- `/lieferanten/<id>/beziehung/spielregeln`: Vorschlag übernehmen, bearbeiten mit Begründung, intern freigeben
+- `/…/spielregeln/teilen`; danach sieht der Lieferant Typ und Spielregeln
+
+**Seed:** Spielregeln für drei Fokuslieferanten, eine davon geteilt.
+
+#### M15 · Woche 29–30 · Termine und Maßnahmen (Kernpfad komplett)
+
+| Woche | Spec |
+|---|---|
+| 29 | QBR-01a, QBR-01b |
+| 30 | QBR-03 |
+
+**Demo:**
+- `/lieferanten/<id>/umsetzung/termine`: neuer Termin aus den Formaten, Agenda, Protokoll, Abschließen
+- Termin im Kopf und auf Start beider Seiten
+- `/lieferanten/<id>/umsetzung/massnahmen` mit Filtern, Maßnahme aus Termin, `/start/massnahmen`
+- dieselben Seiten als Lieferant unter `/kunden/<beziehung>/umsetzung/…`
+
+**Seed:** zwei Termine je Fokuslieferant, Maßnahmen beider Seiten, zwei davon überfällig.
+
+**Zeitplan:** 30 Arbeitswochen plus eine Woche Weihnachtspause. Ende Woche 30 ist der 4.6.2027. Bis Ende Juni bleiben gut drei Wochen Puffer für Feinschliff und den Testlauf mit dem ersten Kunden.
+
+### 5.3 Nach dem Kernpfad: Blöcke in der Reihenfolge des Kundennutzens
+
+Die Reihenfolge der Blöcke wird nach dem Testlauf entschieden. Innerhalb eines Blocks gelten die Abhängigkeiten der README.
+
+| Block | Specs | Wochen | Braucht |
+|---|---|---|---|
+| F Feedback | PUL-01, PUL-02a/b, PUL-03, PUL-06, LIF-03, PLB-04 | etwa 7 | Kernpfad |
+| S Lieferantenwissen | SPL-04, SPL-05 | 2 | Kernpfad |
+| P Zyklus und Lieferantenplan | ZYK-01, ZYK-02, SPL-01, SPL-03, SPL-06, SPL-07, QBR-04, PLB-06 | 8 | Kernpfad; PLB-06 braucht PLT-07 |
+| J Gemeinsamer Plan | JBP-01, JBP-02, JBP-03, JBP-05, JBP-06, JBP-07, JBP-09 | 7 | F (PUL-03) und P (SPL-07, ZYK-02) |
+| W Wirkung | PNL-01, PNL-03, PNL-05, PNL-06, PNL-07, PNL-10, PNL-11 | 7 | J (JBP-03); PNL-07 braucht LIF-03 aus F |
+| R Rest | QS-02, QBR-06, QS-03, ZYK-04, ZYK-05, FS-01 | 6 | J und W |
+| K KI und Suche (Soll) | SEG-11, PUL-08, SPL-10, QBR-07, QS-05 | 5 | jeweils ihr Modul; ganz am Ende, bei Zeitnot gestrichen |
+
+**Wichtig für die Reihenfolge:** Wirkung (W) hängt an den Initiativen aus dem Gemeinsamen Plan (JBP-03). Soll die Wirkung früher kommen als F, P und J (zusammen etwa 22 Wochen), braucht es eine kleine Zusatz-Spec, die Initiativen auch ohne Gemeinsamen Plan erlaubt. Die Quelle `action` aus PNL-01 deutet das schon an. Siehe Abschnitt 7.
+
+Mit einer Person ergeben die Blöcke F bis R rund 37 weitere Wochen, also etwa bis Ende Februar 2028. Mit weiteren Personen lassen sich F, S und P parallel bauen.
+
+## 6. Entscheidungen
+
+Am 31.10.2026 nach Empfehlung getroffen. UMB-04 überträgt sie in die Specs.
+
+| # | Frage | Entscheidung |
+|---|---|---|
+| 1 | Betreiber-Zugang (PLT-13) behalten? | Ja, mit eigener Seite statt Dialog (UMB-01). |
+| 2 | Betreiber-Recht | Flag `is_operator` an `app_user`, gesetzt per Skript `pnpm operator:set <email>`. Nicht mehr aus Zitadel. |
+| 3 | Neuanmeldung | Weiterleitung mit kurz gespeichertem Formularentwurf statt Popup (UMB-02). |
+| 4 | Organisation sehen | `/profil` zeigt allen den Weg zu `/einstellungen/organisation` (nur lesen); alles andere unter Einstellungen nur Admins. |
+| 5 | Rollen aus Zitadel | Einmalige Übernahme nach `org_role` (admin bleibt admin, nutzer wird member, leser wird viewer, controlling wird `is_controlling`), danach keine Zitadel-Rollen mehr. Teil von PLT-05a. |
+| 6 | KI-SDK | Vercel AI SDK (`ai`, Apache-2.0, gepinnt), `AI_PROVIDER`/`AI_MODEL`. Im Umbau von PLT-12. |
+| 7 | Adressen des Lieferantenplans (W3) | `/lieferanten/<id>/strategie/lieferantenplan/…` |
+| 8 | Themen zusammenführen (W4) | in JBP-03, Verknüpfung über `initiative_topic` |
+| 9 | Feedback ohne Anmeldung (W5) | Teilnehmende als geteilte Zeilen der einladenden Seite (`visibility = internal`); Antworten über eine eng gefasste Datenbankfunktion mit Token; `org_id` der antwortenden Seite an `survey_response` |
+| 10 | Erwähnungen (W6) | Vorschlagsliste fest unter dem Feld im Seitenfluss |
+| 11 | Erinnerungstage (W7) | eigene Tabelle `org_setting` (`org_private`) |
+| 12 | CLAUDE.md (W8) | „Jede gemeinsame Initiative trägt ihre GuV-Wirkung, sobald Wirkung eingerichtet ist …“ |
+| 13 | Strangwechsel | Entfällt, solange es eine Person gibt; der Plan folgt dem Kernpfad. |
+| 14 | Soll-Specs | ans Ende (Block K), bei Zeitnot streichen |
+| 15 | Teilung großer Specs | ja, sechs Specs in je zwei PRs |
+| 16 | 50 Lieferanten | als `docs/demo/lieferanten-50.xlsx`; Seed bleibt bei 15, `pnpm db:seed --viele` lädt die 50 |
+| 17 | Arbeiten allein | Kernpfad statt dreier Stränge; Umfang von 1.0 bewusst verkleinern |
+
+**W1 und W10** werden in UMB-04 ohne weitere Entscheidung korrigiert:
+- **W1:** „Bis PLT-05 gilt jeder als Admin“ wird zu „Bis PLT-05 gelten die Zitadel-Rollen“.
+- **W10:** falsche Verweise korrigieren.
+
+## 7. Noch offen
+
+1. **Umfang von Release 1.0:** Vorschlag ist 1.0 Ende Juni 2027 gleich Kernpfad (M0 bis M15). Die Blöcke F bis K folgen als 1.1, 1.2 usw. Die Release-Spalte der README wird in UMB-04 entsprechend angepasst.
+2. **Wirkung vorziehen?** Wenn Testkunden zuerst die GuV-Wirkung sehen wollen, braucht es eine Zusatz-Spec „Initiativen ohne Gemeinsamen Plan“. Sonst kommt Block W erst nach F, P und J.
+3. **Reihenfolge der Blöcke nach dem Kernpfad:** Vorschlag F, S, P, J, W, R, K. Endgültig nach dem Testlauf im Juni.
