@@ -2,20 +2,12 @@ import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
 // Tests zu docs/specs/PLT-12.md, die einen echten Browser brauchen: Tastenkürzel, Fokus, Maße.
+// Seit PLT-11 ist das Gespräch die Seite /fragen statt eines Fensters.
 // Die API wird nachgebaut; die Antwort kommt als NDJSON wie von der echten API.
 
 test.use({ locale: 'de-DE' });
 
-const pages = [
-  '/uebersicht',
-  '/lieferanten',
-  '/beziehungen',
-  '/puls',
-  '/jbp',
-  '/qbr',
-  '/pnl',
-  '/einstellungen',
-];
+const pages = ['/start', '/lieferanten', '/portfolio', '/wirkung', '/profil', '/einstellungen'];
 
 async function signIn(page: Page) {
   // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
@@ -41,10 +33,10 @@ async function signIn(page: Page) {
   );
   await page.route('**/api/prompt', (route) => {
     const question = route.request().postDataJSON().messages.at(-1).content as string;
-    const events = question.includes('Beziehungspuls')
+    const events = question.includes('Portfolio')
       ? [
-          { type: 'text', delta: 'Ich öffne Beziehungspuls.' },
-          { type: 'navigate', to: '/puls' },
+          { type: 'text', delta: 'Ich öffne Portfolio.' },
+          { type: 'navigate', to: '/portfolio' },
           { type: 'done' },
         ]
       : [
@@ -71,17 +63,11 @@ async function signIn(page: Page) {
   });
 }
 
-const dialog = (page: Page) => page.getByRole('dialog', { name: 'Frag Reziproq' });
+const questions = (page: Page) => page.locator('#inhalt');
 const field = (page: Page) => page.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
 
-/** Wartet, bis das Einblenden fertig ist; währenddessen ist das Fenster leicht verkleinert. */
-const animationsDone = (page: Page) =>
-  page.waitForFunction(() =>
-    document.getAnimations().every((animation) => animation.playState !== 'running'),
-  );
-
 for (const shortcut of ['Meta+k', 'Control+k']) {
-  test(`${shortcut} öffnet das Fenster auf jeder Seite; Fokus im Feld; Esc schließt`, async ({
+  test(`${shortcut} öffnet /fragen von jeder Seite; Fokus im Feld; kein Fenster`, async ({
     page,
   }) => {
     await signIn(page);
@@ -89,60 +75,57 @@ for (const shortcut of ['Meta+k', 'Control+k']) {
       await page.goto(path);
       await expect(page.locator('#inhalt h1')).toBeVisible();
       await page.keyboard.press(shortcut);
-      await expect(dialog(page)).toBeVisible();
+      await expect(page).toHaveURL('http://localhost:5174/fragen');
       await expect(field(page)).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(dialog(page)).toBeHidden();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      // Browser-Zurück führt zur Seite davor.
+      await page.goBack();
+      await expect(page).toHaveURL(`http://localhost:5174${path}`);
     }
   });
 }
 
-test('Das Feld auf der Übersicht öffnet dasselbe Fenster', async ({ page }) => {
+test('Das Feld auf Start führt zur selben Seite', async ({ page }) => {
   await signIn(page);
-  await page.goto('/uebersicht');
-  await page.getByRole('button', { name: /Frag Reziproq …/ }).click();
-  await expect(dialog(page)).toBeVisible();
+  await page.goto('/start');
+  await page.getByRole('link', { name: /Frag Reziproq …/ }).click();
+  await expect(page).toHaveURL('http://localhost:5174/fragen');
   await expect(field(page)).toBeFocused();
 });
 
-test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Beziehungspuls springen', async ({
+test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen', async ({
   page,
 }) => {
   await signIn(page);
-  await page.goto('/uebersicht');
+  await page.goto('/fragen');
   await expect(page.locator('#inhalt h1')).toBeVisible();
-  await page.keyboard.press('Control+k');
 
-  await dialog(page)
+  await questions(page)
     .getByRole('button', { name: 'Zeig mir die Lieferanten mit dem höchsten Spend' })
     .click();
   await expect(field(page)).toHaveValue('Zeig mir die Lieferanten mit dem höchsten Spend');
   await page.keyboard.press('Enter');
-  await expect(dialog(page).getByText('Ich habe 1 Lieferanten gefunden.')).toBeVisible();
+  await expect(questions(page).getByText('Ich habe 1 Lieferanten gefunden.')).toBeVisible();
   await expect(
-    dialog(page).getByRole('heading', { name: 'Pearl River Components Ltd. (Demo)' }),
+    questions(page).getByRole('heading', { name: 'Pearl River Components Ltd. (Demo)' }),
   ).toBeVisible();
 
-  await field(page).fill('Öffne den Beziehungspuls');
+  await field(page).fill('Öffne das Portfolio');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL('http://localhost:5174/puls');
-  await expect(dialog(page)).toBeHidden();
+  await expect(page).toHaveURL('http://localhost:5174/portfolio');
 });
 
 for (const width of [1440, 390]) {
-  test(`Alle Klickflächen im Fenster sind mindestens 44 × 44 px groß (${width} px)`, async ({
+  test(`Alle Klickflächen auf /fragen sind mindestens 44 × 44 px groß (${width} px)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page);
-    await page.goto('/uebersicht');
+    await page.goto('/fragen');
     await expect(page.locator('#inhalt h1')).toBeVisible();
-    await page.keyboard.press('Control+k');
-    await expect(dialog(page)).toBeVisible();
-    await animationsDone(page);
 
     const tooSmall = () =>
-      dialog(page).evaluate((root) =>
+      questions(page).evaluate((root) =>
         [...root.querySelectorAll<HTMLElement>('a[href], button')]
           .map((element) => ({ element, box: element.getBoundingClientRect() }))
           .filter(({ box }) => box.width > 1 && (box.width < 44 || box.height < 44))
@@ -154,7 +137,7 @@ for (const width of [1440, 390]) {
 
     await field(page).fill('Zeig mir die Lieferanten mit dem höchsten Spend');
     await page.keyboard.press('Enter');
-    await expect(dialog(page).getByRole('button', { name: 'Neu beginnen' })).toBeVisible();
+    await expect(questions(page).getByRole('button', { name: 'Neu beginnen' })).toBeVisible();
     expect(await tooSmall()).toEqual([]);
 
     const overflow = await page.evaluate(

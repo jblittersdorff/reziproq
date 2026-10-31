@@ -161,8 +161,8 @@ export function Typography({ values }: { values: Record<string, string> }) {
           <code className="w-44 shrink-0 text-muted-foreground text-sm">400 · 500 · 600</code>
           <p className="flex flex-wrap gap-4 text-base">
             <span className="font-normal">{t.typography.weights}</span>
-            <span className="font-medium">Aa</span>
-            <span className="font-semibold">Aa</span>
+            <span className="font-medium">{t.typography.weightSample}</span>
+            <span className="font-semibold">{t.typography.weightSample}</span>
           </p>
         </li>
       </ul>

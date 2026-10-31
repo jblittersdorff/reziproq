@@ -64,7 +64,7 @@ describe('safeReturnTo', () => {
     expect(safeReturnTo('/lieferanten?suche=guss#oben')).toBe('/lieferanten?suche=guss#oben');
   });
 
-  it('nimmt keine fremden Adressen an und fällt auf die Übersicht zurück', () => {
+  it('nimmt keine fremden Adressen an und fällt auf Start zurück', () => {
     for (const value of [
       'https://example.com',
       '//example.com',
@@ -74,7 +74,7 @@ describe('safeReturnTo', () => {
       undefined,
       42,
     ]) {
-      expect(safeReturnTo(value)).toBe('/uebersicht');
+      expect(safeReturnTo(value)).toBe('/start');
     }
   });
 });

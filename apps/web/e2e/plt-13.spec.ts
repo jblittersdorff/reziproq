@@ -46,12 +46,13 @@ async function signInAsOperator(page: Page) {
   return seen;
 }
 
+/** Seit PLT-11 über die Seite /profil; der Dialog zur Auswahl bleibt bis UMB-01. */
 async function switchTo(page: Page, name: string) {
   await page
-    .getByRole('button', { name: /Olaf Betrieb/ })
-    .first()
+    .getByRole('navigation', { name: 'Hauptnavigation' })
+    .getByRole('link', { name: 'Profil' })
     .click();
-  await page.getByRole('menuitem', { name: 'Kunde wechseln' }).click();
+  await page.getByRole('button', { name: 'Kunde wechseln' }).click();
   await page
     .getByRole('dialog', { name: 'In einen Kunden wechseln' })
     .getByRole('button', { name: new RegExp(name) })
@@ -71,7 +72,7 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
     'Betreiber-Ansicht: Zweit-OEM (Demo). Alle Zugriffe werden protokolliert.',
   );
   await expect(banner).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  await expect(page).toHaveURL('http://localhost:5174/start');
   expect(seen.at(-1)).toBe(customers[1]?.id);
 
   // Die Ansicht bleibt beim Navigieren bestehen.
@@ -98,7 +99,7 @@ for (const width of [1440, 390]) {
       },
       JSON.stringify({ id: customers[0]?.id, name: customers[0]?.name }),
     );
-    await page.goto('/uebersicht');
+    await page.goto('/profil');
     await expect(page.getByRole('button', { name: 'Verlassen' })).toBeVisible();
 
     const leave = await page.getByRole('button', { name: 'Verlassen' }).boundingBox();
@@ -108,12 +109,7 @@ for (const width of [1440, 390]) {
     );
     expect(overflow).toBe(0);
 
-    if (width < 1024) await page.getByRole('button', { name: 'Navigation öffnen' }).click();
-    await page
-      .getByRole('button', { name: /Olaf Betrieb/ })
-      .last()
-      .click();
-    await page.getByRole('menuitem', { name: 'Kunde wechseln' }).click();
+    await page.getByRole('button', { name: 'Kunde wechseln' }).click();
     const dialog = page.getByRole('dialog', { name: 'In einen Kunden wechseln' });
     await expect(dialog.getByRole('button')).toHaveCount(2);
     await page.waitForFunction(() =>

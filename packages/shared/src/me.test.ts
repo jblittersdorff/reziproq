@@ -13,6 +13,7 @@ const ada = {
     viewBuyerAreas: false,
     viewSuppliers: false,
     switchCustomer: false,
+    manageSettings: false,
   },
 };
 

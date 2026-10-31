@@ -3,7 +3,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
 
-// Tests zu docs/specs/PLT-11.md: App-Rahmen und Startseite.
+// Tests zu docs/specs/PLT-11.md: globale Leiste, Routen, Profil, Pfad und Seitenmuster. Was nur
+// ein echter Browser zeigt (390 px, Tastatur, Zurück-Knopf), prüft e2e/plt-11.spec.ts.
 
 // Nachgebauter Login: react-oidc-context liefert den Zustand, den der Test vorgibt.
 const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
@@ -23,59 +24,47 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-// Reihenfolge, Sätze, Routen und Releases aus der Tabelle in PLT-11.
-const areas = [
-  {
-    title: 'Lieferanten',
-    path: '/lieferanten',
-    release: '0.1',
-    sentence:
-      'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
-  },
-  {
-    title: 'Beziehungen',
-    path: '/beziehungen',
-    release: '0.2',
-    sentence:
-      'Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten.',
-  },
-  {
-    title: 'Beziehungspuls',
-    path: '/puls',
-    release: '0.2',
-    sentence: 'Wie beide Seiten die Beziehung sehen – heute und gewünscht.',
-  },
-  {
-    title: 'Joint Business Plans',
-    path: '/jbp',
-    release: '0.3',
-    sentence: 'Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten.',
-  },
-  {
-    title: 'QBRs und Maßnahmen',
-    path: '/qbr',
-    release: '0.3',
-    sentence: 'Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern.',
-  },
-  {
-    title: 'P&L-Impact',
-    path: '/pnl',
-    release: '0.3',
-    sentence: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.',
-  },
+const admin = {
+  ...anna,
+  roles: ['admin' as const],
+  permissions: { ...anna.permissions, manageSettings: true },
+};
+
+/** Ziele der globalen Leiste: Mitte die vier Hauptziele, rechts Fragen und Profil. */
+const barTargets = [
+  { label: 'Start', path: '/start' },
+  { label: 'Lieferanten', path: '/lieferanten' },
+  { label: 'Portfolio', path: '/portfolio' },
+  { label: 'Wirkung', path: '/wirkung' },
+  { label: 'Fragen', path: '/fragen' },
+  { label: 'Profil', path: '/profil' },
 ];
 
-const navEntries = [
-  { label: 'Übersicht', path: '/uebersicht' },
-  ...areas.map(({ title, path }) => ({ label: title, path })),
-  { label: 'Einstellungen', path: '/einstellungen' },
+/** Alle Routen dieser Spec mit ihrem Titel (h1). Start begrüßt statt eines Titels. */
+const routes = [
+  { path: '/start', title: 'Guten' },
+  { path: '/lieferanten', title: 'Lieferanten' },
+  { path: '/portfolio', title: 'Portfolio' },
+  { path: '/wirkung', title: 'Wirkung' },
+  { path: '/fragen', title: 'Frag Reziproq' },
+  { path: '/profil', title: 'Profil' },
+  { path: '/profil/erscheinungsbild', title: 'Erscheinungsbild' },
+  { path: '/einstellungen', title: 'Einstellungen' },
+  { path: '/einstellungen/organisation', title: 'Organisation' },
+  { path: '/menu', title: 'Menü' },
 ];
 
-describe('Startseite', () => {
-  it('leitet / auf /uebersicht um', async () => {
-    const router = renderAt('/');
-    await screen.findByRole('heading', { level: 1 });
-    expect(router.state.location.pathname).toBe('/uebersicht');
+const bar = () => screen.getByRole('navigation', { name: 'Hauptnavigation' });
+
+describe('Nach dem Login landet der Nutzer auf /start', () => {
+  it('leitet / und die frühere Übersicht auf /start um', async () => {
+    for (const path of ['/', '/uebersicht']) {
+      const router = renderAt(path);
+      await screen.findByRole('heading', { level: 1, name: /Guten|Willkommen/ });
+      expect(router.state.location.pathname).toBe('/start');
+      tearDownApp();
+      setUpApp();
+    }
   });
 
   it.each([
@@ -85,111 +74,148 @@ describe('Startseite', () => {
   ])('begrüßt um %i Uhr mit „%s“', async (hour, greeting) => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 29, hour, 0));
-    renderAt('/uebersicht');
+    renderAt('/start');
     expect(await screen.findByRole('heading', { level: 1, name: greeting })).toBeDefined();
   });
 
-  it('Die Übersicht zeigt genau sechs Kacheln in der Reihenfolge der Tabelle, mit Satz und Release', async () => {
-    renderAt('/uebersicht');
-    const region = await screen.findByRole('region', { name: 'Bereiche' });
-    // Die Kennzahl der Lieferanten-Kachel kommt erst mit der Antwort der API.
-    await within(region).findByText(/^3 Lieferanten/);
-    const tiles = within(region).getAllByRole('link');
-    expect(tiles).toHaveLength(6);
-    tiles.forEach((tile, index) => {
-      const area = areas[index];
-      expect(tile.getAttribute('href')).toBe(area?.path);
-      expect(tile.textContent).toContain(area?.title);
-      expect(tile.textContent).toContain(area?.sentence);
-      // Seit PLT-02 zeigt die Lieferanten-Kachel Kennzahlen statt des Release-Hinweises.
-      // Intl trennt Betrag und Währung mit einem geschützten Leerzeichen.
-      expect(tile.textContent?.replaceAll('\u00a0', ' ')).toContain(
-        area?.title === 'Lieferanten'
-          ? '3 Lieferanten · 10.230.000 € Jahresspend 2025'
-          : `Kommt mit Release ${area?.release}`,
-      );
-    });
-  });
-
-  it.each(areas)('öffnet mit einem Klick auf die Kachel $title die Route $path', async (area) => {
-    const router = renderAt('/uebersicht');
-    const region = await screen.findByRole('region', { name: 'Bereiche' });
-    // Klick auf den Satz, nicht auf den Titel: die ganze Kachel ist anklickbar.
-    fireEvent.click(within(region).getByText(area.sentence));
-    expect(await screen.findByRole('heading', { level: 1, name: area.title })).toBeDefined();
-    expect(router.state.location.pathname).toBe(area.path);
-  });
-
-  // Seit PLT-12 steht dort das Feld, das das Prompt-Fenster öffnet; ein totes Eingabefeld gibt
-  // es weiterhin nicht (siehe features/prompt/plt-12.test.tsx).
-  it('zeigt unter der Begrüßung das Feld für das Prompt-Fenster, kein totes Eingabefeld', async () => {
-    renderAt('/uebersicht');
+  it('zeigt auf Start das Fragefeld, das zu /fragen führt, und den leeren Zustand', async () => {
+    const router = renderAt('/start');
     await screen.findByRole('heading', { level: 1 });
-    expect(screen.getByRole('button', { name: /Frag Reziproq/ })).toBeDefined();
-    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.getByText('Hier steht bald, was bei dir fällig ist')).toBeDefined();
+    fireEvent.click(screen.getByRole('link', { name: /Frag Reziproq/ }));
+    await screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
+    expect(router.state.location.pathname).toBe('/fragen');
   });
 });
 
-describe('Seitenleiste', () => {
-  it.each(navEntries)('markiert $label als aktiv auf $path', async (entry) => {
-    renderAt(entry.path);
+describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die aktive Seite ist markiert', () => {
+  it.each(routes)('auf $path zeigt die Leiste alle Ziele', async (route) => {
+    renderAt(route.path);
     await screen.findByRole('heading', { level: 1 });
-
-    const nav = screen.getByRole('navigation', { name: 'Hauptnavigation' });
-    const links = within(nav).getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual(navEntries.map((e) => e.label));
-    const active = links.filter((link) => link.getAttribute('aria-current') === 'page');
-    expect(active.map((link) => link.textContent)).toEqual([entry.label]);
+    const links = within(bar()).getAllByRole('link');
+    const named = links.map((link) => link.getAttribute('aria-label') ?? link.textContent);
+    for (const target of barTargets) expect(named).toContain(target.label);
   });
 
-  it('zeigt Name und E-Mail aus /api/me im Nutzer-Menü', async () => {
-    renderAt('/uebersicht');
-    expect(await screen.findByText('Anna Schmidt')).toBeDefined();
-    expect(screen.getByText('anna@example.com')).toBeDefined();
+  it.each(barTargets)('ein Klick auf $label öffnet $path und markiert es', async (target) => {
+    const router = renderAt('/start');
+    await screen.findByRole('heading', { level: 1 });
+    const link = within(bar())
+      .getAllByRole('link')
+      .find(
+        (candidate) =>
+          (candidate.getAttribute('aria-label') ?? candidate.textContent) === target.label,
+      );
+    if (!link) throw new Error(`${target.label} fehlt`);
+    fireEvent.click(link);
+    await waitFor(() => expect(router.state.location.pathname).toBe(target.path));
+    const active = within(bar())
+      .getAllByRole('link')
+      .filter((candidate) => candidate.getAttribute('aria-current') === 'page');
+    expect(active.map((candidate) => candidate.getAttribute('href'))).toEqual([target.path]);
+  });
+
+  it('markiert auf Unterseiten von Profil und Einstellungen das Profil', async () => {
+    renderAt('/einstellungen/organisation');
+    await screen.findByRole('heading', { level: 1, name: 'Organisation' });
+    const active = within(bar())
+      .getAllByRole('link')
+      .filter((candidate) => candidate.getAttribute('aria-current') === 'page');
+    expect(active.map((candidate) => candidate.getAttribute('aria-label'))).toEqual(['Profil']);
+  });
+
+  it('hat auf schmalen Bildschirmen einen Menüknopf zur eigenen Seite /menu', async () => {
+    const router = renderAt('/start');
+    await screen.findByRole('heading', { level: 1 });
+    fireEvent.click(within(bar()).getByRole('link', { name: 'Menü öffnen' }));
+    await screen.findByRole('heading', { level: 1, name: 'Menü' });
+    expect(router.state.location.pathname).toBe('/menu');
+    const menu = screen.getByRole('navigation', { name: 'Menü' });
+    expect(
+      within(menu)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(barTargets.map((target) => target.path));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('zeigt Organisationen ohne Käuferfunktionen nur das Profil', async () => {
+    api.me = { ...anna, permissions: { ...anna.permissions, viewBuyerAreas: false } };
+    renderAt('/profil');
+    await screen.findByText('Anna Schmidt');
+    const links = within(bar()).getAllByRole('link');
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/start', '/profil', '/menu']);
   });
 
   it('bietet als erstes Tab-Ziel den Sprung zum Inhalt', async () => {
-    renderAt('/uebersicht');
+    renderAt('/start');
     const skip = await screen.findByRole('link', { name: 'Zum Inhalt springen' });
     expect(skip.getAttribute('href')).toBe('#inhalt');
-    const focusable = document.querySelectorAll('a[href], button');
-    expect(focusable[0]).toBe(skip);
+    expect(document.querySelectorAll('a[href], button')[0]).toBe(skip);
     expect(document.getElementById('inhalt')?.tagName).toBe('MAIN');
   });
 });
 
-describe('Bereichsseiten', () => {
-  // Lieferanten ist seit PLT-02 eine echte Seite (siehe features/suppliers/plt-02.test.tsx).
-  const comingSoon = areas.filter((area) => area.path !== '/lieferanten');
+describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand', () => {
+  it.each(routes)('$path zeigt den Titel', async (route) => {
+    api.me = admin;
+    renderAt(route.path);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: new RegExp(`^${route.title}`) }),
+    ).toBeDefined();
+  });
 
-  it.each(comingSoon)('$path zeigt Titel, Satz und leeren Zustand mit Release', async (area) => {
-    renderAt(area.path);
-    expect(await screen.findByRole('heading', { level: 1, name: area.title })).toBeDefined();
-    expect(screen.getByText(area.sentence)).toBeDefined();
-    expect(screen.getByText(`Kommt mit Release ${area.release}`)).toBeDefined();
-    expect(document.title).toBe(`${area.title} – Reziproq`);
+  it.each([
+    ['/portfolio', 'Portfolio', 'Noch kein Portfolio'],
+    ['/wirkung', 'Wirkung', 'Noch keine Wirkung'],
+  ])('%s zeigt den leeren Zustand und setzt den Tab-Titel', async (path, title, empty) => {
+    renderAt(path);
+    await screen.findByRole('heading', { level: 1, name: title });
+    expect(screen.getByText(empty)).toBeDefined();
+    expect(document.title).toBe(`${title} – Reziproq`);
   });
 });
 
-describe('Einstellungen', () => {
-  it('zeigt das Erscheinungsbild mit „System“ als Standard', async () => {
-    renderAt('/einstellungen');
-    expect(await screen.findByRole('radio', { name: 'System' })).toHaveProperty('checked', true);
-    expect(screen.getByRole('radio', { name: 'Hell' })).toBeDefined();
-    expect(screen.getByRole('radio', { name: 'Dunkel' })).toBeDefined();
+describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mitglied sieht Organisation', () => {
+  it('ein Mitglied ohne Admin sieht nur den Weg zu Einstellungen › Organisation', async () => {
+    renderAt('/profil');
+    await screen.findByText('Anna Schmidt');
+    expect(screen.getByRole('link', { name: /Organisation/ }).getAttribute('href')).toBe(
+      '/einstellungen/organisation',
+    );
+    expect(screen.queryByRole('link', { name: 'Alle Einstellungen' })).toBeNull();
   });
 
-  it('schaltet auf Dunkel um und merkt sich die Wahl im Browser', async () => {
-    renderAt('/einstellungen');
-    fireEvent.click(await screen.findByRole('radio', { name: 'Dunkel' }));
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('reziproq-theme')).toBe('dark');
+  it('ein Admin sieht zusätzlich den Weg zu allen Einstellungen', async () => {
+    api.me = admin;
+    renderAt('/profil');
+    await screen.findByText('Anna Schmidt');
+    expect(screen.getByRole('link', { name: 'Alle Einstellungen' }).getAttribute('href')).toBe(
+      '/einstellungen',
+    );
+    expect(screen.getByRole('link', { name: /Organisation/ })).toBeDefined();
   });
 
-  // Seit PLT-02 sieht jedes Mitglied den Abschnitt; die API entscheidet über /me.
-  it('Der Abschnitt „Organisation“ zeigt jedem Mitglied Name, Land und Mitglieder', async () => {
+  it('ohne Organisation erscheint kein Weg zu den Einstellungen', async () => {
+    api.me = {
+      ...anna,
+      organization: null,
+      permissions: { ...anna.permissions, viewOrganizationSettings: false },
+    };
+    renderAt('/profil');
+    await screen.findByText('Keiner Organisation zugeordnet');
+    expect(screen.queryByRole('link', { name: /Organisation/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Alle Einstellungen' })).toBeNull();
+  });
+
+  it('wer /einstellungen ohne Admin direkt öffnet, sieht den Hinweis und nur die Organisation', async () => {
     renderAt('/einstellungen');
-    expect(await screen.findByRole('heading', { level: 2, name: 'Organisation' })).toBeDefined();
+    expect(await screen.findByText(/kann nur ein Admin ändern/)).toBeDefined();
+    expect(screen.getByRole('link', { name: /Organisation/ })).toBeDefined();
+  });
+
+  it('Einstellungen › Organisation zeigt jedem Mitglied Name, Land und Mitglieder', async () => {
+    renderAt('/einstellungen/organisation');
     expect(await screen.findByText('Beispiel-OEM (Demo)')).toBeDefined();
     expect(screen.getByText('Deutschland')).toBeDefined();
     const rows = within(screen.getByRole('table', { name: 'Mitglieder' })).getAllByRole('row');
@@ -199,29 +225,80 @@ describe('Einstellungen', () => {
       'Ben Weberben@example.com',
     ]);
   });
+});
 
-  it('blendet den Abschnitt Organisation aus, wenn die API ihn nicht freigibt', async () => {
-    api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: false } };
-    renderAt('/einstellungen');
-    await screen.findByText('Deine Rollen in Reziproq');
-    expect(screen.queryByRole('heading', { name: 'Organisation' })).toBeNull();
+describe('Pfad mit Zurück-Pfeil', () => {
+  it.each([
+    ['/profil/erscheinungsbild', anna, ['Profil'], 'Zurück zu Profil', '/profil'],
+    ['/einstellungen/organisation', anna, ['Profil'], 'Zurück zu Profil', '/profil'],
+    [
+      '/einstellungen/organisation',
+      admin,
+      ['Profil', 'Einstellungen'],
+      'Zurück zu Einstellungen',
+      '/einstellungen',
+    ],
+  ])('%s zeigt den Pfad', async (path, me, trail, back, backHref) => {
+    api.me = me;
+    renderAt(path);
+    const nav = await screen.findByRole('navigation', { name: 'Pfad' });
+    await waitFor(() =>
+      expect(within(nav).getByRole('link', { name: back }).getAttribute('href')).toBe(backHref),
+    );
+    const steps = within(nav)
+      .getAllByRole('listitem')
+      .map((item) => item.textContent);
+    expect(steps.slice(0, -1)).toEqual(trail);
+  });
+
+  it('zeigt auf der Hauptebene keinen Pfad', async () => {
+    renderAt('/portfolio');
+    await screen.findByRole('heading', { level: 1, name: 'Portfolio' });
+    expect(screen.queryByRole('navigation', { name: 'Pfad' })).toBeNull();
   });
 });
 
-describe('Unbekannte Adresse', () => {
-  it('zeigt die Nicht-gefunden-Seite mit dem Weg zur Übersicht', async () => {
-    renderAt('/gibt-es-nicht');
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
-    ).toBeDefined();
-    const back = screen.getByRole('link', { name: 'Zur Übersicht' });
-    expect(back.getAttribute('href')).toBe('/uebersicht');
+describe('Erscheinungsbild als Formularseite', () => {
+  it('zeigt „System“ als Standard und den Wert auf dem Profil', async () => {
+    renderAt('/profil/erscheinungsbild');
+    expect(await screen.findByRole('radio', { name: 'System' })).toHaveProperty('checked', true);
   });
+
+  it('übernimmt die Wahl erst mit Speichern und merkt sie sich im Browser', async () => {
+    const router = renderAt('/profil/erscheinungsbild');
+    fireEvent.click(await screen.findByRole('radio', { name: 'Dunkel' }));
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/profil'));
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('reziproq-theme')).toBe('dark');
+  });
+
+  it('verwirft die Wahl mit Abbrechen', async () => {
+    const router = renderAt('/profil/erscheinungsbild');
+    fireEvent.click(await screen.findByRole('radio', { name: 'Dunkel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/profil'));
+    expect(localStorage.getItem('reziproq-theme')).toBeNull();
+  });
+});
+
+describe('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', () => {
+  it.each(['/gibt-es-nicht', '/beziehungen', '/puls', '/jbp', '/qbr', '/pnl'])(
+    '%s',
+    async (path) => {
+      renderAt(path);
+      expect(
+        await screen.findByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
+      ).toBeDefined();
+      expect(screen.getByRole('link', { name: 'Zu Start' }).getAttribute('href')).toBe('/start');
+    },
+  );
 });
 
 describe('Ohne Login', () => {
   // Seit PLT-01: geschützte Seiten leiten direkt zu Zitadel weiter und merken sich die Seite.
-  it.each([...navEntries.map((e) => e.path), '/gibt-es-nicht'])(
+  it.each([...routes.map((route) => route.path), '/gibt-es-nicht'])(
     '%s leitet zur Anmeldung weiter und zeigt bis dahin keine Inhalte',
     async (path) => {
       const signinRedirect = vi.fn();
@@ -236,10 +313,4 @@ describe('Ohne Login', () => {
       expect(fetch).not.toHaveBeenCalledWith('/api/me', expect.anything());
     },
   );
-
-  it('zeigt einen Ladezustand, solange die Sitzung geprüft wird', async () => {
-    auth.state = { ...signedIn, user: null, isLoading: true };
-    renderAt('/uebersicht');
-    expect((await screen.findByRole('status')).textContent).toBe('Anmeldung wird geprüft …');
-  });
 });

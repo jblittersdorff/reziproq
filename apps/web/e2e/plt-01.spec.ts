@@ -97,7 +97,7 @@ test('Tokens liegen nur im Speicher; nach dem Neuladen holt eine Weiterleitung d
 }) => {
   const zitadel = await fakeZitadel(page);
   await fakeApi(page);
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   await expect(page.locator('#inhalt h1')).toBeVisible();
 
   const stored = await storedEverywhere(page);
@@ -107,7 +107,7 @@ test('Tokens liegen nur im Speicher; nach dem Neuladen holt eine Weiterleitung d
 
   await page.reload();
   await expect(page.locator('#inhalt h1')).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  await expect(page).toHaveURL('http://localhost:5174/start');
   expect(zitadel.authorizeRequests).toHaveLength(2);
 });
 
@@ -143,7 +143,7 @@ test('Die App erneuert ein abgelaufenes Token ohne Neuanmeldung', async ({ page 
   zitadel.reply.expiresIn = 5;
   const apiTokens = await fakeApi(page);
 
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await expect
     .poll(() => zitadel.tokenRequests.filter((r) => r.grantType === 'refresh_token').length)
@@ -198,12 +198,11 @@ test('Nach dem Abmelden liegt kein Token mehr im Browser, die Startseite zeigt â
 }) => {
   const zitadel = await fakeZitadel(page);
   await fakeApi(page);
-  await page.goto('/uebersicht');
+  await page.goto('/profil');
   await expect(page.locator('#inhalt h1')).toBeVisible();
 
   const endSession = page.waitForRequest(`${issuer}/oidc/v1/end_session?**`);
-  await page.getByRole('button', { name: /Ada Lovelace/ }).click();
-  await page.getByRole('menuitem', { name: 'Abmelden' }).click();
+  await page.getByRole('button', { name: 'Abmelden' }).click();
 
   // Die Sitzung endet auch bei Zitadel.
   const logout = new URL((await endSession).url()).searchParams;

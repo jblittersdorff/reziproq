@@ -1,33 +1,30 @@
-import { Outlet, useRouterState } from '@tanstack/react-router';
-import { MenuIcon, XIcon } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { type ReactNode, useEffect } from 'react';
+import { GlobalBar } from '@/components/ui/global-bar';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
-import { PromptProvider } from '@/features/prompt/prompt-provider';
 import { SupportBanner } from '@/features/support/support-banner';
 import { useT } from '@/lib/i18n';
-import { AppSidebar } from './app-sidebar';
+import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
 export function AppLayout() {
   return (
     <RequireLogin>
-      <PromptProvider>
-        <Shell />
-      </PromptProvider>
+      <Shell />
     </RequireLogin>
   );
 }
 
+/** Globale Leiste oben (PLT-11), darunter der Inhalt mittig mit großzügigem Rand. */
 function Shell() {
   const t = useT();
-  const [navOpen, setNavOpen] = useState(false);
-  const closeNav = () => setNavOpen(false);
+  const { main, actions } = useNavTargets();
+  const activeKey = useActiveNavKey();
+  useQuestionsShortcut();
 
   return (
-    <div className="flex min-h-svh">
+    <div className="flex min-h-svh flex-col">
       {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
       <a
         href="#inhalt"
@@ -36,64 +33,69 @@ function Shell() {
         {t.app.skipToContent}
       </a>
 
-      {/* Breite Fenster: feste Seitenleiste mit leichtem Glas-Effekt */}
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 bg-muted/90 backdrop-blur sidebar:block">
-        <AppSidebar />
-      </aside>
+      <GlobalBar
+        label={t.app.navigation}
+        brand={t.app.name}
+        brandHref="/start"
+        items={main}
+        actions={actions.map((action) => {
+          const Icon = action.icon;
+          return { ...action, icon: <Icon aria-hidden /> };
+        })}
+        activeKey={activeKey}
+        menuHref="/menu"
+        menuLabel={t.app.openMenu}
+        renderLink={routerLink}
+      />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Schmale Fenster: Seitenleiste eingeklappt, Menü-Knopf blendet sie ein */}
-        <header className="sticky top-0 z-10 flex items-center gap-2 bg-background/95 px-2 py-2 backdrop-blur sidebar:hidden">
-          <Sheet open={navOpen} onOpenChange={setNavOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label={t.app.openNavigation}>
-                <MenuIcon />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetTitle className="sr-only">{t.app.navigation}</SheetTitle>
-              <AppSidebar
-                onNavigate={closeNav}
-                headerAction={
-                  <SheetClose asChild>
-                    <Button variant="ghost" size="icon" aria-label={t.app.closeNavigation}>
-                      <XIcon />
-                    </Button>
-                  </SheetClose>
-                }
-              />
-            </SheetContent>
-          </Sheet>
-          <span className="font-semibold text-base">{t.app.name}</span>
-        </header>
-
-        <main
-          id="inhalt"
-          tabIndex={-1}
-          className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
-        >
-          <SupportBanner />
-          <ContentGate />
-        </main>
-      </div>
+      <main
+        id="inhalt"
+        tabIndex={-1}
+        className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
+      >
+        <SupportBanner />
+        <ContentGate />
+      </main>
     </div>
   );
 }
 
+/** Cmd+K (Mac) oder Strg+K öffnet von jeder Seite die Fragen-Seite, wie Spotlight (PLT-12). */
+function useQuestionsShortcut() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        void navigate({ to: '/fragen' });
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [navigate]);
+}
+
+/** Profil, Einstellungen und Menü bleiben auch ohne Organisation erreichbar. */
+const alwaysOpen = ['/profil', '/einstellungen', '/menu'];
+
 /**
  * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur
- * der Hinweis, ohne Feature buyer der Hinweis zum Lieferantenzugang. Die Einstellungen bleiben
- * immer erreichbar. Was die Person sehen darf, entscheidet die API über /me.
+ * der Hinweis, ohne Feature buyer der Hinweis zum Lieferantenzugang. Profil und Einstellungen
+ * bleiben immer erreichbar. Was die Person sehen darf, entscheidet die API über /me.
  */
 function ContentGate() {
   const t = useT();
   const me = useMe();
-  const onSettings = useRouterState({
-    select: (state) => state.location.pathname === '/einstellungen',
+  const open = useRouterState({
+    select: (state) =>
+      alwaysOpen.some(
+        (path) =>
+          state.location.pathname === path || state.location.pathname.startsWith(`${path}/`),
+      ),
   });
 
   // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
-  if (!me.data || onSettings) return <Outlet />;
+  if (!me.data || open) return <Outlet />;
 
   if (!me.data.organization) {
     return (

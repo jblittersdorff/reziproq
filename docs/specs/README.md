@@ -65,8 +65,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 3 | PLT-13 | Betreiber-Zugang zu Kunden | – | PLT-02 | 1.0 | – | B | fertig | PR #7; Anpassung UMB-01 |
 | 4 | UMB-04 | Specs und Dokumente zusammenführen | – | – | 1.0 | M0 | – | fertig | PR #16 |
 | 5 | PLT-10 | Design und Styleguide | PLT-10, NAV-04, NAV-10 | – | 1.0 | M1 | A | fertig | – |
-| 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | PR offen | – |
-| 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
+| 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | fertig | – |
+| 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | PR offen | – |
 | 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | offen | teilweise umgesetzt, siehe Umsetzungsplan |
 | 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | offen | Teil a von PLT-03; teilweise umgesetzt, siehe Umsetzungsplan |
 | 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | offen | – |
@@ -80,12 +80,12 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | offen | – |
 | 19 | PLT-07a | Import: Baustein, Lieferanten und Spend | PLT-07 | PLT-06 | 1.0 | M6 | C | offen | Teil a von PLT-07 |
 | 20 | PLT-07b | Import: Business Units und Kontakte | PLT-07 | PLT-07a | 1.0 | M6 | C | offen | Teil b von PLT-07 |
-| 21 | PLT-12 | Fragen-Seite | PLT-12, NAV-11 | NAV-06, PLT-06, PLT-03b, PLT-05b | 1.0 | M7 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
+| 21 | PLT-12 | Fragen-Seite | PLT-12, NAV-11 | NAV-06, PLT-06, PLT-03b, PLT-05b | 1.0 | M7 | A | offen | teilweise umgesetzt; seit PLT-11 Seite /fragen statt Fenster |
 | 22 | QS-01 | E-Mail-Versand | QS-01 | PLT-08, PLT-09 | 1.0 | M7 | B | offen | – |
 | 23 | SEG-01 | Segmentmodell | SEG-01 | PLT-05b, PLT-06 | 1.0 | M8 | B | offen | – |
 | 24 | SEG-03 | Bewertungsrunde starten | SEG-03 | SEG-01, QS-01, PLT-06 | 1.0 | M8 | B | offen | – |
 | 25 | SEG-04 | Bewertung abgeben | SEG-04 | SEG-03 | 1.0 | M9 | B | offen | – |
-| 26 | NAV-05 | Start | NAV-05 | NAV-06, SEG-04, PLT-11 | 1.0 | M9 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
+| 26 | NAV-05 | Start | NAV-05 | NAV-06, SEG-04, PLT-11 | 1.0 | M9 | A | offen | teilweise umgesetzt: Begrüßung und Fragefeld auf /start (PLT-11) |
 | 27 | SEG-05 | Segmentierung je Lieferant mit Abweichungen | SEG-05, SEG-09 | SEG-04, NAV-06 | 1.0 | M10 | C | offen | – |
 | 28 | SEG-06 | Konsolidierung | SEG-06 | SEG-05, PLT-05b | 1.0 | M10 | C | offen | – |
 | 29 | SEG-07 | Portfolio | SEG-07, SEG-08 | SEG-06, PLT-11 | 1.0 | M11 | C | offen | – |

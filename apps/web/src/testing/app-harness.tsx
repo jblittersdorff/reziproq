@@ -39,6 +39,7 @@ export const anna: MeResponse = {
     viewBuyerAreas: true,
     viewSuppliers: true,
     switchCustomer: false,
+    manageSettings: false,
   },
 };
 

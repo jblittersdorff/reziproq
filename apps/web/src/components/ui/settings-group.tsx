@@ -1,6 +1,8 @@
+import { ChevronRightIcon } from 'lucide-react';
 import type * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { defaultRenderLink, type RenderLink } from './nav-link';
 
 /** Formulargruppe wie in den macOS-Einstellungen: Zeilen mit Beschriftung links, Feld rechts. */
 function SettingsGroup({
@@ -44,4 +46,41 @@ function SettingsRow({
   );
 }
 
-export { SettingsGroup, SettingsRow };
+/**
+ * Zeile, die zu einer eigenen Seite führt (NAV-02), z. B. Profil › Erscheinungsbild. Zeigt rechts
+ * den aktuellen Wert und einen Pfeil; die ganze Zeile ist klickbar.
+ */
+function SettingsLinkRow({
+  href,
+  label,
+  description,
+  value,
+  icon,
+  renderLink = defaultRenderLink,
+}: {
+  href: string;
+  label: string;
+  description?: string;
+  value?: string;
+  icon?: React.ReactNode;
+  renderLink?: RenderLink;
+}) {
+  return renderLink({
+    href,
+    className:
+      'flex min-h-11 items-center gap-3 px-4 py-3 transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-accent focus-visible:relative focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-5 [&_svg]:shrink-0',
+    children: (
+      <>
+        {icon && <span className="text-muted-foreground">{icon}</span>}
+        <span className="flex flex-1 flex-col">
+          <span className="text-base">{label}</span>
+          {description && <span className="text-muted-foreground text-sm">{description}</span>}
+        </span>
+        {value && <span className="text-muted-foreground">{value}</span>}
+        <ChevronRightIcon className="text-muted-foreground" aria-hidden />
+      </>
+    ),
+  });
+}
+
+export { SettingsGroup, SettingsLinkRow, SettingsRow };

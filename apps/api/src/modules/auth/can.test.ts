@@ -58,3 +58,12 @@ describe('rolesFromToken', () => {
     ).toEqual([]);
   });
 });
+
+describe('can einstellungen.verwalten', () => {
+  it('PLT-11: gibt den Weg zu allen Einstellungen nur Admins frei', () => {
+    expect(can({ roles: ['admin'] }, 'einstellungen.verwalten')).toBe(true);
+    for (const role of ['nutzer', 'leser', 'controlling', 'betreiber'] as const) {
+      expect(can({ roles: [role] }, 'einstellungen.verwalten')).toBe(false);
+    }
+  });
+});

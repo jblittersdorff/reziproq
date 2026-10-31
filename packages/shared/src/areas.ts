@@ -1,14 +1,12 @@
 /**
- * Die sechs Bereiche von Reziproq in fester Reihenfolge (PLT-11). Die Oberfläche baut daraus
- * Seitenleiste, Kacheln und Routen; das Prompt-Fenster (PLT-12) springt nur zu diesen Zielen.
+ * Die Ziele der globalen Leiste in fester Reihenfolge (PLT-11). Die Oberfläche baut daraus Leiste
+ * und Menüseite; das Prompt-Werkzeug (PLT-12) springt nur zu diesen Zielen.
  */
 export const areas = [
-  { key: 'suppliers', path: '/lieferanten', name: 'Lieferanten', release: '0.1' },
-  { key: 'relationships', path: '/beziehungen', name: 'Beziehungen', release: '0.2' },
-  { key: 'pulse', path: '/puls', name: 'Beziehungspuls', release: '0.2' },
-  { key: 'jointBusinessPlans', path: '/jbp', name: 'Joint Business Plans', release: '0.3' },
-  { key: 'qbrs', path: '/qbr', name: 'QBRs und Maßnahmen', release: '0.3' },
-  { key: 'pnlImpact', path: '/pnl', name: 'P&L-Impact', release: '0.3' },
+  { key: 'start', path: '/start', name: 'Start' },
+  { key: 'suppliers', path: '/lieferanten', name: 'Lieferanten' },
+  { key: 'portfolio', path: '/portfolio', name: 'Portfolio' },
+  { key: 'impact', path: '/wirkung', name: 'Wirkung' },
 ] as const;
 
 export type AreaKey = (typeof areas)[number]['key'];

@@ -48,7 +48,7 @@ describe('Nach dem Abmelden', () => {
     const signinRedirect = vi.fn();
     auth.state = { ...signedIn, user: null, signinRedirect };
     signedOut.mark();
-    renderAt('/uebersicht');
+    renderAt('/start');
 
     const button = await screen.findByRole('button', { name: 'Anmelden' });
     expect(signinRedirect).not.toHaveBeenCalled();
@@ -56,7 +56,7 @@ describe('Nach dem Abmelden', () => {
 
     // Ein Klick startet die nächste Anmeldung und vergisst den Merker.
     fireEvent.click(button);
-    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/uebersicht' } });
+    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/start' } });
     expect(signedOut.isSet()).toBe(false);
   });
 });
@@ -113,10 +113,10 @@ describe('Erneuerung gescheitert', () => {
   });
 });
 
-describe('Rollen in den Einstellungen', () => {
+describe('Rollen auf dem Profil', () => {
   it('nennt die Rollen aus dem Token', async () => {
     api.me = { ...anna, roles: ['admin', 'betreiber'] };
-    renderAt('/einstellungen');
+    renderAt('/profil');
     expect(await screen.findByText('Deine Rollen in Reziproq')).toBeDefined();
     expect(screen.getByText('admin')).toBeDefined();
     expect(screen.getByText('betreiber')).toBeDefined();
@@ -124,7 +124,7 @@ describe('Rollen in den Einstellungen', () => {
 
   it('sagt ohne Rollen, was in Zitadel zu prüfen ist', async () => {
     api.me = { ...anna, roles: [] };
-    renderAt('/einstellungen');
+    renderAt('/profil');
     expect(await screen.findByText('Keine')).toBeDefined();
     expect(screen.getByText(/Rollen bei Authentifizierung mitgeben/)).toBeDefined();
   });

@@ -6,8 +6,8 @@ describe('promptRequestSchema', () => {
     expect(
       promptRequestSchema.safeParse({
         messages: [
-          { role: 'user', content: 'Öffne den Beziehungspuls' },
-          { role: 'assistant', content: 'Ich öffne den Beziehungspuls.' },
+          { role: 'user', content: 'Öffne das Portfolio' },
+          { role: 'assistant', content: 'Ich öffne das Portfolio.' },
           { role: 'user', content: 'Und jetzt die Lieferanten' },
         ],
       }).success,
@@ -35,7 +35,8 @@ describe('promptRequestSchema', () => {
 
 describe('promptEventSchema', () => {
   it('erlaubt Sprünge nur zu den festen Bereichen', () => {
-    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/puls' }).success).toBe(true);
+    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/portfolio' }).success).toBe(true);
     expect(promptEventSchema.safeParse({ type: 'navigate', to: '/admin' }).success).toBe(false);
+    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/puls' }).success).toBe(false);
   });
 });

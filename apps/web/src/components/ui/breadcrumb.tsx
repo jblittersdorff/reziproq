@@ -45,7 +45,7 @@ function Breadcrumb({
             {renderLink({
               href: step.href,
               className:
-                'flex min-h-11 items-center rounded-md px-1 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                'flex min-h-11 min-w-11 items-center justify-center rounded-md px-1 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
               children: step.label,
             })}
             <ChevronRightIcon className="size-4 text-muted-foreground" aria-hidden />

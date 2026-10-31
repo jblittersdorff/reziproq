@@ -29,12 +29,7 @@ const rules: Rule[] = [
  * Verbotenes mehr enthält, lässt den Test ebenfalls scheitern, damit er gestrichen wird.
  */
 const allowed: Record<string, string> = {
-  'components/ui/dialog.tsx': 'entfällt mit PLT-12 und UMB-01, sobald niemand ihn mehr nutzt',
-  'components/ui/sheet.tsx': 'entfällt mit PLT-11 (Menü als eigene Seite)',
-  'components/ui/dropdown-menu.tsx': 'entfällt mit PLT-11 (Seite /profil)',
-  'features/shell/app-layout.tsx': 'PLT-11: globale Leiste statt Seitenleiste mit Sheet',
-  'features/shell/user-menu.tsx': 'PLT-11: Seite /profil statt Nutzer-Menü',
-  'features/prompt/prompt-dialog.tsx': 'PLT-12: Seite /fragen statt Fenster',
+  'components/ui/dialog.tsx': 'entfällt mit UMB-01, sobald niemand ihn mehr nutzt',
   'features/support/customer-dialog.tsx': 'UMB-01: Seite /betreiber/kunden statt Fenster',
 };
 

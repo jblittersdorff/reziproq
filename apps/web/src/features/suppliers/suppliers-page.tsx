@@ -41,7 +41,7 @@ export function SuppliersPage() {
   const [sort, setSort] = useState<SortKey>('spend');
   const sortId = useId();
 
-  const title = t.areas.suppliers.title;
+  const title = t.suppliers.title;
 
   // Ohne Organisation steht der Hinweis schon über jeder Seite (App-Rahmen).
   if (me.data && !me.data.organization) return <PageHeader title={title} purpose="" />;
@@ -51,7 +51,7 @@ export function SuppliersPage() {
   if (denied) {
     return (
       <>
-        <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
+        <PageHeader title={title} purpose={t.suppliers.purpose} />
         <EmptyState
           size="lg"
           icon={<LockIcon aria-hidden />}
@@ -66,7 +66,7 @@ export function SuppliersPage() {
   if (isError || me.isError) {
     return (
       <>
-        <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
+        <PageHeader title={title} purpose={t.suppliers.purpose} />
         <ErrorState title={t.suppliers.failed} />
       </>
     );
@@ -75,7 +75,7 @@ export function SuppliersPage() {
   if (isPending || !data) {
     return (
       <>
-        <PageHeader title={title} purpose={t.areas.suppliers.sentence} />
+        <PageHeader title={title} purpose={t.suppliers.purpose} />
         <LoadingState label={t.suppliers.loading} />
       </>
     );

@@ -151,27 +151,12 @@ describe('Wenn /api/me scheitert', () => {
       ),
     ).toBeDefined();
   }, 10_000);
-
-  it('zeigt die Kachel einen Fehler statt endlos „lädt …“', async () => {
-    api.meStatus = 503;
-    renderAt('/uebersicht');
-    expect(await screen.findByText('Gerade nicht geladen', {}, { timeout: 6000 })).toBeDefined();
-  }, 10_000);
-});
-
-describe('Kachel Lieferanten auf der Übersicht', () => {
-  it('zeigt Anzahl und Gesamtspend statt des Release-Hinweises', async () => {
-    renderAt('/uebersicht');
-    const region = await screen.findByRole('region', { name: 'Bereiche' });
-    const tile = await within(region).findByText(/^3 Lieferanten/);
-    expect(text(tile)).toBe('3 Lieferanten · 10.230.000 € Jahresspend 2025');
-    expect(text(tile.closest('a'))).not.toContain('Kommt mit Release');
-  });
 });
 
 // Seit PLT-02 (neuer Zuschnitt): ohne Organisation nur der Hinweis, ohne Feature buyer der Hinweis
-// zum Lieferantenzugang. Die Einstellungen bleiben erreichbar.
-const areaLinks = ['Übersicht', 'Lieferanten', 'Beziehungen', 'Beziehungspuls'];
+// zum Lieferantenzugang. Profil und Einstellungen bleiben erreichbar. Seit PLT-11 fehlen dann die
+// Käuferziele in der globalen Leiste.
+const areaLinks = ['Start', 'Lieferanten', 'Portfolio', 'Wirkung', 'Fragen'];
 const visibleAreaLinks = () => {
   const navigation = screen.getByRole('navigation', { name: 'Hauptnavigation' });
   return areaLinks.filter((name) => within(navigation).queryByRole('link', { name }) !== null);
@@ -189,20 +174,12 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
         viewBuyerAreas: false,
         viewSuppliers: false,
         switchCustomer: false,
+        manageSettings: false,
       },
     };
   };
 
-  it.each([
-    '/uebersicht',
-    '/lieferanten',
-    '/beziehungen',
-    '/puls',
-    '/jbp',
-    '/qbr',
-    '/pnl',
-    '/gibt-es-nicht',
-  ])('sieht auf %s nur den Hinweis, keine Bereiche', async (path) => {
+  it.each(['/start', '/lieferanten', '/portfolio', '/wirkung', '/fragen', '/gibt-es-nicht'])('sieht auf %s nur den Hinweis, keine Bereiche', async (path) => {
     withoutOrganization();
     renderAt(path);
     expect(await screen.findByText(missing)).toBeDefined();
@@ -211,16 +188,16 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
     expect(suppliersRequested()).toBe(false);
   });
 
-  it('erreicht die Einstellungen weiterhin, ohne Abschnitt Organisation', async () => {
+  it('erreicht Profil und Einstellungen weiterhin, ohne Weg zur Organisation', async () => {
     withoutOrganization();
-    renderAt('/einstellungen');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Einstellungen' })).toBeDefined();
+    renderAt('/profil');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Profil' })).toBeDefined();
     expect(screen.queryByText(missing)).toBeNull();
-    expect(screen.queryByRole('heading', { name: 'Organisation' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Organisation/ })).toBeNull();
   });
 
   it('sieht keinen Hinweis, wenn eine Organisation zugeordnet ist', async () => {
-    renderAt('/uebersicht');
+    renderAt('/lieferanten');
     await screen.findByText(/^3 Lieferanten/);
     expect(screen.queryByText(missing)).toBeNull();
   });
@@ -229,7 +206,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
 describe('Ein Nutzer ohne Feature buyer sieht die Käuferbereiche nicht', () => {
   const soon = 'Der Lieferantenzugang kommt bald.';
 
-  it.each(['/uebersicht', '/lieferanten', '/pnl'])(
+  it.each(['/start', '/lieferanten', '/wirkung'])(
     'sieht auf %s den Hinweis zum Lieferantenzugang',
     async (path) => {
       api.me = {
@@ -251,7 +228,7 @@ describe('Ein Nutzer ohne Feature buyer sieht die Käuferbereiche nicht', () => 
       permissions: { ...anna.permissions, viewBuyerAreas: false, viewSuppliers: false },
     };
     api.organization = { name: 'Test-Lieferant (Demo)', country: 'DE', members: [] };
-    renderAt('/einstellungen');
+    renderAt('/einstellungen/organisation');
     expect(await screen.findByText('Test-Lieferant (Demo)')).toBeDefined();
   });
 });

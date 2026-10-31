@@ -63,15 +63,27 @@ Als Nutzer erreiche ich jeden Hauptbereich mit einem Klick, weiß auf jeder Seit
 
 Je Kriterium ein Test.
 
-- [ ] Nach dem Login landet der Nutzer auf `/start`.
-- [ ] Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreichbar. Die aktive Seite ist markiert.
-- [ ] Bei 390 px Breite gibt es keine waagerechte Scrollleiste, und das Menü öffnet sich als eigene Seite.
-- [ ] Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand.
-- [ ] Ein Playwright-Test geht drei Ebenen hin und zurück, einmal mit Zurück-Pfeil, einmal mit Browser-Zurück. Er landet immer auf der vorigen Ansicht, auch nach Speichern und Abbrechen.
-- [ ] Der Weg zu allen Einstellungen auf `/profil` ist nur für Admins sichtbar. Jedes Mitglied sieht den Weg zu Einstellungen › Organisation.
-- [ ] Alles ist per Tastatur bedienbar, mit sichtbarem Fokus.
-- [ ] Unbekannte Adressen zeigen die Nicht-gefunden-Seite.
-- [ ] Alle Texte stehen in der Übersetzungsdatei.
+- [x] Nach dem Login landet der Nutzer auf `/start`.
+- [x] Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreichbar. Die aktive Seite ist markiert.
+- [x] Bei 390 px Breite gibt es keine waagerechte Scrollleiste, und das Menü öffnet sich als eigene Seite.
+- [x] Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand.
+- [x] Ein Playwright-Test geht drei Ebenen hin und zurück, einmal mit Zurück-Pfeil, einmal mit Browser-Zurück. Er landet immer auf der vorigen Ansicht, auch nach Speichern und Abbrechen.
+- [x] Der Weg zu allen Einstellungen auf `/profil` ist nur für Admins sichtbar. Jedes Mitglied sieht den Weg zu Einstellungen › Organisation.
+- [x] Alles ist per Tastatur bedienbar, mit sichtbarem Fokus.
+- [x] Unbekannte Adressen zeigen die Nicht-gefunden-Seite.
+- [x] Alle Texte stehen in der Übersetzungsdatei.
+
+## Umgesetzt mit (PR zu PLT-11)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- `/fragen` zeigt schon das bestehende Gespräch als Seite; Cmd+K öffnet sie. Das Fenster entfällt. PLT-12 bringt noch SDK, `/fragen?q=` und `seite_oeffnen`.
+- `/start` zeigt bis NAV-05 Begrüßung, Fragefeld und den leeren Zustand.
+- Das Erscheinungsbild ist eine eigene Formularseite `/profil/erscheinungsbild` mit Speichern und Abbrechen.
+- `/uebersicht` leitet zu `/start`; die übrigen alten Bereichsadressen zeigen „Diese Seite gibt es nicht“.
+- Die Menüseite liegt unter `/menu`. Die Leiste klappt unter der Breite `sidebar` (64rem) ein.
+- Den Weg zu allen Einstellungen gibt `can(user, 'einstellungen.verwalten')` frei (nur `admin`), geliefert als `/me.permissions.manageSettings`.
+- Betreiber wechseln bis UMB-01 über „Kunde wechseln“ auf `/profil`, noch mit dem bisherigen Dialog.
 
 ## Nicht Teil dieser Funktion
 
