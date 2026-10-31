@@ -54,14 +54,25 @@ Testaufbau mit den Organisationen aus PLT-02:
 
 Je Kriterium ein Test. Alle laufen gegen eine echte PostgreSQL-Datenbank, lokal und in der automatischen Prüfung bei jedem Pull Request.
 
-- [ ] Ein Lieferantennutzer sieht von geteilten Tabellen nur freigegebene Zeilen aktiver Beziehungen und nichts aus käuferprivaten Tabellen.
-- [ ] Ein Nutzer des Zweit-OEM sieht beim selben Test-Lieferanten nichts vom Test-OEM, in keiner Ebene. Umgekehrt genauso.
-- [ ] Der Käufer sieht nichts aus lieferantenprivaten Tabellen.
-- [ ] Nach dem Beenden einer Beziehung sieht die andere Seite ihre freigegebenen Zeilen nicht mehr.
-- [ ] Ein Lieferantennutzer mit gesetztem `app.customer_org_id` sieht nur Zeilen dieses Kunden.
-- [ ] Ein Test scheitert, wenn eine Tabelle nicht im Register steht, kein RLS mit `FORCE` hat oder ein Fremdschlüssel von einer geteilten auf eine private Tabelle zeigt.
-- [ ] Schreiben in eine fremde Zeile (anlegen, ändern, löschen) scheitert genauso wie Lesen.
-- [ ] Neue Tabellen bekommen ihre Policies über die Hilfsfunktionen, und die Prüfungen laufen für sie ohne zusätzlichen Testcode.
+- [x] Ein Lieferantennutzer sieht von geteilten Tabellen nur freigegebene Zeilen aktiver Beziehungen und nichts aus käuferprivaten Tabellen.
+- [x] Ein Nutzer des Zweit-OEM sieht beim selben Test-Lieferanten nichts vom Test-OEM, in keiner Ebene. Umgekehrt genauso.
+- [x] Der Käufer sieht nichts aus lieferantenprivaten Tabellen.
+- [x] Nach dem Beenden einer Beziehung sieht die andere Seite ihre freigegebenen Zeilen nicht mehr.
+- [x] Ein Lieferantennutzer mit gesetztem `app.customer_org_id` sieht nur Zeilen dieses Kunden.
+- [x] Ein Test scheitert, wenn eine Tabelle nicht im Register steht, kein RLS mit `FORCE` hat oder ein Fremdschlüssel von einer geteilten auf eine private Tabelle zeigt.
+- [x] Schreiben in eine fremde Zeile (anlegen, ändern, löschen) scheitert genauso wie Lesen.
+- [x] Neue Tabellen bekommen ihre Policies über die Hilfsfunktionen, und die Prüfungen laufen für sie ohne zusätzlichen Testcode.
+
+## Umgesetzt mit (PR zu PLT-04)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- Die Funktionen heißen wie die bestehenden im Schema `public`: `app_can_see_relationship`, `app_current_customer_id`, `app_is_relationship_buyer`, `app_is_relationship_supplier`, `app_is_relationship_party`, `app_relationship_customer_ok`, `app_is_related_organization`. Sie gehören der Rolle `reziproq_ebenen`, die nur `beziehung` lesen darf.
+- Hilfsfunktion für neue Tabellen: `SELECT app_apply_layer('tabelle', 'art');` in der Migration. Register: `packages/db/src/layers.ts`, Prüfung: `checkLayers`.
+- „Aktiv“ heißt bis PLT-03a: `beziehung.ended_at` ist leer. PLT-03a übernimmt den Wert in `relationship.status`.
+- Ist `app.customer_org_id` leer, sieht die Lieferantenseite nichts Beziehungsbezogenes.
+- In geteilte Zeilen schreibt nur die Eigentümer-Seite (`owner_org_id`); die andere Seite liest freigegebene Zeilen nur.
+- Die Tabellen aus der Zeit vor PLT-04 stehen mit Begründung im Register und behalten ihre Policies von Hand, bis PLT-03a, UMB-01 und UMB-03 sie ablösen. `organization` ist jetzt in beide Richtungen sichtbar, `beziehung` auch für die Lieferantenseite im Kontext des Kunden.
 
 ## Nicht Teil dieser Funktion
 

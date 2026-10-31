@@ -43,6 +43,7 @@ describe('Migrationen', () => {
       'kaeufer_org_id',
       'lieferant_org_id',
       'created_at',
+      'ended_at',
     ]);
     expect(await columns('beziehung_kaeufer')).toEqual([
       'beziehung_id',

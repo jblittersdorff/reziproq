@@ -19,7 +19,8 @@ Grundlage ist das Dokument „Reziproq – Produktkonzept und Anforderungen“ v
   - Jede Information wird nur an ihrem Ort gespeichert.
   - Überblick, Start und Portfolio lesen über Schnittstellen (Kennzahl-, Aufgaben-, Termin- und Hinweis-Quellen) und speichern nichts.
 - **Datentrennung:**
-  - Jede neue Tabelle kommt ins Register der Datenebenen (PLT-04), mit ihrer Art: `buyer_private`, `supplier_private`, `org_private`, `shared` oder `global`.
+  - Jede neue Tabelle kommt ins Register der Datenebenen (PLT-04, `packages/db/src/layers.ts`), mit ihrer Art: `buyer_private`, `supplier_private`, `org_private`, `shared` oder `global`.
+  - Ihre Policies bekommt sie in der Migration über `SELECT app_apply_layer('tabelle', 'art');`, nicht von Hand.
   - Die Tests zur Datentrennung laufen dann automatisch mit.
   - Keine Fremdschlüssel von geteilten auf private Tabellen.
 - **Rechte:** Jede neue Aktion kommt in die Rechte-Matrix (`permissions.ts`) und wird über `can()` geprüft. `docs/rechte.md` wird neu erzeugt.
@@ -66,8 +67,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 4 | UMB-04 | Specs und Dokumente zusammenführen | – | – | 1.0 | M0 | – | fertig | PR #16 |
 | 5 | PLT-10 | Design und Styleguide | PLT-10, NAV-04, NAV-10 | – | 1.0 | M1 | A | fertig | – |
 | 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | fertig | – |
-| 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | PR offen | – |
-| 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | offen | teilweise umgesetzt, siehe Umsetzungsplan |
+| 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | fertig | – |
+| 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | PR offen | – |
 | 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | offen | Teil a von PLT-03; teilweise umgesetzt, siehe Umsetzungsplan |
 | 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | offen | – |
 | 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | offen | Teil b von PLT-03 |
