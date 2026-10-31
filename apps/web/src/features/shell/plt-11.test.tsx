@@ -60,7 +60,7 @@ const areas = [
   {
     title: 'P&L-Impact',
     path: '/pnl',
-    release: '1.0',
+    release: '0.3',
     sentence: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.',
   },
 ];
@@ -89,7 +89,7 @@ describe('Startseite', () => {
     expect(await screen.findByRole('heading', { level: 1, name: greeting })).toBeDefined();
   });
 
-  it('zeigt genau sechs Kacheln in der Reihenfolge der Spec mit Satz und Release', async () => {
+  it('Die Übersicht zeigt genau sechs Kacheln in der Reihenfolge der Tabelle, mit Satz und Release', async () => {
     renderAt('/uebersicht');
     const region = await screen.findByRole('region', { name: 'Bereiche' });
     // Die Kennzahl der Lieferanten-Kachel kommt erst mit der Antwort der API.
@@ -186,7 +186,7 @@ describe('Einstellungen', () => {
     expect(localStorage.getItem('reziproq-theme')).toBe('dark');
   });
 
-  it('zeigt den Abschnitt Organisation nur, wenn die API ihn erlaubt', async () => {
+  it('Der Abschnitt „Organisation“ ist nur für Admins sichtbar (Entscheidung per can() in der API)', async () => {
     api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: true } };
     renderAt('/einstellungen');
     expect(await screen.findByRole('heading', { level: 2, name: 'Organisation' })).toBeDefined();

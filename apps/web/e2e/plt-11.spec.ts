@@ -17,7 +17,7 @@ const allPaths = ['/uebersicht', ...areas.map((a) => a.path), '/einstellungen', 
 
 /**
  * Nachgebauter Login über ein Zitadel, das sofort zurückleitet, dazu die API-Aufrufe.
- * Die Einzelheiten des Ablaufs mit PKCE prüfen home.spec.ts und plt-01.spec.ts.
+ * Die Einzelheiten des Ablaufs mit PKCE prüft plt-01.spec.ts.
  */
 async function signIn(page: Page, { admin = false } = {}) {
   // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
@@ -76,6 +76,21 @@ async function tooSmallTargets(page: Page) {
       });
   });
 }
+
+test('Nach dem Login landet der Nutzer auf /uebersicht und sieht die Begrüßung mit seinem Vornamen', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/');
+  await pageSettled(page);
+  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  await expect(
+    page.locator('#inhalt').getByRole('heading', {
+      level: 1,
+      name: /^Guten (Morgen|Tag|Abend), Anna$/,
+    }),
+  ).toBeVisible();
+});
 
 test('Ein Klick irgendwo auf eine Kachel öffnet die richtige Route', async ({ page }) => {
   await signIn(page);
@@ -167,7 +182,9 @@ for (const width of [1440, 390]) {
   });
 }
 
-test('Die Übersicht ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) => {
+test('Alles ist per Tastatur bedienbar, mit logischer Tab-Reihenfolge und sichtbarem Fokus', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await page.goto('/uebersicht');
@@ -217,7 +234,7 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.locator(':focus')).toContainText('Frag Reziproq');
 });
 
-test('Hell und dunkel folgen der Systemeinstellung und lassen sich umschalten', async ({
+test('Hell- und Dunkelmodus folgen dem System und lassen sich in den Einstellungen umschalten', async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
