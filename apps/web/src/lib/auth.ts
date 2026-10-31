@@ -39,8 +39,6 @@ export function oidcConfig({
     authority: settings.issuer,
     client_id: settings.clientId,
     redirect_uri: `${origin}${callbackPath}`,
-    // Neu anmelden im kleinen Fenster, wenn die Erneuerung scheitert; die Seite bleibt stehen.
-    popup_redirect_uri: `${origin}${callbackPath}`,
     post_logout_redirect_uri: origin,
     response_type: 'code',
     // Projektrollen ins Token (PLT-13) und die Zitadel-Organisation des Nutzers für die Zuordnung

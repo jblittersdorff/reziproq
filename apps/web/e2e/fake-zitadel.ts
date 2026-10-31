@@ -52,7 +52,7 @@ export async function fakeZitadel(page: Page): Promise<FakeZitadel> {
     reply: { expiresIn: 3600, refreshWorks: true },
     session: { active: true },
   };
-  // Für den ganzen Browser-Kontext, damit auch das Fenster zum Neu-Anmelden (Popup) hier landet.
+  // Für den ganzen Browser-Kontext, damit auch weitere Tabs hier landen.
   const context = page.context();
   let renewed = 0;
 

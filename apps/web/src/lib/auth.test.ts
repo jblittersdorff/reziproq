@@ -48,7 +48,8 @@ describe('oidcConfig', () => {
     });
     expect(config.automaticSilentRenew).toBe(true);
     expect(config.scope?.split(' ')).toContain('offline_access');
-    expect(config.popup_redirect_uri).toBe('http://localhost:5173/auth/callback');
+    // UMB-02: Neu anmelden nur per Weiterleitung, kein Popup.
+    expect(config.popup_redirect_uri).toBeUndefined();
 
     const before = { local: localStorage.length, session: sessionStorage.length };
     await config.userStore?.set('oidc.user:test', 'geheimes-token');

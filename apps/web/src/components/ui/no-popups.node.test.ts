@@ -36,7 +36,6 @@ const allowed: Record<string, string> = {
   'features/shell/user-menu.tsx': 'PLT-11: Seite /profil statt Nutzer-Menü',
   'features/prompt/prompt-dialog.tsx': 'PLT-12: Seite /fragen statt Fenster',
   'features/support/customer-dialog.tsx': 'UMB-01: Seite /betreiber/kunden statt Fenster',
-  'features/auth/reauth-notice.tsx': 'UMB-02: Rückmeldezeile im Seitenfluss statt Overlay',
 };
 
 function sourceFiles(dir: string): string[] {

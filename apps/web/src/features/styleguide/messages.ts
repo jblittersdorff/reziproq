@@ -119,7 +119,8 @@ export const styleguideMessages = defineMessages({
       cancel: 'Abbrechen',
       ended: 'Die Beziehung ist beendet.',
       statusLine: 'Rückmeldezeile',
-      statusLineHint: 'Ruhige Zeile oben nach dem Speichern. Sie verschwindet nach kurzer Zeit.',
+      statusLineHint:
+        'Ruhige Zeile oben nach dem Speichern. Sie verschwindet nach kurzer Zeit. Als Warnung bleibt sie mit Knopf stehen.',
       showStatus: 'Speichern',
       saved: 'Gespeichert.',
       visibility: 'Kennzeichen Intern und Geteilt',
@@ -384,7 +385,8 @@ export const styleguideMessages = defineMessages({
       cancel: 'Cancel',
       ended: 'The relationship has ended.',
       statusLine: 'Feedback line',
-      statusLineHint: 'A calm line at the top after saving. It disappears after a short while.',
+      statusLineHint:
+        'A calm line at the top after saving. It disappears after a short while. As a warning it stays, with a button.',
       showStatus: 'Save',
       saved: 'Saved.',
       visibility: 'Internal and shared labels',

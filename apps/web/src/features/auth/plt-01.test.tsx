@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { signedOut } from '@/lib/auth';
 import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
@@ -83,7 +83,7 @@ describe('Erneuerung gescheitert', () => {
     error: { source: 'renewSilent', message: 'invalid_grant' },
   };
 
-  it('zeigt „Bitte melde dich neu an“ über der Seite, die Eingaben bleiben erhalten', async () => {
+  it('zeigt „Bitte melde dich neu an“ oben im Seitenfluss, die Eingaben bleiben erhalten', async () => {
     auth.state = signedIn;
     renderAt('/lieferanten');
     const search = await screen.findByRole('searchbox', { name: /Lieferant/ });
@@ -93,38 +93,23 @@ describe('Erneuerung gescheitert', () => {
 
     const notice = await screen.findByRole('alert');
     expect(notice.textContent).toContain('Bitte melde dich neu an');
+    expect(notice.className).not.toMatch(/\bfixed\b/);
     expect((screen.getByRole('searchbox', { name: /Lieferant/ }) as HTMLInputElement).value).toBe(
       'Silesia',
     );
   });
 
-  it('meldet im kleinen Fenster neu an und meldet den Login der API', async () => {
-    const signinPopup = vi.fn(async () => ({ access_token: 'access-token-1' }));
+  it('leitet ohne Fenster zu Zitadel weiter und kehrt zur selben Adresse zurück (UMB-02)', async () => {
+    const signinPopup = vi.fn();
     const signinRedirect = vi.fn();
     auth.state = { ...renewFailed, signinPopup, signinRedirect };
-    renderAt('/uebersicht');
+    const open = vi.spyOn(window, 'open');
+    renderAt('/lieferanten');
 
     fireEvent.click(await screen.findByRole('button', { name: 'Neu anmelden' }));
-    await waitFor(() => expect(signinPopup).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(fetch).toHaveBeenCalledWith(
-        '/api/me/anmeldung',
-        expect.objectContaining({ method: 'POST' }),
-      ),
-    );
-    expect(signinRedirect).not.toHaveBeenCalled();
-  });
-
-  it('leitet normal weiter, wenn der Browser das Fenster sperrt', async () => {
-    const signinPopup = vi.fn(async () => {
-      throw new Error('Popup blocked by user');
-    });
-    const signinRedirect = vi.fn();
-    auth.state = { ...renewFailed, signinPopup, signinRedirect };
-    renderAt('/uebersicht');
-
-    fireEvent.click(await screen.findByRole('button', { name: 'Neu anmelden' }));
-    await waitFor(() => expect(signinRedirect).toHaveBeenCalled());
+    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/lieferanten' } });
+    expect(signinPopup).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
   });
 });
 

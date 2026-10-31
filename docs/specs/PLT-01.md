@@ -36,7 +36,7 @@ Als Nutzer melde ich mich sicher mit E-Mail und Passkey an, bleibe angemeldet, s
 1. Ein nicht angemeldeter Nutzer öffnet irgendeine Seite und wird ohne Klick zur Zitadel-Anmeldung geleitet. Danach landet er genau auf der Seite, die er öffnen wollte. Weil das Token nur im Speicher liegt, gilt das auch nach dem Neuladen; solange die Sitzung bei Zitadel aktiv ist, fragt Zitadel dabei nicht nach Zugangsdaten.
 2. Beim ersten Login bietet Zitadel an, einen Passkey einzurichten. Ab dann reicht Face ID, Touch ID oder der Passkey im 1Password.
 3. Läuft das Access Token ab, erneuert die App es im Hintergrund. Der Nutzer merkt nichts.
-4. Scheitert die Erneuerung, erscheint ein Hinweis „Bitte melde dich neu an“ mit Knopf. Nichts von dem, was er gerade eingegeben hat, geht dabei verloren. Umgesetzt in PR #11 mit Popup; UMB-02 ersetzt das Popup durch eine Weiterleitung mit gespeichertem Entwurf.
+4. Scheitert die Erneuerung, erscheint ein Hinweis „Bitte melde dich neu an“ mit Knopf. Nichts von dem, was er gerade eingegeben hat, geht dabei verloren. Seit UMB-02 ohne Fenster: Der Hinweis steht oben im Seitenfluss, der Knopf leitet zu Zitadel weiter und füllt danach die Felder aus einem kurz gespeicherten Entwurf.
 5. Ein Klick auf **Abmelden** beendet die Sitzung in Reziproq und in Zitadel. Danach erscheint die Startseite mit „Anmelden“.
 6. Während der Anmeldung zeigt die App einen ruhigen Ladezustand, nie kurz geschützte Inhalte.
 

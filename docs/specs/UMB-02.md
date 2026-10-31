@@ -27,10 +27,10 @@ Als Nutzer melde ich mich nach einer gescheiterten Erneuerung neu an, ohne dass 
 
 Je Kriterium ein Test.
 
-- [ ] Es öffnet sich kein Popup, und kein Element ist fest positioniert (Test über `window.open` und berechnete Positionen).
-- [ ] Nach der Neuanmeldung steht der eingegebene Text wieder im Feld (Playwright mit nachgebautem Zitadel).
-- [ ] `sessionStorage` enthält zu keinem Zeitpunkt ein Token.
-- [ ] Ein Entwurf älter als 30 Minuten wird verworfen.
+- [x] Es öffnet sich kein Popup, und kein Element ist fest positioniert (Test über `window.open` und berechnete Positionen).
+- [x] Nach der Neuanmeldung steht der eingegebene Text wieder im Feld (Playwright mit nachgebautem Zitadel).
+- [x] `sessionStorage` enthält zu keinem Zeitpunkt ein Token.
+- [x] Ein Entwurf älter als 30 Minuten wird verworfen.
 
 ## Nicht Teil dieser Funktion
 

@@ -60,12 +60,12 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 
 | # | Spec | Funktion | Deckt ab | Braucht vorher | Release | Meilenstein | Strang | Status | Vermerk |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | PLT-01 | Anmeldung und Abmeldung | PLT-01 | – | 1.0 | – | C | fertig | PR #11; Popup ersetzt UMB-02 |
+| 1 | PLT-01 | Anmeldung und Abmeldung | PLT-01 | – | 1.0 | – | C | fertig | PR #11; Neuanmeldung ohne Popup seit UMB-02 |
 | 2 | PLT-02 | Organisationen, Nutzer, Mandanten-Session | PLT-02 | PLT-01 | 1.0 | – | B | fertig | PR #14 |
 | 3 | PLT-13 | Betreiber-Zugang zu Kunden | – | PLT-02 | 1.0 | – | B | fertig | PR #7; Anpassung UMB-01 |
 | 4 | UMB-04 | Specs und Dokumente zusammenführen | – | – | 1.0 | M0 | – | fertig | PR #16 |
-| 5 | PLT-10 | Design und Styleguide | PLT-10, NAV-04, NAV-10 | – | 1.0 | M1 | A | PR offen | – |
-| 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | offen | – |
+| 5 | PLT-10 | Design und Styleguide | PLT-10, NAV-04, NAV-10 | – | 1.0 | M1 | A | fertig | – |
+| 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | PR offen | – |
 | 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
 | 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | offen | teilweise umgesetzt, siehe Umsetzungsplan |
 | 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | offen | Teil a von PLT-03; teilweise umgesetzt, siehe Umsetzungsplan |
