@@ -1,62 +1,89 @@
 # PLT-10 Design und Styleguide
 
-Release 0.1 · Reihenfolge 1 · baut auf den Design-Regeln aus der Einrichtung auf (Tokens, `prinzipien.md`, `visualisierung.md`, Skill `ui-design`)
+Release 0.1 · baut auf den Design-Regeln aus der Einrichtung (Tokens, `prinzipien.md`, `visualisierung.md`, Skill `ui-design`) · deckt ab PLT-10, NAV-04, NAV-10 · überarbeitet am 31.10.2026: keine Pop-ups
 
 ## Ziel
 
-Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und Dunkel, damit jede neue Seite aus denselben Teilen gebaut wird und nach Apple aussieht.
+Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und Dunkel. So wird jede neue Seite aus denselben Teilen gebaut, wirkt wie Apple und kommt ohne Pop-up-Fenster aus.
 
 ## Wer darf was
 
 | Rolle | Darf |
 |---|---|
 | Alle angemeldeten Nutzer | `/styleguide` öffnen. |
-| Lieferant | Nicht Teil. Der Styleguide ist ein Werkzeug für das Team, kein Produktbereich. |
+| Lieferant | Nicht Teil. Der Styleguide ist ein Werkzeug für das Team. |
 
 ## Daten
 
 - Keine Fachdaten.
 - Die Design-Tokens liegen an einer Stelle. Tailwind 4 liest sie über `@theme`.
-- Token-Gruppen: Farben (Flächen, Text, Akzent, Status, Diagramm-Reihen), Schriftgrößen, Zeilenhöhen, Abstände, Radien, Schatten, Breakpoints, Bewegung (Dauer, Kurve).
+- Tokens gibt es für Farben (Flächen, Text, Akzent, Status, Diagramm-Reihen), Schriftgrößen, Zeilenhöhen, Abstände, Radien, Schatten, Breakpoints und Bewegung.
 - Jede Farbe hat einen Wert für Hell und einen für Dunkel.
 
 ## Ablauf
 
-1. Der Nutzer öffnet `/styleguide`. Die Seite ist nicht in der Seitenleiste verlinkt.
-2. Oben steht ein Umschalter: System, Hell, Dunkel. Er gilt nur für diese Seite, damit man beide Modi schnell vergleicht.
+1. Der Nutzer öffnet `/styleguide`. Die Seite ist nicht in der Navigation verlinkt.
+2. Oben schaltet ein Umschalter zwischen System, Hell und Dunkel, nur für diese Seite.
 3. Die Seite zeigt in Abschnitten:
-   - **Farben:** jedes Token als Fläche mit Name und Wert, Textfarben auf ihren Hintergründen mit dem gemessenen Kontrast.
-   - **Schrift:** alle Stufen von Großtitel bis Fußnote, jeweils mit Beispielsatz.
-   - **Abstände, Radien, Schatten:** als sichtbare Muster.
-   - **Bausteine:** Knöpfe (Haupt, Neben, leise, gefährlich; normal, Hover, Fokus, deaktiviert, lädt), Eingabefeld, Suchfeld, Auswahl, Schalter, Checkbox, Dialog, Seitenpanel (Sheet), Hinweis (Toast), Status-Abzeichen, Tabelle, Kachel groß (Startseite), Kachel klein (Liste), Seitenleiste, leerer Zustand, Ladezustand, Fehlerzustand.
-   - **Diagramme:** je ein Beispiel für 3×3-Matrix, Heatmap, Hantel-Diagramm und P&L-Brücke als Wasserfall, nach den Regeln aus `visualisierung.md`, mit erfundenen Werten und dem Hinweis „Beispieldaten“.
-4. Jeder Abschnitt zeigt, aus welcher Datei der Baustein kommt, damit man ihn wiederverwendet statt neu baut.
+   - **Grundlagen:**
+     - Farben mit Name, Wert und gemessenem Kontrast
+     - Schriftstufen
+     - Abstände, Radien und Schatten
+   - **Navigation:**
+     - globale Leiste
+     - lokale Leiste eines Lieferanten mit Knopf „Nächster Schritt“
+     - Pfad mit Zurück-Pfeil
+   - **Kachel (NAV-10):**
+     - Aufbau: Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe (Hauptaktion gefüllt, Nebenaktion umrandet)
+     - groß für Start und Überblick, klein für Listen
+   - **Knöpfe:**
+     - Arten: Haupt, Neben, leise, gefährlich
+     - Zustände: normal, Hover, Fokus, deaktiviert, lädt
+   - **Formularseite:**
+     - Eingabe, Auswahl, Mehrfachauswahl, Schalter, Datum
+     - Fehlermeldung am Feld
+     - Speichern und Abbrechen unten
+   - **Abläufe in Schritten:** Fortschritt „Schritt 2 von 4“, Weiter, Zurück, Später fortsetzen
+   - **Bestätigung auf der Seite (NAV-04):** Der Knopf wird zur Zeile „Wirklich beenden? Ja · Abbrechen“.
+   - **Rückmeldezeile (NAV-04):** ruhige Zeile oben nach dem Speichern, verschwindet nach kurzer Zeit
+   - **Kennzeichen Intern und Geteilt:** Symbol und Text
+   - **Zustände:** leer, lädt, Fehler
+   - **Tabellen und Listen:** Status-Abzeichen, Baustein Verlauf (PLT-08)
+   - **Diagramme mit Beispieldaten, nach `visualisierung.md`:**
+     - 3×3-Matrix
+     - Heatmap
+     - Hantel-Diagramm
+     - P&L-Brücke als Wasserfall
+     - Zeitachse
 
 ### Gestaltung
 
-- Systemschrift über `system-ui` (auf dem Mac SF Pro), Fallback Inter. Keine eingebetteten Apple-Schriften.
-- Symbole: Lucide. Keine SF Symbols.
-- Viel Weißraum, große Radien, Flächen statt Rahmen, sanfte Schatten.
-- Glas-Effekte nur in Seitenleiste und Overlays.
+- Systemschrift über `system-ui` (auf dem Mac erscheint SF Pro), Fallback Inter. Keine eingebetteten Apple-Schriften.
+- Symbole von Lucide, keine SF Symbols.
+- Viel Weißraum, große Radien, Flächen statt Rahmen, kurze und zentrierte Überschriften in Kacheln.
 - Klickflächen mindestens 44 × 44 px.
-- Bewegung kurz und ruhig. Bei „Bewegung reduzieren“ im System sind Animationen aus.
-- Diagramme mit ECharts. Farben kommen aus den Diagramm-Tokens, nicht aus dem ECharts-Standard.
+- Bei „Bewegung reduzieren“ laufen keine Animationen.
+- **Erlaubt:** native Auswahllisten.
+- **Verboten:** Dialog, AlertDialog, Sheet, Drawer, Popover mit Inhalt, Toast und Overlay.
 
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] `/styleguide` zeigt alle oben genannten Abschnitte und Bausteine in Hell und Dunkel.
-- [ ] Eine automatische Prüfung schlägt fehl, wenn im Code von `apps/web` eine feste Farbe, Schriftgröße oder ein fester Abstand außerhalb der Token-Datei steht.
-- [ ] Ein Test berechnet den Kontrast aller Text- und Hintergrund-Paare der Tokens nach WCAG. Normaler Text erreicht mindestens 4,5:1, großer Text und Symbole mindestens 3:1, in Hell und Dunkel. Die Kontrastrechnung ist eine eigene kleine Funktion, keine neue Abhängigkeit.
-- [ ] Alle Bausteine sind per Tastatur erreichbar und haben einen sichtbaren Fokus.
-- [ ] Bei „Bewegung reduzieren“ laufen keine Animationen.
+- [ ] `/styleguide` zeigt alle oben genannten Abschnitte in Hell und Dunkel.
+- [ ] Eine automatische Prüfung schlägt fehl bei festen Farben, Schriftgrößen oder Abständen außerhalb der Token-Datei.
+- [ ] Ein Test berechnet den WCAG-Kontrast aller Text- und Hintergrund-Paare der Tokens:
+  - normaler Text mindestens 4,5:1
+  - großer Text und Symbole mindestens 3:1
+  - in Hell und Dunkel
+  - mit einer eigenen kleinen Funktion, ohne neue Abhängigkeit
+- [ ] Ein Test schlägt fehl, wenn eine verbotene Komponente im Code vorkommt: Dialog, AlertDialog, Sheet, Drawer, Toast oder Overlay, auch die von shadcn/ui.
+- [ ] Alle Bausteine sind per Tastatur erreichbar und zeigen einen sichtbaren Fokus.
+- [ ] Jede Klickfläche ist mindestens 44 × 44 px groß (Playwright misst nach).
 - [ ] Die Diagramm-Beispiele nutzen nur Diagramm-Tokens.
-- [ ] Jede Klickfläche im Styleguide ist mindestens 44 × 44 px groß (Playwright misst nach).
 
 ## Nicht Teil dieser Funktion
 
-- App-Rahmen und Startseite (PLT-11)
+- Navigation mit echten Routen (PLT-11)
 - Englische Texte (PLT-09)
-- Echte Diagramme mit Fachdaten (SEG-03, SEG-04, PUL-05, PNL-10)
-- Styleguide in der späteren Produktion ausblenden
+- Diagramme mit Fachdaten (eigene Specs)

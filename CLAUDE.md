@@ -32,7 +32,8 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 - Ein Ordner je Fachbereich: apps/api/src/modules/<bereich>, apps/web/src/features/<bereich>
 - Add-ons werden je Kunde über eine Freischalt-Tabelle aktiviert
 - Die Werkstoff- bzw. Warengruppe je Lieferant gehört zum Kern-Datenmodell
-- Jede gemeinsame Initiative trägt ihre GuV-Wirkung: Hebel, GuV-Zeile, Wirkungsart,
-  eingefrorene Baseline, Reifegrad R1-R5; realisiert erst nach Freigabe durch Controlling
+- Sobald für eine gemeinsame Initiative Wirkung eingerichtet ist, trägt sie ihre GuV-Wirkung:
+  Hebel, GuV-Zeile, Wirkungsart, eingefrorene Baseline, Reifegrad R1-R5; realisiert erst nach
+  Freigabe durch Controlling
 - EBIT-Wirkung nie mit Kostenvermeidung, Cash oder strategischem Wert addieren
 - Geldbeträge als Ganzzahl in Cent mit Währung, nie als Gleitkommazahl

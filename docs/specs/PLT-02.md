@@ -1,6 +1,6 @@
 # PLT-02 Organisationen, Nutzer und Mandanten-Session
 
-Release 0.1 · Reihenfolge 4 · baut auf PLT-01 · ersetzt die Fassung vom 29.10.2026 (Lieferantenliste ist jetzt in PLT-03)
+Release 0.1 · baut auf PLT-01 · ersetzt die Fassung vom 29.10.2026 (Lieferantenliste ist jetzt in PLT-03)
 
 ## Ziel
 
@@ -8,20 +8,20 @@ Jede Firma ist in Reziproq eine Organisation, und jeder Nutzer gehört zu genau 
 
 ## Wer darf was
 
-| Rolle                     | Darf                                                                                                                                                                                                                                                      |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nutzer einer Organisation | Den Namen der eigenen Organisation und deren Mitglieder (Name, E-Mail) in den Einstellungen sehen.                                                                                                                                                        |
-| Admin der Organisation    | Wie oben. Rollen ändern kommt mit PLT-05.                                                                                                                                                                                                                 |
-| Nutzer ohne Organisation  | Sieht nur den Hinweis „Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.“ Die API liefert ihm nur `/me` und `/health`; einem Betreiber (PLT-13) zusätzlich die Kundenliste, damit er in einen Kunden wechseln kann. |
-| Reziproq-Team (ihr)       | Legt Organisationen über ein Skript an und verknüpft sie mit Zitadel. Eine Oberfläche dafür gibt es nicht.                                                                                                                                                |
+| Rolle | Darf |
+|---|---|
+| Nutzer einer Organisation | Den Namen der eigenen Organisation und deren Mitglieder (Name, E-Mail) in den Einstellungen sehen. |
+| Admin der Organisation | Wie oben. Rollen ändern kommt mit PLT-05. Bis dahin gelten die Rollen aus Zitadel. |
+| Nutzer ohne Organisation | Sieht nur den Hinweis „Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.“ Die API liefert ihm nur `/me` und `/health`; einem Betreiber (PLT-13, UMB-01) zusätzlich die Kundenliste, damit er in einen Kunden wechseln kann. |
+| Reziproq-Team (ihr) | Legt Organisationen über ein Skript an und verknüpft sie mit Zitadel. Eine Oberfläche dafür gibt es nicht. |
 
 ## Daten
 
-| Tabelle                      | Felder                                                                                                                                                            | Ebene                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `organization` (erweitern)   | `id`, `name`, `country` (ISO-Code), `vat_id` (USt-IdNr., optional, eindeutig), `duns` (optional, eindeutig), `zitadel_org_id` (optional, eindeutig), `created_at` | global: Name und Land darf jeder sehen, der mit der Organisation in Beziehung steht |
-| `organization_feature` (neu) | `organization_id`, `feature`, `enabled_at`                                                                                                                        | Freischalt-Tabelle. Erster Eintrag: `buyer` (Käuferfunktionen). Später Add-ons.     |
-| `app_user` (erweitern)       | `organization_id` (darf leer sein)                                                                                                                                | Jeder Nutzer gehört zu höchstens einer Organisation                                 |
+| Tabelle | Felder | Ebene |
+|---|---|---|
+| `organization` (erweitern) | `id`, `name`, `country` (ISO-Code), `vat_id` (USt-IdNr., optional, eindeutig), `duns` (optional, eindeutig), `zitadel_org_id` (optional, eindeutig), `created_at` | global: Name und Land darf jeder sehen, der mit der Organisation in Beziehung steht |
+| `organization_feature` (neu) | `organization_id`, `feature`, `enabled_at` | Freischalt-Tabelle. Erster Eintrag: `buyer` (Käuferfunktionen). Später Add-ons. |
+| `app_user` (erweitern) | `organization_id` (darf leer sein) | Jeder Nutzer gehört zu höchstens einer Organisation |
 
 - Eine Organisation hat **keinen festen Typ**. Ob sie Käufer oder Lieferant ist, ergibt sich aus der jeweiligen Beziehung (PLT-03). Ob sie Käuferfunktionen nutzen darf, steht in `organization_feature`. So funktionieren Firmen, die zugleich Kunde und Lieferant sind, ohne Sonderfall.
 - **Zuordnung beim Login:** Jede Kundenfirma ist in Zitadel eine eigene Organisation. Die Web-App fordert zusätzlich den Scope `urn:zitadel:iam:user:resourceowner` an. Die API liest daraus die Zitadel-Organisation des Nutzers und setzt `app_user.organization_id` auf die passende `organization`. Gibt es keine passende, bleibt das Feld leer.
@@ -39,7 +39,7 @@ Jede Firma ist in Reziproq eine Organisation, und jeder Nutzer gehört zu genau 
 
 Skript `pnpm org:link "<Name>" <zitadel-org-id>` verknüpft eine Organisation mit Zitadel.
 
-Die bisherigen Beispieldaten bleiben: „Beispiel-OEM“ heißt jetzt „Test-OEM (Demo)“, die 15 Lieferanten und ihre Beziehungen bleiben für die Lieferantenliste. Vorhandene Nutzer ordnet der Seed nicht mehr zu; das macht der Login über Zitadel.
+Zusätzlich bleiben die 15 Demo-Lieferanten mit ihren Beziehungen, damit die Lieferantenliste bis PLT-03 funktioniert. Vorhandene Nutzer ordnet der Seed nicht zu; das macht der Login über Zitadel.
 
 ## Ablauf
 
@@ -53,7 +53,7 @@ Die bisherigen Beispieldaten bleiben: „Beispiel-OEM“ heißt jetzt „Test-OE
 **In der App:**
 
 1. Ein Nutzer des Test-OEM meldet sich an. Im Nutzer-Menü steht „Test-OEM (Demo)“.
-2. Unter Einstellungen → Organisation sieht er Name und Land der Organisation sowie die Mitglieder mit Name und E-Mail.
+2. Unter Einstellungen → Organisation sieht er Name und Land der Organisation sowie die Mitglieder mit Name und E-Mail. Das gilt für jedes Mitglied, nicht nur für Admins (ab PLT-11 über `/profil` erreichbar).
 3. Ein Nutzer, dessen Zitadel-Organisation nicht verknüpft ist, sieht nur den Hinweis.
 4. Ein Nutzer des Test-Lieferanten sieht in 0.1 einen Hinweis „Der Lieferantenzugang kommt bald.“ Ihm fehlt das Feature `buyer`, und die Lieferantenansicht kommt mit 0.2.
 
@@ -69,6 +69,10 @@ Je Kriterium ein Test.
 - [ ] Ein Nutzer des Test-OEM sieht in der Mitgliederliste nur Mitglieder des Test-OEM.
 - [ ] Ein Nutzer ohne Feature `buyer` sieht die Käuferbereiche nicht.
 - [ ] `vat_id`, `duns` und `zitadel_org_id` sind jeweils eindeutig, wenn gesetzt.
+
+## Stand
+
+Umgesetzt mit PR #14.
 
 ## Nicht Teil dieser Funktion
 

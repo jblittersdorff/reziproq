@@ -1,6 +1,6 @@
 # PLT-07 Import per Excel und CSV
 
-Release 0.1 · Reihenfolge 10 · baut auf PLT-03, PLT-05, PLT-06
+Release 0.1 · baut auf PLT-03, PLT-05, PLT-06
 
 ## Ziel
 
@@ -33,6 +33,13 @@ Als Einkäufer lade ich meine Lieferanten, BUs, Kontakte und Spend aus einer Exc
 - Dateien: `.xlsx` und `.csv` (UTF-8, Komma oder Semikolon). Höchstens 10 MB und 5.000 Zeilen je Datei.
 - Die hochgeladene Datei wird nach dem Import verworfen und nicht gespeichert.
 - Bibliotheken mit erlaubter Lizenz, z. B. ExcelJS und Papa Parse (beide MIT). Version fest gepinnt.
+
+## Teilung
+
+Zwei Pull Requests:
+
+- **PLT-07a:** Baustein Import (Upload, Vorschau, Fehlerdatei), Lieferanten und Spend.
+- **PLT-07b:** Business Units und Kontakte, `docs/demo/lieferanten-50.xlsx`. Die 50 Lieferanten lädt zusätzlich `pnpm db:seed --viele`.
 
 ## Ablauf
 

@@ -1,76 +1,81 @@
-# PLT-11 App-Rahmen und Startseite
+# PLT-11 App-Rahmen, globale Leiste und Seitenmuster
 
-Release 0.1 · Reihenfolge 2 · baut auf PLT-10 · neu, steht noch nicht in der Anforderungsliste
+Release 0.1 · baut auf PLT-10 · deckt ab PLT-11, NAV-01, NAV-02, NAV-03 · überarbeitet am 31.10.2026: Leiste oben statt Seitenleiste, keine Pop-ups
 
 ## Ziel
 
-Als Einkäufer sehe ich nach dem Login auf einen Blick alle Bereiche von Reziproq und komme mit einem Klick dorthin, ohne eine Anleitung zu brauchen.
+Als Nutzer erreiche ich jeden Hauptbereich mit einem Klick, weiß auf jeder Seite, wo ich bin, und komme immer sauber zurück, ohne dass sich ein Fenster öffnet.
 
 ## Wer darf was
 
-| Rolle                       | Darf                                                                                                                                     |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Käufer: alle Rollen         | Startseite, Seitenleiste und alle Bereichsseiten sehen. Inhalte je Rolle kommen mit den einzelnen Funktionen.                            |
-| Mitglied einer Organisation | In den Einstellungen zusätzlich den Abschnitt „Organisation“ sehen: Name, Land und Mitglieder (seit PLT-02). Verwalten kommt mit PLT-05. |
-| Lieferant                   | Nicht Teil. Lieferanten bekommen ab Release 0.2 eine eigene, kleinere Navigation.                                                        |
+| Rolle | Darf |
+|---|---|
+| Käufer: alle Rollen | Globale Leiste, Start, Lieferanten, Portfolio, Wirkung, Fragen und Profil sehen. |
+| Käufer: Admin | Zusätzlich auf der Profilseite den Weg zu allen Einstellungen. Bis PLT-05 gelten die Rollen aus Zitadel (PLT-01, PLT-02). |
+| Käufer: alle Mitglieder einer Organisation | Auf der Profilseite den Weg zu Einstellungen › Organisation, nur lesen (PLT-02). |
+| Lieferant | Nicht Teil. Die Navigation für Lieferanten kommt mit LIF-02. |
 
 ## Daten
 
 - Keine neuen Fachdaten.
 - Liest Name, E-Mail und Organisation aus `/me`.
-- Das Erscheinungsbild (System, Hell, Dunkel) wird nur im Browser gespeichert. Ohne gespeicherten Wert gilt „System“.
+- Das Erscheinungsbild (System, Hell, Dunkel) wird nur im Browser gespeichert.
 
 ## Ablauf
 
-1. Der Nutzer meldet sich an und landet auf **Übersicht** (`/uebersicht`).
-2. Oben steht eine Begrüßung nach Tageszeit mit Vornamen, z. B. „Guten Morgen, Anna“.
-3. Darunter steht seit PLT-12 das Feld, das das Prompt-Fenster öffnet. Ein totes Eingabefeld gibt es nie.
-4. Darunter stehen sechs große Kacheln. Jede ist als Ganzes anklickbar:
-
-| Kachel               | Satz auf der Kachel                                                                                     | Route          | Kommt mit |
-| -------------------- | ------------------------------------------------------------------------------------------------------- | -------------- | --------- |
-| Lieferanten          | Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend. | `/lieferanten` | 0.1       |
-| Beziehungen          | Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten.                    | `/beziehungen` | 0.2       |
-| Beziehungspuls       | Wie beide Seiten die Beziehung sehen – heute und gewünscht.                                             | `/puls`        | 0.2       |
-| Joint Business Plans | Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten.                                   | `/jbp`         | 0.3       |
-| QBRs und Maßnahmen   | Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern.                                   | `/qbr`         | 0.3       |
-| P&L-Impact           | Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.                        | `/pnl`         | 0.3       |
-
-5. Unten auf jeder Kachel steht eine Statuszeile. Solange die Funktion fehlt, steht dort „Kommt mit Release 0.x“. Sobald es Daten gibt, steht dort eine Kennzahl, z. B. die Anzahl der Lieferanten.
-6. Links ist eine Seitenleiste wie in macOS-Apps: Übersicht, die sechs Bereiche, darunter abgesetzt Einstellungen. Ganz unten ein Nutzer-Menü mit Name, E-Mail, Organisation und Abmelden.
-7. Jede Bereichsseite zeigt Titel, den Satz aus der Kachel und einen leeren Zustand: ein großes Symbol, ein Satz, was hier entsteht, und mit welchem Release.
-8. In den **Einstellungen** (`/einstellungen`) kann der Nutzer das Erscheinungsbild umschalten. Den Abschnitt „Organisation“ sieht jedes Mitglied einer Organisation (seit PLT-02).
-9. Bei einer unbekannten Adresse erscheint eine freundliche Seite „Diese Seite gibt es nicht“ mit einem Knopf zurück zur Übersicht.
+1. Nach dem Login landet der Nutzer auf **Start** (`/start`).
+2. **Globale Leiste**, immer oben, wie auf apple.com:
+   - links „Reziproq“
+   - Mitte Start, Lieferanten, Portfolio, Wirkung
+   - rechts die Symbole Fragen und Profil
+   - Die aktive Seite ist hervorgehoben.
+   - Auf schmalen Bildschirmen klappt die Leiste zu einem Menüknopf ein. Er öffnet eine eigene Menüseite, kein Overlay.
+3. **Routen** dieser Spec, jeweils mit Titel und leerem Zustand bis zur Spec, die sie füllt:
+   - `/start` (füllt NAV-05)
+   - `/lieferanten` (füllt PLT-03)
+   - `/portfolio` (füllt SEG-07)
+   - `/wirkung` (füllt PNL-10)
+   - `/fragen` (füllt PLT-12)
+   - `/profil`
+   - `/einstellungen`
+4. **Profil** (`/profil`) ist eine Seite mit:
+   - Name, E-Mail, Organisation
+   - Erscheinungsbild
+   - Weg zu Einstellungen › Organisation (alle Mitglieder, nur lesen)
+   - Weg zu allen Einstellungen (nur Admin)
+   - Abmelden
+   - für Betreiber der Weg „In einen Kunden wechseln“ (UMB-01)
+5. **Pfad und Zurück (NAV-03):**
+   - Unter der Leiste steht auf jeder Seite unterhalb der Hauptebene der Pfad mit Zurück-Pfeil, z. B. Einstellungen › Organisation.
+   - Der Zurück-Knopf des Browsers macht dasselbe.
+   - Speichern und Abbrechen führen zur vorigen Seite.
+6. **Seitenmuster (NAV-02):**
+   - Jede Ansicht, jedes Formular und jeder Schritt hat eine eigene Adresse.
+   - Formulare sind Seiten.
+   - Eine unbekannte Adresse zeigt „Diese Seite gibt es nicht“ mit Knopf zu Start.
 
 ### Gestaltung
 
-- Erinnert an Apple: viel Weißraum, wenige Elemente pro Seite, eine klare Hauptaktion, ruhige Farben.
-- Kacheln sind groß und gleich hoch, mit großem Radius und einer Fläche statt eines Rahmens. Auf breiten Bildschirmen drei Spalten, mittel zwei, schmal eine.
-- Ein Lucide-Symbol pro Kachel.
-- Glas-Effekt höchstens in der Seitenleiste.
-- Klickflächen mindestens 44 × 44 px. Alles nur aus Tokens, Bausteine aus dem Styleguide (PLT-10).
-- Unter der Breite für „schmal“ (Token) klappt die Seitenleiste zu einem Menüknopf ein.
+- Leiste schmal und ruhig, Glas-Effekt erlaubt.
+- Inhalt mittig mit großzügigem Rand, Bausteine nur aus dem Styleguide.
 
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Nach dem Login landet der Nutzer auf `/uebersicht` und sieht die Begrüßung mit seinem Vornamen.
-- [ ] Die Übersicht zeigt genau sechs Kacheln in der Reihenfolge der Tabelle. Ein Klick irgendwo auf eine Kachel öffnet die richtige Route.
-- [ ] Die Seitenleiste zeigt Übersicht, sechs Bereiche und Einstellungen. Die aktive Seite ist markiert.
-- [ ] Jede Bereichsseite zeigt Titel, Satz und leeren Zustand mit Release-Hinweis.
-- [ ] Bei 390 px Breite ist die Seitenleiste eingeklappt, die Kacheln stehen einspaltig, und es gibt keine waagerechte Scrollleiste (Playwright).
-- [ ] Alle Knöpfe, Links und Kacheln sind mindestens 44 × 44 px groß.
-- [ ] Hell- und Dunkelmodus folgen dem System und lassen sich in den Einstellungen umschalten.
-- [ ] Den Abschnitt „Organisation“ sieht jedes Mitglied einer Organisation, ohne Organisation niemand. Die API entscheidet darüber über `/me` (seit PLT-02).
-- [ ] Alles ist per Tastatur bedienbar, mit logischer Tab-Reihenfolge und sichtbarem Fokus.
+- [ ] Nach dem Login landet der Nutzer auf `/start`.
+- [ ] Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreichbar. Die aktive Seite ist markiert.
+- [ ] Bei 390 px Breite gibt es keine waagerechte Scrollleiste, und das Menü öffnet sich als eigene Seite.
+- [ ] Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand.
+- [ ] Ein Playwright-Test geht drei Ebenen hin und zurück, einmal mit Zurück-Pfeil, einmal mit Browser-Zurück. Er landet immer auf der vorigen Ansicht, auch nach Speichern und Abbrechen.
+- [ ] Der Weg zu allen Einstellungen auf `/profil` ist nur für Admins sichtbar. Jedes Mitglied sieht den Weg zu Einstellungen › Organisation.
+- [ ] Alles ist per Tastatur bedienbar, mit sichtbarem Fokus.
 - [ ] Unbekannte Adressen zeigen die Nicht-gefunden-Seite.
-- [ ] Alle Texte kommen aus der deutschen Übersetzungsdatei. Ein Test schlägt fehl, wenn ein Schlüssel fehlt.
+- [ ] Alle Texte stehen in der Übersetzungsdatei.
 
 ## Nicht Teil dieser Funktion
 
-- Inhalte der Bereiche (eigene Specs)
-- Prompt-Fenster (PLT-12)
-- Navigation für Lieferanten (Release 0.2)
+- Inhalte von Start (NAV-05), Lieferanten (PLT-03), Portfolio (SEG-07) und Wirkung (PNL-10)
+- Lieferanten-Arbeitsbereich mit lokaler Leiste (NAV-06)
+- Fragen-Seite mit Inhalt (PLT-12)
 - Englische Oberfläche (PLT-09)
-- Suche (QS-05) und Benachrichtigungen

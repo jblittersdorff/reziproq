@@ -1,6 +1,6 @@
 # PLT-08 Audit-Trail
 
-Release 0.1 · Reihenfolge 6 · baut auf PLT-04 · steht vor PLT-03, damit Beziehungen vom ersten Tag an im Verlauf landen
+Release 0.1 · baut auf PLT-04 · steht vor PLT-03, damit Beziehungen vom ersten Tag an im Verlauf landen
 
 ## Ziel
 
@@ -31,7 +31,7 @@ Bei jedem geteilten Objekt sehen beide Seiten, wer wann was geändert hat. Niema
 1. Ein Entwickler markiert ein Objekt in der API als „mit Verlauf“. Ab dann schreibt jede Änderung über den Dienst automatisch Verlauf und Outbox.
 2. `GET /audit?object_type=…&object_id=…` liefert den Verlauf, neueste zuerst, mit denselben Sichtrechten wie das Objekt.
 3. Ein wiederverwendbarer Baustein **Verlauf** zeigt die Einträge als ruhige Liste: Datum und Uhrzeit, Name, Organisation, was geändert wurde (z. B. „Status: angelegt → aktiv“).
-4. Der Baustein steht im Styleguide (PLT-10) mit Beispieleinträgen. Erster echter Einsatz ist das Detail-Panel einer Beziehung (PLT-03).
+4. Der Baustein steht im Styleguide (PLT-10) mit Beispieleinträgen. Erster echter Einsatz ist die Profilseite eines Lieferanten (PLT-03).
 
 ## Fertig, wenn
 
@@ -47,7 +47,7 @@ Je Kriterium ein Test.
 
 ## Nicht Teil dieser Funktion
 
-- Verarbeitung der Outbox (E-Mails mit QS-01, Erinnerungen mit QBR-02)
+- Verarbeitung der Outbox (E-Mails mit QS-01, Erinnerungen mit ZYK-02 und QBR-04)
 - Versionen ganzer Dokumente (JBP-04) und Stände der Segmentierung (SEG-05)
 - Export des Verlaufs (QS-03)
 - Verlauf für käuferprivate Fachwerte wie Spend. Ob sie einen internen Verlauf bekommen, entscheidet die jeweilige Spec.
