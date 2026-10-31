@@ -36,7 +36,7 @@ export function Subsection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div data-slot="subsection" className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h3 className="font-semibold text-base">{title}</h3>
         {description && <p className="text-muted-foreground text-sm">{description}</p>}
