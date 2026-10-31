@@ -8,24 +8,24 @@ Jede Firma ist in Reziproq eine Organisation, und jeder Nutzer gehört zu genau 
 
 ## Wer darf was
 
-| Rolle | Darf |
-|---|---|
-| Nutzer einer Organisation | Den Namen der eigenen Organisation und deren Mitglieder (Name, E-Mail) in den Einstellungen sehen. |
-| Admin der Organisation | Wie oben. Rollen ändern kommt mit PLT-05. Bis dahin gilt jeder Nutzer als Admin. |
-| Nutzer ohne Organisation | Sieht nur den Hinweis „Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.“ Die API liefert ihm nur `/me` und `/health`. |
-| Reziproq-Team (ihr) | Legt Organisationen über ein Skript an und verknüpft sie mit Zitadel. Eine Oberfläche dafür gibt es nicht. |
+| Rolle                     | Darf                                                                                                                                                                                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nutzer einer Organisation | Den Namen der eigenen Organisation und deren Mitglieder (Name, E-Mail) in den Einstellungen sehen.                                                                                                                                                        |
+| Admin der Organisation    | Wie oben. Rollen ändern kommt mit PLT-05.                                                                                                                                                                                                                 |
+| Nutzer ohne Organisation  | Sieht nur den Hinweis „Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.“ Die API liefert ihm nur `/me` und `/health`; einem Betreiber (PLT-13) zusätzlich die Kundenliste, damit er in einen Kunden wechseln kann. |
+| Reziproq-Team (ihr)       | Legt Organisationen über ein Skript an und verknüpft sie mit Zitadel. Eine Oberfläche dafür gibt es nicht.                                                                                                                                                |
 
 ## Daten
 
-| Tabelle | Felder | Ebene |
-|---|---|---|
-| `organization` (erweitern) | `id`, `name`, `country` (ISO-Code), `vat_id` (USt-IdNr., optional, eindeutig), `duns` (optional, eindeutig), `zitadel_org_id` (optional, eindeutig), `created_at` | global: Name und Land darf jeder sehen, der mit der Organisation in Beziehung steht |
-| `organization_feature` (neu) | `organization_id`, `feature`, `enabled_at` | Freischalt-Tabelle. Erster Eintrag: `buyer` (Käuferfunktionen). Später Add-ons. |
-| `app_user` (erweitern) | `organization_id` (darf leer sein) | Jeder Nutzer gehört zu höchstens einer Organisation |
+| Tabelle                      | Felder                                                                                                                                                            | Ebene                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `organization` (erweitern)   | `id`, `name`, `country` (ISO-Code), `vat_id` (USt-IdNr., optional, eindeutig), `duns` (optional, eindeutig), `zitadel_org_id` (optional, eindeutig), `created_at` | global: Name und Land darf jeder sehen, der mit der Organisation in Beziehung steht |
+| `organization_feature` (neu) | `organization_id`, `feature`, `enabled_at`                                                                                                                        | Freischalt-Tabelle. Erster Eintrag: `buyer` (Käuferfunktionen). Später Add-ons.     |
+| `app_user` (erweitern)       | `organization_id` (darf leer sein)                                                                                                                                | Jeder Nutzer gehört zu höchstens einer Organisation                                 |
 
 - Eine Organisation hat **keinen festen Typ**. Ob sie Käufer oder Lieferant ist, ergibt sich aus der jeweiligen Beziehung (PLT-03). Ob sie Käuferfunktionen nutzen darf, steht in `organization_feature`. So funktionieren Firmen, die zugleich Kunde und Lieferant sind, ohne Sonderfall.
 - **Zuordnung beim Login:** Jede Kundenfirma ist in Zitadel eine eigene Organisation. Die Web-App fordert zusätzlich den Scope `urn:zitadel:iam:user:resourceowner` an. Die API liest daraus die Zitadel-Organisation des Nutzers und setzt `app_user.organization_id` auf die passende `organization`. Gibt es keine passende, bleibt das Feld leer.
-- **Mandanten-Session:** Jede Anfrage der API läuft in einer Datenbank-Transaktion, die zuerst `app.user_id` und `app.org_id` per `SET LOCAL` setzt. Alle Tabellen mit Mandantendaten haben Row-Level Security mit `FORCE ROW LEVEL SECURITY`. Die API verbindet sich mit einer Datenbankrolle, die nicht Eigentümer der Tabellen ist. Migrationen laufen mit einer eigenen Rolle.
+- **Mandanten-Session:** Jede Anfrage der API läuft in einer Datenbank-Transaktion, die zuerst `app.user_id` und `app.org_id` per `SET LOCAL` setzt. Alle Tabellen mit Mandantendaten haben Row-Level Security mit `FORCE ROW LEVEL SECURITY`. Die API verbindet sich als Rolle `reziproq_api` (`API_DATABASE_URL`), die nicht Eigentümer der Tabellen ist; `pnpm db:roles` setzt ihr Login und Passwort aus der Umgebung. Migrationen und Skripte laufen mit der Eigentümer-Rolle aus `DATABASE_URL`. Was vor der Session feststehen muss (Login, eigene Organisation, Betreiber-Zugang), läuft über wenige Datenbankfunktionen der Rolle `reziproq_anmeldung` mit genau diesen Rechten.
 - Datenzugriff gibt es nur über diese Session. Es gibt keinen Weg an ihr vorbei, auch nicht in Jobs und Skripten (dort mit ausdrücklich gesetzter Organisation).
 
 ### Beispieldaten (nur lokal)
@@ -38,6 +38,8 @@ Jede Firma ist in Reziproq eine Organisation, und jeder Nutzer gehört zu genau 
 - Für Tests je Organisation zwei Nutzer mit erfundenen IDs.
 
 Skript `pnpm org:link "<Name>" <zitadel-org-id>` verknüpft eine Organisation mit Zitadel.
+
+Die bisherigen Beispieldaten bleiben: „Beispiel-OEM“ heißt jetzt „Test-OEM (Demo)“, die 15 Lieferanten und ihre Beziehungen bleiben für die Lieferantenliste. Vorhandene Nutzer ordnet der Seed nicht mehr zu; das macht der Login über Zitadel.
 
 ## Ablauf
 

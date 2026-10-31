@@ -12,14 +12,13 @@ import type { Role } from '@reziproq/shared';
 import { supportHeader } from '@reziproq/shared';
 import type { Request } from 'express';
 import { z } from 'zod';
-import {
-  SupportAccessService,
-  type SupportOrganization,
-} from '../support/support-access.service.js';
+import { type AccountOrganization, AccountStore } from '../../common/database.module.js';
+import { SupportAccessService } from '../support/support-access.service.js';
 import { can } from './can.js';
 import { IS_PUBLIC } from './public.decorator.js';
 import { rolesFromToken } from './roles.js';
 import { AUTH_OPTIONS, type AuthOptions, TokenVerifier } from './token-verifier.js';
+import { WITHOUT_ORGANIZATION } from './without-organization.decorator.js';
 
 /** Wer die Anfrage stellt: Nutzer-ID (sub), Rollen und das geprüfte Access Token. */
 export interface AuthContext {
@@ -27,7 +26,12 @@ export interface AuthContext {
   roles: Role[];
   accessToken: string;
   /** Der Kunde, in den ein Betreiber gewechselt ist (PLT-13); sonst nicht gesetzt. */
-  supportOrganization?: SupportOrganization;
+  supportOrganization?: AccountOrganization;
+  /**
+   * Die Organisation, für die die Anfrage gilt: in der Betreiber-Ansicht der gewählte Kunde,
+   * sonst die eigene. null ohne Organisation (PLT-02).
+   */
+  organization: AccountOrganization | null;
 }
 
 const uuid = z.uuid();
@@ -45,6 +49,7 @@ export class AuthGuard implements CanActivate {
     @Inject(TokenVerifier) private readonly verifier: TokenVerifier,
     @Inject(AUTH_OPTIONS) private readonly options: AuthOptions,
     @Inject(SupportAccessService) private readonly support: SupportAccessService,
+    @Inject(AccountStore) private readonly accounts: AccountStore,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -63,6 +68,7 @@ export class AuthGuard implements CanActivate {
       userId: payload.sub,
       roles: rolesFromToken(payload, this.options.audience),
       accessToken: token,
+      organization: null,
     };
 
     // Betreiber-Ansicht (PLT-13): Nur die Rolle betreiber darf einen Kunden wählen.
@@ -79,6 +85,22 @@ export class AuthGuard implements CanActivate {
         customerId,
         `${request.method} ${request.originalUrl}`,
       );
+    }
+
+    auth.organization =
+      auth.supportOrganization ?? (await this.accounts.organizationOf(auth.userId));
+
+    // Ohne Organisation nur /me und der Betreiber-Zugang (PLT-02).
+    const withoutOrganization = this.reflector.getAllAndOverride<boolean | undefined>(
+      WITHOUT_ORGANIZATION,
+      [context.getHandler(), context.getClass()],
+    );
+    if (!auth.organization && !withoutOrganization) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: 'keine_organisation',
+        message: 'Deine Organisation ist noch nicht freigeschaltet.',
+      });
     }
 
     request.auth = auth;

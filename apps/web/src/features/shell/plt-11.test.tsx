@@ -186,15 +186,24 @@ describe('Einstellungen', () => {
     expect(localStorage.getItem('reziproq-theme')).toBe('dark');
   });
 
-  it('Der Abschnitt „Organisation“ ist nur für Admins sichtbar (Entscheidung per can() in der API)', async () => {
-    api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: true } };
+  // Seit PLT-02 sieht jedes Mitglied den Abschnitt; die API entscheidet über /me.
+  it('Der Abschnitt „Organisation“ zeigt jedem Mitglied Name, Land und Mitglieder', async () => {
     renderAt('/einstellungen');
     expect(await screen.findByRole('heading', { level: 2, name: 'Organisation' })).toBeDefined();
+    expect(await screen.findByText('Beispiel-OEM (Demo)')).toBeDefined();
+    expect(screen.getByText('Deutschland')).toBeDefined();
+    const rows = within(screen.getByRole('table', { name: 'Mitglieder' })).getAllByRole('row');
+    expect(rows.map((row) => row.textContent)).toEqual([
+      'NameE-Mail',
+      'Anna Schmidtanna@example.com',
+      'Ben Weberben@example.com',
+    ]);
   });
 
-  it('blendet den Abschnitt Organisation für Nicht-Admins aus', async () => {
+  it('blendet den Abschnitt Organisation aus, wenn die API ihn nicht freigibt', async () => {
+    api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: false } };
     renderAt('/einstellungen');
-    await screen.findByText('Anna Schmidt');
+    await screen.findByText('Deine Rollen in Reziproq');
     expect(screen.queryByRole('heading', { name: 'Organisation' })).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import type {
   CustomersResponse,
   MeResponse,
+  OrganizationResponse,
   PromptEvent,
   SuppliersResponse,
 } from '@reziproq/shared';
@@ -33,7 +34,12 @@ export const anna: MeResponse = {
   organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
   supportView: false,
   roles: ['nutzer'],
-  permissions: { viewOrganizationSettings: false, viewSuppliers: true, switchCustomer: false },
+  permissions: {
+    viewOrganizationSettings: true,
+    viewBuyerAreas: true,
+    viewSuppliers: true,
+    switchCustomer: false,
+  },
 };
 
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
@@ -58,6 +64,15 @@ export const sampleSuppliers: SuppliersResponse = {
   totalSpend: [{ amountCents: mio(10.23), currency: 'EUR' }],
 };
 
+export const sampleOrganization: OrganizationResponse = {
+  name: 'Beispiel-OEM (Demo)',
+  country: 'DE',
+  members: [
+    { name: 'Anna Schmidt', email: 'anna@example.com' },
+    { name: 'Ben Weber', email: 'ben@example.com' },
+  ],
+};
+
 /** Antworten der nachgebauten API; jeder Test kann sie vor dem Rendern ändern. */
 export const api = {
   me: anna as MeResponse,
@@ -75,6 +90,8 @@ export const api = {
       { id: 'org-2', name: 'Zweit-OEM (Demo)', country: 'AT' },
     ],
   } as CustomersResponse,
+  /** Eigene Organisation mit Mitgliedern (PLT-02). */
+  organization: sampleOrganization as OrganizationResponse,
   /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-kunde (oder null). */
   requests: [] as { url: string; customer: string | null }[],
 };
@@ -107,6 +124,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
       : Response.json({ statusCode: api.meStatus }, { status: api.meStatus });
   }
   if (url === '/api/betreiber/kunden') return Response.json(api.customers);
+  if (url === '/api/organisation') return Response.json(api.organization);
   if (url === '/api/prompt') {
     api.promptRequests.push(JSON.parse(String(init?.body)));
     if (api.prompt.status !== 200) {
@@ -130,6 +148,7 @@ export function setUpApp() {
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];
+  api.organization = sampleOrganization;
   sessionStorage.clear();
   vi.stubGlobal(
     'fetch',

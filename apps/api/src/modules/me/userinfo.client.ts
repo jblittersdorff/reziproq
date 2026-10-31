@@ -7,6 +7,8 @@ const userinfoSchema = z.object({
   name: z.string().min(1),
   given_name: z.string().optional(),
   email: z.email(),
+  // Organisation des Nutzers in Zitadel; mit Scope urn:zitadel:iam:user:resourceowner (PLT-02).
+  'urn:zitadel:iam:user:resourceowner:id': z.string().min(1).optional(),
 });
 
 export type Userinfo = z.infer<typeof userinfoSchema>;

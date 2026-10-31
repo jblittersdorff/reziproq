@@ -62,7 +62,9 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
   await page.setViewportSize({ width: 1440, height: 900 });
   const seen = await signInAsOperator(page);
   await page.goto('/lieferanten');
-  await expect(page.locator('#inhalt h1')).toBeVisible();
+  // Ohne eigene Organisation sieht ein Betreiber nur den Hinweis, bis er einen Kunden wählt (PLT-02).
+  await expect(page.locator('#inhalt').getByRole('status')).toContainText('Kunde wechseln');
+  await expect(page.locator('#inhalt h1')).toHaveCount(0);
 
   await switchTo(page, 'Zweit-OEM');
   const banner = page.getByText(

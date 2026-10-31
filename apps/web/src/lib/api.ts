@@ -4,6 +4,7 @@ import {
   forbiddenCodes,
   healthResponseSchema,
   meResponseSchema,
+  organizationResponseSchema,
   type PromptEvent,
   type PromptRequest,
   promptEventSchema,
@@ -87,6 +88,13 @@ async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> 
   const code = (body as { code?: unknown } | null)?.code;
   return forbiddenCodes.find((known) => known === code);
 }
+
+export const organizationQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['organisation'],
+    queryFn: () => getJson('/organisation', organizationResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({

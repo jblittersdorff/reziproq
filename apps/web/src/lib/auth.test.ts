@@ -34,7 +34,7 @@ describe('oidcConfig', () => {
     expect(config.redirect_uri).toBe('http://localhost:5173/auth/callback');
     expect(config.post_logout_redirect_uri).toBe('http://localhost:5173');
     expect(config.scope).toBe(
-      'openid profile email offline_access urn:zitadel:iam:org:projects:roles',
+      'openid profile email offline_access urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner',
     );
   });
 

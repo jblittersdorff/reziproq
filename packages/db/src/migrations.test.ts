@@ -23,7 +23,20 @@ describe('Migrationen', () => {
     temp = await createTempDatabase();
     await migrateTo(temp.db);
 
-    expect(await columns('organization')).toEqual(['id', 'name', 'created_at', 'typ', 'land']);
+    expect(await columns('organization')).toEqual([
+      'id',
+      'name',
+      'created_at',
+      'country',
+      'vat_id',
+      'duns',
+      'zitadel_org_id',
+    ]);
+    expect(await columns('organization_feature')).toEqual([
+      'organization_id',
+      'feature',
+      'enabled_at',
+    ]);
     expect(await columns('app_user')).toContain('organization_id');
     expect(await columns('beziehung')).toEqual([
       'id',
@@ -60,10 +73,12 @@ describe('Migrationen', () => {
 
     await migrateTo(temp.db);
 
-    const org = await temp.db.execute<{ typ: string; land: string | null }>(
-      sql`select typ, land from organization where name = 'Altbestand GmbH'`,
-    );
-    expect(org.rows).toEqual([{ typ: 'kaeufer', land: null }]);
+    // Bisherige Käufer behalten über das Feature buyer ihre Käuferfunktionen (PLT-02).
+    const org = await temp.db.execute<{ country: string | null; features: string[] }>(sql`
+      select o.country, array(select f.feature from organization_feature f where f.organization_id = o.id) as features
+      from organization o where o.name = 'Altbestand GmbH'
+    `);
+    expect(org.rows).toEqual([{ country: null, features: ['buyer'] }]);
     const user = await temp.db.execute<{ organization_id: string | null }>(
       sql`select organization_id from app_user where id = 'alt-1'`,
     );

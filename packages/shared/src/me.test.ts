@@ -8,7 +8,12 @@ const ada = {
   organization: null,
   supportView: false,
   roles: ['betreiber'],
-  permissions: { viewOrganizationSettings: false, viewSuppliers: false, switchCustomer: false },
+  permissions: {
+    viewOrganizationSettings: false,
+    viewBuyerAreas: false,
+    viewSuppliers: false,
+    switchCustomer: false,
+  },
 };
 
 describe('meResponseSchema', () => {

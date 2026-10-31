@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
 import { Test, type TestingModuleBuilder } from '@nestjs/testing';
+import { createDatabase, databaseUrl } from '@reziproq/db';
 import { exportJWK, generateKeyPair, type JWTPayload, SignJWT } from 'jose';
 import { AppModule } from '../app.module.js';
 import { configureApp } from '../configure-app.js';
@@ -93,10 +94,15 @@ export async function startTestApp({
       body: JSON.stringify(body),
     });
 
+  // Testdaten legen die Tests als Eigentümer an (DATABASE_URL); die App selbst verbindet sich als
+  // reziproq_api und sieht nur, was RLS erlaubt (PLT-02).
+  const admin = createDatabase(databaseUrl());
+
   const close = async () => {
     await app.close();
     await zitadel.close();
+    await admin.pool.end();
   };
 
-  return { app, get, post, signToken, zitadel, close };
+  return { app, adminDb: admin.db, get, post, signToken, zitadel, close };
 }

@@ -33,7 +33,7 @@ function service() {
   return suppliers;
 }
 
-const auth: AuthContext = { userId: 'u', roles: ['nutzer'], accessToken: 't' };
+const auth: AuthContext = { userId: 'u', roles: ['nutzer'], accessToken: 't', organization: null };
 
 describe('SuppliersService.search', () => {
   it('liefert ohne Spend-Filter Beträge jeder Währung', async () => {

@@ -9,7 +9,6 @@ import {
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { DATABASE } from '../../common/database.module.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // Tests zu docs/specs/PLT-13.md: Betreiber-Zugang zu Kunden.
@@ -51,13 +50,18 @@ describe('Betreiber-Zugang', () => {
 
   beforeAll(async () => {
     testApp = await startTestApp();
-    db = testApp.app.get(DATABASE);
+    db = testApp.adminDb;
     const { organization, beziehung, beziehungKaeufer, appUser } = schema;
     await db.insert(organization).values([
-      { id: ids.oemA, name: names.a, typ: 'kaeufer', land: 'DE' },
-      { id: ids.oemB, name: names.b, typ: 'kaeufer', land: 'AT' },
-      { id: ids.supplier, name: `Gemeinsam ${run}`, typ: 'lieferant', land: 'PL' },
-      { id: ids.onlyA, name: `Nur A ${run}`, typ: 'lieferant', land: 'CZ' },
+      { id: ids.oemA, name: names.a, country: 'DE' },
+      { id: ids.oemB, name: names.b, country: 'AT' },
+      { id: ids.supplier, name: `Gemeinsam ${run}`, country: 'PL' },
+      { id: ids.onlyA, name: `Nur A ${run}`, country: 'CZ' },
+    ]);
+    // Käuferfunktionen über das Feature buyer (PLT-02).
+    await db.insert(schema.organizationFeature).values([
+      { organizationId: ids.oemA, feature: 'buyer' as const },
+      { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
     await db.insert(beziehung).values([
       { id: ids.relA, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.supplier },
@@ -177,7 +181,8 @@ describe('Betreiber-Zugang', () => {
       expect(meResponseSchema.parse(await res.json())).toMatchObject({
         organization: { id: ids.oemB, name: names.b },
         supportView: true,
-        permissions: { viewSuppliers: true, switchCustomer: true, viewOrganizationSettings: false },
+        // Im Kunden sieht der Betreiber, was dessen Mitglieder sehen, auch die Organisation (PLT-02).
+        permissions: { viewSuppliers: true, switchCustomer: true, viewOrganizationSettings: true },
       });
     });
 

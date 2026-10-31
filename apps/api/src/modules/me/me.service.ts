@@ -1,58 +1,52 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { type Database, schema, sql } from '@reziproq/db';
 import type { MeResponse } from '@reziproq/shared';
-import { InjectDatabase } from '../../common/database.module.js';
+import { AccountStore } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
-import { OrganizationService } from '../organizations/organization.service.js';
 import { UserinfoClient } from './userinfo.client.js';
-
-const { appUser } = schema;
 
 @Injectable()
 export class MeService {
   constructor(
-    @InjectDatabase() private readonly db: Database,
     @Inject(UserinfoClient) private readonly userinfo: UserinfoClient,
-    @Inject(OrganizationService) private readonly organizations: OrganizationService,
+    @Inject(AccountStore) private readonly accounts: AccountStore,
   ) {}
 
   /**
-   * Holt Name, Vorname und E-Mail von Zitadel, speichert sie in app_user und liefert den
-   * gespeicherten Stand zusammen mit den Rechten der Person. Mit login wird zusätzlich
-   * last_login_at gesetzt.
+   * Holt Name, Vorname, E-Mail und Zitadel-Organisation von Zitadel und speichert sie in app_user.
+   * Die Organisation folgt immer Zitadel: Ist die Zitadel-Organisation nicht verknüpft, bleibt sie
+   * leer (PLT-02). Mit login wird zusätzlich last_login_at gesetzt (PLT-01).
    */
   async syncFromUserinfo(auth: AuthContext, { login = false } = {}): Promise<MeResponse> {
     const info = await this.userinfo.fetch(auth.accessToken);
     // Userinfo muss zur selben Person gehören wie das Token (OpenID Connect Core 5.3.2).
     if (info.sub !== auth.userId) throw new UnauthorizedException();
 
-    const values = {
+    const givenName = info.given_name || null;
+    await this.accounts.syncUser({
+      userId: auth.userId,
       name: info.name,
-      givenName: info.given_name || null,
+      givenName,
       email: info.email,
-      // Nur nach einer abgeschlossenen Anmeldung, nicht bei jedem Aufruf (PLT-01).
-      ...(login ? { lastLoginAt: sql`now()` } : {}),
-    };
-    const [user] = await this.db
-      .insert(appUser)
-      .values({ id: auth.userId, ...values })
-      .onConflictDoUpdate({ target: appUser.id, set: { ...values, updatedAt: sql`now()` } })
-      .returning({ name: appUser.name, givenName: appUser.givenName, email: appUser.email });
-    if (!user) throw new Error('app_user wurde nicht gespeichert.');
-    const organization = await this.organizations.current(auth);
+      zitadelOrgId: info['urn:zitadel:iam:user:resourceowner:id'] ?? null,
+      login,
+    });
+    // Der Guard kannte nur den Stand vor dem Abgleich; die Betreiber-Ansicht bleibt beim Kunden.
+    const organization =
+      auth.supportOrganization ?? (await this.accounts.organizationOf(auth.userId));
 
     return {
-      name: user.name,
-      firstName: user.givenName || firstWord(user.name),
-      email: user.email,
+      name: info.name,
+      firstName: givenName || firstWord(info.name),
+      email: info.email,
       organization: organization && { id: organization.id, name: organization.name },
       supportView: auth.supportOrganization !== undefined,
       roles: [...auth.roles],
       permissions: {
-        viewOrganizationSettings: can(auth, 'organisation.einstellungen.sehen'),
-        // Lieferanten nur für Käufer mit Rolle; so fragt die Oberfläche die Liste gar nicht erst an.
-        viewSuppliers: organization?.typ === 'kaeufer' && can(auth, 'lieferanten.sehen'),
+        viewOrganizationSettings: organization !== null,
+        viewBuyerAreas: organization?.buyer ?? false,
+        // Lieferanten nur mit Käuferfunktionen und Rolle; so fragt die Oberfläche gar nicht erst an.
+        viewSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.sehen'),
         switchCustomer: can(auth, 'kunden.wechseln'),
       },
     };

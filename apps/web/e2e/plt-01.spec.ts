@@ -75,7 +75,7 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
   expect(params?.get('code_challenge_method')).toBe('S256');
   expect(params?.get('code_challenge')).toBeTruthy();
   expect(params?.get('scope')).toBe(
-    'openid profile email offline_access urn:zitadel:iam:org:projects:roles',
+    'openid profile email offline_access urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner',
   );
 
   // 2. Zitadel bestätigt die Anmeldung und leitet mit Code und State zurück.

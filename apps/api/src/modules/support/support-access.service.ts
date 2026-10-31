@@ -1,11 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { and, type Database, eq, schema } from '@reziproq/db';
-import { InjectDatabase } from '../../common/database.module.js';
-
-export interface SupportOrganization {
-  id: string;
-  name: string;
-}
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { type AccountOrganization, AccountStore } from '../../common/database.module.js';
 
 /**
  * Betreiber-Zugang (PLT-13): prüft den gewählten Kunden und protokolliert jeden Zugriff.
@@ -13,38 +7,23 @@ export interface SupportOrganization {
  */
 @Injectable()
 export class SupportAccessService {
-  constructor(@InjectDatabase() private readonly db: Database) {}
+  constructor(@Inject(AccountStore) private readonly accounts: AccountStore) {}
 
-  /** Wechselt für eine Anfrage in einen Käufer-Kunden; 404, wenn es ihn nicht gibt. */
+  /** Wechselt für eine Anfrage in einen Kunden mit Käuferfunktionen; 404, wenn es ihn nicht gibt. */
   async enter(
     userId: string,
     organizationId: string,
     action: string,
-  ): Promise<SupportOrganization> {
-    const { organization } = schema;
-    const [customer] = await this.db
-      .select({ id: organization.id, name: organization.name })
-      .from(organization)
-      .where(and(eq(organization.id, organizationId), eq(organization.typ, 'kaeufer')));
+  ): Promise<AccountOrganization> {
+    const customer = (await this.accounts.customers()).find((c) => c.id === organizationId);
     if (!customer) throw new NotFoundException('Diesen Kunden gibt es nicht.');
-    await this.record(userId, customer.id, action);
-    return customer;
+    await this.accounts.recordSupportAccess(userId, customer.id, action);
+    return { ...customer, buyer: true };
   }
 
-  async record(userId: string, organizationId: string | null, action: string): Promise<void> {
-    await this.db
-      .insert(schema.betreiberZugriff)
-      .values({ nutzerId: userId, organizationId, aktion: action });
-  }
-
-  /** Alle Käufer-Organisationen mit Name und Land, für die Auswahl „Kunde wechseln“. */
+  /** Alle Organisationen mit Käuferfunktionen, für die Auswahl „Kunde wechseln“. */
   async customers(userId: string, action: string) {
-    const { organization } = schema;
-    await this.record(userId, null, action);
-    return this.db
-      .select({ id: organization.id, name: organization.name, country: organization.land })
-      .from(organization)
-      .where(eq(organization.typ, 'kaeufer'))
-      .orderBy(organization.name);
+    await this.accounts.recordSupportAccess(userId, null, action);
+    return this.accounts.customers();
   }
 }

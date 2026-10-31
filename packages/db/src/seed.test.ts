@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { seed, seedBuyers } from './seed.js';
+import { seed } from './seed.js';
 import { createTempDatabase, migrateTo } from './testing/temp-database.js';
 
-// PLT-02: pnpm db:seed legt beide Käufer, 15 Lieferanten und die Beziehungen an.
+// PLT-02: pnpm db:seed legt Test-OEM, Zweit-OEM, Test-Lieferant, 15 Lieferanten und die Beziehungen an.
 describe('db:seed', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
 
@@ -22,40 +22,56 @@ describe('db:seed', () => {
   const counts = async () => {
     const result = await temp.db.execute<{
       kaeufer: number;
-      lieferanten: number;
+      organisationen: number;
       beziehungen: number;
       privat: number;
+      nutzer: number;
     }>(sql`
       select
-        (select count(*)::int from organization where typ = 'kaeufer') as kaeufer,
-        (select count(*)::int from organization where typ = 'lieferant') as lieferanten,
+        (select count(*)::int from organization_feature where feature = 'buyer') as kaeufer,
+        (select count(*)::int from organization) as organisationen,
         (select count(*)::int from beziehung) as beziehungen,
-        (select count(*)::int from beziehung_kaeufer) as privat
+        (select count(*)::int from beziehung_kaeufer) as privat,
+        (select count(*)::int from app_user where id like 'demo-%') as nutzer
     `);
     return result.rows[0];
   };
 
-  it('legt zwei Käufer, 15 Lieferanten und 18 Beziehungen an', async () => {
+  const expected = { kaeufer: 2, organisationen: 18, beziehungen: 18, privat: 18, nutzer: 6 };
+
+  it('PLT-02: legt Test-OEM, Zweit-OEM und Test-Lieferant mit je zwei Nutzern an', async () => {
     await seed(temp.db, { nodeEnv: 'development' });
-    expect(await counts()).toEqual({ kaeufer: 2, lieferanten: 15, beziehungen: 18, privat: 18 });
+    expect(await counts()).toEqual(expected);
+
+    const members = await temp.db.execute<{ name: string; nutzer: number; buyer: boolean }>(sql`
+      select o.name, count(u.id)::int as nutzer,
+        exists (select 1 from organization_feature f where f.organization_id = o.id and f.feature = 'buyer') as buyer
+      from organization o join app_user u on u.organization_id = o.id
+      group by o.id order by o.name
+    `);
+    expect(members.rows).toEqual([
+      { name: 'Test-Lieferant (Demo)', nutzer: 2, buyer: false },
+      { name: 'Test-OEM (Demo)', nutzer: 2, buyer: true },
+      { name: 'Zweit-OEM (Demo)', nutzer: 2, buyer: true },
+    ]);
   });
 
-  it('erzeugt beim zweiten Lauf keine Duplikate', async () => {
+  it('PLT-02: ein zweiter Lauf erzeugt keine Duplikate', async () => {
     await seed(temp.db, { nodeEnv: 'development' });
     await seed(temp.db, { nodeEnv: 'development' });
-    expect(await counts()).toEqual({ kaeufer: 2, lieferanten: 15, beziehungen: 18, privat: 18 });
+    expect(await counts()).toEqual(expected);
   });
 
-  it('ordnet alle vorhandenen Nutzer dem Beispiel-OEM zu', async () => {
-    const result = await temp.db.execute<{ organization_id: string }>(
-      sql`select organization_id from app_user`,
+  it('ordnet vorhandene Nutzer nicht mehr zu; das macht der Login über Zitadel', async () => {
+    const result = await temp.db.execute<{ organization_id: string | null }>(
+      sql`select organization_id from app_user where id = 'nutzer-1'`,
     );
-    expect(result.rows).toEqual([{ organization_id: seedBuyers.beispielOem.id }]);
+    expect(result.rows).toEqual([{ organization_id: null }]);
   });
 
-  it('kennzeichnet alle Lieferanten als Demo und speichert Spend in Cent', async () => {
+  it('kennzeichnet alle Organisationen als Demo und speichert Spend in Cent', async () => {
     const names = await temp.db.execute<{ name: string }>(
-      sql`select name from organization where typ = 'lieferant' and name not like '%(Demo)'`,
+      sql`select name from organization where name not like '%(Demo)'`,
     );
     expect(names.rows).toEqual([]);
     const spend = await temp.db.execute<{ cent: string }>(
@@ -64,7 +80,7 @@ describe('db:seed', () => {
     expect(spend.rows[0]?.cent).toMatch(/^\d+$/);
   });
 
-  it('bricht bei NODE_ENV=production ab, ohne etwas zu schreiben', async () => {
+  it('PLT-02: bricht bei NODE_ENV=production ab, ohne etwas zu schreiben', async () => {
     await temp.db.execute(sql`delete from beziehung_kaeufer`);
     await expect(seed(temp.db, { nodeEnv: 'production' })).rejects.toThrow(/production/);
     expect((await counts())?.privat).toBe(0);

@@ -101,9 +101,13 @@ export const en: Messages = {
     themeLight: 'Light',
     themeDark: 'Dark',
     organization: 'Organization',
-    organizationTitle: 'Nothing to set up yet',
-    organizationDescription:
-      'This is where you will manage your organization. Only admins see this section.',
+    organizationName: 'Name',
+    organizationCountry: 'Country',
+    members: 'Members',
+    memberName: 'Name',
+    memberEmail: 'Email',
+    organizationLoading: 'Loading organization …',
+    organizationFailed: 'The organization could not be loaded.',
     account: 'Account',
     roles: 'Your roles in Reziproq',
     rolesDescription: 'As they arrive in the token from Zitadel.',
@@ -170,7 +174,8 @@ export const en: Messages = {
   },
 
   organization: {
-    missing: 'You are not assigned to an organization yet. Contact your admin.',
+    missing: 'Your organization has not been activated yet. Contact your account manager.',
+    supplierAccessSoon: 'Supplier access is coming soon.',
   },
 
   notFound: {

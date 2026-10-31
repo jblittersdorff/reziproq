@@ -1,15 +1,12 @@
 import type { Role } from '@reziproq/shared';
 
 /** Alles, was eine Person in Reziproq tun oder sehen kann und das nicht jede Rolle darf. */
-export type Action =
-  | 'organisation.einstellungen.sehen'
-  | 'lieferanten.sehen'
-  | 'prompt.nutzen'
-  | 'kunden.wechseln';
+export type Action = 'lieferanten.sehen' | 'prompt.nutzen' | 'kunden.wechseln';
 
 // Welche Rollen eine Aktion ausführen dürfen. Neue Aktionen kommen mit den Funktionen dazu.
+// Name und Mitglieder der eigenen Organisation sieht jedes Mitglied (PLT-02); das hängt an der
+// Zugehörigkeit, nicht an einer Rolle, und die Datenbank begrenzt es per Row-Level Security.
 const allowedRoles: Record<Action, readonly Role[]> = {
-  'organisation.einstellungen.sehen': ['admin'],
   // Betreiber sehen in einem Kunden, was dessen Käufer-Rollen sehen (PLT-13).
   'lieferanten.sehen': ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'],
   // Die KI arbeitet mit den Rechten der fragenden Person; die Werkzeuge prüfen erneut (PLT-12).

@@ -23,3 +23,21 @@ export function databaseUrl(): string {
   }
   return result.data.DATABASE_URL;
 }
+
+const apiEnvSchema = z.object({
+  API_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+});
+
+/**
+ * Adresse, mit der sich die API verbindet: als Rolle reziproq_api, die nicht Eigentümer der
+ * Tabellen ist (PLT-02). DATABASE_URL bleibt für Migrationen und Skripte.
+ */
+export function apiDatabaseUrl(): string {
+  const result = apiEnvSchema.safeParse(process.env);
+  if (!result.success) {
+    throw new Error(
+      'API_DATABASE_URL fehlt oder ist ungültig. Trage sie in die .env im Hauptordner ein (Vorlage: .env.example) und führe pnpm db:roles aus.',
+    );
+  }
+  return result.data.API_DATABASE_URL;
+}

@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { type PromptEvent, promptEventSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { DATABASE } from '../../common/database.module.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { PromptLog, type PromptLogEntry } from './prompt-log.js';
 import { RATE_LIMIT } from './rate-limiter.js';
@@ -61,13 +60,18 @@ describe('POST /api/prompt', () => {
           .overrideProvider(PromptLog)
           .useValue({ write: (entry: PromptLogEntry) => log.push(entry) }),
     });
-    db = testApp.app.get(DATABASE);
+    db = testApp.adminDb;
     const { organization, beziehung, beziehungKaeufer, appUser } = schema;
     await db.insert(organization).values([
-      { id: ids.oemA, name: `Prompt-OEM A ${run}`, typ: 'kaeufer' },
-      { id: ids.oemB, name: `Prompt-OEM B ${run}`, typ: 'kaeufer' },
-      { id: ids.shared, name: names.shared, typ: 'lieferant', land: 'DE' },
-      { id: ids.onlyA, name: names.onlyA, typ: 'lieferant', land: 'PL' },
+      { id: ids.oemA, name: `Prompt-OEM A ${run}` },
+      { id: ids.oemB, name: `Prompt-OEM B ${run}` },
+      { id: ids.shared, name: names.shared, country: 'DE' },
+      { id: ids.onlyA, name: names.onlyA, country: 'PL' },
+    ]);
+    // Käuferfunktionen über das Feature buyer (PLT-02).
+    await db.insert(schema.organizationFeature).values([
+      { organizationId: ids.oemA, feature: 'buyer' as const },
+      { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
     await db.insert(beziehung).values([
       { id: ids.relAShared, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.shared },
@@ -212,14 +216,31 @@ describe('POST /api/prompt', () => {
 
 describe('POST /api/prompt mit Ratenbegrenzung', () => {
   let testApp: Awaited<ReturnType<typeof startTestApp>>;
+  const orgId = randomUUID();
+  const limitUsers = [`limit-1-${orgId}`, `limit-2-${orgId}`];
 
   beforeAll(async () => {
     testApp = await startTestApp({
       configure: (builder) => builder.overrideProvider(RATE_LIMIT).useValue({ perMinute: 2 }),
     });
+    // Ohne Organisation gäbe es 403 statt einer Antwort (PLT-02).
+    const db = testApp.adminDb;
+    await db.insert(schema.organization).values({ id: orgId, name: `Limit-OEM ${orgId}` });
+    await db.insert(schema.organizationFeature).values({ organizationId: orgId, feature: 'buyer' });
+    await db.insert(schema.appUser).values(
+      limitUsers.map((id) => ({
+        id,
+        name: 'Limit',
+        email: 'limit@example.com',
+        organizationId: orgId,
+      })),
+    );
   });
 
   afterAll(async () => {
+    const db = testApp.adminDb;
+    await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${limitUsers}`);
+    await db.delete(schema.organization).where(sql`${schema.organization.id} = ${orgId}`);
     await testApp.close();
   });
 
@@ -231,15 +252,16 @@ describe('POST /api/prompt mit Ratenbegrenzung', () => {
         { messages: [{ role: 'user', content: 'Hallo' }] },
         await testApp.signToken({ subject, claims }),
       );
-    expect((await ask('limit-1')).status).toBe(200);
-    expect((await ask('limit-1')).status).toBe(200);
-    const third = await ask('limit-1');
+    const [first = '', second = ''] = limitUsers;
+    expect((await ask(first)).status).toBe(200);
+    expect((await ask(first)).status).toBe(200);
+    const third = await ask(first);
     expect(third.status).toBe(429);
     expect(await third.json()).toMatchObject({
       code: 'zu_viele_anfragen',
       message: 'Du hast gerade sehr viele Fragen gestellt. Warte eine Minute.',
     });
     // Andere Nutzer sind nicht betroffen.
-    expect((await ask('limit-2')).status).toBe(200);
+    expect((await ask(second)).status).toBe(200);
   });
 });
