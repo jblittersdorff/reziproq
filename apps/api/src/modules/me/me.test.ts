@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { generateKeyPair } from 'jose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { DATABASE } from '../../common/database.module.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // Dieser Test braucht die Datenbank mit angewendeten Migrationen, aber keine Verbindung zu Zitadel:
@@ -15,6 +14,7 @@ describe('GET /api/me', () => {
   const ada = { sub: userId, name: 'Ada Lovelace', given_name: 'Ada', email: 'ada@example.com' };
   const noPermissions = {
     viewOrganizationSettings: false,
+    viewBuyerAreas: false,
     viewSuppliers: false,
     switchCustomer: false,
   };
@@ -24,7 +24,7 @@ describe('GET /api/me', () => {
 
   beforeAll(async () => {
     testApp = await startTestApp();
-    db = testApp.app.get(DATABASE);
+    db = testApp.adminDb;
   });
 
   beforeEach(async () => {
@@ -77,52 +77,87 @@ describe('GET /api/me', () => {
     expect(await storedUser()).toMatchObject({ givenName: null });
   });
 
-  it.each([
-    ['admin', true],
-    ['nutzer', false],
-    ['leser', false],
-    ['controlling', false],
-  ] as const)(
-    'meldet für die Rolle %s die Organisationseinstellungen: %s',
-    async (role, allowed) => {
+  it.each(['admin', 'nutzer', 'leser', 'controlling'] as const)(
+    'PLT-02: Ohne Organisation gibt auch die Rolle %s keinen Abschnitt Organisation frei',
+    async (role) => {
       const token = await testApp.signToken({
         subject: userId,
         claims: { 'urn:zitadel:iam:org:project:test-project:roles': { [role]: { '1': 'test' } } },
       });
       const res = await testApp.get('/api/me', token);
       expect(await res.json()).toMatchObject({
-        permissions: { viewOrganizationSettings: allowed },
+        organization: null,
+        permissions: { viewOrganizationSettings: false, viewBuyerAreas: false },
       });
     },
   );
 
-  it('liefert die Organisation und gibt Käufern mit Rolle die Lieferanten frei', async () => {
-    const orgId = randomUUID();
-    await db
-      .insert(schema.organization)
-      .values({ id: orgId, name: `Me-Test-OEM ${userId}`, typ: 'kaeufer' });
-    try {
-      const token = await testApp.signToken({
+  describe('PLT-02: Zuordnung zur Organisation über Zitadel', () => {
+    const zitadelOrgId = `zitadel-${userId}`;
+    const buyerOrg = randomUUID();
+    const supplierOrg = randomUUID();
+    const withZitadelOrg = (id: string | undefined) =>
+      testApp.zitadel.replyUserinfo(() => ({
+        status: 200,
+        body: { ...ada, 'urn:zitadel:iam:user:resourceowner:id': id },
+      }));
+
+    beforeAll(async () => {
+      await db.insert(schema.organization).values([
+        { id: buyerOrg, name: `Me-Test-OEM ${userId}`, zitadelOrgId },
+        { id: supplierOrg, name: `Me-Test-Lieferant ${userId}`, zitadelOrgId: `${zitadelOrgId}-l` },
+      ]);
+      await db
+        .insert(schema.organizationFeature)
+        .values({ organizationId: buyerOrg, feature: 'buyer' });
+    });
+
+    afterAll(async () => {
+      await db.delete(schema.appUser).where(sql`${schema.appUser.id} = ${userId}`);
+      await db
+        .delete(schema.organization)
+        .where(sql`${schema.organization.id} in ${[buyerOrg, supplierOrg]}`);
+    });
+
+    const leser = () =>
+      testApp.signToken({
         subject: userId,
         claims: { 'urn:zitadel:iam:org:project:test-project:roles': { leser: { '1': 'test' } } },
       });
-      await testApp.get('/api/me', token);
-      await db
-        .update(schema.appUser)
-        .set({ organizationId: orgId })
-        .where(sql`${schema.appUser.id} = ${userId}`);
-      const res = await testApp.get('/api/me', token);
+
+    it('Beim Login wird organization_id aus der Zitadel-Organisation gesetzt', async () => {
+      withZitadelOrg(zitadelOrgId);
+      const res = await testApp.post('/api/me/anmeldung', {}, await leser());
       expect(await res.json()).toMatchObject({
-        organization: { id: orgId, name: `Me-Test-OEM ${userId}` },
-        permissions: { viewOrganizationSettings: false, viewSuppliers: true },
+        organization: { id: buyerOrg, name: `Me-Test-OEM ${userId}` },
+        permissions: { viewOrganizationSettings: true, viewBuyerAreas: true, viewSuppliers: true },
       });
-    } finally {
-      await db
-        .update(schema.appUser)
-        .set({ organizationId: null })
-        .where(sql`${schema.appUser.id} = ${userId}`);
-      await db.delete(schema.organization).where(sql`${schema.organization.id} = ${orgId}`);
-    }
+      expect((await storedUser())?.organizationId).toBe(buyerOrg);
+    });
+
+    it('Bei unbekannter Organisation bleibt das Feld leer', async () => {
+      withZitadelOrg('zitadel-unbekannt');
+      const res = await testApp.post('/api/me/anmeldung', {}, await leser());
+      expect(await res.json()).toMatchObject({ organization: null, permissions: noPermissions });
+      expect((await storedUser())?.organizationId).toBeNull();
+
+      withZitadelOrg(undefined);
+      await testApp.get('/api/me', await leser());
+      expect((await storedUser())?.organizationId).toBeNull();
+    });
+
+    it('Ohne Feature buyer gibt es keine Käuferbereiche, aber die eigene Organisation', async () => {
+      withZitadelOrg(`${zitadelOrgId}-l`);
+      const res = await testApp.get('/api/me', await leser());
+      expect(await res.json()).toMatchObject({
+        organization: { id: supplierOrg },
+        permissions: {
+          viewOrganizationSettings: true,
+          viewBuyerAreas: false,
+          viewSuppliers: false,
+        },
+      });
+    });
   });
 
   it('gibt ohne Rollen im Token keine Organisationseinstellungen frei', async () => {

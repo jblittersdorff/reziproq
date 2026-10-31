@@ -3,13 +3,11 @@ import { can } from './can.js';
 import { rolesFromToken } from './roles.js';
 
 describe('can', () => {
-  it('erlaubt nur Admins, die Organisationseinstellungen zu sehen', () => {
-    expect(can({ roles: ['admin'] }, 'organisation.einstellungen.sehen')).toBe(true);
-    expect(can({ roles: ['leser', 'admin'] }, 'organisation.einstellungen.sehen')).toBe(true);
-    for (const role of ['nutzer', 'leser', 'controlling'] as const) {
-      expect(can({ roles: [role] }, 'organisation.einstellungen.sehen')).toBe(false);
+  it('erlaubt nur Betreibern, den Kunden zu wechseln', () => {
+    expect(can({ roles: ['betreiber'] }, 'kunden.wechseln')).toBe(true);
+    for (const role of ['admin', 'nutzer', 'leser', 'controlling'] as const) {
+      expect(can({ roles: [role] }, 'kunden.wechseln')).toBe(false);
     }
-    expect(can({ roles: [] }, 'organisation.einstellungen.sehen')).toBe(false);
   });
 });
 
@@ -33,7 +31,6 @@ describe('can kunden.wechseln', () => {
   it('lässt Betreiber in einem Kunden Lieferanten und Prompt-Fenster nutzen', () => {
     expect(can({ roles: ['betreiber'] }, 'lieferanten.sehen')).toBe(true);
     expect(can({ roles: ['betreiber'] }, 'prompt.nutzen')).toBe(true);
-    expect(can({ roles: ['betreiber'] }, 'organisation.einstellungen.sehen')).toBe(false);
   });
 });
 

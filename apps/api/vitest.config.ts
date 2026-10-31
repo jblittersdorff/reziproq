@@ -15,6 +15,12 @@ export default defineProject({
       // Die CI setzt DATABASE_URL selbst; lokal die Datenbank aus docker-compose.yml.
       DATABASE_URL:
         process.env.DATABASE_URL ?? 'postgres://reziproq:reziproq_local@localhost:5433/reziproq',
+      // Die API verbindet sich wie im Betrieb als reziproq_api (PLT-02); global-setup.ts setzt
+      // vorher Login und Passwort dieser Rolle. Nur ein Testwert, kein echtes Geheimnis.
+      API_DATABASE_URL:
+        process.env.API_DATABASE_URL ??
+        'postgres://reziproq_api:reziproq_api_local@localhost:5433/reziproq',
     },
+    globalSetup: ['./src/testing/global-setup.ts'],
   },
 });

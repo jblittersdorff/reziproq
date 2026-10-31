@@ -8,11 +8,11 @@ Als Einkäufer sehe ich nach dem Login auf einen Blick alle Bereiche von Rezipro
 
 ## Wer darf was
 
-| Rolle | Darf |
-|---|---|
-| Käufer: alle Rollen | Startseite, Seitenleiste und alle Bereichsseiten sehen. Inhalte je Rolle kommen mit den einzelnen Funktionen. |
-| Käufer: Admin (Rolle `admin` in Zitadel) | In den Einstellungen zusätzlich den Abschnitt „Organisation“ sehen (Inhalt kommt mit PLT-02 und PLT-05). |
-| Lieferant | Nicht Teil. Lieferanten bekommen ab Release 0.2 eine eigene, kleinere Navigation. |
+| Rolle                       | Darf                                                                                                                                     |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Käufer: alle Rollen         | Startseite, Seitenleiste und alle Bereichsseiten sehen. Inhalte je Rolle kommen mit den einzelnen Funktionen.                            |
+| Mitglied einer Organisation | In den Einstellungen zusätzlich den Abschnitt „Organisation“ sehen: Name, Land und Mitglieder (seit PLT-02). Verwalten kommt mit PLT-05. |
+| Lieferant                   | Nicht Teil. Lieferanten bekommen ab Release 0.2 eine eigene, kleinere Navigation.                                                        |
 
 ## Daten
 
@@ -27,19 +27,19 @@ Als Einkäufer sehe ich nach dem Login auf einen Blick alle Bereiche von Rezipro
 3. Darunter steht seit PLT-12 das Feld, das das Prompt-Fenster öffnet. Ein totes Eingabefeld gibt es nie.
 4. Darunter stehen sechs große Kacheln. Jede ist als Ganzes anklickbar:
 
-| Kachel | Satz auf der Kachel | Route | Kommt mit |
-|---|---|---|---|
-| Lieferanten | Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend. | `/lieferanten` | 0.1 |
-| Beziehungen | Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten. | `/beziehungen` | 0.2 |
-| Beziehungspuls | Wie beide Seiten die Beziehung sehen – heute und gewünscht. | `/puls` | 0.2 |
-| Joint Business Plans | Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten. | `/jbp` | 0.3 |
-| QBRs und Maßnahmen | Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern. | `/qbr` | 0.3 |
-| P&L-Impact | Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben. | `/pnl` | 0.3 |
+| Kachel               | Satz auf der Kachel                                                                                     | Route          | Kommt mit |
+| -------------------- | ------------------------------------------------------------------------------------------------------- | -------------- | --------- |
+| Lieferanten          | Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend. | `/lieferanten` | 0.1       |
+| Beziehungen          | Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten.                    | `/beziehungen` | 0.2       |
+| Beziehungspuls       | Wie beide Seiten die Beziehung sehen – heute und gewünscht.                                             | `/puls`        | 0.2       |
+| Joint Business Plans | Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten.                                   | `/jbp`         | 0.3       |
+| QBRs und Maßnahmen   | Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern.                                   | `/qbr`         | 0.3       |
+| P&L-Impact           | Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.                        | `/pnl`         | 0.3       |
 
 5. Unten auf jeder Kachel steht eine Statuszeile. Solange die Funktion fehlt, steht dort „Kommt mit Release 0.x“. Sobald es Daten gibt, steht dort eine Kennzahl, z. B. die Anzahl der Lieferanten.
 6. Links ist eine Seitenleiste wie in macOS-Apps: Übersicht, die sechs Bereiche, darunter abgesetzt Einstellungen. Ganz unten ein Nutzer-Menü mit Name, E-Mail, Organisation und Abmelden.
 7. Jede Bereichsseite zeigt Titel, den Satz aus der Kachel und einen leeren Zustand: ein großes Symbol, ein Satz, was hier entsteht, und mit welchem Release.
-8. In den **Einstellungen** (`/einstellungen`) kann der Nutzer das Erscheinungsbild umschalten. Der Abschnitt „Organisation“ ist nur für Admins sichtbar.
+8. In den **Einstellungen** (`/einstellungen`) kann der Nutzer das Erscheinungsbild umschalten. Den Abschnitt „Organisation“ sieht jedes Mitglied einer Organisation (seit PLT-02).
 9. Bei einer unbekannten Adresse erscheint eine freundliche Seite „Diese Seite gibt es nicht“ mit einem Knopf zurück zur Übersicht.
 
 ### Gestaltung
@@ -62,7 +62,7 @@ Je Kriterium ein Test.
 - [ ] Bei 390 px Breite ist die Seitenleiste eingeklappt, die Kacheln stehen einspaltig, und es gibt keine waagerechte Scrollleiste (Playwright).
 - [ ] Alle Knöpfe, Links und Kacheln sind mindestens 44 × 44 px groß.
 - [ ] Hell- und Dunkelmodus folgen dem System und lassen sich in den Einstellungen umschalten.
-- [ ] Der Abschnitt „Organisation“ ist nur für Admins sichtbar. Seit PLT-13 entscheidet `can()` in der API anhand der Rolle `admin` aus Zitadel.
+- [ ] Den Abschnitt „Organisation“ sieht jedes Mitglied einer Organisation, ohne Organisation niemand. Die API entscheidet darüber über `/me` (seit PLT-02).
 - [ ] Alles ist per Tastatur bedienbar, mit logischer Tab-Reihenfolge und sichtbarem Fokus.
 - [ ] Unbekannte Adressen zeigen die Nicht-gefunden-Seite.
 - [ ] Alle Texte kommen aus der deutschen Übersetzungsdatei. Ein Test schlägt fehl, wenn ein Schlüssel fehlt.

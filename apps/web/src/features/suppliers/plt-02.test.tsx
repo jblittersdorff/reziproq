@@ -169,8 +169,29 @@ describe('Kachel Lieferanten auf der Übersicht', () => {
   });
 });
 
-describe('Nutzer ohne Organisation', () => {
-  const missing = 'Du bist noch keiner Organisation zugeordnet. Wende dich an deinen Admin.';
+// Seit PLT-02 (neuer Zuschnitt): ohne Organisation nur der Hinweis, ohne Feature buyer der Hinweis
+// zum Lieferantenzugang. Die Einstellungen bleiben erreichbar.
+const areaLinks = ['Übersicht', 'Lieferanten', 'Beziehungen', 'Beziehungspuls'];
+const visibleAreaLinks = () => {
+  const navigation = screen.getByRole('navigation', { name: 'Hauptnavigation' });
+  return areaLinks.filter((name) => within(navigation).queryByRole('link', { name }) !== null);
+};
+
+describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
+  const missing =
+    'Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.';
+  const withoutOrganization = () => {
+    api.me = {
+      ...anna,
+      organization: null,
+      permissions: {
+        viewOrganizationSettings: false,
+        viewBuyerAreas: false,
+        viewSuppliers: false,
+        switchCustomer: false,
+      },
+    };
+  };
 
   it.each([
     '/uebersicht',
@@ -180,23 +201,58 @@ describe('Nutzer ohne Organisation', () => {
     '/jbp',
     '/qbr',
     '/pnl',
-    '/einstellungen',
     '/gibt-es-nicht',
-  ])('sieht auf %s den Hinweis statt eines Fehlers', async (path) => {
-    api.me = {
-      ...anna,
-      organization: null,
-      permissions: { ...anna.permissions, viewSuppliers: false },
-    };
+  ])('sieht auf %s nur den Hinweis, keine Bereiche', async (path) => {
+    withoutOrganization();
     renderAt(path);
     expect(await screen.findByText(missing)).toBeDefined();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+    expect(visibleAreaLinks()).toEqual([]);
     expect(suppliersRequested()).toBe(false);
+  });
+
+  it('erreicht die Einstellungen weiterhin, ohne Abschnitt Organisation', async () => {
+    withoutOrganization();
+    renderAt('/einstellungen');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Einstellungen' })).toBeDefined();
+    expect(screen.queryByText(missing)).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Organisation' })).toBeNull();
   });
 
   it('sieht keinen Hinweis, wenn eine Organisation zugeordnet ist', async () => {
     renderAt('/uebersicht');
     await screen.findByText(/^3 Lieferanten/);
     expect(screen.queryByText(missing)).toBeNull();
+  });
+});
+
+describe('Ein Nutzer ohne Feature buyer sieht die Käuferbereiche nicht', () => {
+  const soon = 'Der Lieferantenzugang kommt bald.';
+
+  it.each(['/uebersicht', '/lieferanten', '/pnl'])(
+    'sieht auf %s den Hinweis zum Lieferantenzugang',
+    async (path) => {
+      api.me = {
+        ...anna,
+        organization: { id: 'org-l', name: 'Test-Lieferant (Demo)' },
+        permissions: { ...anna.permissions, viewBuyerAreas: false, viewSuppliers: false },
+      };
+      renderAt(path);
+      expect(await screen.findByText(soon)).toBeDefined();
+      expect(visibleAreaLinks()).toEqual([]);
+      expect(suppliersRequested()).toBe(false);
+    },
+  );
+
+  it('sieht die eigene Organisation in den Einstellungen', async () => {
+    api.me = {
+      ...anna,
+      organization: { id: 'org-l', name: 'Test-Lieferant (Demo)' },
+      permissions: { ...anna.permissions, viewBuyerAreas: false, viewSuppliers: false },
+    };
+    api.organization = { name: 'Test-Lieferant (Demo)', country: 'DE', members: [] };
+    renderAt('/einstellungen');
+    expect(await screen.findByText('Test-Lieferant (Demo)')).toBeDefined();
   });
 });
 

@@ -6,9 +6,17 @@ describe('organization', () => {
   const config = getTableConfig(organization);
   const column = (name: string) => config.columns.find((candidate) => candidate.name === name);
 
-  it('hat die Spalten id, name, typ, land und created_at', () => {
+  it('hat die Spalten aus PLT-02, ohne festen Typ', () => {
     expect(config.name).toBe('organization');
-    expect(config.columns.map((c) => c.name)).toEqual(['id', 'name', 'typ', 'land', 'created_at']);
+    expect(config.columns.map((c) => c.name)).toEqual([
+      'id',
+      'name',
+      'country',
+      'vat_id',
+      'duns',
+      'zitadel_org_id',
+      'created_at',
+    ]);
   });
 
   it('erzeugt id und created_at in der Datenbank', () => {
@@ -20,9 +28,11 @@ describe('organization', () => {
     expect(column('created_at')?.hasDefault).toBe(true);
   });
 
-  it('unterscheidet Käufer und Lieferant als Pflichtangabe; das Land ist optional', () => {
-    expect(column('typ')?.notNull).toBe(true);
-    expect(column('typ')?.enumValues).toEqual(['kaeufer', 'lieferant']);
-    expect(column('land')?.notNull).toBe(false);
+  it('hat Land, USt-IdNr., DUNS und Zitadel-Organisation als optionale, eindeutige Angaben', () => {
+    expect(column('country')?.notNull).toBe(false);
+    for (const name of ['vat_id', 'duns', 'zitadel_org_id']) {
+      expect(column(name)?.notNull, name).toBe(false);
+      expect(column(name)?.isUnique, name).toBe(true);
+    }
   });
 });

@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { suppliersResponseSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DATABASE } from '../../common/database.module.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // Tests zu PLT-02 über die API. Sie legen eigene Organisationen mit zufälligen IDs an,
@@ -44,15 +43,20 @@ describe('GET /api/suppliers', () => {
 
   beforeAll(async () => {
     testApp = await startTestApp();
-    db = testApp.app.get(DATABASE);
+    db = testApp.adminDb;
     const { organization, beziehung, beziehungKaeufer, appUser } = schema;
 
     await db.insert(organization).values([
-      { id: ids.oemA, name: `OEM A ${run}`, typ: 'kaeufer', land: 'DE' },
-      { id: ids.oemB, name: `OEM B ${run}`, typ: 'kaeufer', land: 'DE' },
-      { id: ids.shared, name: `Gemeinsam ${run}`, typ: 'lieferant', land: 'PL' },
-      { id: ids.onlyA, name: `Nur A ${run}`, typ: 'lieferant', land: null },
-      { id: ids.supplierOrg, name: `Lieferant-Nutzer ${run}`, typ: 'lieferant', land: 'CZ' },
+      { id: ids.oemA, name: `OEM A ${run}`, country: 'DE' },
+      { id: ids.oemB, name: `OEM B ${run}`, country: 'DE' },
+      { id: ids.shared, name: `Gemeinsam ${run}`, country: 'PL' },
+      { id: ids.onlyA, name: `Nur A ${run}`, country: null },
+      { id: ids.supplierOrg, name: `Lieferant-Nutzer ${run}`, country: 'CZ' },
+    ]);
+    // Käuferfunktionen über das Feature buyer (PLT-02).
+    await db.insert(schema.organizationFeature).values([
+      { organizationId: ids.oemA, feature: 'buyer' as const },
+      { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
     await db.insert(beziehung).values([
       { id: ids.relAShared, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.shared },
@@ -196,13 +200,17 @@ describe('GET /api/suppliers mit Spend aus verschiedenen Jahren', () => {
 
   beforeAll(async () => {
     testApp = await startTestApp();
-    db = testApp.app.get(DATABASE);
+    db = testApp.adminDb;
     const { organization, beziehung, beziehungKaeufer, appUser } = schema;
     await db.insert(organization).values([
-      { id: ids.oem, name: `Jahre-OEM ${user}`, typ: 'kaeufer' },
-      { id: ids.alt, name: `Alt ${user}`, typ: 'lieferant' },
-      { id: ids.neu, name: `Neu ${user}`, typ: 'lieferant' },
+      { id: ids.oem, name: `Jahre-OEM ${user}` },
+      { id: ids.alt, name: `Alt ${user}` },
+      { id: ids.neu, name: `Neu ${user}` },
     ]);
+    // Käuferfunktionen über das Feature buyer (PLT-02).
+    await db
+      .insert(schema.organizationFeature)
+      .values([{ organizationId: ids.oem, feature: 'buyer' as const }]);
     await db.insert(beziehung).values([
       { id: ids.relAlt, kaeuferOrgId: ids.oem, lieferantOrgId: ids.alt },
       { id: ids.relNeu, kaeuferOrgId: ids.oem, lieferantOrgId: ids.neu },

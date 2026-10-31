@@ -23,7 +23,13 @@ export const meResponseSchema = z.object({
    */
   roles: z.array(z.enum(roles)).default([]),
   permissions: z.object({
+    /** Abschnitt „Organisation“ in den Einstellungen: jedes Mitglied einer Organisation (PLT-02). */
     viewOrganizationSettings: z.boolean(),
+    /**
+     * Käuferbereiche (Lieferanten, Beziehungen, Puls, JBP, QBR, P&L): nur mit Feature buyer der
+     * Organisation (PLT-02). Fehlt es, sieht die Person den Hinweis zum Lieferantenzugang.
+     */
+    viewBuyerAreas: z.boolean().default(true),
     viewSuppliers: z.boolean(),
     switchCustomer: z.boolean(),
   }),

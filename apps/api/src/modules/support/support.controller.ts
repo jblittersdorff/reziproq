@@ -4,13 +4,15 @@ import type { Request } from 'express';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { WithoutOrganization } from '../auth/without-organization.decorator.js';
 import { SupportAccessService } from './support-access.service.js';
 
 @Controller('betreiber')
 export class SupportController {
   constructor(@Inject(SupportAccessService) private readonly support: SupportAccessService) {}
 
-  /** Kunden, in die ein Betreiber wechseln kann (PLT-13). */
+  /** Kunden, in die ein Betreiber wechseln kann (PLT-13). Betreiber haben oft keine eigene. */
+  @WithoutOrganization()
   @Get('kunden')
   async customers(
     @CurrentUser() auth: AuthContext,

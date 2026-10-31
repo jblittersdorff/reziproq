@@ -104,9 +104,13 @@ export const de = {
     themeLight: 'Hell',
     themeDark: 'Dunkel',
     organization: 'Organisation',
-    organizationTitle: 'Noch nichts einzustellen',
-    organizationDescription:
-      'Hier verwaltest du später deine Organisation. Nur Admins sehen diesen Abschnitt.',
+    organizationName: 'Name',
+    organizationCountry: 'Land',
+    members: 'Mitglieder',
+    memberName: 'Name',
+    memberEmail: 'E-Mail',
+    organizationLoading: 'Organisation wird geladen …',
+    organizationFailed: 'Die Organisation konnte nicht geladen werden.',
     account: 'Konto',
     roles: 'Deine Rollen in Reziproq',
     rolesDescription: 'So, wie sie im Token von Zitadel ankommen.',
@@ -178,7 +182,10 @@ export const de = {
   },
 
   organization: {
-    missing: 'Du bist noch keiner Organisation zugeordnet. Wende dich an deinen Admin.',
+    missing:
+      'Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.',
+    // PLT-02: Organisation ohne Feature buyer; die Lieferantenansicht kommt mit Release 0.2.
+    supplierAccessSoon: 'Der Lieferantenzugang kommt bald.',
   },
 
   notFound: {

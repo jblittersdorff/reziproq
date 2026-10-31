@@ -7,7 +7,7 @@ try {
   const result = await seed(db, { nodeEnv: process.env.NODE_ENV });
   console.log(
     `Beispieldaten angelegt: ${result.organizations} Organisationen, ` +
-      `${result.relationships} Beziehungen, ${result.usersAssigned} Nutzer dem Beispiel-OEM zugeordnet.`,
+      `${result.relationships} Beziehungen, ${result.users} Nutzer.`,
   );
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);

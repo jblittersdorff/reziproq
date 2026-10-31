@@ -1,38 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { type Database, eq, schema } from '@reziproq/db';
-import { InjectDatabase } from '../../common/database.module.js';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { asc, eq, schema } from '@reziproq/db';
+import type { OrganizationResponse } from '@reziproq/shared';
+import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 
-export interface CurrentOrganization {
-  id: string;
-  name: string;
-  typ: 'kaeufer' | 'lieferant';
-}
-
-/**
- * Zu welcher Organisation eine Person gehört. Diese Abfrage läuft vor der Mandanten-Session,
- * weil sie erst bestimmt, für welche Organisation die Session gilt.
- */
 @Injectable()
 export class OrganizationService {
-  constructor(@InjectDatabase() private readonly db: Database) {}
+  constructor(@Inject(TenantDatabase) private readonly tenant: TenantDatabase) {}
 
   /**
-   * Die Organisation, für die eine Anfrage gilt: in der Betreiber-Ansicht der gewählte Kunde
-   * (PLT-13), sonst die eigene Organisation der Person.
+   * Die Organisation, für die eine Anfrage gilt. Der Guard stellt sie vor der Mandanten-Session
+   * fest: in der Betreiber-Ansicht der gewählte Kunde (PLT-13), sonst die eigene (PLT-02).
    */
-  async current(auth: AuthContext): Promise<CurrentOrganization | null> {
-    if (auth.supportOrganization) return { ...auth.supportOrganization, typ: 'kaeufer' };
-    return this.forUser(auth.userId);
+  current(auth: AuthContext): AccountOrganization | null {
+    return auth.organization;
   }
 
-  async forUser(userId: string): Promise<CurrentOrganization | null> {
-    const { appUser, organization } = schema;
-    const [row] = await this.db
-      .select({ id: organization.id, name: organization.name, typ: organization.typ })
-      .from(appUser)
-      .innerJoin(organization, eq(organization.id, appUser.organizationId))
-      .where(eq(appUser.id, userId));
-    return row ?? null;
+  /**
+   * Name, Land und Mitglieder. Welche Mitglieder sichtbar sind, entscheidet allein Row-Level
+   * Security auf app_user: die Abfrage selbst filtert nicht nach Organisation.
+   */
+  async withMembers(auth: AuthContext): Promise<OrganizationResponse> {
+    const organization = this.current(auth);
+    if (!organization) {
+      throw new ForbiddenException({ statusCode: 403, code: 'keine_organisation' });
+    }
+    const members = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      (tx) =>
+        tx
+          .select({ name: schema.appUser.name, email: schema.appUser.email })
+          .from(schema.appUser)
+          .where(eq(schema.appUser.organizationId, organization.id))
+          .orderBy(asc(schema.appUser.name)),
+    );
+    return { name: organization.name, country: organization.country, members };
   }
 }

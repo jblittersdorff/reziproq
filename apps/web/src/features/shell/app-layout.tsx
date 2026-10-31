@@ -1,6 +1,6 @@
-import { Outlet } from '@tanstack/react-router';
+import { Outlet, useRouterState } from '@tanstack/react-router';
 import { MenuIcon, XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { RequireLogin } from '@/features/auth/require-login';
@@ -73,22 +73,44 @@ function Shell() {
           className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
         >
           <SupportBanner />
-          <MissingOrganizationNotice />
-          <Outlet />
+          <ContentGate />
         </main>
       </div>
     </div>
   );
 }
 
-/** Hinweis auf allen Seiten, solange die Person keiner Organisation zugeordnet ist (PLT-02). */
-function MissingOrganizationNotice() {
+/**
+ * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur
+ * der Hinweis, ohne Feature buyer der Hinweis zum Lieferantenzugang. Die Einstellungen bleiben
+ * immer erreichbar. Was die Person sehen darf, entscheidet die API über /me.
+ */
+function ContentGate() {
   const t = useT();
   const me = useMe();
-  if (!me.data || me.data.organization) return null;
+  const onSettings = useRouterState({
+    select: (state) => state.location.pathname === '/einstellungen',
+  });
+
+  // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
+  if (!me.data || onSettings) return <Outlet />;
+
+  if (!me.data.organization) {
+    return (
+      <Notice>
+        {me.data.permissions.switchCustomer ? t.support.chooseCustomer : t.organization.missing}
+      </Notice>
+    );
+  }
+  if (!me.data.permissions.viewBuyerAreas)
+    return <Notice>{t.organization.supplierAccessSoon}</Notice>;
+  return <Outlet />;
+}
+
+function Notice({ children }: { children: ReactNode }) {
   return (
     <p role="status" className="rounded-lg bg-warning-soft px-4 py-3 text-warning-soft-foreground">
-      {me.data.permissions.switchCustomer ? t.support.chooseCustomer : t.organization.missing}
+      {children}
     </p>
   );
 }

@@ -4,20 +4,20 @@ Diese zwölf Specs bauen das Fundament von Reziproq: Oberfläche, Anmeldung, Org
 
 ## Reihenfolge und Abhängigkeiten
 
-| #   | Spec   | Funktion                                  | Braucht vorher                 | Strang       | Status |
-| --- | ------ | ----------------------------------------- | ------------------------------ | ------------ | ------ |
-| 1   | PLT-10 | Design und Styleguide                     | –                              | A Oberfläche | fertig |
-| 2   | PLT-11 | App-Rahmen und Startseite                 | PLT-10                         | A Oberfläche | PR offen |
-| 3   | PLT-01 | Anmeldung und Abmeldung                   | –                              | C Fachdaten  | fertig |
-| 4   | PLT-02 | Organisationen, Nutzer, Mandanten-Session | PLT-01                         | B Fundament  | offen  |
-| 5   | PLT-04 | Drei Datenebenen                          | PLT-02                         | B Fundament  | offen  |
-| 6   | PLT-08 | Audit-Trail                               | PLT-04                         | B Fundament  | offen  |
-| 7   | PLT-03 | Beziehungen und Lieferantenliste          | PLT-02, PLT-04, PLT-08, PLT-11 | C Fachdaten  | offen  |
-| 8   | PLT-05 | Rollen und Rechte                         | PLT-03                         | B Fundament  | offen  |
-| 9   | PLT-06 | Business Units und Warengruppen           | PLT-03, PLT-05                 | C Fachdaten  | offen  |
-| 10  | PLT-07 | Import per Excel und CSV                  | PLT-06                         | C Fachdaten  | offen  |
-| 11  | PLT-09 | Deutsch und Englisch                      | PLT-11                         | A Oberfläche | offen  |
-| 12  | PLT-12 | Prompt-Fenster                            | PLT-03, PLT-05, PLT-06         | A Oberfläche | offen  |
+| #   | Spec   | Funktion                                  | Braucht vorher                 | Strang       | Status    |
+| --- | ------ | ----------------------------------------- | ------------------------------ | ------------ | --------- |
+| 1   | PLT-10 | Design und Styleguide                     | –                              | A Oberfläche | fertig    |
+| 2   | PLT-11 | App-Rahmen und Startseite                 | PLT-10                         | A Oberfläche | fertig    |
+| 3   | PLT-01 | Anmeldung und Abmeldung                   | –                              | C Fachdaten  | fertig    |
+| 4   | PLT-02 | Organisationen, Nutzer, Mandanten-Session | PLT-01                         | B Fundament  | PR offen |
+| 5   | PLT-04 | Drei Datenebenen                          | PLT-02                         | B Fundament  | offen     |
+| 6   | PLT-08 | Audit-Trail                               | PLT-04                         | B Fundament  | offen     |
+| 7   | PLT-03 | Beziehungen und Lieferantenliste          | PLT-02, PLT-04, PLT-08, PLT-11 | C Fachdaten  | offen     |
+| 8   | PLT-05 | Rollen und Rechte                         | PLT-03                         | B Fundament  | offen     |
+| 9   | PLT-06 | Business Units und Warengruppen           | PLT-03, PLT-05                 | C Fachdaten  | offen     |
+| 10  | PLT-07 | Import per Excel und CSV                  | PLT-06                         | C Fachdaten  | offen     |
+| 11  | PLT-09 | Deutsch und Englisch                      | PLT-11                         | A Oberfläche | offen     |
+| 12  | PLT-12 | Prompt-Fenster                            | PLT-03, PLT-05, PLT-06         | A Oberfläche | offen     |
 
 Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig.
 

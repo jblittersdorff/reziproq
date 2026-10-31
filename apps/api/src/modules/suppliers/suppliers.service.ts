@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { type Database, desc, eq, schema, type TenantTransaction, withTenant } from '@reziproq/db';
+import { desc, eq, schema, type TenantTransaction } from '@reziproq/db';
 import type { ForbiddenCode, Money, Supplier, SuppliersResponse } from '@reziproq/shared';
-import { InjectDatabase } from '../../common/database.module.js';
+import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { OrganizationService } from '../organizations/organization.service.js';
@@ -12,7 +12,7 @@ const forbidden = (code: ForbiddenCode, message: string) =>
 @Injectable()
 export class SuppliersService {
   constructor(
-    @InjectDatabase() private readonly db: Database,
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(OrganizationService) private readonly organizations: OrganizationService,
   ) {}
 
@@ -21,15 +21,19 @@ export class SuppliersService {
     if (!can(auth, 'lieferanten.sehen')) {
       throw forbidden('keine_berechtigung', 'Dir fehlt eine Rolle, um Lieferanten zu sehen.');
     }
-    const organization = await this.organizations.current(auth);
+    const organization = this.organizations.current(auth);
     if (!organization) {
       throw forbidden('keine_organisation', 'Du bist noch keiner Organisation zugeordnet.');
     }
-    if (organization.typ !== 'kaeufer') {
+    // Käuferfunktionen hängen am Feature buyer der Organisation (PLT-02).
+    if (!organization.buyer) {
       throw forbidden('keine_berechtigung', 'Die Lieferantenliste gibt es nur für Käufer.');
     }
 
-    const suppliers = await withTenant(this.db, organization.id, (tx) => listSuppliers(tx));
+    const suppliers = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      (tx) => listSuppliers(tx),
+    );
     const spendYear = suppliers.length > 0 ? Math.max(...suppliers.map((s) => s.spendYear)) : null;
     return {
       suppliers,
@@ -90,7 +94,7 @@ export async function listSuppliers(tx: TenantTransaction): Promise<Supplier[]> 
     .select({
       relationshipId: beziehung.id,
       name: organization.name,
-      country: organization.land,
+      country: organization.country,
       category: beziehungKaeufer.warengruppe,
       amountCents: beziehungKaeufer.jahresspendCent,
       currency: beziehungKaeufer.waehrung,

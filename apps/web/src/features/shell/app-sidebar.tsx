@@ -1,6 +1,7 @@
 import { Link, type LinkProps } from '@tanstack/react-router';
 import { LayoutDashboardIcon, type LucideIcon, SettingsIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useMe } from '@/features/auth/use-me';
 import { useT } from '@/lib/i18n';
 import { areas } from './areas';
 import { UserMenu } from './user-menu';
@@ -19,6 +20,10 @@ export function AppSidebar({
   headerAction?: ReactNode;
 }) {
   const t = useT();
+  const me = useMe();
+  // Solange /me lädt, die Bereiche zeigen, damit die Seitenleiste nicht springt.
+  const showBuyerAreas =
+    !me.data || (me.data.organization !== null && me.data.permissions.viewBuyerAreas);
   return (
     <div className="flex h-full flex-col gap-4 px-3 py-4">
       <div className="flex min-h-11 items-center justify-between gap-2 px-3">
@@ -26,14 +31,19 @@ export function AppSidebar({
         {headerAction}
       </div>
       <nav aria-label={t.app.navigation} className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        <NavLink to="/uebersicht" icon={LayoutDashboardIcon} onNavigate={onNavigate}>
-          {t.nav.overview}
-        </NavLink>
-        {areas.map((area) => (
-          <NavLink key={area.key} to={area.to} icon={area.icon} onNavigate={onNavigate}>
-            {t.areas[area.key].title}
-          </NavLink>
-        ))}
+        {/* Ohne Organisation oder ohne Feature buyer keine Käuferbereiche (PLT-02). */}
+        {showBuyerAreas && (
+          <>
+            <NavLink to="/uebersicht" icon={LayoutDashboardIcon} onNavigate={onNavigate}>
+              {t.nav.overview}
+            </NavLink>
+            {areas.map((area) => (
+              <NavLink key={area.key} to={area.to} icon={area.icon} onNavigate={onNavigate}>
+                {t.areas[area.key].title}
+              </NavLink>
+            ))}
+          </>
+        )}
         <div className="mt-auto pt-4">
           <NavLink to="/einstellungen" icon={SettingsIcon} onNavigate={onNavigate}>
             {t.nav.settings}
