@@ -24,6 +24,9 @@ export const beziehung = pgTable(
       .notNull()
       .references(() => organization.id),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    // Leer: Beziehung aktiv. Gesetzt: beendet; die andere Seite sieht dann keine geteilten
+    // Zeilen mehr (PLT-04). PLT-03a übernimmt den Wert in relationship.status.
+    endedAt: timestamp('ended_at', { withTimezone: true }),
   },
   (table) => [unique('beziehung_paar').on(table.kaeuferOrgId, table.lieferantOrgId)],
 );

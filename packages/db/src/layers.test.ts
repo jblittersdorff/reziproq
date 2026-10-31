@@ -1,0 +1,539 @@
+import { randomUUID } from 'node:crypto';
+import { type SQL, sql } from 'drizzle-orm';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import type { Database } from './client.js';
+import {
+  checkLayers,
+  generatedLayerTables,
+  type LayerEntry,
+  type LayerKind,
+  layerRegister,
+} from './layers.js';
+import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { withTenant } from './tenant.js';
+import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+
+// Tests zu docs/specs/PLT-04.md gegen eine echte PostgreSQL-Datenbank.
+//
+// Test-Gerüst: Für jede Tabelle, deren Policies aus app_apply_layer stammen, laufen dieselben
+// Prüfungen. Vor PLT-03 gibt es noch keine solche Fachtabelle; deshalb legt der Test je Art eine
+// Probe-Tabelle an, ebenfalls nur über app_apply_layer. Neue Tabellen im Register kommen ohne
+// zusätzlichen Testcode dazu.
+
+const testOem = seedBuyers.testOem.id;
+const zweitOem = seedBuyers.zweitOem.id;
+const supplier = seedSupplierOrg.id;
+
+/** Test-OEM und Zweit-OEM haben beide eine Beziehung zum Test-Lieferanten. */
+const relationships = {
+  a: { id: randomUUID(), buyer: testOem, supplier },
+  b: { id: randomUUID(), buyer: zweitOem, supplier },
+};
+type RelationshipKey = keyof typeof relationships;
+const ended = new Set<RelationshipKey>();
+
+const probes: Record<string, { kind: LayerKind; columns: string }> = {
+  probe_buyer_private: { kind: 'buyer_private', columns: 'relationship_id uuid not null' },
+  probe_supplier_private: { kind: 'supplier_private', columns: 'relationship_id uuid not null' },
+  probe_org_private: { kind: 'org_private', columns: 'org_id uuid not null, relationship_id uuid' },
+  probe_shared: {
+    kind: 'shared',
+    columns: 'relationship_id uuid not null, owner_org_id uuid not null, visibility text not null',
+  },
+};
+
+const register: Record<string, LayerEntry> = {
+  ...layerRegister,
+  ...Object.fromEntries(Object.entries(probes).map(([table, { kind }]) => [table, { kind }])),
+};
+const tables = generatedLayerTables(register);
+
+/** Was eine Testzeile ist: zu welcher Beziehung sie gehört, wem und wie sichtbar. */
+interface RowMeta {
+  table: string;
+  kind: LayerKind;
+  relationship: RelationshipKey | null;
+  org?: string;
+  owner?: string;
+  visibility?: 'internal' | 'shared';
+}
+
+interface Viewer {
+  name: string;
+  org: string;
+  customer: string | null;
+}
+
+const viewers: Viewer[] = [
+  { name: 'Test-OEM', org: testOem, customer: null },
+  { name: 'Zweit-OEM', org: zweitOem, customer: null },
+  { name: 'Test-Lieferant ohne Kunde', org: supplier, customer: null },
+  { name: 'Test-Lieferant bei Test-OEM', org: supplier, customer: testOem },
+  { name: 'Test-Lieferant bei Zweit-OEM', org: supplier, customer: zweitOem },
+];
+const viewer = (name: string) => viewers.find((candidate) => candidate.name === name) as Viewer;
+
+/** Die Seite, auf der der Betrachter in dieser Beziehung steht, oder null. */
+function side(who: Viewer, key: RelationshipKey): 'buyer' | 'supplier' | null {
+  const relationship = relationships[key];
+  if (who.org === relationship.buyer) return 'buyer';
+  if (who.org === relationship.supplier && who.customer === relationship.buyer) return 'supplier';
+  return null;
+}
+
+/** Lieferantennutzer nur im Kontext ihres Kunden. */
+function customerOk(who: Viewer, key: RelationshipKey) {
+  const relationship = relationships[key];
+  return !(who.org === relationship.supplier && who.customer !== relationship.buyer);
+}
+
+/** Die Regeln aus PLT-04 als Modell: Darf dieser Betrachter diese Zeile sehen? */
+function mayRead(who: Viewer, row: RowMeta): boolean {
+  const key = row.relationship;
+  switch (row.kind) {
+    case 'buyer_private':
+      return key !== null && side(who, key) === 'buyer';
+    case 'supplier_private':
+      return key !== null && side(who, key) === 'supplier';
+    case 'org_private':
+      return row.org === who.org && (key === null || customerOk(who, key));
+    case 'shared':
+      if (key === null || !customerOk(who, key)) return false;
+      if (row.owner === who.org) return true;
+      return row.visibility === 'shared' && side(who, key) !== null && !ended.has(key);
+    default:
+      return false;
+  }
+}
+
+/** Die Zeilen, die das Gerüst je Art anlegt: von jeder Seite, freigegeben und nicht. */
+function rowsFor(kind: LayerKind): Omit<RowMeta, 'table' | 'kind'>[] {
+  const keys = Object.keys(relationships) as RelationshipKey[];
+  switch (kind) {
+    case 'buyer_private':
+    case 'supplier_private':
+      return keys.map((relationship) => ({ relationship }));
+    case 'org_private':
+      return [testOem, zweitOem, supplier].flatMap((org) => [
+        { relationship: null, org },
+        ...keys
+          .filter((key) => [relationships[key].buyer, relationships[key].supplier].includes(org))
+          .map((relationship) => ({ relationship, org })),
+      ]);
+    case 'shared':
+      return keys.flatMap((relationship) =>
+        [relationships[relationship].buyer, relationships[relationship].supplier].flatMap((owner) =>
+          (['internal', 'shared'] as const).map((visibility) => ({
+            relationship,
+            owner,
+            visibility,
+          })),
+        ),
+      );
+    default:
+      return [];
+  }
+}
+
+/** Spaltenwerte einer Zeile: Testwerte aus dem Register plus die Ebenen-Spalten. */
+function columnsOf(entry: LayerEntry, row: Omit<RowMeta, 'table' | 'kind'>, id: string) {
+  const values: Record<string, unknown> = { ...entry.testValues, id };
+  if (row.relationship !== null) values.relationship_id = relationships[row.relationship].id;
+  else if (entry.kind === 'org_private') values.relationship_id = null;
+  if (row.org) values.org_id = row.org;
+  if (row.owner) values.owner_org_id = row.owner;
+  if (row.visibility) values.visibility = row.visibility;
+  return values;
+}
+
+function insertSql(table: string, values: Record<string, unknown>): SQL {
+  const columns = Object.keys(values);
+  return sql`insert into ${sql.identifier(table)} (${sql.join(
+    columns.map((column) => sql.identifier(column)),
+    sql`, `,
+  )}) values (${sql.join(
+    columns.map((column) => sql`${values[column]}`),
+    sql`, `,
+  )})`;
+}
+
+describe('PLT-04: Drei Datenebenen', () => {
+  let temp: Awaited<ReturnType<typeof createTempDatabase>>;
+  const rows = new Map<string, RowMeta>();
+
+  const session = (who: Viewer) => ({
+    userId: 'test-nutzer',
+    organizationId: who.org,
+    customerOrganizationId: who.customer,
+  });
+
+  /** Alle Zeilen-IDs, die der Betrachter in einer Tabelle sieht. */
+  const visible = (who: Viewer, table: string) =>
+    withTenant(temp.db, session(who), async (tx) => {
+      const result = await tx.execute<{ id: string }>(
+        sql`select id::text from ${sql.identifier(table)}`,
+      );
+      return result.rows.map((row) => row.id).sort();
+    });
+
+  const expected = (who: Viewer, table: string) =>
+    [...rows.entries()]
+      .filter(([, meta]) => meta.table === table && mayRead(who, meta))
+      .map(([id]) => id)
+      .sort();
+
+  const metaOf = (ids: string[]) => ids.map((id) => rows.get(id) as RowMeta);
+
+  const setEnded = async (key: RelationshipKey, value: boolean) => {
+    await temp.db.execute(
+      sql`update beziehung set ended_at = ${value ? sql`now()` : sql`null`} where id = ${relationships[key].id}`,
+    );
+    if (value) ended.add(key);
+    else ended.delete(key);
+  };
+
+  beforeAll(async () => {
+    temp = await createTempDatabase();
+    await migrateTo(temp.db);
+    await seed(temp.db, { nodeEnv: 'development' });
+    for (const relationship of Object.values(relationships)) {
+      await temp.db.execute(sql`
+        insert into beziehung (id, kaeufer_org_id, lieferant_org_id)
+        values (${relationship.id}, ${relationship.buyer}, ${relationship.supplier})
+      `);
+    }
+    // Probe-Tabellen nur über die Hilfsfunktion, wie jede neue Fachtabelle.
+    for (const [table, probe] of Object.entries(probes)) {
+      await temp.db.execute(
+        sql.raw(`create table ${table} (id uuid primary key, ${probe.columns})`),
+      );
+      await temp.db.execute(sql`select app_apply_layer(${table}::regclass, ${probe.kind})`);
+    }
+    for (const entry of tables) {
+      for (const row of rowsFor(entry.kind)) {
+        const id = randomUUID();
+        await temp.db.execute(insertSql(entry.table, columnsOf(entry, row, id)));
+        rows.set(id, { table: entry.table, kind: entry.kind, ...row });
+      }
+    }
+  });
+
+  afterAll(async () => {
+    await temp.drop();
+  });
+
+  it('das Gerüst prüft jede Art mit Policies aus der Hilfsfunktion', () => {
+    expect(new Set(tables.map((entry) => entry.kind))).toEqual(
+      new Set(['buyer_private', 'supplier_private', 'org_private', 'shared']),
+    );
+  });
+
+  describe.each(tables)('$table ($kind)', ({ table, kind }) => {
+    it.each(viewers)('$name sieht genau, was die Regeln erlauben', async (who) => {
+      expect(await visible(who, table)).toEqual(expected(who, table));
+    });
+
+    it('Ein Lieferantennutzer sieht von geteilten Tabellen nur freigegebene Zeilen aktiver Beziehungen und nichts aus käuferprivaten Tabellen', async () => {
+      for (const who of [
+        viewer('Test-Lieferant bei Test-OEM'),
+        viewer('Test-Lieferant bei Zweit-OEM'),
+      ]) {
+        for (const meta of metaOf(await visible(who, table))) {
+          expect(meta.kind).not.toBe('buyer_private');
+          if (kind === 'shared' && meta.owner !== supplier) {
+            expect(meta.visibility).toBe('shared');
+            expect(meta.relationship && ended.has(meta.relationship)).toBeFalsy();
+          }
+        }
+      }
+      if (kind === 'buyer_private') {
+        expect(await visible(viewer('Test-Lieferant bei Test-OEM'), table)).toEqual([]);
+      }
+    });
+
+    it('Ein Nutzer des Zweit-OEM sieht beim selben Test-Lieferanten nichts vom Test-OEM, in keiner Ebene. Umgekehrt genauso.', async () => {
+      const zweit = metaOf(await visible(viewer('Zweit-OEM'), table));
+      expect(zweit.filter((meta) => meta.relationship === 'a' || meta.org === testOem)).toEqual([]);
+      const test = metaOf(await visible(viewer('Test-OEM'), table));
+      expect(test.filter((meta) => meta.relationship === 'b' || meta.org === zweitOem)).toEqual([]);
+    });
+
+    it('Der Käufer sieht nichts aus lieferantenprivaten Tabellen', async () => {
+      for (const who of [viewer('Test-OEM'), viewer('Zweit-OEM')]) {
+        const seen = metaOf(await visible(who, table));
+        expect(seen.filter((meta) => meta.kind === 'supplier_private')).toEqual([]);
+        expect(
+          seen.filter(
+            (meta) =>
+              meta.org === supplier || (meta.owner === supplier && meta.visibility === 'internal'),
+          ),
+        ).toEqual([]);
+      }
+    });
+
+    it('Nach dem Beenden einer Beziehung sieht die andere Seite ihre freigegebenen Zeilen nicht mehr', async () => {
+      const buyerView = viewer('Test-OEM');
+      const supplierView = viewer('Test-Lieferant bei Test-OEM');
+      const before = metaOf(await visible(supplierView, table));
+      await setEnded('a', true);
+      try {
+        for (const who of [buyerView, supplierView]) {
+          const seen = metaOf(await visible(who, table));
+          expect(await visible(who, table)).toEqual(expected(who, table));
+          // Geteilte Zeilen der anderen Seite sind weg, die eigenen bleiben.
+          expect(
+            seen.filter(
+              (meta) =>
+                meta.kind === 'shared' && meta.relationship === 'a' && meta.owner !== who.org,
+            ),
+          ).toEqual([]);
+        }
+        if (kind === 'shared') {
+          expect(before.some((meta) => meta.owner === testOem)).toBe(true);
+          expect(
+            metaOf(await visible(supplierView, table)).some((meta) => meta.owner === supplier),
+          ).toBe(true);
+        }
+      } finally {
+        await setEnded('a', false);
+      }
+    });
+
+    it('Ein Lieferantennutzer mit gesetztem app.customer_org_id sieht nur Zeilen dieses Kunden', async () => {
+      for (const [who, key] of [
+        [viewer('Test-Lieferant bei Test-OEM'), 'a'],
+        [viewer('Test-Lieferant bei Zweit-OEM'), 'b'],
+      ] as const) {
+        const seen = metaOf(await visible(who, table));
+        expect(
+          seen.filter((meta) => meta.relationship !== null && meta.relationship !== key),
+        ).toEqual([]);
+      }
+      // Ohne gewählten Kunden: nichts Beziehungsbezogenes.
+      const without = metaOf(await visible(viewer('Test-Lieferant ohne Kunde'), table));
+      expect(without.filter((meta) => meta.relationship !== null)).toEqual([]);
+    });
+
+    it('Schreiben in eine fremde Zeile (anlegen, ändern, löschen) scheitert genauso wie Lesen', async () => {
+      const entry = register[table] as LayerEntry;
+      for (const who of viewers) {
+        // Ändern und Löschen treffen nur Zeilen, die der Betrachter auch schreiben darf.
+        const touched = await withTenant(temp.db, session(who), async (tx) => {
+          const updated = await tx.execute<{ id: string }>(
+            sql`update ${sql.identifier(table)} set id = id returning id::text`,
+          );
+          const deleted = await tx.execute<{ id: string }>(
+            sql`delete from ${sql.identifier(table)} returning id::text`,
+          );
+          throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
+        }).catch((error: unknown) => {
+          if (error instanceof Rollback) return error.ids;
+          throw error;
+        });
+        for (const meta of metaOf(touched)) {
+          expect(mayRead(who, meta), `${who.name} ändert fremde Zeile`).toBe(true);
+          if (kind === 'shared')
+            expect(meta.owner, `${who.name} ändert Zeile der anderen Seite`).toBe(who.org);
+        }
+
+        // Anlegen für eine fremde Seite oder Organisation scheitert.
+        for (const row of rowsFor(kind)) {
+          const meta: RowMeta = { table, kind, ...row };
+          const own =
+            kind === 'shared' ? meta.owner === who.org && mayRead(who, meta) : mayRead(who, meta);
+          const insert = withTenant(temp.db, session(who), async (tx) => {
+            await tx.execute(insertSql(table, columnsOf(entry, row, randomUUID())));
+            throw new Rollback([]);
+          }).catch((error: unknown) => {
+            if (error instanceof Rollback) return 'angelegt';
+            return 'abgelehnt';
+          });
+          expect(await insert, `${who.name} legt ${JSON.stringify(row)} an`).toBe(
+            own ? 'angelegt' : 'abgelehnt',
+          );
+        }
+      }
+    });
+  });
+
+  describe('Ein Test scheitert, wenn eine Tabelle nicht im Register steht, kein RLS mit FORCE hat oder ein Fremdschlüssel von einer geteilten auf eine private Tabelle zeigt', () => {
+    /** Baut etwas in einer Transaktion, prüft und rollt alles zurück. */
+    const problemsAfter = async (build: SQL, extra: Record<string, LayerEntry> = {}) =>
+      temp.db
+        .transaction(async (tx) => {
+          await tx.execute(build);
+          throw new Rollback(
+            await checkLayers(tx as unknown as Database, { ...register, ...extra }),
+          );
+        })
+        .catch((error: unknown) => {
+          if (error instanceof Rollback) return error.ids;
+          throw error;
+        });
+
+    it('meldet für die migrierte Datenbank samt Proben nichts', async () => {
+      expect(await checkLayers(temp.db, register)).toEqual([]);
+    });
+
+    it('meldet eine Tabelle, die nicht im Register steht', async () => {
+      const problems = await problemsAfter(
+        sql`create table ohne_eintrag (id uuid primary key, org_id uuid not null); select app_apply_layer('ohne_eintrag', 'org_private')`,
+      );
+      expect(problems).toEqual(['ohne_eintrag: steht nicht im Register der Datenebenen']);
+    });
+
+    it('meldet eine Tabelle ohne RLS mit FORCE', async () => {
+      const problems = await problemsAfter(
+        sql`create table ohne_force (id uuid primary key); alter table ohne_force enable row level security`,
+        { ohne_force: { kind: 'global', manual: 'Test' } },
+      );
+      expect(problems).toEqual(['ohne_force: hat kein RLS mit FORCE']);
+    });
+
+    it('meldet einen Fremdschlüssel von einer geteilten auf eine private Tabelle', async () => {
+      const problems = await problemsAfter(
+        sql`create table geteilt_mit_verweis (
+              id uuid primary key, relationship_id uuid not null, owner_org_id uuid not null,
+              visibility text not null, privat_id uuid references probe_buyer_private (id)
+            );
+            select app_apply_layer('geteilt_mit_verweis', 'shared')`,
+        { geteilt_mit_verweis: { kind: 'shared' } },
+      );
+      expect(problems).toEqual([
+        'geteilt_mit_verweis: Fremdschlüssel geteilt_mit_verweis_privat_id_fkey zeigt auf private Tabelle probe_buyer_private',
+      ]);
+    });
+
+    it('meldet einen Eintrag im Register ohne Tabelle', async () => {
+      expect(
+        await checkLayers(temp.db, { ...register, gibt_es_nicht: { kind: 'shared' } }),
+      ).toEqual(['gibt_es_nicht: steht im Register, gibt es aber nicht']);
+    });
+
+    it('Private Tabellen dürfen auf geteilte verweisen', async () => {
+      const problems = await problemsAfter(
+        sql`create table privat_mit_verweis (
+              id uuid primary key, relationship_id uuid not null,
+              geteilt_id uuid references probe_shared (id)
+            );
+            select app_apply_layer('privat_mit_verweis', 'buyer_private')`,
+        { privat_mit_verweis: { kind: 'buyer_private' } },
+      );
+      expect(problems).toEqual([]);
+    });
+  });
+
+  describe('Neue Tabellen bekommen ihre Policies über die Hilfsfunktionen, und die Prüfungen laufen für sie ohne zusätzlichen Testcode', () => {
+    it('app_apply_layer schaltet RLS mit FORCE ein und legt die Policies je Art an', async () => {
+      const result = await temp.db.execute<{
+        table: string;
+        policies: string[];
+        force: boolean;
+      }>(sql`
+        select c.relname as table, c.relforcerowsecurity as force,
+          array(select polname::text from pg_policy where polrelid = c.oid order by polname) as policies
+        from pg_class c where c.relname like 'probe\\_%' and c.relkind = 'r' order by c.relname
+      `);
+      expect(result.rows).toEqual([
+        {
+          table: 'probe_buyer_private',
+          force: true,
+          policies: ['probe_buyer_private_buyer_private', 'probe_buyer_private_customer'],
+        },
+        {
+          table: 'probe_org_private',
+          force: true,
+          policies: ['probe_org_private_customer', 'probe_org_private_org_private'],
+        },
+        {
+          table: 'probe_shared',
+          force: true,
+          policies: [
+            'probe_shared_customer',
+            'probe_shared_shared_delete',
+            'probe_shared_shared_insert',
+            'probe_shared_shared_read',
+            'probe_shared_shared_update',
+          ],
+        },
+        {
+          table: 'probe_supplier_private',
+          force: true,
+          policies: ['probe_supplier_private_customer', 'probe_supplier_private_supplier_private'],
+        },
+      ]);
+    });
+
+    it('lehnt Tabellen ohne die nötigen Spalten und unbekannte Arten ab', async () => {
+      await expect(
+        temp.db.transaction(async (tx) => {
+          await tx.execute(sql`create table ohne_spalten (id uuid primary key)`);
+          await tx.execute(sql`select app_apply_layer('ohne_spalten', 'shared')`);
+        }),
+      ).rejects.toMatchObject({
+        cause: {
+          message: expect.stringMatching(
+            /braucht für shared die Spalten: relationship_id, owner_org_id, visibility/,
+          ),
+        },
+      });
+      await expect(
+        temp.db.execute(sql`select app_apply_layer('probe_shared', 'oeffentlich')`),
+      ).rejects.toMatchObject({
+        cause: { message: expect.stringMatching(/Unbekannte Datenebene/) },
+      });
+    });
+
+    it('die API-Rolle darf die Hilfsfunktion nicht aufrufen', async () => {
+      await expect(
+        withTenant(temp.db, session(viewer('Test-OEM')), (tx) =>
+          tx.execute(sql`select app_apply_layer('probe_shared', 'global')`),
+        ),
+      ).rejects.toMatchObject({ cause: { message: expect.stringMatching(/permission denied/) } });
+    });
+
+    it('jede Tabelle im Register mit Policies aus der Hilfsfunktion steht im Gerüst', () => {
+      expect(tables.map((entry) => entry.table).sort()).toEqual(
+        Object.entries(register)
+          .filter(([, entry]) => !entry.manual && entry.kind !== 'global')
+          .map(([table]) => table)
+          .sort(),
+      );
+    });
+  });
+
+  describe('Bestehende Tabellen', () => {
+    it('Stammdaten einer Organisation sieht jede Organisation, die mit ihr in Beziehung steht, in beide Richtungen', async () => {
+      const names = (who: Viewer) =>
+        withTenant(temp.db, session(who), async (tx) => {
+          const result = await tx.execute<{ id: string }>(sql`select id::text from organization`);
+          return result.rows.map((row) => row.id);
+        });
+      // Der Lieferant sieht seine Kunden, auch ohne gewählten Kunden.
+      expect(await names(viewer('Test-Lieferant ohne Kunde'))).toEqual(
+        expect.arrayContaining([supplier, testOem, zweitOem]),
+      );
+      expect(await names(viewer('Zweit-OEM'))).not.toContain(testOem);
+    });
+
+    it('die Beziehung selbst sieht der Lieferant nur im Kontext dieses Kunden', async () => {
+      const ids = (who: Viewer) =>
+        withTenant(temp.db, session(who), async (tx) => {
+          const result = await tx.execute<{ id: string }>(
+            sql`select id::text from beziehung where lieferant_org_id = ${supplier}`,
+          );
+          return result.rows.map((row) => row.id);
+        });
+      expect(await ids(viewer('Test-Lieferant ohne Kunde'))).toEqual([]);
+      expect(await ids(viewer('Test-Lieferant bei Test-OEM'))).toEqual([relationships.a.id]);
+      expect(await ids(viewer('Test-OEM'))).toEqual([relationships.a.id]);
+    });
+  });
+});
+
+/** Rollt eine Transaktion zurück und trägt dabei ein Ergebnis heraus. */
+class Rollback extends Error {
+  constructor(readonly ids: string[]) {
+    super('rollback');
+  }
+}
