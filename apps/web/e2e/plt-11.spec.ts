@@ -15,9 +15,11 @@ const barTargets = [
   { name: 'Profil', path: '/profil' },
 ];
 
+const greeting = /^Guten (Morgen|Tag|Abend), Anna$/;
+
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  { path: '/start', title: /^Guten (Morgen|Tag|Abend), Anna$/, empty: 'Hier steht bald' },
+  { path: '/start', title: greeting, empty: 'Hier steht bald' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Portfolio', empty: 'Noch kein Portfolio' },
   { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
@@ -116,7 +118,7 @@ test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
   await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
   await expect(page).toHaveURL(url('/start'));
   await expect(
-    page.locator('#inhalt').getByRole('heading', { level: 1, name: routes[0]?.title }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: greeting }),
   ).toBeVisible();
 });
 
