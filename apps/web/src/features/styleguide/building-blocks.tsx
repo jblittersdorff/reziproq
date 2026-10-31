@@ -35,7 +35,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Tile, TileActions, TileIcon, TileMetric, TileText, TileTitle } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
-import { useLocale, useMessages } from '@/lib/i18n';
+import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { styleguideMessages } from './messages';
 import { Subsection } from './parts';
@@ -390,6 +390,7 @@ function ConfirmExample() {
 /** Rückmeldezeile nach dem Speichern (NAV-04). */
 function StatusLineExample() {
   const t = useMessages(styleguideMessages);
+  const app = useT();
   const b = t.blocks;
   const [saved, setSaved] = useState(false);
 
@@ -403,6 +404,12 @@ function StatusLineExample() {
       <div>
         <Button onClick={() => setSaved(true)}>{b.showStatus}</Button>
       </div>
+      <StatusLine
+        tone="warning"
+        message={app.auth.reauthTitle}
+        description={app.auth.reauthDescription}
+        action={<Button variant="outline">{app.auth.reauthAction}</Button>}
+      />
     </Subsection>
   );
 }

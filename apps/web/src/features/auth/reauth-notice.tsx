@@ -1,44 +1,42 @@
+import { useRouterState } from '@tanstack/react-router';
 import { LogInIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
-import { reportLogin } from '@/lib/api';
+import { StatusLine } from '@/components/ui/status-line';
 import { signInState } from '@/lib/auth';
+import { collectDraft, saveDraft } from '@/lib/draft';
 import { useT } from '@/lib/i18n';
 
 /**
- * Erscheint, wenn die Erneuerung des Tokens im Hintergrund scheitert (PLT-01). Die Seite darunter
- * bleibt stehen, damit nichts Eingegebenes verloren geht. Neu angemeldet wird im kleinen Fenster;
- * nur wenn der Browser es sperrt, folgt eine normale Weiterleitung.
+ * Erscheint, wenn die Erneuerung des Tokens im Hintergrund scheitert (PLT-01). Steht ganz oben im
+ * Seitenfluss, ohne Fenster und ohne Overlay (UMB-02). Der Knopf merkt sich die offenen Felder als
+ * Entwurf und leitet zu Zitadel; nach der Rückkehr füllt RequireLogin sie wieder.
  */
 export function ReauthNotice() {
   const t = useT();
   const auth = useAuth();
+  const path = useRouterState({ select: (state) => state.location.href });
 
-  const signInAgain = async () => {
-    try {
-      const user = await auth.signinPopup();
-      void reportLogin(user.access_token);
-    } catch (error) {
-      if (error instanceof Error && error.message === 'Popup blocked by user') {
-        await auth.signinRedirect({ state: signInState() });
-      }
-      // Fenster geschlossen: Der Hinweis bleibt, man kann es erneut versuchen.
-    }
+  const signInAgain = () => {
+    saveDraft(
+      collectDraft(document, { path, userId: auth.user?.profile?.sub ?? '', now: Date.now() }),
+    );
+    void auth.signinRedirect({ state: signInState(path) });
   };
 
   return (
-    <div
-      role="alert"
-      className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-lg flex-col gap-3 rounded-xl bg-popover/90 p-4 text-popover-foreground shadow-lg backdrop-blur sm:flex-row sm:items-center"
-    >
-      <div className="flex flex-1 flex-col gap-1">
-        <p className="font-semibold text-base">{t.auth.reauthTitle}</p>
-        <p className="text-muted-foreground text-sm">{t.auth.reauthDescription}</p>
-      </div>
-      <Button onClick={() => void signInAgain()}>
-        <LogInIcon />
-        {t.auth.reauthAction}
-      </Button>
+    <div className="px-4 pt-4">
+      <StatusLine
+        tone="warning"
+        message={t.auth.reauthTitle}
+        description={t.auth.reauthDescription}
+        action={
+          <Button onClick={signInAgain}>
+            <LogInIcon />
+            {t.auth.reauthAction}
+          </Button>
+        }
+      />
     </div>
   );
 }

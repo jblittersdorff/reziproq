@@ -183,16 +183,14 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
   await expect(search).toHaveValue('Silesia');
   expect(zitadel.authorizeRequests).toHaveLength(1);
 
-  // Neu anmelden im kleinen Fenster; die Seite darunter bleibt, wie sie war.
+  // Neu anmelden über eine Weiterleitung; die Eingabe kommt aus dem Entwurf zurück (UMB-02).
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
-  const popup = page.waitForEvent('popup');
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
-  await (await popup).waitForEvent('close');
 
-  await expect(notice).toHaveCount(0);
-  await expect(search).toHaveValue('Silesia');
   await expect(page).toHaveURL('http://localhost:5174/lieferanten');
+  await expect(search).toHaveValue('Silesia');
+  await expect(notice).toHaveCount(0);
 });
 
 test('Nach dem Abmelden liegt kein Token mehr im Browser, die Startseite zeigt „Anmelden“, und Zitadel fragt erneut', async ({
