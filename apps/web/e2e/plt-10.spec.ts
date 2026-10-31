@@ -37,12 +37,19 @@ async function openStyleguide(page: Page) {
   await signIn(page);
   await page.goto('/styleguide');
   await expect(page.getByRole('heading', { level: 1, name: 'Styleguide' })).toBeVisible();
-  // Die Diagramme sind fertig, wenn alle vier gezeichnet sind.
-  await expect(page.locator('figure [role="img"] svg')).toHaveCount(4);
+  // Die Diagramme sind fertig, wenn alle fünf gezeichnet sind.
+  await expect(page.locator('figure [role="img"] svg')).toHaveCount(5);
   await page.waitForLoadState('networkidle');
 }
 
-const sections = ['Farben', 'Schrift', 'Abstände, Radien und Schatten', 'Bausteine', 'Diagramme'];
+const sections = [
+  'Farben',
+  'Schrift',
+  'Abstände, Radien und Schatten',
+  'Navigation',
+  'Bausteine',
+  'Diagramme',
+];
 const subsections = [
   'Flächen',
   'Text',
@@ -55,21 +62,25 @@ const subsections = [
   'Schatten',
   'Breakpoints',
   'Bewegung',
+  'Globale Leiste',
+  'Lokale Leiste eines Lieferanten',
+  'Pfad mit Zurück-Pfeil',
+  'Kachel',
   'Knöpfe',
-  'Eingabefeld, Auswahl, Schalter und Checkbox',
-  'Suchfeld',
-  'Dialog, Seitenpanel und Hinweis',
-  'Status-Abzeichen',
-  'Tabelle',
-  'Kacheln',
-  'Seitenleiste',
-  'Leer, Laden, Fehler',
+  'Formularseite',
+  'Abläufe in Schritten',
+  'Bestätigung auf der Seite',
+  'Rückmeldezeile',
+  'Kennzeichen Intern und Geteilt',
+  'Zustände: leer, lädt, Fehler',
+  'Tabellen und Listen',
 ];
 const charts = [
   'Zwei Lieferanten sollen in die strategische Zone wechseln',
   'Die größte Lücke liegt bei der Kommunikation',
   'Service bewertet die Beziehung durchweg schwächer',
   'Die Hebel heben die EBIT-Wirkung auf 9,8 Mio. €',
+  'Drei Initiativen laufen bis Ende 2028',
 ];
 
 test('Ohne Login leitet /styleguide zur Anmeldung weiter und zeigt bis dahin nichts', async ({
@@ -128,33 +139,85 @@ for (const mode of ['Hell', 'Dunkel'] as const) {
     }
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(4);
 
-    // Übrige Bausteine
-    await expect(page.getByRole('textbox', { name: 'Name der Beziehung' })).toBeVisible();
+    // Navigation (PLT-10): globale und lokale Leiste, Pfad mit Zurück-Pfeil
+    const globalBar = page.getByRole('navigation', {
+      name: 'Hauptnavigation (Beispiel)',
+      exact: true,
+    });
+    await expect(globalBar.getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    const localBar = page.getByRole('navigation', {
+      name: 'Bereiche des Lieferanten (Beispiel)',
+      exact: true,
+    });
+    await expect(localBar.getByRole('link', { name: 'Strategie' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(localBar.getByRole('button', { name: /Nächster Schritt/ })).toBeVisible();
+    const path = page.getByRole('navigation', { name: 'Pfad (Beispiel)', exact: true });
+    await expect(path.getByRole('link', { name: 'Zurück zu Einstellungen' })).toBeVisible();
+    await expect(path.getByText('Organisation', { exact: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+
+    // Kachel nach NAV-10: Titel, Satz, Kennzahl, höchstens zwei Knöpfe
+    const tile = page.locator('[data-slot="tile"]').filter({ hasText: 'Wohin wir die Beziehung' });
+    await expect(tile.getByText('Hoch · stark')).toBeVisible();
+    expect(await tile.getByRole('button').count()).toBeLessThanOrEqual(2);
+
+    // Formularseite: Fehler am Feld, Mehrfachauswahl, Datum, Speichern und Abbrechen unten
+    const name = page.getByRole('textbox', { name: 'Name der Beziehung' });
+    await expect(name).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByText('Bitte einen Namen eingeben.')).toBeVisible();
     await expect(page.getByRole('searchbox', { name: 'Lieferanten suchen' })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Warengruppe' })).toBeVisible();
     await expect(
+      page.getByRole('group', { name: 'Business Units' }).getByRole('checkbox'),
+    ).toHaveCount(3);
+    await expect(page.getByLabel('Frist')).toHaveAttribute('type', 'date');
+    await expect(
       page.getByRole('switch', { name: 'Puls mit dem Lieferanten teilen' }),
     ).toBeVisible();
-    await expect(page.getByRole('checkbox', { name: 'An offene Pulse erinnern' })).toBeVisible();
-    await expect(page.getByRole('table')).toBeVisible();
-    await expect(page.getByText('Risiko').first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Beziehungspuls.*Release 0\.2/ })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 4, name: 'Nordstahl (Demo)' })).toBeVisible();
-    await expect(page.getByRole('navigation', { name: 'Hauptnavigation' })).toBeVisible();
+    await page.getByRole('button', { name: 'Speichern', exact: true }).first().click();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Gespeichert.' }).first(),
+    ).toBeVisible();
+
+    // Abläufe in Schritten
+    await expect(page.getByText('Schritt 2 von 4')).toBeVisible();
+    await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+    await expect(page.getByText('Schritt 3 von 4')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Später fortsetzen' })).toBeVisible();
+
+    // Bestätigung auf der Seite statt Fenster
+    await page.getByRole('button', { name: 'Beziehung beenden' }).click();
+    const confirmRow = page.getByRole('group', { name: 'Wirklich beenden?' });
+    await expect(confirmRow.getByRole('button', { name: 'Ja' })).toBeVisible();
+    await confirmRow.getByRole('button', { name: 'Ja' }).click();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Die Beziehung ist beendet.' }),
+    ).toBeVisible();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    // Kennzeichen, Zustände, Tabellen und Listen mit Verlauf
+    await expect(page.locator('[data-visibility="internal"]')).toContainText('Intern');
+    await expect(page.locator('[data-visibility="shared"]')).toContainText('Geteilt');
     await expect(page.getByText('Noch keine Initiativen')).toBeVisible();
     await expect(
       page.getByRole('status').filter({ hasText: 'Lieferanten werden geladen' }),
     ).toBeVisible();
     await expect(page.getByRole('alert').filter({ hasText: 'nicht geladen' })).toBeVisible();
-
-    await page.getByRole('button', { name: 'Dialog öffnen' }).click();
-    await expect(page.getByRole('dialog', { name: 'Initiative freigeben?' })).toBeVisible();
-    await page.keyboard.press('Escape');
-    await page.getByRole('button', { name: 'Seitenpanel öffnen' }).click();
-    await expect(page.getByRole('dialog', { name: 'Details zum Lieferanten' })).toBeVisible();
-    await page.keyboard.press('Escape');
-    await page.getByRole('button', { name: 'Hinweis zeigen' }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toBeVisible();
+    await expect(page.getByRole('table')).toBeVisible();
+    await expect(page.getByText('Risiko').first()).toBeVisible();
+    await expect(page.getByText('Status: angelegt → aktiv')).toBeVisible();
+    await expect(page.getByText('Noch keine Änderungen')).toBeVisible();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Verlauf wird geladen' }),
+    ).toBeVisible();
 
     // Diagramme mit Hinweis auf Beispieldaten und einem leeren Zustand
     for (const name of charts) {
@@ -169,7 +232,7 @@ for (const mode of ['Hell', 'Dunkel'] as const) {
         ...[...document.querySelectorAll('main section')].filter(
           (section) => !section.querySelector('[data-slot="source-files"]'),
         ),
-        ...[...document.querySelectorAll('#blocks h3')].filter(
+        ...[...document.querySelectorAll('#blocks [data-slot="subsection"] > div > h3')].filter(
           (heading) => !heading.closest('div')?.querySelector('[data-slot="source-files"]'),
         ),
       ].map((element) => element.id || element.textContent),
@@ -189,11 +252,11 @@ test('Der Umschalter gilt nur für den Styleguide', async ({ page }) => {
   expect(await page.evaluate(() => localStorage.getItem('reziproq-theme'))).toBeNull();
 });
 
-test('Der Styleguide ist nicht in der Seitenleiste verlinkt', async ({ page }) => {
+test('Der Styleguide ist nicht in der Navigation verlinkt', async ({ page }) => {
   await signIn(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/uebersicht');
-  const navigation = page.getByRole('navigation', { name: 'Hauptnavigation' });
+  const navigation = page.getByRole('navigation', { name: 'Hauptnavigation', exact: true });
   await expect(navigation).toBeVisible();
   await expect(navigation.locator('a[href="/styleguide"]')).toHaveCount(0);
 });
@@ -233,9 +296,22 @@ test('Alle Bausteine sind per Tastatur erreichbar und haben einen sichtbaren Fok
   const visited: { name: string; visible: boolean }[] = [];
   for (let i = 0; i < 150; i++) {
     await page.keyboard.press('Tab');
-    const focused = await page.evaluate(() => {
+    const focused = await page.evaluate(async () => {
+      // Fokus-Ringe blenden kurz ein; erst messen, wenn der Übergang fertig ist.
+      // Zwei Bildaufbauten, damit der Übergang begonnen hat; dann nur auf Übergänge warten.
+      // Ladekreisel drehen endlos und wären nie fertig.
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      await Promise.all(
+        document
+          .getAnimations()
+          .filter((animation) => animation instanceof CSSTransition)
+          .map((animation) => animation.finished.catch(() => undefined)),
+      );
       const element = document.activeElement as HTMLElement | null;
       if (!element || element === document.body) return null;
+      // Browsereigene Teile wie das Kalender-Symbol im Datumsfeld: Der Fokus liegt im Inneren des
+      // Feldes, das Feld selbst ist nicht :focus. Diesen Fokus zeichnet der Browser selbst.
+      if (!element.matches(':focus')) return null;
       // Radio-Knöpfe im Umschalter sind unsichtbar; den Fokus zeigt ihr Label.
       const shown = element.matches('input[type="radio"]') ? element.parentElement : element;
       if (!shown) return null;
@@ -278,12 +354,15 @@ test('Alle Bausteine sind per Tastatur erreichbar und haben einen sichtbaren Fok
     'Warengruppe',
     'Notiz',
     'Puls mit dem Lieferanten teilen',
-    'An offene Pulse erinnern',
     'Lieferanten suchen',
-    'Dialog öffnen',
-    'Seitenpanel öffnen',
-    'Hinweis zeigen',
-    'Übersicht',
+    'Antriebe',
+    'Frist',
+    'Weiter',
+    'Später fortsetzen',
+    'Beziehung beenden',
+    'Öffnen',
+    'Lieferanten',
+    'Zurück zu Einstellungen',
     'Erneut versuchen',
   ]) {
     expect(
@@ -301,16 +380,11 @@ test('Bei „Bewegung reduzieren“ laufen keine Animationen', async ({ page }) 
   const spinner = page.locator('[aria-busy="true"] svg').first();
   await expect(spinner).toHaveCSS('animation-name', 'none');
 
-  // Dialog und Seitenpanel erscheinen ohne Übergang.
-  await page.getByRole('button', { name: 'Dialog öffnen' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Initiative freigeben?' });
-  await expect(dialog).toBeVisible();
-  for (const property of ['animation-duration', 'transition-duration']) {
-    expect(
-      await dialog.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property),
-    ).toBe('0s');
-  }
-  await page.keyboard.press('Escape');
+  // Die Rückmeldezeile erscheint ohne Einblenden.
+  await page.getByRole('button', { name: 'Speichern', exact: true }).last().click();
+  const line = page.locator('[data-slot="status-line"]').first();
+  await expect(line).toBeVisible();
+  await expect(line).toHaveCSS('animation-name', 'none');
 
   // Ein Knopf wechselt die Farbe beim Hover ohne Übergang.
   await expect(page.getByRole('button', { name: 'Exportieren' })).toHaveCSS(
@@ -422,19 +496,10 @@ for (const width of [1440, 390]) {
     await openStyleguide(page);
     expect(await tooSmallTargets(page), 'Seite').toEqual([]);
 
-    await page.getByRole('button', { name: 'Dialog öffnen' }).click();
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    // Erst messen, wenn das Einblenden (Zoom von 95 %) fertig ist.
-    await dialog.evaluate((element) =>
-      Promise.all(element.getAnimations({ subtree: true }).map((animation) => animation.finished)),
-    );
-    expect(await tooSmallTargets(page), 'Dialog').toEqual([]);
-    await page.keyboard.press('Escape');
-
-    await page.getByRole('button', { name: 'Hinweis zeigen' }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Gespeichert' })).toBeVisible();
-    expect(await tooSmallTargets(page), 'Hinweis').toEqual([]);
+    // Auch die Zeile der Bestätigung auf der Seite
+    await page.getByRole('button', { name: 'Beziehung beenden' }).click();
+    await expect(page.getByRole('group', { name: 'Wirklich beenden?' })).toBeVisible();
+    expect(await tooSmallTargets(page), 'Bestätigung').toEqual([]);
   });
 }
 

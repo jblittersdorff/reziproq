@@ -5,6 +5,7 @@ import { DumbbellChart } from '@/components/charts/dumbbell-chart';
 import { Heatmap } from '@/components/charts/heatmap';
 import { PnlBridge } from '@/components/charts/pnl-bridge';
 import { SegmentMatrix } from '@/components/charts/segment-matrix';
+import { Timeline } from '@/components/charts/timeline';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { type Locale, useLocale, useMessages } from '@/lib/i18n';
 import { formatMoney, formatNumber } from '@/lib/money';
@@ -12,6 +13,7 @@ import { type ThemePreference, usePageTheme } from '@/lib/theme';
 import { BuildingBlocks } from './building-blocks';
 import { Colors, Layout, Typography } from './foundations';
 import { styleguideMessages } from './messages';
+import { NavigationSection } from './navigation';
 import { Section, SourceFiles } from './parts';
 import {
   bridgeBaselineCents,
@@ -23,7 +25,7 @@ import {
 } from './sample-data';
 import { useTokenValues } from './tokens';
 
-const sectionIds = ['colors', 'typography', 'layout', 'blocks', 'charts'] as const;
+const sectionIds = ['colors', 'typography', 'layout', 'navigation', 'blocks', 'charts'] as const;
 
 /** Alle Bausteine der Oberfläche auf einer Seite, in Hell und Dunkel (PLT-10). */
 export function StyleguidePage() {
@@ -93,6 +95,9 @@ export function StyleguidePage() {
           <Section id="layout" title={t.sections.layout}>
             <Layout values={values} />
           </Section>
+          <Section id="navigation" title={t.sections.navigation}>
+            <NavigationSection />
+          </Section>
           <Section id="blocks" title={t.sections.blocks}>
             <BuildingBlocks />
           </Section>
@@ -127,6 +132,7 @@ function Charts() {
             'src/components/charts/dumbbell-chart.tsx',
             'src/components/charts/heatmap.tsx',
             'src/components/charts/pnl-bridge.tsx',
+            'src/components/charts/timeline.tsx',
             'src/components/charts/chart-theme.ts',
           ]}
         />
@@ -166,6 +172,33 @@ function Charts() {
         steps={bridge.steps}
         formatAxis={(cents) => money(cents)}
         formatDelta={(step) => money(step.deltaCents, { signed: step.kind !== 'total' })}
+        empty={empty}
+      />
+      <Timeline
+        title={t.charts.timeline.title}
+        description={t.charts.timeline.description}
+        fromYear={2026}
+        toYear={2028}
+        rows={[
+          {
+            label: t.charts.timeline.rows[0] ?? '',
+            start: '2026-11',
+            end: '2027-06',
+            milestones: [{ month: '2027-03', label: t.charts.timeline.milestones[0] ?? '' }],
+          },
+          {
+            label: t.charts.timeline.rows[1] ?? '',
+            start: '2027-02',
+            end: '2028-03',
+            milestones: [{ month: '2027-09', label: t.charts.timeline.milestones[1] ?? '' }],
+          },
+          {
+            label: t.charts.timeline.rows[2] ?? '',
+            start: '2027-05',
+            end: '2028-12',
+            milestones: [{ month: '2028-04', label: t.charts.timeline.milestones[2] ?? '' }],
+          },
+        ]}
         empty={empty}
       />
       <DumbbellChart

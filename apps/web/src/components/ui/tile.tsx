@@ -46,4 +46,31 @@ function TileIcon({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { Tile, TileIcon, tileVariants };
+/**
+ * Kachel nach Apple (NAV-10): Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe.
+ * Überschriften kurz und zentriert; Hauptaktion gefüllt, Nebenaktion umrandet.
+ */
+function TileTitle({ className, ...props }: React.ComponentProps<'h3'>) {
+  return <h3 className={cn('text-center font-semibold text-lg', className)} {...props} />;
+}
+
+function TileText({ className, ...props }: React.ComponentProps<'p'>) {
+  return <p className={cn('text-center text-muted-foreground', className)} {...props} />;
+}
+
+/** Eine Kennzahl, groß; die Einheit oder Erklärung klein darunter. */
+function TileMetric({ value, label }: { value: React.ReactNode; label?: React.ReactNode }) {
+  return (
+    <p className="flex flex-col items-center gap-1 text-center">
+      <span className="font-semibold text-xl tabular-nums">{value}</span>
+      {label && <span className="text-muted-foreground text-sm">{label}</span>}
+    </p>
+  );
+}
+
+/** Platz für höchstens zwei Knöpfe, unten in der Kachel. */
+function TileActions({ children }: { children: React.ReactNode }) {
+  return <div className="mt-auto flex flex-wrap justify-center gap-3">{children}</div>;
+}
+
+export { Tile, TileActions, TileIcon, TileMetric, TileText, TileTitle, tileVariants };
