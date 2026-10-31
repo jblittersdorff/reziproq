@@ -509,8 +509,10 @@ Am 31.10.2026 nach Empfehlung getroffen. UMB-04 überträgt sie in die Specs.
 - **W1:** „Bis PLT-05 gilt jeder als Admin“ wird zu „Bis PLT-05 gelten die Zitadel-Rollen“.
 - **W10:** falsche Verweise korrigieren.
 
-## 7. Noch offen
+## 7. Weitere Entscheidungen
 
-1. **Umfang von Release 1.0:** Vorschlag ist 1.0 Ende Juni 2027 gleich Kernpfad (M0 bis M15). Die Blöcke F bis K folgen als 1.1, 1.2 usw. Die Release-Spalte der README wird in UMB-04 entsprechend angepasst.
-2. **Wirkung vorziehen?** Wenn Testkunden zuerst die GuV-Wirkung sehen wollen, braucht es eine Zusatz-Spec „Initiativen ohne Gemeinsamen Plan“. Sonst kommt Block W erst nach F, P und J.
-3. **Reihenfolge der Blöcke nach dem Kernpfad:** Vorschlag F, S, P, J, W, R, K. Endgültig nach dem Testlauf im Juni.
+Am 31.10.2026 bestätigt.
+
+1. **Umfang von Release 1.0:** 1.0 Ende Juni 2027 ist genau der Kernpfad (M0 bis M15). Die Blöcke F bis K folgen als 1.1, 1.2 usw. UMB-04 passt die Release-Spalte der README an.
+2. **Wirkung:** keine Zusatz-Spec. Block W folgt nach F, P und J, weil er die Initiativen aus JBP-03 braucht.
+3. **Reihenfolge der Blöcke:** F, S, P, J, W, R, K. Nach dem Testlauf im Juni wird sie noch einmal geprüft.
