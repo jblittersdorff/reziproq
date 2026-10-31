@@ -11,7 +11,7 @@ Als Einkäufer sehe ich nach dem Login auf einen Blick alle Bereiche von Rezipro
 | Rolle | Darf |
 |---|---|
 | Käufer: alle Rollen | Startseite, Seitenleiste und alle Bereichsseiten sehen. Inhalte je Rolle kommen mit den einzelnen Funktionen. |
-| Käufer: Admin | In den Einstellungen zusätzlich den Abschnitt „Organisation“ sehen (Inhalt kommt mit PLT-02 und PLT-05). |
+| Käufer: Admin (Rolle `admin` in Zitadel) | In den Einstellungen zusätzlich den Abschnitt „Organisation“ sehen (Inhalt kommt mit PLT-02 und PLT-05). |
 | Lieferant | Nicht Teil. Lieferanten bekommen ab Release 0.2 eine eigene, kleinere Navigation. |
 
 ## Daten
@@ -24,7 +24,7 @@ Als Einkäufer sehe ich nach dem Login auf einen Blick alle Bereiche von Rezipro
 
 1. Der Nutzer meldet sich an und landet auf **Übersicht** (`/uebersicht`).
 2. Oben steht eine Begrüßung nach Tageszeit mit Vornamen, z. B. „Guten Morgen, Anna“.
-3. Darunter bleibt Platz für das Prompt-Fenster aus PLT-12. Bis dahin steht dort nichts, auch kein totes Eingabefeld.
+3. Darunter steht seit PLT-12 das Feld, das das Prompt-Fenster öffnet. Ein totes Eingabefeld gibt es nie.
 4. Darunter stehen sechs große Kacheln. Jede ist als Ganzes anklickbar:
 
 | Kachel | Satz auf der Kachel | Route | Kommt mit |
@@ -62,7 +62,7 @@ Je Kriterium ein Test.
 - [ ] Bei 390 px Breite ist die Seitenleiste eingeklappt, die Kacheln stehen einspaltig, und es gibt keine waagerechte Scrollleiste (Playwright).
 - [ ] Alle Knöpfe, Links und Kacheln sind mindestens 44 × 44 px groß.
 - [ ] Hell- und Dunkelmodus folgen dem System und lassen sich in den Einstellungen umschalten.
-- [ ] Der Abschnitt „Organisation“ ist nur für Admins sichtbar. Bis PLT-05 gilt jeder Nutzer als Admin.
+- [ ] Der Abschnitt „Organisation“ ist nur für Admins sichtbar. Seit PLT-13 entscheidet `can()` in der API anhand der Rolle `admin` aus Zitadel.
 - [ ] Alles ist per Tastatur bedienbar, mit logischer Tab-Reihenfolge und sichtbarem Fokus.
 - [ ] Unbekannte Adressen zeigen die Nicht-gefunden-Seite.
 - [ ] Alle Texte kommen aus der deutschen Übersetzungsdatei. Ein Test schlägt fehl, wenn ein Schlüssel fehlt.

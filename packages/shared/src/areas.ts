@@ -8,7 +8,7 @@ export const areas = [
   { key: 'pulse', path: '/puls', name: 'Beziehungspuls', release: '0.2' },
   { key: 'jointBusinessPlans', path: '/jbp', name: 'Joint Business Plans', release: '0.3' },
   { key: 'qbrs', path: '/qbr', name: 'QBRs und Maßnahmen', release: '0.3' },
-  { key: 'pnlImpact', path: '/pnl', name: 'P&L-Impact', release: '1.0' },
+  { key: 'pnlImpact', path: '/pnl', name: 'P&L-Impact', release: '0.3' },
 ] as const;
 
 export type AreaKey = (typeof areas)[number]['key'];
