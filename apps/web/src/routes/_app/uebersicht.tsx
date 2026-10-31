@@ -1,6 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { OverviewPage } from '@/features/overview/overview-page';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
+// Frühere Startseite; Lesezeichen führen jetzt zu Start (PLT-11).
 export const Route = createFileRoute('/_app/uebersicht')({
-  component: OverviewPage,
+  beforeLoad: () => {
+    throw redirect({ to: '/start', replace: true });
+  },
 });

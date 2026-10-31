@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 
-/** Freundliche Seite für unbekannte Adressen mit dem Weg zurück zur Übersicht. */
+/** Freundliche Seite für unbekannte Adressen mit dem Weg zurück zu Start. */
 export function NotFoundPage() {
   const t = useT();
 
@@ -22,7 +22,7 @@ export function NotFoundPage() {
         <p className="text-muted-foreground">{t.notFound.description}</p>
       </div>
       <Button asChild>
-        <Link to="/uebersicht">{t.notFound.back}</Link>
+        <Link to="/start">{t.notFound.back}</Link>
       </Button>
     </section>
   );

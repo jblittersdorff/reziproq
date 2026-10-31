@@ -40,6 +40,7 @@ export const styleguideMessages = defineMessages({
         sm: { name: 'Fußnote', use: 'Beschriftungen und Hinweise' },
       },
       weights: 'Betonung über Schriftstärke: normal, mittel, halbfett',
+      weightSample: 'Aa',
       sample: 'Partnerschaft mit Wirkung',
     },
     layout: {
@@ -311,6 +312,7 @@ export const styleguideMessages = defineMessages({
         sm: { name: 'Footnote', use: 'Labels and hints' },
       },
       weights: 'Emphasis through weight: regular, medium, semibold',
+      weightSample: 'Aa',
       sample: 'Partnership with impact',
     },
     layout: {

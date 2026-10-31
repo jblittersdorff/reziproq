@@ -7,7 +7,7 @@ import { PnlBridge } from '@/components/charts/pnl-bridge';
 import { SegmentMatrix } from '@/components/charts/segment-matrix';
 import { Timeline } from '@/components/charts/timeline';
 import { SegmentedControl } from '@/components/ui/segmented-control';
-import { type Locale, useLocale, useMessages } from '@/lib/i18n';
+import { type Locale, useLocale, useMessages, useT } from '@/lib/i18n';
 import { formatMoney, formatNumber } from '@/lib/money';
 import { type ThemePreference, usePageTheme } from '@/lib/theme';
 import { BuildingBlocks } from './building-blocks';
@@ -30,6 +30,7 @@ const sectionIds = ['colors', 'typography', 'layout', 'navigation', 'blocks', 'c
 /** Alle Bausteine der Oberfläche auf einer Seite, in Hell und Dunkel (PLT-10). */
 export function StyleguidePage() {
   const t = useMessages(styleguideMessages);
+  const app = useT();
   const { locale, setLocale } = useLocale();
   const [theme, setTheme] = usePageTheme();
   const values = useTokenValues();
@@ -42,7 +43,7 @@ export function StyleguidePage() {
     <div className="flex min-h-svh">
       <aside className="sticky top-0 hidden h-svh w-56 shrink-0 bg-muted/90 px-3 py-6 backdrop-blur md:block">
         <nav aria-label={t.nav} className="flex flex-col gap-1">
-          <span className="flex min-h-11 items-center px-3 font-semibold text-base">reziproq</span>
+          <span className="flex min-h-11 items-center px-3 font-semibold text-base">{app.app.name}</span>
           {sectionIds.map((id) => (
             <a
               key={id}

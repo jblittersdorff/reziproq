@@ -12,7 +12,7 @@ import {
   tearDownApp,
 } from '@/testing/app-harness';
 
-// Oberflächentests zu docs/specs/PLT-12.md: Prompt-Fenster.
+// Oberflächentests zu docs/specs/PLT-12.md. Seit PLT-11 eine eigene Seite /fragen statt Fenster.
 
 const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
 vi.mock('react-oidc-context', () => ({
@@ -31,16 +31,16 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-const pages = ['/uebersicht', '/lieferanten', '/puls', '/pnl', '/einstellungen', '/gibt-es-nicht'];
+const pages = ['/start', '/lieferanten', '/portfolio', '/wirkung', '/profil', '/gibt-es-nicht'];
 
-const dialog = () => screen.findByRole('dialog', { name: 'Frag Reziproq' });
+const questionsPage = () => screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
 const field = () => screen.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
 
-async function openWithShortcut(path = '/uebersicht') {
+async function openWithShortcut(path = '/start') {
   const router = renderAt(path);
   await screen.findByRole('heading', { level: 1 });
   fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-  await dialog();
+  await questionsPage();
   return router;
 }
 
@@ -49,34 +49,30 @@ async function askQuestion(question: string) {
   fireEvent.click(screen.getByRole('button', { name: 'Fragen' }));
 }
 
-describe('Öffnen und schließen', () => {
-  it.each(pages)('Ctrl+K öffnet das Fenster auf %s, der Fokus liegt im Feld', async (path) => {
-    await openWithShortcut(path);
+describe('Öffnen', () => {
+  it.each(pages)('Ctrl+K öffnet /fragen von %s, der Fokus liegt im Feld', async (path) => {
+    const router = await openWithShortcut(path);
+    expect(router.state.location.pathname).toBe('/fragen');
     expect(document.activeElement).toBe(field());
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('Cmd+K öffnet das Fenster ebenso', async () => {
+  it('Cmd+K öffnet die Seite ebenso', async () => {
     renderAt('/lieferanten');
     await screen.findByRole('heading', { level: 1 });
     fireEvent.keyDown(window, { key: 'k', metaKey: true });
-    expect(await dialog()).toBeDefined();
+    expect(await questionsPage()).toBeDefined();
   });
 
-  it('Esc schließt das Fenster', async () => {
-    await openWithShortcut();
-    fireEvent.keyDown(field(), { key: 'Escape' });
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-  });
-
-  it('das Feld auf der Übersicht öffnet dasselbe Fenster', async () => {
-    renderAt('/uebersicht');
-    fireEvent.click(await screen.findByRole('button', { name: /Frag Reziproq …/ }));
-    expect(await dialog()).toBeDefined();
+  it('das Feld auf Start führt zur selben Seite', async () => {
+    renderAt('/start');
+    fireEvent.click(await screen.findByRole('link', { name: /Frag Reziproq …/ }));
+    expect(await questionsPage()).toBeDefined();
     expect(document.activeElement).toBe(field());
   });
 });
 
-describe('Leeres Fenster', () => {
+describe('Leere Seite', () => {
   it('zeigt die drei Vorschläge und den Hinweis zu den Daten', async () => {
     await openWithShortcut();
     const suggestions = within(screen.getByRole('region', { name: 'Vorschläge' })).getAllByRole(
@@ -85,7 +81,7 @@ describe('Leeres Fenster', () => {
     expect(suggestions.map((button) => button.textContent)).toEqual([
       'Zeig mir die Lieferanten mit dem höchsten Spend',
       'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
-      'Öffne den Beziehungspuls',
+      'Öffne das Portfolio',
     ]);
     expect(
       screen.getByText('Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.'),
@@ -94,24 +90,24 @@ describe('Leeres Fenster', () => {
 
   it('ein Klick auf einen Vorschlag übernimmt den Text, ohne schon zu fragen', async () => {
     await openWithShortcut();
-    fireEvent.click(screen.getByRole('button', { name: 'Öffne den Beziehungspuls' }));
-    expect(field()).toHaveProperty('value', 'Öffne den Beziehungspuls');
+    fireEvent.click(screen.getByRole('button', { name: 'Öffne das Portfolio' }));
+    expect(field()).toHaveProperty('value', 'Öffne das Portfolio');
     expect(document.activeElement).toBe(field());
     expect(api.promptRequests).toEqual([]);
   });
 });
 
 describe('Antworten', () => {
-  it('„Öffne den Beziehungspuls“ wechselt zu /puls und schließt das Fenster', async () => {
+  it('„Öffne das Portfolio“ wechselt zu /portfolio', async () => {
     api.prompt.events = [
-      { type: 'text', delta: 'Ich öffne Beziehungspuls.' },
-      { type: 'navigate', to: '/puls' },
+      { type: 'text', delta: 'Ich öffne Portfolio.' },
+      { type: 'navigate', to: '/portfolio' },
       { type: 'done' },
     ];
     const router = await openWithShortcut();
-    await askQuestion('Öffne den Beziehungspuls');
-    await waitFor(() => expect(router.state.location.pathname).toBe('/puls'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await askQuestion('Öffne das Portfolio');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio'));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Portfolio' })).toBeDefined();
   });
 
   it('zeigt die Antwort Stück für Stück und die Treffer als Karten', async () => {
@@ -214,15 +210,15 @@ describe('Verlauf', () => {
     expect(screen.getByRole('region', { name: 'Vorschläge' })).toBeDefined();
   });
 
-  it('beginnt nach dem Schließen mit einem leeren Fenster', async () => {
+  it('beginnt nach dem Verlassen der Seite wieder leer', async () => {
     api.prompt.events = [{ type: 'text', delta: 'Erste Antwort.' }, { type: 'done' }];
-    await openWithShortcut();
+    const router = await openWithShortcut();
     await askQuestion('Erste Frage');
     await screen.findByText('Erste Antwort.');
-    fireEvent.keyDown(field(), { key: 'Escape' });
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await router.navigate({ to: '/start' });
+    await screen.findByRole('heading', { level: 1, name: /Guten/ });
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
-    await dialog();
+    await questionsPage();
     expect(screen.queryByText('Erste Antwort.')).toBeNull();
   });
 });

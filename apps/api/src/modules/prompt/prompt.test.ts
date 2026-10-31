@@ -139,10 +139,10 @@ describe('POST /api/prompt', () => {
     expect(res.status).toBe(400);
   });
 
-  it('„Öffne den Beziehungspuls“ führt zu /puls', async () => {
-    const events = await ask(users.a, 'Öffne den Beziehungspuls');
-    expect(events).toContainEqual({ type: 'navigate', to: '/puls' });
-    expect(textOf(events)).toBe('Ich öffne Beziehungspuls.');
+  it('„Öffne das Portfolio“ führt zu /portfolio', async () => {
+    const events = await ask(users.a, 'Öffne das Portfolio');
+    expect(events).toContainEqual({ type: 'navigate', to: '/portfolio' });
+    expect(textOf(events)).toBe('Ich öffne Portfolio.');
     expect(events.at(-1)).toEqual({ type: 'done' });
   });
 
@@ -194,7 +194,7 @@ describe('POST /api/prompt', () => {
   });
 
   it('streamt die Antwort in mehreren Stücken', async () => {
-    const events = await ask(users.a, 'Öffne den Beziehungspuls');
+    const events = await ask(users.a, 'Öffne das Portfolio');
     expect(events.filter((event) => event.type === 'text').length).toBeGreaterThan(1);
   });
 

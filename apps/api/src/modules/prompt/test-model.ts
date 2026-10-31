@@ -63,10 +63,7 @@ export class TestPromptModel implements PromptModel {
 
 function areaIn(question: string) {
   const lower = question.toLocaleLowerCase('de');
-  // Längere Namen zuerst, damit „Beziehungspuls“ nicht als „Beziehungen“ erkannt wird.
-  return [...areas]
-    .sort((a, b) => b.name.length - a.name.length)
-    .find((area) => lower.includes(area.name.toLocaleLowerCase('de')));
+  return areas.find((area) => lower.includes(area.name.toLocaleLowerCase('de')));
 }
 
 function searchFor(question: string): Record<string, unknown> {

@@ -13,15 +13,18 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
-import { Route as AppBeziehungenRouteImport } from './routes/_app/beziehungen'
-import { Route as AppEinstellungenRouteImport } from './routes/_app/einstellungen'
-import { Route as AppJbpRouteImport } from './routes/_app/jbp'
+import { Route as AppFragenRouteImport } from './routes/_app/fragen'
 import { Route as AppLieferantenRouteImport } from './routes/_app/lieferanten'
-import { Route as AppPnlRouteImport } from './routes/_app/pnl'
-import { Route as AppPulsRouteImport } from './routes/_app/puls'
-import { Route as AppQbrRouteImport } from './routes/_app/qbr'
+import { Route as AppMenuRouteImport } from './routes/_app/menu'
+import { Route as AppPortfolioRouteImport } from './routes/_app/portfolio'
+import { Route as AppStartRouteImport } from './routes/_app/start'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
+import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
+import { Route as AppEinstellungenOrganisationRouteImport } from './routes/_app/einstellungen/organisation'
+import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
+import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/profil/erscheinungsbild'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,19 +45,9 @@ const AppSplatRoute = AppSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBeziehungenRoute = AppBeziehungenRouteImport.update({
-  id: '/beziehungen',
-  path: '/beziehungen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppEinstellungenRoute = AppEinstellungenRouteImport.update({
-  id: '/einstellungen',
-  path: '/einstellungen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppJbpRoute = AppJbpRouteImport.update({
-  id: '/jbp',
-  path: '/jbp',
+const AppFragenRoute = AppFragenRouteImport.update({
+  id: '/fragen',
+  path: '/fragen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppLieferantenRoute = AppLieferantenRouteImport.update({
@@ -62,19 +55,19 @@ const AppLieferantenRoute = AppLieferantenRouteImport.update({
   path: '/lieferanten',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPnlRoute = AppPnlRouteImport.update({
-  id: '/pnl',
-  path: '/pnl',
+const AppMenuRoute = AppMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
   getParentRoute: () => AppRoute,
 } as any)
-const AppPulsRoute = AppPulsRouteImport.update({
-  id: '/puls',
-  path: '/puls',
+const AppPortfolioRoute = AppPortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => AppRoute,
 } as any)
-const AppQbrRoute = AppQbrRouteImport.update({
-  id: '/qbr',
-  path: '/qbr',
+const AppStartRoute = AppStartRouteImport.update({
+  id: '/start',
+  path: '/start',
   getParentRoute: () => AppRoute,
 } as any)
 const AppUebersichtRoute = AppUebersichtRouteImport.update({
@@ -82,39 +75,72 @@ const AppUebersichtRoute = AppUebersichtRouteImport.update({
   path: '/uebersicht',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWirkungRoute = AppWirkungRouteImport.update({
+  id: '/wirkung',
+  path: '/wirkung',
+  getParentRoute: () => AppRoute,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
+  id: '/einstellungen/',
+  path: '/einstellungen/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEinstellungenOrganisationRoute =
+  AppEinstellungenOrganisationRouteImport.update({
+    id: '/einstellungen/organisation',
+    path: '/einstellungen/organisation',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppProfilIndexRoute = AppProfilIndexRouteImport.update({
+  id: '/profil/',
+  path: '/profil/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfilErscheinungsbildRoute =
+  AppProfilErscheinungsbildRouteImport.update({
+    id: '/profil/erscheinungsbild',
+    path: '/profil/erscheinungsbild',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
-  '/beziehungen': typeof AppBeziehungenRoute
-  '/einstellungen': typeof AppEinstellungenRoute
-  '/jbp': typeof AppJbpRoute
+  '/fragen': typeof AppFragenRoute
   '/lieferanten': typeof AppLieferantenRoute
-  '/pnl': typeof AppPnlRoute
-  '/puls': typeof AppPulsRoute
-  '/qbr': typeof AppQbrRoute
+  '/menu': typeof AppMenuRoute
+  '/portfolio': typeof AppPortfolioRoute
+  '/start': typeof AppStartRoute
   '/uebersicht': typeof AppUebersichtRoute
+  '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/profil/': typeof AppProfilIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
-  '/beziehungen': typeof AppBeziehungenRoute
-  '/einstellungen': typeof AppEinstellungenRoute
-  '/jbp': typeof AppJbpRoute
+  '/fragen': typeof AppFragenRoute
   '/lieferanten': typeof AppLieferantenRoute
-  '/pnl': typeof AppPnlRoute
-  '/puls': typeof AppPulsRoute
-  '/qbr': typeof AppQbrRoute
+  '/menu': typeof AppMenuRoute
+  '/portfolio': typeof AppPortfolioRoute
+  '/start': typeof AppStartRoute
   '/uebersicht': typeof AppUebersichtRoute
+  '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/einstellungen': typeof AppEinstellungenIndexRoute
+  '/profil': typeof AppProfilIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,15 +148,18 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/styleguide': typeof StyleguideRoute
   '/_app/$': typeof AppSplatRoute
-  '/_app/beziehungen': typeof AppBeziehungenRoute
-  '/_app/einstellungen': typeof AppEinstellungenRoute
-  '/_app/jbp': typeof AppJbpRoute
+  '/_app/fragen': typeof AppFragenRoute
   '/_app/lieferanten': typeof AppLieferantenRoute
-  '/_app/pnl': typeof AppPnlRoute
-  '/_app/puls': typeof AppPulsRoute
-  '/_app/qbr': typeof AppQbrRoute
+  '/_app/menu': typeof AppMenuRoute
+  '/_app/portfolio': typeof AppPortfolioRoute
+  '/_app/start': typeof AppStartRoute
   '/_app/uebersicht': typeof AppUebersichtRoute
+  '/_app/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/_app/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/_app/profil/': typeof AppProfilIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,44 +167,53 @@ export interface FileRouteTypes {
     | '/'
     | '/styleguide'
     | '/$'
-    | '/beziehungen'
-    | '/einstellungen'
-    | '/jbp'
+    | '/fragen'
     | '/lieferanten'
-    | '/pnl'
-    | '/puls'
-    | '/qbr'
+    | '/menu'
+    | '/portfolio'
+    | '/start'
     | '/uebersicht'
+    | '/wirkung'
     | '/auth/callback'
+    | '/einstellungen/organisation'
+    | '/profil/erscheinungsbild'
+    | '/einstellungen/'
+    | '/profil/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/styleguide'
     | '/$'
-    | '/beziehungen'
-    | '/einstellungen'
-    | '/jbp'
+    | '/fragen'
     | '/lieferanten'
-    | '/pnl'
-    | '/puls'
-    | '/qbr'
+    | '/menu'
+    | '/portfolio'
+    | '/start'
     | '/uebersicht'
+    | '/wirkung'
     | '/auth/callback'
+    | '/einstellungen/organisation'
+    | '/profil/erscheinungsbild'
+    | '/einstellungen'
+    | '/profil'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/styleguide'
     | '/_app/$'
-    | '/_app/beziehungen'
-    | '/_app/einstellungen'
-    | '/_app/jbp'
+    | '/_app/fragen'
     | '/_app/lieferanten'
-    | '/_app/pnl'
-    | '/_app/puls'
-    | '/_app/qbr'
+    | '/_app/menu'
+    | '/_app/portfolio'
+    | '/_app/start'
     | '/_app/uebersicht'
+    | '/_app/wirkung'
     | '/auth/callback'
+    | '/_app/einstellungen/organisation'
+    | '/_app/profil/erscheinungsbild'
+    | '/_app/einstellungen/'
+    | '/_app/profil/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,25 +253,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSplatRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/beziehungen': {
-      id: '/_app/beziehungen'
-      path: '/beziehungen'
-      fullPath: '/beziehungen'
-      preLoaderRoute: typeof AppBeziehungenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/einstellungen': {
-      id: '/_app/einstellungen'
-      path: '/einstellungen'
-      fullPath: '/einstellungen'
-      preLoaderRoute: typeof AppEinstellungenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/jbp': {
-      id: '/_app/jbp'
-      path: '/jbp'
-      fullPath: '/jbp'
-      preLoaderRoute: typeof AppJbpRouteImport
+    '/_app/fragen': {
+      id: '/_app/fragen'
+      path: '/fragen'
+      fullPath: '/fragen'
+      preLoaderRoute: typeof AppFragenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/lieferanten': {
@@ -243,25 +267,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/pnl': {
-      id: '/_app/pnl'
-      path: '/pnl'
-      fullPath: '/pnl'
-      preLoaderRoute: typeof AppPnlRouteImport
+    '/_app/menu': {
+      id: '/_app/menu'
+      path: '/menu'
+      fullPath: '/menu'
+      preLoaderRoute: typeof AppMenuRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/puls': {
-      id: '/_app/puls'
-      path: '/puls'
-      fullPath: '/puls'
-      preLoaderRoute: typeof AppPulsRouteImport
+    '/_app/portfolio': {
+      id: '/_app/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/qbr': {
-      id: '/_app/qbr'
-      path: '/qbr'
-      fullPath: '/qbr'
-      preLoaderRoute: typeof AppQbrRouteImport
+    '/_app/start': {
+      id: '/_app/start'
+      path: '/start'
+      fullPath: '/start'
+      preLoaderRoute: typeof AppStartRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/uebersicht': {
@@ -271,6 +295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUebersichtRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/wirkung': {
+      id: '/_app/wirkung'
+      path: '/wirkung'
+      fullPath: '/wirkung'
+      preLoaderRoute: typeof AppWirkungRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -278,31 +309,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/einstellungen/': {
+      id: '/_app/einstellungen/'
+      path: '/einstellungen'
+      fullPath: '/einstellungen/'
+      preLoaderRoute: typeof AppEinstellungenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/organisation': {
+      id: '/_app/einstellungen/organisation'
+      path: '/einstellungen/organisation'
+      fullPath: '/einstellungen/organisation'
+      preLoaderRoute: typeof AppEinstellungenOrganisationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profil/': {
+      id: '/_app/profil/'
+      path: '/profil'
+      fullPath: '/profil/'
+      preLoaderRoute: typeof AppProfilIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profil/erscheinungsbild': {
+      id: '/_app/profil/erscheinungsbild'
+      path: '/profil/erscheinungsbild'
+      fullPath: '/profil/erscheinungsbild'
+      preLoaderRoute: typeof AppProfilErscheinungsbildRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
-  AppBeziehungenRoute: typeof AppBeziehungenRoute
-  AppEinstellungenRoute: typeof AppEinstellungenRoute
-  AppJbpRoute: typeof AppJbpRoute
+  AppFragenRoute: typeof AppFragenRoute
   AppLieferantenRoute: typeof AppLieferantenRoute
-  AppPnlRoute: typeof AppPnlRoute
-  AppPulsRoute: typeof AppPulsRoute
-  AppQbrRoute: typeof AppQbrRoute
+  AppMenuRoute: typeof AppMenuRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
+  AppStartRoute: typeof AppStartRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
+  AppWirkungRoute: typeof AppWirkungRoute
+  AppEinstellungenOrganisationRoute: typeof AppEinstellungenOrganisationRoute
+  AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
+  AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
+  AppProfilIndexRoute: typeof AppProfilIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
-  AppBeziehungenRoute: AppBeziehungenRoute,
-  AppEinstellungenRoute: AppEinstellungenRoute,
-  AppJbpRoute: AppJbpRoute,
+  AppFragenRoute: AppFragenRoute,
   AppLieferantenRoute: AppLieferantenRoute,
-  AppPnlRoute: AppPnlRoute,
-  AppPulsRoute: AppPulsRoute,
-  AppQbrRoute: AppQbrRoute,
+  AppMenuRoute: AppMenuRoute,
+  AppPortfolioRoute: AppPortfolioRoute,
+  AppStartRoute: AppStartRoute,
   AppUebersichtRoute: AppUebersichtRoute,
+  AppWirkungRoute: AppWirkungRoute,
+  AppEinstellungenOrganisationRoute: AppEinstellungenOrganisationRoute,
+  AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
+  AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
+  AppProfilIndexRoute: AppProfilIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

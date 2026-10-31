@@ -5,21 +5,30 @@ export const de = {
   app: {
     name: 'Reziproq',
     navigation: 'Hauptnavigation',
-    openNavigation: 'Navigation öffnen',
-    closeNavigation: 'Navigation schließen',
+    openMenu: 'Menü öffnen',
     skipToContent: 'Zum Inhalt springen',
+    path: 'Pfad',
+    backTo: (page: string) => `Zurück zu ${page}`,
   },
 
+  // Ziele der globalen Leiste (PLT-11)
   nav: {
-    overview: 'Übersicht',
-    settings: 'Einstellungen',
+    start: 'Start',
+    suppliers: 'Lieferanten',
+    portfolio: 'Portfolio',
+    impact: 'Wirkung',
+    questions: 'Fragen',
+    profile: 'Profil',
+  },
+
+  menu: {
+    title: 'Menü',
+    purpose: 'Alle Bereiche von Reziproq.',
   },
 
   user: {
-    menu: 'Konto-Menü',
     loading: 'Konto wird geladen …',
     failed: 'Konto nicht geladen',
-    settings: 'Einstellungen',
     signOut: 'Abmelden',
   },
 
@@ -33,83 +42,54 @@ export const de = {
     notConfiguredTitle: 'Login ist noch nicht eingerichtet',
     notConfiguredDescription:
       'Trage ZITADEL_ISSUER und ZITADEL_CLIENT_ID in die .env ein und starte die App neu.',
-    backHome: 'Zur Übersicht',
+    backHome: 'Zu Start',
     reauthTitle: 'Bitte melde dich neu an',
     reauthDescription: 'Deine Sitzung ist abgelaufen. Was du eingegeben hast, bleibt erhalten.',
     reauthAction: 'Neu anmelden',
   },
 
-  comingWith: (release: string) => `Kommt mit Release ${release}`,
-
-  overview: {
-    title: 'Übersicht',
+  start: {
+    title: 'Start',
     greetingMorning: (firstName: string) => `Guten Morgen, ${firstName}`,
     greetingDay: (firstName: string) => `Guten Tag, ${firstName}`,
     greetingEvening: (firstName: string) => `Guten Abend, ${firstName}`,
     greetingWithoutName: 'Willkommen bei Reziproq',
-    areas: 'Bereiche',
+    emptyTitle: 'Hier steht bald, was bei dir fällig ist',
+    emptyDescription: 'Offene Bewertungen, Termine und Maßnahmen erscheinen hier, sobald es sie gibt.',
   },
 
-  // Titel, Satz auf Kachel und Bereichsseite, und was auf der Seite entsteht (PLT-11).
-  areas: {
-    suppliers: {
-      title: 'Lieferanten',
-      sentence:
-        'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
-      emptyDescription:
-        'Hier entsteht die Segmentierung deiner Lieferanten nach Business Impact und Beziehungsqualität.',
-    },
-    relationships: {
-      title: 'Beziehungen',
-      sentence:
-        'Rechte und Pflichten je Beziehungstyp, Rollen und Ansprechpartner auf beiden Seiten.',
-      emptyDescription:
-        'Hier entstehen die Playbooks je Beziehungstyp mit Rollen und Ansprechpartnern auf beiden Seiten.',
-    },
-    pulse: {
-      title: 'Beziehungspuls',
-      sentence: 'Wie beide Seiten die Beziehung sehen – heute und gewünscht.',
-      emptyDescription:
-        'Hier entsteht der Puls, mit dem Käufer und Lieferant die Beziehung regelmäßig einschätzen.',
-    },
-    jointBusinessPlans: {
-      title: 'Joint Business Plans',
-      sentence: 'Gemeinsame Ziele, Initiativen und KPIs mit strategischen Lieferanten.',
-      emptyDescription:
-        'Hier entstehen gemeinsame Pläne mit Zielen, Initiativen und KPIs für strategische Lieferanten.',
-    },
-    qbrs: {
-      title: 'QBRs und Maßnahmen',
-      sentence: 'Fortschritt regelmäßig prüfen, Zusagen nachhalten, Maßnahmen steuern.',
-      emptyDescription:
-        'Hier entstehen die Quartalsgespräche mit Fortschritt, Zusagen und Maßnahmen.',
-    },
-    pnlImpact: {
-      title: 'P&L-Impact',
-      sentence: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt – belegt und freigegeben.',
-      emptyDescription:
-        'Hier entsteht der Nachweis, welche Initiativen welche GuV-Zeile bewegen, bis zur Freigabe durch Controlling.',
-    },
+  // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)
+  portfolio: {
+    title: 'Portfolio',
+    purpose: 'Alle Lieferanten nach Business Impact und Beziehungsqualität.',
+    emptyTitle: 'Noch kein Portfolio',
+    emptyDescription:
+      'Sobald Lieferanten bewertet sind, siehst du hier die Matrix und deine Fokuslieferanten.',
   },
 
-  settings: {
-    title: 'Einstellungen',
-    purpose: 'Reziproq so einstellen, wie es für dich passt.',
+  impact: {
+    title: 'Wirkung',
+    purpose: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt.',
+    emptyTitle: 'Noch keine Wirkung',
+    emptyDescription:
+      'Sobald gemeinsame Initiativen Wirkung tragen, siehst du hier Pipeline und P&L-Brücke.',
+  },
+
+  profile: {
+    title: 'Profil',
+    purpose: 'Dein Konto, deine Darstellung und der Weg zu den Einstellungen.',
+    account: 'Konto',
+    name: 'Name',
+    email: 'E-Mail',
+    organization: 'Organisation',
+    noOrganization: 'Keiner Organisation zugeordnet',
     display: 'Darstellung',
     theme: 'Erscheinungsbild',
-    themeDescription: 'System folgt der Einstellung deines Geräts.',
     themeSystem: 'System',
     themeLight: 'Hell',
     themeDark: 'Dunkel',
-    organization: 'Organisation',
-    organizationName: 'Name',
-    organizationCountry: 'Land',
-    members: 'Mitglieder',
-    memberName: 'Name',
-    memberEmail: 'E-Mail',
-    organizationLoading: 'Organisation wird geladen …',
-    organizationFailed: 'Die Organisation konnte nicht geladen werden.',
-    account: 'Konto',
+    settings: 'Einstellungen',
+    allSettings: 'Alle Einstellungen',
     roles: 'Deine Rollen in Reziproq',
     rolesDescription: 'So, wie sie im Token von Zitadel ankommen.',
     rolesNone: 'Keine',
@@ -117,8 +97,36 @@ export const de = {
       'Zitadel schickt keine Rollen im Token. Prüfe im Zitadel-Projekt „Rollen bei Authentifizierung mitgeben“ und ob dir eine Rolle zugewiesen ist. Danach ab- und wieder anmelden.',
   },
 
+  appearance: {
+    title: 'Erscheinungsbild',
+    purpose: 'Wie Reziproq auf diesem Gerät aussieht.',
+    description: 'System folgt der Einstellung deines Geräts.',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+  },
+
+  settings: {
+    title: 'Einstellungen',
+    purpose: 'Reziproq für deine Organisation einrichten.',
+    adminOnly: 'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
+    organization: 'Organisation',
+    organizationHint: 'Name, Land und Mitglieder',
+    organizationPurpose: 'Name, Land und Mitglieder deiner Organisation. Nur zum Lesen.',
+    organizationName: 'Name',
+    organizationCountry: 'Land',
+    members: 'Mitglieder',
+    memberName: 'Name',
+    memberEmail: 'E-Mail',
+    organizationLoading: 'Organisation wird geladen …',
+    organizationFailed: 'Die Organisation konnte nicht geladen werden.',
+    noOrganization: 'Du bist keiner Organisation zugeordnet.',
+  },
+
   // Lieferantenliste (PLT-02)
   suppliers: {
+    title: 'Lieferanten',
+    purpose:
+      'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
     count: (count: number) => (count === 1 ? '1 Lieferant' : `${count} Lieferanten`),
     totalSpend: (amount: string, year: number) => `${amount} Jahresspend ${year}`,
     search: 'Lieferant oder Warengruppe suchen',
@@ -137,12 +145,9 @@ export const de = {
     noPermissionTitle: 'Dir fehlt eine Rolle',
     noPermissionDescription:
       'Um Lieferanten zu sehen, brauchst du in Reziproq eine Käufer-Rolle. Wende dich an deinen Admin.',
-    tileNoOrganization: 'Keiner Organisation zugeordnet',
-    tileNoPermission: 'Keine Rolle für Lieferanten',
-    tileFailed: 'Gerade nicht geladen',
   },
 
-  // Prompt-Fenster (PLT-12)
+  // Fragen (PLT-12), seit PLT-11 als Seite /fragen
   prompt: {
     title: 'Frag Reziproq',
     placeholder: 'Frag Reziproq …',
@@ -153,7 +158,7 @@ export const de = {
     suggestions: 'Vorschläge',
     suggestionTopSpend: 'Zeig mir die Lieferanten mit dem höchsten Spend',
     suggestionElectronics: 'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
-    suggestionPulse: 'Öffne den Beziehungspuls',
+    suggestionPortfolio: 'Öffne das Portfolio',
     answering: 'Reziproq antwortet …',
     hits: 'Treffer',
     noHits: 'Keine Treffer',
@@ -176,7 +181,7 @@ export const de = {
       `Betreiber-Ansicht: ${customer}. Alle Zugriffe werden protokolliert.`,
     leave: 'Verlassen',
     chooseCustomer:
-      'Du bist keiner Organisation zugeordnet. Wähle als Betreiber im Konto-Menü „Kunde wechseln“.',
+      'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „Kunde wechseln“.',
   },
 
   organization: {
@@ -189,7 +194,7 @@ export const de = {
   notFound: {
     title: 'Diese Seite gibt es nicht',
     description: 'Vielleicht hat sich die Adresse geändert, oder sie enthält einen Tippfehler.',
-    back: 'Zur Übersicht',
+    back: 'Zu Start',
   },
 };
 

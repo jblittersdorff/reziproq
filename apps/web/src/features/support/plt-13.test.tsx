@@ -31,26 +31,25 @@ const operator = {
 const banner = (customer: string) =>
   `Betreiber-Ansicht: ${customer}. Alle Zugriffe werden protokolliert.`;
 
-async function openUserMenu() {
-  const trigger = await screen.findByRole('button', { name: /Anna Schmidt/ });
-  fireEvent.keyDown(trigger, { key: 'Enter' });
-  return screen.findByRole('menu');
-}
+// Seit PLT-11 steht „Kunde wechseln“ auf der Seite /profil; der Dialog bleibt bis UMB-01.
 
 describe('Kunde wechseln', () => {
-  it('fehlt im Menü für Nutzer ohne Rolle betreiber, auch für Admins', async () => {
-    api.me = { ...anna, permissions: { ...anna.permissions, viewOrganizationSettings: true } };
-    renderAt('/uebersicht');
-    const menu = await openUserMenu();
-    expect(within(menu).queryByRole('menuitem', { name: 'Kunde wechseln' })).toBeNull();
+  it('fehlt auf dem Profil für Nutzer ohne Rolle betreiber, auch für Admins', async () => {
+    api.me = {
+      ...anna,
+      roles: ['admin'],
+      permissions: { ...anna.permissions, viewOrganizationSettings: true, manageSettings: true },
+    };
+    renderAt('/profil');
+    await screen.findByText('Anna Schmidt');
+    expect(screen.queryByRole('button', { name: 'Kunde wechseln' })).toBeNull();
     expect(api.requests.some((r) => r.url === '/api/betreiber/kunden')).toBe(false);
   });
 
   it('zeigt Betreibern die Kunden und wechselt per Klick in einen davon', async () => {
     api.me = operator;
-    const router = renderAt('/lieferanten');
-    const menu = await openUserMenu();
-    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Kunde wechseln' }));
+    const router = renderAt('/profil');
+    fireEvent.click(await screen.findByRole('button', { name: 'Kunde wechseln' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'In einen Kunden wechseln' });
     const choices = await within(dialog).findAllByRole('button');
@@ -67,7 +66,7 @@ describe('Kunde wechseln', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: /Zweit-OEM/ }));
 
     expect(await screen.findByText(banner('Zweit-OEM (Demo)'))).toBeDefined();
-    await waitFor(() => expect(router.state.location.pathname).toBe('/uebersicht'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/start'));
     await waitFor(() =>
       expect(api.requests.filter((r) => r.url === '/api/me').at(-1)?.customer).toBe('org-2'),
     );
@@ -75,10 +74,10 @@ describe('Kunde wechseln', () => {
 
   it('weist Betreiber ohne eigene Organisation auf „Kunde wechseln“ hin', async () => {
     api.me = operator;
-    renderAt('/uebersicht');
+    renderAt('/start');
     expect(
       await screen.findByText(
-        'Du bist keiner Organisation zugeordnet. Wähle als Betreiber im Konto-Menü „Kunde wechseln“.',
+        'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „Kunde wechseln“.',
       ),
     ).toBeDefined();
   });
@@ -94,7 +93,7 @@ describe('Betreiber-Ansicht', () => {
     setSupportCustomer({ id: 'org-2', name: 'Zweit-OEM (Demo)' });
   });
 
-  it.each(['/uebersicht', '/lieferanten', '/puls', '/einstellungen', '/gibt-es-nicht'])(
+  it.each(['/start', '/lieferanten', '/portfolio', '/profil', '/einstellungen', '/gibt-es-nicht'])(
     'zeigt die Hinweisleiste auf %s und schickt den Kunden bei jeder Anfrage mit',
     async (path) => {
       renderAt(path);
@@ -128,7 +127,7 @@ describe('Betreiber-Ansicht', () => {
       }
       return original ? original(input, init) : Response.json({});
     });
-    renderAt('/uebersicht');
+    renderAt('/start');
     await waitFor(() => expect(sessionStorage.getItem('reziproq-betreiber-kunde')).toBeNull());
     expect(screen.queryByText(banner('Zweit-OEM (Demo)'))).toBeNull();
   });

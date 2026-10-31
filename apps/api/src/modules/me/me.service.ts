@@ -48,6 +48,7 @@ export class MeService {
         // Lieferanten nur mit Käuferfunktionen und Rolle; so fragt die Oberfläche gar nicht erst an.
         viewSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.sehen'),
         switchCustomer: can(auth, 'kunden.wechseln'),
+        manageSettings: organization !== null && can(auth, 'einstellungen.verwalten'),
       },
     };
   }

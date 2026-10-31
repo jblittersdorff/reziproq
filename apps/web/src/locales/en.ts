@@ -5,21 +5,29 @@ export const en: Messages = {
   app: {
     name: 'Reziproq',
     navigation: 'Main navigation',
-    openNavigation: 'Open navigation',
-    closeNavigation: 'Close navigation',
+    openMenu: 'Open menu',
     skipToContent: 'Skip to content',
+    path: 'Path',
+    backTo: (page: string) => `Back to ${page}`,
   },
 
   nav: {
-    overview: 'Overview',
-    settings: 'Settings',
+    start: 'Start',
+    suppliers: 'Suppliers',
+    portfolio: 'Portfolio',
+    impact: 'Impact',
+    questions: 'Questions',
+    profile: 'Profile',
+  },
+
+  menu: {
+    title: 'Menu',
+    purpose: 'All areas of Reziproq.',
   },
 
   user: {
-    menu: 'Account menu',
     loading: 'Loading account …',
     failed: 'Account not loaded',
-    settings: 'Settings',
     signOut: 'Sign out',
   },
 
@@ -33,80 +41,53 @@ export const en: Messages = {
     notConfiguredTitle: 'Sign-in is not set up yet',
     notConfiguredDescription:
       'Add ZITADEL_ISSUER and ZITADEL_CLIENT_ID to the .env file and restart the app.',
-    backHome: 'Back to overview',
+    backHome: 'Go to Start',
     reauthTitle: 'Please sign in again',
     reauthDescription: 'Your session has expired. Everything you entered stays where it is.',
     reauthAction: 'Sign in again',
   },
 
-  comingWith: (release: string) => `Coming with release ${release}`,
-
-  overview: {
-    title: 'Overview',
+  start: {
+    title: 'Start',
     greetingMorning: (firstName: string) => `Good morning, ${firstName}`,
     greetingDay: (firstName: string) => `Good afternoon, ${firstName}`,
     greetingEvening: (firstName: string) => `Good evening, ${firstName}`,
     greetingWithoutName: 'Welcome to Reziproq',
-    areas: 'Areas',
+    emptyTitle: 'Soon you will see what is due for you here',
+    emptyDescription: 'Open assessments, meetings and actions appear here as soon as there are any.',
   },
 
-  areas: {
-    suppliers: {
-      title: 'Suppliers',
-      sentence:
-        'Which suppliers really matter – by business impact and relationship quality, not just spend.',
-      emptyDescription:
-        'This is where supplier segmentation by business impact and relationship quality will live.',
-    },
-    relationships: {
-      title: 'Relationships',
-      sentence: 'Rights and duties per relationship type, roles and contacts on both sides.',
-      emptyDescription:
-        'This is where playbooks per relationship type, with roles and contacts on both sides, will live.',
-    },
-    pulse: {
-      title: 'Relationship pulse',
-      sentence: 'How both sides see the relationship – today and as desired.',
-      emptyDescription: 'This is where buyer and supplier will regularly assess the relationship.',
-    },
-    jointBusinessPlans: {
-      title: 'Joint business plans',
-      sentence: 'Shared goals, initiatives and KPIs with strategic suppliers.',
-      emptyDescription:
-        'This is where joint plans with goals, initiatives and KPIs for strategic suppliers will live.',
-    },
-    qbrs: {
-      title: 'QBRs and actions',
-      sentence: 'Review progress regularly, follow up on commitments, steer actions.',
-      emptyDescription:
-        'This is where quarterly reviews with progress, commitments and actions will live.',
-    },
-    pnlImpact: {
-      title: 'P&L impact',
-      sentence: 'Which value from the collaboration reaches the P&L – evidenced and signed off.',
-      emptyDescription:
-        'This is where you will trace which initiatives move which P&L line, up to sign-off by controlling.',
-    },
+  portfolio: {
+    title: 'Portfolio',
+    purpose: 'All suppliers by business impact and relationship quality.',
+    emptyTitle: 'No portfolio yet',
+    emptyDescription:
+      'Once suppliers are assessed, you will see the matrix and your focus suppliers here.',
   },
 
-  settings: {
-    title: 'Settings',
-    purpose: 'Set up Reziproq the way it suits you.',
+  impact: {
+    title: 'Impact',
+    purpose: 'Which value from the collaboration reaches the P&L.',
+    emptyTitle: 'No impact yet',
+    emptyDescription:
+      'Once joint initiatives carry impact, you will see the pipeline and P&L bridge here.',
+  },
+
+  profile: {
+    title: 'Profile',
+    purpose: 'Your account, your display and the way to the settings.',
+    account: 'Account',
+    name: 'Name',
+    email: 'Email',
+    organization: 'Organization',
+    noOrganization: 'Not assigned to an organization',
     display: 'Display',
     theme: 'Appearance',
-    themeDescription: 'System follows your device setting.',
     themeSystem: 'System',
     themeLight: 'Light',
     themeDark: 'Dark',
-    organization: 'Organization',
-    organizationName: 'Name',
-    organizationCountry: 'Country',
-    members: 'Members',
-    memberName: 'Name',
-    memberEmail: 'Email',
-    organizationLoading: 'Loading organization …',
-    organizationFailed: 'The organization could not be loaded.',
-    account: 'Account',
+    settings: 'Settings',
+    allSettings: 'All settings',
     roles: 'Your roles in Reziproq',
     rolesDescription: 'As they arrive in the token from Zitadel.',
     rolesNone: 'None',
@@ -114,7 +95,35 @@ export const en: Messages = {
       'Zitadel sends no roles in the token. In the Zitadel project, check “Assert roles on authentication” and whether a role is assigned to you. Then sign out and in again.',
   },
 
+  appearance: {
+    title: 'Appearance',
+    purpose: 'How Reziproq looks on this device.',
+    description: 'System follows your device setting.',
+    save: 'Save',
+    cancel: 'Cancel',
+  },
+
+  settings: {
+    title: 'Settings',
+    purpose: 'Set up Reziproq for your organization.',
+    adminOnly: 'Only an admin can change the settings. You can still view your organization.',
+    organization: 'Organization',
+    organizationHint: 'Name, country and members',
+    organizationPurpose: 'Name, country and members of your organization. Read only.',
+    organizationName: 'Name',
+    organizationCountry: 'Country',
+    members: 'Members',
+    memberName: 'Name',
+    memberEmail: 'Email',
+    organizationLoading: 'Loading organization …',
+    organizationFailed: 'The organization could not be loaded.',
+    noOrganization: 'You are not assigned to an organization.',
+  },
+
   suppliers: {
+    title: 'Suppliers',
+    purpose:
+      'Which suppliers really matter – by business impact and relationship quality, not just spend.',
     count: (count: number) => (count === 1 ? '1 supplier' : `${count} suppliers`),
     totalSpend: (amount: string, year: number) => `${amount} annual spend ${year}`,
     search: 'Search supplier or category',
@@ -133,9 +142,6 @@ export const en: Messages = {
     noPermissionTitle: 'You are missing a role',
     noPermissionDescription:
       'To see suppliers, you need a buyer role in Reziproq. Contact your admin.',
-    tileNoOrganization: 'Not assigned to an organization',
-    tileNoPermission: 'No role for suppliers',
-    tileFailed: 'Not loaded right now',
   },
 
   prompt: {
@@ -148,7 +154,7 @@ export const en: Messages = {
     suggestions: 'Suggestions',
     suggestionTopSpend: 'Show me the suppliers with the highest spend',
     suggestionElectronics: 'Which suppliers do we have in the electronics category?',
-    suggestionPulse: 'Open the relationship pulse',
+    suggestionPortfolio: 'Open the portfolio',
     answering: 'Reziproq is answering …',
     hits: 'Results',
     noHits: 'No results',
@@ -168,7 +174,7 @@ export const en: Messages = {
     banner: (customer: string) => `Operator view: ${customer}. Every access is logged.`,
     leave: 'Leave',
     chooseCustomer:
-      'You are not assigned to an organization. As an operator, choose “Switch customer” in the account menu.',
+      'You are not assigned to an organization. As an operator, choose “Switch customer” on your profile.',
   },
 
   organization: {
@@ -179,6 +185,6 @@ export const en: Messages = {
   notFound: {
     title: 'This page does not exist',
     description: 'The address may have changed, or it contains a typo.',
-    back: 'Back to overview',
+    back: 'Go to Start',
   },
 };

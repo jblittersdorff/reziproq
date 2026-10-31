@@ -246,7 +246,7 @@ test('Der Umschalter gilt nur für den Styleguide', async ({ page }) => {
   await page.getByText('Dunkel', { exact: true }).click();
   await expect(page.locator('html')).toHaveClass(/dark/);
 
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await expect(page.locator('html')).not.toHaveClass(/dark/);
   expect(await page.evaluate(() => localStorage.getItem('reziproq-theme'))).toBeNull();
@@ -255,7 +255,7 @@ test('Der Umschalter gilt nur für den Styleguide', async ({ page }) => {
 test('Der Styleguide ist nicht in der Navigation verlinkt', async ({ page }) => {
   await signIn(page);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   const navigation = page.getByRole('navigation', { name: 'Hauptnavigation', exact: true });
   await expect(navigation).toBeVisible();
   await expect(navigation.locator('a[href="/styleguide"]')).toHaveCount(0);

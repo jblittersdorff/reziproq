@@ -17,6 +17,7 @@ describe('GET /api/me', () => {
     viewBuyerAreas: false,
     viewSuppliers: false,
     switchCustomer: false,
+    manageSettings: false,
   };
 
   const storedUser = async () =>
@@ -133,6 +134,25 @@ describe('GET /api/me', () => {
         permissions: { viewOrganizationSettings: true, viewBuyerAreas: true, viewSuppliers: true },
       });
       expect((await storedUser())?.organizationId).toBe(buyerOrg);
+    });
+
+    it('PLT-11: Der Weg zu allen Einstellungen ist nur für Admins frei, Organisation sieht jedes Mitglied', async () => {
+      withZitadelOrg(zitadelOrgId);
+      const withRole = (role: string) =>
+        testApp.signToken({
+          subject: userId,
+          claims: { 'urn:zitadel:iam:org:project:test-project:roles': { [role]: { '1': 'test' } } },
+        });
+      for (const role of ['leser', 'nutzer', 'controlling']) {
+        const res = await testApp.get('/api/me', await withRole(role));
+        expect(await res.json(), role).toMatchObject({
+          permissions: { viewOrganizationSettings: true, manageSettings: false },
+        });
+      }
+      const res = await testApp.get('/api/me', await withRole('admin'));
+      expect(await res.json()).toMatchObject({
+        permissions: { viewOrganizationSettings: true, manageSettings: true },
+      });
     });
 
     it('Bei unbekannter Organisation bleibt das Feld leer', async () => {

@@ -18,7 +18,7 @@ export const meResponseSchema = z.object({
   /** true, solange ein Betreiber in einen Kunden gewechselt ist (PLT-13). */
   supportView: z.boolean(),
   /**
-   * Rollen, die die API im Token gefunden hat. Nur zur Anzeige in den Einstellungen (PLT-01),
+   * Rollen, die die API im Token gefunden hat. Nur zur Anzeige auf /profil (PLT-01),
    * entschieden wird allein über can().
    */
   roles: z.array(z.enum(roles)).default([]),
@@ -32,6 +32,8 @@ export const meResponseSchema = z.object({
     viewBuyerAreas: z.boolean().default(true),
     viewSuppliers: z.boolean(),
     switchCustomer: z.boolean(),
+    /** Weg zu allen Einstellungen auf /profil: nur Admins (PLT-11). */
+    manageSettings: z.boolean().default(false),
   }),
 });
 

@@ -1,27 +1,42 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
-// Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: Layout, Maße, Tastatur.
+// Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: globale Leiste, Maße,
+// Tastatur, Zurück-Knopf des Browsers und Menüseite.
 
 test.use({ locale: 'de-DE' });
 
-const areas = [
-  { title: 'Lieferanten', path: '/lieferanten' },
-  { title: 'Beziehungen', path: '/beziehungen' },
-  { title: 'Beziehungspuls', path: '/puls' },
-  { title: 'Joint Business Plans', path: '/jbp' },
-  { title: 'QBRs und Maßnahmen', path: '/qbr' },
-  { title: 'P&L-Impact', path: '/pnl' },
+const barTargets = [
+  { name: 'Start', path: '/start' },
+  { name: 'Lieferanten', path: '/lieferanten' },
+  { name: 'Portfolio', path: '/portfolio' },
+  { name: 'Wirkung', path: '/wirkung' },
+  { name: 'Fragen', path: '/fragen' },
+  { name: 'Profil', path: '/profil' },
 ];
-const allPaths = ['/uebersicht', ...areas.map((a) => a.path), '/einstellungen', '/gibt-es-nicht'];
+
+const greeting = /^Guten (Morgen|Tag|Abend), Anna$/;
+
+/** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
+const routes = [
+  { path: '/start', title: greeting, empty: 'Hier steht bald' },
+  { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
+  { path: '/portfolio', title: 'Portfolio', empty: 'Noch kein Portfolio' },
+  { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
+  { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
+  { path: '/profil', title: 'Profil' },
+  { path: '/profil/erscheinungsbild', title: 'Erscheinungsbild' },
+  { path: '/einstellungen', title: 'Einstellungen' },
+  { path: '/einstellungen/organisation', title: 'Organisation' },
+  { path: '/menu', title: 'Menü' },
+];
 
 /**
  * Nachgebauter Login über ein Zitadel, das sofort zurückleitet, dazu die API-Aufrufe.
  * Die Einzelheiten des Ablaufs mit PKCE prüft plt-01.spec.ts.
  */
 async function signIn(page: Page, { admin = false } = {}) {
-  // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
-  await fakeZitadel(page);
+  const zitadel = await fakeZitadel(page);
   await page.route('**/api/me', (route) =>
     route.fulfill({
       json: {
@@ -30,10 +45,12 @@ async function signIn(page: Page, { admin = false } = {}) {
         email: 'anna.schmidt@beispiel-einkauf.de',
         organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
         supportView: false,
+        roles: admin ? ['admin'] : ['nutzer'],
         permissions: {
-          viewOrganizationSettings: admin,
+          viewOrganizationSettings: true,
           viewSuppliers: true,
           switchCustomer: false,
+          manageSettings: admin,
         },
       },
     }),
@@ -41,23 +58,35 @@ async function signIn(page: Page, { admin = false } = {}) {
   await page.route('**/api/suppliers', (route) =>
     route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
   );
+  await page.route('**/api/organisation', (route) =>
+    route.fulfill({
+      json: {
+        name: 'Beispiel-OEM (Demo)',
+        country: 'DE',
+        members: [{ name: 'Anna Schmidt', email: 'anna.schmidt@beispiel-einkauf.de' }],
+      },
+    }),
+  );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
+  return zitadel;
 }
 
 /**
- * Wartet, bis die Seite im Rahmen fertig ist: Die Überschrift steht im Inhaltsbereich des Rahmens
- * (#inhalt) und es laufen keine Anfragen mehr. Vorher ist noch die Zwischenseite
- * „Anmeldung wird geprüft“ zu sehen, die auch eine Überschrift hat – seit PLT-01 bei jedem Aufruf.
+ * Wartet, bis die Seite im Rahmen fertig ist: Die Überschrift steht im Inhaltsbereich (#inhalt)
+ * und es laufen keine Anfragen mehr. Vorher steht seit PLT-01 kurz „Anmeldung wird geprüft“.
  */
 async function pageSettled(page: Page) {
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await page.waitForLoadState('networkidle');
 }
 
+const bar = (page: Page) => page.getByRole('navigation', { name: 'Hauptnavigation' });
+const url = (path: string) => `http://localhost:5174${path}`;
+
 /** Alle sichtbaren Klickflächen, die kleiner als 44 × 44 px sind. */
 async function tooSmallTargets(page: Page) {
   return page.evaluate(() => {
-    const selector = 'a[href], button, [role="menuitem"], label:has(> input[type="radio"])';
+    const selector = 'a[href], button, label:has(> input[type="radio"])';
     return [...document.querySelectorAll<HTMLElement>(selector)]
       .filter((element) => {
         const style = getComputedStyle(element);
@@ -77,194 +106,266 @@ async function tooSmallTargets(page: Page) {
   });
 }
 
-test('Nach dem Login landet der Nutzer auf /uebersicht und sieht die Begrüßung mit seinem Vornamen', async ({
-  page,
-}) => {
-  await signIn(page);
+test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
+  const zitadel = await signIn(page);
+  zitadel.session.active = false;
   await page.goto('/');
-  await pageSettled(page);
-  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  await expect(page.getByText('Zitadel-Login')).toBeVisible();
+
+  // Zitadel bestätigt die Anmeldung und leitet mit Code und State zurück.
+  zitadel.session.active = true;
+  const state = zitadel.authorizeRequests[0]?.get('state');
+  await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
+  await expect(page).toHaveURL(url('/start'));
   await expect(
-    page.locator('#inhalt').getByRole('heading', {
-      level: 1,
-      name: /^Guten (Morgen|Tag|Abend), Anna$/,
-    }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: greeting }),
   ).toBeVisible();
 });
 
-test('Ein Klick irgendwo auf eine Kachel öffnet die richtige Route', async ({ page }) => {
-  await signIn(page);
-  for (const [index, area] of areas.entries()) {
-    await page.goto('/uebersicht');
-    const tile = page.getByRole('region', { name: 'Bereiche' }).getByRole('link').nth(index);
-    // Unten rechts in die Kachel klicken, weit weg von Titel und Text.
-    const box = await tile.boundingBox();
-    if (!box) throw new Error('Kachel nicht sichtbar');
-    await tile.click({ position: { x: box.width - 8, y: box.height - 8 } });
-    await expect(page).toHaveURL(`http://localhost:5174${area.path}`);
-    await expect(page.getByRole('heading', { level: 1, name: area.title })).toBeVisible();
-  }
-});
-
-test('Kacheln sind gleich hoch und auf breiten Bildschirmen dreispaltig', async ({ page }) => {
+test('Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreichbar. Die aktive Seite ist markiert.', async ({
+  page,
+}) => {
+  // Zehn Seiten mal sechs Ziele, je mit Anmeldung über das nachgebaute Zitadel.
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
-  await page.goto('/uebersicht');
-  const tiles = page.getByRole('region', { name: 'Bereiche' }).getByRole('link');
-  await expect(tiles).toHaveCount(6);
-  const boxes = await tiles.evaluateAll((tiles) =>
-    tiles.map((tile) => tile.getBoundingClientRect().toJSON()),
-  );
-  expect(new Set(boxes.map((box) => Math.round(box.height))).size).toBe(1);
-  expect(new Set(boxes.map((box) => Math.round(box.x))).size).toBe(3);
+  for (const from of routes) {
+    for (const target of barTargets) {
+      await page.goto(from.path);
+      await expect(page.locator('#inhalt h1')).toBeVisible();
+      await bar(page).getByRole('link', { name: target.name, exact: true }).click();
+      await expect(page).toHaveURL(url(target.path));
+      await expect(bar(page).getByRole('link', { name: target.name, exact: true })).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+      await expect(bar(page).locator('[aria-current="page"]')).toHaveCount(1);
+    }
+  }
 });
 
 test.describe('Bei 390 px Breite', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test('Seitenleiste eingeklappt, Kacheln einspaltig, keine waagerechte Scrollleiste', async ({
+  test('Bei 390 px Breite gibt es keine waagerechte Scrollleiste, und das Menü öffnet sich als eigene Seite', async ({
     page,
   }) => {
-    await signIn(page);
-    for (const path of allPaths) {
-      await page.goto(path);
+    await signIn(page, { admin: true });
+    for (const route of routes) {
+      await page.goto(route.path);
       await pageSettled(page);
-      await expect(page.getByRole('navigation', { name: 'Hauptnavigation' })).toBeHidden();
-      await expect(page.getByRole('button', { name: 'Navigation öffnen' })).toBeVisible();
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
-      expect(overflow, `waagerechte Scrollleiste auf ${path}`).toBe(0);
+      expect(overflow, `waagerechte Scrollleiste auf ${route.path}`).toBe(0);
+      // Die Ziele stecken hinter dem Menüknopf.
+      await expect(bar(page).getByRole('link', { name: 'Portfolio' })).toBeHidden();
     }
 
-    await page.goto('/uebersicht');
-    const tiles = page.getByRole('region', { name: 'Bereiche' }).getByRole('link');
-    await expect(tiles).toHaveCount(6);
-    const xs = await tiles.evaluateAll((tiles) =>
-      tiles.map((tile) => Math.round(tile.getBoundingClientRect().x)),
+    await page.goto('/portfolio');
+    await pageSettled(page);
+    await bar(page).getByRole('link', { name: 'Menü öffnen' }).click();
+    await expect(page).toHaveURL(url('/menu'));
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    const fixed = await page.evaluate(
+      () =>
+        [...document.querySelectorAll('*')].filter(
+          (el) => getComputedStyle(el).position === 'fixed',
+        ).length,
     );
-    expect(new Set(xs).size).toBe(1);
+    expect(fixed).toBe(0);
+    const menu = page.getByRole('navigation', { name: 'Menü' });
+    for (const target of barTargets) {
+      await expect(menu.getByRole('link', { name: target.name })).toBeVisible();
+    }
+    await menu.getByRole('link', { name: 'Wirkung' }).click();
+    await expect(page).toHaveURL(url('/wirkung'));
+    // Zurück führt wieder ins Menü und dann zur Seite davor.
+    await page.goBack();
+    await expect(page).toHaveURL(url('/menu'));
+    await page.goBack();
+    await expect(page).toHaveURL(url('/portfolio'));
   });
+});
 
-  test('Die eingeklappte Seitenleiste öffnet und schließt sich', async ({ page }) => {
-    await signIn(page);
-    await page.goto('/uebersicht');
-    await page.getByRole('button', { name: 'Navigation öffnen' }).click();
-    const sheet = page.getByRole('dialog', { name: 'Hauptnavigation' });
-    await sheet.getByRole('link', { name: 'Beziehungspuls' }).click();
-    await expect(page).toHaveURL('http://localhost:5174/puls');
-    await expect(sheet).toBeHidden();
+test('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand', async ({
+  page,
+}) => {
+  await signIn(page, { admin: true });
+  for (const route of routes) {
+    await page.goto(route.path);
+    await expect(
+      page.locator('#inhalt').getByRole('heading', { level: 1, name: route.title }),
+    ).toBeVisible();
+    if (route.empty) await expect(page.locator('#inhalt').getByText(route.empty)).toBeVisible();
+  }
+  // Die frühere Startseite leitet weiter.
+  await page.goto('/uebersicht');
+  await expect(page).toHaveURL(url('/start'));
+});
 
-    await page.getByRole('button', { name: 'Navigation öffnen' }).click();
-    await expect(sheet).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(sheet).toBeHidden();
-  });
+test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, auch nach Speichern und Abbrechen', async ({
+  page,
+}) => {
+  await signIn(page, { admin: true });
+  const path = page.getByRole('navigation', { name: 'Pfad' });
+  const levels = ['/start', '/profil', '/einstellungen', '/einstellungen/organisation'];
+
+  const goDown = async () => {
+    await page.goto('/start');
+    await pageSettled(page);
+    await bar(page).getByRole('link', { name: 'Profil', exact: true }).click();
+    await page.getByRole('link', { name: 'Alle Einstellungen' }).click();
+    await page.getByRole('link', { name: /^Organisation/ }).click();
+    await expect(page).toHaveURL(url(levels[3] ?? ''));
+    await expect(path).toContainText('Profil');
+    await expect(path).toContainText('Einstellungen');
+  };
+
+  // Mit dem Zurück-Pfeil eine Ebene nach der anderen nach oben.
+  await goDown();
+  await path.getByRole('link', { name: 'Zurück zu Einstellungen' }).click();
+  await expect(page).toHaveURL(url('/einstellungen'));
+  await path.getByRole('link', { name: 'Zurück zu Profil' }).click();
+  await expect(page).toHaveURL(url('/profil'));
+  await expect(path).toHaveCount(0);
+
+  // Mit dem Zurück-Knopf des Browsers dieselben Ebenen zurück.
+  await goDown();
+  for (const level of [...levels].reverse().slice(1)) {
+    await page.goBack();
+    await expect(page).toHaveURL(url(level));
+    await expect(page.locator('#inhalt h1')).toBeVisible();
+  }
+
+  // Speichern und Abbrechen führen zur vorigen Ansicht.
+  for (const button of ['Speichern', 'Abbrechen']) {
+    await page.goto('/profil');
+    await pageSettled(page);
+    await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
+    await expect(page).toHaveURL(url('/profil/erscheinungsbild'));
+    await page.getByText('Dunkel', { exact: true }).click();
+    await page.getByRole('button', { name: button }).click();
+    await expect(page).toHaveURL(url('/profil'));
+    if (button === 'Speichern') await expect(page.locator('html')).toHaveClass(/dark/);
+    else {
+      // Abbrechen verwirft; davor war Dunkel gespeichert, also zurück auf System.
+      await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
+      await page.getByText('System', { exact: true }).click();
+      await page.getByRole('button', { name: 'Speichern' }).click();
+      await expect(page).toHaveURL(url('/profil'));
+      await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
+      await page.getByText('Dunkel', { exact: true }).click();
+      await page.getByRole('button', { name: 'Abbrechen' }).click();
+      await expect(page).toHaveURL(url('/profil'));
+      await expect(page.locator('html')).not.toHaveClass(/dark/);
+    }
+  }
+});
+
+test('Der Weg zu allen Einstellungen auf /profil ist nur für Admins sichtbar. Jedes Mitglied sieht den Weg zu Einstellungen › Organisation.', async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto('/profil');
+  await pageSettled(page);
+  await expect(page.getByRole('link', { name: /^Organisation/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Alle Einstellungen' })).toHaveCount(0);
+
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+  await signIn(page, { admin: true });
+  await page.goto('/profil');
+  await pageSettled(page);
+  await expect(page.getByRole('link', { name: /^Organisation/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Alle Einstellungen' })).toBeVisible();
 });
 
 for (const width of [1440, 390]) {
   test(`Alle Klickflächen sind mindestens 44 × 44 px groß (${width} px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page, { admin: true });
-    for (const path of allPaths) {
-      await page.goto(path);
+    for (const route of routes) {
+      await page.goto(route.path);
       await pageSettled(page);
-      expect(await tooSmallTargets(page), path).toEqual([]);
+      expect(await tooSmallTargets(page), route.path).toEqual([]);
     }
-
-    // Auch in eingeblendeter Seitenleiste und offenem Nutzer-Menü.
-    await page.goto('/uebersicht');
-    await pageSettled(page);
-    if (width < 1024) await page.getByRole('button', { name: 'Navigation öffnen' }).click();
-    await page.getByRole('button', { name: /Anna Schmidt/ }).click();
-    await expect(page.getByRole('menuitem', { name: 'Abmelden' })).toBeVisible();
-    expect(await tooSmallTargets(page), 'Nutzer-Menü').toEqual([]);
   });
 }
 
-test('Alles ist per Tastatur bedienbar, mit logischer Tab-Reihenfolge und sichtbarem Fokus', async ({
-  page,
-}) => {
+test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   await pageSettled(page);
 
   const expected = [
     'Zum Inhalt springen',
-    'Übersicht',
-    ...areas.map((a) => a.title),
-    'Einstellungen',
-    'Anna Schmidt',
-    // Seit PLT-12: das Feld für das Prompt-Fenster unter der Begrüßung
+    'Reziproq',
+    ...barTargets.map((target) => target.name),
     'Frag Reziproq',
-    ...areas.map((a) => a.title),
   ];
   const visited: string[] = [];
   for (const _ of expected) {
     await page.keyboard.press('Tab');
+    // Fokusring erst nach dem Übergang messen.
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    );
     const focused = await page.evaluate(() => {
       const element = document.activeElement as HTMLElement;
       const style = getComputedStyle(element);
       const ring = style.boxShadow !== 'none' || style.outlineStyle !== 'none';
-      return { text: element.textContent?.trim() ?? '', ring };
+      return {
+        name: element.getAttribute('aria-label') ?? element.textContent?.trim() ?? '',
+        ring,
+      };
     });
-    expect(focused.ring, `sichtbarer Fokus auf „${focused.text}“`).toBe(true);
-    visited.push(focused.text);
+    expect(focused.ring, `sichtbarer Fokus auf „${focused.name}“`).toBe(true);
+    visited.push(focused.name);
   }
-  // Jede Station beginnt mit dem erwarteten Namen (Kacheln enthalten noch Satz und Release).
   expected.forEach((name, index) => {
     expect(visited[index]?.startsWith(name), `${index}: ${visited[index]}`).toBe(true);
   });
 
-  // Enter auf der fokussierten letzten Kachel öffnet sie.
+  // Enter auf dem Feld öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL('http://localhost:5174/pnl');
+  await expect(page).toHaveURL(url('/fragen'));
+  await page.goto('/profil/erscheinungsbild');
+  await pageSettled(page);
+  await page.getByRole('radio', { name: 'System' }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('radio', { name: 'Hell' })).toBeChecked();
 });
 
 test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page }) => {
   await signIn(page);
-  await page.goto('/uebersicht');
+  await page.goto('/start');
   await pageSettled(page);
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  // Nach dem Sprung ist das erste Ziel im Inhalt das Feld für das Prompt-Fenster (PLT-12).
   await expect(page.locator(':focus')).toContainText('Frag Reziproq');
 });
 
-test('Hell- und Dunkelmodus folgen dem System und lassen sich in den Einstellungen umschalten', async ({
-  page,
-}) => {
+test('Hell- und Dunkelmodus folgen dem System', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await signIn(page);
-  await page.goto('/einstellungen');
+  await page.goto('/profil/erscheinungsbild');
   await expect(page.locator('html')).toHaveClass(/dark/);
   await expect(page.getByRole('radio', { name: 'System' })).toBeChecked();
-
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(page.locator('html')).not.toHaveClass(/dark/);
-
-  await page.getByText('Dunkel', { exact: true }).click();
-  await expect(page.locator('html')).toHaveClass(/dark/);
-  await page.reload();
-  await expect(page.locator('html')).toHaveClass(/dark/);
-  await expect(page.getByRole('radio', { name: 'Dunkel' })).toBeChecked();
-});
-
-test('Organisation erscheint in den Einstellungen nur für Admins', async ({ page }) => {
-  await signIn(page, { admin: true });
-  await page.goto('/einstellungen');
-  await expect(page.getByRole('heading', { level: 2, name: 'Organisation' })).toBeVisible();
 });
 
 test('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', async ({ page }) => {
   await signIn(page);
-  await page.goto('/gibt-es-nicht');
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: 'Zur Übersicht' }).click();
-  await expect(page).toHaveURL('http://localhost:5174/uebersicht');
+  for (const path of ['/gibt-es-nicht', '/beziehungen', '/puls', '/pnl']) {
+    await page.goto(path);
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
+    ).toBeVisible();
+  }
+  await page.getByRole('link', { name: 'Zu Start' }).click();
+  await expect(page).toHaveURL(url('/start'));
 });
