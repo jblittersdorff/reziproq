@@ -1,11 +1,35 @@
-import type { AuditedObject } from '@reziproq/db';
+import { type AuditedObject, auditedObject } from '@reziproq/db';
 
 // PLT-08: Objekte mit Verlauf. Ein Objekt bekommt Verlauf, indem es hier mit auditedObject()
 // eingetragen wird; seine Änderungen laufen dann über auditedChange() (@reziproq/db).
 // Bei geteilten Objekten nur geteilte Felder eintragen; den Test dafür hat audit.test.ts.
-// Das erste Objekt ist die Beziehung (PLT-03b).
 
-export const auditedObjects: readonly AuditedObject[] = [];
+/** Die Beziehung selbst (PLT-03): Beide Seiten sehen nur den Status. */
+export const relationshipAudit = auditedObject({
+  type: 'relationship',
+  visibility: 'shared',
+  fields: ['status'],
+});
+
+/** Eigene Werte einer Seite (PLT-03): nur die eigene Organisation sieht den Verlauf. */
+export const relationshipSideAudit = auditedObject({
+  type: 'relationship_side',
+  visibility: 'internal',
+  fields: ['display_name', 'external_ref', 'notes'],
+});
+
+/** Spend je Jahr (PLT-03): käuferprivat, Verlauf nur intern. */
+export const relationshipSpendAudit = auditedObject({
+  type: 'relationship_spend',
+  visibility: 'internal',
+  fields: ['year', 'amount_cents'],
+});
+
+export const auditedObjects: readonly AuditedObject[] = [
+  relationshipAudit,
+  relationshipSideAudit,
+  relationshipSpendAudit,
+];
 
 export function auditedObjectByType(type: string): AuditedObject | undefined {
   return auditedObjects.find((object) => object.type === type);

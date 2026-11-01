@@ -14,7 +14,6 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppFragenRouteImport } from './routes/_app/fragen'
-import { Route as AppLieferantenRouteImport } from './routes/_app/lieferanten'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppPortfolioRouteImport } from './routes/_app/portfolio'
 import { Route as AppStartRouteImport } from './routes/_app/start'
@@ -23,8 +22,16 @@ import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
 import { Route as AppEinstellungenOrganisationRouteImport } from './routes/_app/einstellungen/organisation'
+import { Route as AppLieferantenIndexRouteImport } from './routes/_app/lieferanten/index'
+import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
 import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/profil/erscheinungsbild'
+import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
+import { Route as AppLieferantenIdStrategieProfilIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/index'
+import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/bearbeiten'
+import { Route as AppLieferantenIdStrategieSpendIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/index'
+import { Route as AppLieferantenIdStrategieSpendJahrRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/$jahr'
+import { Route as AppLieferantenIdStrategieSpendNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/neu'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,11 +55,6 @@ const AppSplatRoute = AppSplatRouteImport.update({
 const AppFragenRoute = AppFragenRouteImport.update({
   id: '/fragen',
   path: '/fragen',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLieferantenRoute = AppLieferantenRouteImport.update({
-  id: '/lieferanten',
-  path: '/lieferanten',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMenuRoute = AppMenuRouteImport.update({
@@ -96,6 +98,16 @@ const AppEinstellungenOrganisationRoute =
     path: '/einstellungen/organisation',
     getParentRoute: () => AppRoute,
   } as any)
+const AppLieferantenIndexRoute = AppLieferantenIndexRouteImport.update({
+  id: '/lieferanten/',
+  path: '/lieferanten/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLieferantenNeuRoute = AppLieferantenNeuRouteImport.update({
+  id: '/lieferanten/neu',
+  path: '/lieferanten/neu',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfilIndexRoute = AppProfilIndexRouteImport.update({
   id: '/profil/',
   path: '/profil/',
@@ -107,13 +119,47 @@ const AppProfilErscheinungsbildRoute =
     path: '/profil/erscheinungsbild',
     getParentRoute: () => AppRoute,
   } as any)
+const AppLieferantenIdIndexRoute = AppLieferantenIdIndexRouteImport.update({
+  id: '/lieferanten/$id/',
+  path: '/lieferanten/$id/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLieferantenIdStrategieProfilIndexRoute =
+  AppLieferantenIdStrategieProfilIndexRouteImport.update({
+    id: '/lieferanten/$id/strategie/profil/',
+    path: '/lieferanten/$id/strategie/profil/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppLieferantenIdStrategieProfilBearbeitenRoute =
+  AppLieferantenIdStrategieProfilBearbeitenRouteImport.update({
+    id: '/lieferanten/$id/strategie/profil/bearbeiten',
+    path: '/lieferanten/$id/strategie/profil/bearbeiten',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppLieferantenIdStrategieSpendIndexRoute =
+  AppLieferantenIdStrategieSpendIndexRouteImport.update({
+    id: '/lieferanten/$id/strategie/spend/',
+    path: '/lieferanten/$id/strategie/spend/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppLieferantenIdStrategieSpendJahrRoute =
+  AppLieferantenIdStrategieSpendJahrRouteImport.update({
+    id: '/lieferanten/$id/strategie/spend/$jahr',
+    path: '/lieferanten/$id/strategie/spend/$jahr',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppLieferantenIdStrategieSpendNeuRoute =
+  AppLieferantenIdStrategieSpendNeuRouteImport.update({
+    id: '/lieferanten/$id/strategie/spend/neu',
+    path: '/lieferanten/$id/strategie/spend/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
   '/fragen': typeof AppFragenRoute
-  '/lieferanten': typeof AppLieferantenRoute
   '/menu': typeof AppMenuRoute
   '/portfolio': typeof AppPortfolioRoute
   '/start': typeof AppStartRoute
@@ -121,16 +167,23 @@ export interface FileRoutesByFullPath {
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/lieferanten/': typeof AppLieferantenIndexRoute
   '/profil/': typeof AppProfilIndexRoute
+  '/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
+  '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
+  '/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
+  '/lieferanten/$id/strategie/spend/': typeof AppLieferantenIdStrategieSpendIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
   '/fragen': typeof AppFragenRoute
-  '/lieferanten': typeof AppLieferantenRoute
   '/menu': typeof AppMenuRoute
   '/portfolio': typeof AppPortfolioRoute
   '/start': typeof AppStartRoute
@@ -138,9 +191,17 @@ export interface FileRoutesByTo {
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
+  '/lieferanten': typeof AppLieferantenIndexRoute
   '/profil': typeof AppProfilIndexRoute
+  '/lieferanten/$id': typeof AppLieferantenIdIndexRoute
+  '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
+  '/lieferanten/$id/strategie/profil': typeof AppLieferantenIdStrategieProfilIndexRoute
+  '/lieferanten/$id/strategie/spend': typeof AppLieferantenIdStrategieSpendIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,7 +210,6 @@ export interface FileRoutesById {
   '/styleguide': typeof StyleguideRoute
   '/_app/$': typeof AppSplatRoute
   '/_app/fragen': typeof AppFragenRoute
-  '/_app/lieferanten': typeof AppLieferantenRoute
   '/_app/menu': typeof AppMenuRoute
   '/_app/portfolio': typeof AppPortfolioRoute
   '/_app/start': typeof AppStartRoute
@@ -157,9 +217,17 @@ export interface FileRoutesById {
   '/_app/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/_app/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
+  '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/_app/lieferanten/': typeof AppLieferantenIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
+  '/_app/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
+  '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/_app/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/_app/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
+  '/_app/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
+  '/_app/lieferanten/$id/strategie/spend/': typeof AppLieferantenIdStrategieSpendIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,7 +236,6 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/$'
     | '/fragen'
-    | '/lieferanten'
     | '/menu'
     | '/portfolio'
     | '/start'
@@ -176,16 +243,23 @@ export interface FileRouteTypes {
     | '/wirkung'
     | '/auth/callback'
     | '/einstellungen/organisation'
+    | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen/'
+    | '/lieferanten/'
     | '/profil/'
+    | '/lieferanten/$id/'
+    | '/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/lieferanten/$id/strategie/spend/$jahr'
+    | '/lieferanten/$id/strategie/spend/neu'
+    | '/lieferanten/$id/strategie/profil/'
+    | '/lieferanten/$id/strategie/spend/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/styleguide'
     | '/$'
     | '/fragen'
-    | '/lieferanten'
     | '/menu'
     | '/portfolio'
     | '/start'
@@ -193,9 +267,17 @@ export interface FileRouteTypes {
     | '/wirkung'
     | '/auth/callback'
     | '/einstellungen/organisation'
+    | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen'
+    | '/lieferanten'
     | '/profil'
+    | '/lieferanten/$id'
+    | '/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/lieferanten/$id/strategie/spend/$jahr'
+    | '/lieferanten/$id/strategie/spend/neu'
+    | '/lieferanten/$id/strategie/profil'
+    | '/lieferanten/$id/strategie/spend'
   id:
     | '__root__'
     | '/'
@@ -203,7 +285,6 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/_app/$'
     | '/_app/fragen'
-    | '/_app/lieferanten'
     | '/_app/menu'
     | '/_app/portfolio'
     | '/_app/start'
@@ -211,9 +292,17 @@ export interface FileRouteTypes {
     | '/_app/wirkung'
     | '/auth/callback'
     | '/_app/einstellungen/organisation'
+    | '/_app/lieferanten/neu'
     | '/_app/profil/erscheinungsbild'
     | '/_app/einstellungen/'
+    | '/_app/lieferanten/'
     | '/_app/profil/'
+    | '/_app/lieferanten/$id/'
+    | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/_app/lieferanten/$id/strategie/spend/$jahr'
+    | '/_app/lieferanten/$id/strategie/spend/neu'
+    | '/_app/lieferanten/$id/strategie/profil/'
+    | '/_app/lieferanten/$id/strategie/spend/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -258,13 +347,6 @@ declare module '@tanstack/react-router' {
       path: '/fragen'
       fullPath: '/fragen'
       preLoaderRoute: typeof AppFragenRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/lieferanten': {
-      id: '/_app/lieferanten'
-      path: '/lieferanten'
-      fullPath: '/lieferanten'
-      preLoaderRoute: typeof AppLieferantenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/menu': {
@@ -323,6 +405,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenOrganisationRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/lieferanten/': {
+      id: '/_app/lieferanten/'
+      path: '/lieferanten'
+      fullPath: '/lieferanten/'
+      preLoaderRoute: typeof AppLieferantenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/neu': {
+      id: '/_app/lieferanten/neu'
+      path: '/lieferanten/neu'
+      fullPath: '/lieferanten/neu'
+      preLoaderRoute: typeof AppLieferantenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/profil/': {
       id: '/_app/profil/'
       path: '/profil'
@@ -337,37 +433,98 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfilErscheinungsbildRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/lieferanten/$id/': {
+      id: '/_app/lieferanten/$id/'
+      path: '/lieferanten/$id'
+      fullPath: '/lieferanten/$id/'
+      preLoaderRoute: typeof AppLieferantenIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/': {
+      id: '/_app/lieferanten/$id/strategie/profil/'
+      path: '/lieferanten/$id/strategie/profil'
+      fullPath: '/lieferanten/$id/strategie/profil/'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/bearbeiten': {
+      id: '/_app/lieferanten/$id/strategie/profil/bearbeiten'
+      path: '/lieferanten/$id/strategie/profil/bearbeiten'
+      fullPath: '/lieferanten/$id/strategie/profil/bearbeiten'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/$id/strategie/spend/': {
+      id: '/_app/lieferanten/$id/strategie/spend/'
+      path: '/lieferanten/$id/strategie/spend'
+      fullPath: '/lieferanten/$id/strategie/spend/'
+      preLoaderRoute: typeof AppLieferantenIdStrategieSpendIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/$id/strategie/spend/$jahr': {
+      id: '/_app/lieferanten/$id/strategie/spend/$jahr'
+      path: '/lieferanten/$id/strategie/spend/$jahr'
+      fullPath: '/lieferanten/$id/strategie/spend/$jahr'
+      preLoaderRoute: typeof AppLieferantenIdStrategieSpendJahrRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lieferanten/$id/strategie/spend/neu': {
+      id: '/_app/lieferanten/$id/strategie/spend/neu'
+      path: '/lieferanten/$id/strategie/spend/neu'
+      fullPath: '/lieferanten/$id/strategie/spend/neu'
+      preLoaderRoute: typeof AppLieferantenIdStrategieSpendNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
   AppFragenRoute: typeof AppFragenRoute
-  AppLieferantenRoute: typeof AppLieferantenRoute
   AppMenuRoute: typeof AppMenuRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppStartRoute: typeof AppStartRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
   AppWirkungRoute: typeof AppWirkungRoute
   AppEinstellungenOrganisationRoute: typeof AppEinstellungenOrganisationRoute
+  AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
+  AppLieferantenIndexRoute: typeof AppLieferantenIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
+  AppLieferantenIdIndexRoute: typeof AppLieferantenIdIndexRoute
+  AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
+  AppLieferantenIdStrategieSpendNeuRoute: typeof AppLieferantenIdStrategieSpendNeuRoute
+  AppLieferantenIdStrategieProfilIndexRoute: typeof AppLieferantenIdStrategieProfilIndexRoute
+  AppLieferantenIdStrategieSpendIndexRoute: typeof AppLieferantenIdStrategieSpendIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
   AppFragenRoute: AppFragenRoute,
-  AppLieferantenRoute: AppLieferantenRoute,
   AppMenuRoute: AppMenuRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppStartRoute: AppStartRoute,
   AppUebersichtRoute: AppUebersichtRoute,
   AppWirkungRoute: AppWirkungRoute,
   AppEinstellungenOrganisationRoute: AppEinstellungenOrganisationRoute,
+  AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
+  AppLieferantenIndexRoute: AppLieferantenIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
+  AppLieferantenIdIndexRoute: AppLieferantenIdIndexRoute,
+  AppLieferantenIdStrategieProfilBearbeitenRoute:
+    AppLieferantenIdStrategieProfilBearbeitenRoute,
+  AppLieferantenIdStrategieSpendJahrRoute:
+    AppLieferantenIdStrategieSpendJahrRoute,
+  AppLieferantenIdStrategieSpendNeuRoute:
+    AppLieferantenIdStrategieSpendNeuRoute,
+  AppLieferantenIdStrategieProfilIndexRoute:
+    AppLieferantenIdStrategieProfilIndexRoute,
+  AppLieferantenIdStrategieSpendIndexRoute:
+    AppLieferantenIdStrategieSpendIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

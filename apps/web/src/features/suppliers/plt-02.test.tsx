@@ -46,8 +46,8 @@ const suppliersRequested = () =>
 describe('Lieferantenseite', () => {
   it('Anzahl und Gesamtspend aus der API stehen oben, ohne beendete Beziehungen', async () => {
     renderAt('/lieferanten');
-    const heading = await screen.findByRole('heading', { level: 1, name: 'Lieferanten' });
     expect(await screen.findByText(/^4 Lieferanten/)).toBeDefined();
+    const heading = screen.getByRole('heading', { level: 1, name: 'Lieferanten' });
     expect(text(heading.parentElement)).toContain('4 Lieferanten · 10.230.000 € Jahresspend 2025');
   });
 
@@ -207,6 +207,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
         viewSuppliers: false,
         switchCustomer: false,
         manageSettings: false,
+        editSuppliers: false,
       },
     };
   };

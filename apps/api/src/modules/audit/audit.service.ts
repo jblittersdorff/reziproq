@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, schema } from '@reziproq/db';
+import { and, desc, eq, inArray, schema } from '@reziproq/db';
 import type { AuditEntry, AuditQuery, AuditResponse } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -18,7 +18,9 @@ export class AuditService {
     if (!can(auth, 'verlauf.sehen') || !auth.organization) {
       throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
     }
-    if (!auditedObjectByType(query.object_type)) {
+    // Mehrere Typen mit Komma, z. B. relationship,relationship_side für die Profilseite.
+    const types = query.object_type.split(',');
+    if (!types.every((type) => auditedObjectByType(type))) {
       throw new BadRequestException({
         statusCode: 400,
         code: 'kein_verlauf',
@@ -41,10 +43,7 @@ export class AuditService {
           .from(auditEvent)
           .innerJoin(organization, eq(organization.id, auditEvent.actorOrgId))
           .where(
-            and(
-              eq(auditEvent.objectType, query.object_type),
-              eq(auditEvent.objectId, query.object_id),
-            ),
+            and(inArray(auditEvent.objectType, types), eq(auditEvent.objectId, query.object_id)),
           )
           .orderBy(desc(auditEvent.occurredAt), desc(auditEvent.id)),
     );

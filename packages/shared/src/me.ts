@@ -34,6 +34,8 @@ export const meResponseSchema = z.object({
     switchCustomer: z.boolean(),
     /** Weg zu allen Einstellungen auf /profil: nur Admins (PLT-11). */
     manageSettings: z.boolean().default(false),
+    /** Lieferanten anlegen, ändern, beenden: Admin und Nutzer, nur mit Feature buyer (PLT-03). */
+    editSuppliers: z.boolean().default(false),
   }),
 });
 

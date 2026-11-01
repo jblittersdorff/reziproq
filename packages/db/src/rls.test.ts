@@ -87,13 +87,20 @@ describe('Row-Level Security', () => {
     expect(names).not.toContain('Beispiel-OEM (Demo)');
   });
 
-  it('erlaubt der Rolle reziproq_app keine Änderungen an Beziehungen (kommt mit PLT-03b)', async () => {
-    const error = await withTenant(
-      temp.db,
-      { userId: 'test-nutzer', organizationId: seedBuyers.testOem.id },
-      (tx) => tx.execute(sql`update relationship set status = 'ended'`),
-    ).catch((caught: unknown) => caught);
-    // Drizzle verpackt den Fehler von PostgreSQL; die eigentliche Meldung steht in cause.
+  it('lässt Beziehungen nur vom eigenen Käufer ändern, nie löschen (PLT-03b)', async () => {
+    const asZweit = (statement: ReturnType<typeof sql>) =>
+      withTenant(
+        temp.db,
+        { userId: 'test-nutzer', organizationId: seedBuyers.zweitOem.id },
+        async (tx) => (await tx.execute(statement)).rowCount,
+      ).catch((caught: unknown) => caught);
+    // Fremde Beziehungen trifft ein Update nicht.
+    const foreign = await asZweit(
+      sql`update relationship set status = 'ended' where buyer_org_id = ${seedBuyers.testOem.id}`,
+    );
+    expect(foreign).toBe(0);
+    // Löschen darf niemand; Beziehungen werden nur beendet.
+    const error = await asZweit(sql`delete from relationship`);
     expect(String((error as Error).cause)).toMatch(/permission denied/);
   });
 });

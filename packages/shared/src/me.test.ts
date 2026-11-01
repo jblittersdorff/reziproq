@@ -14,6 +14,7 @@ const ada = {
     viewSuppliers: false,
     switchCustomer: false,
     manageSettings: false,
+    editSuppliers: false,
   },
 };
 

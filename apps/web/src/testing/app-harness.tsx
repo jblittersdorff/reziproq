@@ -41,6 +41,7 @@ export const anna: MeResponse = {
     viewSuppliers: true,
     switchCustomer: false,
     manageSettings: false,
+    editSuppliers: true,
   },
 };
 
@@ -105,6 +106,13 @@ export const api = {
   } as CustomersResponse,
   /** Eigene Organisation mit Mitgliedern (PLT-02). */
   organization: sampleOrganization as OrganizationResponse,
+  /**
+   * Eigene Antworten eines Tests, z. B. für Anlegen und Ändern von Lieferanten (PLT-03b).
+   * Liefert die Funktion nichts, antwortet die nachgebaute API wie sonst.
+   */
+  handle: undefined as
+    | ((request: { method: string; url: string; body: unknown }) => Response | undefined)
+    | undefined,
   /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-kunde (oder null). */
   requests: [] as { url: string; customer: string | null }[],
 };
@@ -131,6 +139,12 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   api.requests.push({ url, customer: headers.get('x-reziproq-kunde') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   if (!authorized) return Response.json({ statusCode: 401 }, { status: 401 });
+  const own = api.handle?.({
+    method: init?.method ?? 'GET',
+    url,
+    body: init?.body ? JSON.parse(String(init.body)) : undefined,
+  });
+  if (own) return own;
   if (url === '/api/me') {
     return api.meStatus === 200
       ? Response.json(api.me)
@@ -162,6 +176,7 @@ export function setUpApp() {
   api.promptRequests = [];
   api.requests = [];
   api.organization = sampleOrganization;
+  api.handle = undefined;
   sessionStorage.clear();
   vi.stubGlobal(
     'fetch',

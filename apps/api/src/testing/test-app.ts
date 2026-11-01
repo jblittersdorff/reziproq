@@ -104,5 +104,5 @@ export async function startTestApp({
     await admin.pool.end();
   };
 
-  return { app, adminDb: admin.db, get, post, signToken, zitadel, close };
+  return { app, adminDb: admin.db, baseUrl, get, post, signToken, zitadel, close };
 }

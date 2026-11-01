@@ -69,16 +69,16 @@ Zwei Pull Requests:
 
 Je Kriterium ein Test.
 
-- [ ] Zwei Käufer legen einen Lieferanten mit derselben USt-IdNr. an. Danach gibt es eine Organisation und zwei Beziehungen.
-- [ ] Ohne USt-IdNr. und D-U-N-S entsteht eine neue Organisation, und keine Seite nennt fremde Organisationen.
-- [ ] Der Zweit-OEM sieht beim gemeinsamen Lieferanten weder Spend noch eigene Nummer oder Notizen des Test-OEM. Die Prüfungen aus PLT-04 laufen für alle drei Tabellen.
-- [ ] Ein Nutzer des Test-Lieferanten sieht Beziehungen im Status `draft` nicht.
-- [ ] Anlegen, Ändern und Beenden erzeugen Verlaufseinträge, ohne Spend oder Notizen in geteilten Einträgen.
-- [ ] Spend liegt in Cent in der Datenbank und erscheint als Euro im deutschen Format.
-- [ ] Anzahl und Gesamtspend stimmen mit der Datenbank überein.
-- [ ] Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse.
-- [ ] Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.
-- [ ] Pflichtfelder und Formate werden auf der Seite und in der API geprüft (zod in `packages/shared`).
+- [x] Zwei Käufer legen einen Lieferanten mit derselben USt-IdNr. an. Danach gibt es eine Organisation und zwei Beziehungen.
+- [x] Ohne USt-IdNr. und D-U-N-S entsteht eine neue Organisation, und keine Seite nennt fremde Organisationen.
+- [x] Der Zweit-OEM sieht beim gemeinsamen Lieferanten weder Spend noch eigene Nummer oder Notizen des Test-OEM. Die Prüfungen aus PLT-04 laufen für alle drei Tabellen.
+- [x] Ein Nutzer des Test-Lieferanten sieht Beziehungen im Status `draft` nicht.
+- [x] Anlegen, Ändern und Beenden erzeugen Verlaufseinträge, ohne Spend oder Notizen in geteilten Einträgen.
+- [x] Spend liegt in Cent in der Datenbank und erscheint als Euro im deutschen Format.
+- [x] Anzahl und Gesamtspend stimmen mit der Datenbank überein.
+- [x] Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse.
+- [x] Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.
+- [x] Pflichtfelder und Formate werden auf der Seite und in der API geprüft (zod in `packages/shared`).
 
 ## Umgesetzt mit (PR zu PLT-03a)
 
@@ -91,6 +91,18 @@ Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
 - Name auf der Karte: `display_name` der eigenen Seite, sonst der Name der Organisation.
 - Adresse der Liste: `/lieferanten?suche=…&sortierung=name&beendet=1`.
 - Der Knopf „Lieferant hinzufügen“ und die Seite `/lieferanten/neu` kommen zusammen mit PLT-03b; der leere Zustand nennt den nächsten Schritt ohne Knopf.
+
+## Umgesetzt mit (PR zu PLT-03b)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- Anlegen, Ändern und Beenden dürfen schon jetzt nur Admin und Nutzer (`can(…, 'lieferanten.bearbeiten')`, in `/me` als `editSuppliers`). PLT-05 ändert daran nichts.
+- Verlauf: Die Beziehung ist geteilt und trägt nur den Status (`created`, `ended`). Eigene Werte (Anzeigename, eigene Nummer, Notizen) und Spend haben einen internen Verlauf, den nur die eigene Organisation sieht. Die Profilseite zeigt beides zusammen.
+- Stammdaten der Lieferanten-Organisation (Name, Land, USt-IdNr., D-U-N-S) ändern Käufer nicht; sie stehen auf dem Profil nur zum Lesen. Bearbeiten ändert den Namen in der eigenen Liste, die eigene Nummer und Notizen.
+- Der Hinweis „Lieferant ist bereits in Reziproq und wird verknüpft.“ erscheint nach dem Verlassen von USt-IdNr. oder D-U-N-S. Die API antwortet nur mit ja oder nein (`GET /api/suppliers/lookup`).
+- Finden oder Anlegen der Organisation läuft über eng gefasste Datenbankfunktionen der Rolle `reziproq_stammdaten` (`app_lieferant_bekannt`, `app_lieferant_finden_oder_anlegen`), nur für Organisationen mit Feature `buyer`. Sie geben nie Name oder Land einer fremden Organisation zurück.
+- Neue Beziehungen beginnen als `draft`; `active` setzt erst LIF-01.
+- `/lieferanten/<id>` führt bis NAV-06 zum Profil.
 
 Kriterien aus PLT-03a: Datentrennung zwischen den OEMs (mit den PLT-04-Prüfungen), Entwurf für den Lieferanten unsichtbar, Spend in Cent und als Euro im deutschen Format, Anzahl und Gesamtspend, Suche, Sortierung und „Beendete zeigen“ in der Adresse. Die übrigen Kriterien gehören zu PLT-03b.
 

@@ -1,5 +1,7 @@
 import {
   auditResponseSchema,
+  type CreateSupplierRequest,
+  createSupplierResponseSchema,
   customersResponseSchema,
   type ForbiddenCode,
   forbiddenCodes,
@@ -9,8 +11,12 @@ import {
   type PromptEvent,
   type PromptRequest,
   promptEventSchema,
+  type SpendRequest,
+  supplierDetailSchema,
+  supplierLookupResponseSchema,
   suppliersResponseSchema,
   supportHeader,
+  type UpdateSupplierRequest,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import type { z } from 'zod';
@@ -22,6 +28,8 @@ export class ApiError extends Error {
     readonly status: number,
     /** Bei 403: warum, damit die Oberfläche den passenden Hinweis zeigt. */
     readonly code?: ForbiddenCode,
+    /** Antwort der API bei Fehlern, z. B. Feldfehler (400) oder vorhandene Beziehung (409) */
+    readonly body?: unknown,
   ) {
     super(`Anfrage an ${path} fehlgeschlagen (${status})`);
   }
@@ -48,10 +56,9 @@ async function getJson<T extends z.ZodType>(
   return schema.parse(await res.json());
 }
 
-// 401 und 403 ändern sich durch Wiederholen nicht.
+// 401, 403 und 404 ändern sich durch Wiederholen nicht.
 const retryUnlessDenied = (failureCount: number, error: Error) =>
-  !(error instanceof ApiError && (error.status === 401 || error.status === 403)) &&
-  failureCount < 2;
+  !(error instanceof ApiError && [401, 403, 404].includes(error.status)) && failureCount < 2;
 
 export const healthQueryOptions = () =>
   queryOptions({
@@ -109,6 +116,77 @@ export const auditQueryOptions = (accessToken: string, objectType: string, objec
       ),
     retry: retryUnlessDenied,
   });
+
+/** Schreibt über die API und prüft die Antwort; Fehler kommen mit Status und Antwort zurück. */
+async function sendJson<T extends z.ZodType>(
+  method: 'POST' | 'PATCH' | 'PUT',
+  path: string,
+  body: unknown,
+  schema: T,
+  accessToken: string,
+): Promise<z.output<T>> {
+  const res = await fetch(`/api${path}`, {
+    method,
+    headers: {
+      ...supportHeaders(),
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  if (!res.ok) {
+    const answer: unknown = await res
+      .clone()
+      .json()
+      .catch(() => null);
+    throw new ApiError(path, res.status, await forbiddenCode(res), answer);
+  }
+  return schema.parse(await res.json());
+}
+
+/** Ein Lieferant mit Stammdaten, eigenen Werten und Spend je Jahr (PLT-03b). */
+export const supplierQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId],
+    queryFn: () => getJson(`/suppliers/${relationshipId}`, supplierDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Ist ein Lieferant mit dieser USt-IdNr. oder D-U-N-S schon in Reziproq? Nur ja oder nein. */
+export const lookupSupplier = (accessToken: string, query: { ust?: string; duns?: string }) =>
+  getJson(
+    `/suppliers/lookup?${new URLSearchParams(
+      Object.entries(query).filter((entry): entry is [string, string] => Boolean(entry[1])),
+    )}`,
+    supplierLookupResponseSchema,
+    accessToken,
+  );
+
+export const createSupplier = (accessToken: string, request: CreateSupplierRequest) =>
+  sendJson('POST', '/suppliers', request, createSupplierResponseSchema, accessToken);
+
+export const updateSupplier = (
+  accessToken: string,
+  relationshipId: string,
+  request: UpdateSupplierRequest,
+) => sendJson('PATCH', `/suppliers/${relationshipId}`, request, supplierDetailSchema, accessToken);
+
+export const endSupplier = (accessToken: string, relationshipId: string) =>
+  sendJson('POST', `/suppliers/${relationshipId}/beenden`, {}, supplierDetailSchema, accessToken);
+
+export const putSpend = (
+  accessToken: string,
+  relationshipId: string,
+  year: number,
+  request: SpendRequest,
+) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/spend/${year}`,
+    request,
+    supplierDetailSchema,
+    accessToken,
+  );
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({
