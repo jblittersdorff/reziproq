@@ -3,6 +3,7 @@ import { useAuth } from 'react-oidc-context';
 import { ErrorState } from '@/components/ui/error-state';
 import { HistoryList } from '@/components/ui/history-list';
 import { auditQueryOptions } from '@/lib/api';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { formatAuditEntry } from './format';
 
@@ -12,6 +13,7 @@ import { formatAuditEntry } from './format';
  */
 export function AuditHistory({ objectType, objectId }: { objectType: string; objectId: string }) {
   const t = useT();
+  const format = useFormat();
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const history = useQuery({
@@ -22,7 +24,7 @@ export function AuditHistory({ objectType, objectId }: { objectType: string; obj
   if (history.isError) return <ErrorState title={t.audit.failed} />;
   return (
     <HistoryList
-      entries={(history.data?.entries ?? []).map((entry) => formatAuditEntry(entry, t))}
+      entries={(history.data?.entries ?? []).map((entry) => formatAuditEntry(entry, t, format))}
       loading={!history.data}
       loadingLabel={t.audit.loading}
       empty={{ title: t.audit.emptyTitle, description: t.audit.emptyDescription }}

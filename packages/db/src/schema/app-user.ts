@@ -20,6 +20,10 @@ export const userFunctions = [
   'after_sales',
 ] as const;
 
+/** Sprache der Oberfläche und späterer E-Mails (PLT-09). */
+export const userLocales = ['de', 'en'] as const;
+export type UserLocale = (typeof userLocales)[number];
+
 export const appUser = pgTable(
   'app_user',
   {
@@ -45,8 +49,12 @@ export const appUser = pgTable(
     rolesImportedAt: timestamp('roles_imported_at', { withTimezone: true }),
     // Betreiber-Team von Reziproq (UMB-01); gesetzt nur per pnpm operator:set, nie über die API.
     isOperator: boolean('is_operator').notNull().default(false),
+    // Sprache (PLT-09). Leer, bis die Person sich anmeldet; dann gilt die Browsersprache, bis sie
+    // auf /profil/sprache eine andere wählt. Leer gilt als Deutsch.
+    locale: text('locale', { enum: userLocales }),
   },
   (table) => [
+    check('app_user_locale', sql`${table.locale} in ('de', 'en')`),
     check('app_user_org_role', sql`${table.orgRole} in ('admin', 'member', 'viewer')`),
     check(
       'app_user_default_function',

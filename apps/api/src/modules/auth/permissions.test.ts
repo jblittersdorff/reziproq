@@ -173,7 +173,13 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     // Ausnahmen sind genau /health (öffentlich) und /me.
     const exempt = routes.filter((route) => !route.requires).map((route) => route.path);
     expect(new Set(exempt)).toEqual(
-      new Set(['/api/health', '/api/me', '/api/me/permissions', '/api/me/anmeldung']),
+      new Set([
+        '/api/health',
+        '/api/me',
+        '/api/me/permissions',
+        '/api/me/anmeldung',
+        '/api/me/sprache',
+      ]),
     );
   });
 

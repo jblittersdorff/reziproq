@@ -17,7 +17,7 @@ Als Nutzer arbeite ich in Deutsch oder Englisch. Jede Seite ist in beiden Sprach
 
 - `app_user.locale` (`de` oder `en`). Beim ersten Login kommt die Sprache aus dem Browser, sonst Deutsch.
 - Die Sprache liegt in der Datenbank, nicht nur im Browser, damit spätere E-Mails (QS-01) in der richtigen Sprache rausgehen.
-- Übersetzungsdateien `de` und `en` mit identischen Schlüsseln. Bibliothek mit erlaubter Lizenz (MIT), Version fest gepinnt.
+- Übersetzungsdateien `de` und `en` mit identischen Schlüsseln, als typisierte TypeScript-Kataloge ohne zusätzliche Bibliothek. TypeScript prüft jeden Schlüssel schon beim Bauen.
 - Zahlen, Daten und Beträge über `Intl` nach Sprache: „1.234.567 €“ und „€1,234,567“.
 - Die API liefert Fehler als Codes. Die Oberfläche übersetzt sie.
 - **Glossar** in `docs/glossar.md`. Fachbegriffe sind in beiden Sprachen festgelegt, damit Claude Code sie nicht jedes Mal neu übersetzt:
@@ -45,12 +45,32 @@ Als Nutzer arbeite ich in Deutsch oder Englisch. Jede Seite ist in beiden Sprach
 
 Je Kriterium ein Test.
 
-- [ ] `de` und `en` haben genau dieselben Schlüssel. Ein Test scheitert bei jedem fehlenden oder überzähligen Schlüssel.
-- [ ] Ein Playwright-Test besucht jede Route auf Englisch. Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.
-- [ ] Die Umstellung wirkt sofort und bleibt nach Abmelden und erneutem Anmelden erhalten.
-- [ ] Beträge, Daten und Zahlen erscheinen je Sprache richtig formatiert.
-- [ ] Fehlermeldungen der API erscheinen in der gewählten Sprache.
-- [ ] Die Begriffe in `en` entsprechen dem Glossar (Test gegen eine Liste der Glossar-Schlüssel).
+- [x] `de` und `en` haben genau dieselben Schlüssel. Ein Test scheitert bei jedem fehlenden oder überzähligen Schlüssel.
+- [x] Ein Playwright-Test besucht jede Route auf Englisch. Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.
+- [x] Die Umstellung wirkt sofort und bleibt nach Abmelden und erneutem Anmelden erhalten.
+- [x] Beträge, Daten und Zahlen erscheinen je Sprache richtig formatiert.
+- [x] Fehlermeldungen der API erscheinen in der gewählten Sprache.
+- [x] Die Begriffe in `en` entsprechen dem Glossar (Test gegen eine Liste der Glossar-Schlüssel).
+
+## Umgesetzt mit
+
+- **Datenbank:** `app_user.locale` (`de`, `en` oder leer) mit Migration `0016_sprache`.
+  - Die Anmeldefunktion übernimmt die Browsersprache nur, solange die Spalte leer ist. So bekommen auch bestehende Personen beim nächsten Login ihre Browsersprache.
+  - `app_sprache_setzen` und `app_sprache_des_nutzers` sind Datenbankfunktionen, die nur `reziproq_api` ausführen darf und die nur die eigene Zeile betreffen.
+- **API:**
+  - `POST /api/me/anmeldung` nimmt `{ browserLocale }` an.
+  - `PUT /api/me/sprache` setzt die eigene Sprache.
+  - `/me` liefert `locale`. Ohne gespeicherte Sprache gilt Deutsch.
+  - Wie alles unter `/me` braucht das keine Aktion in der Rechte-Matrix.
+- **Oberfläche:**
+  - Vor dem Login gilt die erste Sprache aus `navigator.languages`, die `de` oder `en` ist, sonst Deutsch. Sobald `/me` geladen ist, gilt die gespeicherte Sprache.
+  - Gewählt wird auf `/profil/sprache`, wie das Erscheinungsbild.
+  - Alle Formate laufen über `lib/format.ts` (`useFormat`). Das Spend-Feld nimmt Beträge im Format der Sprache an.
+- **Glossar:** `docs/glossar.md` enthält die Begriffe der Spec und die schon genutzten Fachbegriffe, mit den Stellen in den Katalogen.
+  - Daraus folgen Änderungen im Englischen: „Commodity group“ heißt jetzt „Category“, „Joint plan“ heißt „Joint Business Plan“.
+  - Statt „P&L-Impact“ steht im Deutschen „GuV-Wirkung“, wie in CLAUDE.md.
+- **Playwright-Test über alle Routen:** Er liest die Routen aus `routeTree.gen.ts`. Er scheitert an deutschen Texten aus `de.ts` (als ganze Wörter) und an rohen Schlüsseln.
+- Die Styleguide-Beispielfirma „Logistik West“ heißt jetzt „Westfracht“, damit der Routentest nicht auf einen Firmennamen anschlägt.
 
 ## Nicht Teil dieser Funktion
 

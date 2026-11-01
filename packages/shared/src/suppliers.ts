@@ -178,13 +178,18 @@ export const supplierDetailSchema = z.object({
 export type SupplierDetail = z.infer<typeof supplierDetailSchema>;
 
 /**
- * Euro-Betrag aus einem Eingabefeld in ganze Cent, z. B. „1.234.567,89“ oder „4820000“.
+ * Euro-Betrag aus einem Eingabefeld in ganze Cent, im Format der Sprache (PLT-09):
+ * Deutsch „1.234.567,89“, Englisch „1,234,567.89“, in beiden auch ohne Trennzeichen „4820000“.
  * null, wenn die Eingabe kein Betrag mit höchstens zwei Nachkommastellen ist.
  */
-export function parseEuroToCents(text: string): number | null {
+export function parseEuroToCents(text: string, locale: 'de' | 'en' = 'de'): number | null {
+  const [group, decimal] = locale === 'en' ? [',', '.'] : ['.', ','];
   const compact = text.replace(/[\s€]/g, '');
-  if (!/^\d{1,3}(\.\d{3})*(,\d{1,2})?$|^\d+(,\d{1,2})?$/.test(compact)) return null;
-  const [whole = '0', fraction = ''] = compact.replaceAll('.', '').split(',');
+  const g = `\\${group}`;
+  const d = `\\${decimal}`;
+  const pattern = new RegExp(`^\\d{1,3}(${g}\\d{3})*(${d}\\d{1,2})?$|^\\d+(${d}\\d{1,2})?$`);
+  if (!pattern.test(compact)) return null;
+  const [whole = '0', fraction = ''] = compact.replaceAll(group, '').split(decimal);
   return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
 }
 

@@ -5,7 +5,7 @@ import { appUser } from './app-user.js';
 describe('app_user', () => {
   const config = getTableConfig(appUser);
 
-  it('hat die Spalten aus PLT-01, PLT-02, die Rollen aus PLT-05 und den Betreiber aus UMB-01', () => {
+  it('hat die Spalten aus PLT-01, PLT-02, die Rollen aus PLT-05 und den Betreiber aus UMB-01 und die Sprache aus PLT-09', () => {
     expect(config.name).toBe('app_user');
     expect(config.columns.map((column) => column.name)).toEqual([
       'id',
@@ -21,6 +21,7 @@ describe('app_user', () => {
       'default_function',
       'roles_imported_at',
       'is_operator',
+      'locale',
     ]);
   });
 

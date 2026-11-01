@@ -1,7 +1,7 @@
 import type { Money } from '@reziproq/shared';
 import type { Locale } from './i18n';
 
-const localeTags: Record<Locale, string> = { de: 'de-DE', en: 'en-GB' };
+export const localeTags: Record<Locale, string> = { de: 'de-DE', en: 'en-GB' };
 
 export function formatMoney(
   money: Money,

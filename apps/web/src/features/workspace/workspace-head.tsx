@@ -1,11 +1,7 @@
 import type { WorkspaceHead as Head } from '@reziproq/shared';
-import { useLocale, useT } from '@/lib/i18n';
+import { useFormat } from '@/lib/format';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-
-const dateFormats = {
-  de: new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }),
-  en: new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }),
-};
 
 /**
  * Kopf des Arbeitsbereichs (NAV-06): Segment Ist → Soll, SRO, nächster Termin. Auf dem Überblick
@@ -14,7 +10,7 @@ const dateFormats = {
  */
 export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' }) {
   const t = useT();
-  const { locale } = useLocale();
+  const format = useFormat();
   const entries = [
     {
       key: 'segment',
@@ -27,7 +23,7 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
           {
             key: 'nextMeeting',
             label: t.workspace.head.nextMeeting,
-            value: dateFormats[locale].format(new Date(head.nextMeeting.date)),
+            value: format.date(head.nextMeeting.date),
           },
         ]
       : []),

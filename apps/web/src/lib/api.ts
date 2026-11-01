@@ -23,9 +23,11 @@ import {
   type UpdateMemberRequest,
   type UpdateSupplierRequest,
   type UpdateTeamRequest,
+  type UserLocale,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import type { z } from 'zod';
+import { browserLocale } from './i18n';
 import { getSupportCustomer } from './support';
 
 export class ApiError extends Error {
@@ -97,11 +99,31 @@ export const permissionsQueryOptions = (accessToken: string) =>
  */
 export async function reportLogin(accessToken: string): Promise<void> {
   try {
+    // Die Browsersprache gilt nur beim ersten Login; danach zählt die gespeicherte (PLT-09).
     await fetch('/api/me/anmeldung', {
       method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}` },
+      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ browserLocale: browserLocale() }),
     });
   } catch {}
+}
+
+/** Eigene Sprache speichern (PLT-09); gilt dann auf jedem Gerät. */
+export async function saveLocale(accessToken: string, locale: UserLocale): Promise<void> {
+  const path = '/me/sprache';
+  const res = await fetch(`/api${path}`, {
+    method: 'PUT',
+    headers: {
+      ...supportHeaders(),
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ locale }),
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
 }
 
 async function forbiddenCode(res: Response): Promise<ForbiddenCode | undefined> {

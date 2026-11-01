@@ -14,13 +14,14 @@ import {
 import { PageHeader } from '@/features/shell/page-header';
 import { InternalBadge } from '@/features/workspace/internal-badge';
 import { useFlash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
-import { formatMoney } from '@/lib/money';
 import { SupplierFrame } from './supplier-frame';
 
 /** Strategie › Spend (PLT-03b): Spend je Jahr als Liste, Jahr hinzufügen oder ändern auf eigener Seite. */
 export function SupplierSpendPage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
+  const format = useFormat();
   const [message, hideMessage] = useFlash();
   const addYearButton = (
     <Button asChild>
@@ -70,7 +71,7 @@ export function SupplierSpendPage({ relationshipId }: { relationshipId: string }
                       <TableRow key={entry.year}>
                         <TableCell className="font-medium tabular-nums">{entry.year}</TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {formatMoney(entry.amount, 'de')}
+                          {format.money(entry.amount)}
                         </TableCell>
                         {canEdit && (
                           <TableCell className="text-right">

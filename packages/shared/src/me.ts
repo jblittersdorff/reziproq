@@ -1,6 +1,23 @@
 import { z } from 'zod';
 import { orgRoles } from './permissions.js';
 
+/** Sprachen der Oberfläche (PLT-09); gespeichert in app_user.locale. */
+export const userLocales = ['de', 'en'] as const;
+export type UserLocale = (typeof userLocales)[number];
+
+/** PUT /api/me/sprache */
+export const localeRequestSchema = z.object({ locale: z.enum(userLocales) });
+export type LocaleRequest = z.infer<typeof localeRequestSchema>;
+
+/**
+ * POST /api/me/anmeldung: die Browsersprache für den ersten Login. Sie gilt nur, solange keine
+ * Sprache gespeichert ist (PLT-09). Ohne Angabe Deutsch.
+ */
+export const loginRequestSchema = z.object({
+  browserLocale: z.enum(userLocales).default('de'),
+});
+export type LoginRequest = z.output<typeof loginRequestSchema>;
+
 /**
  * Die angemeldete Person, wie sie in app_user gespeichert ist, mit Rolle und dem, was sie je nach
  * Organisation sehen kann. Welche Aktionen sie darf, liefert GET /api/me/permissions (PLT-05).
@@ -20,6 +37,8 @@ export const meResponseSchema = z.object({
   isControlling: z.boolean().default(false),
   /** Betreiber-Team von Reziproq (PLT-13); bis UMB-01 aus dem Zitadel-Token */
   isOperator: z.boolean().default(false),
+  /** Gespeicherte Sprache (PLT-09); ohne gespeicherte Sprache Deutsch. */
+  locale: z.enum(userLocales).default('de'),
   permissions: z.object({
     /** Abschnitt „Organisation“ in den Einstellungen: jedes Mitglied einer Organisation (PLT-02). */
     viewOrganizationSettings: z.boolean(),

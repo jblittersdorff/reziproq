@@ -113,6 +113,13 @@
       "when": 1793551593143,
       "tag": "0015_betreiber_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793557789280,
+      "tag": "0016_sprache",
+      "breakpoints": true
     }
   ]
 }

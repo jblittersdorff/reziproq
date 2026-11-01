@@ -13,14 +13,10 @@ import { useGoBack } from '@/features/shell/page-path';
 import { InternalBadge } from '@/features/workspace/internal-badge';
 import { putSpend } from '@/lib/api';
 import { flash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { SupplierFrame } from './supplier-frame';
 import { apiFieldErrors, useRefreshSupplier, useSupplier } from './use-supplier';
-
-const amountText = (cents: number) =>
-  new Intl.NumberFormat('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(
-    cents / 100,
-  );
 
 /**
  * Spend eines Jahres anlegen (year leer) oder ändern (PLT-03b). Der Betrag wird in Euro
@@ -51,13 +47,14 @@ function SpendForm({
   spendPage: string;
 }) {
   const t = useT();
+  const format = useFormat();
   const { accessToken } = useSupplier(supplier.relationshipId);
   const refresh = useRefreshSupplier();
   const goBack = useGoBack(spendPage);
   const existing = supplier.spend.find((entry) => entry.year === year);
   const [form, setForm] = useState({
     year: String(year ?? lastFullYear()),
-    amount: existing ? amountText(existing.amount.amountCents) : '',
+    amount: existing ? format.amountInput(existing.amount.amountCents) : '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failed, setFailed] = useState(false);
@@ -72,7 +69,7 @@ function SpendForm({
     else if (!year && supplier.spend.some((entry) => entry.year === parsedYear.data)) {
       next.year = t.suppliers.yearTaken;
     }
-    const cents = parseEuroToCents(form.amount);
+    const cents = parseEuroToCents(form.amount, format.locale);
     if (form.amount.trim() === '') next.amountCents = t.suppliers.errors.required;
     else if (cents === null) next.amountCents = t.suppliers.errors.invalid_amount;
     setErrors(next);

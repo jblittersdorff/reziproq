@@ -4,7 +4,7 @@ import { GlobalBar } from '@/components/ui/global-bar';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { SupportBanner } from '@/features/support/support-banner';
-import { useT } from '@/lib/i18n';
+import { useLocale, useT } from '@/lib/i18n';
 import { LocalBarSlotProvider } from './local-bar-slot';
 import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
 
@@ -24,6 +24,7 @@ function Shell() {
   const activeKey = useActiveNavKey();
   const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
   useQuestionsShortcut();
+  useAccountLocale();
 
   return (
     <LocalBarSlotProvider value={localBarSlot}>
@@ -64,6 +65,19 @@ function Shell() {
       </div>
     </LocalBarSlotProvider>
   );
+}
+
+/**
+ * Die gespeicherte Sprache gilt, sobald /me geladen ist, auf jedem Gerät (PLT-09). Bis dahin zeigt
+ * die App die Browsersprache.
+ */
+function useAccountLocale() {
+  const me = useMe();
+  const { setLocale } = useLocale();
+  const saved = me.data?.locale;
+  useEffect(() => {
+    if (saved) setLocale(saved);
+  }, [saved, setLocale]);
 }
 
 /** Cmd+K (Mac) oder Strg+K öffnet von jeder Seite die Fragen-Seite, wie Spotlight (PLT-12). */

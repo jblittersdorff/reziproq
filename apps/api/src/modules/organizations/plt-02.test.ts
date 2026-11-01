@@ -68,13 +68,14 @@ describe('PLT-02 über die API', () => {
 
   it('Ein Nutzer ohne Organisation bekommt von jeder Route außer /me und /health 403', async () => {
     const token = await tokenFor(users.ohne);
-    // /me, die Login-Meldung und der Betreiber-Zugang gelten auch ohne Organisation; den
-    // Betreiber-Zugang verweigert dann can() mit keine_berechtigung.
+    // /me, die Login-Meldung, die eigene Sprache (PLT-09) und der Betreiber-Zugang gelten auch
+    // ohne Organisation; den Betreiber-Zugang verweigert dann can() mit keine_berechtigung.
     const withoutOrganization = [
       'GET /api/health',
       'GET /api/me',
       'GET /api/me/permissions',
       'POST /api/me/anmeldung',
+      'PUT /api/me/sprache',
     ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>

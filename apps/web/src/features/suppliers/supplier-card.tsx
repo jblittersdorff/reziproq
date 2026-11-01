@@ -3,10 +3,9 @@ import { Link } from '@tanstack/react-router';
 import { CircleDashedIcon, CircleOffIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tile } from '@/components/ui/tile';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
-import { formatMoney } from '@/lib/money';
 
-const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
 
 /**
  * Karte eines Lieferanten (PLT-03): Name als größte Schrift, Land, eigene Nummer und der Spend des
@@ -27,7 +26,8 @@ export function SupplierCard({
 }) {
   const t = useT();
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
-  const country = supplier.country ? (countryNames.of(supplier.country) ?? supplier.country) : '–';
+  const format = useFormat();
+  const country = format.country(supplier.country);
   return (
     <li className={className}>
       <Tile asChild size="sm" interactive className="h-full">
@@ -62,7 +62,7 @@ export function SupplierCard({
               {t.suppliers.annualSpend(spendYear)}
             </span>
             <span className="font-semibold text-base tabular-nums">
-              {supplier.spend ? formatMoney(supplier.spend, 'de', { wholeUnits: true }) : '–'}
+              {supplier.spend ? format.money(supplier.spend, { wholeUnits: true }) : '–'}
             </span>
           </p>
         </Link>

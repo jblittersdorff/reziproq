@@ -8,7 +8,7 @@ import {
   type TenantTransaction,
   withTenant,
 } from '@reziproq/db';
-import type { OrgRole } from '@reziproq/shared';
+import type { OrgRole, UserLocale } from '@reziproq/shared';
 
 // Die API verbindet sich als reziproq_api: nicht Eigentümer der Tabellen, ohne Sonderrechte
 // (PLT-02). Die Verbindung selbst verlässt dieses Modul nicht. Module kommen an Daten nur über
@@ -58,6 +58,8 @@ export interface AccountSync {
   login: boolean;
   /** Rollen aus dem Token; nur für die einmalige Übernahme beim Login (PLT-05). */
   tokenRoles: readonly string[];
+  /** Browsersprache beim Login; gilt nur, solange keine Sprache gespeichert ist (PLT-09). */
+  browserLocale: UserLocale | null;
 }
 
 /** Organisation einer Person mit ihrer Rolle darin (PLT-05). */
@@ -78,8 +80,21 @@ export class AccountStore {
   async syncUser(user: AccountSync): Promise<void> {
     await this.db.execute(sql`select app_nutzer_synchronisieren(
       ${user.userId}, ${user.name}, ${user.givenName}, ${user.email}, ${user.zitadelOrgId},
-      ${user.login}, ${`{${user.tokenRoles.join(',')}}`}::text[]
+      ${user.login}, ${`{${user.tokenRoles.join(',')}}`}::text[], ${user.browserLocale}
     )`);
+  }
+
+  /** Gespeicherte Sprache (PLT-09); ohne gespeicherte Sprache Deutsch. */
+  async localeOf(userId: string): Promise<UserLocale> {
+    const result = await this.db.execute<{ locale: UserLocale }>(
+      sql`select app_sprache_des_nutzers(${userId}) as locale`,
+    );
+    return result.rows[0]?.locale ?? 'de';
+  }
+
+  /** Nur die eigene Sprache: userId kommt aus dem geprüften Token. */
+  async setLocale(userId: string, locale: UserLocale): Promise<void> {
+    await this.db.execute(sql`select app_sprache_setzen(${userId}, ${locale})`);
   }
 
   async membershipOf(userId: string): Promise<AccountMembership | null> {

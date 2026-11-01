@@ -59,6 +59,8 @@ describe('GET /api/me', () => {
       orgRole: null,
       isControlling: false,
       isOperator: false,
+      // Ohne gespeicherte Sprache Deutsch (PLT-09).
+      locale: 'de',
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);
