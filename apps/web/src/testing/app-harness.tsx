@@ -38,6 +38,7 @@ export const anna: MeResponse = {
   orgRole: 'member',
   isControlling: false,
   isOperator: false,
+  locale: 'de',
   permissions: {
     viewOrganizationSettings: true,
     viewBuyerAreas: true,
@@ -219,6 +220,8 @@ export function setUpApp() {
   api.organization = sampleOrganization;
   api.handle = undefined;
   sessionStorage.clear();
+  // Wie ein deutscher Browser; Tests auf Englisch setzen browserLanguages selbst (PLT-09).
+  browserLanguages(['de-DE', 'de']);
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => fakeApi(input, init)),
@@ -242,8 +245,17 @@ export function setUpApp() {
 }
 
 /** In afterEach aufrufen: Keine Seite darf Fehler in die Konsole schreiben. */
+/** Sprachen, die der nachgebaute Browser meldet (navigator.languages). */
+let languagesSpy: { mockRestore: () => void } | undefined;
+export function browserLanguages(languages: string[]) {
+  languagesSpy?.mockRestore();
+  languagesSpy = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(languages);
+}
+
 export function tearDownApp() {
   cleanup();
+  languagesSpy?.mockRestore();
+  languagesSpy = undefined;
   vi.unstubAllGlobals();
   vi.useRealTimers();
   localStorage.clear();

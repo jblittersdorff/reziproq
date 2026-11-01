@@ -27,6 +27,7 @@ import { Route as AppLieferantenIdRouteRouteImport } from './routes/_app/liefera
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
 import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/profil/erscheinungsbild'
+import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprache'
 import { Route as AppEinstellungenOrganisationIndexRouteImport } from './routes/_app/einstellungen/organisation/index'
 import { Route as AppEinstellungenOrganisationNutzerRouteImport } from './routes/_app/einstellungen/organisation/$nutzer'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
@@ -133,6 +134,11 @@ const AppProfilErscheinungsbildRoute =
     path: '/profil/erscheinungsbild',
     getParentRoute: () => AppRoute,
   } as any)
+const AppProfilSpracheRoute = AppProfilSpracheRouteImport.update({
+  id: '/profil/sprache',
+  path: '/profil/sprache',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEinstellungenOrganisationIndexRoute =
   AppEinstellungenOrganisationIndexRouteImport.update({
     id: '/einstellungen/organisation/',
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/profil/sprache': typeof AppProfilSpracheRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
   '/lieferanten/': typeof AppLieferantenIndexRoute
   '/profil/': typeof AppProfilIndexRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByTo {
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/profil/sprache': typeof AppProfilSpracheRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
   '/lieferanten': typeof AppLieferantenIndexRoute
   '/profil': typeof AppProfilIndexRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
+  '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
   '/_app/lieferanten/': typeof AppLieferantenIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/betreiber/kunden'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
+    | '/profil/sprache'
     | '/einstellungen/'
     | '/lieferanten/'
     | '/profil/'
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/betreiber/kunden'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
+    | '/profil/sprache'
     | '/einstellungen'
     | '/lieferanten'
     | '/profil'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '/_app/betreiber/kunden'
     | '/_app/lieferanten/neu'
     | '/_app/profil/erscheinungsbild'
+    | '/_app/profil/sprache'
     | '/_app/einstellungen/'
     | '/_app/lieferanten/'
     | '/_app/profil/'
@@ -564,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/profil/erscheinungsbild'
       fullPath: '/profil/erscheinungsbild'
       preLoaderRoute: typeof AppProfilErscheinungsbildRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profil/sprache': {
+      id: '/_app/profil/sprache'
+      path: '/profil/sprache'
+      fullPath: '/profil/sprache'
+      preLoaderRoute: typeof AppProfilSpracheRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/organisation/': {
@@ -730,6 +749,7 @@ interface AppRouteChildren {
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
+  AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppLieferantenIndexRoute: typeof AppLieferantenIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
@@ -749,6 +769,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
+  AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppLieferantenIndexRoute: AppLieferantenIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,

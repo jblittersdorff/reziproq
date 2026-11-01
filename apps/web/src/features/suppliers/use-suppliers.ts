@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import { useMe } from '@/features/auth/use-me';
 import { suppliersQueryOptions } from '@/lib/api';
-import { formatMoney } from '@/lib/money';
+import type { Format } from '@/lib/format';
 import type { Messages } from '@/locales/de';
 
 /**
@@ -22,9 +22,9 @@ export function useSuppliers() {
 }
 
 /** „15 Lieferanten · 32.110.000 € Jahresspend 2025“ für die Kopfzeile, ohne Beendete. */
-export function supplierSummary(data: SuppliersResponse, t: Messages): string {
+export function supplierSummary(data: SuppliersResponse, t: Messages, format: Format): string {
   const totals = data.totalSpend.map((money) =>
-    t.suppliers.totalSpend(formatMoney(money, 'de', { wholeUnits: true }), data.spendYear),
+    t.suppliers.totalSpend(format.money(money, { wholeUnits: true }), data.spendYear),
   );
   return [t.suppliers.count(data.count), ...totals].join(' · ');
 }

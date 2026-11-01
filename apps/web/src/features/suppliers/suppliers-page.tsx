@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { ApiError } from '@/lib/api';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { type SortKey, type SupplierSearch, visibleSuppliers } from './search';
 import { SupplierCard } from './supplier-card';
@@ -22,6 +23,7 @@ import { supplierSummary, useSuppliers } from './use-suppliers';
  */
 export function SuppliersPage() {
   const t = useT();
+  const format = useFormat();
   const { me, allowed, data, isPending, isError, error } = useSuppliers();
   const search = useSearch({ from: '/_app/lieferanten/' });
   const navigate = useNavigate({ from: '/lieferanten/' });
@@ -83,7 +85,7 @@ export function SuppliersPage() {
   );
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-4">
-      <PageHeader title={title} purpose={supplierSummary(data, t)} />
+      <PageHeader title={title} purpose={supplierSummary(data, t, format)} />
       {addButton}
     </div>
   );

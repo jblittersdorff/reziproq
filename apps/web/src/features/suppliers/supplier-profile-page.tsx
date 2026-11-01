@@ -13,12 +13,11 @@ import { PageHeader } from '@/features/shell/page-header';
 import { InternalBadge } from '@/features/workspace/internal-badge';
 import { endSupplier } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { SupplierFrame } from './supplier-frame';
 import { useRefreshSupplier, useSupplier } from './use-supplier';
 
-const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
-const dateFormat = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' });
 
 /**
  * Strategie › Profil eines Lieferanten (PLT-03b): Stammdaten zum Lesen, eigene Werte, Status,
@@ -26,6 +25,7 @@ const dateFormat = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' });
  */
 export function SupplierProfilePage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
+  const format = useFormat();
   const { accessToken } = useSupplier(relationshipId);
   const refresh = useRefreshSupplier();
   const [message, hideMessage] = useFlash();
@@ -109,7 +109,7 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
               </SettingsRow>
               <SettingsRow label={t.suppliers.country}>
                 <span className="text-base">
-                  {supplier.country ? (countryNames.of(supplier.country) ?? supplier.country) : '–'}
+                  {format.country(supplier.country)}
                 </span>
               </SettingsRow>
               <SettingsRow label={t.suppliers.vatId}>
@@ -119,11 +119,11 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
                 <span className="text-base">{supplier.duns ?? '–'}</span>
               </SettingsRow>
               <SettingsRow label={t.suppliers.createdAt}>
-                <span className="text-base">{dateFormat.format(new Date(supplier.createdAt))}</span>
+                <span className="text-base">{format.date(supplier.createdAt)}</span>
               </SettingsRow>
               {supplier.endedAt && (
                 <SettingsRow label={t.suppliers.endedAt}>
-                  <span className="text-base">{dateFormat.format(new Date(supplier.endedAt))}</span>
+                  <span className="text-base">{format.date(supplier.endedAt)}</span>
                 </SettingsRow>
               )}
             </SettingsGroup>

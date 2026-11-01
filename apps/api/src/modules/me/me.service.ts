@@ -1,5 +1,11 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { type Action, actions, type MeResponse, type PermissionsResponse } from '@reziproq/shared';
+import {
+  type Action,
+  actions,
+  type MeResponse,
+  type PermissionsResponse,
+  type UserLocale,
+} from '@reziproq/shared';
 import { AccountStore } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
@@ -17,7 +23,13 @@ export class MeService {
    * Die Organisation folgt immer Zitadel: Ist die Zitadel-Organisation nicht verknüpft, bleibt sie
    * leer (PLT-02). Mit login wird zusätzlich last_login_at gesetzt (PLT-01).
    */
-  async syncFromUserinfo(auth: AuthContext, { login = false } = {}): Promise<MeResponse> {
+  async syncFromUserinfo(
+    auth: AuthContext,
+    {
+      login = false,
+      browserLocale = null,
+    }: { login?: boolean; browserLocale?: UserLocale | null } = {},
+  ): Promise<MeResponse> {
     const info = await this.userinfo.fetch(auth.accessToken);
     // Userinfo muss zur selben Person gehören wie das Token (OpenID Connect Core 5.3.2).
     if (info.sub !== auth.userId) throw new UnauthorizedException();
@@ -31,6 +43,7 @@ export class MeService {
       zitadelOrgId: info['urn:zitadel:iam:user:resourceowner:id'] ?? null,
       login,
       tokenRoles: auth.tokenRoles,
+      browserLocale: login ? browserLocale : null,
     });
     // Der Guard kannte nur den Stand vor dem Abgleich; die Betreiber-Ansicht bleibt beim Kunden.
     const membership = auth.supportOrganization
@@ -52,6 +65,7 @@ export class MeService {
       orgRole: subject.orgRole,
       isControlling: subject.isControlling,
       isOperator: subject.isOperator,
+      locale: await this.accounts.localeOf(auth.userId),
       permissions: {
         viewOrganizationSettings: organization !== null && can(subject, 'organisation.sehen'),
         viewBuyerAreas: organization?.buyer ?? false,
@@ -60,6 +74,11 @@ export class MeService {
         switchCustomer: can(subject, 'kunden.wechseln'),
       },
     };
+  }
+
+  /** Eigene Sprache ändern (PLT-09); gilt sofort und bei jedem späteren Login. */
+  async setLocale(auth: AuthContext, locale: UserLocale): Promise<void> {
+    await this.accounts.setLocale(auth.userId, locale);
   }
 
   /**

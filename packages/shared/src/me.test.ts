@@ -10,6 +10,7 @@ const ada = {
   orgRole: null,
   isControlling: false,
   isOperator: true,
+  locale: 'en',
   permissions: {
     viewOrganizationSettings: false,
     viewBuyerAreas: false,
@@ -23,6 +24,12 @@ describe('meResponseSchema', () => {
     expect(meResponseSchema.parse(ada)).toEqual(ada);
     const withOrg = { ...ada, organization: { id: 'org-1', name: 'Beispiel-OEM' } };
     expect(meResponseSchema.parse(withOrg)).toEqual(withOrg);
+  });
+
+  it('PLT-09: kennt nur die Sprachen de und en; ohne Angabe Deutsch', () => {
+    const { locale: _, ...withoutLocale } = ada;
+    expect(meResponseSchema.parse(withoutLocale).locale).toBe('de');
+    expect(meResponseSchema.safeParse({ ...ada, locale: 'fr' }).success).toBe(false);
   });
 
   it('kennt nur die Rollen admin, member und viewer (PLT-05)', () => {

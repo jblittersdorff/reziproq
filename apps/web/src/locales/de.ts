@@ -85,6 +85,7 @@ export const de = {
     organization: 'Organisation',
     noOrganization: 'Keiner Organisation zugeordnet',
     display: 'Darstellung',
+    language: 'Sprache',
     theme: 'Erscheinungsbild',
     themeSystem: 'System',
     themeLight: 'Hell',
@@ -110,6 +111,17 @@ export const de = {
       programs: 'Programme',
       after_sales: 'After-Sales',
     },
+  },
+
+  // Sprache (PLT-09)
+  language: {
+    title: 'Sprache',
+    purpose: 'In welcher Sprache du Reziproq siehst, auf jedem Gerät.',
+    description: 'Gilt auch für Zahlen, Daten und Beträge.',
+    save: 'Speichern',
+    saving: 'Wird gespeichert …',
+    cancel: 'Abbrechen',
+    failed: 'Die Sprache konnte nicht gespeichert werden. Versuch es noch einmal.',
   },
 
   appearance: {

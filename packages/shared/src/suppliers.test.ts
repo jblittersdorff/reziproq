@@ -109,4 +109,17 @@ describe('Spend liegt in Cent in der Datenbank und erscheint als Euro im deutsch
   it.each(['', 'abc', '1,234', '1.23.4', '-5', '1,999'])('lehnt „%s“ ab', (text) => {
     expect(parseEuroToCents(text)).toBeNull();
   });
+
+  it.each([
+    ['1,234,567.89', 123456789],
+    ['€4,820,000', 482000000],
+    ['4820000', 482000000],
+    ['0.5', 50],
+  ])('PLT-09: Beträge im Format der Sprache: liest „%s“ auf Englisch als %i Cent', (text, cents) => {
+    expect(parseEuroToCents(text, 'en')).toBe(cents);
+  });
+
+  it.each(['1.234,56', '1,23,4', '1.999'])('PLT-09: lehnt „%s“ auf Englisch ab', (text) => {
+    expect(parseEuroToCents(text, 'en')).toBeNull();
+  });
 });

@@ -1,4 +1,4 @@
-import type { Messages } from './de';
+import type { Messages } from './de.js';
 
 // Englische Texte; die Schlüssel kommen aus de.ts. Die englische Oberfläche kommt mit PLT-09.
 export const en: Messages = {
@@ -83,6 +83,7 @@ export const en: Messages = {
     organization: 'Organization',
     noOrganization: 'Not assigned to an organization',
     display: 'Display',
+    language: 'Language',
     theme: 'Appearance',
     themeSystem: 'System',
     themeLight: 'Light',
@@ -107,6 +108,17 @@ export const en: Messages = {
       programs: 'Programs',
       after_sales: 'After-sales',
     },
+  },
+
+  // Language (PLT-09)
+  language: {
+    title: 'Language',
+    purpose: 'The language you see Reziproq in, on every device.',
+    description: 'Also applies to numbers, dates and amounts.',
+    save: 'Save',
+    saving: 'Saving …',
+    cancel: 'Cancel',
+    failed: 'The language could not be saved. Please try again.',
   },
 
   appearance: {
@@ -243,7 +255,7 @@ export const en: Messages = {
     areas: {
       strategy: 'Strategy',
       relationship: 'Relationship',
-      plan: 'Joint plan',
+      plan: 'Joint Business Plan',
       execution: 'Execution',
       impact: 'Impact',
       hints: 'Hints',
@@ -283,7 +295,7 @@ export const en: Messages = {
       rules: { title: 'Rules of engagement', text: 'How you work together.' },
       feedback: { title: 'Feedback', text: 'How both sides experience the relationship.' },
       touchpoints: { title: 'Touchpoints', text: 'Who talks to whom.' },
-      preparation: { title: 'Preparation', text: 'What goes into the joint plan.' },
+      preparation: { title: 'Preparation', text: 'What goes into the Joint Business Plan.' },
       topics: { title: 'Topics', text: 'Topics of both sides.' },
       initiatives: { title: 'Initiatives', text: 'Joint initiatives and roadmap.' },
       commitments: { title: 'Commitments', text: 'What both sides commit to.' },

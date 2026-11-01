@@ -17,7 +17,7 @@ function leaf(catalog: unknown, path: string): unknown {
 }
 
 describe('Übersetzungen', () => {
-  it('haben im Englischen genau dieselben Schlüssel wie im Deutschen', () => {
+  it('de und en haben genau dieselben Schlüssel', () => {
     expect(keyPaths(en)).toEqual(keyPaths(de));
   });
 
@@ -33,8 +33,10 @@ describe('Übersetzungen', () => {
     expect(empty).toEqual([]);
   });
 
-  it('meldet einen fehlenden Schlüssel', () => {
+  it('Ein Test scheitert bei jedem fehlenden oder überzähligen Schlüssel', () => {
     const { notFound: _, ...withoutNotFound } = de;
     expect(keyPaths(withoutNotFound)).not.toEqual(keyPaths(de));
+    const withExtra = { ...en, extra: { only: 'only in en' } };
+    expect(keyPaths(withExtra)).not.toEqual(keyPaths(de));
   });
 });

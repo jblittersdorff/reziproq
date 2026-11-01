@@ -136,7 +136,7 @@ describe('PLT-02 in der Datenbank', () => {
   describe('Zuordnung beim Login', () => {
     const sync = (id: string, zitadelOrgId: string | null, login: boolean) =>
       asApi(sql`select app_nutzer_synchronisieren(
-        ${id}, 'Neu Nutzer', 'Neu', 'neu@example.com', ${zitadelOrgId}, ${login}, '{}'::text[]
+        ${id}, 'Neu Nutzer', 'Neu', 'neu@example.com', ${zitadelOrgId}, ${login}, '{}'::text[], 'de'
       )`);
     const stored = async (id: string) =>
       (

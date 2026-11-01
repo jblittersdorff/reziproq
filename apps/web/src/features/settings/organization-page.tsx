@@ -20,9 +20,9 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
 import { organizationQueryOptions } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 
-const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
 
 /**
  * Einstellungen › Organisation (PLT-02, PLT-05): Name, Land und Mitglieder mit Rolle und
@@ -62,6 +62,7 @@ export function OrganizationPage() {
 
 function OrganizationDetails() {
   const t = useT();
+  const format = useFormat();
   const auth = useAuth();
   const changeRoles = useCan('rollen.aendern');
   const accessToken = auth.user?.access_token ?? '';
@@ -80,9 +81,7 @@ function OrganizationDetails() {
         </SettingsRow>
         <SettingsRow label={t.settings.organizationCountry}>
           <span className="text-base">
-            {organization.data.country
-              ? (countryNames.of(organization.data.country) ?? organization.data.country)
-              : '–'}
+            {format.country(organization.data.country)}
           </span>
         </SettingsRow>
       </SettingsGroup>

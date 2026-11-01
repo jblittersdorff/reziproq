@@ -11,8 +11,8 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
 import { ApiError, createSupplier, lookupSupplier } from '@/lib/api';
 import { flash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
-import { countryOptions } from './countries';
 import { apiFieldErrors, translateFieldErrors, useRefreshSupplier } from './use-supplier';
 
 /**
@@ -21,6 +21,7 @@ import { apiFieldErrors, translateFieldErrors, useRefreshSupplier } from './use-
  */
 export function NewSupplierPage() {
   const t = useT();
+  const format = useFormat();
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ export function NewSupplierPage() {
     event.preventDefault();
     setFailed(false);
     setExisting(null);
-    const amountCents = form.amount.trim() === '' ? undefined : parseEuroToCents(form.amount);
+    const amountCents = form.amount.trim() === '' ? undefined : parseEuroToCents(form.amount, format.locale);
     const request = {
       name: form.name,
       country: form.country,
@@ -139,7 +140,7 @@ export function NewSupplierPage() {
               onChange={(event) => set('country')(event.target.value)}
             >
               <option value="">{t.suppliers.countryPlaceholder}</option>
-              {countryOptions.map((country) => (
+              {format.countryOptions().map((country) => (
                 <option key={country.code} value={country.code}>
                   {country.name}
                 </option>

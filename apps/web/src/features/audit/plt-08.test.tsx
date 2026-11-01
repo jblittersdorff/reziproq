@@ -17,6 +17,8 @@ const requests: string[] = [];
 
 beforeEach(() => {
   requests.length = 0;
+  // Wie ein deutscher Browser (PLT-09); die Texte unten sind deutsch.
+  vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['de-DE']);
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL) => {
@@ -29,6 +31,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 function renderHistory() {

@@ -10,7 +10,7 @@ import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { signedOut } from '@/lib/auth';
-import { useT } from '@/lib/i18n';
+import { useLocale, useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 
 /**
@@ -21,6 +21,7 @@ export function ProfilePage() {
   const t = useT();
   const auth = useAuth();
   const me = useMe();
+  const { locale } = useLocale();
   const manageSettings = useCan('einstellungen.verwalten');
   const { preference } = useTheme();
 
@@ -73,6 +74,12 @@ export function ProfilePage() {
               href="/profil/erscheinungsbild"
               label={t.profile.theme}
               value={themeLabel}
+              renderLink={routerLink}
+            />
+            <SettingsLinkRow
+              href="/profil/sprache"
+              label={t.profile.language}
+              value={locale === 'en' ? 'English' : 'Deutsch'}
               renderLink={routerLink}
             />
           </SettingsGroup>

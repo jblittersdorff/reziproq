@@ -1,13 +1,21 @@
-import { createContext, type ReactNode, use, useEffect, useState } from 'react';
+import { createContext, type ReactNode, use, useCallback, useEffect, useState } from 'react';
 import { de, type Messages } from '@/locales/de';
 import { en } from '@/locales/en';
 
 export const locales = ['de', 'en'] as const;
 export type Locale = (typeof locales)[number];
 
-// Bis zur englischen Oberfläche (PLT-09) startet die App immer auf Deutsch.
-// Der Styleguide kann die Sprache trotzdem umschalten, um beide Texte zu prüfen.
-function initialLocale(): Locale {
+/**
+ * Sprache des Browsers: die erste aus navigator.languages, die Reziproq kann, sonst Deutsch
+ * (PLT-09). Sie gilt vor dem Login und beim ersten Login; danach zählt die gespeicherte Sprache.
+ */
+export function browserLocale(): Locale {
+  const preferred = typeof navigator === 'undefined' ? [] : navigator.languages;
+  for (const tag of preferred) {
+    const language = tag.toLowerCase().split('-')[0];
+    const match = locales.find((locale) => locale === language);
+    if (match) return match;
+  }
   return 'de';
 }
 
@@ -19,13 +27,14 @@ interface LocaleContextValue {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+  const [locale, setLocaleState] = useState<Locale>(browserLocale);
 
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const setLocale = (next: Locale) => setLocaleState(next);
+  // Stabil, damit Effekte, die die Sprache setzen, nicht bei jedem Rendern erneut laufen.
+  const setLocale = useCallback((next: Locale) => setLocaleState(next), []);
 
   return <LocaleContext value={{ locale, setLocale }}>{children}</LocaleContext>;
 }

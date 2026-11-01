@@ -9,10 +9,10 @@ import { useMe } from '@/features/auth/use-me';
 import { PagePath } from '@/features/shell/page-path';
 import { PageHeader } from '@/features/shell/page-header';
 import { ApiError, customersQueryOptions } from '@/lib/api';
+import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { useSupportSwitch } from './use-support-switch';
 
-const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
 
 /**
  * In einen Kunden wechseln (UMB-01) als eigene Seite statt Fenster: die Kunden als Kacheln, ein
@@ -20,6 +20,7 @@ const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
  */
 export function CustomersPage() {
   const t = useT();
+  const format = useFormat();
   const auth = useAuth();
   const me = useMe();
   const { enter } = useSupportSwitch();
@@ -68,9 +69,7 @@ export function CustomersPage() {
                   >
                     <TileTitle>{customer.name}</TileTitle>
                     <TileText>
-                      {customer.country
-                        ? (countryNames.of(customer.country) ?? customer.country)
-                        : '–'}
+                      {format.country(customer.country)}
                     </TileText>
                   </button>
                 </Tile>

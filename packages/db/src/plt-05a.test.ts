@@ -19,7 +19,7 @@ describe('PLT-05a: Rollen in der Datenbank', () => {
       await tx.execute(sql`set local role reziproq_api`);
       await tx.execute(sql`select app_nutzer_synchronisieren(
         ${id}, 'Neu Nutzer', 'Neu', ${`${id}@example.com`}, ${zitadelOrgId}, true,
-        ${`{${roles.join(',')}}`}::text[]
+        ${`{${roles.join(',')}}`}::text[], 'de'
       )`);
     });
 

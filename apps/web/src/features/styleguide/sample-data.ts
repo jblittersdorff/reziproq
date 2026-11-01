@@ -18,7 +18,7 @@ export const matrixSuppliers: MatrixSupplier[] = [
     current: { x: 1.5, y: 1.4 },
     target: { x: 1.6, y: 2.4 },
   },
-  { name: 'Logistik West', volumeCents: 380_000_00, current: { x: 0.7, y: 1.6 } },
+  { name: 'Westfracht', volumeCents: 380_000_00, current: { x: 0.7, y: 1.6 } },
   { name: 'Elektronik Ost', volumeCents: 2_300_000_00, current: { x: 2.75, y: 2.65 } },
 ];
 
