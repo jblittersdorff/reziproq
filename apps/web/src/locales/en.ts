@@ -350,16 +350,19 @@ export const en: Messages = {
   },
 
   support: {
-    switchCustomer: 'Switch customer',
-    dialogTitle: 'Switch to a customer',
-    dialogDescription: 'You then see Reziproq the way this customer does. Every access is logged.',
+    switchCustomer: 'Switch to a customer',
+    title: 'Switch to a customer',
+    purpose: 'You then see Reziproq the way this customer does, read only. Every access is logged.',
     loading: 'Loading customers …',
     failed: 'The customers could not be loaded.',
     empty: 'There are no customers yet.',
+    emptyDescription: 'Customers are organizations with buyer features.',
+    onlyOperators: 'This page is only for the Reziproq operator team.',
+    open: (customer: string) => `Switch to ${customer}`,
     banner: (customer: string) => `Operator view: ${customer}. Every access is logged.`,
     leave: 'Leave',
     chooseCustomer:
-      'You are not assigned to an organization. As an operator, choose “Switch customer” on your profile.',
+      'You are not assigned to an organization. As an operator, choose “Switch to a customer” on your profile.',
   },
 
   organization: {

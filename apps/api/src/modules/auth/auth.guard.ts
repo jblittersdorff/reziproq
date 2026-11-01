@@ -30,7 +30,7 @@ export interface AuthContext {
   /** Rolle in der Organisation; in der Betreiber-Ansicht viewer, ohne Organisation null */
   orgRole: OrgRole | null;
   isControlling: boolean;
-  /** Betreiber-Team von Reziproq; bis UMB-01 aus dem Zitadel-Token */
+  /** Betreiber-Team von Reziproq; nur das Flag is_operator in der Datenbank (UMB-01) */
   isOperator: boolean;
   /** Rollen aus dem Token, nur für die einmalige Übernahme beim Login */
   tokenRoles: TokenRole[];
@@ -79,12 +79,12 @@ export class AuthGuard implements CanActivate {
       accessToken: token,
       orgRole: null,
       isControlling: false,
-      isOperator: tokenRoles.includes('betreiber'),
+      isOperator: await this.accounts.isOperator(payload.sub),
       tokenRoles,
       organization: null,
     };
 
-    // Betreiber-Ansicht (PLT-13): Nur die Rolle betreiber darf einen Kunden wählen.
+    // Betreiber-Ansicht (PLT-13, UMB-01): Nur Betreiber dürfen einen Kunden wählen.
     const customerId = request.headers[supportHeader];
     if (customerId !== undefined) {
       if (!can(auth, 'kunden.wechseln')) {

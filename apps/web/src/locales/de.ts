@@ -360,18 +360,21 @@ export const de = {
 
   // Betreiber-Zugang (PLT-13)
   support: {
-    switchCustomer: 'Kunde wechseln',
-    dialogTitle: 'In einen Kunden wechseln',
-    dialogDescription:
-      'Du siehst Reziproq dann so wie dieser Kunde. Jeder Zugriff wird protokolliert.',
+    switchCustomer: 'In einen Kunden wechseln',
+    title: 'In einen Kunden wechseln',
+    purpose:
+      'Du siehst Reziproq dann so wie dieser Kunde, nur lesend. Jeder Zugriff wird protokolliert.',
     loading: 'Kunden werden geladen …',
     failed: 'Die Kunden konnten nicht geladen werden.',
     empty: 'Es gibt noch keine Kunden.',
+    emptyDescription: 'Kunden sind Organisationen mit Käuferfunktionen.',
+    onlyOperators: 'Diese Seite ist nur für das Betreiber-Team von Reziproq.',
+    open: (customer: string) => `In ${customer} wechseln`,
     banner: (customer: string) =>
       `Betreiber-Ansicht: ${customer}. Alle Zugriffe werden protokolliert.`,
     leave: 'Verlassen',
     chooseCustomer:
-      'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „Kunde wechseln“.',
+      'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „In einen Kunden wechseln“.',
   },
 
   organization: {

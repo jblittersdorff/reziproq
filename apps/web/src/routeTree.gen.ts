@@ -20,6 +20,7 @@ import { Route as AppStartRouteImport } from './routes/_app/start'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
 import { Route as AppLieferantenIndexRouteImport } from './routes/_app/lieferanten/index'
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
@@ -89,6 +90,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppBetreiberKundenRoute = AppBetreiberKundenRouteImport.update({
+  id: '/betreiber/kunden',
+  path: '/betreiber/kunden',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
   id: '/einstellungen/',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/uebersicht': typeof AppUebersichtRoute
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/uebersicht': typeof AppUebersichtRoute
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/_app/uebersicht': typeof AppUebersichtRoute
   '/_app/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/uebersicht'
     | '/wirkung'
     | '/auth/callback'
+    | '/betreiber/kunden'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen/'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/uebersicht'
     | '/wirkung'
     | '/auth/callback'
+    | '/betreiber/kunden'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/_app/uebersicht'
     | '/_app/wirkung'
     | '/auth/callback'
+    | '/_app/betreiber/kunden'
     | '/_app/lieferanten/neu'
     | '/_app/profil/erscheinungsbild'
     | '/_app/einstellungen/'
@@ -429,6 +441,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/betreiber/kunden': {
+      id: '/_app/betreiber/kunden'
+      path: '/betreiber/kunden'
+      fullPath: '/betreiber/kunden'
+      preLoaderRoute: typeof AppBetreiberKundenRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/': {
       id: '/_app/einstellungen/'
@@ -546,6 +565,7 @@ interface AppRouteChildren {
   AppStartRoute: typeof AppStartRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
   AppWirkungRoute: typeof AppWirkungRoute
+  AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
@@ -571,6 +591,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartRoute: AppStartRoute,
   AppUebersichtRoute: AppUebersichtRoute,
   AppWirkungRoute: AppWirkungRoute,
+  AppBetreiberKundenRoute: AppBetreiberKundenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,

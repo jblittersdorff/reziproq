@@ -43,6 +43,8 @@ export const appUser = pgTable(
     defaultFunction: text('default_function', { enum: userFunctions }),
     // Wann die Rollen einmalig aus dem Zitadel-Token übernommen wurden; danach zählt nur die Datenbank.
     rolesImportedAt: timestamp('roles_imported_at', { withTimezone: true }),
+    // Betreiber-Team von Reziproq (UMB-01); gesetzt nur per pnpm operator:set, nie über die API.
+    isOperator: boolean('is_operator').notNull().default(false),
   },
   (table) => [
     check('app_user_org_role', sql`${table.orgRole} in ('admin', 'member', 'viewer')`),

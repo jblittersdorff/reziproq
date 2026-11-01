@@ -34,55 +34,73 @@ afterEach(tearDownApp);
 const operator = {
   ...anna,
   organization: null,
+  orgRole: null,
+  isOperator: true,
   permissions: { ...anna.permissions, viewSuppliers: false, switchCustomer: true },
 };
 const banner = (customer: string) =>
   `Betreiber-Ansicht: ${customer}. Alle Zugriffe werden protokolliert.`;
 
-// Seit PLT-11 steht „Kunde wechseln“ auf der Seite /profil; der Dialog bleibt bis UMB-01.
+// Seit UMB-01 eine eigene Seite /betreiber/kunden statt eines Fensters.
 
-describe('Kunde wechseln', () => {
-  it('fehlt auf dem Profil für Nutzer ohne Rolle betreiber, auch für Admins', async () => {
+describe('In einen Kunden wechseln', () => {
+  it('fehlt auf dem Profil für Nutzer ohne is_operator, auch für Admins', async () => {
     api.me = { ...anna, orgRole: 'admin' };
     api.permissions = actionsFor.admin;
     renderAt('/profil');
     await screen.findByText('Anna Schmidt');
-    expect(screen.queryByRole('button', { name: 'Kunde wechseln' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /In einen Kunden wechseln/ })).toBeNull();
     expect(api.requests.some((r) => r.url === '/api/betreiber/kunden')).toBe(false);
   });
 
-  it('zeigt Betreibern die Kunden und wechselt per Klick in einen davon', async () => {
+  it('/betreiber/kunden ist über die Adresse erreichbar; ohne is_operator nur ein Hinweis', async () => {
+    api.me = { ...anna, orgRole: 'admin' };
+    renderAt('/betreiber/kunden');
+    expect(
+      await screen.findByText('Diese Seite ist nur für das Betreiber-Team von Reziproq.'),
+    ).toBeDefined();
+    expect(api.requests.some((r) => r.url === '/api/betreiber/kunden')).toBe(false);
+  });
+
+  it('Betreiber wählen auf eigener Seite einen Kunden und kommen zu Start, ohne Fenster', async () => {
     api.me = operator;
     const router = renderAt('/profil');
-    fireEvent.click(await screen.findByRole('button', { name: 'Kunde wechseln' }));
+    await screen.findByText('Betreiber von Reziproq', { selector: 'span[data-slot="badge"]' });
+    // Ohne Organisation ändert kein Admin die Rolle, also kein Hinweis darauf.
+    expect(screen.queryByText(/Ändern kann sie ein Admin/)).toBeNull();
+    fireEvent.click(await screen.findByRole('link', { name: /In einen Kunden wechseln/ }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/betreiber/kunden'));
 
-    const dialog = await screen.findByRole('dialog', { name: 'In einen Kunden wechseln' });
-    const choices = await within(dialog).findAllByRole('button');
+    const list = await screen.findByRole('list', { name: 'In einen Kunden wechseln' });
+    const choices = await within(list).findAllByRole('button');
     expect(choices.map((choice) => choice.textContent)).toEqual([
       'Beispiel-OEM (Demo)Deutschland',
       'Zweit-OEM (Demo)Österreich',
     ]);
+    expect(screen.queryByRole('dialog')).toBeNull();
 
     api.me = {
       ...operator,
       organization: { id: 'org-2', name: 'Zweit-OEM (Demo)' },
       supportView: true,
+      orgRole: 'viewer',
     };
-    fireEvent.click(within(dialog).getByRole('button', { name: /Zweit-OEM/ }));
+    fireEvent.click(within(list).getByRole('button', { name: 'In Zweit-OEM (Demo) wechseln' }));
 
     expect(await screen.findByText(banner('Zweit-OEM (Demo)'))).toBeDefined();
     await waitFor(() => expect(router.state.location.pathname).toBe('/start'));
     await waitFor(() =>
       expect(api.requests.filter((r) => r.url === '/api/me').at(-1)?.customer).toBe('org-2'),
     );
+    expect(sessionStorage.getItem('reziproq-support-org')).toContain('org-2');
   });
 
-  it('weist Betreiber ohne eigene Organisation auf „Kunde wechseln“ hin', async () => {
+  it('weist Betreiber ohne eigene Organisation auf „In einen Kunden wechseln“ hin', async () => {
     api.me = operator;
     renderAt('/start');
     expect(
       await screen.findByText(
-        'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „Kunde wechseln“.',
+        'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „In einen Kunden wechseln“.',
       ),
     ).toBeDefined();
   });
@@ -126,14 +144,14 @@ describe('Betreiber-Ansicht', () => {
     const fetchMock = vi.mocked(fetch);
     const original = fetchMock.getMockImplementation();
     fetchMock.mockImplementation(async (input, init) => {
-      const customer = new Headers(init?.headers).get('x-reziproq-kunde');
+      const customer = new Headers(init?.headers).get('x-reziproq-support-org');
       if (String(input) === '/api/me' && customer) {
         return Response.json({ statusCode: 403 }, { status: 403 });
       }
       return original ? original(input, init) : Response.json({});
     });
     renderAt('/start');
-    await waitFor(() => expect(sessionStorage.getItem('reziproq-betreiber-kunde')).toBeNull());
+    await waitFor(() => expect(sessionStorage.getItem('reziproq-support-org')).toBeNull());
     expect(screen.queryByText(banner('Zweit-OEM (Demo)'))).toBeNull();
   });
 });

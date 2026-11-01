@@ -227,7 +227,7 @@ describe('GET /api/me', () => {
     expect(await res.json()).toMatchObject({ permissions: noPermissions });
   });
 
-  it('erkennt Betreiber bis UMB-01 am Token und ignoriert unbekannte Rollen', async () => {
+  it('UMB-01: Die Zitadel-Rolle betreiber hat keine Wirkung mehr; nur is_operator zählt', async () => {
     const token = await testApp.signToken({
       subject: userId,
       claims: {
@@ -238,7 +238,18 @@ describe('GET /api/me', () => {
       },
     });
     const res = await testApp.get('/api/me', token);
-    expect(await res.json()).toMatchObject({ isOperator: true, orgRole: null });
+    expect(await res.json()).toMatchObject({ isOperator: false, orgRole: null });
+
+    // Mit dem Flag in der Datenbank (pnpm operator:set) ist die Person Betreiber.
+    await db
+      .update(schema.appUser)
+      .set({ isOperator: true })
+      .where(sql`${schema.appUser.id} = ${userId}`);
+    const again = await testApp.get('/api/me', token);
+    expect(await again.json()).toMatchObject({
+      isOperator: true,
+      permissions: { switchCustomer: true },
+    });
   });
 
   it('PLT-01: Beim ersten Login wird app_user angelegt, bei jedem Login last_login_at aktualisiert', async () => {

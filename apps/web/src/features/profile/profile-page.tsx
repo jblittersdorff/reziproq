@@ -1,5 +1,4 @@
 import { ArrowLeftRightIcon, Building2Icon, LogOutIcon, SettingsIcon } from 'lucide-react';
-import { useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,6 @@ import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
-import { CustomerDialog } from '@/features/support/customer-dialog';
 import { signedOut } from '@/lib/auth';
 import { useT } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
@@ -25,7 +23,6 @@ export function ProfilePage() {
   const me = useMe();
   const manageSettings = useCan('einstellungen.verwalten');
   const { preference } = useTheme();
-  const [customersOpen, setCustomersOpen] = useState(false);
 
   const themeLabel = {
     system: t.profile.themeSystem,
@@ -57,7 +54,11 @@ export function ProfilePage() {
             </SettingsRow>
             {/* Nur Anzeige: Rolle aus der Datenbank (PLT-05). Entschieden wird per can() im Backend. */}
             {(me.data.orgRole || me.data.isOperator) && (
-              <SettingsRow label={t.profile.role} description={t.profile.roleDescription}>
+              <SettingsRow
+                label={t.profile.role}
+                // Den Betreiber-Hinweis ändert kein Admin, sondern nur pnpm operator:set (UMB-01).
+                {...(me.data.orgRole && { description: t.profile.roleDescription })}
+              >
                 <span className="flex flex-wrap gap-2 sm:justify-end">
                   {me.data.orgRole && <Badge variant="selected">{t.roles[me.data.orgRole]}</Badge>}
                   {me.data.isControlling && <Badge>{t.roles.controlling}</Badge>}
@@ -98,17 +99,23 @@ export function ProfilePage() {
               )}
             </SettingsGroup>
           )}
+
+          {/* Nur für das Betreiber-Team von Reziproq; entschieden per can() in der API (UMB-01). */}
+          {me.data.permissions.switchCustomer && (
+            <SettingsGroup title={t.profile.operator}>
+              <SettingsLinkRow
+                href="/betreiber/kunden"
+                label={t.support.switchCustomer}
+                description={t.support.purpose}
+                icon={<ArrowLeftRightIcon aria-hidden />}
+                renderLink={routerLink}
+              />
+            </SettingsGroup>
+          )}
         </>
       )}
 
       <div className="flex flex-wrap gap-3">
-        {/* Nur für das Betreiber-Team von Reziproq; entschieden per can() in der API (PLT-13). */}
-        {me.data?.permissions.switchCustomer && (
-          <Button variant="outline" onClick={() => setCustomersOpen(true)}>
-            <ArrowLeftRightIcon />
-            {t.support.switchCustomer}
-          </Button>
-        )}
         <Button
           variant="outline"
           onClick={() => {
@@ -121,7 +128,6 @@ export function ProfilePage() {
           {t.user.signOut}
         </Button>
       </div>
-      <CustomerDialog open={customersOpen} onOpenChange={setCustomersOpen} />
     </>
   );
 }

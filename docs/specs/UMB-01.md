@@ -35,12 +35,21 @@ Als Mitarbeiter von Reziproq wechsle ich auf einer eigenen Seite in einen Kunden
 
 Je Kriterium ein Test.
 
-- [ ] Es gibt keinen Dialog mehr; die Prüfung aus PLT-10 läuft grün.
-- [ ] `/betreiber/kunden` ist über die Adresse erreichbar; ohne `is_operator` antwortet die API mit 403, auch für Admins.
-- [ ] Jeder Zugriff in einem Kunden und jeder Abruf der Kundenliste steht in `support_access_log`; die API-Rolle kann das Protokoll nicht lesen.
-- [ ] Die Umbenennung verliert keine Einträge (Migrationstest).
-- [ ] Ein Betreiber im Kunden B sieht genau die Daten von B (Tests aus PLT-13 laufen weiter).
-- [ ] `pnpm operator:set` setzt und entfernt das Flag; die Zitadel-Rolle `betreiber` hat keine Wirkung mehr.
+- [x] Es gibt keinen Dialog mehr; die Prüfung aus PLT-10 läuft grün.
+- [x] `/betreiber/kunden` ist über die Adresse erreichbar; ohne `is_operator` antwortet die API mit 403, auch für Admins.
+- [x] Jeder Zugriff in einem Kunden und jeder Abruf der Kundenliste steht in `support_access_log`; die API-Rolle kann das Protokoll nicht lesen.
+- [x] Die Umbenennung verliert keine Einträge (Migrationstest).
+- [x] Ein Betreiber im Kunden B sieht genau die Daten von B (Tests aus PLT-13 laufen weiter).
+- [x] `pnpm operator:set` setzt und entfernt das Flag; die Zitadel-Rolle `betreiber` hat keine Wirkung mehr.
+
+## Umgesetzt mit
+
+- Das Flag `is_operator` setzt nur `pnpm operator:set <email>` (bzw. `--remove`); weder API noch Oberfläche können es ändern. Die API liest es über die Datenbankfunktion `app_ist_betreiber`, die nur `reziproq_api` ausführen darf.
+- Migration `0015_betreiber_flag` benennt Tabelle, Spalten, Schlüssel und Policy um, statt neu anzulegen; die Funktion `app_betreiber_protokoll` schreibt nun in `support_access_log`. Im Register der Datenebenen steht die Tabelle als `global` mit Vermerk „nur Betrieb“.
+- Die Zitadel-Rollen kennt die API nur noch als `admin`, `nutzer`, `leser`, `controlling` (Übernahme aus PLT-05a); `betreiber` im Token wird ignoriert.
+- `/betreiber/kunden` ist eine eigene Seite im Pfad unter Profil. Ohne `is_operator` zeigt sie nur einen Hinweis; die Kundenliste kommt von der API, die mit 403 antwortet.
+- Dialog und Baustein `dialog.tsx` sind entfernt; die Erlaubnisliste der Prüfung aus PLT-10 ist leer.
+- Auf `/profil` steht bei Betreibern ohne Organisation kein Hinweis „Ändern kann sie ein Admin“ mehr, denn das Flag ändert nur das Skript.
 
 ## Nicht Teil dieser Funktion
 

@@ -170,21 +170,62 @@ describe('Migrationen', () => {
   it('legen das Protokoll des Betreiber-Zugangs an, für reziproq_app nicht lesbar', async () => {
     temp = await createTempDatabase();
     await migrateTo(temp.db);
-    expect(await columns('betreiber_zugriff')).toEqual([
+    expect(await columns('support_access_log')).toEqual([
       'id',
-      'nutzer_id',
+      'user_id',
       'organization_id',
-      'aktion',
-      'zeitpunkt',
+      'action',
+      'occurred_at',
     ]);
     const db = temp.db;
     const error = await db
       .transaction(async (tx) => {
         await tx.execute(sql`set local role reziproq_app`);
-        return tx.execute(sql`select * from betreiber_zugriff`);
+        return tx.execute(sql`select * from support_access_log`);
       })
       .catch((caught: unknown) => caught);
     expect(String((error as Error).cause)).toMatch(/permission denied/);
+  });
+
+  it('UMB-01: Die Umbenennung verliert keine Einträge', async () => {
+    temp = await createTempDatabase();
+    // Stand vor UMB-01 (0000 bis 0014) mit Einträgen im alten Protokoll.
+    await migrateTo(temp.db, 15);
+    await temp.db.execute(sql`
+      insert into organization (id, name) values ('00000000-0000-7000-8000-000000000001', 'K (Demo)')
+    `);
+    await temp.db.execute(sql`
+      insert into betreiber_zugriff (nutzer_id, organization_id, aktion, zeitpunkt) values
+        ('betreiber-1', null, 'GET /api/betreiber/kunden', '2026-10-01T08:00:00Z'),
+        ('betreiber-1', '00000000-0000-7000-8000-000000000001', 'GET /api/suppliers', '2026-10-01T08:01:00Z')
+    `);
+    await migrateTo(temp.db);
+    const rows = await temp.db.execute(sql`
+      select user_id, organization_id::text, action, occurred_at::text from support_access_log order by occurred_at
+    `);
+    expect(rows.rows).toEqual([
+      {
+        user_id: 'betreiber-1',
+        organization_id: null,
+        action: 'GET /api/betreiber/kunden',
+        occurred_at: '2026-10-01 08:00:00+00',
+      },
+      {
+        user_id: 'betreiber-1',
+        organization_id: '00000000-0000-7000-8000-000000000001',
+        action: 'GET /api/suppliers',
+        occurred_at: '2026-10-01 08:01:00+00',
+      },
+    ]);
+    expect(await columns('betreiber_zugriff')).toEqual([]);
+    // Das Protokoll schreibt weiter, jetzt in die neue Tabelle.
+    await temp.db.execute(
+      sql`select app_betreiber_protokoll('betreiber-2', null, 'GET /api/betreiber/kunden')`,
+    );
+    const count = await temp.db.execute<{ n: number }>(
+      sql`select count(*)::int as n from support_access_log`,
+    );
+    expect(count.rows[0]?.n).toBe(3);
   });
 
   it('Spend liegt in Cent in der Datenbank: ganze Zahl, nicht negativ, mit ISO-Währung', async () => {

@@ -75,8 +75,8 @@ function useQuestionsShortcut() {
   }, [navigate]);
 }
 
-/** Profil, Einstellungen und Menü bleiben auch ohne Organisation erreichbar. */
-const alwaysOpen = ['/profil', '/einstellungen', '/menu'];
+/** Profil, Einstellungen, Menü und die Kundenwahl der Betreiber gehen auch ohne Organisation. */
+const alwaysOpen = ['/profil', '/einstellungen', '/menu', '/betreiber'];
 
 /**
  * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur

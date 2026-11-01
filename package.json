@@ -22,6 +22,7 @@
     "db:seed": "pnpm --filter @reziproq/db db:seed",
     "db:roles": "pnpm --filter @reziproq/db db:roles",
     "org:link": "pnpm --filter @reziproq/db org:link",
+    "operator:set": "pnpm --filter @reziproq/db operator:set",
     "rechte": "pnpm --filter @reziproq/api rechte"
   },
   "devDependencies": {

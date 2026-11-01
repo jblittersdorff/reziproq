@@ -45,8 +45,8 @@ describe('Betreiber-Zugang', () => {
     z.object({ suppliers: z.array(supplierSchema) }).parse(await res.json()).suppliers;
   const auditFor = async (user: string) =>
     (
-      await db.execute<{ organization_id: string | null; aktion: string }>(
-        sql`select organization_id, aktion from betreiber_zugriff where nutzer_id = ${user} order by zeitpunkt`,
+      await db.execute<{ organization_id: string | null; action: string }>(
+        sql`select organization_id, action from support_access_log where user_id = ${user} order by occurred_at`,
       )
     ).rows;
 
@@ -91,17 +91,37 @@ describe('Betreiber-Zugang', () => {
     ]);
     // Der Betreiber selbst gehört zu keinem Kunden.
     await db.insert(appUser).values([
-      { id: users.operator, name: 'Olaf Betrieb', email: 'o@reziproq.test', organizationId: null },
-      { id: users.adminA, name: 'Ada Admin', email: 'a@example.com', organizationId: ids.oemA },
+      // Betreiber sind nur, wer das Flag in der Datenbank hat (UMB-01).
+      {
+        id: users.operator,
+        name: 'Olaf Betrieb',
+        email: 'o@reziproq.test',
+        organizationId: null,
+        isOperator: true,
+      },
+      {
+        id: users.auditor,
+        name: 'Paula Protokoll',
+        email: 'p@reziproq.test',
+        organizationId: null,
+        isOperator: true,
+      },
+      {
+        id: users.adminA,
+        name: 'Ada Admin',
+        email: 'a@example.com',
+        organizationId: ids.oemA,
+        orgRole: 'admin',
+      },
     ]);
   });
 
   afterAll(async () => {
-    const { organization, appUser, betreiberZugriff } = schema;
+    const { organization, appUser, supportAccessLog } = schema;
     const orgIds = Object.values(ids).slice(0, 4);
     await db
-      .delete(betreiberZugriff)
-      .where(sql`${betreiberZugriff.nutzerId} in ${Object.values(users)}`);
+      .delete(supportAccessLog)
+      .where(sql`${supportAccessLog.userId} in ${Object.values(users)}`);
     await db.delete(appUser).where(sql`${appUser.id} in ${Object.values(users)}`);
     await deleteRelationships(db, orgIds);
     await db.delete(organization).where(sql`${organization.id} in ${orgIds}`);
@@ -124,15 +144,23 @@ describe('Betreiber-Zugang', () => {
       expect(customers.map((c) => c.name)).not.toContain(`Gemeinsam ${run}`);
       expect(await auditFor(users.operator)).toContainEqual({
         organization_id: null,
-        aktion: 'GET /api/betreiber/kunden',
+        action: 'GET /api/betreiber/kunden',
       });
     });
 
-    it.each(['admin', 'nutzer', 'leser', 'controlling'])(
-      'verweigert sie der Rolle %s',
+    it.each(['admin', 'nutzer', 'leser', 'controlling', 'betreiber'])(
+      'ohne is_operator antwortet die API mit 403, auch für Admins und mit Zitadel-Rolle %s',
       async (role) => {
         const res = await testApp.get('/api/betreiber/kunden', await token(users.adminA, role));
         expect(res.status).toBe(403);
+        // Auch der Wechsel in einen Kunden geht nicht.
+        const inside = await testApp.get(
+          '/api/suppliers',
+          await token(users.adminA, role),
+          'Bearer',
+          asCustomer(ids.oemB),
+        );
+        expect(inside.status).toBe(403);
       },
     );
   });
@@ -215,7 +243,7 @@ describe('Betreiber-Zugang', () => {
       await testApp.get('/api/suppliers', await token(operator, 'betreiber'), 'Bearer', headers);
       await testApp.get('/api/suppliers', await token(operator, 'betreiber'));
       expect(await auditFor(operator)).toEqual([
-        { organization_id: ids.oemA, aktion: 'GET /api/suppliers' },
+        { organization_id: ids.oemA, action: 'GET /api/suppliers' },
       ]);
     });
   });

@@ -124,7 +124,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         person(users.viewer, 'viewer'),
         person(users.target, 'viewer'),
         person(users.zweitAdmin, 'admin', orgs.zweit),
-        person(users.operator, 'viewer', null),
+        { ...person(users.operator, 'viewer', null), isOperator: true },
       ]);
   });
 
@@ -157,9 +157,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     }
 
     it('kunden.wechseln als Betreiber', async () => {
-      const status = await request(users.operator, 'GET', '/api/betreiber/kunden', undefined, {
-        'urn:zitadel:iam:org:project:test-project:roles': { betreiber: { '1': 'test' } },
-      });
+      const status = await request(users.operator, 'GET', '/api/betreiber/kunden');
       expect(status.status).toBe(200);
     });
   });
