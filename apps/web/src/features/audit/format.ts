@@ -15,6 +15,16 @@ const when = new Intl.DateTimeFormat('de-DE', {
 
 function valueText(t: Messages, field: string, value: unknown): string {
   if (value === null || value === undefined || value === '') return '–';
+  // Team (PLT-05b): Liste von Personen mit Teamrolle.
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '–';
+    return value
+      .map((entry: { name?: string; team_role?: string }) => {
+        const role = entry.team_role as keyof Messages['team']['roles'] | undefined;
+        return role ? `${entry.name} (${t.team.roles[role] ?? role})` : String(entry.name);
+      })
+      .join(', ');
+  }
   const text = String(value);
   return t.audit.values[field]?.[text] ?? text;
 }

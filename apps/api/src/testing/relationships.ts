@@ -51,6 +51,7 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
   const ids = sql`(select id from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds})`;
   await db.execute(sql`delete from relationship_spend where relationship_id in ${ids}`);
   await db.execute(sql`delete from relationship_side where relationship_id in ${ids}`);
+  await db.execute(sql`delete from relationship_member where relationship_id in ${ids}`);
   await db.execute(
     sql`delete from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds}`,
   );

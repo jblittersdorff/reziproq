@@ -180,6 +180,7 @@ export const en: Messages = {
       org_role: 'Role',
       is_controlling: 'Controlling',
       default_function: 'Default function',
+      team: 'Team',
     } as Record<string, string>,
     values: {
       status: { draft: 'draft', active: 'active', ended: 'ended' },
@@ -194,6 +195,44 @@ export const en: Messages = {
         after_sales: 'After-sales',
       },
     } as Record<string, Record<string, string>>,
+  },
+
+  team: {
+    title: 'Team',
+    purpose:
+      'Who on your side owns and works on this relationship. Only your organization sees it.',
+    link: 'Team',
+    edit: 'Edit team',
+    editTitle: 'Edit team',
+    editPurpose: 'SRO, sponsors, members and viewers with their function.',
+    loading: 'Loading team …',
+    failed: 'The team could not be loaded.',
+    emptyTitle: 'No team yet',
+    emptyDescription: 'An admin decides who owns and works on the relationship.',
+    noSro: 'No SRO yet. An admin decides who owns the relationship.',
+    person: 'Person',
+    role: 'Team role',
+    function: 'Function',
+    noFunction: 'None',
+    remove: (name: string) => `Remove ${name}`,
+    removeShort: 'Remove',
+    addPerson: 'Add person',
+    choosePerson: 'Choose person',
+    add: 'Add',
+    roles: { sro: 'SRO', sponsor: 'Sponsor', member: 'Member', viewer: 'Viewer' },
+    rolesHint:
+      'The SRO owns the relationship (at most one), sponsors support it (at most two), viewers only read it.',
+    errors: {
+      duplicate_person: 'Each person appears only once in the team.',
+      too_many_sro: 'A team has at most one SRO.',
+      too_many_sponsors: 'A team has at most two sponsors.',
+    },
+    readOnly: 'This relationship is read only for you (team role viewer).',
+    save: 'Save',
+    cancel: 'Cancel',
+    saving: 'Saving …',
+    saved: 'Saved.',
+    saveFailed: 'Saving did not work. Please try again.',
   },
 
   suppliers: {

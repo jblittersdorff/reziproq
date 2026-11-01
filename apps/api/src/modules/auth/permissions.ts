@@ -10,6 +10,8 @@ export interface Permission {
   roles: readonly OrgRole[];
   /** Betreiber von Reziproq (PLT-13); im Kunden gelten sonst die Rechte eines Lesers. */
   operator?: true;
+  /** Mit Teamrolle Leser an dieser Beziehung verboten, auch für Admins (PLT-05b). */
+  notForTeamViewer?: true;
 }
 
 export const permissions: Record<Action, Permission> = {
@@ -30,8 +32,9 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member', 'viewer'],
   },
   'lieferanten.bearbeiten': {
-    description: 'Lieferant anlegen, ändern, beenden, Spend erfassen',
+    description: 'Lieferant anlegen, ändern, beenden, Spend erfassen (nicht mit Teamrolle Leser)',
     roles: ['admin', 'member'],
+    notForTeamViewer: true,
   },
   'team.festlegen': {
     description: 'Team einer Beziehung festlegen',

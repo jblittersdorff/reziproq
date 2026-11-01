@@ -184,6 +184,7 @@ export const de = {
       org_role: 'Rolle',
       is_controlling: 'Controlling',
       default_function: 'Standardfunktion',
+      team: 'Team',
     } as Record<string, string>,
     values: {
       status: { draft: 'Entwurf', active: 'aktiv', ended: 'beendet' },
@@ -198,6 +199,45 @@ export const de = {
         after_sales: 'After-Sales',
       },
     } as Record<string, Record<string, string>>,
+  },
+
+  // Team je Beziehung (PLT-05b)
+  team: {
+    title: 'Team',
+    purpose:
+      'Wer bei euch diese Beziehung verantwortet und mitarbeitet. Nur deine Organisation sieht es.',
+    link: 'Team',
+    edit: 'Team bearbeiten',
+    editTitle: 'Team bearbeiten',
+    editPurpose: 'SRO, Sponsoren, Mitglieder und Leser mit ihrer Funktion.',
+    loading: 'Team wird geladen …',
+    failed: 'Das Team konnte nicht geladen werden.',
+    emptyTitle: 'Noch kein Team',
+    emptyDescription: 'Ein Admin legt fest, wer die Beziehung verantwortet und mitarbeitet.',
+    noSro: 'Noch kein SRO. Ein Admin legt fest, wer die Beziehung verantwortet.',
+    person: 'Person',
+    role: 'Teamrolle',
+    function: 'Funktion',
+    noFunction: 'Keine',
+    remove: (name: string) => `${name} entfernen`,
+    removeShort: 'Entfernen',
+    addPerson: 'Person hinzufügen',
+    choosePerson: 'Person wählen',
+    add: 'Hinzufügen',
+    roles: { sro: 'SRO', sponsor: 'Sponsor', member: 'Mitglied', viewer: 'Leser' },
+    rolesHint:
+      'SRO verantwortet die Beziehung (höchstens einer), Sponsoren unterstützen (höchstens zwei), Leser sehen die Beziehung nur.',
+    errors: {
+      duplicate_person: 'Jede Person steht nur einmal im Team.',
+      too_many_sro: 'Ein Team hat höchstens einen SRO.',
+      too_many_sponsors: 'Ein Team hat höchstens zwei Sponsoren.',
+    },
+    readOnly: 'Diese Beziehung ist für dich schreibgeschützt (Teamrolle Leser).',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    saving: 'Wird gespeichert …',
+    saved: 'Gespeichert.',
+    saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
   },
 
   // Lieferantenliste (PLT-02, PLT-03)

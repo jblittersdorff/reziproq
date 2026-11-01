@@ -11,6 +11,7 @@ import {
   permissionsResponseSchema,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { discoverRoutes } from '../../testing/routes.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { permissions } from './permissions.js';
@@ -23,7 +24,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
   let testApp: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
   const run = randomUUID().slice(0, 8);
-  const orgs = { oem: randomUUID(), zweit: randomUUID() };
+  const orgs = { oem: randomUUID(), zweit: randomUUID(), supplier: randomUUID() };
+  const relationshipId = randomUUID();
   // Je Rolle eine Person im OEM, dazu ein Ziel für Rollenänderungen und ein Admin im Zweit-OEM.
   const users = {
     admin: `p05-admin-${run}`,
@@ -77,7 +79,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     'lieferanten.sehen': async (user) => (await request(user, 'GET', '/api/suppliers')).status,
     'lieferanten.bearbeiten': async (user) =>
       (await request(user, 'GET', '/api/suppliers/lookup?ust=DE123456789')).status,
-    'team.festlegen': 'nur-oberflaeche',
+    'team.festlegen': async (user) =>
+      (await request(user, 'PUT', `/api/suppliers/${relationshipId}/team`, { members: [] })).status,
     'verlauf.sehen': async (user) =>
       (await request(user, 'GET', `/api/audit?object_type=relationship&object_id=${randomUUID()}`))
         .status,
@@ -96,6 +99,10 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     await db.insert(schema.organization).values([
       { id: orgs.oem, name: `P05-OEM ${run}` },
       { id: orgs.zweit, name: `P05-Zweit ${run}` },
+      { id: orgs.supplier, name: `P05-Lieferant ${run}` },
+    ]);
+    await insertRelationships(db, [
+      { id: relationshipId, buyer: orgs.oem, supplier: orgs.supplier },
     ]);
     await db.insert(schema.organizationFeature).values([
       { organizationId: orgs.oem, feature: 'buyer' as const },
@@ -123,6 +130,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
 
   afterAll(async () => {
     await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${Object.values(users)}`);
+    await deleteRelationships(db, [orgs.oem]);
     await db
       .delete(schema.organization)
       .where(sql`${schema.organization.id} in ${Object.values(orgs)}`);

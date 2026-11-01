@@ -25,6 +25,7 @@ async function signIn(page: Page) {
     createdAt: '2026-11-01T08:00:00Z',
     endedAt: null as string | null,
     spend: [{ year: 2025, amount: { amountCents: 125_000_000, currency: 'EUR' } }],
+    permissions: { edit: true, editTeam: false },
   };
   await page.route('**/api/me', (route) =>
     route.fulfill({

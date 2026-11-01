@@ -202,6 +202,7 @@ describe('PLT-04: Drei Datenebenen', () => {
     // Nur die Beziehungen des Gerüsts, damit jede sichtbare Zeile aus dem Gerüst stammt.
     await temp.db.execute(sql`delete from relationship_spend`);
     await temp.db.execute(sql`delete from relationship_side`);
+    await temp.db.execute(sql`delete from relationship_member`);
     await temp.db.execute(sql`delete from relationship`);
     for (const relationship of Object.values(relationships)) {
       await temp.db.execute(sql`

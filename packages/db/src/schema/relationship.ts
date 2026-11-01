@@ -8,8 +8,10 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { appUser, userFunctions } from './app-user.js';
 import { organization } from './organization.js';
 
 // PLT-03: Beziehung zwischen einem Käufer und einem Lieferanten. Ein Lieferant existiert in
@@ -88,5 +90,47 @@ export const relationshipSpend = pgTable(
     check('relationship_spend_positiv', sql`${table.amountCents} >= 0`),
     check('relationship_spend_waehrung_iso', sql`${table.currency} ~ '^[A-Z]{3}$'`),
     check('relationship_spend_quelle', sql`${table.source} in ('manual', 'import', 'seed')`),
+  ],
+);
+
+/** Rolle im Team einer Beziehung (PLT-05). */
+export const teamRoles = ['sro', 'sponsor', 'member', 'viewer'] as const;
+export type TeamRole = (typeof teamRoles)[number];
+
+/**
+ * Internes Team einer Seite je Beziehung (org_private, PLT-05): SRO, bis zu zwei Sponsoren,
+ * Mitglieder und Leser. Die Teamrolle Leser macht die Beziehung für diese Person schreibgeschützt.
+ * PLB-04 macht daraus ein geteiltes Team.
+ */
+export const relationshipMember = pgTable(
+  'relationship_member',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    userId: text()
+      .notNull()
+      .references(() => appUser.id, { onDelete: 'cascade' }),
+    teamRole: text({ enum: teamRoles }).notNull().default('member'),
+    function: text({ enum: userFunctions }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('relationship_member_je_person').on(table.relationshipId, table.orgId, table.userId),
+    uniqueIndex('relationship_member_ein_sro')
+      .on(table.relationshipId, table.orgId)
+      .where(sql`${table.teamRole} = 'sro'`),
+    check(
+      'relationship_member_team_role',
+      sql`${table.teamRole} in ('sro', 'sponsor', 'member', 'viewer')`,
+    ),
+    check(
+      'relationship_member_function',
+      sql`${table.function} in ('purchasing', 'quality', 'engineering', 'logistics', 'programs', 'after_sales')`,
+    ),
   ],
 );

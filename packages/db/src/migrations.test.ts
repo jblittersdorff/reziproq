@@ -72,6 +72,7 @@ describe('Migrationen', () => {
     );
     expect(rls.rows.map((row) => row.relname)).toEqual([
       'relationship',
+      'relationship_member',
       'relationship_side',
       'relationship_spend',
     ]);

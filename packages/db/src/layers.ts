@@ -57,6 +57,7 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_side: { kind: 'org_private' },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
+  relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
   audit_event: {
     kind: 'shared',
     appendOnly: true,

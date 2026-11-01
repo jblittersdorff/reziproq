@@ -11,7 +11,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `rollen.aendern` | Rollen, Controlling und Standardfunktion ändern | ja | nein | nein | nein |
 | `einstellungen.verwalten` | Alle Einstellungen der Organisation öffnen | ja | nein | nein | nein |
 | `lieferanten.sehen` | Lieferanten und Spend sehen | ja | ja | ja | ja |
-| `lieferanten.bearbeiten` | Lieferant anlegen, ändern, beenden, Spend erfassen | ja | ja | nein | nein |
+| `lieferanten.bearbeiten` | Lieferant anlegen, ändern, beenden, Spend erfassen (nicht mit Teamrolle Leser) | ja | ja | nein | nein |
 | `team.festlegen` | Team einer Beziehung festlegen | ja | nein | nein | nein |
 | `verlauf.sehen` | Verlauf sehen | ja | ja | ja | ja |
 | `prompt.nutzen` | Fragen an Reziproq stellen | ja | ja | ja | ja |

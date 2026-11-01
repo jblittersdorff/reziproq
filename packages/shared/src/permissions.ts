@@ -18,6 +18,10 @@ export const userFunctions = [
 ] as const;
 export type UserFunction = (typeof userFunctions)[number];
 
+/** Rolle im Team einer Beziehung (PLT-05b); Leser macht die Beziehung schreibgeschützt. */
+export const teamRoles = ['sro', 'sponsor', 'member', 'viewer'] as const;
+export type TeamRole = (typeof teamRoles)[number];
+
 /** Alles, was nicht jede Rolle darf. Jede Spec ergänzt ihre Aktionen hier und in der Matrix. */
 export const actions = [
   'organisation.sehen',
