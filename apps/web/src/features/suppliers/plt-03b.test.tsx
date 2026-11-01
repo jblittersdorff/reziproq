@@ -232,7 +232,7 @@ describe('Beenden und Rechte', () => {
           ? Response.json({ entries: [] })
           : undefined;
     renderAt(profile);
-    await screen.findByRole('heading', { level: 1, name: detail.name });
+    await screen.findByRole('heading', { level: 1, name: 'Profil' });
     expect(screen.queryByRole('link', { name: 'Bearbeiten' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Beziehung beenden' })).toBeNull();
   });
@@ -244,13 +244,13 @@ describe('Beenden und Rechte', () => {
     ).toBeDefined();
   });
 
-  it('die Karten der Liste führen zum Profil', async () => {
+  it('die Karten der Liste führen in den Arbeitsbereich (NAV-06)', async () => {
     const router = renderAt('/lieferanten');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
     fireEvent.click(within(list).getAllByRole('link')[0] as HTMLElement);
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(
-        '/lieferanten/rel-Rheintal Elektronik GmbH (Demo)/strategie/profil',
+        '/lieferanten/rel-Rheintal Elektronik GmbH (Demo)',
       ),
     );
   });

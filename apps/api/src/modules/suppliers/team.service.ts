@@ -161,7 +161,29 @@ async function readTeam(
   };
 }
 
-async function ownRelationship(
+/** Der SRO einer Beziehung oder null (PLT-05b); der Kopf des Arbeitsbereichs liest ihn hier (NAV-06). */
+export async function sroOf(
+  tx: TenantTransaction,
+  organization: AccountOrganization,
+  relationshipId: string,
+): Promise<{ userId: string; name: string } | null> {
+  const { appUser, relationshipMember } = schema;
+  const [row] = await tx
+    .select({ userId: relationshipMember.userId, name: appUser.name })
+    .from(relationshipMember)
+    .innerJoin(appUser, eq(appUser.id, relationshipMember.userId))
+    .where(
+      and(
+        eq(relationshipMember.relationshipId, relationshipId),
+        eq(relationshipMember.orgId, organization.id),
+        eq(relationshipMember.teamRole, 'sro'),
+      ),
+    );
+  return row ?? null;
+}
+
+/** 404, wenn die Beziehung nicht zur eigenen Organisation als Käufer gehört. */
+export async function ownRelationship(
   tx: TenantTransaction,
   organization: AccountOrganization,
   relationshipId: string,

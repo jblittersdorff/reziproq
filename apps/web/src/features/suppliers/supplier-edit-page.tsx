@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PageHeader } from '@/features/shell/page-header';
 import { useGoBack } from '@/features/shell/page-path';
+import { InternalBadge } from '@/features/workspace/internal-badge';
 import { updateSupplier } from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
@@ -25,7 +26,8 @@ export function SupplierEditPage({ relationshipId }: { relationshipId: string })
   return (
     <SupplierFrame
       relationshipId={relationshipId}
-      trail={(supplier) => [{ label: supplier.name, href: profile }]}
+      area="strategy"
+      trail={() => [{ label: t.workspace.pages.profile.title, href: profile }]}
       current={t.suppliers.edit}
     >
       {(supplier) => <EditForm supplier={supplier} profile={profile} />}
@@ -73,7 +75,11 @@ function EditForm({ supplier, profile }: { supplier: SupplierDetail; profile: st
 
   return (
     <>
-      <PageHeader title={t.suppliers.editTitle} purpose={t.suppliers.editPurpose} />
+      <PageHeader
+        title={t.suppliers.editTitle}
+        purpose={t.suppliers.editPurpose}
+        badge={<InternalBadge />}
+      />
       <form
         noValidate
         onSubmit={(event) => void submit(event)}

@@ -31,16 +31,10 @@ export function TeamPage({ relationshipId }: { relationshipId: string }) {
   const [message, hideMessage] = useFlash();
 
   return (
-    <SupplierFrame
-      relationshipId={relationshipId}
-      trail={(supplier) => [
-        { label: supplier.name, href: `/lieferanten/${relationshipId}/strategie/profil` },
-      ]}
-      current={t.team.title}
-    >
+    <SupplierFrame relationshipId={relationshipId} area="relationship" current={t.team.title}>
       {(supplier) => (
         <>
-          <PageHeader title={`${t.team.title} · ${supplier.name}`} purpose={t.team.purpose} />
+          <PageHeader title={t.team.title} purpose={t.team.purpose} />
           {message && <StatusLine message={message} onHidden={hideMessage} />}
           {team.isError ? (
             <ErrorState title={t.team.failed} />

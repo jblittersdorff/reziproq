@@ -1,61 +1,46 @@
-import type { SupplierDetail } from '@reziproq/shared';
-import { SearchXIcon } from 'lucide-react';
+import type { SupplierDetail, WorkspaceArea } from '@reziproq/shared';
 import type { ReactNode } from 'react';
-import { EmptyState } from '@/components/ui/empty-state';
-import { ErrorState } from '@/components/ui/error-state';
-import { LoadingState } from '@/components/ui/loading-state';
 import { PagePath } from '@/features/shell/page-path';
+import { workspacePath } from '@/features/workspace/areas';
 import { useT } from '@/lib/i18n';
 import { useSupplier } from './use-supplier';
 
 /**
- * Lade-, Fehler- und Nicht-gefunden-Zustand für alle Seiten eines Lieferanten (PLT-03b). Den
- * Rahmen mit lokaler Leiste baut NAV-06; bis dahin führt der Pfad zurück.
+ * Pfad für die Seiten eines Lieferanten im Arbeitsbereich (NAV-06): Lieferanten › Name › Bereich ›
+ * weitere Ebenen, mit Zurück-Pfeil. Lade-, Fehler- und Nicht-gefunden-Zustand zeigt schon der
+ * Arbeitsbereich; hier ist der Lieferant also geladen.
  */
 export function SupplierFrame({
   relationshipId,
+  area,
   trail = () => [],
   current,
   children,
 }: {
   relationshipId: string;
-  /** Ebenen unter „Lieferanten“; mit dem Lieferanten, damit sein Name im Pfad steht */
+  area: WorkspaceArea;
+  /** Ebenen unter dem Bereich, z. B. Profil vor Bearbeiten */
   trail?: (supplier: SupplierDetail) => { label: string; href: string }[];
-  /** Titel der aktuellen Seite; ohne ihn der Name des Lieferanten */
-  current?: string;
+  /** Titel der aktuellen Seite */
+  current: string;
   children: (supplier: SupplierDetail) => ReactNode;
 }) {
   const t = useT();
   const supplier = useSupplier(relationshipId);
-  const root = { label: t.suppliers.title, href: '/lieferanten' };
-
-  if (supplier.notFound) {
-    return (
-      <>
-        <PagePath trail={[root]} current={t.suppliers.notFoundTitle} />
-        <EmptyState
-          size="lg"
-          icon={<SearchXIcon aria-hidden />}
-          title={t.suppliers.notFoundTitle}
-          description={t.suppliers.notFoundDescription}
-        />
-      </>
-    );
-  }
-  if (supplier.isError) {
-    return (
-      <>
-        <PagePath trail={[root]} current={t.suppliers.detailFailed} />
-        <ErrorState title={t.suppliers.detailFailed} />
-      </>
-    );
-  }
-  if (!supplier.data) return <LoadingState label={t.suppliers.detailLoading} />;
+  if (!supplier.data) return null;
 
   const data = supplier.data;
   return (
     <>
-      <PagePath trail={[root, ...trail(data)]} current={current ?? data.name} />
+      <PagePath
+        trail={[
+          { label: t.suppliers.title, href: '/lieferanten' },
+          { label: data.name, href: workspacePath(relationshipId) },
+          { label: t.workspace.areas[area], href: workspacePath(relationshipId, area) },
+          ...trail(data),
+        ]}
+        current={current}
+      />
       {children(data)}
     </>
   );

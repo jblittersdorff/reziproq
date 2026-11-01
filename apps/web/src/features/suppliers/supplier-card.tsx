@@ -31,7 +31,7 @@ export function SupplierCard({
   return (
     <li className={className}>
       <Tile asChild size="sm" interactive className="h-full">
-        <Link to="/lieferanten/$id/strategie/profil" params={{ id: supplier.relationshipId }}>
+        <Link to="/lieferanten/$id" params={{ id: supplier.relationshipId }}>
           <div className="flex flex-col items-start gap-2">
             <Heading className="font-semibold text-lg">{supplier.name}</Heading>
             {supplier.status === 'draft' && (

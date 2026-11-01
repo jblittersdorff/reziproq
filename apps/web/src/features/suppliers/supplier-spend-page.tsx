@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PageHeader } from '@/features/shell/page-header';
+import { InternalBadge } from '@/features/workspace/internal-badge';
 import { useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -31,13 +32,7 @@ export function SupplierSpendPage({ relationshipId }: { relationshipId: string }
   );
 
   return (
-    <SupplierFrame
-      relationshipId={relationshipId}
-      trail={(supplier) => [
-        { label: supplier.name, href: `/lieferanten/${relationshipId}/strategie/profil` },
-      ]}
-      current={t.suppliers.spend}
-    >
+    <SupplierFrame relationshipId={relationshipId} area="strategy" current={t.suppliers.spend}>
       {(supplier) => {
         // Mit Teamrolle Leser schreibgeschützt (PLT-05b); das Detail sagt es je Beziehung.
         const canEdit = supplier.permissions.edit;
@@ -45,8 +40,9 @@ export function SupplierSpendPage({ relationshipId }: { relationshipId: string }
         return (
           <>
             <PageHeader
-              title={`${t.suppliers.spend} · ${supplier.name}`}
+              title={t.suppliers.spend}
               purpose={t.suppliers.spendPurpose}
+              badge={<InternalBadge />}
             />
             {message && <StatusLine message={message} onHidden={hideMessage} />}
             {supplier.spend.length === 0 ? (

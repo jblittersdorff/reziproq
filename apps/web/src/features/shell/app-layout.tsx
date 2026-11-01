@@ -1,10 +1,11 @@
 import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { GlobalBar } from '@/components/ui/global-bar';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { SupportBanner } from '@/features/support/support-banner';
 import { useT } from '@/lib/i18n';
+import { LocalBarSlotProvider } from './local-bar-slot';
 import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
@@ -21,42 +22,47 @@ function Shell() {
   const t = useT();
   const { main, actions } = useNavTargets();
   const activeKey = useActiveNavKey();
+  const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
   useQuestionsShortcut();
 
   return (
-    <div className="flex min-h-svh flex-col">
-      {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
-      <a
-        href="#inhalt"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
-      >
-        {t.app.skipToContent}
-      </a>
+    <LocalBarSlotProvider value={localBarSlot}>
+      <div className="flex min-h-svh flex-col">
+        {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
+        <a
+          href="#inhalt"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
+        >
+          {t.app.skipToContent}
+        </a>
 
-      <GlobalBar
-        label={t.app.navigation}
-        brand={t.app.name}
-        brandHref="/start"
-        items={main}
-        actions={actions.map((action) => {
-          const Icon = action.icon;
-          return { ...action, icon: <Icon aria-hidden /> };
-        })}
-        activeKey={activeKey}
-        menuHref="/menu"
-        menuLabel={t.app.openMenu}
-        renderLink={routerLink}
-      />
+        <GlobalBar
+          label={t.app.navigation}
+          brand={t.app.name}
+          brandHref="/start"
+          items={main}
+          actions={actions.map((action) => {
+            const Icon = action.icon;
+            return { ...action, icon: <Icon aria-hidden /> };
+          })}
+          activeKey={activeKey}
+          menuHref="/menu"
+          menuLabel={t.app.openMenu}
+          renderLink={routerLink}
+        />
+        {/* Lokale Leiste eines Lieferanten (NAV-06); leer auf allen anderen Seiten. */}
+        <div ref={setLocalBarSlot} className="contents" />
 
-      <main
-        id="inhalt"
-        tabIndex={-1}
-        className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
-      >
-        <SupportBanner />
-        <ContentGate />
-      </main>
-    </div>
+        <main
+          id="inhalt"
+          tabIndex={-1}
+          className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
+        >
+          <SupportBanner />
+          <ContentGate />
+        </main>
+      </div>
+    </LocalBarSlotProvider>
   );
 }
 
