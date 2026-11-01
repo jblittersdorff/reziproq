@@ -1,6 +1,7 @@
-import { useNavigate, useSearch } from '@tanstack/react-router';
-import { FactoryIcon, LockIcon } from 'lucide-react';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { FactoryIcon, LockIcon, PlusIcon } from 'lucide-react';
 import { useId } from 'react';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -21,8 +22,8 @@ import { supplierSummary, useSuppliers } from './use-suppliers';
 export function SuppliersPage() {
   const t = useT();
   const { me, allowed, data, isPending, isError, error } = useSuppliers();
-  const search = useSearch({ from: '/_app/lieferanten' });
-  const navigate = useNavigate({ from: '/lieferanten' });
+  const search = useSearch({ from: '/_app/lieferanten/' });
+  const navigate = useNavigate({ from: '/lieferanten/' });
   // Tippen ersetzt den Eintrag im Verlauf, statt für jeden Buchstaben einen neuen anzulegen.
   const update = (next: Partial<SupplierSearch>) =>
     void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
@@ -69,10 +70,26 @@ export function SuppliersPage() {
     );
   }
 
+  // Anlegen nur mit Recht aus der API (can() im Backend, PLT-03b).
+  const addButton = me.data?.permissions.editSuppliers === true && (
+    <Button asChild>
+      <Link to="/lieferanten/neu">
+        <PlusIcon />
+        {t.suppliers.add}
+      </Link>
+    </Button>
+  );
+  const header = (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <PageHeader title={title} purpose={supplierSummary(data, t)} />
+      {addButton}
+    </div>
+  );
+
   if (data.suppliers.length === 0) {
     return (
       <>
-        <PageHeader title={title} purpose={supplierSummary(data, t)} />
+        {header}
         <EmptyState
           size="lg"
           icon={<FactoryIcon aria-hidden />}
@@ -88,7 +105,7 @@ export function SuppliersPage() {
 
   return (
     <>
-      <PageHeader title={title} purpose={supplierSummary(data, t)} />
+      {header}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <SearchInput

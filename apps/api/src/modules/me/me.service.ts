@@ -49,6 +49,7 @@ export class MeService {
         viewSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.sehen'),
         switchCustomer: can(auth, 'kunden.wechseln'),
         manageSettings: organization !== null && can(auth, 'einstellungen.verwalten'),
+        editSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.bearbeiten'),
       },
     };
   }

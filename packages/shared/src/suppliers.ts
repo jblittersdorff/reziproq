@@ -43,3 +43,144 @@ export type ForbiddenCode = (typeof forbiddenCodes)[number];
 
 /** Das letzte volle Kalenderjahr; Geschäftsjahre kommen mit PNL-10. */
 export const lastFullYear = (now: Date = new Date()) => now.getFullYear() - 1;
+
+// PLT-03b: Lieferanten anlegen, ändern, beenden. Dieselben Schemas prüfen die Formularseiten und
+// die API. Fehlermeldungen sind Codes; die Oberfläche übersetzt sie.
+
+/** Fehlercodes an einzelnen Feldern */
+export const fieldErrors = [
+  'required',
+  'too_long',
+  'invalid_country',
+  'invalid_vat_id',
+  'invalid_duns',
+  'invalid_amount',
+  'invalid_year',
+] as const;
+export type FieldError = (typeof fieldErrors)[number];
+
+// Kürzel, die keine Länder sind (Regionen und frei vergebene Codes).
+const notCountries = new Set(['EU', 'EZ', 'UN', 'QO', 'XA', 'XB', 'ZZ']);
+
+/** Alle ISO-3166-1-Ländercodes, die Intl kennt, z. B. DE, PL, US. */
+export const countryCodes: readonly string[] = (() => {
+  const names = new Intl.DisplayNames(['en'], { type: 'region', fallback: 'code' });
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const codes: string[] = [];
+  for (const first of letters) {
+    for (const second of letters) {
+      const code = first + second;
+      if (!notCountries.has(code) && names.of(code) !== code) codes.push(code);
+    }
+  }
+  return codes;
+})();
+
+/** Leere Eingaben zählen als „nicht angegeben“. */
+const blankToUndefined = (value: unknown) =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
+
+const nameSchema = z
+  .string({ error: 'required' })
+  .trim()
+  .min(1, { error: 'required' })
+  .max(200, { error: 'too_long' });
+
+/** USt-IdNr.: zwei Buchstaben und 2–12 Zeichen; Leerzeichen, Punkte und Striche fallen weg. */
+export const vatIdSchema = z
+  .string()
+  .transform((value) => value.replace(/[\s.-]/g, '').toUpperCase())
+  .pipe(z.string().regex(/^[A-Z]{2}[A-Z0-9]{2,12}$/, { error: 'invalid_vat_id' }));
+
+/** D-U-N-S: genau neun Ziffern; Leerzeichen und Striche fallen weg. */
+export const dunsSchema = z
+  .string()
+  .transform((value) => value.replace(/[\s-]/g, ''))
+  .pipe(z.string().regex(/^\d{9}$/, { error: 'invalid_duns' }));
+
+const externalRefSchema = z.preprocess(
+  blankToUndefined,
+  z.string().trim().max(50, { error: 'too_long' }).optional(),
+);
+
+/** Jahre mit Spend: ab 2000 bis zum nächsten Jahr (Planwerte). */
+export const spendYearSchema = z
+  .number({ error: 'invalid_year' })
+  .int({ error: 'invalid_year' })
+  .min(2000, { error: 'invalid_year' })
+  .refine((year) => year <= new Date().getFullYear() + 1, { error: 'invalid_year' });
+
+/** Betrag in ganzen Cent, nie negativ (CLAUDE.md: Geld als Ganzzahl in Cent). */
+export const amountCentsSchema = z
+  .number({ error: 'invalid_amount' })
+  .int({ error: 'invalid_amount' })
+  .min(0, { error: 'invalid_amount' })
+  .max(1_000_000_000_000_00, { error: 'invalid_amount' });
+
+export const createSupplierRequestSchema = z.object({
+  name: nameSchema,
+  country: z.enum(countryCodes as [string, ...string[]], { error: 'invalid_country' }),
+  vatId: z.preprocess(blankToUndefined, vatIdSchema.optional()),
+  duns: z.preprocess(blankToUndefined, dunsSchema.optional()),
+  externalRef: externalRefSchema,
+  spend: z.object({ year: spendYearSchema, amountCents: amountCentsSchema }).optional(),
+});
+export type CreateSupplierRequest = z.input<typeof createSupplierRequestSchema>;
+
+export const createSupplierResponseSchema = z.object({
+  relationshipId: z.string(),
+  /** true: Die Organisation gab es schon, es entstand nur eine neue Beziehung. */
+  linked: z.boolean(),
+});
+export type CreateSupplierResponse = z.infer<typeof createSupplierResponseSchema>;
+
+export const supplierLookupQuerySchema = z.object({
+  ust: z.preprocess(blankToUndefined, vatIdSchema.optional()),
+  duns: z.preprocess(blankToUndefined, dunsSchema.optional()),
+});
+export type SupplierLookupQuery = z.infer<typeof supplierLookupQuerySchema>;
+
+/** Nur ja oder nein, nie Name oder Land einer fremden Organisation. */
+export const supplierLookupResponseSchema = z.object({ known: z.boolean() });
+export type SupplierLookupResponse = z.infer<typeof supplierLookupResponseSchema>;
+
+export const updateSupplierRequestSchema = z.object({
+  displayName: nameSchema,
+  externalRef: externalRefSchema,
+  notes: z.preprocess(blankToUndefined, z.string().max(2000, { error: 'too_long' }).optional()),
+});
+export type UpdateSupplierRequest = z.input<typeof updateSupplierRequestSchema>;
+
+export const spendRequestSchema = z.object({ amountCents: amountCentsSchema });
+export type SpendRequest = z.infer<typeof spendRequestSchema>;
+
+/** Ein Lieferant mit allem, was die Käuferseite sehen darf (Profil- und Spend-Seite). */
+export const supplierDetailSchema = z.object({
+  relationshipId: z.string(),
+  /** Eigener Anzeigename, sonst der Name der Organisation */
+  name: z.string(),
+  /** Stammdaten der Organisation (global) */
+  organizationName: z.string(),
+  country: z.string().nullable(),
+  vatId: z.string().nullable(),
+  duns: z.string().nullable(),
+  externalRef: z.string().nullable(),
+  notes: z.string().nullable(),
+  status: z.enum(relationshipStatuses),
+  createdAt: z.string(),
+  endedAt: z.string().nullable(),
+  /** Spend je Jahr, neuestes zuerst */
+  spend: z.array(z.object({ year: z.number().int(), amount: moneySchema })),
+});
+export type SupplierDetail = z.infer<typeof supplierDetailSchema>;
+
+/**
+ * Euro-Betrag aus einem Eingabefeld in ganze Cent, z. B. „1.234.567,89“ oder „4820000“.
+ * null, wenn die Eingabe kein Betrag mit höchstens zwei Nachkommastellen ist.
+ */
+export function parseEuroToCents(text: string): number | null {
+  const compact = text.replace(/[\s€]/g, '');
+  if (!/^\d{1,3}(\.\d{3})*(,\d{1,2})?$|^\d+(,\d{1,2})?$/.test(compact)) return null;
+  const [whole = '0', fraction = ''] = compact.replaceAll('.', '').split(',');
+  return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+}

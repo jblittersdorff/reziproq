@@ -90,6 +90,8 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
 
   // Neuladen stellt dieselbe Ansicht wieder her.
   await page.reload();
+  // Nach dem Neuladen holt eine Weiterleitung zu Zitadel die Sitzung (PLT-01); erst danach lesen.
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
   await expect.poll(() => cardNames(page)).toEqual(['Lombardia Fonderie S.p.A. (Demo)']);
   await expect(page.getByRole('searchbox')).toHaveValue('fonderie');
   await expect(page.getByRole('combobox', { name: 'Sortieren' })).toHaveValue('name');
@@ -97,6 +99,7 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
 
   // Ein Lesezeichen mit Filter öffnet direkt diese Ansicht.
   await page.goto('/lieferanten?sortierung=name');
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
   await expect
     .poll(() => cardNames(page))
     .toEqual([

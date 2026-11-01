@@ -1,13 +1,42 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  type AuditActor,
+  and,
+  auditedChange,
+  desc,
+  eq,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
+import {
+  type CreateSupplierRequest,
+  type CreateSupplierResponse,
+  createSupplierRequestSchema,
   type ForbiddenCode,
   lastFullYear,
   type Money,
+  type SpendRequest,
   type Supplier,
+  type SupplierDetail,
+  type SupplierLookupQuery,
+  type SupplierLookupResponse,
   type SuppliersResponse,
+  type UpdateSupplierRequest,
+  updateSupplierRequestSchema,
 } from '@reziproq/shared';
-import { TenantDatabase } from '../../common/database.module.js';
+import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
+import {
+  relationshipAudit,
+  relationshipSideAudit,
+  relationshipSpendAudit,
+} from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { OrganizationService } from '../organizations/organization.service.js';
@@ -82,6 +111,368 @@ export class SuppliersService {
     });
     return sorted.slice(0, Math.min(filter.anzahl ?? 20, 20));
   }
+  /** Organisation mit Käuferfunktionen und Recht zum Bearbeiten (PLT-03b), sonst 403. */
+  private editor(auth: AuthContext): AccountOrganization {
+    const organization = this.organizations.current(auth);
+    if (!organization) {
+      throw forbidden('keine_organisation', 'Du bist noch keiner Organisation zugeordnet.');
+    }
+    if (!organization.buyer || !can(auth, 'lieferanten.bearbeiten')) {
+      throw forbidden('keine_berechtigung', 'Dir fehlt die Rolle, um Lieferanten zu bearbeiten.');
+    }
+    return organization;
+  }
+
+  /** Lesender Zugriff auf einen einzelnen Lieferanten wie bei der Liste. */
+  private reader(auth: AuthContext): AccountOrganization {
+    if (!can(auth, 'lieferanten.sehen')) {
+      throw forbidden('keine_berechtigung', 'Dir fehlt eine Rolle, um Lieferanten zu sehen.');
+    }
+    const organization = this.organizations.current(auth);
+    if (!organization) {
+      throw forbidden('keine_organisation', 'Du bist noch keiner Organisation zugeordnet.');
+    }
+    if (!organization.buyer) {
+      throw forbidden('keine_berechtigung', 'Lieferanten gibt es nur für Käufer.');
+    }
+    return organization;
+  }
+
+  private run<T>(
+    auth: AuthContext,
+    organization: AccountOrganization,
+    work: (tx: TenantTransaction) => Promise<T>,
+  ) {
+    return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, work);
+  }
+
+  /**
+   * Gibt es die Organisation zu dieser USt-IdNr. oder D-U-N-S schon? Nur ja oder nein, nie Name
+   * oder Land einer fremden Organisation (PLT-03).
+   */
+  async lookup(auth: AuthContext, query: SupplierLookupQuery): Promise<SupplierLookupResponse> {
+    const organization = this.editor(auth);
+    if (!query.ust && !query.duns) return { known: false };
+    const known = await this.run(auth, organization, async (tx) => {
+      const result = await tx.execute<{ known: boolean }>(
+        sql`select app_lieferant_bekannt(${query.ust ?? null}, ${query.duns ?? null}) as known`,
+      );
+      return result.rows[0]?.known === true;
+    });
+    return { known };
+  }
+
+  /**
+   * Legt einen Lieferanten an. Gibt es die Organisation über USt-IdNr. oder D-U-N-S schon,
+   * entsteht nur eine neue Beziehung. Alles mit Verlauf, in einer Transaktion.
+   */
+  async create(auth: AuthContext, input: CreateSupplierRequest): Promise<CreateSupplierResponse> {
+    const organization = this.editor(auth);
+    const request = createSupplierRequestSchema.parse(input);
+    return this.run(auth, organization, async (tx) => {
+      const actor = await actorOf(tx, auth, organization);
+      const found = await tx.execute<{ id: string; existed: boolean }>(sql`
+        select id::text, existed from app_lieferant_finden_oder_anlegen(
+          ${request.name}, ${request.country}, ${request.vatId ?? null}, ${request.duns ?? null}
+        )
+      `);
+      const supplier = found.rows[0];
+      if (!supplier) throw new Error('Lieferant nicht angelegt');
+
+      const { relationship, relationshipSide, relationshipSpend } = schema;
+      const [existing] = await tx
+        .select({ id: relationship.id })
+        .from(relationship)
+        .where(
+          and(
+            eq(relationship.buyerOrgId, organization.id),
+            eq(relationship.supplierOrgId, supplier.id),
+          ),
+        );
+      if (existing) {
+        throw new ConflictException({
+          statusCode: 409,
+          code: 'schon_vorhanden',
+          message: 'Dieser Lieferant steht schon in deiner Liste.',
+          relationshipId: existing.id,
+        });
+      }
+
+      const relationshipId = await auditedChange(tx, actor, relationshipAudit, async () => {
+        const [row] = await tx
+          .insert(relationship)
+          .values({ buyerOrgId: organization.id, supplierOrgId: supplier.id, status: 'draft' })
+          .returning({ id: relationship.id });
+        if (!row) throw new Error('Beziehung nicht angelegt');
+        return {
+          objectId: row.id,
+          relationshipId: row.id,
+          action: 'created',
+          after: { status: 'draft' },
+          result: row.id,
+        };
+      });
+
+      const side = { display_name: request.name, external_ref: request.externalRef ?? null };
+      await auditedChange(tx, actor, relationshipSideAudit, async () => {
+        await tx.insert(relationshipSide).values({
+          relationshipId,
+          orgId: organization.id,
+          displayName: side.display_name,
+          externalRef: side.external_ref,
+        });
+        return {
+          objectId: relationshipId,
+          relationshipId,
+          action: 'created',
+          after: side,
+          result: undefined,
+        };
+      });
+
+      const spend = request.spend;
+      if (spend) {
+        await auditedChange(tx, actor, relationshipSpendAudit, async () => {
+          await tx.insert(relationshipSpend).values({
+            relationshipId,
+            year: spend.year,
+            amountCents: spend.amountCents,
+            source: 'manual',
+          });
+          return {
+            objectId: relationshipId,
+            relationshipId,
+            action: 'created',
+            after: { year: spend.year, amount_cents: spend.amountCents },
+            result: undefined,
+          };
+        });
+      }
+      return { relationshipId, linked: supplier.existed };
+    });
+  }
+
+  /** Stammdaten, eigene Werte, Status und Spend je Jahr eines Lieferanten. */
+  async detail(auth: AuthContext, relationshipId: string): Promise<SupplierDetail> {
+    const organization = this.reader(auth);
+    return this.run(auth, organization, (tx) => readDetail(tx, relationshipId));
+  }
+
+  /** Eigener Anzeigename, eigene Nummer und Notizen (relationship_side), mit internem Verlauf. */
+  async update(
+    auth: AuthContext,
+    relationshipId: string,
+    input: UpdateSupplierRequest,
+  ): Promise<SupplierDetail> {
+    const organization = this.editor(auth);
+    const request = updateSupplierRequestSchema.parse(input);
+    return this.run(auth, organization, async (tx) => {
+      const actor = await actorOf(tx, auth, organization);
+      await ownRelationship(tx, organization, relationshipId);
+      const { relationshipSide } = schema;
+      const [before] = await tx
+        .select({
+          display_name: relationshipSide.displayName,
+          external_ref: relationshipSide.externalRef,
+          notes: relationshipSide.notes,
+        })
+        .from(relationshipSide)
+        .where(
+          and(
+            eq(relationshipSide.relationshipId, relationshipId),
+            eq(relationshipSide.orgId, organization.id),
+          ),
+        );
+      const after = {
+        display_name: request.displayName,
+        external_ref: request.externalRef ?? null,
+        notes: request.notes ?? null,
+      };
+      await auditedChange(tx, actor, relationshipSideAudit, async () => {
+        await tx
+          .insert(relationshipSide)
+          .values({
+            relationshipId,
+            orgId: organization.id,
+            displayName: after.display_name,
+            externalRef: after.external_ref,
+            notes: after.notes,
+          })
+          .onConflictDoUpdate({
+            target: [relationshipSide.relationshipId, relationshipSide.orgId],
+            set: {
+              displayName: after.display_name,
+              externalRef: after.external_ref,
+              notes: after.notes,
+            },
+          });
+        return {
+          objectId: relationshipId,
+          relationshipId,
+          action: before ? 'updated' : 'created',
+          before: before ?? null,
+          after,
+          result: undefined,
+        };
+      });
+      return readDetail(tx, relationshipId);
+    });
+  }
+
+  /** Beendet eine Beziehung; sie wird nie gelöscht (PLT-03). */
+  async end(auth: AuthContext, relationshipId: string): Promise<SupplierDetail> {
+    const organization = this.editor(auth);
+    return this.run(auth, organization, async (tx) => {
+      const actor = await actorOf(tx, auth, organization);
+      const current = await ownRelationship(tx, organization, relationshipId);
+      if (current.status === 'ended') {
+        throw new ConflictException({
+          statusCode: 409,
+          code: 'schon_beendet',
+          message: 'Diese Beziehung ist schon beendet.',
+        });
+      }
+      await auditedChange(tx, actor, relationshipAudit, async () => {
+        await tx
+          .update(schema.relationship)
+          .set({ status: 'ended', endedAt: new Date() })
+          .where(eq(schema.relationship.id, relationshipId));
+        return {
+          objectId: relationshipId,
+          relationshipId,
+          action: 'ended',
+          before: { status: current.status },
+          after: { status: 'ended' },
+          result: undefined,
+        };
+      });
+      return readDetail(tx, relationshipId);
+    });
+  }
+
+  /** Spend eines Jahres anlegen oder ändern, in Cent, mit internem Verlauf. */
+  async putSpend(
+    auth: AuthContext,
+    relationshipId: string,
+    year: number,
+    request: SpendRequest,
+  ): Promise<SupplierDetail> {
+    const organization = this.editor(auth);
+    return this.run(auth, organization, async (tx) => {
+      const actor = await actorOf(tx, auth, organization);
+      await ownRelationship(tx, organization, relationshipId);
+      const { relationshipSpend } = schema;
+      const [before] = await tx
+        .select({ amount_cents: relationshipSpend.amountCents })
+        .from(relationshipSpend)
+        .where(
+          and(
+            eq(relationshipSpend.relationshipId, relationshipId),
+            eq(relationshipSpend.year, year),
+          ),
+        );
+      await auditedChange(tx, actor, relationshipSpendAudit, async () => {
+        await tx
+          .insert(relationshipSpend)
+          .values({ relationshipId, year, amountCents: request.amountCents, source: 'manual' })
+          .onConflictDoUpdate({
+            target: [relationshipSpend.relationshipId, relationshipSpend.year],
+            set: { amountCents: request.amountCents, source: 'manual' },
+          });
+        return {
+          objectId: relationshipId,
+          relationshipId,
+          action: before ? 'updated' : 'created',
+          before: before ? { year, amount_cents: before.amount_cents } : null,
+          after: { year, amount_cents: request.amountCents },
+          result: undefined,
+        };
+      });
+      return readDetail(tx, relationshipId);
+    });
+  }
+}
+
+/** Wer ändert: Name aus app_user, wie er gerade heißt (PLT-08). */
+async function actorOf(
+  tx: TenantTransaction,
+  auth: AuthContext,
+  organization: AccountOrganization,
+): Promise<AuditActor> {
+  const [user] = await tx
+    .select({ name: schema.appUser.name })
+    .from(schema.appUser)
+    .where(eq(schema.appUser.id, auth.userId));
+  return { userId: auth.userId, name: user?.name ?? auth.userId, organizationId: organization.id };
+}
+
+/** Die Beziehung als Käufer, sonst 404: Fremde Beziehungen gibt es aus Sicht dieser Session nicht. */
+async function ownRelationship(
+  tx: TenantTransaction,
+  organization: AccountOrganization,
+  relationshipId: string,
+) {
+  const { relationship } = schema;
+  const [row] = await tx
+    .select({ status: relationship.status })
+    .from(relationship)
+    .where(and(eq(relationship.id, relationshipId), eq(relationship.buyerOrgId, organization.id)));
+  if (!row) throw notFound();
+  return row;
+}
+
+const notFound = () =>
+  new NotFoundException({
+    statusCode: 404,
+    code: 'nicht_gefunden',
+    message: 'Lieferant nicht gefunden.',
+  });
+
+async function readDetail(tx: TenantTransaction, relationshipId: string): Promise<SupplierDetail> {
+  const { organization, relationship, relationshipSide, relationshipSpend } = schema;
+  const [row] = await tx
+    .select({
+      relationshipId: relationship.id,
+      name: sql<string>`coalesce(${relationshipSide.displayName}, ${organization.name})`,
+      organizationName: organization.name,
+      country: organization.country,
+      vatId: organization.vatId,
+      duns: organization.duns,
+      externalRef: relationshipSide.externalRef,
+      notes: relationshipSide.notes,
+      status: relationship.status,
+      createdAt: relationship.createdAt,
+      endedAt: relationship.endedAt,
+    })
+    .from(relationship)
+    .innerJoin(organization, eq(organization.id, relationship.supplierOrgId))
+    .leftJoin(
+      relationshipSide,
+      and(
+        eq(relationshipSide.relationshipId, relationship.id),
+        eq(relationshipSide.orgId, relationship.buyerOrgId),
+      ),
+    )
+    .where(eq(relationship.id, relationshipId));
+  if (!row) throw notFound();
+  const spend = await tx
+    .select({
+      year: relationshipSpend.year,
+      amountCents: relationshipSpend.amountCents,
+      currency: relationshipSpend.currency,
+    })
+    .from(relationshipSpend)
+    .where(eq(relationshipSpend.relationshipId, relationshipId))
+    .orderBy(desc(relationshipSpend.year));
+  return {
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    endedAt: row.endedAt?.toISOString() ?? null,
+    spend: spend.map(({ year, amountCents, currency }) => ({
+      year,
+      amount: { amountCents, currency },
+    })),
+  };
 }
 
 export interface SupplierFilter {
