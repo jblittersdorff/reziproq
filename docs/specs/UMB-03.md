@@ -24,10 +24,21 @@ Eine Migration, idempotent, mit Protokoll der überführten Zeilen im Pull Reque
 
 Je Kriterium ein Test.
 
-- [ ] Ein Test füllt den Stand vor der Migration, migriert und vergleicht: Keine Warengruppe und kein Spend fehlt.
-- [ ] `beziehung_kaeufer` existiert danach nicht mehr, und kein Code liest sie.
-- [ ] Die Prüfungen aus PLT-04 laufen für alle betroffenen Tabellen.
-- [ ] Ein zweiter Lauf ändert nichts.
+- [x] Ein Test füllt den Stand vor der Migration, migriert und vergleicht: Keine Warengruppe und kein Spend fehlt.
+- [x] `beziehung_kaeufer` existiert danach nicht mehr, und kein Code liest sie.
+- [x] Die Prüfungen aus PLT-04 laufen für alle betroffenen Tabellen.
+- [x] Ein zweiter Lauf ändert nichts.
+
+## Umgesetzt mit
+
+- **Keine neue Migration:** Die Überführung hat schon PLT-03a erledigt. `0009_beziehungen` überträgt `jahresspend_cent`, `spend_jahr` und `waehrung` nach `relationship_spend` mit `source = import`. `0010_alte_beziehung_entfernen` löscht `beziehung` und `beziehung_kaeufer`.
+- **Abweichung:** Der Freitext `warengruppe` wird nicht zu `material_group`. Er entfällt bewusst (Entscheidung zu PLT-03a, nur Demo- und Testdaten). Warengruppen pflegt PLT-06 als Liste. Der Test hält das fest: Aus dem Freitext entstehen keine Warengruppen und keine Zuordnungen.
+- **Tests:** `packages/db/src/umb-03.test.ts`.
+  - Der Test füllt den Stand vor PLT-03a mit vier Beziehungen bei zwei Käufern, zwei Währungen und einem Spend von 0 Cent, migriert und vergleicht.
+  - Er sucht in `apps/` und `packages/` nach Code, der `beziehung_kaeufer` nennt; erlaubt sind nur alte Migrationen und Migrationstests.
+  - Er prüft Register, Prüfgerüst und RLS mit FORCE.
+  - Er prüft, dass ein zweiter Lauf die Prüfsummen nicht ändert.
+- **Protokoll aus dem Testlauf:** 4 von 4 Beziehungen und 4 von 4 Spend-Zeilen überführt, 0 Warengruppen angelegt.
 
 ## Nicht Teil dieser Funktion
 
