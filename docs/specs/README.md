@@ -68,8 +68,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 5 | PLT-10 | Design und Styleguide | PLT-10, NAV-04, NAV-10 | – | 1.0 | M1 | A | fertig | – |
 | 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | fertig | – |
 | 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | fertig | – |
-| 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | PR offen | – |
-| 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | offen | Teil a von PLT-03; teilweise umgesetzt, siehe Umsetzungsplan |
+| 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | fertig | – |
+| 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | PR offen | Teil a von PLT-03 |
 | 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | offen | – |
 | 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | offen | Teil b von PLT-03 |
 | 12 | PLT-05a | Rollen in der Datenbank und Rechte-Matrix | PLT-05 | PLT-02, PLT-03b | 1.0 | M4 | B | offen | Teil a von PLT-05; teilweise umgesetzt, siehe Umsetzungsplan |
@@ -78,7 +78,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 15 | NAV-06 | Lieferanten-Arbeitsbereich | NAV-06, NAV-07, NAV-08, NAV-09 | PLT-03b, PLT-05b, PLT-11 | 1.0 | M5 | A | offen | – |
 | 16 | PLT-09 | Deutsch und Englisch | PLT-09 | PLT-11 | 1.0 | M5 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
 | 17 | PLT-06 | Business Units und Warengruppen | PLT-06 | PLT-03b, PLT-05b | 1.0 | M6 | C | offen | – |
-| 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | offen | – |
+| 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | offen | Spend überführt schon PLT-03a; der Freitext Warengruppe entfällt (Entscheidung zu PLT-03a) |
 | 19 | PLT-07a | Import: Baustein, Lieferanten und Spend | PLT-07 | PLT-06 | 1.0 | M6 | C | offen | Teil a von PLT-07 |
 | 20 | PLT-07b | Import: Business Units und Kontakte | PLT-07 | PLT-07a | 1.0 | M6 | C | offen | Teil b von PLT-07 |
 | 21 | PLT-12 | Fragen-Seite | PLT-12, NAV-11 | NAV-06, PLT-06, PLT-03b, PLT-05b | 1.0 | M7 | A | offen | teilweise umgesetzt; seit PLT-11 Seite /fragen statt Fenster |

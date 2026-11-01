@@ -80,7 +80,7 @@ describe('Leere Seite', () => {
     );
     expect(suggestions.map((button) => button.textContent)).toEqual([
       'Zeig mir die Lieferanten mit dem höchsten Spend',
-      'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
+      'Welche Lieferanten haben wir in Polen?',
       'Öffne das Portfolio',
     ]);
     expect(
@@ -135,7 +135,7 @@ describe('Antworten', () => {
       { type: 'done' },
     ];
     await openWithShortcut();
-    await askQuestion('Welche Lieferanten haben wir in der Warengruppe Holz?');
+    await askQuestion('Welche Lieferanten haben wir in Island?');
     expect(await screen.findByText('Keine Treffer')).toBeDefined();
     expect(screen.queryByRole('list', { name: 'Treffer' })).toBeNull();
   });

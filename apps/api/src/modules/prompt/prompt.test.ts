@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { type PromptEvent, promptEventSchema } from '@reziproq/shared';
+import { lastFullYear, type PromptEvent, promptEventSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { PromptLog, type PromptLogEntry } from './prompt-log.js';
 import { RATE_LIMIT } from './rate-limiter.js';
@@ -61,7 +62,7 @@ describe('POST /api/prompt', () => {
           .useValue({ write: (entry: PromptLogEntry) => log.push(entry) }),
     });
     db = testApp.adminDb;
-    const { organization, beziehung, beziehungKaeufer, appUser } = schema;
+    const { organization, appUser } = schema;
     await db.insert(organization).values([
       { id: ids.oemA, name: `Prompt-OEM A ${run}` },
       { id: ids.oemB, name: `Prompt-OEM B ${run}` },
@@ -73,29 +74,28 @@ describe('POST /api/prompt', () => {
       { organizationId: ids.oemA, feature: 'buyer' as const },
       { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
-    await db.insert(beziehung).values([
-      { id: ids.relAShared, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.shared },
-      { id: ids.relAOnly, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.onlyA },
-      { id: ids.relBShared, kaeuferOrgId: ids.oemB, lieferantOrgId: ids.shared },
-    ]);
-    await db.insert(beziehungKaeufer).values([
+    const year = lastFullYear();
+    await insertRelationships(db, [
       {
-        beziehungId: ids.relAShared,
-        warengruppe: 'Elektronik',
-        jahresspendCent: 300_000_00,
-        spendJahr: 2025,
+        id: ids.relAShared,
+        buyer: ids.oemA,
+        supplier: ids.shared,
+        externalRef: 'A-100',
+        spend: [{ year, amountCents: 300_000_00 }],
       },
       {
-        beziehungId: ids.relAOnly,
-        warengruppe: 'Guss',
-        jahresspendCent: 900_000_00,
-        spendJahr: 2025,
+        id: ids.relAOnly,
+        buyer: ids.oemA,
+        supplier: ids.onlyA,
+        externalRef: 'A-200',
+        spend: [{ year, amountCents: 900_000_00 }],
       },
       {
-        beziehungId: ids.relBShared,
-        warengruppe: 'Leiterplatten',
-        jahresspendCent: 77_000_00,
-        spendJahr: 2025,
+        id: ids.relBShared,
+        buyer: ids.oemB,
+        supplier: ids.shared,
+        externalRef: 'B-300',
+        spend: [{ year, amountCents: 77_000_00 }],
       },
     ]);
     await db.insert(appUser).values([
@@ -110,10 +110,10 @@ describe('POST /api/prompt', () => {
   });
 
   afterAll(async () => {
-    const { organization, beziehung, appUser } = schema;
+    const { organization, appUser } = schema;
     const orgIds = Object.values(ids).slice(0, 4);
     await db.delete(appUser).where(sql`${appUser.id} in ${Object.values(users)}`);
-    await db.delete(beziehung).where(sql`${beziehung.kaeuferOrgId} in ${orgIds}`);
+    await deleteRelationships(db, orgIds);
     await db.delete(organization).where(sql`${organization.id} in ${orgIds}`);
     await testApp.close();
   });
@@ -150,14 +150,14 @@ describe('POST /api/prompt', () => {
     const events = await ask(users.a, 'Zeig mir die Lieferanten mit dem höchsten Spend');
     const shown = suppliersOf(events).filter((s) => s.name.endsWith(run));
     const expected = await db.execute<{ name: string; cent: string }>(sql`
-      select o.name, bk.jahresspend_cent::text as cent
-      from beziehung b
-      join beziehung_kaeufer bk on bk.beziehung_id = b.id
-      join organization o on o.id = b.lieferant_org_id
-      where b.kaeufer_org_id = ${ids.oemA}
-      order by bk.jahresspend_cent desc
+      select o.name, sp.amount_cents::text as cent
+      from relationship r
+      join relationship_spend sp on sp.relationship_id = r.id and sp.year = ${lastFullYear()}
+      join organization o on o.id = r.supplier_org_id
+      where r.buyer_org_id = ${ids.oemA}
+      order by sp.amount_cents desc
     `);
-    expect(shown.map((s) => [s.name, s.annualSpend.amountCents])).toEqual(
+    expect(shown.map((s) => [s.name, s.spend?.amountCents])).toEqual(
       expected.rows.map((row) => [row.name, Number(row.cent)]),
     );
     expect(textOf(events)).toBe(
@@ -165,12 +165,9 @@ describe('POST /api/prompt', () => {
     );
   });
 
-  it('filtert nach Warengruppe', async () => {
-    const events = await ask(
-      users.a,
-      'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
-    );
-    expect(suppliersOf(events).map((s) => s.category)).toEqual(['Elektronik']);
+  it('filtert nach Land', async () => {
+    const events = await ask(users.a, 'Welche Lieferanten haben wir in Polen?');
+    expect(suppliersOf(events).map((s) => [s.name, s.country])).toEqual([[names.onlyA, 'PL']]);
   });
 
   it('trennt die Daten: Der Zweit-OEM bekommt nie Werte des anderen Käufers', async () => {
@@ -179,16 +176,16 @@ describe('POST /api/prompt', () => {
       `Zeig mir alle Lieferanten von Prompt-OEM A ${run} mit Spend`,
     );
     expect(suppliersOf(events)).toMatchObject([
-      { name: names.shared, category: 'Leiterplatten', annualSpend: { amountCents: 77_000_00 } },
+      { name: names.shared, externalRef: 'B-300', spend: { amountCents: 77_000_00 } },
     ]);
     const everything = JSON.stringify(events);
     expect(everything).not.toContain(names.onlyA);
-    expect(everything).not.toContain('Elektronik');
+    expect(everything).not.toContain('A-100');
     expect(everything).not.toContain('300.000');
   });
 
   it('meldet „Keine Treffer“, wenn das Werkzeug nichts findet', async () => {
-    const events = await ask(users.a, 'Welche Lieferanten haben wir in der Warengruppe Holz?');
+    const events = await ask(users.a, 'Welche Lieferanten haben wir in Island?');
     expect(events).toContainEqual({ type: 'suppliers', suppliers: [] });
     expect(textOf(events)).toBe('Keine Treffer.');
   });
@@ -199,7 +196,7 @@ describe('POST /api/prompt', () => {
   });
 
   it('protokolliert Zeitpunkt, Nutzer, Dauer, Tokens und Erfolg, aber keinen Text', async () => {
-    const question = 'Welche Lieferanten haben wir in der Warengruppe Elektronik?';
+    const question = 'Welche Lieferanten haben wir in Polen?';
     const events = await ask(users.a, question);
     expect(log).toHaveLength(1);
     const [entry] = log;
@@ -208,8 +205,8 @@ describe('POST /api/prompt', () => {
     );
     expect(entry).toMatchObject({ nutzerId: users.a, erfolg: true });
     const logged = JSON.stringify(log);
-    expect(logged).not.toContain('Elektronik');
-    expect(logged).not.toContain('Warengruppe');
+    expect(logged).not.toContain('Polen');
+    expect(logged).not.toContain(names.onlyA);
     expect(logged).not.toContain(textOf(events).slice(0, 12));
   });
 });

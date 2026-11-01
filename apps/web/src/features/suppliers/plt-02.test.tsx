@@ -11,7 +11,7 @@ import {
   tearDownApp,
 } from '@/testing/app-harness';
 
-// Oberflächentests zu docs/specs/PLT-02.md: Lieferantenliste und Hinweise.
+// Oberflächentests zu docs/specs/PLT-02.md und PLT-03.md (Teil a): Lieferantenliste und Hinweise.
 
 const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
 vi.mock('react-oidc-context', () => ({
@@ -44,40 +44,47 @@ const suppliersRequested = () =>
   vi.mocked(fetch).mock.calls.some(([url]) => String(url) === '/api/suppliers');
 
 describe('Lieferantenseite', () => {
-  it('zeigt oben Titel, Anzahl und Gesamtspend aus der API', async () => {
+  it('Anzahl und Gesamtspend aus der API stehen oben, ohne beendete Beziehungen', async () => {
     renderAt('/lieferanten');
     const heading = await screen.findByRole('heading', { level: 1, name: 'Lieferanten' });
-    expect(await screen.findByText(/^3 Lieferanten/)).toBeDefined();
-    expect(text(heading.parentElement)).toContain('3 Lieferanten · 10.230.000 € Jahresspend 2025');
+    expect(await screen.findByText(/^4 Lieferanten/)).toBeDefined();
+    expect(text(heading.parentElement)).toContain('4 Lieferanten · 10.230.000 € Jahresspend 2025');
   });
 
-  it('zeigt je Lieferant eine Karte mit Name, Land, Warengruppe und Spend in Euro', async () => {
+  it('Spend erscheint als Euro im deutschen Format; Karten zeigen Name, Land und eigene Nummer', async () => {
     renderAt('/lieferanten');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
     const cards = within(list).getAllByRole('listitem');
-    expect(cards).toHaveLength(3);
+    expect(cards).toHaveLength(4);
     const first = text(cards[0] ?? null);
     expect(first).toContain('Rheintal Elektronik GmbH (Demo)');
     expect(first).toContain('Deutschland');
-    expect(first).toContain('Elektronik');
-    // Deutsches Format, ganze Euro ohne Nachkommastellen
+    expect(first).toContain('Eigene NummerL-10001');
+    expect(first).toContain('Jahresspend 2025');
+    // Deutsches Format, ganze Euro ohne Nachkommastellen; in der Datenbank 482000000 Cent.
     expect(first).toContain('4.820.000 €');
     expect(first).not.toMatch(/4\.820\.000,00/);
+    // Entwurf mit Kennzeichen und ohne Spend
+    const draft = text(cards[3] ?? null);
+    expect(draft).toContain('Entwurf');
+    expect(draft).toContain('Jahresspend 2025–');
   });
 
-  it('sortiert standardmäßig nach Spend, absteigend', async () => {
+  it('sortiert standardmäßig nach Spend, absteigend, ohne Spend zuletzt', async () => {
     renderAt('/lieferanten');
     expect(await cardNames()).toEqual([
       'Rheintal Elektronik GmbH (Demo)',
       'Silesia Guss Sp. z o.o. (Demo)',
       'Alpen Sensorik GmbH (Demo)',
+      'Test-Lieferant (Demo)',
     ]);
     expect(screen.getByRole('combobox', { name: 'Sortieren' })).toHaveProperty('value', 'spend');
   });
 
-  it('sortiert auf Wunsch nach Name', async () => {
-    renderAt('/lieferanten');
+  it('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse', async () => {
+    const router = renderAt('/lieferanten');
     await cardNames();
+
     fireEvent.change(screen.getByRole('combobox', { name: 'Sortieren' }), {
       target: { value: 'name' },
     });
@@ -85,23 +92,47 @@ describe('Lieferantenseite', () => {
       'Alpen Sensorik GmbH (Demo)',
       'Rheintal Elektronik GmbH (Demo)',
       'Silesia Guss Sp. z o.o. (Demo)',
+      'Test-Lieferant (Demo)',
     ]);
+    expect(router.state.location.search).toEqual({ sortierung: 'name' });
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Beendete zeigen' }));
+    expect(await cardNames()).toContain('Lombardia Fonderie S.p.A. (Demo)');
+    expect(text(screen.getByText('Lombardia Fonderie S.p.A. (Demo)').closest('li'))).toContain(
+      'Beendet',
+    );
+    expect(router.state.location.search).toEqual({ sortierung: 'name', beendet: 1 });
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Lieferant oder eigene Nummer suchen' }), {
+      target: { value: 'l-1000' },
+    });
+    expect(await cardNames()).toEqual([
+      'Alpen Sensorik GmbH (Demo)',
+      'Lombardia Fonderie S.p.A. (Demo)',
+      'Rheintal Elektronik GmbH (Demo)',
+      'Silesia Guss Sp. z o.o. (Demo)',
+    ]);
+    expect(router.state.location.search).toEqual({
+      sortierung: 'name',
+      beendet: 1,
+      suche: 'l-1000',
+    });
   });
 
-  it.each([
-    ['nach Name', 'silesia', ['Silesia Guss Sp. z o.o. (Demo)']],
-    [
-      'nach Warengruppe',
-      'elektronik',
-      ['Rheintal Elektronik GmbH (Demo)', 'Alpen Sensorik GmbH (Demo)'],
-    ],
-  ])('filtert beim Tippen %s', async (_case, query, expected) => {
-    renderAt('/lieferanten');
-    await cardNames();
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Lieferant oder Warengruppe suchen' }), {
-      target: { value: query },
-    });
-    expect(await cardNames()).toEqual(expected);
+  it('stellt Suche, Sortierung und Filter aus der Adresse wieder her', async () => {
+    renderAt('/lieferanten?suche=silesia&sortierung=name&beendet=1');
+    expect(await cardNames()).toEqual(['Silesia Guss Sp. z o.o. (Demo)']);
+    expect(screen.getByRole('searchbox')).toHaveProperty('value', 'silesia');
+    expect(screen.getByRole('combobox', { name: 'Sortieren' })).toHaveProperty('value', 'name');
+    expect(screen.getByRole('switch', { name: 'Beendete zeigen' }).getAttribute('aria-checked')).toBe(
+      'true',
+    );
+  });
+
+  it('ignoriert ungültige Werte in der Adresse', async () => {
+    renderAt('/lieferanten?sortierung=preis&beendet=ja');
+    expect(await cardNames()).toHaveLength(4);
+    expect(screen.getByRole('combobox', { name: 'Sortieren' })).toHaveProperty('value', 'spend');
   });
 
   it('sagt, wenn die Suche nichts findet', async () => {
@@ -114,13 +145,11 @@ describe('Lieferantenseite', () => {
   it('zeigt bei leerer Liste den leeren Zustand aus der Spec', async () => {
     api.suppliers = {
       status: 200,
-      body: { suppliers: [], count: 0, totalSpend: [], spendYear: null },
+      body: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 },
     };
     renderAt('/lieferanten');
     expect(await screen.findByText('Noch keine Lieferanten.')).toBeDefined();
-    expect(
-      screen.getByText('Mit dem Import (kommt in Release 0.1) lädst du sie aus Excel.'),
-    ).toBeDefined();
+    expect(screen.getByText('Füge den ersten hinzu oder importiere eine Liste.')).toBeDefined();
     expect(screen.queryByRole('searchbox')).toBeNull();
   });
 
@@ -198,7 +227,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
 
   it('sieht keinen Hinweis, wenn eine Organisation zugeordnet ist', async () => {
     renderAt('/lieferanten');
-    await screen.findByText(/^3 Lieferanten/);
+    await screen.findByText(/^4 Lieferanten/);
     expect(screen.queryByText(missing)).toBeNull();
   });
 });
@@ -234,8 +263,19 @@ describe('Ein Nutzer ohne Feature buyer sieht die Käuferbereiche nicht', () => 
 });
 
 describe('Beispieldaten in den Tests', () => {
-  it('sind nach Spend absteigend sortiert wie die API', () => {
-    const spends = sampleSuppliers.suppliers.map((s) => s.annualSpend.amountCents);
+  it('sind nach Spend absteigend sortiert wie die API, ohne Spend zuletzt', () => {
+    const spends = sampleSuppliers.suppliers.map((s) => s.spend?.amountCents ?? -1);
     expect(spends).toEqual([...spends].sort((a, b) => b - a));
+  });
+
+  it('zählen wie die API nur nicht beendete Beziehungen', () => {
+    const current = sampleSuppliers.suppliers.filter((s) => s.status !== 'ended');
+    expect(sampleSuppliers.count).toBe(current.length);
+    expect(sampleSuppliers.totalSpend).toEqual([
+      {
+        amountCents: current.reduce((sum, s) => sum + (s.spend?.amountCents ?? 0), 0),
+        currency: 'EUR',
+      },
+    ]);
   });
 });

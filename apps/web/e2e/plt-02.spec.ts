@@ -9,9 +9,9 @@ const suppliers = Array.from({ length: 8 }, (_, index) => ({
   relationshipId: `rel-${index}`,
   name: `Lieferant ${index + 1} (Demo)`,
   country: ['DE', 'PL', 'CZ', 'IT'][index % 4],
-  category: ['Elektronik', 'Guss', 'Kunststoff', 'Logistik'][index % 4],
-  annualSpend: { amountCents: (9 - index) * 100_000_000, currency: 'EUR' },
-  spendYear: 2025,
+  externalRef: `L-${10_001 + index}`,
+  status: 'active',
+  spend: { amountCents: (9 - index) * 100_000_000, currency: 'EUR' },
 }));
 
 async function signIn(page: Page) {
@@ -41,7 +41,7 @@ async function signIn(page: Page) {
         spendYear: 2025,
         totalSpend: [
           {
-            amountCents: suppliers.reduce((sum, s) => sum + s.annualSpend.amountCents, 0),
+            amountCents: suppliers.reduce((sum, s) => sum + s.spend.amountCents, 0),
             currency: 'EUR',
           },
         ],
@@ -83,8 +83,8 @@ test('Die Suche filtert schon beim Tippen', async ({ page }) => {
   const cards = page.getByRole('list', { name: 'Lieferanten' }).getByRole('listitem');
   await expect(cards).toHaveCount(8);
   await page
-    .getByRole('searchbox', { name: 'Lieferant oder Warengruppe suchen' })
-    .pressSequentially('gus');
-  await expect(cards).toHaveCount(2);
-  await expect(cards.first()).toContainText('Guss');
+    .getByRole('searchbox', { name: 'Lieferant oder eigene Nummer suchen' })
+    .pressSequentially('L-10003');
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText('Lieferant 3 (Demo)');
 });

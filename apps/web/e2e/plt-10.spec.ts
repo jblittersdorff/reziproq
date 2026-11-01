@@ -28,7 +28,7 @@ async function signIn(page: Page) {
     }),
   );
   await page.route('**/api/suppliers', (route) =>
-    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
 }

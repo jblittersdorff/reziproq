@@ -38,28 +38,108 @@ describe('Migrationen', () => {
       'enabled_at',
     ]);
     expect(await columns('app_user')).toContain('organization_id');
-    expect(await columns('beziehung')).toEqual([
+    expect(await columns('relationship')).toEqual([
       'id',
-      'kaeufer_org_id',
-      'lieferant_org_id',
+      'buyer_org_id',
+      'supplier_org_id',
+      'status',
       'created_at',
       'ended_at',
     ]);
-    expect(await columns('beziehung_kaeufer')).toEqual([
-      'beziehung_id',
-      'warengruppe',
-      'jahresspend_cent',
-      'spend_jahr',
-      'waehrung',
+    expect(await columns('relationship_side')).toEqual([
+      'id',
+      'relationship_id',
+      'org_id',
+      'display_name',
+      'external_ref',
+      'notes',
+      'is_focus',
+      'focus_reason',
     ]);
+    expect(await columns('relationship_spend')).toEqual([
+      'id',
+      'relationship_id',
+      'year',
+      'amount_cents',
+      'currency',
+      'source',
+    ]);
+    expect(await columns('beziehung')).toEqual([]);
+    expect(await columns('beziehung_kaeufer')).toEqual([]);
 
     const rls = await temp.db.execute<{ relname: string }>(
-      sql`select relname from pg_class where relrowsecurity and relname in ('organization', 'beziehung', 'beziehung_kaeufer') order by relname`,
+      sql`select relname from pg_class where relrowsecurity and relforcerowsecurity and relname like 'relationship%' and relkind = 'r' order by relname`,
     );
     expect(rls.rows.map((row) => row.relname)).toEqual([
-      'beziehung',
-      'beziehung_kaeufer',
-      'organization',
+      'relationship',
+      'relationship_side',
+      'relationship_spend',
+    ]);
+  });
+
+  it('PLT-03a: überführen Beziehungen und Spend aus beziehung und beziehung_kaeufer, ohne etwas zu verlieren', async () => {
+    temp = await createTempDatabase();
+    // Stand nach PLT-04 (0008), vor dem neuen Modell.
+    await migrateTo(temp.db, 9);
+    const [buyer, supplierA, supplierB] = ['Käufer (Demo)', 'Aktiv (Demo)', 'Beendet (Demo)'];
+    await temp.db.execute(sql`
+      insert into organization (id, name) values
+        ('00000000-0000-7000-8000-000000000001', ${buyer}),
+        ('00000000-0000-7000-8000-000000000002', ${supplierA}),
+        ('00000000-0000-7000-8000-000000000003', ${supplierB})
+    `);
+    await temp.db.execute(sql`
+      insert into beziehung (id, kaeufer_org_id, lieferant_org_id, ended_at) values
+        ('00000000-0000-7000-8000-0000000000a1', '00000000-0000-7000-8000-000000000001', '00000000-0000-7000-8000-000000000002', null),
+        ('00000000-0000-7000-8000-0000000000a2', '00000000-0000-7000-8000-000000000001', '00000000-0000-7000-8000-000000000003', now())
+    `);
+    await temp.db.execute(sql`
+      insert into beziehung_kaeufer (beziehung_id, warengruppe, jahresspend_cent, spend_jahr, waehrung) values
+        ('00000000-0000-7000-8000-0000000000a1', 'Guss', 482000000, 2025, 'EUR'),
+        ('00000000-0000-7000-8000-0000000000a2', 'Logistik', 12345, 2024, 'USD')
+    `);
+
+    await migrateTo(temp.db);
+
+    const relationships = await temp.db.execute(sql`
+      select id::text, buyer_org_id::text, supplier_org_id::text, status, ended_at is not null as ended
+      from relationship order by id
+    `);
+    expect(relationships.rows).toEqual([
+      {
+        id: '00000000-0000-7000-8000-0000000000a1',
+        buyer_org_id: '00000000-0000-7000-8000-000000000001',
+        supplier_org_id: '00000000-0000-7000-8000-000000000002',
+        status: 'active',
+        ended: false,
+      },
+      {
+        id: '00000000-0000-7000-8000-0000000000a2',
+        buyer_org_id: '00000000-0000-7000-8000-000000000001',
+        supplier_org_id: '00000000-0000-7000-8000-000000000003',
+        status: 'ended',
+        ended: true,
+      },
+    ]);
+    const spend = await temp.db.execute(sql`
+      select relationship_id::text, year, amount_cents::text, currency, source
+      from relationship_spend order by relationship_id
+    `);
+    expect(spend.rows).toEqual([
+      {
+        relationship_id: '00000000-0000-7000-8000-0000000000a1',
+        year: 2025,
+        amount_cents: '482000000',
+        currency: 'EUR',
+        source: 'import',
+      },
+      {
+        relationship_id: '00000000-0000-7000-8000-0000000000a2',
+        year: 2024,
+        amount_cents: '12345',
+        currency: 'USD',
+        source: 'import',
+      },
     ]);
   });
 
@@ -106,12 +186,32 @@ describe('Migrationen', () => {
     expect(String((error as Error).cause)).toMatch(/permission denied/);
   });
 
-  it('verlangen Spend als ganze Cent, nicht negativ, mit ISO-Währung', async () => {
+  it('Spend liegt in Cent in der Datenbank: ganze Zahl, nicht negativ, mit ISO-Währung', async () => {
     temp = await createTempDatabase();
     await migrateTo(temp.db);
     const type = await temp.db.execute<{ data_type: string }>(
-      sql`select data_type from information_schema.columns where table_name = 'beziehung_kaeufer' and column_name = 'jahresspend_cent'`,
+      sql`select data_type from information_schema.columns where table_name = 'relationship_spend' and column_name = 'amount_cents'`,
     );
     expect(type.rows).toEqual([{ data_type: 'bigint' }]);
+
+    await temp.db.execute(sql`
+      insert into organization (id, name) values
+        ('00000000-0000-7000-8000-000000000001', 'K (Demo)'),
+        ('00000000-0000-7000-8000-000000000002', 'L (Demo)');
+      insert into relationship (id, buyer_org_id, supplier_org_id) values
+        ('00000000-0000-7000-8000-0000000000a1', '00000000-0000-7000-8000-000000000001', '00000000-0000-7000-8000-000000000002')
+    `);
+    const insertSpend = (cents: string, currency: string) =>
+      temp?.db
+        .execute(
+          sql.raw(
+            `insert into relationship_spend (relationship_id, year, amount_cents, currency) values ('00000000-0000-7000-8000-0000000000a1', 2025, ${cents}, '${currency}')`,
+          ),
+        )
+        .then(() => 'ok')
+        .catch(() => 'abgelehnt');
+    expect(await insertSpend('-1', 'EUR')).toBe('abgelehnt');
+    expect(await insertSpend('100', 'euro')).toBe('abgelehnt');
+    expect(await insertSpend('48200000000', 'EUR')).toBe('ok');
   });
 });

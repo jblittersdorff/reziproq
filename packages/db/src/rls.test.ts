@@ -22,8 +22,9 @@ describe('Row-Level Security', () => {
     'organization',
     'organization_feature',
     'app_user',
-    'beziehung',
-    'beziehung_kaeufer',
+    'relationship',
+    'relationship_side',
+    'relationship_spend',
   ] as const;
 
   it.each(tables)('liefert aus %s ohne gesetzte Organisation keine Zeilen', async (table) => {
@@ -38,7 +39,7 @@ describe('Row-Level Security', () => {
     const count = (orgId: string) =>
       withTenant(temp.db, { userId: 'test-nutzer', organizationId: orgId }, async (tx) => {
         const result = await tx.execute<{ n: number }>(
-          sql`select count(*)::int as n from beziehung join beziehung_kaeufer on beziehung_id = id`,
+          sql`select count(*)::int as n from relationship where status = 'active'`,
         );
         return result.rows[0]?.n;
       });
@@ -49,20 +50,22 @@ describe('Row-Level Security', () => {
   it('zeigt beim selben Lieferanten jedem Käufer nur seine eigenen Werte', async () => {
     const valuesFor = (orgId: string) =>
       withTenant(temp.db, { userId: 'test-nutzer', organizationId: orgId }, async (tx) => {
-        const result = await tx.execute<{ warengruppe: string; cent: string }>(sql`
-          select bk.warengruppe, bk.jahresspend_cent::text as cent
-          from beziehung b
-          join beziehung_kaeufer bk on bk.beziehung_id = b.id
-          join organization o on o.id = b.lieferant_org_id
+        const result = await tx.execute<{ nummer: string; cent: string }>(sql`
+          select rs.external_ref as nummer, sp.amount_cents::text as cent
+          from relationship r
+          join relationship_side rs on rs.relationship_id = r.id
+          join relationship_spend sp on sp.relationship_id = r.id
+            and sp.year = extract(year from now())::int - 1
+          join organization o on o.id = r.supplier_org_id
           where o.name = 'Rheintal Elektronik GmbH (Demo)'
         `);
         return result.rows;
       });
     expect(await valuesFor(seedBuyers.testOem.id)).toEqual([
-      { warengruppe: 'Elektronik', cent: '482000000' },
+      { nummer: 'L-10001', cent: '482000000' },
     ]);
     expect(await valuesFor(seedBuyers.zweitOem.id)).toEqual([
-      { warengruppe: 'Leiterplatten', cent: '105000000' },
+      { nummer: 'ZW-4711', cent: '105000000' },
     ]);
   });
 
@@ -77,16 +80,18 @@ describe('Row-Level Security', () => {
         return result.rows.map((row) => row.name);
       },
     );
-    expect(names).toHaveLength(4);
+    // Die eigene, drei Lieferanten und der Test-Lieferant (Entwurf, PLT-03).
+    expect(names).toHaveLength(5);
     expect(names).toContain('Zweit-OEM (Demo)');
+    expect(names).toContain('Test-Lieferant (Demo)');
     expect(names).not.toContain('Beispiel-OEM (Demo)');
   });
 
-  it('erlaubt der Rolle reziproq_app keine Änderungen', async () => {
+  it('erlaubt der Rolle reziproq_app keine Änderungen an Beziehungen (kommt mit PLT-03b)', async () => {
     const error = await withTenant(
       temp.db,
       { userId: 'test-nutzer', organizationId: seedBuyers.testOem.id },
-      (tx) => tx.execute(sql`update beziehung_kaeufer set jahresspend_cent = 0`),
+      (tx) => tx.execute(sql`update relationship set status = 'ended'`),
     ).catch((caught: unknown) => caught);
     // Drizzle verpackt den Fehler von PostgreSQL; die eigentliche Meldung steht in cause.
     expect(String((error as Error).cause)).toMatch(/permission denied/);

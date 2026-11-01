@@ -80,6 +80,20 @@ Je Kriterium ein Test.
 - [ ] Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.
 - [ ] Pflichtfelder und Formate werden auf der Seite und in der API geprüft (zod in `packages/shared`).
 
+## Umgesetzt mit (PR zu PLT-03a)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- `relationship` steht im Register als `shared`, aber mit Policies von Hand: Sie ist der Anker aller Beziehungsdaten und hat keine Spalten `relationship_id`, `owner_org_id` und `visibility`. Der Käufer sieht alle seine Beziehungen, der Lieferant nur aktive im Kontext dieses Kunden (`app.customer_org_id`). Die automatischen Prüfungen aus PLT-04 laufen für `relationship_side` und `relationship_spend`; `relationship` hat eigene Tests (`packages/db/src/plt-03a.test.ts`).
+- Die Prüffunktionen aus PLT-04 lesen `relationship`; „aktiv“ heißt `status = 'active'`. Name und Land eines Kunden sieht der Lieferant erst, wenn die Beziehung kein Entwurf mehr ist.
+- Bestandsdaten: `beziehung` wird zu `relationship` (mit `ended_at` → `ended`, sonst `active`), Spend aus `beziehung_kaeufer` zu `relationship_spend` mit `source = import`. Der Freitext Warengruppe entfällt; Warengruppen kommen mit PLT-06. Die KI-Suche filtert deshalb nach Name, eigener Nummer, Land und Spend.
+- „Letztes volles Jahr“ ist das Kalenderjahr vor heute. Anzahl und Gesamtspend zählen alle nicht beendeten Beziehungen, auch Entwürfe.
+- Name auf der Karte: `display_name` der eigenen Seite, sonst der Name der Organisation.
+- Adresse der Liste: `/lieferanten?suche=…&sortierung=name&beendet=1`.
+- Der Knopf „Lieferant hinzufügen“ und die Seite `/lieferanten/neu` kommen zusammen mit PLT-03b; der leere Zustand nennt den nächsten Schritt ohne Knopf.
+
+Kriterien aus PLT-03a: Datentrennung zwischen den OEMs (mit den PLT-04-Prüfungen), Entwurf für den Lieferanten unsichtbar, Spend in Cent und als Euro im deutschen Format, Anzahl und Gesamtspend, Suche, Sortierung und „Beendete zeigen“ in der Adresse. Die übrigen Kriterien gehören zu PLT-03b.
+
 ## Nicht Teil dieser Funktion
 
 - Lokale Leiste, Kopf und Überblick des Lieferanten (NAV-06)

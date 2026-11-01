@@ -22,9 +22,9 @@ const suppliers = {
       relationshipId: 'rel-1',
       name: 'Silesia Guss Sp. z o.o. (Demo)',
       country: 'PL',
-      category: 'Guss',
-      annualSpend: { amountCents: 315_000_000, currency: 'EUR' },
-      spendYear: 2025,
+      externalRef: null,
+      status: 'active',
+      spend: { amountCents: 315_000_000, currency: 'EUR' },
     },
   ],
   count: 1,
@@ -186,9 +186,12 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
   // Neu anmelden über eine Weiterleitung; die Eingabe kommt aus dem Entwurf zurück (UMB-02).
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
+  const before = page.url();
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
 
-  await expect(page).toHaveURL('http://localhost:5174/lieferanten');
+  // Zurück auf dieselbe Adresse; seit PLT-03 steht die Suche auch darin.
+  await expect(page).toHaveURL(before);
+  expect(before).toBe('http://localhost:5174/lieferanten?suche=Silesia');
   await expect(search).toHaveValue('Silesia');
   await expect(notice).toHaveCount(0);
 });

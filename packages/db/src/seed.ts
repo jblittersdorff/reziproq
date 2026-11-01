@@ -2,13 +2,14 @@ import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
   appUser,
-  beziehung,
-  beziehungKaeufer,
   organization,
   organizationFeature,
+  relationship,
+  relationshipSide,
+  relationshipSpend,
 } from './schema/index.js';
 
-// Beispieldaten für die lokale Entwicklung (PLT-02). Alle Namen sind erfunden und tragen „(Demo)“.
+// Beispieldaten für die lokale Entwicklung (PLT-02, PLT-03). Alle Namen sind erfunden und tragen „(Demo)“.
 // Feste IDs machen das Skript wiederholbar: Ein zweiter Lauf aktualisiert, statt zu verdoppeln.
 
 const id = (n: number) => `de300000-0000-7000-8000-${String(n).padStart(12, '0')}`;
@@ -37,116 +38,123 @@ export const seedUsers = [
   })),
 );
 
-const spendYear = 2025;
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
 
 const suppliers = [
   {
     name: 'Rheintal Elektronik GmbH (Demo)',
     country: 'DE',
-    warengruppe: 'Elektronik',
     spend: mio(4.82),
   },
-  { name: 'Silesia Guss Sp. z o.o. (Demo)', country: 'PL', warengruppe: 'Guss', spend: mio(3.15) },
+  { name: 'Silesia Guss Sp. z o.o. (Demo)', country: 'PL', spend: mio(3.15) },
   {
     name: 'Moravia Plast s.r.o. (Demo)',
     country: 'CZ',
-    warengruppe: 'Kunststoff',
     spend: mio(1.94),
   },
   {
     name: 'Lombardia Fonderie S.p.A. (Demo)',
     country: 'IT',
-    warengruppe: 'Guss',
     spend: mio(2.71),
   },
   {
     name: 'Nordhafen Logistik AG (Demo)',
     country: 'DE',
-    warengruppe: 'Logistik',
     spend: mio(1.38),
   },
   {
     name: 'Alpen Sensorik GmbH (Demo)',
     country: 'AT',
-    warengruppe: 'Elektronik',
     spend: mio(2.26),
   },
   {
     name: 'Loire Polymères SAS (Demo)',
     country: 'FR',
-    warengruppe: 'Kunststoff',
     spend: mio(0.97),
   },
   {
     name: 'Pearl River Components Ltd. (Demo)',
     country: 'CN',
-    warengruppe: 'Elektronik',
     spend: mio(5.64),
   },
   {
     name: 'Bajío Fundición S.A. de C.V. (Demo)',
     country: 'MX',
-    warengruppe: 'Guss',
     spend: mio(1.12),
   },
   {
     name: 'Danubia Spedition Kft. (Demo)',
     country: 'HU',
-    warengruppe: 'Logistik',
     spend: mio(0.74),
   },
   {
     name: 'Ostsee Kunststofftechnik GmbH (Demo)',
     country: 'DE',
-    warengruppe: 'Kunststoff',
     spend: mio(1.63),
   },
   {
     name: 'Tatra Precision Cast a.s. (Demo)',
     country: 'SK',
-    warengruppe: 'Guss',
     spend: mio(0.88),
   },
   {
     name: 'Iberia Cableado S.L. (Demo)',
     country: 'ES',
-    warengruppe: 'Elektronik',
     spend: mio(1.47),
   },
-  { name: 'Benelux Freight B.V. (Demo)', country: 'NL', warengruppe: 'Logistik', spend: mio(0.59) },
+  { name: 'Benelux Freight B.V. (Demo)', country: 'NL', spend: mio(0.59) },
   {
     name: 'Midwest Molding Inc. (Demo)',
     country: 'US',
-    warengruppe: 'Kunststoff',
     spend: mio(0.81),
   },
-].map((supplier, index) => ({ ...supplier, id: id(101 + index) }));
+].map((supplier, index) => ({
+  ...supplier,
+  id: id(101 + index),
+  // Erfundene USt-IdNr. mit Länderkürzel, damit PLT-03b denselben Lieferanten wiederfindet.
+  vatId: `${supplier.country}9${String(10_000_001 + index)}`,
+}));
 
 // Drei Lieferanten beliefern auch den Zweit-OEM, mit eigenen Werten. So lässt sich die
 // Datentrennung zeigen: Jeder Käufer sieht beim selben Lieferanten nur seine eigenen Werte.
 const zweitOemSuppliers = [
-  { supplier: 0, warengruppe: 'Leiterplatten', spend: mio(1.05) },
-  { supplier: 2, warengruppe: 'Spritzguss', spend: mio(0.42) },
-  { supplier: 4, warengruppe: 'Kontraktlogistik', spend: mio(2.9) },
+  { supplier: 0, externalRef: 'ZW-4711', spend: mio(1.05) },
+  { supplier: 2, externalRef: 'ZW-4712', spend: mio(0.42) },
+  { supplier: 4, externalRef: 'ZW-4713', spend: mio(2.9) },
 ];
 
+/** Alle Demo-Beziehungen; der Spend gilt für das letzte volle Jahr. */
 const relationships = [
   ...suppliers.map((supplier, index) => ({
     id: id(201 + index),
-    kaeuferOrgId: seedBuyers.testOem.id,
-    lieferantOrgId: supplier.id,
-    warengruppe: supplier.warengruppe,
-    spend: supplier.spend,
+    buyerOrgId: seedBuyers.testOem.id,
+    supplierOrgId: supplier.id,
+    status: 'active' as const,
+    externalRef: `L-${10_001 + index}`,
+    spend: supplier.spend as number | null,
   })),
   ...zweitOemSuppliers.map((entry, index) => ({
     id: id(301 + index),
-    kaeuferOrgId: seedBuyers.zweitOem.id,
-    lieferantOrgId: suppliers[entry.supplier]?.id ?? '',
-    warengruppe: entry.warengruppe,
-    spend: entry.spend,
+    buyerOrgId: seedBuyers.zweitOem.id,
+    supplierOrgId: suppliers[entry.supplier]?.id ?? '',
+    status: 'active' as const,
+    externalRef: entry.externalRef,
+    spend: entry.spend as number | null,
+  })),
+  // Der Test-Lieferant ist bei beiden OEMs angelegt, aber noch nicht eingeladen (LIF-01).
+  ...Object.values(seedBuyers).map((buyer, index) => ({
+    id: id(401 + index),
+    buyerOrgId: buyer.id,
+    supplierOrgId: seedSupplierOrg.id,
+    status: 'draft' as const,
+    externalRef: null,
+    spend: null,
   })),
 ];
+
+/** Das Vorjahr weicht je Lieferant etwas ab, damit eine Entwicklung sichtbar ist. */
+const previousYear = (spend: number, index: number) =>
+  Math.round(spend * (0.86 + (index % 5) * 0.06));
 
 export interface SeedResult {
   organizations: number;
@@ -154,7 +162,10 @@ export interface SeedResult {
   users: number;
 }
 
-export async function seed(db: Database, { nodeEnv }: { nodeEnv: string | undefined }) {
+export async function seed(
+  db: Database,
+  { nodeEnv, now = new Date() }: { nodeEnv: string | undefined; now?: Date },
+) {
   if (nodeEnv === 'production') {
     throw new Error(
       'db:seed ist nur für die lokale Entwicklung und bricht bei NODE_ENV=production ab.',
@@ -165,14 +176,18 @@ export async function seed(db: Database, { nodeEnv }: { nodeEnv: string | undefi
     const organizations = [
       ...Object.values(seedBuyers),
       seedSupplierOrg,
-      ...suppliers.map(({ id, name, country }) => ({ id, name, country })),
+      ...suppliers.map(({ id, name, country, vatId }) => ({ id, name, country, vatId })),
     ];
     await tx
       .insert(organization)
       .values(organizations)
       .onConflictDoUpdate({
         target: organization.id,
-        set: { name: sql`excluded.name`, country: sql`excluded.country` },
+        set: {
+          name: sql`excluded.name`,
+          country: sql`excluded.country`,
+          vatId: sql`excluded.vat_id`,
+        },
       });
 
     // Käuferfunktionen nur für die beiden OEMs; der Test-Lieferant bekommt sie nicht.
@@ -200,35 +215,56 @@ export async function seed(db: Database, { nodeEnv }: { nodeEnv: string | undefi
       });
 
     await tx
-      .insert(beziehung)
+      .insert(relationship)
       .values(
-        relationships.map(({ id, kaeuferOrgId, lieferantOrgId }) => ({
+        relationships.map(({ id, buyerOrgId, supplierOrgId, status }) => ({
           id,
-          kaeuferOrgId,
-          lieferantOrgId,
+          buyerOrgId,
+          supplierOrgId,
+          status,
         })),
       )
-      .onConflictDoNothing();
+      .onConflictDoUpdate({ target: relationship.id, set: { status: sql`excluded.status` } });
 
+    // Eigene Nummer je Käufer; die andere Seite sieht sie nie (org_private).
     await tx
-      .insert(beziehungKaeufer)
+      .insert(relationshipSide)
       .values(
-        relationships.map((relationship) => ({
-          beziehungId: relationship.id,
-          warengruppe: relationship.warengruppe,
-          jahresspendCent: relationship.spend,
-          spendJahr: spendYear,
-          waehrung: 'EUR',
-        })),
+        relationships
+          .filter((entry) => entry.externalRef !== null)
+          .map((entry) => ({
+            relationshipId: entry.id,
+            orgId: entry.buyerOrgId,
+            externalRef: entry.externalRef,
+          })),
       )
       .onConflictDoUpdate({
-        target: beziehungKaeufer.beziehungId,
-        set: {
-          warengruppe: sql`excluded.warengruppe`,
-          jahresspendCent: sql`excluded.jahresspend_cent`,
-          spendJahr: sql`excluded.spend_jahr`,
-          waehrung: sql`excluded.waehrung`,
-        },
+        target: [relationshipSide.relationshipId, relationshipSide.orgId],
+        set: { externalRef: sql`excluded.external_ref` },
+      });
+
+    // Spend für die zwei letzten vollen Jahre, gerechnet vom heutigen Datum.
+    const lastYear = now.getFullYear() - 1;
+    await tx
+      .insert(relationshipSpend)
+      .values(
+        relationships.flatMap((entry, index) =>
+          entry.spend === null
+            ? []
+            : [
+                { year: lastYear - 1, amountCents: previousYear(entry.spend, index) },
+                { year: lastYear, amountCents: entry.spend },
+              ].map((value) => ({
+                ...value,
+                relationshipId: entry.id,
+                currency: 'EUR',
+                source: 'seed' as const,
+              })),
+        ),
+      )
+      .onConflictDoUpdate({
+        target: [relationshipSpend.relationshipId, relationshipSpend.year],
+        set: { amountCents: sql`excluded.amount_cents`, source: sql`excluded.source` },
       });
 
     return {

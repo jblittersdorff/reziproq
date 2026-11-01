@@ -21,14 +21,10 @@ export function useSuppliers() {
   return { me, allowed, ...query };
 }
 
-/** „15 Lieferanten · 32.110.000 € Jahresspend 2025“ für Kopfzeile und Kachel. */
+/** „15 Lieferanten · 32.110.000 € Jahresspend 2025“ für die Kopfzeile, ohne Beendete. */
 export function supplierSummary(data: SuppliersResponse, t: Messages): string {
-  const year = data.spendYear;
-  const totals =
-    year === null
-      ? []
-      : data.totalSpend.map((money) =>
-          t.suppliers.totalSpend(formatMoney(money, 'de', { wholeUnits: true }), year),
-        );
+  const totals = data.totalSpend.map((money) =>
+    t.suppliers.totalSpend(formatMoney(money, 'de', { wholeUnits: true }), data.spendYear),
+  );
   return [t.suppliers.count(data.count), ...totals].join(' · ');
 }
