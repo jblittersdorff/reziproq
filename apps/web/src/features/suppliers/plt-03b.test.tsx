@@ -2,7 +2,7 @@
 import type { SupplierDetail } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
 
 // Oberflächentests zu docs/specs/PLT-03.md, Teil b: anlegen, bearbeiten, Spend, beenden.
 
@@ -216,13 +216,13 @@ describe('Beenden und Rechte', () => {
   });
 
   it('zeigt ohne Recht weder Hinzufügen noch Bearbeiten, Beenden oder Jahr hinzufügen', async () => {
-    api.me = { ...anna, permissions: { ...anna.permissions, editSuppliers: false } };
+    api.permissions = actionsFor.viewer;
     renderAt('/lieferanten');
     await screen.findByText(/^4 Lieferanten/);
     expect(screen.queryByRole('link', { name: 'Lieferant hinzufügen' })).toBeNull();
     tearDownApp();
     setUpApp();
-    api.me = { ...anna, permissions: { ...anna.permissions, editSuppliers: false } };
+    api.permissions = actionsFor.viewer;
     const handle = (await import('@/testing/app-harness')).api;
     handle.handle = (request) =>
       request.url === `/api/suppliers/${detail.relationshipId}`

@@ -39,9 +39,9 @@ describe('db:seed', () => {
 
   // 15 Lieferanten beim Test-OEM, drei davon auch beim Zweit-OEM, der Test-Lieferant bei beiden;
   // Spend für zwei Jahre je Beziehung außer beim Test-Lieferanten (PLT-03).
-  const expected = { kaeufer: 2, organisationen: 18, beziehungen: 20, privat: 36, nutzer: 6 };
+  const expected = { kaeufer: 2, organisationen: 18, beziehungen: 20, privat: 36, nutzer: 8 };
 
-  it('PLT-02: legt Test-OEM, Zweit-OEM und Test-Lieferant mit je zwei Nutzern an', async () => {
+  it('PLT-02: legt Test-OEM, Zweit-OEM und Test-Lieferant mit ihren Nutzern an', async () => {
     await seed(temp.db, { nodeEnv: 'development' });
     expect(await counts()).toEqual(expected);
 
@@ -53,8 +53,8 @@ describe('db:seed', () => {
     `);
     expect(members.rows).toEqual([
       { name: 'Test-Lieferant (Demo)', nutzer: 2, buyer: false },
-      { name: 'Test-OEM (Demo)', nutzer: 2, buyer: true },
-      { name: 'Zweit-OEM (Demo)', nutzer: 2, buyer: true },
+      { name: 'Test-OEM (Demo)', nutzer: 3, buyer: true },
+      { name: 'Zweit-OEM (Demo)', nutzer: 3, buyer: true },
     ]);
   });
 

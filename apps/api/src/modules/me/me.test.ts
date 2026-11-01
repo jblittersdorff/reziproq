@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { generateKeyPair } from 'jose';
+import { permissionsResponseSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -17,8 +18,6 @@ describe('GET /api/me', () => {
     viewBuyerAreas: false,
     viewSuppliers: false,
     switchCustomer: false,
-    manageSettings: false,
-    editSuppliers: false,
   };
 
   const storedUser = async () =>
@@ -57,7 +56,9 @@ describe('GET /api/me', () => {
       email: 'ada@example.com',
       organization: null,
       supportView: false,
-      roles: [],
+      orgRole: null,
+      isControlling: false,
+      isOperator: false,
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);
@@ -137,23 +138,63 @@ describe('GET /api/me', () => {
       expect((await storedUser())?.organizationId).toBe(buyerOrg);
     });
 
+    /** Neuer Nutzer mit diesen Rollen im Token; sie werden beim ersten Aufruf übernommen. */
+    const freshWith = async (roles: string[]) => {
+      await db.delete(schema.appUser).where(sql`${schema.appUser.id} = ${userId}`);
+      return testApp.signToken({
+        subject: userId,
+        claims: {
+          'urn:zitadel:iam:org:project:test-project:roles': Object.fromEntries(
+            roles.map((role) => [role, { '1': 'test' }]),
+          ),
+        },
+      });
+    };
+    const actionsOf = async (token: string) =>
+      permissionsResponseSchema.parse(
+        await (await testApp.get('/api/me/permissions', token)).json(),
+      ).actions;
+
     it('PLT-11: Der Weg zu allen Einstellungen ist nur für Admins frei, Organisation sieht jedes Mitglied', async () => {
       withZitadelOrg(zitadelOrgId);
-      const withRole = (role: string) =>
-        testApp.signToken({
-          subject: userId,
-          claims: { 'urn:zitadel:iam:org:project:test-project:roles': { [role]: { '1': 'test' } } },
+      for (const roles of [['leser'], ['nutzer'], ['controlling']]) {
+        const token = await freshWith(roles);
+        const res = await testApp.get('/api/me', token);
+        expect(await res.json(), roles.join()).toMatchObject({
+          permissions: { viewOrganizationSettings: true },
         });
-      for (const role of ['leser', 'nutzer', 'controlling']) {
-        const res = await testApp.get('/api/me', await withRole(role));
-        expect(await res.json(), role).toMatchObject({
-          permissions: { viewOrganizationSettings: true, manageSettings: false },
-        });
+        expect(await actionsOf(token), roles.join()).not.toContain('einstellungen.verwalten');
       }
-      const res = await testApp.get('/api/me', await withRole('admin'));
-      expect(await res.json()).toMatchObject({
-        permissions: { viewOrganizationSettings: true, manageSettings: true },
+      const token = await freshWith(['admin']);
+      await testApp.get('/api/me', token);
+      expect(await actionsOf(token)).toContain('einstellungen.verwalten');
+    });
+
+    it('Neue Nutzer sind viewer', async () => {
+      withZitadelOrg(zitadelOrgId);
+      const token = await freshWith([]);
+      const res = await testApp.post('/api/me/anmeldung', {}, token);
+      expect(await res.json()).toMatchObject({ orgRole: 'viewer', isControlling: false });
+      expect((await storedUser())?.orgRole).toBe('viewer');
+      expect(await actionsOf(token)).not.toContain('lieferanten.bearbeiten');
+    });
+
+    it('übernimmt die Zitadel-Rollen einmalig; danach zählt nur die Datenbank', async () => {
+      withZitadelOrg(zitadelOrgId);
+      const first = await freshWith(['nutzer', 'controlling']);
+      expect(await (await testApp.get('/api/me', first)).json()).toMatchObject({
+        orgRole: 'member',
+        isControlling: true,
       });
+      // Gleiche Person, jetzt mit admin im Token: Die Datenbank bleibt maßgeblich.
+      const later = await testApp.signToken({
+        subject: userId,
+        claims: { 'urn:zitadel:iam:org:project:test-project:roles': { admin: { '1': 'test' } } },
+      });
+      expect(await (await testApp.get('/api/me', later)).json()).toMatchObject({
+        orgRole: 'member',
+      });
+      expect(await actionsOf(later)).not.toContain('rollen.aendern');
     });
 
     it('Bei unbekannter Organisation bleibt das Feld leer', async () => {
@@ -186,7 +227,7 @@ describe('GET /api/me', () => {
     expect(await res.json()).toMatchObject({ permissions: noPermissions });
   });
 
-  it('nennt die Rollen, die im Token stehen, und ignoriert unbekannte (PLT-01)', async () => {
+  it('erkennt Betreiber bis UMB-01 am Token und ignoriert unbekannte Rollen', async () => {
     const token = await testApp.signToken({
       subject: userId,
       claims: {
@@ -197,7 +238,7 @@ describe('GET /api/me', () => {
       },
     });
     const res = await testApp.get('/api/me', token);
-    expect(await res.json()).toMatchObject({ roles: ['betreiber'] });
+    expect(await res.json()).toMatchObject({ isOperator: true, orgRole: null });
   });
 
   it('PLT-01: Beim ersten Login wird app_user angelegt, bei jedem Login last_login_at aktualisiert', async () => {

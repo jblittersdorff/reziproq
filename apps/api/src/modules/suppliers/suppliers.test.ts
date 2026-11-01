@@ -5,6 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
+const appUserTable = schema.appUser;
+
 // Tests zu PLT-02 und PLT-03a über die API. Sie legen eigene Organisationen mit zufälligen IDs an,
 // damit sie neben den Beispieldaten und parallel zu anderen Tests laufen.
 describe('GET /api/suppliers', () => {
@@ -32,6 +34,8 @@ describe('GET /api/suppliers', () => {
     b: `test-b-${run}`,
     none: `test-ohne-${run}`,
     supplier: `test-lieferant-${run}`,
+    // Damit OEM A immer einen Admin behält, wenn der Test die Rolle von Anna ändert (PLT-05).
+    adminA: `test-admin-a-${run}`,
   };
   const roleClaim = (role: string) => ({
     'urn:zitadel:iam:org:project:test-project:roles': { [role]: { '1': 'test' } },
@@ -102,6 +106,13 @@ describe('GET /api/suppliers', () => {
     ]);
     await db.insert(appUser).values([
       { id: users.a, name: 'Anna A', email: 'a@example.com', organizationId: ids.oemA },
+      {
+        id: users.adminA,
+        name: 'Ada Admin',
+        email: 'ada@example.com',
+        organizationId: ids.oemA,
+        orgRole: 'admin',
+      },
       { id: users.b, name: 'Bea B', email: 'b@example.com', organizationId: ids.oemB },
       { id: users.none, name: 'Nils Ohne', email: 'ohne@example.com', organizationId: null },
       {
@@ -208,12 +219,24 @@ describe('GET /api/suppliers', () => {
     }
   });
 
-  it.each(['admin', 'nutzer', 'leser', 'controlling'])('erlaubt die Rolle %s', async (role) => {
-    expect((await get(users.a, role)).status).toBe(200);
+  // Seit PLT-05 zählt die Rolle in der Datenbank; jeder Nutzer hat genau eine.
+  it.each(['admin', 'member', 'viewer'] as const)('erlaubt die Rolle %s', async (role) => {
+    await db
+      .update(appUserTable)
+      .set({ orgRole: role })
+      .where(sql`${appUserTable.id} = ${users.a}`);
+    expect((await get(users.a, null)).status).toBe(200);
   });
 
-  it('antwortet ohne Rolle mit 403 keine_berechtigung', async () => {
-    const res = await get(users.a, null);
+  it('liest keine Rollen mehr aus dem Token', async () => {
+    await db
+      .update(appUserTable)
+      .set({ orgRole: 'viewer' })
+      .where(sql`${appUserTable.id} = ${users.a}`);
+    const res = await testApp.get(
+      '/api/suppliers/lookup?ust=DE123456789',
+      await testApp.signToken({ subject: users.a, claims: roleClaim('admin') }),
+    );
     expect(res.status).toBe(403);
     expect(await res.json()).toMatchObject({ code: 'keine_berechtigung' });
   });

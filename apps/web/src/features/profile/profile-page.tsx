@@ -7,6 +7,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
+import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { CustomerDialog } from '@/features/support/customer-dialog';
@@ -22,6 +23,7 @@ export function ProfilePage() {
   const t = useT();
   const auth = useAuth();
   const me = useMe();
+  const manageSettings = useCan('einstellungen.verwalten');
   const { preference } = useTheme();
   const [customersOpen, setCustomersOpen] = useState(false);
 
@@ -53,22 +55,15 @@ export function ProfilePage() {
                 {me.data.organization?.name ?? t.profile.noOrganization}
               </span>
             </SettingsRow>
-            {/* Nur Anzeige: welche Rollen die API im Token findet (PLT-01). Entschieden wird per can(). */}
-            <SettingsRow label={t.profile.roles} description={t.profile.rolesDescription}>
-              {me.data.roles.length > 0 ? (
+            {/* Nur Anzeige: Rolle aus der Datenbank (PLT-05). Entschieden wird per can() im Backend. */}
+            {(me.data.orgRole || me.data.isOperator) && (
+              <SettingsRow label={t.profile.role} description={t.profile.roleDescription}>
                 <span className="flex flex-wrap gap-2 sm:justify-end">
-                  {me.data.roles.map((role) => (
-                    <Badge key={role} variant="selected">
-                      {role}
-                    </Badge>
-                  ))}
+                  {me.data.orgRole && <Badge variant="selected">{t.roles[me.data.orgRole]}</Badge>}
+                  {me.data.isControlling && <Badge>{t.roles.controlling}</Badge>}
+                  {me.data.isOperator && <Badge>{t.profile.operator}</Badge>}
                 </span>
-              ) : (
-                <Badge variant="warning">{t.profile.rolesNone}</Badge>
-              )}
-            </SettingsRow>
-            {me.data.roles.length === 0 && (
-              <p className="px-4 py-3 text-muted-foreground text-sm">{t.profile.rolesNoneHint}</p>
+              </SettingsRow>
             )}
           </SettingsGroup>
 
@@ -81,7 +76,7 @@ export function ProfilePage() {
             />
           </SettingsGroup>
 
-          {(me.data.permissions.manageSettings || me.data.permissions.viewOrganizationSettings) && (
+          {(manageSettings || me.data.permissions.viewOrganizationSettings) && (
             <SettingsGroup title={t.profile.settings}>
               {/* Jedes Mitglied sieht die eigene Organisation, alle Einstellungen nur Admins. */}
               {me.data.permissions.viewOrganizationSettings && (
@@ -93,7 +88,7 @@ export function ProfilePage() {
                   renderLink={routerLink}
                 />
               )}
-              {me.data.permissions.manageSettings && (
+              {manageSettings && (
                 <SettingsLinkRow
                   href="/einstellungen"
                   label={t.profile.allSettings}

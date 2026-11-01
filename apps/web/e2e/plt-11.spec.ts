@@ -45,13 +45,22 @@ async function signIn(page: Page, { admin = false } = {}) {
         email: 'anna.schmidt@beispiel-einkauf.de',
         organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
         supportView: false,
-        roles: admin ? ['admin'] : ['nutzer'],
+        orgRole: admin ? 'admin' : 'member',
         permissions: {
           viewOrganizationSettings: true,
           viewSuppliers: true,
           switchCustomer: false,
-          manageSettings: admin,
         },
+      },
+    }),
+  );
+  // Was die Person darf, aus can() im Backend (PLT-05).
+  await page.route('**/api/me/permissions', (route) =>
+    route.fulfill({
+      json: {
+        actions: admin
+          ? ['organisation.sehen', 'rollen.aendern', 'einstellungen.verwalten', 'lieferanten.sehen']
+          : ['organisation.sehen', 'lieferanten.sehen'],
       },
     }),
   );

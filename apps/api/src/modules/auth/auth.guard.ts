@@ -8,23 +8,32 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { Role } from '@reziproq/shared';
-import { supportHeader } from '@reziproq/shared';
+import { type Action, type OrgRole, supportHeader } from '@reziproq/shared';
 import type { Request } from 'express';
 import { z } from 'zod';
 import { type AccountOrganization, AccountStore } from '../../common/database.module.js';
 import { SupportAccessService } from '../support/support-access.service.js';
 import { can } from './can.js';
 import { IS_PUBLIC } from './public.decorator.js';
-import { rolesFromToken } from './roles.js';
+import { REQUIRES } from './requires.decorator.js';
+import { rolesFromToken, type TokenRole } from './roles.js';
 import { AUTH_OPTIONS, type AuthOptions, TokenVerifier } from './token-verifier.js';
 import { WITHOUT_ORGANIZATION } from './without-organization.decorator.js';
 
-/** Wer die Anfrage stellt: Nutzer-ID (sub), Rollen und das geprüfte Access Token. */
+/**
+ * Wer die Anfrage stellt: Nutzer-ID (sub), Rolle aus der Datenbank (PLT-05) und das geprüfte
+ * Access Token. Erfüllt Subject, kann also direkt an can() gehen.
+ */
 export interface AuthContext {
   userId: string;
-  roles: Role[];
   accessToken: string;
+  /** Rolle in der Organisation; in der Betreiber-Ansicht viewer, ohne Organisation null */
+  orgRole: OrgRole | null;
+  isControlling: boolean;
+  /** Betreiber-Team von Reziproq; bis UMB-01 aus dem Zitadel-Token */
+  isOperator: boolean;
+  /** Rollen aus dem Token, nur für die einmalige Übernahme beim Login */
+  tokenRoles: TokenRole[];
   /** Der Kunde, in den ein Betreiber gewechselt ist (PLT-13); sonst nicht gesetzt. */
   supportOrganization?: AccountOrganization;
   /**
@@ -64,10 +73,14 @@ export class AuthGuard implements CanActivate {
     if (scheme?.toLowerCase() !== 'bearer' || !token) throw new UnauthorizedException();
 
     const payload = await this.verifier.verify(token);
+    const tokenRoles = rolesFromToken(payload, this.options.audience);
     const auth: AuthContext = {
       userId: payload.sub,
-      roles: rolesFromToken(payload, this.options.audience),
       accessToken: token,
+      orgRole: null,
+      isControlling: false,
+      isOperator: tokenRoles.includes('betreiber'),
+      tokenRoles,
       organization: null,
     };
 
@@ -87,8 +100,16 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    auth.organization =
-      auth.supportOrganization ?? (await this.accounts.organizationOf(auth.userId));
+    if (auth.supportOrganization) {
+      // Im Kunden gelten für Betreiber die Rechte eines Lesers (PLT-05).
+      auth.organization = auth.supportOrganization;
+      auth.orgRole = 'viewer';
+    } else {
+      const membership = await this.accounts.membershipOf(auth.userId);
+      auth.organization = membership?.organization ?? null;
+      auth.orgRole = membership?.orgRole ?? null;
+      auth.isControlling = membership?.isControlling ?? false;
+    }
 
     // Ohne Organisation nur /me und der Betreiber-Zugang (PLT-02).
     const withoutOrganization = this.reflector.getAllAndOverride<boolean | undefined>(
@@ -101,6 +122,15 @@ export class AuthGuard implements CanActivate {
         code: 'keine_organisation',
         message: 'Deine Organisation ist noch nicht freigeschaltet.',
       });
+    }
+
+    // Jeder Endpunkt nennt seine Aktion; entschieden wird über can() (PLT-05).
+    const action = this.reflector.getAllAndOverride<Action | undefined>(REQUIRES, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (action && !can(auth, action)) {
+      throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
     }
 
     request.auth = auth;

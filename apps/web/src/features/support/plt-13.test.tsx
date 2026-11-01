@@ -2,7 +2,15 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setSupportCustomer } from '@/lib/support';
-import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import {
+  actionsFor,
+  anna,
+  api,
+  renderAt,
+  setUpApp,
+  signedIn,
+  tearDownApp,
+} from '@/testing/app-harness';
 
 // Oberflächentests zu docs/specs/PLT-13.md: Betreiber-Zugang zu Kunden.
 
@@ -35,11 +43,8 @@ const banner = (customer: string) =>
 
 describe('Kunde wechseln', () => {
   it('fehlt auf dem Profil für Nutzer ohne Rolle betreiber, auch für Admins', async () => {
-    api.me = {
-      ...anna,
-      roles: ['admin'],
-      permissions: { ...anna.permissions, viewOrganizationSettings: true, manageSettings: true },
-    };
+    api.me = { ...anna, orgRole: 'admin' };
+    api.permissions = actionsFor.admin;
     renderAt('/profil');
     await screen.findByText('Anna Schmidt');
     expect(screen.queryByRole('button', { name: 'Kunde wechseln' })).toBeNull();

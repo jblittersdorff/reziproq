@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useMe } from '@/features/auth/use-me';
+import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
@@ -21,9 +21,8 @@ import { SupplierFrame } from './supplier-frame';
 /** Strategie › Spend (PLT-03b): Spend je Jahr als Liste, Jahr hinzufügen oder ändern auf eigener Seite. */
 export function SupplierSpendPage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
-  const me = useMe();
   const [message, hideMessage] = useFlash();
-  const canEdit = me.data?.permissions.editSuppliers === true;
+  const canEdit = useCan('lieferanten.bearbeiten');
   const addYear = canEdit && (
     <Button asChild>
       <Link to="/lieferanten/$id/strategie/spend/neu" params={{ id: relationshipId }}>

@@ -25,7 +25,15 @@ export const relationshipSpendAudit = auditedObject({
   fields: ['year', 'amount_cents'],
 });
 
+/** Rolle, Controlling und Funktion einer Person (PLT-05): Verlauf nur intern. */
+export const userRoleAudit = auditedObject({
+  type: 'app_user_role',
+  visibility: 'internal',
+  fields: ['org_role', 'is_controlling', 'default_function'],
+});
+
 export const auditedObjects: readonly AuditedObject[] = [
+  userRoleAudit,
   relationshipAudit,
   relationshipSideAudit,
   relationshipSpendAudit,

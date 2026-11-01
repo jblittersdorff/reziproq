@@ -21,7 +21,8 @@
     "db:migrate": "pnpm --filter @reziproq/db db:migrate",
     "db:seed": "pnpm --filter @reziproq/db db:seed",
     "db:roles": "pnpm --filter @reziproq/db db:roles",
-    "org:link": "pnpm --filter @reziproq/db org:link"
+    "org:link": "pnpm --filter @reziproq/db org:link",
+    "rechte": "pnpm --filter @reziproq/api rechte"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",

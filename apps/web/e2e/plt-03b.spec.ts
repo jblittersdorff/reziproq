@@ -38,9 +38,13 @@ async function signIn(page: Page) {
           viewOrganizationSettings: true,
           viewSuppliers: true,
           switchCustomer: false,
-          editSuppliers: true,
         },
       },
+    }),
+  );
+  await page.route('**/api/me/permissions', (route) =>
+    route.fulfill({
+      json: { actions: ['lieferanten.sehen', 'lieferanten.bearbeiten', 'verlauf.sehen'] },
     }),
   );
   await page.route('**/api/suppliers', (route) =>

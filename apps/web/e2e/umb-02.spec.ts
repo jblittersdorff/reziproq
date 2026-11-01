@@ -12,7 +12,7 @@ const me = {
   email: 'ada@example.com',
   organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
   supportView: false,
-  roles: ['nutzer'],
+  orgRole: 'member',
   permissions: { viewOrganizationSettings: false, viewSuppliers: true, switchCustomer: false },
 };
 

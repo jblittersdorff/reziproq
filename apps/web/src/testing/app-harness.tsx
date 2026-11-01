@@ -1,4 +1,5 @@
 import type {
+  Action,
   CustomersResponse,
   MeResponse,
   OrganizationResponse,
@@ -34,15 +35,37 @@ export const anna: MeResponse = {
   email: 'anna@example.com',
   organization: { id: 'org-1', name: 'Beispiel-OEM (Demo)' },
   supportView: false,
-  roles: ['nutzer'],
+  orgRole: 'member',
+  isControlling: false,
+  isOperator: false,
   permissions: {
     viewOrganizationSettings: true,
     viewBuyerAreas: true,
     viewSuppliers: true,
     switchCustomer: false,
-    manageSettings: false,
-    editSuppliers: true,
   },
+};
+
+/** Was eine Person je Rolle darf, wie GET /api/me/permissions es liefert (PLT-05). */
+export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
+  admin: [
+    'organisation.sehen',
+    'rollen.aendern',
+    'einstellungen.verwalten',
+    'lieferanten.sehen',
+    'lieferanten.bearbeiten',
+    'team.festlegen',
+    'verlauf.sehen',
+    'prompt.nutzen',
+  ],
+  member: [
+    'organisation.sehen',
+    'lieferanten.sehen',
+    'lieferanten.bearbeiten',
+    'verlauf.sehen',
+    'prompt.nutzen',
+  ],
+  viewer: ['organisation.sehen', 'lieferanten.sehen', 'verlauf.sehen', 'prompt.nutzen'],
 };
 
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
@@ -82,14 +105,30 @@ export const sampleOrganization: OrganizationResponse = {
   name: 'Beispiel-OEM (Demo)',
   country: 'DE',
   members: [
-    { name: 'Anna Schmidt', email: 'anna@example.com' },
-    { name: 'Ben Weber', email: 'ben@example.com' },
+    {
+      id: 'anna',
+      name: 'Anna Schmidt',
+      email: 'anna@example.com',
+      orgRole: 'member',
+      isControlling: false,
+      defaultFunction: null,
+    },
+    {
+      id: 'ben',
+      name: 'Ben Weber',
+      email: 'ben@example.com',
+      orgRole: 'admin',
+      isControlling: true,
+      defaultFunction: 'quality',
+    },
   ],
 };
 
 /** Antworten der nachgebauten API; jeder Test kann sie vor dem Rendern ändern. */
 export const api = {
   me: anna as MeResponse,
+  /** Antwort von GET /api/me/permissions */
+  permissions: actionsFor.member as Action[],
   /** Status von GET /api/me; alles außer 200 lässt die Anfrage scheitern. */
   meStatus: 200,
   suppliers: { status: 200, body: sampleSuppliers as unknown },
@@ -145,6 +184,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
     body: init?.body ? JSON.parse(String(init.body)) : undefined,
   });
   if (own) return own;
+  if (url === '/api/me/permissions') return Response.json({ actions: api.permissions });
   if (url === '/api/me') {
     return api.meStatus === 200
       ? Response.json(api.me)
@@ -170,6 +210,7 @@ let consoleError: ReturnType<typeof vi.spyOn> | undefined;
 /** In beforeEach aufrufen: setzt API, Browser-Ersatz und Konsolen-Wächter zurück. */
 export function setUpApp() {
   api.me = anna;
+  api.permissions = actionsFor.member;
   api.meStatus = 200;
   api.suppliers = { status: 200, body: sampleSuppliers };
   api.prompt = { status: 200, events: [], hold: false };
@@ -181,6 +222,15 @@ export function setUpApp() {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => fakeApi(input, init)),
+  );
+  // jsdom kennt keinen ResizeObserver; Radix braucht ihn für Schalter in Formularen.
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
   );
   vi.stubGlobal('matchMedia', (query: string) => ({
     matches: false,

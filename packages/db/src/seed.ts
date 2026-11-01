@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
   appUser,
+  type OrgRole,
   organization,
   organizationFeature,
   relationship,
@@ -23,18 +24,48 @@ export const seedBuyers = {
 /** Ein Lieferant mit eigenem Zugang, aber ohne Käuferfunktionen (PLT-02). */
 export const seedSupplierOrg = { id: id(3), name: 'Test-Lieferant (Demo)', country: 'DE' } as const;
 
-/** Je Organisation zwei Nutzer mit erfundenen IDs, z. B. für Tests der Datentrennung. */
+/**
+ * Erfundene Nutzer je Organisation mit Rolle (PLT-05): je OEM ein Admin, ein Nutzer mit
+ * Controlling und ein Leser; beim Test-Lieferanten ein Admin und ein Nutzer.
+ */
 export const seedUsers = [
-  { org: seedBuyers.testOem, key: 'test-oem', people: ['Lena Berger', 'Tom Krüger'] },
-  { org: seedBuyers.zweitOem, key: 'zweit-oem', people: ['Mara Vogel', 'Jonas Hahn'] },
-  { org: seedSupplierOrg, key: 'test-lieferant', people: ['Sven Ludwig', 'Ida Brandt'] },
+  {
+    org: seedBuyers.testOem,
+    key: 'test-oem',
+    people: [
+      ['Lena Berger', 'admin', false],
+      ['Tom Krüger', 'member', true],
+      ['Nina Roth', 'viewer', false],
+    ],
+  },
+  {
+    org: seedBuyers.zweitOem,
+    key: 'zweit-oem',
+    people: [
+      ['Mara Vogel', 'admin', false],
+      ['Jonas Hahn', 'member', true],
+      ['Eva Lang', 'viewer', false],
+    ],
+  },
+  {
+    org: seedSupplierOrg,
+    key: 'test-lieferant',
+    people: [
+      ['Sven Ludwig', 'admin', false],
+      ['Ida Brandt', 'member', false],
+    ],
+  },
 ].flatMap(({ org, key, people }) =>
-  people.map((name, index) => ({
+  (people as [string, OrgRole, boolean][]).map(([name, orgRole, isControlling], index) => ({
     id: `demo-${key}-${index + 1}`,
     name,
     givenName: name.split(' ')[0] ?? name,
     email: `${name.split(' ')[0]?.toLowerCase()}.${key}@example.com`,
     organizationId: org.id,
+    orgRole,
+    isControlling,
+    // Rollen sind gesetzt; der Login übernimmt keine Rollen aus Zitadel mehr.
+    rolesImportedAt: new Date(0),
   })),
 );
 
@@ -211,6 +242,9 @@ export async function seed(
           givenName: sql`excluded.given_name`,
           email: sql`excluded.email`,
           organizationId: sql`excluded.organization_id`,
+          orgRole: sql`excluded.org_role`,
+          isControlling: sql`excluded.is_controlling`,
+          rolesImportedAt: sql`excluded.roles_imported_at`,
         },
       });
 

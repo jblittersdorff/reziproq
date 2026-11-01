@@ -206,8 +206,6 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
         viewBuyerAreas: false,
         viewSuppliers: false,
         switchCustomer: false,
-        manageSettings: false,
-        editSuppliers: false,
       },
     };
   };

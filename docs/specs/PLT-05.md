@@ -83,6 +83,21 @@ Je Kriterium ein Test.
 - [ ] Rollenwechsel und Teamänderungen stehen im internen Verlauf.
 - [ ] `docs/rechte.md` wird aus `permissions.ts` erzeugt. Ein Test schlägt fehl, wenn die Datei veraltet ist.
 
+## Umgesetzt mit (PR zu PLT-05a)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- **Übernahme aus Zitadel:** Die Rollen standen nur im Token, eine Migration kann sie nicht lesen. Deshalb übernimmt der nächste Login sie einmalig (`roles_imported_at`); danach liest die API keine Rollen mehr aus dem Token. Den ersten Admin setzt zusätzlich `pnpm org:link --admin <email>`.
+- **Controlling** ist mit jeder Rolle kombinierbar, auch mit Admin.
+- **Betreiber** erkennt die API bis UMB-01 weiter am Zitadel-Token; im Kunden gelten für ihn die Rechte eines Lesers.
+- Jeder Endpunkt nennt seine Aktion mit `@Requires('…')`; der AuthGuard prüft sie über `can()`. Ausnahmen sind `/health` und `/me` (mit `/me/permissions` und `/me/anmeldung`).
+- `GET /api/me/permissions` liefert `{ actions }`; Aktionen der Lieferanten und Fragen nur mit Feature `buyer`. `/me` nennt `orgRole`, `isControlling` und `isOperator`.
+- Rollen ändern dürfen in der Datenbank nur Admins derselben Organisation (Policy und Rechte je Spalte); ein Trigger hält mindestens einen Admin je Organisation, die API antwortet dann 409.
+- Funktionen: `purchasing`, `quality`, `engineering`, `logistics`, `programs`, `after_sales`. Eigene Funktionen je Kunde kommen später.
+- Beispieldaten: je OEM ein Admin, ein Nutzer mit Controlling und ein Leser.
+
+Kriterien aus PLT-05a: Matrix gegen die API, `can()` an jedem Endpunkt, letzter Admin, neue Nutzer `viewer`, Rollenwechsel im internen Verlauf, `docs/rechte.md`. Team, Teamrolle Leser und die Datentrennung des Teams folgen mit PLT-05b.
+
 ## Nicht Teil dieser Funktion
 
 - Gemeinsames Team beider Seiten mit Sichtbarkeit für den Lieferanten (PLB-04)

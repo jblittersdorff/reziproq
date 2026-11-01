@@ -23,7 +23,7 @@ Grundlage ist das Dokument „Reziproq – Produktkonzept und Anforderungen“ v
   - Ihre Policies bekommt sie in der Migration über `SELECT app_apply_layer('tabelle', 'art');`, nicht von Hand.
   - Die Tests zur Datentrennung laufen dann automatisch mit.
   - Keine Fremdschlüssel von geteilten auf private Tabellen.
-- **Rechte:** Jede neue Aktion kommt in die Rechte-Matrix (`permissions.ts`) und wird über `can()` geprüft. `docs/rechte.md` wird neu erzeugt.
+- **Rechte:** Jede neue Aktion kommt in die Rechte-Matrix (`apps/api/src/modules/auth/permissions.ts`, Aktionen in `packages/shared/src/permissions.ts`) und jeder Endpunkt nennt sie mit `@Requires`; geprüft wird über `can()`. `pnpm rechte` erzeugt `docs/rechte.md` neu.
 - **Verlauf:** Geteilte Objekte schreiben Verlauf und Outbox (PLT-08): eintragen in `apps/api/src/modules/audit/audited-objects.ts`, ändern über `auditedChange` aus `@reziproq/db`.
 - **Texte:** Alle Texte auf Deutsch und Englisch (PLT-09), Fachbegriffe nach `docs/glossar.md`.
 - **Zustände:** Jede Seite hat einen leeren Zustand, einen Ladezustand und einen Fehlerzustand. Der leere Zustand erklärt den nächsten Schritt (QS-04).
@@ -71,8 +71,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | fertig | – |
 | 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | fertig | Teil a von PLT-03 |
 | 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | fertig | – |
-| 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | PR offen | Teil b von PLT-03 |
-| 12 | PLT-05a | Rollen in der Datenbank und Rechte-Matrix | PLT-05 | PLT-02, PLT-03b | 1.0 | M4 | B | offen | Teil a von PLT-05; teilweise umgesetzt, siehe Umsetzungsplan |
+| 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | fertig | Teil b von PLT-03 |
+| 12 | PLT-05a | Rollen in der Datenbank und Rechte-Matrix | PLT-05 | PLT-02, PLT-03b | 1.0 | M4 | B | PR offen | Teil a von PLT-05 |
 | 13 | PLT-05b | Team je Beziehung | PLT-05 | PLT-05a | 1.0 | M4 | B | offen | Teil b von PLT-05 |
 | 14 | UMB-01 | Betreiber-Zugang nach dem neuen Muster | – | PLT-11, PLT-05a | 1.0 | M4 | B | offen | – |
 | 15 | NAV-06 | Lieferanten-Arbeitsbereich | NAV-06, NAV-07, NAV-08, NAV-09 | PLT-03b, PLT-05b, PLT-11 | 1.0 | M5 | A | offen | – |

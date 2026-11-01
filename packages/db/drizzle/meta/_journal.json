@@ -92,6 +92,13 @@
       "when": 1793527409867,
       "tag": "0012_lieferanten_pflegen",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793529347061,
+      "tag": "0013_rollen",
+      "breakpoints": true
     }
   ]
 }
