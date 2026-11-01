@@ -2,10 +2,16 @@ import type { INestApplication } from '@nestjs/common';
 import { RequestMethod } from '@nestjs/common';
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants.js';
 import { DiscoveryService, MetadataScanner, ModulesContainer } from '@nestjs/core';
+import { IS_PUBLIC } from '../modules/auth/public.decorator.js';
+import { REQUIRES } from '../modules/auth/requires.decorator.js';
 
 export interface Route {
   method: string;
   path: string;
+  /** Aktion aus @Requires (PLT-05); fehlt sie, prüft kein can() den Endpunkt */
+  requires?: string;
+  /** @Public: ohne Login erreichbar */
+  isPublic?: boolean;
 }
 
 /**
@@ -31,7 +37,16 @@ export function discoverRoutes(app: INestApplication): Route[] {
         // Platzhalter wie :id mit einer gültigen UUID füllen, damit die Route überhaupt greift.
         .map((part) => (part.startsWith(':') ? '00000000-0000-7000-8000-000000000000' : part))
         .join('/');
-      return [{ method, path: `/${full}` }];
+      const meta = (key: string | symbol) =>
+        Reflect.getMetadata(key, handler) ?? Reflect.getMetadata(key, metatype);
+      return [
+        {
+          method,
+          path: `/${full}`,
+          ...(meta(REQUIRES) ? { requires: String(meta(REQUIRES)) } : {}),
+          ...(meta(IS_PUBLIC) ? { isPublic: true } : {}),
+        },
+      ];
     });
   });
 }

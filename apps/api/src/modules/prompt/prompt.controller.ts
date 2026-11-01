@@ -1,19 +1,10 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Inject, Post, Res } from '@nestjs/common';
 import { type PromptRequest, promptRequestSchema } from '@reziproq/shared';
 import type { Response } from 'express';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
-import { can } from '../auth/can.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { Requires } from '../auth/requires.decorator.js';
 import { PromptService } from './prompt.service.js';
 import { RateLimiter } from './rate-limiter.js';
 
@@ -26,14 +17,12 @@ export class PromptController {
 
   /** Streamt die Antwort als NDJSON: eine Zeile je Ereignis (siehe promptEventSchema). */
   @Post()
+  @Requires('prompt.nutzen')
   async ask(
     @CurrentUser() auth: AuthContext,
     @Body(new ZodValidationPipe(promptRequestSchema)) request: PromptRequest,
     @Res() res: Response,
   ): Promise<void> {
-    if (!can(auth, 'prompt.nutzen')) {
-      throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
-    }
     if (!this.limiter.tryAcquire(auth.userId)) {
       throw new HttpException(
         {

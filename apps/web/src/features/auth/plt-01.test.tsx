@@ -113,19 +113,19 @@ describe('Erneuerung gescheitert', () => {
   });
 });
 
-describe('Rollen auf dem Profil', () => {
-  it('nennt die Rollen aus dem Token', async () => {
-    api.me = { ...anna, roles: ['admin', 'betreiber'] };
+describe('Rolle auf dem Profil (PLT-05)', () => {
+  it('nennt die Rolle aus der Datenbank, Controlling und Betreiber', async () => {
+    api.me = { ...anna, orgRole: 'admin', isControlling: true, isOperator: true };
     renderAt('/profil');
-    expect(await screen.findByText('Deine Rollen in Reziproq')).toBeDefined();
-    expect(screen.getByText('admin')).toBeDefined();
-    expect(screen.getByText('betreiber')).toBeDefined();
+    expect(await screen.findByText('Deine Rolle')).toBeDefined();
+    expect(screen.getByText('Admin')).toBeDefined();
+    expect(screen.getByText('Controlling')).toBeDefined();
+    expect(screen.getByText('Betreiber von Reziproq')).toBeDefined();
   });
 
-  it('sagt ohne Rollen, was in Zitadel zu prüfen ist', async () => {
-    api.me = { ...anna, roles: [] };
+  it('zeigt keinen Hinweis mehr auf Rollen in Zitadel', async () => {
     renderAt('/profil');
-    expect(await screen.findByText('Keine')).toBeDefined();
-    expect(screen.getByText(/Rollen bei Authentifizierung mitgeben/)).toBeDefined();
+    expect(await screen.findByText('Nutzer')).toBeDefined();
+    expect(screen.queryByText(/Zitadel/)).toBeNull();
   });
 });

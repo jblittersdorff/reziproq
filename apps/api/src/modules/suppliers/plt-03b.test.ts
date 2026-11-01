@@ -3,7 +3,7 @@ import { type Database, schema, sql, withTenant } from '@reziproq/db';
 import {
   auditResponseSchema,
   createSupplierResponseSchema,
-  meResponseSchema,
+  permissionsResponseSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
 } from '@reziproq/shared';
@@ -81,9 +81,28 @@ describe('PLT-03b: Lieferanten anlegen, ändern und beenden', () => {
       { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
     await db.insert(schema.appUser).values([
-      { id: users.a, name: 'Anna A', email: 'a@example.com', organizationId: ids.oemA },
-      { id: users.aLeser, name: 'Leo Leser', email: 'l@example.com', organizationId: ids.oemA },
-      { id: users.b, name: 'Bea B', email: 'b@example.com', organizationId: ids.oemB },
+      // Rollen liegen in der Datenbank (PLT-05).
+      {
+        id: users.a,
+        name: 'Anna A',
+        email: 'a@example.com',
+        organizationId: ids.oemA,
+        orgRole: 'member',
+      },
+      {
+        id: users.aLeser,
+        name: 'Leo Leser',
+        email: 'l@example.com',
+        organizationId: ids.oemA,
+        orgRole: 'viewer',
+      },
+      {
+        id: users.b,
+        name: 'Bea B',
+        email: 'b@example.com',
+        organizationId: ids.oemB,
+        orgRole: 'member',
+      },
     ]);
   });
 
@@ -360,25 +379,13 @@ describe('PLT-03b: Lieferanten anlegen, ändern und beenden', () => {
       expect((await leser('GET', '/suppliers/lookup?ust=DE123456789')).status).toBe(403);
     });
 
-    it('meldet in /me, wer Lieferanten bearbeiten darf', async () => {
-      const me = async (user: string, name: string, role: string) => {
-        testApp.zitadel.replyUserinfo(() => ({
-          status: 200,
-          // /me ordnet die Organisation über Zitadel zu (PLT-02).
-          body: {
-            sub: user,
-            name,
-            email: `${user}@example.com`,
-            'urn:zitadel:iam:user:resourceowner:id': `p3b-zitadel-${run}`,
-          },
-        }));
-        return meResponseSchema.parse((await call('GET', '/me', user, undefined, role)).body)
-          .permissions.editSuppliers;
-      };
-      expect(await me(users.a, 'Anna A', 'nutzer')).toBe(true);
-      expect(await me(users.a, 'Anna A', 'admin')).toBe(true);
-      expect(await me(users.aLeser, 'Leo Leser', 'leser')).toBe(false);
-      expect(await me(users.a, 'Anna A', 'controlling')).toBe(false);
+    it('meldet in /me/permissions, wer Lieferanten bearbeiten darf', async () => {
+      const editable = async (user: string) =>
+        permissionsResponseSchema
+          .parse((await call('GET', '/me/permissions', user)).body)
+          .actions.includes('lieferanten.bearbeiten');
+      expect(await editable(users.a)).toBe(true);
+      expect(await editable(users.aLeser)).toBe(false);
     });
 
     it('Ein anderer Käufer kann eine fremde Beziehung weder ändern noch beenden', async () => {

@@ -7,7 +7,9 @@ import {
   forbiddenCodes,
   healthResponseSchema,
   meResponseSchema,
+  organizationMemberSchema,
   organizationResponseSchema,
+  permissionsResponseSchema,
   type PromptEvent,
   type PromptRequest,
   promptEventSchema,
@@ -16,6 +18,7 @@ import {
   supplierLookupResponseSchema,
   suppliersResponseSchema,
   supportHeader,
+  type UpdateMemberRequest,
   type UpdateSupplierRequest,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
@@ -77,6 +80,14 @@ export const meQueryOptions = (accessToken: string) =>
     retry: retryUnlessDenied,
   });
 
+/** Was die Person darf, als Liste von Aktionen aus can() im Backend (PLT-05). */
+export const permissionsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['me', 'permissions'],
+    queryFn: () => getJson('/me/permissions', permissionsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
 /**
  * Meldet der API eine abgeschlossene Anmeldung; sie setzt last_login_at (PLT-01).
  * Scheitert das, geht es trotzdem weiter: Die Anmeldung selbst ist gültig.
@@ -112,6 +123,19 @@ export const auditQueryOptions = (accessToken: string, objectType: string, objec
       getJson(
         `/audit?${new URLSearchParams({ object_type: objectType, object_id: objectId })}`,
         auditResponseSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+/** Ein Mitglied der eigenen Organisation mit Rolle (PLT-05). */
+export const memberQueryOptions = (accessToken: string, userId: string) =>
+  queryOptions({
+    queryKey: ['organisation', 'mitglieder', userId],
+    queryFn: () =>
+      getJson(
+        `/organisation/mitglieder/${encodeURIComponent(userId)}`,
+        organizationMemberSchema,
         accessToken,
       ),
     retry: retryUnlessDenied,
@@ -185,6 +209,15 @@ export const putSpend = (
     `/suppliers/${relationshipId}/spend/${year}`,
     request,
     supplierDetailSchema,
+    accessToken,
+  );
+
+export const updateMember = (accessToken: string, userId: string, request: UpdateMemberRequest) =>
+  sendJson(
+    'PUT',
+    `/organisation/mitglieder/${encodeURIComponent(userId)}`,
+    request,
+    organizationMemberSchema,
     accessToken,
   );
 

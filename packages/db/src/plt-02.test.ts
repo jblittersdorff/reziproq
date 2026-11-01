@@ -98,7 +98,11 @@ describe('PLT-02 in der Datenbank', () => {
       async (tx) =>
         (await tx.execute<{ id: string }>(sql`select id from app_user order by id`)).rows,
     );
-    expect(members.map((row) => row.id)).toEqual(['demo-test-oem-1', 'demo-test-oem-2']);
+    expect(members.map((row) => row.id)).toEqual([
+      'demo-test-oem-1',
+      'demo-test-oem-2',
+      'demo-test-oem-3',
+    ]);
   });
 
   it('Ohne Organisation sieht ein Nutzer nur sich selbst', async () => {
@@ -131,7 +135,7 @@ describe('PLT-02 in der Datenbank', () => {
   describe('Zuordnung beim Login', () => {
     const sync = (id: string, zitadelOrgId: string | null, login: boolean) =>
       asApi(sql`select app_nutzer_synchronisieren(
-        ${id}, 'Neu Nutzer', 'Neu', 'neu@example.com', ${zitadelOrgId}, ${login}
+        ${id}, 'Neu Nutzer', 'Neu', 'neu@example.com', ${zitadelOrgId}, ${login}, '{}'::text[]
       )`);
     const stored = async (id: string) =>
       (

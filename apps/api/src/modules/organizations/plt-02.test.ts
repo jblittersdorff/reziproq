@@ -70,7 +70,12 @@ describe('PLT-02 über die API', () => {
     const token = await tokenFor(users.ohne);
     // /me, die Login-Meldung und der Betreiber-Zugang gelten auch ohne Organisation; den
     // Betreiber-Zugang verweigert dann can() mit keine_berechtigung.
-    const withoutOrganization = ['GET /api/health', 'GET /api/me', 'POST /api/me/anmeldung'];
+    const withoutOrganization = [
+      'GET /api/health',
+      'GET /api/me',
+      'GET /api/me/permissions',
+      'POST /api/me/anmeldung',
+    ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>
         !withoutOrganization.includes(`${route.method} ${route.path}`) &&
@@ -101,7 +106,8 @@ describe('PLT-02 über die API', () => {
   it('Ein Nutzer des Test-OEM sieht in der Mitgliederliste nur Mitglieder des Test-OEM', async () => {
     const res = await testApp.get('/api/organisation', await tokenFor(users.oem1));
     expect(res.status).toBe(200);
-    expect(organizationResponseSchema.parse(await res.json())).toEqual({
+    const body = organizationResponseSchema.parse(await res.json());
+    expect({ ...body, members: body.members.map(({ name, email }) => ({ name, email })) }).toEqual({
       name: `P02-OEM ${run}`,
       country: 'DE',
       members: [
@@ -111,8 +117,8 @@ describe('PLT-02 über die API', () => {
     });
 
     const zweit = await testApp.get('/api/organisation', await tokenFor(users.zweit));
-    expect(organizationResponseSchema.parse(await zweit.json()).members).toEqual([
-      { name: 'Cem Zweit', email: 'cem@zweit.example' },
+    expect(organizationResponseSchema.parse(await zweit.json()).members).toMatchObject([
+      { name: 'Cem Zweit', email: 'cem@zweit.example', orgRole: 'viewer' },
     ]);
   });
 
@@ -124,7 +130,7 @@ describe('PLT-02 über die API', () => {
 
     // Die eigene Organisation sieht er trotzdem.
     const own = await testApp.get('/api/organisation', token);
-    expect(organizationResponseSchema.parse(await own.json()).members).toEqual([
+    expect(organizationResponseSchema.parse(await own.json()).members).toMatchObject([
       { name: 'Dora Lieferant', email: 'dora@lieferant.example' },
     ]);
   });

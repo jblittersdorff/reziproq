@@ -1,9 +1,10 @@
 import { Building2Icon } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
+import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
-import { PagePath } from '@/features/shell/page-path';
 import { PageHeader } from '@/features/shell/page-header';
+import { PagePath } from '@/features/shell/page-path';
 import { useT } from '@/lib/i18n';
 
 /**
@@ -14,12 +15,13 @@ export function SettingsPage() {
   const t = useT();
   const me = useMe();
   const permissions = me.data?.permissions;
+  const manageSettings = useCan('einstellungen.verwalten');
 
   return (
     <>
       <PagePath trail={[{ label: t.profile.title, href: '/profil' }]} current={t.settings.title} />
       <PageHeader title={t.settings.title} purpose={t.settings.purpose} />
-      {permissions && !permissions.manageSettings && (
+      {permissions && !manageSettings && (
         <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
           {t.settings.adminOnly}
         </p>

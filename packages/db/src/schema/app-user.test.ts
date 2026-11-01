@@ -5,7 +5,7 @@ import { appUser } from './app-user.js';
 describe('app_user', () => {
   const config = getTableConfig(appUser);
 
-  it('hat die Spalten id, name, given_name, email, organization_id, last_login_at, created_at und updated_at', () => {
+  it('hat die Spalten aus PLT-01, PLT-02 und die Rollen aus PLT-05', () => {
     expect(config.name).toBe('app_user');
     expect(config.columns.map((column) => column.name)).toEqual([
       'id',
@@ -16,6 +16,10 @@ describe('app_user', () => {
       'last_login_at',
       'created_at',
       'updated_at',
+      'org_role',
+      'is_controlling',
+      'default_function',
+      'roles_imported_at',
     ]);
   });
 

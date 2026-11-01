@@ -8,6 +8,7 @@ import {
   type TenantTransaction,
   withTenant,
 } from '@reziproq/db';
+import type { OrgRole } from '@reziproq/shared';
 
 // Die API verbindet sich als reziproq_api: nicht Eigentümer der Tabellen, ohne Sonderrechte
 // (PLT-02). Die Verbindung selbst verlässt dieses Modul nicht. Module kommen an Daten nur über
@@ -51,6 +52,15 @@ export interface AccountSync {
   email: string;
   zitadelOrgId: string | null;
   login: boolean;
+  /** Rollen aus dem Token; nur für die einmalige Übernahme beim Login (PLT-05). */
+  tokenRoles: readonly string[];
+}
+
+/** Organisation einer Person mit ihrer Rolle darin (PLT-05). */
+export interface AccountMembership {
+  organization: AccountOrganization;
+  orgRole: OrgRole;
+  isControlling: boolean;
 }
 
 /**
@@ -63,15 +73,21 @@ export class AccountStore {
 
   async syncUser(user: AccountSync): Promise<void> {
     await this.db.execute(sql`select app_nutzer_synchronisieren(
-      ${user.userId}, ${user.name}, ${user.givenName}, ${user.email}, ${user.zitadelOrgId}, ${user.login}
+      ${user.userId}, ${user.name}, ${user.givenName}, ${user.email}, ${user.zitadelOrgId},
+      ${user.login}, ${`{${user.tokenRoles.join(',')}}`}::text[]
     )`);
   }
 
-  async organizationOf(userId: string): Promise<AccountOrganization | null> {
-    const result = await this.db.execute<AccountOrganization>(
-      sql`select id, name, country, buyer from app_organisation_des_nutzers(${userId})`,
+  async membershipOf(userId: string): Promise<AccountMembership | null> {
+    const result = await this.db.execute<
+      AccountOrganization & { org_role: OrgRole; is_controlling: boolean }
+    >(
+      sql`select id, name, country, buyer, org_role, is_controlling from app_organisation_des_nutzers(${userId})`,
     );
-    return result.rows[0] ?? null;
+    const row = result.rows[0];
+    if (!row) return null;
+    const { org_role, is_controlling, ...organization } = row;
+    return { organization, orgRole: org_role, isControlling: is_controlling };
   }
 
   /** Organisationen mit Käuferfunktionen: die Kunden, in die ein Betreiber wechseln kann. */

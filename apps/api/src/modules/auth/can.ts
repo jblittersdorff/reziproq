@@ -1,33 +1,21 @@
-import type { Role } from '@reziproq/shared';
+import type { Action, OrgRole } from '@reziproq/shared';
+import { permissions } from './permissions.js';
 
-/** Alles, was eine Person in Reziproq tun oder sehen kann und das nicht jede Rolle darf. */
-export type Action =
-  | 'lieferanten.sehen'
-  | 'prompt.nutzen'
-  | 'kunden.wechseln'
-  | 'einstellungen.verwalten'
-  | 'verlauf.sehen'
-  | 'lieferanten.bearbeiten';
+/** Wer handelt: Rolle in der Organisation (aus der Datenbank), Controlling und Betreiber. */
+export interface Subject {
+  /** null ohne Organisation; in der Betreiber-Ansicht viewer (PLT-05) */
+  orgRole: OrgRole | null;
+  isControlling: boolean;
+  isOperator: boolean;
+}
 
-// Welche Rollen eine Aktion ausführen dürfen. Neue Aktionen kommen mit den Funktionen dazu.
-// Name und Mitglieder der eigenen Organisation sieht jedes Mitglied (PLT-02); das hängt an der
-// Zugehörigkeit, nicht an einer Rolle, und die Datenbank begrenzt es per Row-Level Security.
-const allowedRoles: Record<Action, readonly Role[]> = {
-  // Betreiber sehen in einem Kunden, was dessen Käufer-Rollen sehen (PLT-13).
-  'lieferanten.sehen': ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'],
-  // Die KI arbeitet mit den Rechten der fragenden Person; die Werkzeuge prüfen erneut (PLT-12).
-  'prompt.nutzen': ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'],
-  // Nur das Team von Reziproq, nie ein Admin eines Kunden (PLT-13).
-  'kunden.wechseln': ['betreiber'],
-  // Weg zu allen Einstellungen (PLT-11). Bis PLT-05 gelten die Rollen aus Zitadel.
-  'einstellungen.verwalten': ['admin'],
-  // Verlauf eines Objekts: wer das Objekt sehen darf; die Datenbank begrenzt es wie das Objekt (PLT-08).
-  'verlauf.sehen': ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'],
-  // Anlegen, Ändern, Beenden von Beziehungen (PLT-03). Betreiber nur lesen (PLT-13).
-  'lieferanten.bearbeiten': ['admin', 'nutzer'],
-};
-
-/** Die einzige Stelle, an der Rechte entschieden werden. Die Oberfläche zeigt nur das Ergebnis. */
-export function can(user: { roles: readonly Role[] }, action: Action): boolean {
-  return user.roles.some((role) => allowedRoles[action].includes(role));
+/**
+ * Die einzige Stelle, an der Rechte entschieden werden (PLT-05). Die Matrix steht in
+ * permissions.ts. resource ist für Rechte je Objekt da, z. B. die Teamrolle Leser (PLT-05b).
+ * Die Oberfläche zeigt nur das Ergebnis.
+ */
+export function can(subject: Subject, action: Action, _resource?: unknown): boolean {
+  const permission = permissions[action];
+  if (permission.operator && subject.isOperator) return true;
+  return subject.orgRole !== null && permission.roles.includes(subject.orgRole);
 }

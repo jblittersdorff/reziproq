@@ -125,13 +125,13 @@ describe('POST /api/prompt', () => {
     expect(res.status).toBe(401);
   });
 
-  it('antwortet ohne Käufer-Rolle mit 403', async () => {
+  it('erlaubt das Fragen jeder Rolle, auch Lesern (PLT-05)', async () => {
     const res = await testApp.post(
       '/api/prompt',
       { messages: [{ role: 'user', content: 'Hallo' }] },
       await token(users.norole, null),
     );
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 
   it('lehnt ungültige Anfragen mit 400 ab', async () => {

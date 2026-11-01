@@ -21,11 +21,12 @@ import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
-import { Route as AppEinstellungenOrganisationRouteImport } from './routes/_app/einstellungen/organisation'
 import { Route as AppLieferantenIndexRouteImport } from './routes/_app/lieferanten/index'
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
 import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/profil/erscheinungsbild'
+import { Route as AppEinstellungenOrganisationIndexRouteImport } from './routes/_app/einstellungen/organisation/index'
+import { Route as AppEinstellungenOrganisationNutzerRouteImport } from './routes/_app/einstellungen/organisation/$nutzer'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
 import { Route as AppLieferantenIdStrategieProfilIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/index'
 import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/bearbeiten'
@@ -92,12 +93,6 @@ const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
   path: '/einstellungen/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEinstellungenOrganisationRoute =
-  AppEinstellungenOrganisationRouteImport.update({
-    id: '/einstellungen/organisation',
-    path: '/einstellungen/organisation',
-    getParentRoute: () => AppRoute,
-  } as any)
 const AppLieferantenIndexRoute = AppLieferantenIndexRouteImport.update({
   id: '/lieferanten/',
   path: '/lieferanten/',
@@ -117,6 +112,18 @@ const AppProfilErscheinungsbildRoute =
   AppProfilErscheinungsbildRouteImport.update({
     id: '/profil/erscheinungsbild',
     path: '/profil/erscheinungsbild',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenOrganisationIndexRoute =
+  AppEinstellungenOrganisationIndexRouteImport.update({
+    id: '/einstellungen/organisation/',
+    path: '/einstellungen/organisation/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenOrganisationNutzerRoute =
+  AppEinstellungenOrganisationNutzerRouteImport.update({
+    id: '/einstellungen/organisation/$nutzer',
+    path: '/einstellungen/organisation/$nutzer',
     getParentRoute: () => AppRoute,
   } as any)
 const AppLieferantenIdIndexRoute = AppLieferantenIdIndexRouteImport.update({
@@ -166,12 +173,13 @@ export interface FileRoutesByFullPath {
   '/uebersicht': typeof AppUebersichtRoute
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
   '/lieferanten/': typeof AppLieferantenIndexRoute
   '/profil/': typeof AppProfilIndexRoute
+  '/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
+  '/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -190,12 +198,13 @@ export interface FileRoutesByTo {
   '/uebersicht': typeof AppUebersichtRoute
   '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
   '/lieferanten': typeof AppLieferantenIndexRoute
   '/profil': typeof AppProfilIndexRoute
+  '/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
+  '/einstellungen/organisation': typeof AppEinstellungenOrganisationIndexRoute
   '/lieferanten/$id': typeof AppLieferantenIdIndexRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -216,12 +225,13 @@ export interface FileRoutesById {
   '/_app/uebersicht': typeof AppUebersichtRoute
   '/_app/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/_app/einstellungen/organisation': typeof AppEinstellungenOrganisationRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
   '/_app/lieferanten/': typeof AppLieferantenIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
+  '/_app/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
+  '/_app/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/_app/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/_app/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -242,12 +252,13 @@ export interface FileRouteTypes {
     | '/uebersicht'
     | '/wirkung'
     | '/auth/callback'
-    | '/einstellungen/organisation'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen/'
     | '/lieferanten/'
     | '/profil/'
+    | '/einstellungen/organisation/$nutzer'
+    | '/einstellungen/organisation/'
     | '/lieferanten/$id/'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -266,12 +277,13 @@ export interface FileRouteTypes {
     | '/uebersicht'
     | '/wirkung'
     | '/auth/callback'
-    | '/einstellungen/organisation'
     | '/lieferanten/neu'
     | '/profil/erscheinungsbild'
     | '/einstellungen'
     | '/lieferanten'
     | '/profil'
+    | '/einstellungen/organisation/$nutzer'
+    | '/einstellungen/organisation'
     | '/lieferanten/$id'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -291,12 +303,13 @@ export interface FileRouteTypes {
     | '/_app/uebersicht'
     | '/_app/wirkung'
     | '/auth/callback'
-    | '/_app/einstellungen/organisation'
     | '/_app/lieferanten/neu'
     | '/_app/profil/erscheinungsbild'
     | '/_app/einstellungen/'
     | '/_app/lieferanten/'
     | '/_app/profil/'
+    | '/_app/einstellungen/organisation/$nutzer'
+    | '/_app/einstellungen/organisation/'
     | '/_app/lieferanten/$id/'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
     | '/_app/lieferanten/$id/strategie/spend/$jahr'
@@ -398,13 +411,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/einstellungen/organisation': {
-      id: '/_app/einstellungen/organisation'
-      path: '/einstellungen/organisation'
-      fullPath: '/einstellungen/organisation'
-      preLoaderRoute: typeof AppEinstellungenOrganisationRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/lieferanten/': {
       id: '/_app/lieferanten/'
       path: '/lieferanten'
@@ -431,6 +437,20 @@ declare module '@tanstack/react-router' {
       path: '/profil/erscheinungsbild'
       fullPath: '/profil/erscheinungsbild'
       preLoaderRoute: typeof AppProfilErscheinungsbildRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/organisation/': {
+      id: '/_app/einstellungen/organisation/'
+      path: '/einstellungen/organisation'
+      fullPath: '/einstellungen/organisation/'
+      preLoaderRoute: typeof AppEinstellungenOrganisationIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/organisation/$nutzer': {
+      id: '/_app/einstellungen/organisation/$nutzer'
+      path: '/einstellungen/organisation/$nutzer'
+      fullPath: '/einstellungen/organisation/$nutzer'
+      preLoaderRoute: typeof AppEinstellungenOrganisationNutzerRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/lieferanten/$id/': {
@@ -486,12 +506,13 @@ interface AppRouteChildren {
   AppStartRoute: typeof AppStartRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
   AppWirkungRoute: typeof AppWirkungRoute
-  AppEinstellungenOrganisationRoute: typeof AppEinstellungenOrganisationRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppLieferantenIndexRoute: typeof AppLieferantenIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
+  AppEinstellungenOrganisationNutzerRoute: typeof AppEinstellungenOrganisationNutzerRoute
+  AppEinstellungenOrganisationIndexRoute: typeof AppEinstellungenOrganisationIndexRoute
   AppLieferantenIdIndexRoute: typeof AppLieferantenIdIndexRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -508,12 +529,15 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartRoute: AppStartRoute,
   AppUebersichtRoute: AppUebersichtRoute,
   AppWirkungRoute: AppWirkungRoute,
-  AppEinstellungenOrganisationRoute: AppEinstellungenOrganisationRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppLieferantenIndexRoute: AppLieferantenIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
+  AppEinstellungenOrganisationNutzerRoute:
+    AppEinstellungenOrganisationNutzerRoute,
+  AppEinstellungenOrganisationIndexRoute:
+    AppEinstellungenOrganisationIndexRoute,
   AppLieferantenIdIndexRoute: AppLieferantenIdIndexRoute,
   AppLieferantenIdStrategieProfilBearbeitenRoute:
     AppLieferantenIdStrategieProfilBearbeitenRoute,

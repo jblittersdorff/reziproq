@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
+import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { ApiError } from '@/lib/api';
 import { useT } from '@/lib/i18n';
@@ -27,6 +28,7 @@ export function SuppliersPage() {
   // Tippen ersetzt den Eintrag im Verlauf, statt für jeden Buchstaben einen neuen anzulegen.
   const update = (next: Partial<SupplierSearch>) =>
     void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
+  const canEdit = useCan('lieferanten.bearbeiten');
   const sortId = useId();
   const endedId = useId();
 
@@ -71,7 +73,7 @@ export function SuppliersPage() {
   }
 
   // Anlegen nur mit Recht aus der API (can() im Backend, PLT-03b).
-  const addButton = me.data?.permissions.editSuppliers === true && (
+  const addButton = canEdit && (
     <Button asChild>
       <Link to="/lieferanten/neu">
         <PlusIcon />

@@ -7,7 +7,7 @@ import { ConfirmButton } from '@/components/ui/confirm-button';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { AuditHistory } from '@/features/audit/audit-history';
-import { useMe } from '@/features/auth/use-me';
+import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { endSupplier } from '@/lib/api';
@@ -25,13 +25,12 @@ const dateFormat = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' });
  */
 export function SupplierProfilePage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
-  const me = useMe();
   const { accessToken } = useSupplier(relationshipId);
   const refresh = useRefreshSupplier();
   const [message, hideMessage] = useFlash();
   const [ended, setEnded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const canEdit = me.data?.permissions.editSuppliers === true;
+  const canEdit = useCan('lieferanten.bearbeiten');
 
   const end = async () => {
     setFailed(false);

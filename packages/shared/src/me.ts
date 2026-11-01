@@ -1,13 +1,10 @@
 import { z } from 'zod';
+import { orgRoles } from './permissions.js';
 
 /**
- * Rollen auf Käuferseite (PLT-11) und die Rolle des Betreiber-Teams von Reziproq (PLT-13).
- * Lieferanten-Rollen kommen mit Release 0.2.
+ * Die angemeldete Person, wie sie in app_user gespeichert ist, mit Rolle und dem, was sie je nach
+ * Organisation sehen kann. Welche Aktionen sie darf, liefert GET /api/me/permissions (PLT-05).
  */
-export const roles = ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'] as const;
-export type Role = (typeof roles)[number];
-
-/** Die angemeldete Person, wie sie in app_user gespeichert ist, dazu ihre Rechte aus can(). */
 export const meResponseSchema = z.object({
   name: z.string().min(1),
   firstName: z.string().min(1),
@@ -17,11 +14,12 @@ export const meResponseSchema = z.object({
   organization: z.object({ id: z.string(), name: z.string() }).nullable(),
   /** true, solange ein Betreiber in einen Kunden gewechselt ist (PLT-13). */
   supportView: z.boolean(),
-  /**
-   * Rollen, die die API im Token gefunden hat. Nur zur Anzeige auf /profil (PLT-01),
-   * entschieden wird allein über can().
-   */
-  roles: z.array(z.enum(roles)).default([]),
+  /** Rolle in der Organisation aus der Datenbank (PLT-05); null ohne Organisation. */
+  orgRole: z.enum(orgRoles).nullable().default(null),
+  /** Zusatzrolle Controlling (PLT-05) */
+  isControlling: z.boolean().default(false),
+  /** Betreiber-Team von Reziproq (PLT-13); bis UMB-01 aus dem Zitadel-Token */
+  isOperator: z.boolean().default(false),
   permissions: z.object({
     /** Abschnitt „Organisation“ in den Einstellungen: jedes Mitglied einer Organisation (PLT-02). */
     viewOrganizationSettings: z.boolean(),
@@ -32,10 +30,6 @@ export const meResponseSchema = z.object({
     viewBuyerAreas: z.boolean().default(true),
     viewSuppliers: z.boolean(),
     switchCustomer: z.boolean(),
-    /** Weg zu allen Einstellungen auf /profil: nur Admins (PLT-11). */
-    manageSettings: z.boolean().default(false),
-    /** Lieferanten anlegen, ändern, beenden: Admin und Nutzer, nur mit Feature buyer (PLT-03). */
-    editSuppliers: z.boolean().default(false),
   }),
 });
 

@@ -30,6 +30,7 @@ import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { Requires } from '../auth/requires.decorator.js';
 import { SuppliersService } from './suppliers.service.js';
 
 const yearParam = new ZodValidationPipe(z.coerce.number().pipe(spendYearSchema));
@@ -39,12 +40,14 @@ export class SuppliersController {
   constructor(@Inject(SuppliersService) private readonly suppliers: SuppliersService) {}
 
   @Get()
+  @Requires('lieferanten.sehen')
   list(@CurrentUser() auth: AuthContext): Promise<SuppliersResponse> {
     return this.suppliers.list(auth);
   }
 
   /** Gibt es diese USt-IdNr. oder D-U-N-S schon? Nur ja oder nein (PLT-03). */
   @Get('lookup')
+  @Requires('lieferanten.bearbeiten')
   lookup(
     @CurrentUser() auth: AuthContext,
     @Query(new ZodValidationPipe(supplierLookupQuerySchema)) query: SupplierLookupQuery,
@@ -53,6 +56,7 @@ export class SuppliersController {
   }
 
   @Post()
+  @Requires('lieferanten.bearbeiten')
   create(
     @CurrentUser() auth: AuthContext,
     @Body(new ZodValidationPipe(createSupplierRequestSchema)) body: CreateSupplierRequest,
@@ -61,6 +65,7 @@ export class SuppliersController {
   }
 
   @Get(':id')
+  @Requires('lieferanten.sehen')
   detail(
     @CurrentUser() auth: AuthContext,
     @Param('id', ParseUUIDPipe) id: string,
@@ -69,6 +74,7 @@ export class SuppliersController {
   }
 
   @Patch(':id')
+  @Requires('lieferanten.bearbeiten')
   update(
     @CurrentUser() auth: AuthContext,
     @Param('id', ParseUUIDPipe) id: string,
@@ -78,6 +84,7 @@ export class SuppliersController {
   }
 
   @Post(':id/beenden')
+  @Requires('lieferanten.bearbeiten')
   @HttpCode(200)
   end(
     @CurrentUser() auth: AuthContext,
@@ -87,6 +94,7 @@ export class SuppliersController {
   }
 
   @Put(':id/spend/:year')
+  @Requires('lieferanten.bearbeiten')
   putSpend(
     @CurrentUser() auth: AuthContext,
     @Param('id', ParseUUIDPipe) id: string,

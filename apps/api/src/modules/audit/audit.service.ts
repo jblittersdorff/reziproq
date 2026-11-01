@@ -3,7 +3,6 @@ import { and, desc, eq, inArray, schema } from '@reziproq/db';
 import type { AuditEntry, AuditQuery, AuditResponse } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
-import { can } from '../auth/can.js';
 import { auditedObjectByType } from './audited-objects.js';
 
 @Injectable()
@@ -15,7 +14,8 @@ export class AuditService {
    * Row-Level Security auf audit_event, mit denselben Ebenen wie das Objekt (PLT-04).
    */
   async history(auth: AuthContext, query: AuditQuery): Promise<AuditResponse> {
-    if (!can(auth, 'verlauf.sehen') || !auth.organization) {
+    // Das Recht prüft der Guard (@Requires); hier nur, ob es eine Organisation gibt.
+    if (!auth.organization) {
       throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
     }
     // Mehrere Typen mit Komma, z. B. relationship,relationship_side für die Profilseite.

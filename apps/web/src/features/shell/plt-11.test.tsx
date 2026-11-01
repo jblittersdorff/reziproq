@@ -1,7 +1,15 @@
 // @vitest-environment jsdom
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import {
+  actionsFor,
+  anna,
+  api,
+  renderAt,
+  setUpApp,
+  signedIn,
+  tearDownApp,
+} from '@/testing/app-harness';
 
 // Tests zu docs/specs/PLT-11.md: globale Leiste, Routen, Profil, Pfad und Seitenmuster. Was nur
 // ein echter Browser zeigt (390 px, Tastatur, Zurück-Knopf), prüft e2e/plt-11.spec.ts.
@@ -24,11 +32,7 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-const admin = {
-  ...anna,
-  roles: ['admin' as const],
-  permissions: { ...anna.permissions, manageSettings: true },
-};
+const admin = { ...anna, orgRole: 'admin' as const };
 
 /** Ziele der globalen Leiste: Mitte die vier Hauptziele, rechts Fragen und Profil. */
 const barTargets = [
@@ -159,6 +163,7 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
 describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel und leeren Zustand', () => {
   it.each(routes)('$path zeigt den Titel', async (route) => {
     api.me = admin;
+    api.permissions = actionsFor.admin;
     renderAt(route.path);
     expect(
       await screen.findByRole('heading', { level: 1, name: new RegExp(`^${route.title}`) }),
@@ -188,11 +193,13 @@ describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mit
 
   it('ein Admin sieht zusätzlich den Weg zu allen Einstellungen', async () => {
     api.me = admin;
+    api.permissions = actionsFor.admin;
     renderAt('/profil');
     await screen.findByText('Anna Schmidt');
-    expect(screen.getByRole('link', { name: 'Alle Einstellungen' }).getAttribute('href')).toBe(
-      '/einstellungen',
-    );
+    // Die Rechte kommen aus /me/permissions, kurz nach /me.
+    expect(
+      (await screen.findByRole('link', { name: 'Alle Einstellungen' })).getAttribute('href'),
+    ).toBe('/einstellungen');
     expect(screen.getByRole('link', { name: /Organisation/ })).toBeDefined();
   });
 
@@ -219,10 +226,11 @@ describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mit
     expect(await screen.findByText('Beispiel-OEM (Demo)')).toBeDefined();
     expect(screen.getByText('Deutschland')).toBeDefined();
     const rows = within(screen.getByRole('table', { name: 'Mitglieder' })).getAllByRole('row');
+    // Seit PLT-05 mit Rolle und Controlling.
     expect(rows.map((row) => row.textContent)).toEqual([
-      'NameE-Mail',
-      'Anna Schmidtanna@example.com',
-      'Ben Weberben@example.com',
+      'NameE-MailRolleControlling',
+      'Anna Schmidtanna@example.comNutzer–',
+      'Ben Weberben@example.comAdminControlling',
     ]);
   });
 });
@@ -240,6 +248,7 @@ describe('Pfad mit Zurück-Pfeil', () => {
     ],
   ])('%s zeigt den Pfad', async (path, me, trail, back, backHref) => {
     api.me = me;
+    api.permissions = me.orgRole === 'admin' ? actionsFor.admin : actionsFor.member;
     renderAt(path);
     const nav = await screen.findByRole('navigation', { name: 'Pfad' });
     await waitFor(() =>

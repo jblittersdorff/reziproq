@@ -1,8 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { useAuth } from 'react-oidc-context';
+import { Badge } from '@/components/ui/badge';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
+import { StatusLine } from '@/components/ui/status-line';
 import {
   Table,
   TableBody,
@@ -12,22 +15,25 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useMe } from '@/features/auth/use-me';
-import { PagePath } from '@/features/shell/page-path';
+import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
+import { PagePath } from '@/features/shell/page-path';
 import { organizationQueryOptions } from '@/lib/api';
+import { useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 
 const countryNames = new Intl.DisplayNames(['de'], { type: 'region' });
 
 /**
- * Einstellungen › Organisation (PLT-02, PLT-11): Name, Land und Mitglieder, nur lesen. Jedes
- * Mitglied sieht sie; die Liste filtert die Datenbank. Admins kommen über alle Einstellungen
- * hierher, alle anderen direkt vom Profil.
+ * Einstellungen › Organisation (PLT-02, PLT-05): Name, Land und Mitglieder mit Rolle und
+ * Controlling. Jedes Mitglied sieht sie; Admins öffnen über den Namen die Seite des Mitglieds.
  */
 export function OrganizationPage() {
   const t = useT();
   const me = useMe();
-  const trail = me.data?.permissions.manageSettings
+  const manageSettings = useCan('einstellungen.verwalten');
+  const [message, hideMessage] = useFlash();
+  const trail = manageSettings
     ? [
         { label: t.profile.title, href: '/profil' },
         { label: t.settings.title, href: '/einstellungen' },
@@ -38,6 +44,7 @@ export function OrganizationPage() {
     <>
       <PagePath trail={trail} current={t.settings.organization} />
       <PageHeader title={t.settings.organization} purpose={t.settings.organizationPurpose} />
+      {message && <StatusLine message={message} onHidden={hideMessage} />}
       {me.isError ? (
         <ErrorState title={t.user.failed} />
       ) : !me.data ? (
@@ -56,6 +63,7 @@ export function OrganizationPage() {
 function OrganizationDetails() {
   const t = useT();
   const auth = useAuth();
+  const changeRoles = useCan('rollen.aendern');
   const accessToken = auth.user?.access_token ?? '';
   const organization = useQuery({
     ...organizationQueryOptions(accessToken),
@@ -84,13 +92,34 @@ function OrganizationDetails() {
           <TableRow>
             <TableHead>{t.settings.memberName}</TableHead>
             <TableHead>{t.settings.memberEmail}</TableHead>
+            <TableHead>{t.settings.memberRole}</TableHead>
+            <TableHead>{t.settings.memberControlling}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {organization.data.members.map((member) => (
-            <TableRow key={member.email}>
-              <TableCell className="font-medium">{member.name}</TableCell>
+            <TableRow key={member.id}>
+              <TableCell className="font-medium">
+                {changeRoles ? (
+                  <Link
+                    to="/einstellungen/organisation/$nutzer"
+                    params={{ nutzer: member.id }}
+                    aria-label={t.settings.memberEdit(member.name)}
+                    className="inline-flex min-h-11 items-center underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {member.name}
+                  </Link>
+                ) : (
+                  member.name
+                )}
+              </TableCell>
               <TableCell className="text-muted-foreground">{member.email}</TableCell>
+              <TableCell>
+                <Badge variant={member.orgRole === 'admin' ? 'selected' : 'neutral'}>
+                  {t.roles[member.orgRole]}
+                </Badge>
+              </TableCell>
+              <TableCell>{member.isControlling ? t.roles.controlling : '–'}</TableCell>
             </TableRow>
           ))}
         </TableBody>

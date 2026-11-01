@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { MeResponse } from '@reziproq/shared';
+import { type Action, actions, type MeResponse, type PermissionsResponse } from '@reziproq/shared';
 import { AccountStore } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
@@ -30,10 +30,18 @@ export class MeService {
       email: info.email,
       zitadelOrgId: info['urn:zitadel:iam:user:resourceowner:id'] ?? null,
       login,
+      tokenRoles: auth.tokenRoles,
     });
     // Der Guard kannte nur den Stand vor dem Abgleich; die Betreiber-Ansicht bleibt beim Kunden.
-    const organization =
-      auth.supportOrganization ?? (await this.accounts.organizationOf(auth.userId));
+    const membership = auth.supportOrganization
+      ? null
+      : await this.accounts.membershipOf(auth.userId);
+    const organization = auth.supportOrganization ?? membership?.organization ?? null;
+    const subject = {
+      orgRole: auth.supportOrganization ? ('viewer' as const) : (membership?.orgRole ?? null),
+      isControlling: membership?.isControlling ?? false,
+      isOperator: auth.isOperator,
+    };
 
     return {
       name: info.name,
@@ -41,19 +49,39 @@ export class MeService {
       email: info.email,
       organization: organization && { id: organization.id, name: organization.name },
       supportView: auth.supportOrganization !== undefined,
-      roles: [...auth.roles],
+      orgRole: subject.orgRole,
+      isControlling: subject.isControlling,
+      isOperator: subject.isOperator,
       permissions: {
-        viewOrganizationSettings: organization !== null,
+        viewOrganizationSettings: organization !== null && can(subject, 'organisation.sehen'),
         viewBuyerAreas: organization?.buyer ?? false,
         // Lieferanten nur mit Käuferfunktionen und Rolle; so fragt die Oberfläche gar nicht erst an.
-        viewSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.sehen'),
-        switchCustomer: can(auth, 'kunden.wechseln'),
-        manageSettings: organization !== null && can(auth, 'einstellungen.verwalten'),
-        editSuppliers: (organization?.buyer ?? false) && can(auth, 'lieferanten.bearbeiten'),
+        viewSuppliers: (organization?.buyer ?? false) && can(subject, 'lieferanten.sehen'),
+        switchCustomer: can(subject, 'kunden.wechseln'),
       },
     };
   }
+
+  /**
+   * Die Aktionen, die die Person gerade darf (GET /me/permissions). Die Oberfläche blendet danach
+   * Knöpfe aus; entscheidend bleibt die Prüfung im Backend (PLT-05).
+   */
+  permissions(auth: AuthContext): PermissionsResponse {
+    const buyer = auth.organization?.buyer ?? false;
+    return {
+      actions: actions.filter(
+        (action) => can(auth, action) && (buyer || !buyerOnly.includes(action)),
+      ),
+    };
+  }
 }
+
+/** Aktionen, die nur Organisationen mit Käuferfunktionen haben (PLT-02). */
+const buyerOnly: readonly Action[] = [
+  'lieferanten.sehen',
+  'lieferanten.bearbeiten',
+  'prompt.nutzen',
+];
 
 function firstWord(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;

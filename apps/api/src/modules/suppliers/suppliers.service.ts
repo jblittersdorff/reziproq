@@ -5,16 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  type AuditActor,
-  and,
-  auditedChange,
-  desc,
-  eq,
-  schema,
-  sql,
-  type TenantTransaction,
-} from '@reziproq/db';
+import { and, auditedChange, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type CreateSupplierRequest,
   type CreateSupplierResponse,
@@ -32,6 +23,7 @@ import {
   updateSupplierRequestSchema,
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
+import { actorOf } from '../audit/actor.js';
 import {
   relationshipAudit,
   relationshipSideAudit,
@@ -170,7 +162,7 @@ export class SuppliersService {
     const organization = this.editor(auth);
     const request = createSupplierRequestSchema.parse(input);
     return this.run(auth, organization, async (tx) => {
-      const actor = await actorOf(tx, auth, organization);
+      const actor = await actorOf(tx, auth, organization.id);
       const found = await tx.execute<{ id: string; existed: boolean }>(sql`
         select id::text, existed from app_lieferant_finden_oder_anlegen(
           ${request.name}, ${request.country}, ${request.vatId ?? null}, ${request.duns ?? null}
@@ -267,7 +259,7 @@ export class SuppliersService {
     const organization = this.editor(auth);
     const request = updateSupplierRequestSchema.parse(input);
     return this.run(auth, organization, async (tx) => {
-      const actor = await actorOf(tx, auth, organization);
+      const actor = await actorOf(tx, auth, organization.id);
       await ownRelationship(tx, organization, relationshipId);
       const { relationshipSide } = schema;
       const [before] = await tx
@@ -323,7 +315,7 @@ export class SuppliersService {
   async end(auth: AuthContext, relationshipId: string): Promise<SupplierDetail> {
     const organization = this.editor(auth);
     return this.run(auth, organization, async (tx) => {
-      const actor = await actorOf(tx, auth, organization);
+      const actor = await actorOf(tx, auth, organization.id);
       const current = await ownRelationship(tx, organization, relationshipId);
       if (current.status === 'ended') {
         throw new ConflictException({
@@ -359,7 +351,7 @@ export class SuppliersService {
   ): Promise<SupplierDetail> {
     const organization = this.editor(auth);
     return this.run(auth, organization, async (tx) => {
-      const actor = await actorOf(tx, auth, organization);
+      const actor = await actorOf(tx, auth, organization.id);
       await ownRelationship(tx, organization, relationshipId);
       const { relationshipSpend } = schema;
       const [before] = await tx
@@ -391,19 +383,6 @@ export class SuppliersService {
       return readDetail(tx, relationshipId);
     });
   }
-}
-
-/** Wer ändert: Name aus app_user, wie er gerade heißt (PLT-08). */
-async function actorOf(
-  tx: TenantTransaction,
-  auth: AuthContext,
-  organization: AccountOrganization,
-): Promise<AuditActor> {
-  const [user] = await tx
-    .select({ name: schema.appUser.name })
-    .from(schema.appUser)
-    .where(eq(schema.appUser.id, auth.userId));
-  return { userId: auth.userId, name: user?.name ?? auth.userId, organizationId: organization.id };
 }
 
 /** Die Beziehung als Käufer, sonst 404: Fremde Beziehungen gibt es aus Sicht dieser Session nicht. */
