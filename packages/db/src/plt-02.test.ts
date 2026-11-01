@@ -80,7 +80,6 @@ describe('PLT-02 in der Datenbank', () => {
     expect(tables.rows.map((row) => row.relname)).toEqual([
       'app_user',
       'audit_event',
-      'betreiber_zugriff',
       'organization',
       'organization_feature',
       'outbox_event',
@@ -88,6 +87,7 @@ describe('PLT-02 in der Datenbank', () => {
       'relationship_member',
       'relationship_side',
       'relationship_spend',
+      'support_access_log',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });
@@ -184,17 +184,17 @@ describe('PLT-02 in der Datenbank', () => {
     });
 
     it('Die API kommt an Tabellen nur über die Session, nicht direkt an das Protokoll', async () => {
-      const error = await asApi(sql`select * from betreiber_zugriff`).catch(
+      const error = await asApi(sql`select * from support_access_log`).catch(
         (caught: unknown) => caught,
       );
       expect(String((error as Error).cause)).toMatch(/permission denied/);
       await asApi(
         sql`select app_betreiber_protokoll('betreiber-1', ${seedBuyers.testOem.id}::uuid, 'GET /api/suppliers')`,
       );
-      const logged = await temp.db.execute<{ aktion: string }>(
-        sql`select aktion from betreiber_zugriff where nutzer_id = 'betreiber-1'`,
+      const logged = await temp.db.execute<{ action: string }>(
+        sql`select action from support_access_log where user_id = 'betreiber-1'`,
       );
-      expect(logged.rows).toEqual([{ aktion: 'GET /api/suppliers' }]);
+      expect(logged.rows).toEqual([{ action: 'GET /api/suppliers' }]);
     });
   });
 });

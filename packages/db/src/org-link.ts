@@ -35,3 +35,17 @@ export async function makeAdmin(db: Database, email: string) {
     .where(eq(appUser.id, user.id));
   return user;
 }
+
+/**
+ * Setzt oder entfernt das Kennzeichen Betreiber (UMB-01). Nur per Skript, nie über die API:
+ * pnpm operator:set <email> bzw. pnpm operator:set --remove <email>.
+ */
+export async function setOperator(db: Database, email: string, isOperator: boolean) {
+  const [user] = await db
+    .update(appUser)
+    .set({ isOperator })
+    .where(sql`lower(${appUser.email}) = lower(${email})`)
+    .returning({ id: appUser.id, name: appUser.name });
+  if (!user) throw new Error(`Keine Person mit der E-Mail „${email}“. Erst einmal anmelden.`);
+  return user;
+}

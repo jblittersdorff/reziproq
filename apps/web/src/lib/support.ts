@@ -1,14 +1,14 @@
 import { useSyncExternalStore } from 'react';
 
-// Betreiber-Ansicht (PLT-13): der gewählte Kunde, nur für diesen Browser-Tab.
-// Jede Anfrage an die API schickt ihn im Header x-reziproq-kunde mit (siehe api.ts).
+// Betreiber-Ansicht (PLT-13, UMB-01): der gewählte Kunde, nur für diesen Browser-Tab.
+// Jede Anfrage an die API schickt ihn im Header x-reziproq-support-org mit (siehe api.ts).
 
 export interface SupportCustomer {
   id: string;
   name: string;
 }
 
-const storageKey = 'reziproq-betreiber-kunde';
+const storageKey = 'reziproq-support-org';
 const listeners = new Set<() => void>();
 let cached: { raw: string | null; value: SupportCustomer | null } = { raw: null, value: null };
 

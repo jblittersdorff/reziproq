@@ -73,8 +73,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | fertig | – |
 | 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | fertig | Teil b von PLT-03 |
 | 12 | PLT-05a | Rollen in der Datenbank und Rechte-Matrix | PLT-05 | PLT-02, PLT-03b | 1.0 | M4 | B | fertig | Teil a von PLT-05 |
-| 13 | PLT-05b | Team je Beziehung | PLT-05 | PLT-05a | 1.0 | M4 | B | PR offen | Teil b von PLT-05 |
-| 14 | UMB-01 | Betreiber-Zugang nach dem neuen Muster | – | PLT-11, PLT-05a | 1.0 | M4 | B | offen | – |
+| 13 | PLT-05b | Team je Beziehung | PLT-05 | PLT-05a | 1.0 | M4 | B | fertig | Teil b von PLT-05 |
+| 14 | UMB-01 | Betreiber-Zugang nach dem neuen Muster | – | PLT-11, PLT-05a | 1.0 | M4 | B | PR offen | – |
 | 15 | NAV-06 | Lieferanten-Arbeitsbereich | NAV-06, NAV-07, NAV-08, NAV-09 | PLT-03b, PLT-05b, PLT-11 | 1.0 | M5 | A | offen | – |
 | 16 | PLT-09 | Deutsch und Englisch | PLT-09 | PLT-11 | 1.0 | M5 | A | offen | teilweise umgesetzt, siehe Umsetzungsplan |
 | 17 | PLT-06 | Business Units und Warengruppen | PLT-06 | PLT-03b, PLT-05b | 1.0 | M6 | C | offen | – |

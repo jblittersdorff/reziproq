@@ -73,9 +73,10 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'global',
     manual: 'Outbox nur für den Betrieb: Die API legt Einträge an und liest nichts (PLT-08)',
   },
-  betreiber_zugriff: {
+  support_access_log: {
     kind: 'global',
-    manual: 'Protokoll nur für den Betrieb, über die Session nie lesbar; UMB-01 benennt es um',
+    manual:
+      'Protokoll des Betreiber-Zugangs nur für den Betrieb, über die Session nie lesbar (UMB-01)',
   },
 };
 

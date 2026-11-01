@@ -90,6 +90,14 @@ export class AccountStore {
     return { organization, orgRole: org_role, isControlling: is_controlling };
   }
 
+  /** Betreiber-Team von Reziproq (UMB-01): nur das Flag in der Datenbank zählt. */
+  async isOperator(userId: string): Promise<boolean> {
+    const result = await this.db.execute<{ yes: boolean }>(
+      sql`select app_ist_betreiber(${userId}) as yes`,
+    );
+    return result.rows[0]?.yes === true;
+  }
+
   /** Organisationen mit Käuferfunktionen: die Kunden, in die ein Betreiber wechseln kann. */
   async customers(): Promise<{ id: string; name: string; country: string | null }[]> {
     const result = await this.db.execute<{ id: string; name: string; country: string | null }>(

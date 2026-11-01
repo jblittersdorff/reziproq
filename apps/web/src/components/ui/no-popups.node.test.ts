@@ -28,10 +28,8 @@ const rules: Rule[] = [
  * Stellen, die eine spätere Spec umbaut. Die Liste darf nur schrumpfen: Ein Eintrag, der nichts
  * Verbotenes mehr enthält, lässt den Test ebenfalls scheitern, damit er gestrichen wird.
  */
-const allowed: Record<string, string> = {
-  'components/ui/dialog.tsx': 'entfällt mit UMB-01, sobald niemand ihn mehr nutzt',
-  'features/support/customer-dialog.tsx': 'UMB-01: Seite /betreiber/kunden statt Fenster',
-};
+// Seit UMB-01 leer: Es gibt keine Ausnahmen mehr. Neue Einträge nur mit Spec, die sie abbaut.
+const allowed: Record<string, string> = {};
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

@@ -152,7 +152,7 @@ export const api = {
   handle: undefined as
     | ((request: { method: string; url: string; body: unknown }) => Response | undefined)
     | undefined,
-  /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-kunde (oder null). */
+  /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-support-org (oder null). */
   requests: [] as { url: string; customer: string | null }[],
 };
 
@@ -175,7 +175,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   const url = String(input);
   const headers = new Headers(init?.headers);
   const authorized = headers.get('authorization') === `Bearer ${accessToken}`;
-  api.requests.push({ url, customer: headers.get('x-reziproq-kunde') });
+  api.requests.push({ url, customer: headers.get('x-reziproq-support-org') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   if (!authorized) return Response.json({ statusCode: 401 }, { status: 401 });
   const own = api.handle?.({

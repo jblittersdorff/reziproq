@@ -19,7 +19,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsc -p tsconfig.build.json && node dist/seed-cli.js",
     "db:roles": "tsc -p tsconfig.build.json && node dist/roles-cli.js",
-    "org:link": "tsc -p tsconfig.build.json && node dist/org-link-cli.js"
+    "org:link": "tsc -p tsconfig.build.json && node dist/org-link-cli.js",
+    "operator:set": "tsc -p tsconfig.build.json && node dist/operator-cli.js"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
