@@ -1,45 +1,33 @@
-import type { Supplier } from '@reziproq/shared';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { FactoryIcon, LockIcon } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { SearchInput } from '@/components/ui/search-input';
+import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/features/shell/page-header';
 import { ApiError } from '@/lib/api';
 import { useT } from '@/lib/i18n';
+import { type SortKey, type SupplierSearch, visibleSuppliers } from './search';
 import { SupplierCard } from './supplier-card';
 import { supplierSummary, useSuppliers } from './use-suppliers';
 
-type SortKey = 'spend' | 'name';
-
-/** Filtert beim Tippen nach Name und Warengruppe, ohne Groß- und Kleinschreibung. */
-export function filterSuppliers(suppliers: Supplier[], query: string): Supplier[] {
-  const needle = query.trim().toLocaleLowerCase('de');
-  if (!needle) return suppliers;
-  return suppliers.filter((supplier) =>
-    [supplier.name, supplier.category].some((value) =>
-      value.toLocaleLowerCase('de').includes(needle),
-    ),
-  );
-}
-
-export function sortSuppliers(suppliers: Supplier[], key: SortKey): Supplier[] {
-  return [...suppliers].sort((a, b) =>
-    key === 'name'
-      ? a.name.localeCompare(b.name, 'de')
-      : b.annualSpend.amountCents - a.annualSpend.amountCents,
-  );
-}
-
-/** Lieferantenliste der eigenen Organisation als Karten (PLT-02). */
+/**
+ * Lieferantenliste der eigenen Organisation als Karten (PLT-02, PLT-03). Suche, Sortierung und
+ * „Beendete zeigen“ stehen in der Adresse; so führen Zurück und Lesezeichen zur selben Ansicht.
+ */
 export function SuppliersPage() {
   const t = useT();
   const { me, allowed, data, isPending, isError, error } = useSuppliers();
-  const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<SortKey>('spend');
+  const search = useSearch({ from: '/_app/lieferanten' });
+  const navigate = useNavigate({ from: '/lieferanten' });
+  // Tippen ersetzt den Eintrag im Verlauf, statt für jeden Buchstaben einen neuen anzulegen.
+  const update = (next: Partial<SupplierSearch>) =>
+    void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
   const sortId = useId();
+  const endedId = useId();
 
   const title = t.suppliers.title;
 
@@ -81,7 +69,7 @@ export function SuppliersPage() {
     );
   }
 
-  if (data.count === 0) {
+  if (data.suppliers.length === 0) {
     return (
       <>
         <PageHeader title={title} purpose={supplierSummary(data, t)} />
@@ -95,7 +83,8 @@ export function SuppliersPage() {
     );
   }
 
-  const visible = sortSuppliers(filterSuppliers(data.suppliers, query), sort);
+  const visible = visibleSuppliers(data.suppliers, search);
+  const query = search.suche ?? '';
 
   return (
     <>
@@ -106,7 +95,7 @@ export function SuppliersPage() {
           aria-label={t.suppliers.search}
           placeholder={t.suppliers.searchPlaceholder}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => update({ suche: event.target.value || undefined })}
         />
         <div className="flex flex-col gap-1 sm:w-56">
           <label htmlFor={sortId} className="text-muted-foreground text-sm">
@@ -114,13 +103,26 @@ export function SuppliersPage() {
           </label>
           <NativeSelect
             id={sortId}
-            value={sort}
-            onChange={(event) => setSort(event.target.value as SortKey)}
+            value={search.sortierung ?? 'spend'}
+            onChange={(event) => {
+              const value = event.target.value as SortKey;
+              update({ sortierung: value === 'spend' ? undefined : value });
+            }}
             className="h-12 rounded-lg"
           >
             <option value="spend">{t.suppliers.sortSpend}</option>
             <option value="name">{t.suppliers.sortName}</option>
           </NativeSelect>
+        </div>
+        <div className="flex min-h-12 items-center gap-3 sm:pb-0">
+          <Switch
+            id={endedId}
+            checked={search.beendet === 1}
+            onCheckedChange={(checked) => update({ beendet: checked ? 1 : undefined })}
+          />
+          <label htmlFor={endedId} className="text-base">
+            {t.suppliers.showEnded}
+          </label>
         </div>
       </div>
 
@@ -135,7 +137,11 @@ export function SuppliersPage() {
             className="grid gap-4 @xl:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4"
           >
             {visible.map((supplier) => (
-              <SupplierCard key={supplier.relationshipId} supplier={supplier} />
+              <SupplierCard
+                key={supplier.relationshipId}
+                supplier={supplier}
+                spendYear={data.spendYear}
+              />
             ))}
           </ul>
         </div>

@@ -122,25 +122,28 @@ export const de = {
     noOrganization: 'Du bist keiner Organisation zugeordnet.',
   },
 
-  // Lieferantenliste (PLT-02)
+  // Lieferantenliste (PLT-02, PLT-03)
   suppliers: {
     title: 'Lieferanten',
     purpose:
       'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
     count: (count: number) => (count === 1 ? '1 Lieferant' : `${count} Lieferanten`),
     totalSpend: (amount: string, year: number) => `${amount} Jahresspend ${year}`,
-    search: 'Lieferant oder Warengruppe suchen',
-    searchPlaceholder: 'Name oder Warengruppe',
+    search: 'Lieferant oder eigene Nummer suchen',
+    searchPlaceholder: 'Name oder eigene Nummer',
     sort: 'Sortieren',
     sortSpend: 'Spend, höchster zuerst',
     sortName: 'Name, A bis Z',
     country: 'Land',
-    category: 'Warengruppe',
+    externalRef: 'Eigene Nummer',
     annualSpend: (year: number) => `Jahresspend ${year}`,
+    showEnded: 'Beendete zeigen',
+    statusDraft: 'Entwurf',
+    statusEnded: 'Beendet',
     loading: 'Lieferanten werden geladen …',
     failed: 'Die Lieferanten konnten nicht geladen werden. Lade die Seite neu.',
     emptyTitle: 'Noch keine Lieferanten.',
-    emptyDescription: 'Mit dem Import (kommt in Release 0.1) lädst du sie aus Excel.',
+    emptyDescription: 'Füge den ersten hinzu oder importiere eine Liste.',
     noResults: (query: string) => `Keine Lieferanten zu „${query}“.`,
     noPermissionTitle: 'Dir fehlt eine Rolle',
     noPermissionDescription:
@@ -157,7 +160,7 @@ export const de = {
     shortcutOther: 'Strg K',
     suggestions: 'Vorschläge',
     suggestionTopSpend: 'Zeig mir die Lieferanten mit dem höchsten Spend',
-    suggestionElectronics: 'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
+    suggestionCountry: 'Welche Lieferanten haben wir in Polen?',
     suggestionPortfolio: 'Öffne das Portfolio',
     answering: 'Reziproq antwortet …',
     hits: 'Treffer',

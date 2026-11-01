@@ -29,7 +29,7 @@ async function signIn(page: Page) {
     }),
   );
   await page.route('**/api/suppliers', (route) =>
-    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } }),
   );
   await page.route('**/api/prompt', (route) => {
     const question = route.request().postDataJSON().messages.at(-1).content as string;
@@ -48,9 +48,9 @@ async function signIn(page: Page) {
                 relationshipId: 'r1',
                 name: 'Pearl River Components Ltd. (Demo)',
                 country: 'CN',
-                category: 'Elektronik',
-                annualSpend: { amountCents: 564_000_000, currency: 'EUR' },
-                spendYear: 2025,
+                externalRef: null,
+                status: 'active',
+                spend: { amountCents: 564_000_000, currency: 'EUR' },
               },
             ],
           },

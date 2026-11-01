@@ -39,7 +39,7 @@ async function signInAsOperator(page: Page) {
     }
     if (url.pathname === '/api/betreiber/kunden') return route.fulfill({ json: { customers } });
     if (url.pathname === '/api/suppliers') {
-      return route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } });
+      return route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } });
     }
     return route.fulfill({ json: { status: 'ok' } });
   });

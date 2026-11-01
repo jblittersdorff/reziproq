@@ -17,7 +17,11 @@ export const layerKinds = [
 export type LayerKind = (typeof layerKinds)[number];
 
 /** Arten, die nur eine Seite oder Organisation sehen darf; geteilte Tabellen verweisen nie darauf. */
-export const privateKinds: readonly LayerKind[] = ['buyer_private', 'supplier_private', 'org_private'];
+export const privateKinds: readonly LayerKind[] = [
+  'buyer_private',
+  'supplier_private',
+  'org_private',
+];
 
 export interface LayerEntry {
   kind: LayerKind;
@@ -43,14 +47,14 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     manual: 'Spalte organization_id; dazu sieht jede Person sich selbst, auch ohne Organisation',
   },
-  beziehung: {
-    kind: 'global',
-    manual: 'Die Beziehung selbst sehen beide Seiten; wird mit PLT-03a zu relationship',
+  relationship: {
+    kind: 'shared',
+    manual:
+      'Anker aller Beziehungsdaten ohne relationship_id, owner_org_id und visibility: Der Käufer ' +
+      'sieht alle seine Beziehungen, der Lieferant nur aktive im Kontext dieses Kunden (PLT-03)',
   },
-  beziehung_kaeufer: {
-    kind: 'buyer_private',
-    manual: 'Spalte beziehung_id; entfällt mit UMB-03',
-  },
+  relationship_side: { kind: 'org_private' },
+  relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   betreiber_zugriff: {
     kind: 'global',
     manual: 'Protokoll nur für den Betrieb, über die Session nie lesbar; UMB-01 benennt es um',
@@ -101,7 +105,9 @@ export async function checkLayers(
     const source = register[key.source]?.kind;
     const target = register[key.target]?.kind;
     if (source === 'shared' && target && privateKinds.includes(target)) {
-      problems.push(`${key.source}: Fremdschlüssel ${key.name} zeigt auf private Tabelle ${key.target}`);
+      problems.push(
+        `${key.source}: Fremdschlüssel ${key.name} zeigt auf private Tabelle ${key.target}`,
+      );
     }
   }
   return problems;

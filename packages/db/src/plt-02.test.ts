@@ -46,12 +46,16 @@ describe('PLT-02 in der Datenbank', () => {
     });
   });
 
-  it.each(['organization', 'organization_feature', 'app_user', 'beziehung', 'beziehung_kaeufer'])(
-    'Ohne gesetzte Session liefert %s keine Zeilen',
-    async (table) => {
-      expect(await asApi(sql`select * from ${sql.identifier(table)}`)).toEqual([]);
-    },
-  );
+  it.each([
+    'organization',
+    'organization_feature',
+    'app_user',
+    'relationship',
+    'relationship_side',
+    'relationship_spend',
+  ])('Ohne gesetzte Session liefert %s keine Zeilen', async (table) => {
+    expect(await asApi(sql`select * from ${sql.identifier(table)}`)).toEqual([]);
+  });
 
   it('Die API-Datenbankrolle ist nicht Eigentümer der Tabellen und hat keine Sonderrechte', async () => {
     const owners = await temp.db.execute<{ tablename: string; tableowner: string }>(
@@ -76,10 +80,11 @@ describe('PLT-02 in der Datenbank', () => {
     expect(tables.rows.map((row) => row.relname)).toEqual([
       'app_user',
       'betreiber_zugriff',
-      'beziehung',
-      'beziehung_kaeufer',
       'organization',
       'organization_feature',
+      'relationship',
+      'relationship_side',
+      'relationship_spend',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });

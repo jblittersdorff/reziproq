@@ -1,6 +1,13 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import { ForbiddenException } from '@nestjs/common';
-import { areaKeys, areas, type PromptEvent, type Supplier } from '@reziproq/shared';
+import {
+  areaKeys,
+  areas,
+  lastFullYear,
+  type Money,
+  type PromptEvent,
+  type Supplier,
+} from '@reziproq/shared';
 import { z } from 'zod';
 import type { AuthContext } from '../auth/auth.guard.js';
 import type { SuppliersService } from '../suppliers/suppliers.service.js';
@@ -10,7 +17,7 @@ import type { SuppliersService } from '../suppliers/suppliers.service.js';
 
 const searchInput = z.object({
   name: z.string().max(200).optional(),
-  warengruppe: z.string().max(200).optional(),
+  nummer: z.string().max(200).optional(),
   land: z
     .string()
     .regex(/^[A-Za-z]{2}$/)
@@ -27,14 +34,18 @@ export const tools: Anthropic.Beta.BetaTool[] = [
   {
     name: 'lieferanten_suchen',
     description:
-      'Sucht Lieferanten der eigenen Organisation nach Name, Warengruppe, Land (ISO-Code, z. B. DE) ' +
-      'und Jahresspend in Euro. Liefert höchstens 20 Treffer mit Name, Land, Warengruppe und ' +
-      'Jahresspend. Die Treffer sieht der Nutzer zusätzlich als Karten.',
+      'Sucht Lieferanten der eigenen Organisation nach Name, eigener Lieferantennummer, Land ' +
+      '(ISO-Code, z. B. DE) und Spend des letzten vollen Jahres in Euro. Beendete Beziehungen ' +
+      'zählen nicht. Liefert höchstens 20 Treffer mit Name, Land, Nummer und Spend. Die Treffer ' +
+      'sieht der Nutzer zusätzlich als Karten.',
     input_schema: {
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Teil des Lieferantennamens' },
-        warengruppe: { type: 'string', description: 'Teil der Warengruppe, z. B. Elektronik' },
+        nummer: {
+          type: 'string',
+          description: 'Teil der eigenen Lieferantennummer, z. B. L-10001',
+        },
         land: { type: 'string', description: 'ISO-Ländercode mit zwei Buchstaben' },
         minSpendEuro: {
           type: 'number',
@@ -65,7 +76,7 @@ export const tools: Anthropic.Beta.BetaTool[] = [
 ];
 
 /** Betrag in seiner eigenen Währung, ohne Nachkommastellen, z. B. 4.820.000 € oder 900.000 $. */
-function formatSpend({ amountCents, currency }: Supplier['annualSpend']): string {
+function formatSpend({ amountCents, currency }: Money): string {
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency,
@@ -78,9 +89,9 @@ function forModel(supplier: Supplier) {
   return {
     name: supplier.name,
     land: supplier.country,
-    warengruppe: supplier.category,
-    jahresspend: formatSpend(supplier.annualSpend),
-    spendJahr: supplier.spendYear,
+    nummer: supplier.externalRef,
+    spend: supplier.spend ? formatSpend(supplier.spend) : null,
+    spendJahr: lastFullYear(),
   };
 }
 

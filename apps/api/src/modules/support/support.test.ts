@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import {
   customersResponseSchema,
+  lastFullYear,
   meResponseSchema,
   promptEventSchema,
   supplierSchema,
@@ -9,6 +10,7 @@ import {
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // Tests zu docs/specs/PLT-13.md: Betreiber-Zugang zu Kunden.
@@ -51,7 +53,7 @@ describe('Betreiber-Zugang', () => {
   beforeAll(async () => {
     testApp = await startTestApp();
     db = testApp.adminDb;
-    const { organization, beziehung, beziehungKaeufer, appUser } = schema;
+    const { organization, appUser } = schema;
     await db.insert(organization).values([
       { id: ids.oemA, name: names.a, country: 'DE' },
       { id: ids.oemB, name: names.b, country: 'AT' },
@@ -63,24 +65,28 @@ describe('Betreiber-Zugang', () => {
       { organizationId: ids.oemA, feature: 'buyer' as const },
       { organizationId: ids.oemB, feature: 'buyer' as const },
     ]);
-    await db.insert(beziehung).values([
-      { id: ids.relA, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.supplier },
-      { id: ids.relAOnly, kaeuferOrgId: ids.oemA, lieferantOrgId: ids.onlyA },
-      { id: ids.relB, kaeuferOrgId: ids.oemB, lieferantOrgId: ids.supplier },
-    ]);
-    await db.insert(beziehungKaeufer).values([
-      { beziehungId: ids.relA, warengruppe: 'Guss', jahresspendCent: 111_00, spendJahr: 2025 },
+    const year = lastFullYear();
+    await insertRelationships(db, [
       {
-        beziehungId: ids.relAOnly,
-        warengruppe: 'Logistik',
-        jahresspendCent: 333_00,
-        spendJahr: 2025,
+        id: ids.relA,
+        buyer: ids.oemA,
+        supplier: ids.supplier,
+        externalRef: 'A-1',
+        spend: [{ year, amountCents: 111_00 }],
       },
       {
-        beziehungId: ids.relB,
-        warengruppe: 'Schmiedeteile',
-        jahresspendCent: 222_00,
-        spendJahr: 2025,
+        id: ids.relAOnly,
+        buyer: ids.oemA,
+        supplier: ids.onlyA,
+        externalRef: 'A-2',
+        spend: [{ year, amountCents: 333_00 }],
+      },
+      {
+        id: ids.relB,
+        buyer: ids.oemB,
+        supplier: ids.supplier,
+        externalRef: 'B-1',
+        spend: [{ year, amountCents: 222_00 }],
       },
     ]);
     // Der Betreiber selbst gehört zu keinem Kunden.
@@ -91,13 +97,13 @@ describe('Betreiber-Zugang', () => {
   });
 
   afterAll(async () => {
-    const { organization, beziehung, appUser, betreiberZugriff } = schema;
+    const { organization, appUser, betreiberZugriff } = schema;
     const orgIds = Object.values(ids).slice(0, 4);
     await db
       .delete(betreiberZugriff)
       .where(sql`${betreiberZugriff.nutzerId} in ${Object.values(users)}`);
     await db.delete(appUser).where(sql`${appUser.id} in ${Object.values(users)}`);
-    await db.delete(beziehung).where(sql`${beziehung.kaeuferOrgId} in ${orgIds}`);
+    await deleteRelationships(db, orgIds);
     await db.delete(organization).where(sql`${organization.id} in ${orgIds}`);
     await testApp.close();
   });
@@ -144,11 +150,11 @@ describe('Betreiber-Zugang', () => {
       expect(suppliers).toMatchObject([
         {
           name: `Gemeinsam ${run}`,
-          category: 'Schmiedeteile',
-          annualSpend: { amountCents: 222_00 },
+          externalRef: 'B-1',
+          spend: { amountCents: 222_00 },
         },
       ]);
-      expect(JSON.stringify(suppliers)).not.toContain('Guss');
+      expect(JSON.stringify(suppliers)).not.toContain('A-1');
       expect(JSON.stringify(suppliers)).not.toContain(`Nur A ${run}`);
     });
 
@@ -161,9 +167,9 @@ describe('Betreiber-Zugang', () => {
           asCustomer(ids.oemA),
         ),
       );
-      expect(suppliers.map((s) => [s.name, s.category])).toEqual([
-        [`Nur A ${run}`, 'Logistik'],
-        [`Gemeinsam ${run}`, 'Guss'],
+      expect(suppliers.map((s) => [s.name, s.externalRef])).toEqual([
+        [`Nur A ${run}`, 'A-2'],
+        [`Gemeinsam ${run}`, 'A-1'],
       ]);
     });
 
@@ -200,7 +206,7 @@ describe('Betreiber-Zugang', () => {
         .split('\n')
         .map((line) => promptEventSchema.parse(JSON.parse(line)));
       const shown = events.flatMap((event) => (event.type === 'suppliers' ? event.suppliers : []));
-      expect(shown.map((s) => s.category)).toEqual(['Schmiedeteile']);
+      expect(shown.map((s) => s.externalRef)).toEqual(['B-1']);
     });
 
     it('protokolliert jeden Zugriff im Kunden mit Methode und Pfad', async () => {

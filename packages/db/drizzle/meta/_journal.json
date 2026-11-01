@@ -64,6 +64,20 @@
       "when": 1793486371298,
       "tag": "0008_datenebenen",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793519972118,
+      "tag": "0009_beziehungen",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793519992654,
+      "tag": "0010_alte_beziehung_entfernen",
+      "breakpoints": true
     }
   ]
 }

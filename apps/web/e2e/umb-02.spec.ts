@@ -20,9 +20,9 @@ const supplier = (id: string, name: string, cents: number) => ({
   relationshipId: id,
   name,
   country: 'PL',
-  category: 'Guss',
-  annualSpend: { amountCents: cents, currency: 'EUR' },
-  spendYear: 2025,
+  externalRef: null,
+  status: 'active',
+  spend: { amountCents: cents, currency: 'EUR' },
 });
 
 async function fakeApi(page: Page) {
@@ -68,15 +68,22 @@ const issuedTokens = (zitadel: FakeZitadel) => [
 const sessionStorageText = (page: Page) =>
   page.evaluate(() => JSON.stringify(Object.entries(sessionStorage)));
 
-/** Öffnet die Lieferanten, tippt in die Suche und lässt die Erneuerung scheitern. */
+const question = 'Welche Lieferanten haben wir in Polen?';
+const questionField = (page: Page) =>
+  page.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
+
+/**
+ * Öffnet die Fragen, tippt eine Frage, ohne sie abzuschicken, und lässt die Erneuerung scheitern.
+ * Das Feld steht nicht in der Adresse (anders als die Suche der Lieferanten, PLT-03); der Text
+ * kann also nur aus dem Entwurf zurückkommen.
+ */
 async function typeUntilRenewalFails(page: Page, zitadel: FakeZitadel) {
   zitadel.reply.expiresIn = 5;
   zitadel.reply.refreshWorks = false;
-  await page.goto('/lieferanten');
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
+  await page.goto('/fragen');
+  await expect(page.locator('#inhalt h1')).toBeVisible();
   await page.waitForLoadState('networkidle');
-  await page.getByRole('searchbox').fill('Silesia');
-  await page.getByLabel('Sortieren').selectOption({ index: 1 });
+  await questionField(page).fill(question);
   const notice = page.getByRole('alert').filter({ hasText: 'Bitte melde dich neu an' });
   await expect(notice).toBeVisible();
   return notice;
@@ -103,7 +110,7 @@ test('Es öffnet sich kein Popup, und kein Element ist fest positioniert', async
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
+  await expect(questionField(page)).toHaveValue(question);
   await expect(notice).toHaveCount(0);
 
   expect(popups).toEqual([]);
@@ -114,7 +121,7 @@ test('Nach der Neuanmeldung steht der eingegebene Text wieder im Feld', async ({
   const zitadel = await fakeZitadel(page);
   await fakeApi(page);
   const notice = await typeUntilRenewalFails(page, zitadel);
-  const sort = await page.getByLabel('Sortieren').inputValue();
+  const before = page.url();
 
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
@@ -125,11 +132,9 @@ test('Nach der Neuanmeldung steht der eingegebene Text wieder im Feld', async ({
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
 
   // Eine echte Weiterleitung zu Zitadel und zurück auf dieselbe Adresse.
-  await expect(page).toHaveURL('http://localhost:5174/lieferanten');
-  await expect(page.getByRole('searchbox')).toHaveValue('Silesia');
-  await expect(page.getByLabel('Sortieren')).toHaveValue(sort);
-  // Die Suche wirkt wieder: nur der passende Lieferant steht in der Liste.
-  await expect(page.getByText('Rheintal Elektronik GmbH (Demo)')).toHaveCount(0);
+  await expect(page).toHaveURL(before);
+  expect(before).toBe('http://localhost:5174/fragen');
+  await expect(questionField(page)).toHaveValue(question);
   expect(pageLoads.some((url) => url.startsWith('http://localhost:5174/auth/callback'))).toBe(true);
   expect(zitadel.authorizeRequests).toHaveLength(2);
 
@@ -163,7 +168,7 @@ test('sessionStorage enthält zu keinem Zeitpunkt ein Token', async ({ page }) =
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
-  await expect(page.getByRole('searchbox')).toHaveValue('Silesia');
+  await expect(questionField(page)).toHaveValue(question);
   snapshots.push(await sessionStorageText(page));
 
   // Der Entwurf wurde wirklich gespeichert, enthält aber kein Token.

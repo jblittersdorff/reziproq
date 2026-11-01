@@ -12,9 +12,9 @@ const supplier = (name: string, amountCents: number, currency: string): Supplier
   relationshipId: `rel-${name}`,
   name,
   country: 'DE',
-  category: 'Elektronik',
-  annualSpend: { amountCents, currency },
-  spendYear: 2025,
+  externalRef: null,
+  status: 'active',
+  spend: { amountCents, currency },
 });
 
 const list: SuppliersResponse = {
@@ -57,9 +57,9 @@ describe('Werkzeug lieferanten_suchen', () => {
       (event) => events.push(event),
     );
     const content = JSON.parse(String(result.content)) as {
-      treffer: { name: string; jahresspend: string }[];
+      treffer: { name: string; spend: string }[];
     };
-    const spend = Object.fromEntries(content.treffer.map((t) => [t.name, t.jahresspend]));
+    const spend = Object.fromEntries(content.treffer.map((t) => [t.name, t.spend]));
     expect(spend['Euro-Lieferant']).toBe('600.000 €');
     expect(spend['Dollar-Lieferant']).toBe('900.000 $');
   });

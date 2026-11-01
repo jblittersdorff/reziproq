@@ -106,8 +106,11 @@ function mayRead(who: Viewer, row: RowMeta): boolean {
   }
 }
 
+/** Tabellen, in denen relationship_id Pflicht ist; dort gibt es keine Zeilen ohne Beziehung. */
+const relationshipRequired = new Set<string>();
+
 /** Die Zeilen, die das Gerüst je Art anlegt: von jeder Seite, freigegeben und nicht. */
-function rowsFor(kind: LayerKind): Omit<RowMeta, 'table' | 'kind'>[] {
+function rowsFor(kind: LayerKind, table: string): Omit<RowMeta, 'table' | 'kind'>[] {
   const keys = Object.keys(relationships) as RelationshipKey[];
   switch (kind) {
     case 'buyer_private':
@@ -115,7 +118,7 @@ function rowsFor(kind: LayerKind): Omit<RowMeta, 'table' | 'kind'>[] {
       return keys.map((relationship) => ({ relationship }));
     case 'org_private':
       return [testOem, zweitOem, supplier].flatMap((org) => [
-        { relationship: null, org },
+        ...(relationshipRequired.has(table) ? [] : [{ relationship: null, org }]),
         ...keys
           .filter((key) => [relationships[key].buyer, relationships[key].supplier].includes(org))
           .map((relationship) => ({ relationship, org })),
@@ -186,7 +189,7 @@ describe('PLT-04: Drei Datenebenen', () => {
 
   const setEnded = async (key: RelationshipKey, value: boolean) => {
     await temp.db.execute(
-      sql`update beziehung set ended_at = ${value ? sql`now()` : sql`null`} where id = ${relationships[key].id}`,
+      sql`update relationship set status = ${value ? 'ended' : 'active'} where id = ${relationships[key].id}`,
     );
     if (value) ended.add(key);
     else ended.delete(key);
@@ -196,10 +199,14 @@ describe('PLT-04: Drei Datenebenen', () => {
     temp = await createTempDatabase();
     await migrateTo(temp.db);
     await seed(temp.db, { nodeEnv: 'development' });
+    // Nur die Beziehungen des Gerüsts, damit jede sichtbare Zeile aus dem Gerüst stammt.
+    await temp.db.execute(sql`delete from relationship_spend`);
+    await temp.db.execute(sql`delete from relationship_side`);
+    await temp.db.execute(sql`delete from relationship`);
     for (const relationship of Object.values(relationships)) {
       await temp.db.execute(sql`
-        insert into beziehung (id, kaeufer_org_id, lieferant_org_id)
-        values (${relationship.id}, ${relationship.buyer}, ${relationship.supplier})
+        insert into relationship (id, buyer_org_id, supplier_org_id, status)
+        values (${relationship.id}, ${relationship.buyer}, ${relationship.supplier}, 'active')
       `);
     }
     // Probe-Tabellen nur über die Hilfsfunktion, wie jede neue Fachtabelle.
@@ -209,8 +216,13 @@ describe('PLT-04: Drei Datenebenen', () => {
       );
       await temp.db.execute(sql`select app_apply_layer(${table}::regclass, ${probe.kind})`);
     }
+    const required = await temp.db.execute<{ table_name: string }>(sql`
+      select table_name from information_schema.columns
+      where table_schema = 'public' and column_name = 'relationship_id' and is_nullable = 'NO'
+    `);
+    for (const row of required.rows) relationshipRequired.add(row.table_name);
     for (const entry of tables) {
-      for (const row of rowsFor(entry.kind)) {
+      for (const row of rowsFor(entry.kind, entry.table)) {
         const id = randomUUID();
         await temp.db.execute(insertSql(entry.table, columnsOf(entry, row, id)));
         rows.set(id, { table: entry.table, kind: entry.kind, ...row });
@@ -337,7 +349,7 @@ describe('PLT-04: Drei Datenebenen', () => {
         }
 
         // Anlegen für eine fremde Seite oder Organisation scheitert.
-        for (const row of rowsFor(kind)) {
+        for (const row of rowsFor(kind, table)) {
           const meta: RowMeta = { table, kind, ...row };
           const own =
             kind === 'shared' ? meta.owner === who.org && mayRead(who, meta) : mayRead(who, meta);
@@ -346,7 +358,11 @@ describe('PLT-04: Drei Datenebenen', () => {
             throw new Rollback([]);
           }).catch((error: unknown) => {
             if (error instanceof Rollback) return 'angelegt';
-            return 'abgelehnt';
+            // Eine Dublette (23505) hat die Policies schon passiert; abgelehnt heißt nur 42501.
+            const code = (error as { cause?: { code?: string } }).cause?.code;
+            if (code === '23505') return 'angelegt';
+            if (code === '42501') return 'abgelehnt';
+            throw error;
           });
           expect(await insert, `${who.name} legt ${JSON.stringify(row)} an`).toBe(
             own ? 'angelegt' : 'abgelehnt',
@@ -502,7 +518,7 @@ describe('PLT-04: Drei Datenebenen', () => {
     });
   });
 
-  describe('Bestehende Tabellen', () => {
+  describe('Tabellen mit Policies von Hand', () => {
     it('Stammdaten einer Organisation sieht jede Organisation, die mit ihr in Beziehung steht, in beide Richtungen', async () => {
       const names = (who: Viewer) =>
         withTenant(temp.db, session(who), async (tx) => {
@@ -520,7 +536,7 @@ describe('PLT-04: Drei Datenebenen', () => {
       const ids = (who: Viewer) =>
         withTenant(temp.db, session(who), async (tx) => {
           const result = await tx.execute<{ id: string }>(
-            sql`select id::text from beziehung where lieferant_org_id = ${supplier}`,
+            sql`select id::text from relationship where supplier_org_id = ${supplier}`,
           );
           return result.rows.map((row) => row.id);
         });

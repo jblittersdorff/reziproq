@@ -56,7 +56,7 @@ async function signIn(page: Page, { admin = false } = {}) {
     }),
   );
   await page.route('**/api/suppliers', (route) =>
-    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: null } }),
+    route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } }),
   );
   await page.route('**/api/organisation', (route) =>
     route.fulfill({

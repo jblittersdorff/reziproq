@@ -38,7 +38,7 @@ export function QuestionsPage() {
 
   const suggestions = [
     t.prompt.suggestionTopSpend,
-    t.prompt.suggestionElectronics,
+    t.prompt.suggestionCountry,
     t.prompt.suggestionPortfolio,
   ];
 

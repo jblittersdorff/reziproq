@@ -27,7 +27,7 @@ export class TestPromptModel implements PromptModel {
     if (area && /öffne|geh zu/i.test(question)) {
       return this.useTool('bereich_oeffnen', { bereich: area.key });
     }
-    if (/lieferant|warengruppe|spend/i.test(question)) {
+    if (/lieferant|spend/i.test(question)) {
       return this.useTool('lieferanten_suchen', searchFor(question));
     }
     return this.say(
@@ -66,17 +66,38 @@ function areaIn(question: string) {
   return areas.find((area) => lower.includes(area.name.toLocaleLowerCase('de')));
 }
 
+/** Länder, die das Testmodell in Fragen wie „Welche Lieferanten haben wir in Polen?“ erkennt. */
+const countries: Record<string, string> = {
+  deutschland: 'DE',
+  polen: 'PL',
+  tschechien: 'CZ',
+  italien: 'IT',
+  österreich: 'AT',
+  frankreich: 'FR',
+  china: 'CN',
+  mexiko: 'MX',
+  ungarn: 'HU',
+  slowakei: 'SK',
+  spanien: 'ES',
+  niederlande: 'NL',
+  usa: 'US',
+  island: 'IS',
+};
+
 function searchFor(question: string): Record<string, unknown> {
-  const category = /warengruppe\s+([\p{L}-]+)/iu.exec(question)?.[1];
+  const country = /\bin\s+(?:der\s+|den\s+)?([\p{L}]+)/iu
+    .exec(question)?.[1]
+    ?.toLocaleLowerCase('de');
+  const land = country ? countries[country] : undefined;
   return {
-    ...(category ? { warengruppe: category } : {}),
+    ...(land ? { land } : {}),
     sortierung: 'spend_absteigend',
   };
 }
 
 interface ToolAnswer {
   anzahl?: number;
-  treffer?: { name: string; jahresspend: string }[];
+  treffer?: { name: string; spend: string | null }[];
   geoeffnet?: string;
 }
 
@@ -87,5 +108,6 @@ function answerFor(result: ToolAnswer, isError: boolean): string {
   const [first] = result.treffer ?? [];
   if (!first) return 'Keine Treffer.';
   const count = result.anzahl === 1 ? '1 Lieferanten' : `${result.anzahl} Lieferanten`;
-  return `Ich habe ${count} gefunden. Den höchsten Spend hat ${first.name} mit ${first.jahresspend}.`;
+  if (!first.spend) return `Ich habe ${count} gefunden, ohne Spend im letzten Jahr.`;
+  return `Ich habe ${count} gefunden. Den höchsten Spend hat ${first.name} mit ${first.spend}.`;
 }

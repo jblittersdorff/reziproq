@@ -3,6 +3,7 @@ import type {
   MeResponse,
   OrganizationResponse,
   PromptEvent,
+  Supplier,
   SuppliersResponse,
 } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -44,23 +45,34 @@ export const anna: MeResponse = {
 };
 
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
-const supplier = (name: string, country: string | null, category: string, spend: number) => ({
+const supplier = (
+  name: string,
+  country: string | null,
+  externalRef: string | null,
+  spend: number | null,
+  status: Supplier['status'] = 'active',
+): Supplier => ({
   relationshipId: `rel-${name}`,
   name,
   country,
-  category,
-  annualSpend: { amountCents: spend, currency: 'EUR' },
-  spendYear: 2025,
+  externalRef,
+  status,
+  spend: spend === null ? null : { amountCents: spend, currency: 'EUR' },
 });
 
-/** Drei Lieferanten, wie GET /api/suppliers sie liefert: nach Spend absteigend. */
+/**
+ * Lieferanten, wie GET /api/suppliers sie liefert: nach Spend absteigend, ohne Spend zuletzt.
+ * Drei aktive, ein Entwurf und eine beendete Beziehung; Anzahl und Summe ohne die beendete.
+ */
 export const sampleSuppliers: SuppliersResponse = {
   suppliers: [
-    supplier('Rheintal Elektronik GmbH (Demo)', 'DE', 'Elektronik', mio(4.82)),
-    supplier('Silesia Guss Sp. z o.o. (Demo)', 'PL', 'Guss', mio(3.15)),
-    supplier('Alpen Sensorik GmbH (Demo)', 'AT', 'Elektronik', mio(2.26)),
+    supplier('Rheintal Elektronik GmbH (Demo)', 'DE', 'L-10001', mio(4.82)),
+    supplier('Silesia Guss Sp. z o.o. (Demo)', 'PL', 'L-10002', mio(3.15)),
+    supplier('Lombardia Fonderie S.p.A. (Demo)', 'IT', 'L-10004', mio(2.71), 'ended'),
+    supplier('Alpen Sensorik GmbH (Demo)', 'AT', 'L-10006', mio(2.26)),
+    supplier('Test-Lieferant (Demo)', 'DE', null, null, 'draft'),
   ],
-  count: 3,
+  count: 4,
   spendYear: 2025,
   totalSpend: [{ amountCents: mio(10.23), currency: 'EUR' }],
 };
