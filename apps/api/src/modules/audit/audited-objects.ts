@@ -32,7 +32,15 @@ export const userRoleAudit = auditedObject({
   fields: ['org_role', 'is_controlling', 'default_function'],
 });
 
+/** Internes Team einer Beziehung (PLT-05b): das ganze Team vorher und nachher. */
+export const relationshipTeamAudit = auditedObject({
+  type: 'relationship_member',
+  visibility: 'internal',
+  fields: ['team'],
+});
+
 export const auditedObjects: readonly AuditedObject[] = [
+  relationshipTeamAudit,
   userRoleAudit,
   relationshipAudit,
   relationshipSideAudit,

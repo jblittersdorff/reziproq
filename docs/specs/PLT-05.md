@@ -74,14 +74,14 @@ Zwei Pull Requests:
 
 Je Kriterium ein Test.
 
-- [ ] Ein tabellengesteuerter Test prüft jede Zeile der Matrix für jede Rolle gegen die API: erlaubt gibt 2xx, verboten gibt 403.
-- [ ] Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne `can()` auskommt. Ausgenommen sind `/health` und `/me`.
-- [ ] Der letzte Admin einer Organisation kann sich nicht selbst herabstufen.
-- [ ] Neue Nutzer sind `viewer`.
-- [ ] Mit Teamrolle Leser ist eine Beziehung für diesen Nutzer schreibgeschützt.
-- [ ] Der Zweit-OEM sieht das Team des Test-OEM nicht (Prüfungen aus PLT-04).
-- [ ] Rollenwechsel und Teamänderungen stehen im internen Verlauf.
-- [ ] `docs/rechte.md` wird aus `permissions.ts` erzeugt. Ein Test schlägt fehl, wenn die Datei veraltet ist.
+- [x] Ein tabellengesteuerter Test prüft jede Zeile der Matrix für jede Rolle gegen die API: erlaubt gibt 2xx, verboten gibt 403.
+- [x] Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne `can()` auskommt. Ausgenommen sind `/health` und `/me`.
+- [x] Der letzte Admin einer Organisation kann sich nicht selbst herabstufen.
+- [x] Neue Nutzer sind `viewer`.
+- [x] Mit Teamrolle Leser ist eine Beziehung für diesen Nutzer schreibgeschützt.
+- [x] Der Zweit-OEM sieht das Team des Test-OEM nicht (Prüfungen aus PLT-04).
+- [x] Rollenwechsel und Teamänderungen stehen im internen Verlauf.
+- [x] `docs/rechte.md` wird aus `permissions.ts` erzeugt. Ein Test schlägt fehl, wenn die Datei veraltet ist.
 
 ## Umgesetzt mit (PR zu PLT-05a)
 
@@ -97,6 +97,15 @@ Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
 - Beispieldaten: je OEM ein Admin, ein Nutzer mit Controlling und ein Leser.
 
 Kriterien aus PLT-05a: Matrix gegen die API, `can()` an jedem Endpunkt, letzter Admin, neue Nutzer `viewer`, Rollenwechsel im internen Verlauf, `docs/rechte.md`. Team, Teamrolle Leser und die Datentrennung des Teams folgen mit PLT-05b.
+
+## Umgesetzt mit (PR zu PLT-05b)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- Die Teamrolle Leser macht eine Beziehung auch für Admins schreibgeschützt (Profil, Spend, Beenden). Das Team selbst darf ein Admin weiter festlegen, damit er sich wieder freischalten kann. Umgesetzt über `can(subject, action, { teamRole })` und `notForTeamViewer` in der Matrix; das Detail eines Lieferanten meldet `permissions.edit` und `permissions.editTeam` je Beziehung.
+- Grenzen: höchstens ein SRO (eindeutiger Teilindex), höchstens zwei Sponsoren (Trigger), jede Person einmal. Ein Team ohne SRO ist erlaubt; die Teamseite weist darauf hin. Die API antwortet bei Verstößen mit 409 (`too_many_sro`, `too_many_sponsors`, `duplicate_person`, `nicht_in_organisation`).
+- `PUT /api/suppliers/:id/team` setzt das ganze Team auf einmal; der interne Verlauf (`relationship_member`) hält das Team vorher und nachher fest.
+- Beispieldaten: fünf Teams beim Test-OEM mit Lena als SRO und Tom als Sponsor; beim fünften Lieferanten ist Nina Leserin.
 
 ## Nicht Teil dieser Funktion
 

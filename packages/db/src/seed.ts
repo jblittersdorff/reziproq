@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
   appUser,
@@ -6,6 +6,7 @@ import {
   organization,
   organizationFeature,
   relationship,
+  relationshipMember,
   relationshipSide,
   relationshipSpend,
 } from './schema/index.js';
@@ -183,6 +184,31 @@ const relationships = [
   })),
 ];
 
+/**
+ * Teams für die ersten fünf Lieferanten des Test-OEM (PLT-05): Lena als SRO, Tom als Sponsor,
+ * Nina als Mitglied; beim fünften ist Nina Leserin, damit der Schreibschutz sichtbar ist.
+ */
+const seedTeams = relationships.slice(0, 5).flatMap((entry, index) => [
+  {
+    relationshipId: entry.id,
+    userId: 'demo-test-oem-1',
+    teamRole: 'sro' as const,
+    function: 'purchasing' as const,
+  },
+  {
+    relationshipId: entry.id,
+    userId: 'demo-test-oem-2',
+    teamRole: 'sponsor' as const,
+    function: 'quality' as const,
+  },
+  {
+    relationshipId: entry.id,
+    userId: 'demo-test-oem-3',
+    teamRole: index === 4 ? ('viewer' as const) : ('member' as const),
+    function: 'logistics' as const,
+  },
+]);
+
 /** Das Vorjahr weicht je Lieferant etwas ab, damit eine Entwicklung sichtbar ist. */
 const previousYear = (spend: number, index: number) =>
   Math.round(spend * (0.86 + (index % 5) * 0.06));
@@ -300,6 +326,15 @@ export async function seed(
         target: [relationshipSpend.relationshipId, relationshipSpend.year],
         set: { amountCents: sql`excluded.amount_cents`, source: sql`excluded.source` },
       });
+
+    // Teams neu setzen statt ergänzen, damit Änderungen aus der Oberfläche nicht kollidieren.
+    const teamRelationships = [...new Set(seedTeams.map((member) => member.relationshipId))];
+    await tx
+      .delete(relationshipMember)
+      .where(inArray(relationshipMember.relationshipId, teamRelationships));
+    await tx
+      .insert(relationshipMember)
+      .values(seedTeams.map((member) => ({ ...member, orgId: seedBuyers.testOem.id })));
 
     return {
       organizations: organizations.length,

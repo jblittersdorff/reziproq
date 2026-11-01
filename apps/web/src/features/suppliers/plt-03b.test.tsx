@@ -32,6 +32,7 @@ const detail: SupplierDetail = {
     { year: 2025, amount: { amountCents: 482_000_000, currency: 'EUR' } },
     { year: 2024, amount: { amountCents: 430_000_000, currency: 'EUR' } },
   ],
+  permissions: { edit: true, editTeam: false },
 };
 const profile = `/lieferanten/${detail.relationshipId}/strategie/profil`;
 
@@ -226,7 +227,7 @@ describe('Beenden und Rechte', () => {
     const handle = (await import('@/testing/app-harness')).api;
     handle.handle = (request) =>
       request.url === `/api/suppliers/${detail.relationshipId}`
-        ? Response.json(detail)
+        ? Response.json({ ...detail, permissions: { edit: false, editTeam: false } })
         : request.url.startsWith('/api/audit')
           ? Response.json({ entries: [] })
           : undefined;

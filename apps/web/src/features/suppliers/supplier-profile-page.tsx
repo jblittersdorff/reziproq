@@ -30,7 +30,8 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
   const [message, hideMessage] = useFlash();
   const [ended, setEnded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const canEdit = useCan('lieferanten.bearbeiten');
+  // Global darf die Person bearbeiten; ob an dieser Beziehung, sagt das Detail (Teamrolle).
+  const mayEdit = useCan('lieferanten.bearbeiten');
 
   const end = async () => {
     setFailed(false);
@@ -85,6 +86,11 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
                 label={t.suppliers.spendLink}
                 renderLink={routerLink}
               />
+              <SettingsLinkRow
+                href={`/lieferanten/${relationshipId}/beziehung/team`}
+                label={t.team.link}
+                renderLink={routerLink}
+              />
             </SettingsGroup>
             <p className="-mt-4 px-4 text-muted-foreground text-sm">{t.suppliers.ownValuesHint}</p>
 
@@ -114,7 +120,12 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
             </SettingsGroup>
             <p className="-mt-4 px-4 text-muted-foreground text-sm">{t.suppliers.masterDataHint}</p>
 
-            {canEdit && (
+            {mayEdit && !supplier.permissions.edit && (
+              <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+                {t.team.readOnly}
+              </p>
+            )}
+            {supplier.permissions.edit && (
               <div className="flex flex-wrap items-start gap-3">
                 <Button asChild>
                   <Link

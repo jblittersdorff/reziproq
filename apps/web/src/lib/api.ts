@@ -18,8 +18,10 @@ import {
   supplierLookupResponseSchema,
   suppliersResponseSchema,
   supportHeader,
+  teamResponseSchema,
   type UpdateMemberRequest,
   type UpdateSupplierRequest,
+  type UpdateTeamRequest,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import type { z } from 'zod';
@@ -220,6 +222,20 @@ export const updateMember = (accessToken: string, userId: string, request: Updat
     organizationMemberSchema,
     accessToken,
   );
+
+/** Internes Team einer Beziehung (PLT-05b). */
+export const teamQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'team'],
+    queryFn: () => getJson(`/suppliers/${relationshipId}/team`, teamResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const updateTeam = (
+  accessToken: string,
+  relationshipId: string,
+  request: UpdateTeamRequest,
+) => sendJson('PUT', `/suppliers/${relationshipId}/team`, request, teamResponseSchema, accessToken);
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({

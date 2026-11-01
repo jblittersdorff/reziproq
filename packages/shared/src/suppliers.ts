@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { moneySchema } from './money.js';
+import { teamRoles, userFunctions } from './permissions.js';
 
 /** Status einer Beziehung (PLT-03): angelegt, aktiv mit dem Lieferanten, beendet. */
 export const relationshipStatuses = ['draft', 'active', 'ended'] as const;
@@ -171,6 +172,8 @@ export const supplierDetailSchema = z.object({
   endedAt: z.string().nullable(),
   /** Spend je Jahr, neuestes zuerst */
   spend: z.array(z.object({ year: z.number().int(), amount: moneySchema })),
+  /** Was die Person an dieser Beziehung darf, aus can() mit Teamrolle (PLT-05b) */
+  permissions: z.object({ edit: z.boolean(), editTeam: z.boolean() }),
 });
 export type SupplierDetail = z.infer<typeof supplierDetailSchema>;
 
@@ -184,3 +187,55 @@ export function parseEuroToCents(text: string): number | null {
   const [whole = '0', fraction = ''] = compact.replaceAll('.', '').split(',');
   return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
 }
+
+// PLT-05b: Team je Beziehung, intern je Organisation.
+
+export const teamMemberSchema = z.object({
+  userId: z.string(),
+  name: z.string(),
+  teamRole: z.enum(teamRoles),
+  function: z.enum(userFunctions).nullable(),
+});
+export type TeamMember = z.infer<typeof teamMemberSchema>;
+
+export const teamResponseSchema = z.object({
+  members: z.array(teamMemberSchema),
+  /** Personen der eigenen Organisation, die ins Team kommen können, mit Standardfunktion */
+  candidates: z.array(
+    z.object({
+      userId: z.string(),
+      name: z.string(),
+      defaultFunction: z.enum(userFunctions).nullable(),
+    }),
+  ),
+});
+export type TeamResponse = z.infer<typeof teamResponseSchema>;
+
+/** Grenzen eines Teams als Fehlercodes für Seite und API */
+export const teamErrors = ['duplicate_person', 'too_many_sro', 'too_many_sponsors'] as const;
+export type TeamError = (typeof teamErrors)[number];
+
+/** PUT /api/suppliers/:id/team: das ganze Team auf einmal (nur Admin). */
+export const updateTeamRequestSchema = z
+  .object({
+    members: z.array(
+      z.object({
+        userId: z.string().min(1),
+        teamRole: z.enum(teamRoles),
+        function: z.enum(userFunctions).nullable(),
+      }),
+    ),
+  })
+  .superRefine(({ members }, context) => {
+    const ids = members.map((member) => member.userId);
+    if (new Set(ids).size !== ids.length) {
+      context.addIssue({ code: 'custom', path: ['members'], message: 'duplicate_person' });
+    }
+    if (members.filter((member) => member.teamRole === 'sro').length > 1) {
+      context.addIssue({ code: 'custom', path: ['members'], message: 'too_many_sro' });
+    }
+    if (members.filter((member) => member.teamRole === 'sponsor').length > 2) {
+      context.addIssue({ code: 'custom', path: ['members'], message: 'too_many_sponsors' });
+    }
+  });
+export type UpdateTeamRequest = z.infer<typeof updateTeamRequestSchema>;

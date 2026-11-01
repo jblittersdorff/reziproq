@@ -85,6 +85,7 @@ describe('PLT-02 in der Datenbank', () => {
       'organization_feature',
       'outbox_event',
       'relationship',
+      'relationship_member',
       'relationship_side',
       'relationship_spend',
     ]);

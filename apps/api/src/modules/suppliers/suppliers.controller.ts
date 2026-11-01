@@ -23,7 +23,9 @@ import {
   spendRequestSchema,
   spendYearSchema,
   supplierLookupQuerySchema,
+  type TeamResponse,
   type UpdateSupplierRequest,
+  type UpdateTeamRequest,
   updateSupplierRequestSchema,
 } from '@reziproq/shared';
 import { z } from 'zod';
@@ -32,12 +34,16 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { SuppliersService } from './suppliers.service.js';
+import { TeamService } from './team.service.js';
 
 const yearParam = new ZodValidationPipe(z.coerce.number().pipe(spendYearSchema));
 
 @Controller('suppliers')
 export class SuppliersController {
-  constructor(@Inject(SuppliersService) private readonly suppliers: SuppliersService) {}
+  constructor(
+    @Inject(SuppliersService) private readonly suppliers: SuppliersService,
+    @Inject(TeamService) private readonly teams: TeamService,
+  ) {}
 
   @Get()
   @Requires('lieferanten.sehen')
@@ -102,5 +108,26 @@ export class SuppliersController {
     @Body(new ZodValidationPipe(spendRequestSchema)) body: SpendRequest,
   ): Promise<SupplierDetail> {
     return this.suppliers.putSpend(auth, id, year, body);
+  }
+
+  /** Internes Team einer Beziehung (PLT-05b). */
+  @Get(':id/team')
+  @Requires('lieferanten.sehen')
+  team(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<TeamResponse> {
+    return this.teams.team(auth, id);
+  }
+
+  /** Team festlegen, nur Admin (PLT-05b). Grenzen prüft der Dienst und antwortet mit 409. */
+  @Put(':id/team')
+  @Requires('team.festlegen')
+  setTeam(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateTeamRequest,
+  ): Promise<TeamResponse> {
+    return this.teams.setTeam(auth, id, body);
   }
 }

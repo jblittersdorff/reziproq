@@ -19,6 +19,7 @@ import {
   type SupplierLookupQuery,
   type SupplierLookupResponse,
   type SuppliersResponse,
+  type TeamRole,
   type UpdateSupplierRequest,
   updateSupplierRequestSchema,
 } from '@reziproq/shared';
@@ -247,7 +248,7 @@ export class SuppliersService {
   /** Stammdaten, eigene Werte, Status und Spend je Jahr eines Lieferanten. */
   async detail(auth: AuthContext, relationshipId: string): Promise<SupplierDetail> {
     const organization = this.reader(auth);
-    return this.run(auth, organization, (tx) => readDetail(tx, relationshipId));
+    return this.run(auth, organization, (tx) => readDetail(tx, relationshipId, auth));
   }
 
   /** Eigener Anzeigename, eigene Nummer und Notizen (relationship_side), mit internem Verlauf. */
@@ -261,6 +262,7 @@ export class SuppliersService {
     return this.run(auth, organization, async (tx) => {
       const actor = await actorOf(tx, auth, organization.id);
       await ownRelationship(tx, organization, relationshipId);
+      await assertWritable(tx, auth, organization, relationshipId);
       const { relationshipSide } = schema;
       const [before] = await tx
         .select({
@@ -307,7 +309,7 @@ export class SuppliersService {
           result: undefined,
         };
       });
-      return readDetail(tx, relationshipId);
+      return readDetail(tx, relationshipId, auth);
     });
   }
 
@@ -317,6 +319,7 @@ export class SuppliersService {
     return this.run(auth, organization, async (tx) => {
       const actor = await actorOf(tx, auth, organization.id);
       const current = await ownRelationship(tx, organization, relationshipId);
+      await assertWritable(tx, auth, organization, relationshipId);
       if (current.status === 'ended') {
         throw new ConflictException({
           statusCode: 409,
@@ -338,7 +341,7 @@ export class SuppliersService {
           result: undefined,
         };
       });
-      return readDetail(tx, relationshipId);
+      return readDetail(tx, relationshipId, auth);
     });
   }
 
@@ -353,6 +356,7 @@ export class SuppliersService {
     return this.run(auth, organization, async (tx) => {
       const actor = await actorOf(tx, auth, organization.id);
       await ownRelationship(tx, organization, relationshipId);
+      await assertWritable(tx, auth, organization, relationshipId);
       const { relationshipSpend } = schema;
       const [before] = await tx
         .select({ amount_cents: relationshipSpend.amountCents })
@@ -380,7 +384,7 @@ export class SuppliersService {
           result: undefined,
         };
       });
-      return readDetail(tx, relationshipId);
+      return readDetail(tx, relationshipId, auth);
     });
   }
 }
@@ -407,7 +411,42 @@ const notFound = () =>
     message: 'Lieferant nicht gefunden.',
   });
 
-async function readDetail(tx: TenantTransaction, relationshipId: string): Promise<SupplierDetail> {
+/** Teamrolle der Person an dieser Beziehung, oder null ohne Mitgliedschaft (PLT-05b). */
+export async function teamRoleOf(
+  tx: TenantTransaction,
+  userId: string,
+  relationshipId: string,
+): Promise<TeamRole | null> {
+  const [row] = await tx
+    .select({ teamRole: schema.relationshipMember.teamRole })
+    .from(schema.relationshipMember)
+    .where(
+      and(
+        eq(schema.relationshipMember.relationshipId, relationshipId),
+        eq(schema.relationshipMember.userId, userId),
+      ),
+    );
+  return row?.teamRole ?? null;
+}
+
+/** Mit Teamrolle Leser ist die Beziehung für diese Person schreibgeschützt (PLT-05b). */
+async function assertWritable(
+  tx: TenantTransaction,
+  auth: AuthContext,
+  organization: AccountOrganization,
+  relationshipId: string,
+) {
+  const teamRole = await teamRoleOf(tx, auth.userId, relationshipId);
+  if (!organization.buyer || !can(auth, 'lieferanten.bearbeiten', { teamRole })) {
+    throw forbidden('keine_berechtigung', 'Diese Beziehung ist für dich schreibgeschützt.');
+  }
+}
+
+async function readDetail(
+  tx: TenantTransaction,
+  relationshipId: string,
+  auth: AuthContext,
+): Promise<SupplierDetail> {
   const { organization, relationship, relationshipSide, relationshipSpend } = schema;
   const [row] = await tx
     .select({
@@ -443,8 +482,13 @@ async function readDetail(tx: TenantTransaction, relationshipId: string): Promis
     .from(relationshipSpend)
     .where(eq(relationshipSpend.relationshipId, relationshipId))
     .orderBy(desc(relationshipSpend.year));
+  const teamRole = await teamRoleOf(tx, auth.userId, relationshipId);
   return {
     ...row,
+    permissions: {
+      edit: can(auth, 'lieferanten.bearbeiten', { teamRole }),
+      editTeam: can(auth, 'team.festlegen'),
+    },
     createdAt: row.createdAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,
     spend: spend.map(({ year, amountCents, currency }) => ({
