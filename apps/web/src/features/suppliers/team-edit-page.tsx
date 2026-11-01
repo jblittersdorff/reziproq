@@ -39,10 +39,8 @@ export function TeamEditPage({ relationshipId }: { relationshipId: string }) {
   return (
     <SupplierFrame
       relationshipId={relationshipId}
-      trail={(supplier) => [
-        { label: supplier.name, href: `/lieferanten/${relationshipId}/strategie/profil` },
-        { label: t.team.title, href: teamPage },
-      ]}
+      area="relationship"
+      trail={() => [{ label: t.team.title, href: teamPage }]}
       current={t.team.edit}
     >
       {() =>

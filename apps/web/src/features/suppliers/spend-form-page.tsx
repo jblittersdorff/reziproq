@@ -10,6 +10,7 @@ import { FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/features/shell/page-header';
 import { useGoBack } from '@/features/shell/page-path';
+import { InternalBadge } from '@/features/workspace/internal-badge';
 import { putSpend } from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
@@ -31,10 +32,8 @@ export function SpendFormPage({ relationshipId, year }: { relationshipId: string
   return (
     <SupplierFrame
       relationshipId={relationshipId}
-      trail={(supplier) => [
-        { label: supplier.name, href: `/lieferanten/${relationshipId}/strategie/profil` },
-        { label: t.suppliers.spend, href: spendPage },
-      ]}
+      area="strategy"
+      trail={() => [{ label: t.suppliers.spend, href: spendPage }]}
       current={year ? String(year) : t.suppliers.spendNewTitle}
     >
       {(supplier) => <SpendForm supplier={supplier} year={year} spendPage={spendPage} />}
@@ -99,6 +98,7 @@ function SpendForm({
       <PageHeader
         title={year ? t.suppliers.spendEditTitle(year) : t.suppliers.spendNewTitle}
         purpose={t.suppliers.spendFormPurpose}
+        badge={<InternalBadge />}
       />
       <form
         noValidate

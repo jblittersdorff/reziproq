@@ -31,8 +31,12 @@ class DatabaseConnection implements OnApplicationShutdown {
 export class TenantDatabase {
   constructor(@Inject(DATABASE) private readonly db: Database) {}
 
-  run<T>(session: TenantSession, work: (tx: TenantTransaction) => Promise<T>): Promise<T> {
-    return withTenant(this.db, session, work);
+  run<T>(
+    session: TenantSession,
+    work: (tx: TenantTransaction) => Promise<T>,
+    options?: { readOnly?: boolean },
+  ): Promise<T> {
+    return withTenant(this.db, session, work, options);
   }
 }
 

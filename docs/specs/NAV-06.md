@@ -39,7 +39,7 @@ Als SRO finde ich alles zu einem Lieferanten in einem Arbeitsbereich mit sechs B
    - Platz für die Zyklus-Leiste (ZYK-01)
    - sechs Kacheln: Strategie, Beziehung, Gemeinsamer Plan, Umsetzung, Wirkung, Hinweise
    - Jede Kachel zeigt Titel, einen Satz, eine Kennzahl und den Knopf **Öffnen**.
-   - Fehlt das Modul noch, steht dort „Kommt mit Release 0.x“.
+   - Fehlt das Modul noch, steht dort „Kommt mit Release 1.0“ (Module im Kernpfad) oder „Kommt nach Release 1.0“ (Module aus den Blöcken danach).
 6. **Kennzeichen Intern und Geteilt (NAV-09):**
    - Der Bereich Strategie trägt durchgehend „Intern“.
    - In den anderen Bereichen trägt jedes Objekt sein Kennzeichen.
@@ -49,14 +49,24 @@ Als SRO finde ich alles zu einem Lieferanten in einem Arbeitsbereich mit sechs B
 
 Je Kriterium ein Test.
 
-- [ ] Alle sechs Bereiche haben eigene Adressen. Der aktive ist markiert, und der Wechsel lädt die Seite nicht neu.
-- [ ] Die lokale Leiste bleibt beim Scrollen sichtbar.
-- [ ] Jede Bereichsseite zeigt ihre Unterseiten als Kacheln. Höchstens sechs je Seite.
-- [ ] Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.
-- [ ] Der Überblick speichert keine eigenen Daten. Ohne Modul zeigt die Kachel den Release-Hinweis.
-- [ ] Jede Seite im Bereich Strategie trägt das Kennzeichen „Intern“.
-- [ ] Die Seiten aus PLT-03 und PLT-05 (Profil, Spend, Team) liegen im Arbeitsbereich und haben einen Pfad mit Zurück.
-- [ ] Bei 390 px Breite bricht die lokale Leiste ohne waagerechtes Scrollen um.
+- [x] Alle sechs Bereiche haben eigene Adressen. Der aktive ist markiert, und der Wechsel lädt die Seite nicht neu.
+- [x] Die lokale Leiste bleibt beim Scrollen sichtbar.
+- [x] Jede Bereichsseite zeigt ihre Unterseiten als Kacheln. Höchstens sechs je Seite.
+- [x] Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.
+- [x] Der Überblick speichert keine eigenen Daten. Ohne Modul zeigt die Kachel den Release-Hinweis.
+- [x] Jede Seite im Bereich Strategie trägt das Kennzeichen „Intern“.
+- [x] Die Seiten aus PLT-03 und PLT-05 (Profil, Spend, Team) liegen im Arbeitsbereich und haben einen Pfad mit Zurück.
+- [x] Bei 390 px Breite bricht die lokale Leiste ohne waagerechtes Scrollen um.
+
+## Umgesetzt mit
+
+- **Kennzahl-Quellen:** Schnittstelle `OverviewMetricSource` mit `overviewMetric(relationshipId, user, tx)` im Modul `overview` der API. Die Quellen trägt `overview.module.ts` ein. Heute melden Spend (Strategie: letztes Jahr mit Daten) und Team (Beziehung: Personen im Team).
+- `GET /api/suppliers/:id/overview` liefert Kopf und Kennzahlen, mit `lieferanten.sehen` und ohne neue Aktion. Die Mandanten-Session ist nur lesend (`withTenant(…, { readOnly: true })`), also scheitert jeder Schreibversuch.
+- **Kopf:** Segment bleibt „noch offen“ bis SEG-06. Der SRO kommt aus `relationship_member`. Der nächste Termin entfällt bis QBR-01.
+- **Bereichsseiten:** Unterseiten, die es noch nicht gibt, zeigen den Release-Hinweis ohne Knopf. Die Hinweise auf dem Überblick haben noch keine Seite und darum keinen Knopf „Öffnen“.
+- **Seiten aus PLT-03 und PLT-05:** Profil, Spend und Team heißen jetzt „Profil“, „Spend“ und „Team“. Der Name steht in der lokalen Leiste und im Pfad (Lieferanten › Name › Bereich › Seite). Der Zurück-Pfeil führt eine Ebene nach oben, vom Spend also zur Strategie.
+- Die Karten der Lieferantenliste führen auf den Überblick statt auf das Profil.
+- Die lokale Leiste liegt in einem Platz des Rahmens direkt unter der globalen Leiste, über die ganze Breite und im Seitenfluss.
 
 ## Nicht Teil dieser Funktion
 

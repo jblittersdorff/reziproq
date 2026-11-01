@@ -10,6 +10,7 @@ import { AuditHistory } from '@/features/audit/audit-history';
 import { useCan } from '@/features/auth/use-permissions';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
+import { InternalBadge } from '@/features/workspace/internal-badge';
 import { endSupplier } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
@@ -45,7 +46,11 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
   };
 
   return (
-    <SupplierFrame relationshipId={relationshipId}>
+    <SupplierFrame
+      relationshipId={relationshipId}
+      area="strategy"
+      current={t.workspace.pages.profile.title}
+    >
       {(supplier) => {
         const statusLabel = {
           draft: t.suppliers.statusDraft,
@@ -55,7 +60,11 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
         const base = `/lieferanten/${relationshipId}/strategie`;
         return (
           <>
-            <PageHeader title={supplier.name} purpose={t.suppliers.profilePurpose} />
+            <PageHeader
+              title={t.workspace.pages.profile.title}
+              purpose={t.suppliers.profilePurpose}
+              badge={<InternalBadge />}
+            />
             {message && <StatusLine message={message} onHidden={hideMessage} />}
             {ended && (
               <StatusLine message={t.suppliers.endedMessage} onHidden={() => setEnded(false)} />

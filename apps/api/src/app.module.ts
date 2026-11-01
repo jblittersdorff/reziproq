@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { MeModule } from './modules/me/me.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
+import { OverviewModule } from './modules/overview/overview.module.js';
 import { PromptModule } from './modules/prompt/prompt.module.js';
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 import { SupportModule } from './modules/support/support.module.js';
@@ -24,6 +25,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     MeModule,
     OrganizationsModule,
     SuppliersModule,
+    OverviewModule,
     PromptModule,
     SupportModule,
     AuditModule,

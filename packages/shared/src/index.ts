@@ -8,3 +8,4 @@ export * from './permissions.js';
 export * from './prompt.js';
 export * from './suppliers.js';
 export * from './support.js';
+export * from './workspace.js';

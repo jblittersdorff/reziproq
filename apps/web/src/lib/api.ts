@@ -9,13 +9,14 @@ import {
   meResponseSchema,
   organizationMemberSchema,
   organizationResponseSchema,
-  permissionsResponseSchema,
   type PromptEvent,
   type PromptRequest,
+  permissionsResponseSchema,
   promptEventSchema,
   type SpendRequest,
   supplierDetailSchema,
   supplierLookupResponseSchema,
+  supplierOverviewSchema,
   suppliersResponseSchema,
   supportHeader,
   teamResponseSchema,
@@ -224,6 +225,15 @@ export const updateMember = (accessToken: string, userId: string, request: Updat
   );
 
 /** Internes Team einer Beziehung (PLT-05b). */
+/** Kopf und Kennzahlen des Arbeitsbereichs (NAV-06); neu geladen mit allem unter ['suppliers', id]. */
+export const supplierOverviewQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'overview'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/overview`, supplierOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
 export const teamQueryOptions = (accessToken: string, relationshipId: string) =>
   queryOptions({
     queryKey: ['suppliers', relationshipId, 'team'],
