@@ -524,6 +524,16 @@ export async function listSuppliers(tx: TenantTransaction, spendYear: number): P
       status: relationship.status,
       amountCents: relationshipSpend.amountCents,
       currency: relationshipSpend.currency,
+      // Warengruppen der Zuordnung (PLT-06), die Haupt-Warengruppe zuerst.
+      materialGroups: sql<string[]>`coalesce((
+        select array_agg(g.name order by rg.is_primary desc, g.name)
+        from relationship_material_group rg join material_group g on g.id = rg.material_group_id
+        where rg.relationship_id = ${relationship.id}
+      ), '{}')`,
+      hasPrimary: sql<boolean>`exists (
+        select 1 from relationship_material_group rg
+        where rg.relationship_id = ${relationship.id} and rg.is_primary
+      )`,
     })
     .from(relationship)
     .innerJoin(organization, eq(organization.id, relationship.supplierOrgId))
@@ -543,9 +553,10 @@ export async function listSuppliers(tx: TenantTransaction, spendYear: number): P
     )
     .orderBy(sql`${relationshipSpend.amountCents} desc nulls last`, organization.name);
 
-  return rows.map(({ amountCents, currency, ...supplier }) => ({
+  return rows.map(({ amountCents, currency, hasPrimary, ...supplier }) => ({
     ...supplier,
     spend: amountCents !== null && currency !== null ? { amountCents, currency } : null,
+    primaryMaterialGroup: hasPrimary ? (supplier.materialGroups[0] ?? null) : null,
   }));
 }
 

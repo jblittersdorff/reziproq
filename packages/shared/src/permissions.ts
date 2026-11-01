@@ -33,6 +33,8 @@ export const actions = [
   'verlauf.sehen',
   'prompt.nutzen',
   'kunden.wechseln',
+  'stammdaten.verwalten',
+  'zuordnung.bearbeiten',
 ] as const;
 export type Action = (typeof actions)[number];
 

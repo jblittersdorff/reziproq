@@ -2,13 +2,14 @@ import { Building2Icon } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
+import { MasterDataLinks } from '@/features/master-data/links';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
 import { useT } from '@/lib/i18n';
 
 /**
- * Alle Einstellungen (PLT-11): vorerst nur Organisation; weitere kommen mit ihren Specs. Den Weg
+ * Alle Einstellungen (PLT-11): Organisation, Business Units und Warengruppen (PLT-06). Den Weg
  * hierher sehen nur Admins. Wer die Adresse direkt öffnet, sieht den Hinweis und die Organisation.
  */
 export function SettingsPage() {
@@ -35,6 +36,7 @@ export function SettingsPage() {
             icon={<Building2Icon aria-hidden />}
             renderLink={routerLink}
           />
+          {permissions.viewBuyerAreas && <MasterDataLinks />}
         </SettingsGroup>
       )}
     </>

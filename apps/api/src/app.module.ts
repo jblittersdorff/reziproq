@@ -6,6 +6,7 @@ import { env } from './config/env.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { MasterDataModule } from './modules/master-data/master-data.module.js';
 import { MeModule } from './modules/me/me.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
@@ -26,6 +27,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     OrganizationsModule,
     SuppliersModule,
     OverviewModule,
+    MasterDataModule,
     PromptModule,
     SupportModule,
     AuditModule,

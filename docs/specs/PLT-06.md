@@ -43,13 +43,31 @@ Als Admin pflege ich die Business Units und Warengruppen meines Unternehmens und
 
 Je Kriterium ein Test.
 
-- [ ] Ein Admin legt an, benennt um und deaktiviert. Nutzer und Leser bekommen dabei 403.
-- [ ] Mehrere BUs und Warengruppen je Lieferant, genau eine Haupt-Warengruppe.
-- [ ] Deaktivierte Einträge sind für neue Zuordnungen nicht wählbar. Bestehende bleiben sichtbar und markiert.
-- [ ] Ein benutzter Eintrag lässt sich nicht löschen.
-- [ ] Codes sind je Organisation eindeutig. Mehr als zwei Ebenen werden abgelehnt.
-- [ ] Der Zweit-OEM und der Test-Lieferant sehen keine BU und keine Warengruppe des Test-OEM (PLT-04).
-- [ ] Alle Formulare sind eigene Seiten. Speichern und Abbrechen führen zurück.
+- [x] Ein Admin legt an, benennt um und deaktiviert. Nutzer und Leser bekommen dabei 403.
+- [x] Mehrere BUs und Warengruppen je Lieferant, genau eine Haupt-Warengruppe.
+- [x] Deaktivierte Einträge sind für neue Zuordnungen nicht wählbar. Bestehende bleiben sichtbar und markiert.
+- [x] Ein benutzter Eintrag lässt sich nicht löschen.
+- [x] Codes sind je Organisation eindeutig. Mehr als zwei Ebenen werden abgelehnt.
+- [x] Der Zweit-OEM und der Test-Lieferant sehen keine BU und keine Warengruppe des Test-OEM (PLT-04).
+- [x] Alle Formulare sind eigene Seiten. Speichern und Abbrechen führen zurück.
+
+## Umgesetzt mit
+
+- **Datenbank:** Migration `0017_stammdaten`; alle vier Tabellen über `app_apply_layer`. Die Zuordnungstabellen haben zusätzlich eine `id`, damit das Prüfgerüst aus PLT-04 sie wie jede Tabelle prüft.
+  - Codes sind je Organisation eindeutig, ohne Rücksicht auf Groß- und Kleinschreibung.
+  - Trigger lehnen eine dritte Ebene ab, ebenso eine Oberebene oder einen Eintrag einer anderen Organisation und neue Zuordnungen auf deaktivierte Einträge.
+  - Ein aufgeschobener Trigger sichert genau eine Haupt-Warengruppe, sobald es Warengruppen gibt.
+  - Benutzte Einträge sperren die Fremdschlüssel.
+- **Prüfgerüst aus PLT-04:** kennt jetzt Tabellen ohne `relationship_id`, Testwerte mit Fremdschlüsseln (`probe`) und behandelt Löschen, das ein Fremdschlüssel sperrt, als „nichts gelöscht“.
+- **Rechte:** neu `stammdaten.verwalten` (Admin) und `zuordnung.bearbeiten` (Admin und Nutzer, nicht mit Teamrolle Leser). Lesen über `organisation.sehen`.
+- **Löschen:** nur für unbenutzte Einträge, mit Bestätigung auf der Seite. Eine Oberebene mit Untergruppen gilt als benutzt.
+- **Sichtbarkeit:** Jedes Mitglied sieht die Listen. Nutzer und Leser erreichen sie über `/profil`, Admins über „Alle Einstellungen“.
+- **Verlauf:** Änderungen der Zuordnung stehen im internen Verlauf des Profils (`relationship_assignment`).
+- **Lieferantenliste:** liefert Haupt-Warengruppe und alle Warengruppen. Die Suche findet jede zugeordnete Warengruppe.
+- **Beispieldaten:**
+  - Test-OEM: BUs Pkw, Nutzfahrzeuge, Ersatzteile; Warengruppen Elektronik (mit Sensorik und Kabel), Guss, Kunststoff, Logistik
+  - Zweit-OEM: BUs Landtechnik, Baumaschinen; Warengruppen Elektrik (mit Kabelbäume), Mechanik
+- **Fehler, der beim Bauen aufgefallen und behoben ist:** Der Bestätigungsknopf (NAV-04) hat in einem Formular das Formular mit abgeschickt. Seine Knöpfe sind jetzt `type="button"`.
 
 ## Nicht Teil dieser Funktion
 

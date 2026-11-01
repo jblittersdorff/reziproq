@@ -76,8 +76,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 13 | PLT-05b | Team je Beziehung | PLT-05 | PLT-05a | 1.0 | M4 | B | fertig | Teil b von PLT-05 |
 | 14 | UMB-01 | Betreiber-Zugang nach dem neuen Muster | – | PLT-11, PLT-05a | 1.0 | M4 | B | fertig | – |
 | 15 | NAV-06 | Lieferanten-Arbeitsbereich | NAV-06, NAV-07, NAV-08, NAV-09 | PLT-03b, PLT-05b, PLT-11 | 1.0 | M5 | A | fertig | – |
-| 16 | PLT-09 | Deutsch und Englisch | PLT-09 | PLT-11 | 1.0 | M5 | A | PR offen | – |
-| 17 | PLT-06 | Business Units und Warengruppen | PLT-06 | PLT-03b, PLT-05b | 1.0 | M6 | C | offen | – |
+| 16 | PLT-09 | Deutsch und Englisch | PLT-09 | PLT-11 | 1.0 | M5 | A | fertig | – |
+| 17 | PLT-06 | Business Units und Warengruppen | PLT-06 | PLT-03b, PLT-05b | 1.0 | M6 | C | PR offen | – |
 | 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | offen | Spend überführt schon PLT-03a; der Freitext Warengruppe entfällt (Entscheidung zu PLT-03a) |
 | 19 | PLT-07a | Import: Baustein, Lieferanten und Spend | PLT-07 | PLT-06 | 1.0 | M6 | C | offen | Teil a von PLT-07 |
 | 20 | PLT-07b | Import: Business Units und Kontakte | PLT-07 | PLT-07a | 1.0 | M6 | C | offen | Teil b von PLT-07 |

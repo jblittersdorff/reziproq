@@ -158,6 +158,9 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'active',
         spend: { amountCents: 500_000_00, currency: 'EUR' },
+        // Ohne Zuordnung (PLT-06)
+        primaryMaterialGroup: null,
+        materialGroups: [],
       },
       {
         relationshipId: ids.relAShared,
@@ -166,6 +169,9 @@ describe('GET /api/suppliers', () => {
         externalRef: 'A-1',
         status: 'active',
         spend: { amountCents: 123_456_78, currency: 'EUR' },
+        // Ohne Zuordnung (PLT-06)
+        primaryMaterialGroup: null,
+        materialGroups: [],
       },
       {
         relationshipId: ids.relEnded,
@@ -174,6 +180,9 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'ended',
         spend: { amountCents: 1_000_00, currency: 'EUR' },
+        // Ohne Zuordnung (PLT-06)
+        primaryMaterialGroup: null,
+        materialGroups: [],
       },
       {
         relationshipId: ids.relDraft,
@@ -182,6 +191,9 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'draft',
         spend: null,
+        // Ohne Zuordnung (PLT-06)
+        primaryMaterialGroup: null,
+        materialGroups: [],
       },
     ]);
   });

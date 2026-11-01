@@ -120,6 +120,13 @@
       "when": 1793557789280,
       "tag": "0016_sprache",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793565363620,
+      "tag": "0017_stammdaten",
+      "breakpoints": true
     }
   ]
 }

@@ -52,7 +52,15 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
   await db.execute(sql`delete from relationship_spend where relationship_id in ${ids}`);
   await db.execute(sql`delete from relationship_side where relationship_id in ${ids}`);
   await db.execute(sql`delete from relationship_member where relationship_id in ${ids}`);
+  await db.execute(sql`delete from relationship_business_unit where relationship_id in ${ids}`);
+  await db.execute(sql`delete from relationship_material_group where relationship_id in ${ids}`);
   await db.execute(
     sql`delete from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds}`,
   );
+  // Business Units und Warengruppen der Organisationen (PLT-06), Untergruppen zuerst.
+  await db.execute(sql`delete from business_unit where org_id in ${orgIds}`);
+  await db.execute(
+    sql`delete from material_group where org_id in ${orgIds} and parent_id is not null`,
+  );
+  await db.execute(sql`delete from material_group where org_id in ${orgIds}`);
 }

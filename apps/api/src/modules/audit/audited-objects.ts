@@ -39,7 +39,15 @@ export const relationshipTeamAudit = auditedObject({
   fields: ['team'],
 });
 
+/** Business Units und Warengruppen eines Lieferanten (PLT-06): käuferprivat, Verlauf intern. */
+export const relationshipAssignmentAudit = auditedObject({
+  type: 'relationship_assignment',
+  visibility: 'internal',
+  fields: ['business_units', 'material_groups', 'primary_material_group'],
+});
+
 export const auditedObjects: readonly AuditedObject[] = [
+  relationshipAssignmentAudit,
   relationshipTeamAudit,
   userRoleAudit,
   relationshipAudit,

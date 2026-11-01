@@ -214,6 +214,23 @@ async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
       },
     }),
   );
+  // Business Units und Warengruppen (PLT-06); der Eintrag mit der ID aus allRoutes() ist bearbeitbar.
+  const entry = { id, name: 'Elektronik', code: 'EL', active: true, supplierCount: 0 };
+  await page.route('**/api/business-units', (route) =>
+    route.fulfill({ json: { businessUnits: [entry, { ...entry, id: 'bu-2', active: false }] } }),
+  );
+  await page.route('**/api/material-groups', (route) =>
+    route.fulfill({ json: { materialGroups: [{ ...entry, parentId: null, childCount: 0 }] } }),
+  );
+  await page.route(`**/api/suppliers/${id}/zuordnung`, (route) =>
+    route.fulfill({
+      json: {
+        businessUnits: [{ id, name: 'Elektronik', code: 'EL', active: false }],
+        materialGroups: [{ id, name: 'Elektronik', code: 'EL', active: true, isPrimary: true }],
+        canEdit: true,
+      },
+    }),
+  );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
   return zitadel;
 }

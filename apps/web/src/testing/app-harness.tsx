@@ -58,6 +58,8 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'team.festlegen',
     'verlauf.sehen',
     'prompt.nutzen',
+    'stammdaten.verwalten',
+    'zuordnung.bearbeiten',
   ],
   member: [
     'organisation.sehen',
@@ -65,6 +67,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'lieferanten.bearbeiten',
     'verlauf.sehen',
     'prompt.nutzen',
+    'zuordnung.bearbeiten',
   ],
   viewer: ['organisation.sehen', 'lieferanten.sehen', 'verlauf.sehen', 'prompt.nutzen'],
 };
@@ -76,6 +79,8 @@ const supplier = (
   externalRef: string | null,
   spend: number | null,
   status: Supplier['status'] = 'active',
+  /** Warengruppen (PLT-06), die Haupt-Warengruppe zuerst */
+  materialGroups: string[] = [],
 ): Supplier => ({
   relationshipId: `rel-${name}`,
   name,
@@ -83,6 +88,8 @@ const supplier = (
   externalRef,
   status,
   spend: spend === null ? null : { amountCents: spend, currency: 'EUR' },
+  primaryMaterialGroup: materialGroups[0] ?? null,
+  materialGroups,
 });
 
 /**
@@ -91,8 +98,11 @@ const supplier = (
  */
 export const sampleSuppliers: SuppliersResponse = {
   suppliers: [
-    supplier('Rheintal Elektronik GmbH (Demo)', 'DE', 'L-10001', mio(4.82)),
-    supplier('Silesia Guss Sp. z o.o. (Demo)', 'PL', 'L-10002', mio(3.15)),
+    supplier('Rheintal Elektronik GmbH (Demo)', 'DE', 'L-10001', mio(4.82), 'active', [
+      'Elektronik',
+      'Kabel',
+    ]),
+    supplier('Silesia Guss Sp. z o.o. (Demo)', 'PL', 'L-10002', mio(3.15), 'active', ['Guss']),
     supplier('Lombardia Fonderie S.p.A. (Demo)', 'IT', 'L-10004', mio(2.71), 'ended'),
     supplier('Alpen Sensorik GmbH (Demo)', 'AT', 'L-10006', mio(2.26)),
     supplier('Test-Lieferant (Demo)', 'DE', null, null, 'draft'),

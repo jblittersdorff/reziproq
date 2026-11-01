@@ -108,6 +108,8 @@ function mayRead(who: Viewer, row: RowMeta): boolean {
 
 /** Tabellen, in denen relationship_id Pflicht ist; dort gibt es keine Zeilen ohne Beziehung. */
 const relationshipRequired = new Set<string>();
+/** Tabellen ohne relationship_id (z. B. Stammdaten je Organisation, PLT-06): nur Zeilen ohne Beziehung. */
+const withoutRelationship = new Set<string>();
 
 /** Die Zeilen, die das Gerüst je Art anlegt: von jeder Seite, freigegeben und nicht. */
 function rowsFor(kind: LayerKind, table: string): Omit<RowMeta, 'table' | 'kind'>[] {
@@ -119,7 +121,7 @@ function rowsFor(kind: LayerKind, table: string): Omit<RowMeta, 'table' | 'kind'
     case 'org_private':
       return [testOem, zweitOem, supplier].flatMap((org) => [
         ...(relationshipRequired.has(table) ? [] : [{ relationship: null, org }]),
-        ...keys
+        ...(withoutRelationship.has(table) ? [] : keys)
           .filter((key) => [relationships[key].buyer, relationships[key].supplier].includes(org))
           .map((relationship) => ({ relationship, org })),
       ]);
@@ -139,10 +141,25 @@ function rowsFor(kind: LayerKind, table: string): Omit<RowMeta, 'table' | 'kind'
 }
 
 /** Spaltenwerte einer Zeile: Testwerte aus dem Register plus die Ebenen-Spalten. */
-function columnsOf(entry: LayerEntry, row: Omit<RowMeta, 'table' | 'kind'>, id: string) {
-  const values: Record<string, unknown> = { ...entry.testValues, id };
+function columnsOf(
+  table: string,
+  entry: LayerEntry,
+  row: Omit<RowMeta, 'table' | 'kind'>,
+  id: string,
+  probe: (table: string, org: string) => string,
+) {
+  const testValues =
+    typeof entry.testValues === 'function'
+      ? entry.testValues({
+          buyer: row.relationship === null ? null : relationships[row.relationship].buyer,
+          probe,
+        })
+      : entry.testValues;
+  const values: Record<string, unknown> = { ...testValues, id };
   if (row.relationship !== null) values.relationship_id = relationships[row.relationship].id;
-  else if (entry.kind === 'org_private') values.relationship_id = null;
+  else if (entry.kind === 'org_private' && !withoutRelationship.has(table)) {
+    values.relationship_id = null;
+  }
   if (row.org) values.org_id = row.org;
   if (row.owner) values.owner_org_id = row.owner;
   if (row.visibility) values.visibility = row.visibility;
@@ -187,6 +204,15 @@ describe('PLT-04: Drei Datenebenen', () => {
 
   const metaOf = (ids: string[]) => ids.map((id) => rows.get(id) as RowMeta);
 
+  /** ID der Gerüst-Zeile ohne Beziehung, die eine Organisation in einer Tabelle hat. */
+  const probe = (table: string, org: string) => {
+    const found = [...rows.entries()].find(
+      ([, meta]) => meta.table === table && meta.org === org && meta.relationship === null,
+    );
+    if (!found) throw new Error(`Keine Probe-Zeile in ${table} für ${org}`);
+    return found[0];
+  };
+
   const setEnded = async (key: RelationshipKey, value: boolean) => {
     await temp.db.execute(
       sql`update relationship set status = ${value ? 'ended' : 'active'} where id = ${relationships[key].id}`,
@@ -203,6 +229,11 @@ describe('PLT-04: Drei Datenebenen', () => {
     await temp.db.execute(sql`delete from relationship_spend`);
     await temp.db.execute(sql`delete from relationship_side`);
     await temp.db.execute(sql`delete from relationship_member`);
+    await temp.db.execute(sql`delete from relationship_business_unit`);
+    await temp.db.execute(sql`delete from relationship_material_group`);
+    await temp.db.execute(sql`delete from business_unit`);
+    await temp.db.execute(sql`delete from material_group where parent_id is not null`);
+    await temp.db.execute(sql`delete from material_group`);
     await temp.db.execute(sql`delete from relationship`);
     for (const relationship of Object.values(relationships)) {
       await temp.db.execute(sql`
@@ -222,10 +253,21 @@ describe('PLT-04: Drei Datenebenen', () => {
       where table_schema = 'public' and column_name = 'relationship_id' and is_nullable = 'NO'
     `);
     for (const row of required.rows) relationshipRequired.add(row.table_name);
+    const missing = await temp.db.execute<{ table_name: string }>(sql`
+      select t.table_name from information_schema.tables t
+      where t.table_schema = 'public' and not exists (
+        select 1 from information_schema.columns c
+        where c.table_schema = 'public' and c.table_name = t.table_name
+          and c.column_name = 'relationship_id'
+      )
+    `);
+    for (const row of missing.rows) withoutRelationship.add(row.table_name);
     for (const entry of tables) {
       for (const row of rowsFor(entry.kind, entry.table)) {
         const id = randomUUID();
-        await temp.db.execute(insertSql(entry.table, columnsOf(entry, row, id)));
+        await temp.db.execute(
+          insertSql(entry.table, columnsOf(entry.table, entry, row, id, probe)),
+        );
         rows.set(id, { table: entry.table, kind: entry.kind, ...row });
       }
     }
@@ -349,9 +391,20 @@ describe('PLT-04: Drei Datenebenen', () => {
               const updated = await tx.execute<{ id: string }>(
                 sql`update ${sql.identifier(table)} set id = id returning id::text`,
               );
-              const deleted = await tx.execute<{ id: string }>(
-                sql`delete from ${sql.identifier(table)} returning id::text`,
-              );
+              // Zeilen, auf die noch ein Fremdschlüssel zeigt (z. B. eine zugeordnete BU,
+              // PLT-06), lassen sich nicht löschen; dann löscht der Betrachter dort nichts.
+              const deleted = await tx
+                .transaction((inner) =>
+                  inner.execute<{ id: string }>(
+                    sql`delete from ${sql.identifier(table)} returning id::text`,
+                  ),
+                )
+                .catch((error: unknown) => {
+                  if ((error as { cause?: { code?: string } }).cause?.code === '23503') {
+                    return { rows: [] as { id: string }[] };
+                  }
+                  throw error;
+                });
               throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
             }).catch((error: unknown) => {
               if (error instanceof Rollback) return error.ids;
@@ -369,7 +422,7 @@ describe('PLT-04: Drei Datenebenen', () => {
           const own =
             kind === 'shared' ? meta.owner === who.org && mayRead(who, meta) : mayRead(who, meta);
           const insert = withTenant(temp.db, session(who), async (tx) => {
-            await tx.execute(insertSql(table, columnsOf(entry, row, randomUUID())));
+            await tx.execute(insertSql(table, columnsOf(table, entry, row, randomUUID(), probe)));
             throw new Rollback([]);
           }).catch((error: unknown) => {
             if (error instanceof Rollback) return 'angelegt';

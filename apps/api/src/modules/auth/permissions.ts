@@ -48,6 +48,15 @@ export const permissions: Record<Action, Permission> = {
     description: 'Fragen an Reziproq stellen',
     roles: ['admin', 'member', 'viewer'],
   },
+  'stammdaten.verwalten': {
+    description: 'Business Units und Warengruppen anlegen, umbenennen, deaktivieren, löschen',
+    roles: ['admin'],
+  },
+  'zuordnung.bearbeiten': {
+    description: 'Lieferanten Business Units und Warengruppen zuordnen (nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],
