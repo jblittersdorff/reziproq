@@ -7,6 +7,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
+import { MasterDataLinks } from '@/features/master-data/links';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { signedOut } from '@/lib/auth';
@@ -96,6 +97,10 @@ export function ProfilePage() {
                   renderLink={routerLink}
                 />
               )}
+              {/* Business Units und Warengruppen sehen alle; Admins finden sie in allen Einstellungen. */}
+              {!manageSettings &&
+                me.data.permissions.viewOrganizationSettings &&
+                me.data.permissions.viewBuyerAreas && <MasterDataLinks />}
               {manageSettings && (
                 <SettingsLinkRow
                   href="/einstellungen"

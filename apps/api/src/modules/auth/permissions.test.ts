@@ -91,6 +91,21 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         })
       ).status,
     'kunden.wechseln': async (user) => (await request(user, 'GET', '/api/betreiber/kunden')).status,
+    'stammdaten.verwalten': async (user) =>
+      (
+        await request(user, 'POST', '/api/business-units', {
+          name: 'Probe',
+          code: `P-${randomUUID().slice(0, 8)}`,
+        })
+      ).status,
+    'zuordnung.bearbeiten': async (user) =>
+      (
+        await request(user, 'PUT', `/api/suppliers/${relationshipId}/zuordnung`, {
+          businessUnitIds: [],
+          materialGroupIds: [],
+          primaryMaterialGroupId: null,
+        })
+      ).status,
   };
 
   beforeAll(async () => {

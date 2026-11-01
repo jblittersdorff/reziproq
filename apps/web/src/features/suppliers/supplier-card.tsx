@@ -6,7 +6,6 @@ import { Tile } from '@/components/ui/tile';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 
-
 /**
  * Karte eines Lieferanten (PLT-03): Name als größte Schrift, Land, eigene Nummer und der Spend des
  * letzten vollen Jahres rechtsbündig. Entwurf und Beendet stehen als Kennzeichen mit Symbol und Text.
@@ -55,6 +54,11 @@ export function SupplierCard({
             <div className="flex gap-2">
               <dt className="text-muted-foreground">{t.suppliers.externalRef}</dt>
               <dd>{supplier.externalRef ?? '–'}</dd>
+            </div>
+            {/* Haupt-Warengruppe (PLT-06) */}
+            <div className="flex gap-2">
+              <dt className="text-muted-foreground">{t.masterData.assignment.primary}</dt>
+              <dd>{supplier.primaryMaterialGroup ?? '–'}</dd>
             </div>
           </dl>
           <p className="flex items-baseline justify-between gap-2">

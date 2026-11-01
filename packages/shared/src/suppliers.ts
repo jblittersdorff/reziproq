@@ -18,6 +18,10 @@ export const supplierSchema = z.object({
   status: z.enum(relationshipStatuses),
   /** Spend des Jahres spendYear aus der Antwort; null, wenn dafür nichts erfasst ist */
   spend: moneySchema.nullable(),
+  /** Name der Haupt-Warengruppe (PLT-06); null ohne Zuordnung */
+  primaryMaterialGroup: z.string().nullable().default(null),
+  /** Namen aller zugeordneten Warengruppen, damit die Suche sie findet (PLT-06) */
+  materialGroups: z.array(z.string()).default([]),
 });
 
 export type Supplier = z.infer<typeof supplierSchema>;

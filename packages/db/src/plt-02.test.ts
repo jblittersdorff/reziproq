@@ -53,6 +53,10 @@ describe('PLT-02 in der Datenbank', () => {
     'relationship',
     'relationship_side',
     'relationship_spend',
+    'business_unit',
+    'material_group',
+    'relationship_business_unit',
+    'relationship_material_group',
   ])('Ohne gesetzte Session liefert %s keine Zeilen', async (table) => {
     expect(await asApi(sql`select * from ${sql.identifier(table)}`)).toEqual([]);
   });
@@ -80,10 +84,14 @@ describe('PLT-02 in der Datenbank', () => {
     expect(tables.rows.map((row) => row.relname)).toEqual([
       'app_user',
       'audit_event',
+      'business_unit',
+      'material_group',
       'organization',
       'organization_feature',
       'outbox_event',
       'relationship',
+      'relationship_business_unit',
+      'relationship_material_group',
       'relationship_member',
       'relationship_side',
       'relationship_spend',

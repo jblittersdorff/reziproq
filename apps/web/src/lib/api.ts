@@ -1,11 +1,16 @@
 import {
+  type AssignmentRequest,
+  assignmentResponseSchema,
   auditResponseSchema,
+  businessUnitsResponseSchema,
   type CreateSupplierRequest,
   createSupplierResponseSchema,
   customersResponseSchema,
   type ForbiddenCode,
   forbiddenCodes,
   healthResponseSchema,
+  type MaterialGroupRequest,
+  materialGroupsResponseSchema,
   meResponseSchema,
   organizationMemberSchema,
   organizationResponseSchema,
@@ -26,7 +31,7 @@ import {
   type UserLocale,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
-import type { z } from 'zod';
+import { z } from 'zod';
 import { browserLocale } from './i18n';
 import { getSupportCustomer } from './support';
 
@@ -107,6 +112,71 @@ export async function reportLogin(accessToken: string): Promise<void> {
     });
   } catch {}
 }
+
+// PLT-06: Business Units, Warengruppen und Zuordnung zu Lieferanten.
+
+export type MasterDataKind = 'business-units' | 'material-groups';
+
+export const businessUnitsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['master-data', 'business-units'],
+    queryFn: () => getJson('/business-units', businessUnitsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const materialGroupsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['master-data', 'material-groups'],
+    queryFn: () => getJson('/material-groups', materialGroupsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createEntry = (
+  accessToken: string,
+  kind: MasterDataKind,
+  request: MaterialGroupRequest,
+) => sendJson('POST', `/${kind}`, request, z.object({ id: z.string() }), accessToken);
+
+export const updateEntry = (
+  accessToken: string,
+  kind: MasterDataKind,
+  id: string,
+  request: MaterialGroupRequest,
+) => sendJson('PATCH', `/${kind}/${id}`, request, z.object({ id: z.string() }), accessToken);
+
+/** Nur unbenutzte Einträge; sonst 409 in_use. */
+export async function deleteEntry(accessToken: string, kind: MasterDataKind, id: string) {
+  const path = `/${kind}/${id}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'DELETE',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+}
+
+export const assignmentQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'assignment'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/zuordnung`, assignmentResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAssignment = (
+  accessToken: string,
+  relationshipId: string,
+  request: AssignmentRequest,
+) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/zuordnung`,
+    request,
+    assignmentResponseSchema,
+    accessToken,
+  );
 
 /** Eigene Sprache speichern (PLT-09); gilt dann auf jedem Gerät. */
 export async function saveLocale(accessToken: string, locale: UserLocale): Promise<void> {

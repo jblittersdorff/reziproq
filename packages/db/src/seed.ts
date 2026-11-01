@@ -2,10 +2,14 @@ import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
   appUser,
+  businessUnit,
+  materialGroup,
   type OrgRole,
   organization,
   organizationFeature,
   relationship,
+  relationshipBusinessUnit,
+  relationshipMaterialGroup,
   relationshipMember,
   relationshipSide,
   relationshipSpend,
@@ -209,6 +213,52 @@ const seedTeams = relationships.slice(0, 5).flatMap((entry, index) => [
   },
 ]);
 
+/**
+ * Business Units und Warengruppen (PLT-06): beim Test-OEM drei BUs und sechs Warengruppen in zwei
+ * Ebenen, beim Zweit-OEM eigene, andere Werte. Ebene zwei nennt ihre Oberebene in parent.
+ */
+const seedBusinessUnits = [
+  { id: id(501), orgId: seedBuyers.testOem.id, name: 'Pkw', code: 'PKW' },
+  { id: id(502), orgId: seedBuyers.testOem.id, name: 'Nutzfahrzeuge', code: 'NFZ' },
+  { id: id(503), orgId: seedBuyers.testOem.id, name: 'Ersatzteile', code: 'ET' },
+  { id: id(511), orgId: seedBuyers.zweitOem.id, name: 'Landtechnik', code: 'LT' },
+  { id: id(512), orgId: seedBuyers.zweitOem.id, name: 'Baumaschinen', code: 'BM' },
+];
+const seedMaterialGroups = [
+  { id: id(601), orgId: seedBuyers.testOem.id, name: 'Elektronik', code: 'EL', parentId: null },
+  { id: id(602), orgId: seedBuyers.testOem.id, name: 'Sensorik', code: 'EL-SE', parentId: id(601) },
+  { id: id(603), orgId: seedBuyers.testOem.id, name: 'Kabel', code: 'EL-KA', parentId: id(601) },
+  { id: id(604), orgId: seedBuyers.testOem.id, name: 'Guss', code: 'GU', parentId: null },
+  { id: id(605), orgId: seedBuyers.testOem.id, name: 'Kunststoff', code: 'KU', parentId: null },
+  { id: id(606), orgId: seedBuyers.testOem.id, name: 'Logistik', code: 'LO', parentId: null },
+  { id: id(611), orgId: seedBuyers.zweitOem.id, name: 'Elektrik', code: 'E', parentId: null },
+  {
+    id: id(612),
+    orgId: seedBuyers.zweitOem.id,
+    name: 'Kabelbäume',
+    code: 'E-KB',
+    parentId: id(611),
+  },
+  { id: id(613), orgId: seedBuyers.zweitOem.id, name: 'Mechanik', code: 'M', parentId: null },
+];
+/** Haupt-Warengruppe je Lieferant des Test-OEM, in der Reihenfolge der Lieferanten oben. */
+const testOemPrimary = [601, 604, 605, 604, 606, 602, 605, 601, 604, 606, 605, 604, 603, 606, 605];
+/** Zuordnung je Beziehung: BUs, Warengruppen und die Haupt-Warengruppe zuerst. */
+const seedAssignments: { relationshipId: string; units: number[]; groups: number[] }[] = [
+  ...testOemPrimary.map((primary, index) => ({
+    relationshipId: id(201 + index),
+    units: index % 4 === 0 ? [501, 503] : [501 + (index % 3)],
+    // Sensorik-Lieferanten liefern auch allgemeine Elektronik.
+    groups: primary === 602 ? [602, 601] : [primary],
+  })),
+  { relationshipId: id(301), units: [511], groups: [611] },
+  { relationshipId: id(302), units: [511, 512], groups: [613] },
+  { relationshipId: id(303), units: [512], groups: [612, 611] },
+  // Der Test-Lieferant ist bei beiden OEMs angelegt.
+  { relationshipId: id(401), units: [501], groups: [601] },
+  { relationshipId: id(402), units: [512], groups: [611] },
+];
+
 /** Das Vorjahr weicht je Lieferant etwas ab, damit eine Entwicklung sichtbar ist. */
 const previousYear = (spend: number, index: number) =>
   Math.round(spend * (0.86 + (index % 5) * 0.06));
@@ -335,6 +385,50 @@ export async function seed(
     await tx
       .insert(relationshipMember)
       .values(seedTeams.map((member) => ({ ...member, orgId: seedBuyers.testOem.id })));
+
+    // Business Units und Warengruppen (PLT-06); Oberebenen vor ihren Untergruppen.
+    await tx
+      .insert(businessUnit)
+      .values(seedBusinessUnits)
+      .onConflictDoUpdate({
+        target: businessUnit.id,
+        set: { name: sql`excluded.name`, code: sql`excluded.code`, active: true },
+      });
+    for (const level of [false, true]) {
+      const groups = seedMaterialGroups.filter((group) => (group.parentId !== null) === level);
+      await tx
+        .insert(materialGroup)
+        .values(groups)
+        .onConflictDoUpdate({
+          target: materialGroup.id,
+          set: { name: sql`excluded.name`, code: sql`excluded.code`, active: true },
+        });
+    }
+    // Zuordnungen neu setzen, wie die Teams.
+    const assigned = seedAssignments.map((entry) => entry.relationshipId);
+    await tx
+      .delete(relationshipBusinessUnit)
+      .where(inArray(relationshipBusinessUnit.relationshipId, assigned));
+    await tx
+      .delete(relationshipMaterialGroup)
+      .where(inArray(relationshipMaterialGroup.relationshipId, assigned));
+    await tx.insert(relationshipBusinessUnit).values(
+      seedAssignments.flatMap((entry) =>
+        entry.units.map((unit) => ({
+          relationshipId: entry.relationshipId,
+          businessUnitId: id(unit),
+        })),
+      ),
+    );
+    await tx.insert(relationshipMaterialGroup).values(
+      seedAssignments.flatMap((entry) =>
+        entry.groups.map((group, index) => ({
+          relationshipId: entry.relationshipId,
+          materialGroupId: id(group),
+          isPrimary: index === 0,
+        })),
+      ),
+    );
 
     return {
       organizations: organizations.length,

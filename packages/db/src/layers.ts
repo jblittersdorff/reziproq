@@ -23,6 +23,13 @@ export const privateKinds: readonly LayerKind[] = [
   'org_private',
 ];
 
+/** Was die Testwerte über die Zeile wissen, die das Gerüst gerade anlegt. */
+export interface TestRowContext {
+  /** Käufer der Beziehung der Zeile; null ohne Beziehung */
+  buyer: string | null;
+  probe: (table: string, org: string) => string;
+}
+
 export interface LayerEntry {
   kind: LayerKind;
   /**
@@ -30,8 +37,12 @@ export interface LayerEntry {
    * für Tabellen aus der Zeit vor PLT-04, die eine spätere Spec ablöst.
    */
   manual?: string;
-  /** Werte für Pflichtspalten außer den Ebenen-Spalten, damit die Prüfungen Zeilen anlegen können. */
-  testValues?: Record<string, unknown>;
+  /**
+   * Werte für Pflichtspalten außer den Ebenen-Spalten, damit die Prüfungen Zeilen anlegen können.
+   * Als Funktion für Fremdschlüssel: probe(tabelle, org) liefert die ID der Probe-Zeile, die das
+   * Gerüst in dieser Tabelle für die Organisation angelegt hat, z. B. die BU des Käufers.
+   */
+  testValues?: Record<string, unknown> | ((row: TestRowContext) => Record<string, unknown>);
   /** Nur anfügen (z. B. Verlauf, PLT-08): Ändern und Löschen scheitern für jeden. */
   appendOnly?: boolean;
 }
@@ -58,6 +69,22 @@ export const layerRegister: Record<string, LayerEntry> = {
   relationship_side: { kind: 'org_private' },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // PLT-06: Stammdaten je Organisation und ihre Zuordnung zu Lieferanten.
+  business_unit: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
+  material_group: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
+  relationship_business_unit: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      business_unit_id: buyer && probe('business_unit', buyer),
+    }),
+  },
+  relationship_material_group: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      material_group_id: buyer && probe('material_group', buyer),
+      is_primary: true,
+    }),
+  },
   audit_event: {
     kind: 'shared',
     appendOnly: true,

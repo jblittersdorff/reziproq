@@ -13,12 +13,12 @@ export const supplierSearchSchema = z.object({
 export type SupplierSearch = z.infer<typeof supplierSearchSchema>;
 export type SortKey = NonNullable<SupplierSearch['sortierung']>;
 
-/** Filtert nach Name und eigener Nummer, ohne Groß- und Kleinschreibung. */
+/** Filtert nach Name, eigener Nummer und Warengruppen (PLT-06), ohne Groß- und Kleinschreibung. */
 export function filterSuppliers(suppliers: Supplier[], query: string): Supplier[] {
   const needle = query.trim().toLocaleLowerCase('de');
   if (!needle) return suppliers;
   return suppliers.filter((supplier) =>
-    [supplier.name, supplier.externalRef ?? ''].some((value) =>
+    [supplier.name, supplier.externalRef ?? '', ...supplier.materialGroups].some((value) =>
       value.toLocaleLowerCase('de').includes(needle),
     ),
   );

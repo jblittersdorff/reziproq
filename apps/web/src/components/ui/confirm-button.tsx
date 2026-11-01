@@ -38,6 +38,8 @@ function ConfirmButton({
     return (
       <Button
         ref={triggerRef}
+        // Auch in einem Formular nie abschicken: Die Bestätigung entscheidet selbst.
+        type="button"
         variant={variant === 'destructive' ? 'outline' : 'secondary'}
         onClick={() => setAsking(true)}
       >
@@ -55,6 +57,7 @@ function ConfirmButton({
     >
       <legend className="float-left font-medium text-base">{question}</legend>
       <Button
+        type="button"
         variant={variant}
         onClick={() => {
           setAsking(false);
@@ -63,7 +66,7 @@ function ConfirmButton({
       >
         {confirmLabel}
       </Button>
-      <Button ref={cancelRef} variant="ghost" onClick={() => setAsking(false)}>
+      <Button type="button" ref={cancelRef} variant="ghost" onClick={() => setAsking(false)}>
         {cancelLabel}
       </Button>
     </fieldset>

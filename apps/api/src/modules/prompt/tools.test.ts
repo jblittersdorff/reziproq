@@ -15,6 +15,8 @@ const supplier = (name: string, amountCents: number, currency: string): Supplier
   externalRef: null,
   status: 'active',
   spend: { amountCents, currency },
+  primaryMaterialGroup: null,
+  materialGroups: [],
 });
 
 const list: SuppliersResponse = {

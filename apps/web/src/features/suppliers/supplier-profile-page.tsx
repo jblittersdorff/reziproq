@@ -8,6 +8,7 @@ import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/set
 import { StatusLine } from '@/components/ui/status-line';
 import { AuditHistory } from '@/features/audit/audit-history';
 import { useCan } from '@/features/auth/use-permissions';
+import { AssignmentSection } from '@/features/master-data/assignment';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { InternalBadge } from '@/features/workspace/internal-badge';
@@ -17,7 +18,6 @@ import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { SupplierFrame } from './supplier-frame';
 import { useRefreshSupplier, useSupplier } from './use-supplier';
-
 
 /**
  * Strategie › Profil eines Lieferanten (PLT-03b): Stammdaten zum Lesen, eigene Werte, Status,
@@ -103,14 +103,14 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
             </SettingsGroup>
             <p className="-mt-4 px-4 text-muted-foreground text-sm">{t.suppliers.ownValuesHint}</p>
 
+            <AssignmentSection relationshipId={relationshipId} />
+
             <SettingsGroup title={t.suppliers.masterData}>
               <SettingsRow label={t.suppliers.name}>
                 <span className="text-base">{supplier.organizationName}</span>
               </SettingsRow>
               <SettingsRow label={t.suppliers.country}>
-                <span className="text-base">
-                  {format.country(supplier.country)}
-                </span>
+                <span className="text-base">{format.country(supplier.country)}</span>
               </SettingsRow>
               <SettingsRow label={t.suppliers.vatId}>
                 <span className="text-base">{supplier.vatId ?? '–'}</span>
@@ -163,7 +163,7 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
                 {t.suppliers.history}
               </h2>
               <AuditHistory
-                objectType="relationship,relationship_side,relationship_spend"
+                objectType="relationship,relationship_side,relationship_spend,relationship_assignment"
                 objectId={relationshipId}
               />
             </section>
