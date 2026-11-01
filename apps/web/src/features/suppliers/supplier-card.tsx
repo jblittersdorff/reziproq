@@ -55,7 +55,9 @@ export function SupplierCard({
           </div>
         </dl>
         <p className="flex items-baseline justify-between gap-2">
-          <span className="text-muted-foreground text-sm">{t.suppliers.annualSpend(spendYear)}</span>
+          <span className="text-muted-foreground text-sm">
+            {t.suppliers.annualSpend(spendYear)}
+          </span>
           <span className="font-semibold text-base tabular-nums">
             {supplier.spend ? formatMoney(supplier.spend, 'de', { wholeUnits: true }) : '–'}
           </span>

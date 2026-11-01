@@ -5,7 +5,8 @@ export type Action =
   | 'lieferanten.sehen'
   | 'prompt.nutzen'
   | 'kunden.wechseln'
-  | 'einstellungen.verwalten';
+  | 'einstellungen.verwalten'
+  | 'verlauf.sehen';
 
 // Welche Rollen eine Aktion ausführen dürfen. Neue Aktionen kommen mit den Funktionen dazu.
 // Name und Mitglieder der eigenen Organisation sieht jedes Mitglied (PLT-02); das hängt an der
@@ -19,6 +20,8 @@ const allowedRoles: Record<Action, readonly Role[]> = {
   'kunden.wechseln': ['betreiber'],
   // Weg zu allen Einstellungen (PLT-11). Bis PLT-05 gelten die Rollen aus Zitadel.
   'einstellungen.verwalten': ['admin'],
+  // Verlauf eines Objekts: wer das Objekt sehen darf; die Datenbank begrenzt es wie das Objekt (PLT-08).
+  'verlauf.sehen': ['admin', 'nutzer', 'leser', 'controlling', 'betreiber'],
 };
 
 /** Die einzige Stelle, an der Rechte entschieden werden. Die Oberfläche zeigt nur das Ergebnis. */

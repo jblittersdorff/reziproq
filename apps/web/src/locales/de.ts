@@ -55,7 +55,8 @@ export const de = {
     greetingEvening: (firstName: string) => `Guten Abend, ${firstName}`,
     greetingWithoutName: 'Willkommen bei Reziproq',
     emptyTitle: 'Hier steht bald, was bei dir fällig ist',
-    emptyDescription: 'Offene Bewertungen, Termine und Maßnahmen erscheinen hier, sobald es sie gibt.',
+    emptyDescription:
+      'Offene Bewertungen, Termine und Maßnahmen erscheinen hier, sobald es sie gibt.',
   },
 
   // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)
@@ -108,7 +109,8 @@ export const de = {
   settings: {
     title: 'Einstellungen',
     purpose: 'Reziproq für deine Organisation einrichten.',
-    adminOnly: 'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
+    adminOnly:
+      'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
     organization: 'Organisation',
     organizationHint: 'Name, Land und Mitglieder',
     organizationPurpose: 'Name, Land und Mitglieder deiner Organisation. Nur zum Lesen.',
@@ -120,6 +122,29 @@ export const de = {
     organizationLoading: 'Organisation wird geladen …',
     organizationFailed: 'Die Organisation konnte nicht geladen werden.',
     noOrganization: 'Du bist keiner Organisation zugeordnet.',
+  },
+
+  // Verlauf (PLT-08)
+  audit: {
+    title: 'Verlauf',
+    loading: 'Verlauf wird geladen …',
+    failed: 'Der Verlauf konnte nicht geladen werden.',
+    emptyTitle: 'Noch keine Änderungen',
+    emptyDescription: 'Sobald jemand etwas ändert, steht es hier mit Datum und Organisation.',
+    change: (field: string, from: string, to: string) => `${field}: ${from} → ${to}`,
+    actions: {
+      created: 'Angelegt',
+      updated: 'Geändert',
+      ended: 'Beendet',
+      shared: 'Freigegeben',
+      approved: 'Genehmigt',
+    },
+    fields: {
+      status: 'Status',
+    } as Record<string, string>,
+    values: {
+      status: { draft: 'Entwurf', active: 'aktiv', ended: 'beendet' },
+    } as Record<string, Record<string, string>>,
   },
 
   // Lieferantenliste (PLT-02, PLT-03)

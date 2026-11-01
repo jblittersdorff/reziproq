@@ -329,19 +329,33 @@ describe('PLT-04: Drei Datenebenen', () => {
     it('Schreiben in eine fremde Zeile (anlegen, ändern, löschen) scheitert genauso wie Lesen', async () => {
       const entry = register[table] as LayerEntry;
       for (const who of viewers) {
+        // Nur anfügen: Ändern und Löschen scheitern für jeden, auch für eigene Zeilen.
+        if (entry.appendOnly) {
+          for (const statement of [
+            sql`update ${sql.identifier(table)} set id = id`,
+            sql`delete from ${sql.identifier(table)}`,
+          ]) {
+            const outcome = await withTenant(temp.db, session(who), (tx) => tx.execute(statement))
+              .then(() => 'erlaubt')
+              .catch(() => 'abgelehnt');
+            expect(outcome, `${who.name} ändert oder löscht in ${table}`).toBe('abgelehnt');
+          }
+        }
         // Ändern und Löschen treffen nur Zeilen, die der Betrachter auch schreiben darf.
-        const touched = await withTenant(temp.db, session(who), async (tx) => {
-          const updated = await tx.execute<{ id: string }>(
-            sql`update ${sql.identifier(table)} set id = id returning id::text`,
-          );
-          const deleted = await tx.execute<{ id: string }>(
-            sql`delete from ${sql.identifier(table)} returning id::text`,
-          );
-          throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
-        }).catch((error: unknown) => {
-          if (error instanceof Rollback) return error.ids;
-          throw error;
-        });
+        const touched = entry.appendOnly
+          ? []
+          : await withTenant(temp.db, session(who), async (tx) => {
+              const updated = await tx.execute<{ id: string }>(
+                sql`update ${sql.identifier(table)} set id = id returning id::text`,
+              );
+              const deleted = await tx.execute<{ id: string }>(
+                sql`delete from ${sql.identifier(table)} returning id::text`,
+              );
+              throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
+            }).catch((error: unknown) => {
+              if (error instanceof Rollback) return error.ids;
+              throw error;
+            });
         for (const meta of metaOf(touched)) {
           expect(mayRead(who, meta), `${who.name} ändert fremde Zeile`).toBe(true);
           if (kind === 'shared')

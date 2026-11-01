@@ -103,9 +103,12 @@ describe('Lieferantenseite', () => {
     );
     expect(router.state.location.search).toEqual({ sortierung: 'name', beendet: 1 });
 
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Lieferant oder eigene Nummer suchen' }), {
-      target: { value: 'l-1000' },
-    });
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: 'Lieferant oder eigene Nummer suchen' }),
+      {
+        target: { value: 'l-1000' },
+      },
+    );
     expect(await cardNames()).toEqual([
       'Alpen Sensorik GmbH (Demo)',
       'Lombardia Fonderie S.p.A. (Demo)',
@@ -124,9 +127,9 @@ describe('Lieferantenseite', () => {
     expect(await cardNames()).toEqual(['Silesia Guss Sp. z o.o. (Demo)']);
     expect(screen.getByRole('searchbox')).toHaveProperty('value', 'silesia');
     expect(screen.getByRole('combobox', { name: 'Sortieren' })).toHaveProperty('value', 'name');
-    expect(screen.getByRole('switch', { name: 'Beendete zeigen' }).getAttribute('aria-checked')).toBe(
-      'true',
-    );
+    expect(
+      screen.getByRole('switch', { name: 'Beendete zeigen' }).getAttribute('aria-checked'),
+    ).toBe('true');
   });
 
   it('ignoriert ungültige Werte in der Adresse', async () => {
@@ -208,14 +211,17 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
     };
   };
 
-  it.each(['/start', '/lieferanten', '/portfolio', '/wirkung', '/fragen', '/gibt-es-nicht'])('sieht auf %s nur den Hinweis, keine Bereiche', async (path) => {
-    withoutOrganization();
-    renderAt(path);
-    expect(await screen.findByText(missing)).toBeDefined();
-    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
-    expect(visibleAreaLinks()).toEqual([]);
-    expect(suppliersRequested()).toBe(false);
-  });
+  it.each(['/start', '/lieferanten', '/portfolio', '/wirkung', '/fragen', '/gibt-es-nicht'])(
+    'sieht auf %s nur den Hinweis, keine Bereiche',
+    async (path) => {
+      withoutOrganization();
+      renderAt(path);
+      expect(await screen.findByText(missing)).toBeDefined();
+      expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+      expect(visibleAreaLinks()).toEqual([]);
+      expect(suppliersRequested()).toBe(false);
+    },
+  );
 
   it('erreicht Profil und Einstellungen weiterhin, ohne Weg zur Organisation', async () => {
     withoutOrganization();

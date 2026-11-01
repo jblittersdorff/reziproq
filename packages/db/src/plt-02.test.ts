@@ -79,9 +79,11 @@ describe('PLT-02 in der Datenbank', () => {
     `);
     expect(tables.rows.map((row) => row.relname)).toEqual([
       'app_user',
+      'audit_event',
       'betreiber_zugriff',
       'organization',
       'organization_feature',
+      'outbox_event',
       'relationship',
       'relationship_side',
       'relationship_spend',

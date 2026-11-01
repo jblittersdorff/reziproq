@@ -1,4 +1,5 @@
 import {
+  auditResponseSchema,
   customersResponseSchema,
   type ForbiddenCode,
   forbiddenCodes,
@@ -93,6 +94,19 @@ export const organizationQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['organisation'],
     queryFn: () => getJson('/organisation', organizationResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Verlauf eines Objekts (PLT-08), neueste zuerst. */
+export const auditQueryOptions = (accessToken: string, objectType: string, objectId: string) =>
+  queryOptions({
+    queryKey: ['audit', objectType, objectId],
+    queryFn: () =>
+      getJson(
+        `/audit?${new URLSearchParams({ object_type: objectType, object_id: objectId })}`,
+        auditResponseSchema,
+        accessToken,
+      ),
     retry: retryUnlessDenied,
   });
 

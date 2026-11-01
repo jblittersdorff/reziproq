@@ -14,5 +14,7 @@ export default defineProject({
   test: {
     name: 'web',
     include: ['src/**/*.test.{ts,tsx}'],
+    // Feste Zeitzone, damit formatierte Uhrzeiten lokal und in der CI (UTC) gleich sind.
+    env: { TZ: 'Europe/Berlin' },
   },
 });
