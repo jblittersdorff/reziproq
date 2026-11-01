@@ -54,7 +54,8 @@ export const en: Messages = {
     greetingEvening: (firstName: string) => `Good evening, ${firstName}`,
     greetingWithoutName: 'Welcome to Reziproq',
     emptyTitle: 'Soon you will see what is due for you here',
-    emptyDescription: 'Open assessments, meetings and actions appear here as soon as there are any.',
+    emptyDescription:
+      'Open assessments, meetings and actions appear here as soon as there are any.',
   },
 
   portfolio: {
@@ -118,6 +119,29 @@ export const en: Messages = {
     organizationLoading: 'Loading organization …',
     organizationFailed: 'The organization could not be loaded.',
     noOrganization: 'You are not assigned to an organization.',
+  },
+
+  audit: {
+    title: 'History',
+    loading: 'Loading history …',
+    failed: 'The history could not be loaded.',
+    emptyTitle: 'No changes yet',
+    emptyDescription:
+      'As soon as someone changes something, it appears here with date and organization.',
+    change: (field: string, from: string, to: string) => `${field}: ${from} → ${to}`,
+    actions: {
+      created: 'Created',
+      updated: 'Changed',
+      ended: 'Ended',
+      shared: 'Shared',
+      approved: 'Approved',
+    },
+    fields: {
+      status: 'Status',
+    } as Record<string, string>,
+    values: {
+      status: { draft: 'draft', active: 'active', ended: 'ended' },
+    } as Record<string, Record<string, string>>,
   },
 
   suppliers: {

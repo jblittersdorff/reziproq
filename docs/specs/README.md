@@ -24,7 +24,7 @@ Grundlage ist das Dokument „Reziproq – Produktkonzept und Anforderungen“ v
   - Die Tests zur Datentrennung laufen dann automatisch mit.
   - Keine Fremdschlüssel von geteilten auf private Tabellen.
 - **Rechte:** Jede neue Aktion kommt in die Rechte-Matrix (`permissions.ts`) und wird über `can()` geprüft. `docs/rechte.md` wird neu erzeugt.
-- **Verlauf:** Geteilte Objekte schreiben Verlauf und Outbox (PLT-08).
+- **Verlauf:** Geteilte Objekte schreiben Verlauf und Outbox (PLT-08): eintragen in `apps/api/src/modules/audit/audited-objects.ts`, ändern über `auditedChange` aus `@reziproq/db`.
 - **Texte:** Alle Texte auf Deutsch und Englisch (PLT-09), Fachbegriffe nach `docs/glossar.md`.
 - **Zustände:** Jede Seite hat einen leeren Zustand, einen Ladezustand und einen Fehlerzustand. Der leere Zustand erklärt den nächsten Schritt (QS-04).
 - **E-Mails:** nur über QS-01, mit Titel und Link, ohne Inhalte.
@@ -69,8 +69,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 6 | UMB-02 | Neu anmelden ohne Fenster und Overlay | – | PLT-01, PLT-10 | 1.0 | M1 | C | fertig | – |
 | 7 | PLT-11 | App-Rahmen, globale Leiste, Seitenmuster | PLT-11, NAV-01, NAV-02, NAV-03 | PLT-10 | 1.0 | M1 | A | fertig | – |
 | 8 | PLT-04 | Drei Datenebenen | PLT-04 | PLT-02 | 1.0 | M2 | B | fertig | – |
-| 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | PR offen | Teil a von PLT-03 |
-| 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | offen | – |
+| 9 | PLT-03a | Beziehungen: Datenmodell und Liste | PLT-03 | PLT-04, PLT-11 | 1.0 | M2 | C | fertig | Teil a von PLT-03 |
+| 10 | PLT-08 | Audit-Trail | PLT-08 | PLT-04 | 1.0 | M3 | B | PR offen | – |
 | 11 | PLT-03b | Beziehungen: anlegen, ändern, beenden | PLT-03 | PLT-03a, PLT-08 | 1.0 | M3 | C | offen | Teil b von PLT-03 |
 | 12 | PLT-05a | Rollen in der Datenbank und Rechte-Matrix | PLT-05 | PLT-02, PLT-03b | 1.0 | M4 | B | offen | Teil a von PLT-05; teilweise umgesetzt, siehe Umsetzungsplan |
 | 13 | PLT-05b | Team je Beziehung | PLT-05 | PLT-05a | 1.0 | M4 | B | offen | Teil b von PLT-05 |

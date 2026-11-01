@@ -43,7 +43,9 @@ export function StyleguidePage() {
     <div className="flex min-h-svh">
       <aside className="sticky top-0 hidden h-svh w-56 shrink-0 bg-muted/90 px-3 py-6 backdrop-blur md:block">
         <nav aria-label={t.nav} className="flex flex-col gap-1">
-          <span className="flex min-h-11 items-center px-3 font-semibold text-base">{app.app.name}</span>
+          <span className="flex min-h-11 items-center px-3 font-semibold text-base">
+            {app.app.name}
+          </span>
           {sectionIds.map((id) => (
             <a
               key={id}

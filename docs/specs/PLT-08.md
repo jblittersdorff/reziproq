@@ -37,13 +37,24 @@ Bei jedem geteilten Objekt sehen beide Seiten, wer wann was geändert hat. Niema
 
 Je Kriterium ein Test.
 
-- [ ] Jede Änderung an einem Objekt mit Verlauf erzeugt genau einen Eintrag mit Person, Organisation, Zeit, Aktion und alten und neuen Werten.
-- [ ] `UPDATE` und `DELETE` auf `audit_event` scheitern, auch mit der Rolle der API.
-- [ ] Scheitert die Änderung, entsteht kein Eintrag. Scheitert der Eintrag, wird die Änderung zurückgerollt.
-- [ ] Ein Nutzer des Zweit-OEM sieht keinen Verlaufseintrag des Test-OEM (Test-Gerüst aus PLT-04).
-- [ ] Ein geteilter Verlaufseintrag enthält keine Felder aus privaten Tabellen.
-- [ ] Zu jedem Verlaufseintrag gibt es einen Outbox-Eintrag.
-- [ ] Der Baustein „Verlauf“ steht im Styleguide und zeigt Einträge, leeren Zustand und Ladezustand.
+- [x] Jede Änderung an einem Objekt mit Verlauf erzeugt genau einen Eintrag mit Person, Organisation, Zeit, Aktion und alten und neuen Werten.
+- [x] `UPDATE` und `DELETE` auf `audit_event` scheitern, auch mit der Rolle der API.
+- [x] Scheitert die Änderung, entsteht kein Eintrag. Scheitert der Eintrag, wird die Änderung zurückgerollt.
+- [x] Ein Nutzer des Zweit-OEM sieht keinen Verlaufseintrag des Test-OEM (Test-Gerüst aus PLT-04).
+- [x] Ein geteilter Verlaufseintrag enthält keine Felder aus privaten Tabellen.
+- [x] Zu jedem Verlaufseintrag gibt es einen Outbox-Eintrag.
+- [x] Der Baustein „Verlauf“ steht im Styleguide und zeigt Einträge, leeren Zustand und Ladezustand.
+
+## Umgesetzt mit (PR zu PLT-08)
+
+Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
+
+- Der Name der handelnden Person wird beim Eintrag festgehalten (`actor_name`). So bleibt der Verlauf unveränderlich und für beide Seiten lesbar, ohne fremde Nutzerdaten freizugeben. `actor_org_id` ist eine berechnete Spalte gleich `owner_org_id`.
+- `app_apply_layer` erlaubt bei `shared` eine leere `relationship_id`. Solche Zeilen sieht nur die eigene Organisation, z. B. Verlauf zu Rollen.
+- `outbox_event` ist `global` und nur für den Betrieb: Die API legt Einträge an und liest nichts. Verarbeitet werden sie später von Jobs (QS-01).
+- Objekte mit Verlauf: `auditedObject({ type, visibility, fields })` in `apps/api/src/modules/audit/audited-objects.ts`, Änderungen über `auditedChange` aus `@reziproq/db`. Nur die genannten Felder landen im Verlauf. Ein Test prüft, dass kein geteiltes Objekt ein Feld einer privaten Tabelle nennt (`privateColumns`). Erstes Objekt ist die Beziehung mit PLT-03b; bis dahin prüfen die Tests mit einer Probe-Tabelle.
+- Das Register der Datenebenen kennt `appendOnly`. Für solche Tabellen prüft das Gerüst aus PLT-04, dass Ändern und Löschen für jeden scheitern.
+- Endpunkt: `GET /api/audit?object_type=…&object_id=…`, Recht `verlauf.sehen`. Baustein in der Oberfläche: `AuditHistory` (`apps/web/src/features/audit/`).
 
 ## Nicht Teil dieser Funktion
 

@@ -20,7 +20,10 @@ export function AppearancePage() {
 
   return (
     <>
-      <PagePath trail={[{ label: t.profile.title, href: '/profil' }]} current={t.appearance.title} />
+      <PagePath
+        trail={[{ label: t.profile.title, href: '/profil' }]}
+        current={t.appearance.title}
+      />
       <PageHeader title={t.appearance.title} purpose={t.appearance.purpose} />
       <form
         className="flex flex-col gap-6"

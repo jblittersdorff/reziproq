@@ -32,6 +32,8 @@ export interface LayerEntry {
   manual?: string;
   /** Werte für Pflichtspalten außer den Ebenen-Spalten, damit die Prüfungen Zeilen anlegen können. */
   testValues?: Record<string, unknown>;
+  /** Nur anfügen (z. B. Verlauf, PLT-08): Ändern und Löschen scheitern für jeden. */
+  appendOnly?: boolean;
 }
 
 export const layerRegister: Record<string, LayerEntry> = {
@@ -55,6 +57,21 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_side: { kind: 'org_private' },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
+  audit_event: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: {
+      actor_user_id: 'test-nutzer',
+      actor_name: 'Test Nutzer',
+      object_type: 'probe',
+      object_id: 'probe-1',
+      action: 'updated',
+    },
+  },
+  outbox_event: {
+    kind: 'global',
+    manual: 'Outbox nur für den Betrieb: Die API legt Einträge an und liest nichts (PLT-08)',
+  },
   betreiber_zugriff: {
     kind: 'global',
     manual: 'Protokoll nur für den Betrieb, über die Session nie lesbar; UMB-01 benennt es um',
@@ -74,7 +91,7 @@ export function generatedLayerTables(register: Record<string, LayerEntry> = laye
  * geteilten auf eine private Tabelle (PostgreSQL umgeht bei Schlüsselprüfungen RLS).
  */
 export async function checkLayers(
-  db: Database,
+  db: Pick<Database, 'execute'>,
   register: Record<string, LayerEntry> = layerRegister,
 ): Promise<string[]> {
   const tables = await db.execute<{ name: string; rls: boolean; force: boolean }>(sql`
@@ -111,4 +128,30 @@ export async function checkLayers(
     }
   }
   return problems;
+}
+
+/** Spalten, die jede Ebene trägt und die nichts Privates verraten. */
+const layerColumns = new Set(['id', 'relationship_id', 'org_id', 'owner_org_id', 'visibility']);
+
+/**
+ * Fachspalten privater Tabellen (PLT-08): Solche Felder dürfen nie in einem geteilten
+ * Verlaufseintrag stehen. Liefert je Spaltenname die Tabellen, in denen sie vorkommt.
+ */
+export async function privateColumns(
+  db: Pick<Database, 'execute'>,
+  register: Record<string, LayerEntry> = layerRegister,
+): Promise<Map<string, string[]>> {
+  const privateTables = Object.entries(register)
+    .filter(([, entry]) => privateKinds.includes(entry.kind))
+    .map(([table]) => table);
+  const result = await db.execute<{ table_name: string; column_name: string }>(sql`
+    select table_name, column_name from information_schema.columns
+    where table_schema = 'public' and table_name in ${privateTables}
+  `);
+  const columns = new Map<string, string[]>();
+  for (const row of result.rows) {
+    if (layerColumns.has(row.column_name)) continue;
+    columns.set(row.column_name, [...(columns.get(row.column_name) ?? []), row.table_name]);
+  }
+  return columns;
 }

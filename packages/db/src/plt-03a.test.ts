@@ -79,10 +79,9 @@ describe('PLT-03a: Beziehungen in der Datenbank', () => {
 
     // relationship_side und relationship_spend laufen durch das Gerüst aus PLT-04,
     // relationship hat als Anker eigene Policies und die Tests hier.
-    expect(generatedLayerTables().map((entry) => entry.table)).toEqual([
-      'relationship_side',
-      'relationship_spend',
-    ]);
+    expect(generatedLayerTables().map((entry) => entry.table)).toEqual(
+      expect.arrayContaining(['relationship_side', 'relationship_spend']),
+    );
     expect(layerRegister.relationship?.kind).toBe('shared');
   });
 
