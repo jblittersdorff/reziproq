@@ -574,8 +574,9 @@ describe('PLT-04: Drei Datenebenen', () => {
         }),
       ).rejects.toMatchObject({
         cause: {
+          // Die Reihenfolge der fehlenden Spalten legt Postgres fest.
           message: expect.stringMatching(
-            /braucht für shared die Spalten: relationship_id, owner_org_id, visibility/,
+            /braucht für shared die Spalten: (?=.*relationship_id)(?=.*owner_org_id)(?=.*visibility)/,
           ),
         },
       });
