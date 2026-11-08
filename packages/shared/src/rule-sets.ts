@@ -49,6 +49,37 @@ export const ruleSetSchema = z.object({
   approvedAt: z.iso.datetime({ offset: true }).nullable(),
 });
 
+/** Was der Lieferant zu einer geteilten Version sieht (SEG-10): nur Inhalt, keine Herkunft. */
+export const sharedRuleSetItemSchema = z.object({
+  kind: z.enum(ruleSetItemKinds),
+  group: z.enum(ruleGroups).nullable(),
+  title: localizedTextSchema(200),
+  description: localizedTextSchema(1000),
+  cadence: z.enum(formatCadences).nullable(),
+});
+
+/** Der geteilte Stand: Typ mit Beschreibung beim Teilen und die Version. */
+export const sharedTargetSchema = z.object({
+  version: z.number().int().positive(),
+  typeName: z.string(),
+  typeDescription: z.string(),
+  sharedAt: z.iso.datetime({ offset: true }),
+});
+
+/** Vorschau genau so, wie der Lieferant sie sehen wird. */
+export const ruleSetSharePreviewSchema = z.object({
+  version: z.number().int().positive(),
+  typeName: z.string(),
+  typeDescription: z.string(),
+  items: z.array(sharedRuleSetItemSchema),
+});
+
+/** Lieferantenseite: der geteilte Typ und die Spielregeln dieser Version, sonst nichts. */
+export const customerRuleSetSchema = z.object({
+  target: sharedTargetSchema.nullable(),
+  items: z.array(sharedRuleSetItemSchema),
+});
+
 export const ruleSetResponseSchema = z.object({
   current: ruleSetSchema.nullable(),
   /** Konsolidierter Soll-Typ (SEG-06); ohne Konsolidierung null */
@@ -57,6 +88,8 @@ export const ruleSetResponseSchema = z.object({
   targetChanged: z.boolean(),
   /** SRO der Beziehung oder Admin, und die Beziehung ist nicht beendet */
   canManage: z.boolean(),
+  /** Was der Lieferant gerade sieht (SEG-10); vor dem ersten Teilen null */
+  shared: sharedTargetSchema.nullable(),
 });
 
 export const ruleSetProposalSchema = z.object({
@@ -102,3 +135,7 @@ export type RuleSetResponse = z.infer<typeof ruleSetResponseSchema>;
 export type RuleSetProposal = z.infer<typeof ruleSetProposalSchema>;
 export type CustomRuleSetItem = z.infer<typeof customRuleSetItemSchema>;
 export type SaveRuleSet = z.infer<typeof saveRuleSetSchema>;
+export type SharedRuleSetItem = z.infer<typeof sharedRuleSetItemSchema>;
+export type SharedTarget = z.infer<typeof sharedTargetSchema>;
+export type RuleSetSharePreview = z.infer<typeof ruleSetSharePreviewSchema>;
+export type CustomerRuleSet = z.infer<typeof customerRuleSetSchema>;

@@ -115,6 +115,7 @@ describe('PLT-02 in der Datenbank', () => {
       'relationship_member',
       'relationship_side',
       'relationship_spend',
+      'relationship_target',
       'rule_catalog_item',
       'rule_set',
       'rule_set_item',

@@ -14,6 +14,7 @@ import {
   contributionSuggestionsResponseSchema,
   createSupplierResponseSchema,
   customerListSchema,
+  customerRuleSetSchema,
   customersResponseSchema,
   customerWorkspaceSchema,
   cycleSchema,
@@ -61,6 +62,7 @@ import {
   roundRatersSchema,
   ruleSetProposalSchema,
   ruleSetResponseSchema,
+  ruleSetSharePreviewSchema,
   type SaveFormatItem,
   type SaveRating,
   type SaveRuleItem,
@@ -1141,3 +1143,34 @@ export const approveRuleSet = (accessToken: string, relationshipId: string) =>
     ruleSetResponseSchema,
     accessToken,
   );
+
+// SEG-10: Beziehungstyp und Spielregeln teilen; Lieferantenseite liest nur Geteiltes.
+
+export const ruleSetSharePreviewQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'rule-set', 'share'],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/spielregeln/teilen`,
+        ruleSetSharePreviewSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const shareRuleSet = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/spielregeln/teilen`,
+    {},
+    ruleSetResponseSchema,
+    accessToken,
+  );
+
+export const customerRuleSetQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['kunden', relationshipId, 'spielregeln'],
+    queryFn: () =>
+      getJson(`/kunden/${relationshipId}/spielregeln`, customerRuleSetSchema, accessToken),
+    retry: retryUnlessDenied,
+  });

@@ -49,6 +49,7 @@ export async function insertRelationships(db: Database, relationships: TestRelat
 /** Löscht alle Beziehungen, an denen eine der Organisationen beteiligt ist, samt Seiten und Spend. */
 export async function deleteRelationships(db: Database, orgIds: string[]) {
   const ids = sql`(select id from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds})`;
+  await db.execute(sql`delete from relationship_target where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set_note where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set_item where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set where relationship_id in ${ids}`);

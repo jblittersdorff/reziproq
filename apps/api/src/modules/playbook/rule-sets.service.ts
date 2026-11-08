@@ -23,14 +23,17 @@ import {
   type RuleSet,
   type RuleSetProposal,
   type RuleSetResponse,
+  type RuleSetSharePreview,
   ruleSetProposalSchema,
   ruleSetResponseSchema,
+  ruleSetSharePreviewSchema,
   type SaveRuleSet,
   type SegmentTarget,
+  type SharedTarget,
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import { actorOf } from '../audit/actor.js';
-import { ruleSetAudit } from '../audit/audited-objects.js';
+import { relationshipTargetAudit, ruleSetAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { readDecisions } from '../ratings/consolidation.js';
 
@@ -226,14 +229,7 @@ export class RuleSetsService {
   get(auth: AuthContext, relationshipId: string): Promise<RuleSetResponse> {
     return this.run(auth, async (tx, organization) => {
       const { canManage } = await this.context(tx, auth, organization, relationshipId);
-      const target = await this.target(tx, organization.id, relationshipId);
-      const row = await this.currentRow(tx, organization.id, relationshipId);
-      return ruleSetResponseSchema.parse({
-        current: row ? await this.readSet(tx, row) : null,
-        target,
-        targetChanged: row !== null && target !== null && !sameTarget(row, target),
-        canManage,
-      });
+      return this.response(tx, organization.id, relationshipId, canManage);
     });
   }
 
@@ -409,6 +405,157 @@ export class RuleSetsService {
       target,
       targetChanged: row !== null && target !== null && !sameTarget(row, target),
       canManage,
+      shared: await this.shared(tx, organizationId, relationshipId),
+    });
+  }
+
+  /** Was der Lieferant gerade sieht (SEG-10). */
+  private async shared(
+    tx: TenantTransaction,
+    organizationId: string,
+    relationshipId: string,
+  ): Promise<SharedTarget | null> {
+    const [row] = await tx
+      .select()
+      .from(schema.relationshipTarget)
+      .where(
+        and(
+          eq(schema.relationshipTarget.relationshipId, relationshipId),
+          eq(schema.relationshipTarget.ownerOrgId, organizationId),
+          eq(schema.relationshipTarget.visibility, 'shared'),
+        ),
+      );
+    return row
+      ? {
+          version: row.ruleSetVersion,
+          typeName: row.typeName,
+          typeDescription: row.typeDescription,
+          sharedAt: row.sharedAt.toISOString(),
+        }
+      : null;
+  }
+
+  /** Name und Beschreibung des Typs im aktiven Segmentmodell, als Stand fürs Teilen (SEG-10). */
+  private async typeOf(tx: TenantTransaction, organizationId: string, row: SetRow) {
+    const [type] = await tx
+      .select({ name: schema.segmentType.name, description: schema.segmentType.description })
+      .from(schema.segmentType)
+      .innerJoin(schema.segmentModel, eq(schema.segmentModel.id, schema.segmentType.modelId))
+      .where(
+        and(
+          eq(schema.segmentModel.orgId, organizationId),
+          eq(schema.segmentModel.status, 'active'),
+          eq(schema.segmentType.impactLevel, row.targetImpactLevel),
+          eq(schema.segmentType.qualityLevel, row.targetQualityLevel),
+        ),
+      );
+    return { name: type?.name ?? row.typeName, description: type?.description ?? '' };
+  }
+
+  private async shareable(tx: TenantTransaction, organizationId: string, relationshipId: string) {
+    const current = await this.currentRow(tx, organizationId, relationshipId);
+    if (!current || current.status === 'draft') {
+      throw conflict('not_approved', 'Teilen lässt sich nur eine intern freigegebene Version.');
+    }
+    return current;
+  }
+
+  /** Vorschau genau so, wie der Lieferant sie sehen wird (SEG-10). */
+  sharePreview(auth: AuthContext, relationshipId: string): Promise<RuleSetSharePreview> {
+    return this.run(auth, async (tx, organization) => {
+      await this.context(tx, auth, organization, relationshipId);
+      const current = await this.shareable(tx, organization.id, relationshipId);
+      const set = await this.readSet(tx, current);
+      return ruleSetSharePreviewSchema.parse({
+        version: current.version,
+        ...(await this.typeOf(tx, organization.id, current).then((type) => ({
+          typeName: type.name,
+          typeDescription: type.description,
+        }))),
+        items: set.items.map((item) => ({
+          kind: item.kind,
+          group: item.group,
+          title: item.title,
+          description: item.description,
+          cadence: item.cadence,
+        })),
+      });
+    });
+  }
+
+  /**
+   * Mit dem Lieferanten teilen: Typ und Beschreibung als Stand, diese Version wird sichtbar, eine
+   * früher geteilte wieder intern. Begründungen bleiben käuferprivat.
+   */
+  share(auth: AuthContext, relationshipId: string): Promise<RuleSetResponse> {
+    return this.run(auth, async (tx, organization) => {
+      const { canManage } = await this.context(tx, auth, organization, relationshipId);
+      if (!canManage) throw forbidden();
+      const current = await this.shareable(tx, organization.id, relationshipId);
+      if (current.status === 'shared' && current.visibility === 'shared') {
+        throw conflict('already_shared', 'Diese Version ist schon geteilt.');
+      }
+      const type = await this.typeOf(tx, organization.id, current);
+      const own = and(
+        eq(schema.ruleSet.relationshipId, relationshipId),
+        eq(schema.ruleSet.ownerOrgId, organization.id),
+      );
+      const actor = await actorOf(tx, auth, organization.id);
+      await auditedChange(tx, actor, relationshipTargetAudit, async () => {
+        const previous = await this.shared(tx, organization.id, relationshipId);
+        await tx.update(schema.ruleSet).set({ visibility: 'internal' }).where(own);
+        await tx
+          .update(schema.ruleSetItem)
+          .set({ visibility: 'internal' })
+          .where(
+            and(
+              eq(schema.ruleSetItem.relationshipId, relationshipId),
+              eq(schema.ruleSetItem.ownerOrgId, organization.id),
+            ),
+          );
+        await tx
+          .update(schema.ruleSet)
+          .set({ visibility: 'shared', status: 'shared' })
+          .where(eq(schema.ruleSet.id, current.id));
+        await tx
+          .update(schema.ruleSetItem)
+          .set({ visibility: 'shared' })
+          .where(eq(schema.ruleSetItem.ruleSetId, current.id));
+        await tx
+          .delete(schema.relationshipTarget)
+          .where(
+            and(
+              eq(schema.relationshipTarget.relationshipId, relationshipId),
+              eq(schema.relationshipTarget.ownerOrgId, organization.id),
+            ),
+          );
+        const [row] = await tx
+          .insert(schema.relationshipTarget)
+          .values({
+            relationshipId,
+            ownerOrgId: organization.id,
+            visibility: 'shared',
+            typeName: type.name,
+            typeDescription: type.description,
+            ruleSetId: current.id,
+            ruleSetVersion: current.version,
+            sharedBy: auth.userId,
+            sharedByName: actor.name,
+          })
+          .returning({ id: schema.relationshipTarget.id });
+        if (!row) throw new Error('Beziehungstyp nicht geteilt');
+        return {
+          objectId: row.id,
+          relationshipId,
+          action: 'shared' as const,
+          before: previous
+            ? { type_name: previous.typeName, rule_set_version: previous.version }
+            : null,
+          after: { type_name: type.name, rule_set_version: current.version },
+          result: undefined,
+        };
+      });
+      return this.response(tx, organization.id, relationshipId, true);
     });
   }
 

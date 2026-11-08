@@ -113,6 +113,17 @@ export const layerRegister: Record<string, LayerEntry> = {
       position: 1,
     }),
   },
+  relationship_target: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      type_name: 'Probe',
+      type_description: 'Probe',
+      rule_set_id: buyer && probe('rule_set', buyer),
+      rule_set_version: 1,
+      shared_by: 'demo-test-oem-1',
+      shared_by_name: 'Probe',
+    }),
+  },
   rule_set_note: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

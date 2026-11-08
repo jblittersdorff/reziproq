@@ -13,6 +13,7 @@ import {
 import {
   type RuleSetProposal,
   type RuleSetResponse,
+  type RuleSetSharePreview,
   type SaveRuleSet,
   saveRuleSetSchema,
 } from '@reziproq/shared';
@@ -66,6 +67,26 @@ export class RuleSetsController {
     @Body(new ZodValidationPipe(saveRuleSetSchema)) body: SaveRuleSet,
   ): Promise<RuleSetResponse> {
     return this.ruleSets.save(auth, id, body);
+  }
+
+  @Get('teilen')
+  @Requires('spielregeln.festlegen')
+  sharePreview(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<RuleSetSharePreview> {
+    return this.ruleSets.sharePreview(auth, id);
+  }
+
+  /** Mit dem Lieferanten teilen (SEG-10). */
+  @Post('teilen')
+  @HttpCode(200)
+  @Requires('spielregeln.festlegen')
+  share(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<RuleSetResponse> {
+    return this.ruleSets.share(auth, id);
   }
 
   @Post('freigabe')

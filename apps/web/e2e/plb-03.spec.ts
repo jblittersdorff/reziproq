@@ -148,7 +148,7 @@ async function mockBuyer(page: Page) {
     }),
   );
   await page.route(`**/api/suppliers/${rel}/spielregeln`, (route) =>
-    route.fulfill({ json: { current, target, targetChanged: true, canManage: true } }),
+    route.fulfill({ json: { current, target, targetChanged: true, canManage: true, shared: null } }),
   );
   await page.route(`**/api/suppliers/${rel}/spielregeln/vorschlag*`, (route) =>
     route.fulfill({ json: { target, items: proposal } }),
