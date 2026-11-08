@@ -23,7 +23,8 @@
     "db:roles": "pnpm --filter @reziproq/db db:roles",
     "org:link": "pnpm --filter @reziproq/db org:link",
     "operator:set": "pnpm --filter @reziproq/db operator:set",
-    "rechte": "pnpm --filter @reziproq/api rechte"
+    "rechte": "pnpm --filter @reziproq/api rechte",
+    "demo:setup": "pnpm --filter @reziproq/db demo:setup"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
