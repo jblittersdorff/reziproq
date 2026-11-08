@@ -140,13 +140,14 @@ test('Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreich
   page,
 }) => {
   // Zehn Seiten mal sechs Ziele, je mit Anmeldung über das nachgebaute Zitadel.
-  test.setTimeout(120_000);
+  // Jede Seite mal jedes Ziel; auf dem langsameren CI-Rechner braucht das mehrere Minuten.
+  test.setTimeout(480_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   for (const from of routes) {
     for (const target of barTargets) {
       await page.goto(from.path);
-      await expect(page.locator('#inhalt h1')).toBeVisible();
+      await expect(page.locator('#inhalt h1')).toBeVisible({ timeout: 15_000 });
       await bar(page).getByRole('link', { name: target.name, exact: true }).click();
       await expect(page).toHaveURL(url(target.path));
       await expect(bar(page).getByRole('link', { name: target.name, exact: true })).toHaveAttribute(
