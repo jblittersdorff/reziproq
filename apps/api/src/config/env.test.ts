@@ -118,4 +118,19 @@ describe('parseEnv', () => {
       }),
     ).toThrow(/HTTPS/);
   });
+
+  it('LIF-01b: ohne Angabe gilt das nachgebaute Zitadel; zitadel braucht das Token des Dienstkontos', () => {
+    expect(parseEnv(base).IDENTITY_PROVIDER).toBe('fake');
+    expect(() => parseEnv({ ...base, IDENTITY_PROVIDER: 'zitadel' })).toThrow(
+      /ZITADEL_SERVICE_TOKEN/,
+    );
+    expect(
+      parseEnv({
+        ...base,
+        IDENTITY_PROVIDER: 'zitadel',
+        ZITADEL_SERVICE_TOKEN: 'pat-0123456789abcdefghij',
+      }).IDENTITY_PROVIDER,
+    ).toBe('zitadel');
+    expect(() => parseEnv({ ...base, IDENTITY_PROVIDER: 'keycloak' })).toThrow(/IDENTITY_PROVIDER/);
+  });
 });

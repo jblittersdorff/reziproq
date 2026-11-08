@@ -38,6 +38,10 @@ const envSchema = z.object({
   EMAIL_SMTP_PORT: z.preprocess(emptyAsUndefined, z.coerce.number().int().positive().default(1025)),
   EMAIL_SMTP_USER: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
   EMAIL_SMTP_PASSWORD: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
+  // LIF-01: Organisation und Person beim Einladen anlegen. fake ist der Nachbau ohne Internet;
+  // zitadel nutzt die Verwaltungsschnittstelle mit dem Token eines Dienstkontos.
+  IDENTITY_PROVIDER: z.preprocess(emptyAsUndefined, z.enum(['fake', 'zitadel']).default('fake')),
+  ZITADEL_SERVICE_TOKEN: z.preprocess(emptyAsUndefined, z.string().min(20).optional()),
   WEB_APP_URL: z.preprocess(
     emptyAsUndefined,
     z
@@ -84,6 +88,9 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
     if (env.NODE_ENV === 'production' && !env.AWS_REGION.startsWith('eu-')) {
       throw new Error('Produktionsdaten dürfen nur in einer AWS-EU-Region verarbeitet werden.');
     }
+  }
+  if (env.IDENTITY_PROVIDER === 'zitadel' && !env.ZITADEL_SERVICE_TOKEN) {
+    throw new Error('IDENTITY_PROVIDER=zitadel braucht ZITADEL_SERVICE_TOKEN in der .env.');
   }
   if (Boolean(env.EMAIL_SMTP_USER) !== Boolean(env.EMAIL_SMTP_PASSWORD)) {
     throw new Error('EMAIL_SMTP_USER und EMAIL_SMTP_PASSWORD müssen gemeinsam gesetzt werden.');

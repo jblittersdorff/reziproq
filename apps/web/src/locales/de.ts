@@ -438,7 +438,7 @@ export const de = {
     kamTaken: 'Einen Key Account Manager gibt es für diese Beziehung schon.',
     passkeyTitle: 'Passkey einrichten',
     passkeyText:
-      'Ein Passkey ersetzt das Passwort. Du bestätigst ihn mit Fingerabdruck, Gesicht oder der PIN deines Geräts.',
+      'Ein Passkey ersetzt das Passwort. Du bestätigst ihn mit Fingerabdruck, Gesicht oder der PIN deines Geräts. Danach öffnest du den Link aus der E-Mail noch einmal und meldest dich an.',
     passkeyButton: 'Passkey einrichten',
     acceptFailed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
     acceptUnavailable: 'Die Annahme ist hier noch nicht eingerichtet. Bitte versuche es später.',
