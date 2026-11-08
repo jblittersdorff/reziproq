@@ -7,6 +7,7 @@ import { SupportBanner } from '@/features/support/support-banner';
 import { useLocale, useT } from '@/lib/i18n';
 import { LocalBarSlotProvider } from './local-bar-slot';
 import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
+import { StageSlotProvider } from './stage-slot';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
 export function AppLayout() {
@@ -17,52 +18,55 @@ export function AppLayout() {
   );
 }
 
-/** Globale Leiste oben (PLT-11), darunter der Inhalt mittig mit großzügigem Rand. */
+/** Globale Leiste oben (PLT-11), darunter die Bühne, falls die Seite eine hat, und der Inhalt mittig. */
 function Shell() {
   const t = useT();
   const { main, actions } = useNavTargets();
   const activeKey = useActiveNavKey();
   const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
+  const [stageSlot, setStageSlot] = useState<HTMLDivElement | null>(null);
   useQuestionsShortcut();
   useAccountLocale();
 
   return (
     <LocalBarSlotProvider value={localBarSlot}>
-      <div className="flex min-h-svh flex-col">
-        {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
-        <a
-          href="#inhalt"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
-        >
-          {t.app.skipToContent}
-        </a>
+      <StageSlotProvider value={stageSlot}>
+        <div className="flex min-h-svh flex-col">
+          {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
+          <a
+            href="#inhalt"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
+          >
+            {t.app.skipToContent}
+          </a>
 
-        <GlobalBar
-          label={t.app.navigation}
-          brand={t.app.name}
-          brandHref="/start"
-          items={main}
-          actions={actions.map((action) => {
-            const Icon = action.icon;
-            return { ...action, icon: <Icon aria-hidden /> };
-          })}
-          activeKey={activeKey}
-          menuHref="/menu"
-          menuLabel={t.app.openMenu}
-          renderLink={routerLink}
-        />
-        {/* Lokale Leiste eines Lieferanten (NAV-06); leer auf allen anderen Seiten. */}
-        <div ref={setLocalBarSlot} className="contents" />
+          <GlobalBar
+            label={t.app.navigation}
+            brand={t.app.name}
+            brandHref="/start"
+            items={main}
+            actions={actions.map((action) => {
+              const Icon = action.icon;
+              return { ...action, icon: <Icon aria-hidden /> };
+            })}
+            activeKey={activeKey}
+            menuHref="/menu"
+            menuLabel={t.app.openMenu}
+            renderLink={routerLink}
+          />
+          {/* Lokale Leiste eines Lieferanten (NAV-06); leer auf allen anderen Seiten. */}
+          <div ref={setLocalBarSlot} className="contents" />
 
-        <main
-          id="inhalt"
-          tabIndex={-1}
-          className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 outline-none sm:px-8 sidebar:py-12"
-        >
-          <SupportBanner />
-          <ContentGate />
-        </main>
-      </div>
+          <main id="inhalt" tabIndex={-1} className="flex w-full flex-col outline-none">
+            {/* Bühne über die ganze Breite (PLT-10); leer auf Seiten ohne Bühne. */}
+            <div ref={setStageSlot} className="contents" />
+            <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8 sidebar:py-12">
+              <SupportBanner />
+              <ContentGate />
+            </div>
+          </main>
+        </div>
+      </StageSlotProvider>
     </LocalBarSlotProvider>
   );
 }

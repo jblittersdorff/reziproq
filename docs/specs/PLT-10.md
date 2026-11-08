@@ -1,10 +1,10 @@
 # PLT-10 Design und Styleguide
 
-Release 0.1 · baut auf den Design-Regeln aus der Einrichtung (Tokens, `prinzipien.md`, `visualisierung.md`, Skill `ui-design`) · deckt ab PLT-10, NAV-04, NAV-10 · überarbeitet am 31.10.2026: keine Pop-ups
+Release 0.1 · baut auf den Design-Regeln aus der Einrichtung (Tokens, `prinzipien.md`, `visualisierung.md`, Skill `ui-design`) · deckt ab PLT-10, NAV-04, NAV-10 · überarbeitet am 31.10.2026: keine Pop-ups · überarbeitet am 8.11.2026: Bühne mit eigener Handschrift
 
 ## Ziel
 
-Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und Dunkel. So wird jede neue Seite aus denselben Teilen gebaut, wirkt wie Apple und kommt ohne Pop-up-Fenster aus.
+Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und Dunkel. So wird jede neue Seite aus denselben Teilen gebaut, wirkt so ruhig wie Apple, aber mit eigener Handschrift, und kommt ohne Pop-up-Fenster aus.
 
 ## Wer darf was
 
@@ -33,9 +33,11 @@ Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und
      - globale Leiste
      - lokale Leiste eines Lieferanten mit Knopf „Nächster Schritt“
      - Pfad mit Zurück-Pfeil
+   - **Bühne:** Kopf über die ganze Breite für Start und den Überblick eines Lieferanten, dunkel und hell
    - **Kachel (NAV-10):**
-     - Aufbau: Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe (Hauptaktion gefüllt, Nebenaktion umrandet)
+     - Aufbau: Kennzeichen, Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe (Hauptaktion gefüllt, Nebenaktion umrandet oder als Link)
      - groß für Start und Überblick, klein für Listen
+     - drei Töne: Karte (hell), Bühne (dunkel), Geteilt (Akzent hell)
    - **Knöpfe:**
      - Arten: Haupt, Neben, leise, gefährlich
      - Zustände: normal, Hover, Fokus, deaktiviert, lädt
@@ -60,7 +62,35 @@ Als Gründer sehe ich auf einer Seite alle Bausteine der Oberfläche in Hell und
 
 - Systemschrift über `system-ui` (auf dem Mac erscheint SF Pro), Fallback Inter. Keine eingebetteten Apple-Schriften.
 - Symbole von Lucide, keine SF Symbols.
-- Viel Weißraum, große Radien, Flächen statt Rahmen, kurze und zentrierte Überschriften in Kacheln.
+- Viel Weißraum, große Radien, Flächen statt Rahmen.
+
+### Handschrift „Bühne“ (seit 8.11.2026)
+
+Vorbild bleibt Apple in Ruhe und Klarheit, kopiert wird es nicht.
+
+- **Farben:**
+  - Tinte (fast schwarz, leicht blaugrün) für dunkle Flächen
+  - Petrol als einzige Akzentfarbe, im Dunkeln Minze
+  - Seite in warmem Hellgrau, Karten weiß
+  - kein Apple-Blau
+- **Bühne:**
+  - Start und der Überblick eines Lieferanten beginnen mit einer Fläche über die ganze Breite.
+  - Oben klein in Akzentfarbe Datum oder Warengruppe, darunter ein sehr großer Titel, linksbündig.
+  - Dazu ein Satz, höchstens zwei Knöpfe und rechts bis zu drei Kennzahlen.
+  - Start ist dunkel, der Lieferant hell.
+- **Schrift:**
+  - Überschriften linksbündig, fett, mit engem Buchstabenabstand.
+  - Zwei neue Stufen: Seitentitel (2xl) und Bühne (display).
+  - Kachel-Titel stehen linksbündig. Das ersetzt die zentrierten Titel aus NAV-10.
+- **Knöpfe** mit leicht runden Ecken, keine Pillenform.
+- **Globale Leiste:**
+  - hell, mit Bildmarke aus zwei Kreisen für Käufer und Lieferant
+  - die aktive Seite mit einer Akzentlinie unten
+  - in der lokalen Leiste markiert eine Linie den aktiven Bereich
+- **Ebenen sichtbar:**
+  - Was mit der anderen Seite geteilt ist, trägt den Ton Geteilt und das Kennzeichen „Geteilt“.
+  - Interne Inhalte bleiben hell oder dunkel.
+- **Statusgrün** ist ein Blattgrün und hebt sich vom Petrol ab, immer mit Symbol und Text.
 - Klickflächen mindestens 44 × 44 px.
 - Bei „Bewegung reduzieren“ laufen keine Animationen.
 - **Erlaubt:** native Auswahllisten.
@@ -81,6 +111,11 @@ Je Kriterium ein Test.
 - [ ] Alle Bausteine sind per Tastatur erreichbar und zeigen einen sichtbaren Fokus.
 - [ ] Jede Klickfläche ist mindestens 44 × 44 px groß (Playwright misst nach).
 - [ ] Die Diagramm-Beispiele nutzen nur Diagramm-Tokens.
+- [ ] Die Kontrastprüfung umfasst auch Text auf der Bühne und im Ton Geteilt.
+- [ ] Kein Apple-Blau in den Tokens (#0071e3, #0066cc, #2997ff).
+- [ ] Kachel-Titel und Kachel-Text stehen linksbündig.
+- [ ] Start und der Überblick eines Lieferanten zeigen die Bühne mit dem Seitentitel; bei 390 px ohne waagerechte Scrollleiste.
+- [ ] Der Styleguide zeigt die Bühne hell und dunkel und die drei Kacheltöne.
 
 ## Nicht Teil dieser Funktion
 

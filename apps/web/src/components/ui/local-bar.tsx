@@ -4,11 +4,14 @@ import { cn } from '@/lib/utils';
 import { defaultRenderLink, type NavItem, type RenderLink } from './nav-link';
 
 const linkClass =
-  'flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:font-medium aria-[current=page]:text-foreground';
+  'relative flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:font-semibold aria-[current=page]:text-foreground';
+
+// Der aktive Bereich trägt eine Linie unten (Handschrift Bühne).
+const activeLine =
+  'after:absolute after:inset-x-3 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-foreground after:opacity-0 aria-[current=page]:after:opacity-100';
 
 /**
- * Lokale Leiste eines Lieferanten unter der globalen Leiste (NAV-06), wie die Produktleiste auf
- * apple.com: links der Name, in der Mitte die Bereiche, rechts Platz für „Nächster Schritt“.
+ * Lokale Leiste eines Lieferanten unter der globalen Leiste (NAV-06): links der Name, in der Mitte die Bereiche, rechts Platz für „Nächster Schritt“.
  * Bleibt beim Scrollen oben stehen und bricht auf schmalen Bildschirmen um.
  */
 function LocalBar({
@@ -36,7 +39,11 @@ function LocalBar({
   return (
     <div
       data-slot="local-bar"
-      className={cn('z-10 bg-muted/90 backdrop-blur', sticky && 'sticky top-13', className)}
+      className={cn(
+        'z-10 border-border border-b bg-background/90 backdrop-blur',
+        sticky && 'sticky top-13',
+        className,
+      )}
     >
       <nav
         aria-label={label}
@@ -53,7 +60,7 @@ function LocalBar({
             <li key={item.key}>
               {renderLink({
                 href: item.href,
-                className: linkClass,
+                className: cn(linkClass, activeLine),
                 'aria-current': item.key === activeKey ? 'page' : undefined,
                 children: item.label,
               })}

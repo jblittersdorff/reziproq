@@ -78,6 +78,18 @@ export const de = {
     dueAllTitle: 'Alles, was bei mir fällig ist',
     dueAllPurpose: 'Alle offenen Aufgaben, nach Frist sortiert.',
     back: 'Zu Start',
+    // Bühne (PLT-10)
+    dueSummary: (count: number) =>
+      count === 0
+        ? 'Heute wartet nichts auf dich.'
+        : count === 1
+          ? 'Eine Sache wartet auf dich.'
+          : `${count} Dinge warten auf dich.`,
+    dueAction: 'Fällige Aufgaben',
+    metricsLabel: 'Auf einen Blick',
+    metricDue: 'fällig',
+    metricRelationships: 'Beziehungen',
+    metricCustomers: 'Kunden',
   },
 
   // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)

@@ -60,7 +60,8 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const colorScheme of ['light', 'dark'] as const) {
-      await page.emulateMedia({ colorScheme });
+      // Ohne Übergänge, sonst zeigt das Bild Farben mitten im Wechsel zwischen Hell und Dunkel.
+      await page.emulateMedia({ colorScheme, reducedMotion: 'reduce' });
       const overflowing = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('body *')]
           .filter((element) => element.getBoundingClientRect().right > window.innerWidth + 1)

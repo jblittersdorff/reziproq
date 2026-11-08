@@ -2,13 +2,18 @@ import { MenuIcon } from 'lucide-react';
 import type * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { BrandMark } from './brand-mark';
 import { defaultRenderLink, type NavItem, type RenderLink } from './nav-link';
 
 const linkClass =
-  'flex min-h-11 items-center rounded-md px-3 text-base text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:font-medium aria-[current=page]:text-foreground';
+  'relative flex min-h-11 items-center rounded-md px-3 text-base text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:font-semibold aria-[current=page]:text-foreground';
+
+// Die aktive Seite trägt eine Akzentlinie unten (Handschrift Bühne).
+const activeLine =
+  'after:absolute after:inset-x-3 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-primary after:opacity-0 aria-[current=page]:after:opacity-100';
 
 /**
- * Globale Leiste oben wie auf apple.com (PLT-11, NAV-01): links der Name, in der Mitte die
+ * Globale Leiste oben (PLT-11, NAV-01): links Bildmarke und Name, in der Mitte die
  * Hauptbereiche, rechts Symbole wie Fragen und Profil. Unter der Breite „sidebar“ (Token) zeigt sie
  * nur einen Menüknopf, der auf eine eigene Menüseite führt, kein Overlay.
  */
@@ -43,23 +48,33 @@ function GlobalBar({
   return (
     <header
       data-slot="global-bar"
-      className={cn('z-20 bg-background/80 backdrop-blur', sticky && 'sticky top-0', className)}
+      className={cn(
+        // Fest 13 Stufen hoch inklusive Linie: Die lokale Leiste klebt genau darunter (top-13).
+        'z-20 h-13 border-border border-b bg-card/90 backdrop-blur',
+        sticky && 'sticky top-0',
+        className,
+      )}
     >
       <nav
         aria-label={label}
-        className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-1"
+        className="mx-auto flex h-full w-full max-w-6xl items-center gap-2 px-4"
       >
         {renderLink({
           href: brandHref,
-          className: cn(linkClass, 'font-semibold text-foreground'),
-          children: brand,
+          className: cn(linkClass, 'gap-2.5 font-bold text-foreground text-lg tracking-title'),
+          children: (
+            <>
+              <BrandMark />
+              {brand}
+            </>
+          ),
         })}
         <ul className="hidden flex-1 items-center justify-center gap-1 sidebar:flex">
           {items.map((item) => (
             <li key={item.key}>
               {renderLink({
                 href: item.href,
-                className: linkClass,
+                className: cn(linkClass, activeLine),
                 'aria-current': item.key === activeKey ? 'page' : undefined,
                 children: item.label,
               })}

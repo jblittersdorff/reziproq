@@ -21,6 +21,17 @@ export const textPairs: [string, string][] = [
   ['success-soft-foreground', 'success-soft'],
   ['warning-soft-foreground', 'warning-soft'],
   ['destructive-soft-foreground', 'destructive-soft'],
+  ['muted-foreground', 'card'],
+  ['primary', 'card'],
+  ['muted-foreground', 'primary-soft'],
+  ['foreground', 'primary-soft'],
+  // Bühne (Handschrift Bühne, PLT-10)
+  ['stage-foreground', 'stage'],
+  ['stage-muted', 'stage'],
+  ['stage-accent', 'stage'],
+  ['stage-accent-foreground', 'stage-accent'],
+  ['stage-foreground', 'stage-raised'],
+  ['stage-muted', 'stage-raised'],
   ['chart-label', 'background'],
   ['chart-axis', 'background'],
   ['chart-label', 'chart-field'],
@@ -37,4 +48,5 @@ export const graphicPairs: [string, string][] = [
   ['chart-buyer', 'background'],
   ['chart-supplier', 'background'],
   ['chart-strong', 'background'],
+  ['stage-input', 'stage'],
 ];

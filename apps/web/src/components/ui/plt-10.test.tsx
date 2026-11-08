@@ -5,8 +5,10 @@ import { Breadcrumb } from './breadcrumb';
 import { ConfirmButton } from './confirm-button';
 import { CheckboxGroup, FormField } from './form-field';
 import { GlobalBar } from './global-bar';
+import { Stage, StageMetrics } from './stage';
 import { StatusLine } from './status-line';
 import { StepProgress } from './step-progress';
+import { Tile, TileActions, TileMetric, TileText, TileTitle } from './tile';
 import { VisibilityBadge } from './visibility-badge';
 
 // Tests zu docs/specs/PLT-10.md für die Logik der neuen Bausteine.
@@ -173,5 +175,70 @@ describe('Kennzeichen Intern und Geteilt (NAV-09)', () => {
     render(<VisibilityBadge visibility="internal" label="Intern" />);
     const badge = screen.getByText('Intern');
     expect(badge.querySelector('svg')).not.toBeNull();
+  });
+});
+
+describe('Handschrift Bühne (überarbeitet am 8.11.2026)', () => {
+  it('Kachel-Titel, -Text, -Kennzahl und -Knöpfe stehen linksbündig', () => {
+    render(
+      <Tile size="lg">
+        <TileTitle>Strategie</TileTitle>
+        <TileText>Wohin wir die Beziehung entwickeln wollen.</TileText>
+        <TileMetric value="3 / 3" label="Bewertungen" />
+        <TileActions>
+          <button type="button">Öffnen</button>
+        </TileActions>
+      </Tile>,
+    );
+    const tile = screen.getByRole('heading', { name: 'Strategie' }).closest('[data-slot="tile"]');
+    expect(tile?.className).toContain('text-left');
+    for (const element of tile?.querySelectorAll('*') ?? []) {
+      expect(element.className, element.outerHTML).not.toMatch(/text-center|justify-center/);
+    }
+  });
+
+  it('Kacheln gibt es in den Tönen Karte, Bühne und Geteilt', () => {
+    render(
+      <>
+        <Tile tone="card">a</Tile>
+        <Tile tone="stage">b</Tile>
+        <Tile tone="shared">c</Tile>
+      </>,
+    );
+    const tones = [...document.querySelectorAll('[data-slot="tile"]')].map((tile) => [
+      tile.getAttribute('data-tone'),
+      tile.className,
+    ]);
+    expect(tones.map(([tone]) => tone)).toEqual(['card', 'stage', 'shared']);
+    expect(tones[1]?.[1]).toContain('stage-scope');
+    expect(tones[2]?.[1]).toContain('bg-primary-soft');
+  });
+
+  it('Die Bühne zeigt Anlass, Titel als h1, Satz, Knopf und höchstens drei Kennzahlen', () => {
+    render(
+      <Stage
+        eyebrow="Sonntag, 8. November"
+        title="Guten Abend, Lena"
+        text="3 Dinge warten auf dich."
+        actions={<button type="button">Fällige Aufgaben</button>}
+        aside={
+          <StageMetrics
+            label="Auf einen Blick"
+            items={['a', 'b', 'c', 'd'].map((key) => ({ key, value: 1, label: key }))}
+          />
+        }
+      />,
+    );
+    expect(screen.getByRole('heading', { level: 1, name: 'Guten Abend, Lena' })).toBeDefined();
+    expect(screen.getByText('Sonntag, 8. November')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Fällige Aufgaben' })).toBeDefined();
+    const metrics = screen.getByLabelText('Auf einen Blick');
+    expect(metrics.querySelectorAll('dd')).toHaveLength(3);
+    expect(document.querySelector('[data-slot="stage"]')?.className).toContain('stage-scope');
+  });
+
+  it('Die hellere Bühne hat keinen dunklen Ton', () => {
+    render(<Stage tone="light" title="Rheintal Elektronik GmbH" />);
+    expect(document.querySelector('[data-slot="stage"]')?.className).not.toContain('stage-scope');
   });
 });

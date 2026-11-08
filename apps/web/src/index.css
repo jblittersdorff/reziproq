@@ -4,6 +4,29 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Bühne (PLT-10, Handschrift Bühne): Innerhalb einer dunklen Fläche gelten die Bühnenfarben.
+ * So passen Text, Knöpfe, Felder und Fokus ohne eigene Varianten.
+ */
+@utility stage-scope {
+  --foreground: var(--stage-foreground);
+  --muted-foreground: var(--stage-muted);
+  --primary: var(--stage-accent);
+  --primary-foreground: var(--stage-accent-foreground);
+  --ring: var(--stage-accent);
+  --border: var(--stage-border);
+  --input: var(--stage-input);
+  --background: var(--stage-raised);
+  --card: var(--stage-raised);
+  --card-foreground: var(--stage-foreground);
+  --secondary: var(--stage-raised);
+  --secondary-foreground: var(--stage-foreground);
+  --accent: var(--stage-border);
+  --accent-foreground: var(--stage-foreground);
+  background-color: var(--stage);
+  color: var(--stage-foreground);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

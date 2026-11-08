@@ -53,7 +53,8 @@ const sections = [
 const subsections = [
   'Flächen',
   'Text',
-  'Akzentfarbe – nur für Hauptaktion und Auswahl',
+  'Akzentfarbe Petrol – für Hauptaktion, Auswahl und Geteiltes',
+  'Bühne – dunkle Fläche über die ganze Breite',
   'Statusfarben – nur für Status mit Bedeutung',
   'Diagrammfarben',
   'Text auf Hintergrund – gemessener Kontrast',
@@ -66,6 +67,8 @@ const subsections = [
   'Lokale Leiste eines Lieferanten',
   'Pfad mit Zurück-Pfeil',
   'Kachel',
+  'Töne: Karte, Bühne, Geteilt',
+  'Bühne',
   'Knöpfe',
   'Formularseite',
   'Abläufe in Schritten',
@@ -129,7 +132,7 @@ for (const mode of ['Hell', 'Dunkel'] as const) {
     await expect(page.getByText('zu schwach')).toHaveCount(0);
 
     // Schrift von Großtitel bis Fußnote
-    for (const level of ['Großtitel', 'Titel', 'Text', 'Fußnote']) {
+    for (const level of ['Bühne', 'Seitentitel', 'Großtitel', 'Titel', 'Text', 'Fußnote']) {
       await expect(page.getByText(level, { exact: true }).first()).toBeVisible();
     }
 
@@ -204,8 +207,14 @@ for (const mode of ['Hell', 'Dunkel'] as const) {
     await expect(page.getByRole('dialog')).toHaveCount(0);
 
     // Kennzeichen, Zustände, Tabellen und Listen mit Verlauf
-    await expect(page.locator('[data-visibility="internal"]')).toContainText('Intern');
-    await expect(page.locator('[data-visibility="shared"]')).toContainText('Geteilt');
+    // Jedes Kennzeichen zeigt Text; die Kacheltöne tragen ebenfalls welche.
+    for (const badge of await page.locator('[data-visibility="internal"]').all()) {
+      await expect(badge).toContainText('Intern');
+    }
+    for (const badge of await page.locator('[data-visibility="shared"]').all()) {
+      await expect(badge).toContainText('Geteilt');
+    }
+    await expect(page.locator('[data-visibility="shared"]')).toHaveCount(2);
     await expect(page.getByText('Noch keine Initiativen')).toBeVisible();
     await expect(
       page.getByRole('status').filter({ hasText: 'Lieferanten werden geladen' }),

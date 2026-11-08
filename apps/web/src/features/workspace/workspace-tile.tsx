@@ -1,9 +1,10 @@
-import { ClockIcon } from 'lucide-react';
+import { ChevronRightIcon, ClockIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { buttonVariants } from '@/components/ui/button';
 import { Tile, TileActions, TileText, TileTitle } from '@/components/ui/tile';
 import { routerLink } from '@/features/shell/navigation';
 import { useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import type { Coming } from './areas';
 
 /**
@@ -26,7 +27,7 @@ export function WorkspaceTile({
   const t = useT();
   return (
     <li>
-      <Tile size="lg" className="items-center">
+      <Tile size="lg">
         <TileTitle>{title}</TileTitle>
         <TileText>{text}</TileText>
         {/* Der Hinweis ist leise; laut ist nur eine echte Kennzahl. */}
@@ -42,9 +43,15 @@ export function WorkspaceTile({
           <TileActions>
             {routerLink({
               href,
-              className: buttonVariants(),
+              // Leiser Link statt gefülltem Knopf: Die Seite hat nur eine Hauptaktion (PLT-10).
+              className: cn(buttonVariants({ variant: 'link' }), 'px-0 font-semibold has-[>svg]:px-0'),
               'aria-label': t.workspace.openLabel(title),
-              children: t.workspace.open,
+              children: (
+                <>
+                  {t.workspace.open}
+                  <ChevronRightIcon aria-hidden />
+                </>
+              ),
             })}
           </TileActions>
         )}

@@ -22,7 +22,7 @@ const tokenFile = 'src/styles/tokens.css';
 /** Farben: jedes Token mit Name und Wert, dazu alle Text-Hintergrund-Paare mit Kontrast. */
 export function Colors({ values }: { values: Record<string, string> }) {
   const t = useMessages(styleguideMessages);
-  const groups: ColorGroup[] = ['surfaces', 'text', 'accent', 'status', 'chart'];
+  const groups: ColorGroup[] = ['surfaces', 'text', 'accent', 'stage', 'status', 'chart'];
 
   return (
     <>
@@ -150,8 +150,9 @@ export function Typography({ values }: { values: Record<string, string> }) {
                   text-{key} · {px(values[`font-size-${key}`])} / {px(values[`line-height-${key}`])}
                 </code>
               </span>
-              <span className="flex flex-col gap-1">
-                <span className={className}>{t.typography.sample}</span>
+              <span className="flex min-w-0 flex-col gap-1">
+                {/* Die Bühnen-Stufe ist breiter als ein Telefon; lange Wörter brechen um. */}
+                <span className={cn(className, 'break-words')}>{t.typography.sample}</span>
                 <span className="text-muted-foreground text-sm">{level.use}</span>
               </span>
             </li>

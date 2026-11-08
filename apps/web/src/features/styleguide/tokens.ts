@@ -24,6 +24,16 @@ export const colorGroups = {
     'accent-foreground',
   ],
   accent: ['primary', 'primary-foreground', 'primary-soft', 'primary-soft-foreground', 'ring'],
+  stage: [
+    'stage',
+    'stage-foreground',
+    'stage-muted',
+    'stage-raised',
+    'stage-border',
+    'stage-input',
+    'stage-accent',
+    'stage-accent-foreground',
+  ],
   status: [
     'success',
     'success-soft',
@@ -68,8 +78,10 @@ export type ColorGroup = keyof typeof colorGroups;
 
 /** Schriftstufen von groß nach klein, mit Tailwind-Klasse */
 export const typeScale = [
-  { key: 'xl', className: 'text-xl font-semibold' },
-  { key: 'lg', className: 'text-lg font-semibold' },
+  { key: 'display', className: 'text-display font-bold tracking-title' },
+  { key: '2xl', className: 'text-2xl font-bold tracking-title' },
+  { key: 'xl', className: 'text-xl font-bold tracking-title' },
+  { key: 'lg', className: 'text-lg font-bold tracking-title' },
   { key: 'base', className: 'text-base' },
   { key: 'sm', className: 'text-sm' },
 ] as const;

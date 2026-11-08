@@ -23,8 +23,8 @@
 :root {
   color-scheme: light;
 
-  /* Schrift: vier Stufen – Großtitel (xl), Titel (lg), Text (base), Fußnote (sm).
-     Zeilenhöhen im 4-Pixel-Raster. Betonung über Schriftstärke, nicht über weitere Größen. */
+  /* Schrift: sechs Stufen – Bühne (display), Seitentitel (2xl), Großtitel (xl), Titel (lg),
+     Text (base), Fußnote (sm). Zeilenhöhen im 4-Pixel-Raster. Betonung über Schriftstärke. */
   --font-family-sans: system-ui, -apple-system, Inter, sans-serif;
   --font-size-sm: 0.8125rem;
   --line-height-sm: 1.25rem;
@@ -34,13 +34,19 @@
   --line-height-lg: 1.75rem;
   --font-size-xl: 1.75rem;
   --line-height-xl: 2.25rem;
+  --font-size-2xl: 2.5rem;
+  --line-height-2xl: 2.75rem;
+  --font-size-display: 4rem;
+  --line-height-display: 4.25rem;
+  /* Enger Buchstabenabstand für große, fette Überschriften (Handschrift Bühne) */
+  --letter-spacing-title: -0.025em;
 
   /* Abstände: 1 Einheit = 4 Pixel */
   --spacing-unit: 0.25rem;
 
   /* Abgerundete Ecken */
   --corner-sm: 0.25rem;
-  --corner-md: 0.5rem;
+  --corner-md: 0.625rem;
   --corner-lg: 0.75rem;
   --corner-xl: 1rem;
 
@@ -55,102 +61,122 @@
   --motion-duration: 150ms;
   --motion-easing: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Flächen und Text */
-  --background: #ffffff;
-  --foreground: #1d1d1f;
-  --muted: #f5f5f7;
-  --muted-foreground: #636366;
+  /* Flächen und Text: Seite warmes Hellgrau, Karten weiß (Handschrift Bühne, PLT-10) */
+  --background: #f4f5f2;
+  --foreground: #14181b;
+  --muted: #eceeea;
+  --muted-foreground: #5a636b;
   --card: #ffffff;
-  --card-foreground: #1d1d1f;
+  --card-foreground: #14181b;
   --popover: #ffffff;
-  --popover-foreground: #1d1d1f;
+  --popover-foreground: #14181b;
   /* Abdunkelung hinter eingeblendeten Flächen, z. B. der Seitenleiste in schmalen Fenstern */
-  --overlay: #1d1d1f66;
-  --secondary: #f0f0f2;
-  --secondary-foreground: #1d1d1f;
+  --overlay: #0f1b2266;
+  --secondary: #e8eae6;
+  --secondary-foreground: #14181b;
   /* shadcn-Name: Hover-Fläche, nicht die Akzentfarbe */
-  --accent: #ececef;
-  --accent-foreground: #1d1d1f;
-  --border: #e3e3e8;
+  --accent: #e2e5e0;
+  --accent-foreground: #14181b;
+  --border: #dfe2dd;
   /* Rahmen von Eingabefeldern: mindestens 3:1 zum Hintergrund */
-  --input: #86868b;
+  --input: #7b8389;
 
-  /* Die eine Akzentfarbe: Hauptaktion und Auswahl */
-  --primary: #2b63c6;
+  /* Die eine Akzentfarbe: Petrol, für Hauptaktion, Auswahl und Geteiltes */
+  --primary: #0b7a6a;
   --primary-foreground: #ffffff;
-  --primary-soft: #e8effb;
-  --primary-soft-foreground: #1f4c9c;
-  --ring: #2b63c6;
+  --primary-soft: #e1f3ed;
+  --primary-soft-foreground: #0a5c50;
+  --ring: #0b7a6a;
 
-  /* Gedämpfte Statusfarben – nur für Status mit Bedeutung */
-  --success: #2e7d4f;
-  --success-soft: #e5f2ea;
-  --success-soft-foreground: #24643f;
-  --warning: #96650a;
-  --warning-soft: #faf0d9;
-  --warning-soft-foreground: #7a5208;
+  /* Bühne: dunkle Fläche über die ganze Breite, z. B. auf Start */
+  --stage: #0f1b22;
+  --stage-foreground: #f4f5f2;
+  --stage-muted: #a9b4b9;
+  --stage-raised: #1a2830;
+  --stage-border: #2e3e47;
+  /* Rahmen von Feldern und umrandeten Knöpfen auf der Bühne: mindestens 3:1 */
+  --stage-input: #7f8b91;
+  --stage-accent: #4fd1b4;
+  --stage-accent-foreground: #0f1b22;
+
+  /* Gedämpfte Statusfarben – nur für Status mit Bedeutung. Grün ist Blattgrün, nicht Petrol. */
+  --success: #3a7524;
+  --success-soft: #e8f1df;
+  --success-soft-foreground: #2f5f1d;
+  --warning: #8f600a;
+  --warning-soft: #f8eed6;
+  --warning-soft-foreground: #74500a;
   --destructive: #b3261e;
   --destructive-foreground: #ffffff;
-  --destructive-soft: #fbe8e6;
-  --destructive-soft-foreground: #96201a;
+  --destructive-soft: #fae6e3;
+  --destructive-soft-foreground: #94201a;
 
   /* Diagramme */
-  --chart-context: #a1a1a6;
-  --chart-accent: #2b63c6;
-  --chart-strong: #48484d;
-  --chart-negative: #b8b8bd;
-  --chart-grid: #e3e3e8;
-  --chart-axis: #636366;
-  --chart-label: #1d1d1f;
-  --chart-field: #f5f5f7;
+  --chart-context: #a3aaa6;
+  --chart-accent: #0b7a6a;
+  --chart-strong: #3f4a52;
+  --chart-negative: #bcc1bd;
+  --chart-grid: #dfe2dd;
+  --chart-axis: #5a636b;
+  --chart-label: #14181b;
+  --chart-field: #eceeea;
   /* Fläche hinter der Grafik, z. B. Fugen zwischen Feldern, und der Tooltip */
   --chart-surface: #ffffff;
   --chart-tooltip: #ffffff;
-  --chart-tooltip-foreground: #1d1d1f;
-  --chart-tooltip-border: #e3e3e8;
-  --chart-buyer: #2b63c6;
-  --chart-supplier: #48484d;
+  --chart-tooltip-foreground: #14181b;
+  --chart-tooltip-border: #dfe2dd;
+  --chart-buyer: #0b7a6a;
+  --chart-supplier: #3f4a52;
   /* Folgeskala von hell nach dunkel, mit passender Schriftfarbe je Stufe */
-  --chart-seq-1: #eef3fb;
-  --chart-seq-2: #c8d8f2;
-  --chart-seq-3: #93b2e6;
-  --chart-seq-4: #3f6fc8;
-  --chart-seq-5: #234a93;
-  --chart-seq-label-1: #1d1d1f;
-  --chart-seq-label-2: #1d1d1f;
-  --chart-seq-label-3: #1d1d1f;
-  --chart-seq-label-4: #ffffff;
+  --chart-seq-1: #e6f4f0;
+  --chart-seq-2: #bfe3d8;
+  --chart-seq-3: #7fc6b3;
+  --chart-seq-4: #2f9681;
+  --chart-seq-5: #0a5c50;
+  --chart-seq-label-1: #14181b;
+  --chart-seq-label-2: #14181b;
+  --chart-seq-label-3: #14181b;
+  --chart-seq-label-4: #14181b;
   --chart-seq-label-5: #ffffff;
 }
 
 .dark {
   color-scheme: dark;
 
-  --background: #1c1c1e;
-  --foreground: #f5f5f7;
-  --muted: #2c2c2e;
-  --muted-foreground: #a1a1a6;
-  --card: #1c1c1e;
-  --card-foreground: #f5f5f7;
-  --popover: #2c2c2e;
-  --popover-foreground: #f5f5f7;
+  --background: #11181c;
+  --foreground: #eef1ee;
+  --muted: #1b252b;
+  --muted-foreground: #a9b4b9;
+  --card: #172127;
+  --card-foreground: #eef1ee;
+  --popover: #1b252b;
+  --popover-foreground: #eef1ee;
   --overlay: #000000a3;
-  --secondary: #2c2c2e;
-  --secondary-foreground: #f5f5f7;
-  --accent: #3a3a3c;
-  --accent-foreground: #f5f5f7;
-  --border: #38383a;
-  --input: #7c7c80;
+  --secondary: #1f2a30;
+  --secondary-foreground: #eef1ee;
+  --accent: #26333a;
+  --accent-foreground: #eef1ee;
+  --border: #2b3a42;
+  --input: #7f8b91;
 
-  --primary: #7aa5f0;
-  --primary-foreground: #0f1f3d;
-  --primary-soft: #1e2b45;
-  --primary-soft-foreground: #a9c5f5;
-  --ring: #7aa5f0;
+  --primary: #4fd1b4;
+  --primary-foreground: #0f1b22;
+  --primary-soft: #133a33;
+  --primary-soft-foreground: #8fe3cf;
+  --ring: #4fd1b4;
 
-  --success: #6cc08e;
-  --success-soft: #1d3326;
-  --success-soft-foreground: #8fd3aa;
+  --stage: #0a1216;
+  --stage-foreground: #eef1ee;
+  --stage-muted: #a9b4b9;
+  --stage-raised: #152027;
+  --stage-border: #26333a;
+  --stage-input: #7f8b91;
+  --stage-accent: #4fd1b4;
+  --stage-accent-foreground: #0f1b22;
+
+  --success: #9bd27a;
+  --success-soft: #1f3318;
+  --success-soft-foreground: #b5e09a;
   --warning: #e0b04f;
   --warning-soft: #3a2f17;
   --warning-soft-foreground: #ecc778;
@@ -166,31 +192,31 @@
   --elevation-lg: 0 12px 32px #00000080, 0 2px 6px #00000040;
   --elevation-xl: 0 24px 64px #00000099, 0 4px 12px #0000004d;
 
-  --chart-context: #6e6e73;
-  --chart-accent: #7aa5f0;
-  --chart-strong: #d1d1d6;
-  --chart-negative: #5a5a5f;
-  --chart-grid: #38383a;
-  --chart-axis: #a1a1a6;
-  --chart-label: #f5f5f7;
-  --chart-field: #2c2c2e;
-  --chart-surface: #1c1c1e;
-  --chart-tooltip: #2c2c2e;
-  --chart-tooltip-foreground: #f5f5f7;
-  --chart-tooltip-border: #38383a;
-  --chart-buyer: #7aa5f0;
-  --chart-supplier: #d1d1d6;
+  --chart-context: #5f6b70;
+  --chart-accent: #4fd1b4;
+  --chart-strong: #d1d6d3;
+  --chart-negative: #4a565b;
+  --chart-grid: #2b3a42;
+  --chart-axis: #a9b4b9;
+  --chart-label: #eef1ee;
+  --chart-field: #1b252b;
+  --chart-surface: #172127;
+  --chart-tooltip: #1b252b;
+  --chart-tooltip-foreground: #eef1ee;
+  --chart-tooltip-border: #2b3a42;
+  --chart-buyer: #4fd1b4;
+  --chart-supplier: #d1d6d3;
   /* Im Dunkelmodus: niedrige Werte nah am Hintergrund, hohe Werte hell */
-  --chart-seq-1: #232b3a;
-  --chart-seq-2: #2a4170;
-  --chart-seq-3: #3b62a8;
-  --chart-seq-4: #6b98e8;
-  --chart-seq-5: #b3cdf6;
-  --chart-seq-label-1: #f5f5f7;
-  --chart-seq-label-2: #f5f5f7;
+  --chart-seq-1: #15302b;
+  --chart-seq-2: #1c4d44;
+  --chart-seq-3: #2a7768;
+  --chart-seq-4: #4fbfa5;
+  --chart-seq-5: #a6ead8;
+  --chart-seq-label-1: #eef1ee;
+  --chart-seq-label-2: #eef1ee;
   --chart-seq-label-3: #ffffff;
-  --chart-seq-label-4: #0f1f3d;
-  --chart-seq-label-5: #0f1f3d;
+  --chart-seq-label-4: #0f1b22;
+  --chart-seq-label-5: #0f1b22;
 }
 
 /* Tailwinds eingebaute Farben, Schriftgrößen, Radien und Schatten abschalten –
@@ -217,6 +243,11 @@
   --text-lg--line-height: var(--line-height-lg);
   --text-xl: var(--font-size-xl);
   --text-xl--line-height: var(--line-height-xl);
+  --text-2xl: var(--font-size-2xl);
+  --text-2xl--line-height: var(--line-height-2xl);
+  --text-display: var(--font-size-display);
+  --text-display--line-height: var(--line-height-display);
+  --tracking-title: var(--letter-spacing-title);
 
   --spacing: var(--spacing-unit);
 
@@ -264,4 +295,12 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-destructive-soft: var(--destructive-soft);
   --color-destructive-soft-foreground: var(--destructive-soft-foreground);
+  --color-stage: var(--stage);
+  --color-stage-foreground: var(--stage-foreground);
+  --color-stage-muted: var(--stage-muted);
+  --color-stage-raised: var(--stage-raised);
+  --color-stage-border: var(--stage-border);
+  --color-stage-input: var(--stage-input);
+  --color-stage-accent: var(--stage-accent);
+  --color-stage-accent-foreground: var(--stage-accent-foreground);
 }

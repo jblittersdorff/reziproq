@@ -79,7 +79,8 @@ test('Alle sechs Bereiche haben eigene Adressen; der Wechsel lädt die Seite nic
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await page.goto(base);
-  await expect(page.locator('#inhalt h1')).toHaveText('Überblick');
+  // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
+  await expect(page.locator('#inhalt h1')).toHaveText('Rheintal Elektronik GmbH (Demo)');
   // Eine Markierung im Fenster überlebt nur, wenn die Seite nicht neu lädt.
   await page.evaluate(() => {
     (window as unknown as { nav06: boolean }).nav06 = true;
