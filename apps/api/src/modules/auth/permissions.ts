@@ -120,6 +120,10 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'kunden.sehen': {
+    description: 'Als Lieferant die eigenen Kunden und ihre Arbeitsbereiche sehen (nur Geteiltes)',
+    roles: ['admin', 'member', 'viewer'],
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

@@ -18,6 +18,7 @@ describe('GET /api/me', () => {
     viewBuyerAreas: false,
     viewSuppliers: false,
     switchCustomer: false,
+    viewCustomers: false,
   };
 
   const storedUser = async () =>

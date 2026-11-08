@@ -5,6 +5,7 @@ import { DatabaseModule } from './common/database.module.js';
 import { env } from './config/env.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { CustomersModule } from './modules/customers/customers.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -49,6 +50,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     StartModule,
     SupplierPlansModule,
     InvitationsModule,
+    CustomersModule,
     ...(env.NODE_ENV === 'production'
       ? [ServeStaticModule.forRoot({ rootPath: webDist, exclude: ['/api/{*path}'] })]
       : []),

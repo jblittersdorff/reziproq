@@ -148,7 +148,7 @@ describe('db:seed', () => {
     expect(spend.rows[0]?.cent).toMatch(/^\d+$/);
   });
 
-  it('PLT-03: Beispieldaten mit Land, USt-IdNr. und Spend für zwei Jahre, drei Lieferanten auch beim Zweit-OEM, Test-Lieferant im Entwurf', async () => {
+  it('PLT-03: Beispieldaten mit Land, USt-IdNr. und Spend für zwei Jahre, drei Lieferanten auch beim Zweit-OEM, Test-Lieferant bei beiden aktiv (LIF-02)', async () => {
     const lastYear = new Date().getFullYear() - 1;
     const result = await temp.db.execute<{
       kaeufer: string;
@@ -168,7 +168,7 @@ describe('db:seed', () => {
       join organization b on b.id = r.buyer_org_id
       join organization s on s.id = r.supplier_org_id
       left join relationship_side rs on rs.relationship_id = r.id and rs.org_id = r.buyer_org_id
-      where r.status = 'active'
+      where r.status = 'active' and s.name <> 'Test-Lieferant (Demo)'
       group by b.name order by b.name
     `);
     expect(result.rows).toEqual([
@@ -197,13 +197,16 @@ describe('db:seed', () => {
       { kaeufer: 'Zweit-OEM (Demo)', cent: '105000000', nummer: 'ZW-4711' },
     ]);
 
-    const drafts = await temp.db.execute<{ kaeufer: string }>(sql`
+    const customers = await temp.db.execute<{ kaeufer: string }>(sql`
       select b.name as kaeufer from relationship r
       join organization b on b.id = r.buyer_org_id
       join organization s on s.id = r.supplier_org_id
-      where s.name = 'Test-Lieferant (Demo)' and r.status = 'draft' order by b.name
+      where s.name = 'Test-Lieferant (Demo)' and r.status = 'active' order by b.name
     `);
-    expect(drafts.rows.map((row) => row.kaeufer)).toEqual(['Test-OEM (Demo)', 'Zweit-OEM (Demo)']);
+    expect(customers.rows.map((row) => row.kaeufer)).toEqual([
+      'Test-OEM (Demo)',
+      'Zweit-OEM (Demo)',
+    ]);
   });
 
   it('PLT-07b: --viele legt 50 zusätzliche Demo-Lieferanten wiederholbar an', async () => {

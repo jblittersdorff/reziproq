@@ -227,7 +227,8 @@ describe('PLT-07a: Lieferanten- und Spendimport über die API', () => {
         and s.external_ref like 'DEMO-%'
     `);
     expect(count.rows[0]?.total).toBe(50);
-  });
+    // 50 Lieferanten über die echte Datenbank; auf dem CI-Rechner länger als die üblichen 5 s.
+  }, 30_000);
 
   it('erzeugt beim Import dieselben Verlaufseinträge wie das manuelle Anlegen', async () => {
     const vatId = `DE${String(Number.parseInt(randomUUID().slice(0, 8), 16) % 1_000_000_000).padStart(9, '0')}`;

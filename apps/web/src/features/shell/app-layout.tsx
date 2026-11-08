@@ -98,6 +98,9 @@ function useQuestionsShortcut() {
 /** Profil, Einstellungen, Menü und die Kundenwahl der Betreiber gehen auch ohne Organisation. */
 const alwaysOpen = ['/profil', '/einstellungen', '/menu', '/betreiber'];
 
+/** Was die Lieferantenseite sieht (LIF-02); alles andere gehört dem Käufer. */
+const supplierPaths = ['/start', '/kunden'];
+
 /**
  * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur
  * der Hinweis, ohne Feature buyer der Hinweis zum Lieferantenzugang. Profil und Einstellungen
@@ -106,13 +109,10 @@ const alwaysOpen = ['/profil', '/einstellungen', '/menu', '/betreiber'];
 function ContentGate() {
   const t = useT();
   const me = useMe();
-  const open = useRouterState({
-    select: (state) =>
-      alwaysOpen.some(
-        (path) =>
-          state.location.pathname === path || state.location.pathname.startsWith(`${path}/`),
-      ),
-  });
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const within = (paths: string[]) =>
+    paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const open = within(alwaysOpen);
 
   // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
   if (!me.data || open) return <Outlet />;
@@ -124,8 +124,17 @@ function ContentGate() {
       </Notice>
     );
   }
-  if (!me.data.permissions.viewBuyerAreas)
-    return <Notice>{t.organization.supplierAccessSoon}</Notice>;
+  if (!me.data.permissions.viewBuyerAreas) {
+    // Lieferantenseite (LIF-02): Start und Kunden; Käuferadressen zeigen einen klaren Hinweis.
+    if (me.data.permissions.viewCustomers && within(supplierPaths)) return <Outlet />;
+    return (
+      <Notice>
+        {me.data.permissions.viewCustomers
+          ? t.organization.buyerOnly
+          : t.organization.supplierAccessSoon}
+      </Notice>
+    );
+  }
   return <Outlet />;
 }
 

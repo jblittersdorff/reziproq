@@ -13,7 +13,9 @@ import {
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
   createSupplierResponseSchema,
+  customerListSchema,
   customersResponseSchema,
+  customerWorkspaceSchema,
   cycleSchema,
   cycleSettingsResponseSchema,
   decisionHistorySchema,
@@ -1028,3 +1030,19 @@ export async function acceptInvitation(token: string, request: AcceptInvitationR
   }
   return acceptInvitationResponseSchema.parse(await res.json());
 }
+
+// LIF-02: Kunden der Lieferantenseite und ihr Arbeitsbereich.
+
+export const customerListQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['kunden'],
+    queryFn: () => getJson('/kunden', customerListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const customerWorkspaceQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['kunden', relationshipId],
+    queryFn: () => getJson(`/kunden/${relationshipId}`, customerWorkspaceSchema, accessToken),
+    retry: retryUnlessDenied,
+  });

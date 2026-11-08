@@ -98,18 +98,25 @@ describe('PLT-03a: Beziehungen in der Datenbank', () => {
         sql`select name from organization where id <> ${testSupplier} order by name`,
       );
 
-    // Im Entwurf: weder die Beziehung noch der Kunde, auch nicht mit gewähltem Kunden.
+    // Im Entwurf: weder die Beziehung noch der Kunde, auch nicht mit gewähltem Kunden. Im Seed ist
+    // der Test-Lieferant seit LIF-02 aktiv; der Test setzt den Entwurf selbst.
+    await setStatus(relationship, 'draft');
     expect(await visible(testOem)).toEqual([]);
     expect(await visible(null)).toEqual([]);
-    expect(await customerNames(null)).toEqual([]);
+    // Den Zweit-OEM sieht er, denn diese Beziehung ist aktiv; den Test-OEM im Entwurf nicht.
+    expect(await customerNames(null)).toEqual([{ name: 'Zweit-OEM (Demo)' }]);
 
     // Aktiv: Beziehung im Kontext dieses Kunden, Name und Land des Kunden.
     await setStatus(relationship, 'active');
     try {
       expect(await visible(testOem)).toEqual([{ id: relationship }]);
-      expect(await visible(zweitOem)).toEqual([]);
+      // Im Kontext des Zweit-OEM nur dessen eigene Beziehung, nie die zum Test-OEM.
+      expect(await visible(zweitOem)).toEqual([{ id: await testSupplierRelationship(zweitOem) }]);
       expect(await visible(null)).toEqual([]);
-      expect(await customerNames(null)).toEqual([{ name: 'Test-OEM (Demo)' }]);
+      expect(await customerNames(null)).toEqual([
+        { name: 'Test-OEM (Demo)' },
+        { name: 'Zweit-OEM (Demo)' },
+      ]);
       // Nie Spend oder Einstellungen des Käufers.
       const buyerData = await as<{ n: number }>(
         { organizationId: testSupplier, customerOrganizationId: testOem },
@@ -121,7 +128,7 @@ describe('PLT-03a: Beziehungen in der Datenbank', () => {
       await setStatus(relationship, 'ended');
       expect(await visible(testOem)).toEqual([]);
     } finally {
-      await setStatus(relationship, 'draft');
+      await setStatus(relationship, 'active');
     }
   });
 

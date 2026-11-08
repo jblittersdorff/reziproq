@@ -16,6 +16,7 @@ export const en: Messages = {
     suppliers: 'Suppliers',
     portfolio: 'Portfolio',
     impact: 'Impact',
+    customers: 'Customers',
     questions: 'Questions',
     profile: 'Profile',
   },
@@ -67,6 +68,8 @@ export const en: Messages = {
     target: (name: string) => `Target: ${name}`,
     relationshipsTitle: 'My relationships',
     relationshipsEmpty: 'You are not in any relationship team yet.',
+    customersTitle: 'My customers',
+    customersEmpty: 'No customer has invited you yet.',
     all: 'All',
     loading: 'Loading start …',
     failed: 'The start page could not be loaded.',
@@ -434,6 +437,50 @@ export const en: Messages = {
     acceptFailed: "That didn't work. Please try again.",
     acceptUnavailable: 'Accepting invitations is not set up here yet. Please try again later.',
   },
+  customers: {
+    title: 'Customers',
+    purpose:
+      'You work with each customer in a separate area. You only see what they share with you.',
+    loading: 'Loading customers …',
+    failed: 'The customers could not be loaded.',
+    emptyTitle: 'No customers yet',
+    emptyDescription: 'As soon as a customer invites you and you accept, they appear here.',
+    nextMeeting: (date: string) => `Next meeting: ${date}`,
+    noMeeting: 'No joint meeting yet',
+    switchHint: (area: string) => `Selecting a customer opens the area ${area} there.`,
+    workspaceLabel: "Customer's workspace",
+    switchCustomer: 'Switch customer',
+    notFoundTitle: "This customer doesn't exist here",
+    notFoundDescription:
+      'Maybe the collaboration has ended. You can find your active customers under Customers.',
+    detailLoading: 'Loading customer …',
+    detailFailed: 'The customer could not be loaded.',
+    overview: 'Overview',
+    areas: {
+      relationship: 'Relationship',
+      plan: 'Joint plan',
+      execution: 'Execution',
+      impact: 'Impact',
+      own: 'Own view',
+    },
+    overviewPurpose: (name: string) => `What ${name} shares with you.`,
+    relationshipType: 'Relationship type',
+    typeNotShared: 'Not shared yet',
+    nextMeetingLabel: 'Next meeting',
+    noneYet: 'None yet',
+    areaPurpose: {
+      relationship: 'Rules of engagement, team and touchpoints you agree on together.',
+      plan: 'Topics, initiatives and commitments of your joint plan.',
+      execution: 'Meetings and actions you carry out together.',
+      impact: 'The impact of your joint initiatives.',
+      own: 'How you see the relationship. The customer never sees it.',
+    },
+    sharedLaterTitle: 'Nothing shared yet',
+    sharedLater: (name: string) =>
+      `As soon as ${name} shares something with you here, it appears in this place.`,
+    ownLaterTitle: 'Coming soon',
+    ownLater: 'Your own view of this relationship will come with one of the next releases.',
+  },
   team: {
     title: 'Team',
     purpose:
@@ -657,8 +704,7 @@ export const en: Messages = {
       `${name} · ${person} · due ${due}`,
     requestContributions: 'Request contributions',
     requestTitle: 'Request contributions',
-    requestPurpose:
-      'One person per business unit and material group is asked to add goals.',
+    requestPurpose: 'One person per business unit and material group is asked to add goals.',
     requestEmpty: 'Contributions are requested for every reference of this supplier.',
     requestSubmit: 'Request',
     requestFailed: 'The request did not work. Please try again.',
@@ -1156,6 +1202,7 @@ export const en: Messages = {
   organization: {
     missing: 'Your organization has not been activated yet. Contact your account manager.',
     supplierAccessSoon: 'Supplier access is coming soon.',
+    buyerOnly: 'This page is only for buyers. You can find your customers under Customers.',
   },
 
   notFound: {

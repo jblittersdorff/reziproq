@@ -117,6 +117,8 @@ async function shoot(page: Page, testInfo: TestInfo, name: string) {
     await page.setViewportSize({ width, height: 900 });
     for (const colorScheme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme });
+      // Farbübergänge der Kacheln abwarten, sonst zeigt der Screenshot Zwischenfarben.
+      await page.waitForTimeout(300);
       const overflowing = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('body *')]
           .filter((element) => element.getBoundingClientRect().right > window.innerWidth + 1)

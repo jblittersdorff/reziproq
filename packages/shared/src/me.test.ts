@@ -15,6 +15,7 @@ const ada = {
     viewOrganizationSettings: false,
     viewBuyerAreas: false,
     viewSuppliers: false,
+    viewCustomers: false,
     switchCustomer: true,
   },
 };

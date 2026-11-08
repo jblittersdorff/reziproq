@@ -19,9 +19,10 @@ export const itemLinkClass =
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'cycle') {
     const steps = t.workspace.cycle.steps;
-    const step = item.detail && Object.hasOwn(steps, item.detail)
-      ? steps[item.detail as keyof typeof steps]
-      : item.detail ?? '';
+    const step =
+      item.detail && Object.hasOwn(steps, item.detail)
+        ? steps[item.detail as keyof typeof steps]
+        : (item.detail ?? '');
     return t.start.dueCycle(step);
   }
   if (item.kind === 'contribution') return t.start.dueContribution(item.detail);
@@ -42,6 +43,10 @@ export function StartPage() {
   const t = useT();
   const { locale } = useLocale();
   const me = useMe();
+  // Lieferantenseite (LIF-02): Kunden statt Lieferanten, Fragen folgen mit QS-05.
+  const supplierSide = Boolean(
+    me.data?.permissions.viewCustomers && !me.data.permissions.viewBuyerAreas,
+  );
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const query = useQuery({ ...startQueryOptions(accessToken), enabled: accessToken !== '' });
@@ -63,7 +68,7 @@ export function StartPage() {
         {me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName}
       </h1>
 
-      <PromptTrigger />
+      {!supplierSide && <PromptTrigger />}
 
       {query.isError ? (
         <ErrorState title={t.start.failed} />
@@ -117,15 +122,19 @@ export function StartPage() {
           </Tile>
 
           <Tile size="lg">
-            <TileTitle>{t.start.relationshipsTitle}</TileTitle>
+            <TileTitle>
+              {supplierSide ? t.start.customersTitle : t.start.relationshipsTitle}
+            </TileTitle>
             {data.relationships.items.length === 0 ? (
-              <TileText>{t.start.relationshipsEmpty}</TileText>
+              <TileText>
+                {supplierSide ? t.start.customersEmpty : t.start.relationshipsEmpty}
+              </TileText>
             ) : (
               <ul className="flex flex-col gap-1">
                 {data.relationships.items.map((item) => (
                   <li key={item.id}>
                     {routerLink({
-                      href: `/lieferanten/${item.id}`,
+                      href: supplierSide ? `/kunden/${item.id}` : `/lieferanten/${item.id}`,
                       className: itemLinkClass,
                       children: (
                         <>
@@ -145,7 +154,7 @@ export function StartPage() {
             {data.relationships.total > 0 && (
               <TileActions>
                 {routerLink({
-                  href: '/lieferanten',
+                  href: supplierSide ? '/kunden' : '/lieferanten',
                   className: buttonVariants({ variant: 'outline' }),
                   children: t.start.all,
                 })}

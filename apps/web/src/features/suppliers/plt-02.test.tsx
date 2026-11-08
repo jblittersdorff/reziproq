@@ -207,6 +207,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
         viewOrganizationSettings: false,
         viewBuyerAreas: false,
         viewSuppliers: false,
+        viewCustomers: false,
         switchCustomer: false,
       },
     };

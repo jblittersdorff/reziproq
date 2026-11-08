@@ -1,6 +1,7 @@
 import { type AreaKey, areas } from '@reziproq/shared';
 import { useRouter, useRouterState } from '@tanstack/react-router';
 import {
+  BuildingIcon,
   ChartScatterIcon,
   FactoryIcon,
   HouseIcon,
@@ -14,9 +15,10 @@ import { useMe } from '@/features/auth/use-me';
 import { useT } from '@/lib/i18n';
 
 // Ziele der globalen Leiste (PLT-11): Start, Lieferanten, Portfolio und Wirkung aus
-// @reziproq/shared, rechts Fragen und Profil. Leiste und Menüseite lesen von hier.
+// @reziproq/shared, rechts Fragen und Profil. Die Lieferantenseite hat Start, Kunden und Profil
+// (LIF-02). Leiste und Menüseite lesen von hier.
 
-export type NavKey = AreaKey | 'questions' | 'profile';
+export type NavKey = AreaKey | 'customers' | 'questions' | 'profile';
 
 export interface NavTarget extends NavItem {
   key: NavKey;
@@ -33,6 +35,7 @@ const areaIcons: Record<AreaKey, LucideIcon> = {
 /** Welche Adressen zu welchem Ziel gehören; die längste passende gewinnt. */
 const sections: { prefix: string; key: NavKey }[] = [
   ...areas.map((area) => ({ prefix: area.path, key: area.key })),
+  { prefix: '/kunden', key: 'customers' },
   { prefix: '/fragen', key: 'questions' },
   { prefix: '/profil', key: 'profile' },
   { prefix: '/einstellungen', key: 'profile' },
@@ -74,7 +77,19 @@ export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
     href: '/profil',
     icon: UserRoundIcon,
   };
-  return buyer ? { main, actions: [questions, profile] } : { main: [], actions: [profile] };
+  if (buyer) return { main, actions: [questions, profile] };
+  // Lieferantenseite (LIF-02): Start und Kunden; Fragen folgen mit QS-05.
+  if (me.data?.permissions.viewCustomers) {
+    const start = main.find((target) => target.key === 'start');
+    const customers = {
+      key: 'customers' as const,
+      label: t.nav.customers,
+      href: '/kunden',
+      icon: BuildingIcon,
+    };
+    return { main: start ? [start, customers] : [customers], actions: [profile] };
+  }
+  return { main: [], actions: [profile] };
 }
 
 /**
