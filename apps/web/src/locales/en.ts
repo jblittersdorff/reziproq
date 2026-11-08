@@ -429,7 +429,7 @@ export const en: Messages = {
     kamTaken: 'This relationship already has a key account manager.',
     passkeyTitle: 'Set up a passkey',
     passkeyText:
-      "A passkey replaces the password. You confirm it with your fingerprint, face or your device's PIN.",
+      "A passkey replaces the password. You confirm it with your fingerprint, face or your device's PIN. Afterwards, open the link from the email again and sign in.",
     passkeyButton: 'Set up passkey',
     acceptFailed: "That didn't work. Please try again.",
     acceptUnavailable: 'Accepting invitations is not set up here yet. Please try again later.',

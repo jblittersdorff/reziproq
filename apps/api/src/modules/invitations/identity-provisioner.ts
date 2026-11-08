@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { ServiceUnavailableException } from '@nestjs/common';
 
 /**
- * Legt Organisation und Person beim Identitätsanbieter an (LIF-01). In LIF-01a gibt es nur den
- * Nachbau für Entwicklung und Tests; LIF-01b bringt die Zitadel-Verwaltungsschnittstelle.
+ * Legt Organisation und Person beim Identitätsanbieter an (LIF-01): nachgebaut für Entwicklung und
+ * Tests, im Betrieb über die Zitadel-Verwaltungsschnittstelle (zitadel-provisioner.ts, LIF-01b).
  */
 export interface IdentityProvisioner {
   /** Gibt die Zitadel-Organisation des Lieferanten zurück und legt sie an, wenn es keine gibt. */
@@ -37,7 +37,7 @@ export class FakeIdentityProvisioner implements IdentityProvisioner {
   }
 }
 
-/** Im Betrieb bis LIF-01b: Annehmen ist noch nicht möglich, alles andere läuft. */
+/** Im Betrieb ohne IDENTITY_PROVIDER=zitadel: Annehmen ist aus, alles andere läuft. */
 export class UnavailableIdentityProvisioner implements IdentityProvisioner {
   private unavailable(): never {
     throw new ServiceUnavailableException({
