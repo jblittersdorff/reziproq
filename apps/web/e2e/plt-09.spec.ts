@@ -258,14 +258,17 @@ test.describe('auf Englisch', () => {
   test('Ein Playwright-Test besucht jede Route auf Englisch. Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.', async ({
     page,
   }) => {
-    test.setTimeout(120_000);
+    // Rund 60 Routen; auf dem langsameren CI-Rechner braucht der Rundgang mehrere Minuten.
+    test.setTimeout(480_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page, { locale: 'en' });
     const findings: string[] = [];
     for (const path of allRoutes()) {
       await page.goto(path);
       // Weich, damit ein Lauf alle Routen ohne Titel meldet statt nur die erste.
-      await expect.soft(page.locator('#inhalt h1, main h1, h1').first(), path).toBeVisible();
+      await expect
+        .soft(page.locator('#inhalt h1, main h1, h1').first(), path)
+        .toBeVisible({ timeout: 15_000 });
       await page.waitForLoadState('networkidle');
       const text = (await page.locator('body').textContent()) ?? '';
       for (const german of germanIn(text)) findings.push(`${path}: „${german}“`);
