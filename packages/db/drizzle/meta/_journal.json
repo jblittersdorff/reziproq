@@ -267,6 +267,13 @@
       "when": 1794148735703,
       "tag": "0037_spielregel_kataloge",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794160041433,
+      "tag": "0038_spielregeln_je_beziehung",
+      "breakpoints": true
     }
   ]
 }

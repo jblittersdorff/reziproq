@@ -59,9 +59,12 @@ import {
   roundDetailSchema,
   roundListSchema,
   roundRatersSchema,
+  ruleSetProposalSchema,
+  ruleSetResponseSchema,
   type SaveFormatItem,
   type SaveRating,
   type SaveRuleItem,
+  type SaveRuleSet,
   type SetFocusRequest,
   type SetRoundSuppliers,
   type SpendRequest,
@@ -1083,5 +1086,58 @@ export const saveFormatItem = (accessToken: string, id: string | null, request: 
     id ? `/playbook/formats/${id}` : '/playbook/formats',
     request,
     playbookCatalogSchema,
+    accessToken,
+  );
+
+// PLB-03: Spielregeln je Beziehung.
+
+export const ruleSetQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'rule-set'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/spielregeln`, ruleSetResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const ruleSetProposalQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  basis: 'soll' | 'aktuell',
+) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'rule-set', 'proposal', basis],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/spielregeln/vorschlag?basis=${basis}`,
+        ruleSetProposalSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const adoptRuleSetProposal = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/spielregeln`,
+    {},
+    ruleSetResponseSchema,
+    accessToken,
+  );
+
+export const saveRuleSet = (accessToken: string, relationshipId: string, request: SaveRuleSet) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/spielregeln`,
+    request,
+    ruleSetResponseSchema,
+    accessToken,
+  );
+
+export const approveRuleSet = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/spielregeln/freigabe`,
+    {},
+    ruleSetResponseSchema,
     accessToken,
   );
