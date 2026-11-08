@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { SearchInput } from '@/components/ui/search-input';
+import { Stage, StageMetrics } from '@/components/ui/stage';
 import { StatusLine } from '@/components/ui/status-line';
 import { StepActions, StepProgress } from '@/components/ui/step-progress';
 import { Switch } from '@/components/ui/switch';
@@ -56,7 +57,7 @@ export function BuildingBlocks() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <p className="text-muted-foreground text-sm">{b.tileLarge}</p>
-            <Tile size="lg" className="items-center">
+            <Tile size="lg">
               <TileIcon>
                 <TargetIcon aria-hidden />
               </TileIcon>
@@ -93,6 +94,57 @@ export function BuildingBlocks() {
               </p>
             </Tile>
           </div>
+        </div>
+      </Subsection>
+
+      <Subsection
+        title={b.tileTones}
+        description={b.tileTonesHint}
+        files={['src/components/ui/tile.tsx']}
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {(['card', 'stage', 'shared'] as const).map((tone) => (
+            <Tile key={tone} size="lg" tone={tone}>
+              <VisibilityBadge
+                visibility={tone === 'shared' ? 'shared' : 'internal'}
+                label={tone === 'shared' ? b.sharedWith : b.internal}
+              />
+              <TileTitle>{b.toneSample[tone].title}</TileTitle>
+              <TileText>{b.toneSample[tone].sentence}</TileText>
+              <TileActions>
+                <Button>{b.tileSample.open}</Button>
+              </TileActions>
+            </Tile>
+          ))}
+        </div>
+      </Subsection>
+
+      <Subsection title={b.stage} description={b.stageHint} files={['src/components/ui/stage.tsx']}>
+        <div className="flex flex-col gap-4 overflow-hidden rounded-xl">
+          <Stage
+            eyebrow={b.stageSample.eyebrow}
+            titleAs="h2"
+            title={b.stageSample.title}
+            text={b.stageSample.text}
+            actions={<Button>{b.stageSample.action}</Button>}
+            aside={
+              <StageMetrics
+                label={b.stageSample.metrics}
+                items={[
+                  { key: 'due', value: 3, label: b.stageSample.due, accent: true },
+                  { key: 'relationships', value: 16, label: b.stageSample.relationships },
+                ]}
+              />
+            }
+          />
+          <Stage
+            tone="light"
+            eyebrow={b.stageSample.lightEyebrow}
+            titleAs="h2"
+            title={b.stageSample.lightTitle}
+            text={b.stageSample.lightText}
+            className="bg-muted"
+          />
         </div>
       </Subsection>
 

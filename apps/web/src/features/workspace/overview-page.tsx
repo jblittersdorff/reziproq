@@ -1,9 +1,11 @@
 import { type OverviewMetric, type OverviewTile, overviewTiles } from '@reziproq/shared';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { Stage } from '@/components/ui/stage';
 import { TileMetric } from '@/components/ui/tile';
-import { PageHeader } from '@/features/shell/page-header';
+import { useDocumentTitle } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
+import { InStageSlot } from '@/features/shell/stage-slot';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -14,13 +16,16 @@ import { WorkspaceHead } from './workspace-head';
 import { TileGrid, WorkspaceTile } from './workspace-tile';
 
 /**
- * Überblick eines Lieferanten (NAV-06): Kopf groß und zentriert, Platz für die Zyklus-Leiste
- * (ZYK-01), sechs Kacheln mit je einer Kennzahl aus ihrem Modul. Speichert nichts selbst.
+ * Überblick eines Lieferanten (NAV-06): Bühne mit Name und Kopf (PLT-10), Platz für die
+ * Zyklus-Leiste (ZYK-01), sechs Kacheln mit je einer Kennzahl aus ihrem Modul. Speichert nichts selbst.
  */
 export function OverviewPage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
   const supplier = useSupplier(relationshipId);
   const overview = useOverview(relationshipId);
+  useDocumentTitle(
+    supplier.data ? `${supplier.data.name} · ${t.workspace.overview}` : t.workspace.overview,
+  );
   if (!supplier.data) return null;
 
   const metricOf = (tile: OverviewTile) =>
@@ -28,18 +33,27 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
 
   return (
     <>
-      <PagePath
-        trail={[{ label: t.suppliers.title, href: '/lieferanten' }]}
-        current={supplier.data.name}
-      />
-      <PageHeader title={t.workspace.overview} purpose={t.workspace.overviewPurpose} />
+      <InStageSlot>
+        <Stage
+          tone="light"
+          path={
+            <PagePath
+              trail={[{ label: t.suppliers.title, href: '/lieferanten' }]}
+              current={supplier.data.name}
+            />
+          }
+          eyebrow={t.workspace.overview}
+          title={supplier.data.name}
+          text={t.workspace.overviewPurpose}
+          aside={overview.data && <WorkspaceHead head={overview.data.head} size="lg" />}
+        />
+      </InStageSlot>
       {overview.isError ? (
         <ErrorState title={t.workspace.failed} />
       ) : !overview.data ? (
         <LoadingState label={t.workspace.loading} />
       ) : (
         <>
-          <WorkspaceHead head={overview.data.head} size="lg" />
           {overview.data.cycle && (
             <CycleBar
               cycle={overview.data.cycle}

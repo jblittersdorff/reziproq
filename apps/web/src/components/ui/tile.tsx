@@ -6,23 +6,30 @@ import { cn } from '@/lib/utils';
 
 // Kacheln sind Flächen statt Rahmen (PLT-10). lg: Bereichskacheln der Startseite (PLT-11),
 // sm: Einträge in Listen wie die Lieferantenkarten (PLT-03).
-const tileVariants = cva('flex flex-col gap-4 rounded-xl bg-muted', {
+// Töne (Handschrift Bühne): card hell, stage dunkel, shared für Inhalte, die die andere Seite sieht.
+const tileVariants = cva('group/tile flex flex-col gap-4 rounded-xl text-left', {
   variants: {
     size: {
-      lg: 'h-full p-6',
+      lg: 'h-full p-6 sm:p-8',
       sm: 'p-5',
+    },
+    tone: {
+      card: 'bg-card text-card-foreground',
+      stage: 'stage-scope',
+      shared: 'bg-primary-soft text-foreground',
     },
     interactive: {
       true: 'transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
       false: '',
     },
   },
-  defaultVariants: { size: 'sm', interactive: false },
+  defaultVariants: { size: 'sm', tone: 'card', interactive: false },
 });
 
 function Tile({
   className,
   size,
+  tone,
   interactive,
   asChild = false,
   ...props
@@ -31,7 +38,9 @@ function Tile({
   return (
     <Comp
       data-slot="tile"
-      className={cn(tileVariants({ size, interactive }), className)}
+      data-size={size ?? 'sm'}
+      data-tone={tone ?? 'card'}
+      className={cn(tileVariants({ size, tone, interactive }), className)}
       {...props}
     />
   );
@@ -47,22 +56,32 @@ function TileIcon({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Kachel nach Apple (NAV-10): Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe.
- * Überschriften kurz und zentriert; Hauptaktion gefüllt, Nebenaktion umrandet.
+ * Kachel (NAV-10, Handschrift Bühne): Kennzeichen, Titel, ein Satz, Kennzahl oder Grafik,
+ * höchstens zwei Knöpfe. Titel kurz, fett und linksbündig.
  */
 function TileTitle({ className, ...props }: React.ComponentProps<'h3'>) {
-  return <h3 className={cn('text-center font-semibold text-lg', className)} {...props} />;
+  return (
+    <h3
+      className={cn(
+        'font-bold text-lg tracking-title group-data-[size=lg]/tile:text-xl',
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function TileText({ className, ...props }: React.ComponentProps<'p'>) {
-  return <p className={cn('text-center text-muted-foreground', className)} {...props} />;
+  return <p className={cn('text-muted-foreground', className)} {...props} />;
 }
 
 /** Eine Kennzahl, groß; die Einheit oder Erklärung klein darunter. */
 function TileMetric({ value, label }: { value: React.ReactNode; label?: React.ReactNode }) {
   return (
-    <p className="flex flex-col items-center gap-1 text-center">
-      <span className="font-semibold text-xl tabular-nums">{value}</span>
+    <p className="flex flex-col gap-1">
+      <span className="font-bold text-xl tabular-nums tracking-title group-data-[size=lg]/tile:text-2xl">
+        {value}
+      </span>
       {label && <span className="text-muted-foreground text-sm">{label}</span>}
     </p>
   );
@@ -70,7 +89,7 @@ function TileMetric({ value, label }: { value: React.ReactNode; label?: React.Re
 
 /** Platz für höchstens zwei Knöpfe, unten in der Kachel. */
 function TileActions({ children }: { children: React.ReactNode }) {
-  return <div className="mt-auto flex flex-wrap justify-center gap-3">{children}</div>;
+  return <div className="mt-auto flex flex-wrap items-center gap-3">{children}</div>;
 }
 
 export { Tile, TileActions, TileIcon, TileMetric, TileText, TileTitle, tileVariants };

@@ -76,6 +76,17 @@ export const en: Messages = {
     dueAllTitle: 'Everything due for me',
     dueAllPurpose: 'All open tasks, sorted by due date.',
     back: 'To start',
+    dueSummary: (count: number) =>
+      count === 0
+        ? 'Nothing is waiting for you today.'
+        : count === 1
+          ? 'One thing is waiting for you.'
+          : `${count} things are waiting for you.`,
+    dueAction: 'Due tasks',
+    metricsLabel: 'At a glance',
+    metricDue: 'due',
+    metricRelationships: 'relationships',
+    metricCustomers: 'customers',
   },
 
   portfolio: {

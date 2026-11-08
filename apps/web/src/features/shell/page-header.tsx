@@ -1,6 +1,14 @@
 import { type ReactNode, useEffect } from 'react';
 import { useT } from '@/lib/i18n';
 
+/** Setzt den Titel des Browser-Tabs, z. B. für Seiten mit Bühne statt Seitenkopf. */
+export function useDocumentTitle(title: string) {
+  const t = useT();
+  useEffect(() => {
+    document.title = `${title} – ${t.app.name}`;
+  }, [title, t.app.name]);
+}
+
 /**
  * Titel und ein Satz, wofür die Seite da ist. Setzt auch den Titel des Browser-Tabs. Ein
  * Kennzeichen wie „Intern“ (NAV-09) steht neben dem Titel.
@@ -15,16 +23,12 @@ export function PageHeader({
   purpose?: string;
   badge?: ReactNode;
 }) {
-  const t = useT();
-
-  useEffect(() => {
-    document.title = `${title} – ${t.app.name}`;
-  }, [title, t.app.name]);
+  useDocumentTitle(title);
 
   return (
     <header className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h1 className="font-semibold text-xl">{title}</h1>
+        <h1 className="font-bold text-xl tracking-title sm:text-2xl">{title}</h1>
         {badge}
       </div>
       {purpose && <p className="text-muted-foreground">{purpose}</p>}

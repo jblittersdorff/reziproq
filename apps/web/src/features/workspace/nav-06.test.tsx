@@ -146,7 +146,8 @@ const areas = [
 describe('Arbeitsbereich eines Lieferanten', () => {
   it('Alle sechs Bereiche haben eigene Adressen. Der aktive ist markiert, und der Wechsel lädt die Seite nicht neu.', async () => {
     const router = renderAt(base);
-    await screen.findByRole('heading', { level: 1, name: 'Überblick' });
+    // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
+    await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
     const links = within(localBar()).getAllByRole('listitem');
     expect(links.map((item) => item.textContent)).toEqual([
       'Überblick',

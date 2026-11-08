@@ -131,3 +131,13 @@ describe.each([':root', '.dark'] as const)('Kontrast nach WCAG AA (%s)', (select
     expect(dark.sort()).toEqual(light.sort());
   });
 });
+
+describe('Handschrift Bühne (PLT-10, überarbeitet am 8.11.2026)', () => {
+  it('nutzt kein Apple-Blau, sondern Petrol als Akzent', () => {
+    const css = readFileSync(tokensFile, 'utf8').toLowerCase();
+    for (const appleBlue of ['#0071e3', '#0066cc', '#2997ff']) {
+      expect(css).not.toContain(appleBlue);
+    }
+    expect(readTheme(':root').primary).toBe('#0b7a6a');
+  });
+});

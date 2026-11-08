@@ -20,7 +20,8 @@ export const styleguideMessages = defineMessages({
     colors: {
       surfaces: 'Flächen',
       text: 'Text',
-      accent: 'Akzentfarbe – nur für Hauptaktion und Auswahl',
+      accent: 'Akzentfarbe Petrol – für Hauptaktion, Auswahl und Geteiltes',
+      stage: 'Bühne – dunkle Fläche über die ganze Breite',
       status: 'Statusfarben – nur für Status mit Bedeutung',
       chart: 'Diagrammfarben',
       pairs: 'Text auf Hintergrund – gemessener Kontrast',
@@ -34,12 +35,14 @@ export const styleguideMessages = defineMessages({
     typography: {
       family: 'Schriftfamilie',
       levels: {
-        xl: { name: 'Großtitel', use: 'Seitentitel' },
+        display: { name: 'Bühne', use: 'Titel auf der Bühne' },
+        '2xl': { name: 'Seitentitel', use: 'Titel einer Seite, große Kennzahlen' },
+        xl: { name: 'Großtitel', use: 'Titel großer Kacheln' },
         lg: { name: 'Titel', use: 'Abschnitt oder Kernaussage' },
         base: { name: 'Text', use: 'Fließtext und Formulare' },
         sm: { name: 'Fußnote', use: 'Beschriftungen und Hinweise' },
       },
-      weights: 'Betonung über Schriftstärke: normal, mittel, halbfett',
+      weights: 'Betonung über Schriftstärke: normal, mittel, halbfett, fett',
       weightSample: 'Aa',
       sample: 'Partnerschaft mit Wirkung',
     },
@@ -56,9 +59,33 @@ export const styleguideMessages = defineMessages({
     blocks: {
       tiles: 'Kachel',
       tilesHint:
-        'Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe. Groß für Start und Überblick, klein für Listen.',
+        'Kennzeichen, Titel, ein Satz, Kennzahl oder Grafik, höchstens zwei Knöpfe. Linksbündig. Groß für Start und Überblick, klein für Listen.',
       tileLarge: 'Groß',
       tileSmall: 'Klein',
+      tileTones: 'Töne: Karte, Bühne, Geteilt',
+      tileTonesHint:
+        'Den Ton Geteilt tragen nur Inhalte, die auch die andere Seite der Beziehung sieht.',
+      toneSample: {
+        card: { title: 'Bewertung abgeben', sentence: 'Alpha GmbH · bis Freitag' },
+        stage: { title: 'Quartalsreview', sentence: '15. März · 5 Agendapunkte' },
+        shared: { title: 'Spielregeln', sentence: 'Version 2, seit 4. November geteilt' },
+      },
+      sharedWith: 'Geteilt mit Nordstahl',
+      stage: 'Bühne',
+      stageHint:
+        'Kopf über die ganze Breite für Start (dunkel) und den Überblick eines Lieferanten (hell). Titel groß und linksbündig, höchstens zwei Knöpfe, bis zu drei Kennzahlen.',
+      stageSample: {
+        eyebrow: 'Sonntag, 8. November',
+        title: 'Guten Abend, Lena',
+        text: '3 Dinge warten auf dich.',
+        action: 'Fällige Aufgaben',
+        metrics: 'Auf einen Blick',
+        due: 'fällig',
+        relationships: 'Beziehungen',
+        lightEyebrow: 'Überblick',
+        lightTitle: 'Nordstahl (Demo)',
+        lightText: 'Wo die Beziehung steht und was zu ihr gehört.',
+      },
       tileSample: {
         title: 'Strategie',
         sentence: 'Wohin wir die Beziehung entwickeln wollen.',
@@ -292,7 +319,8 @@ export const styleguideMessages = defineMessages({
     colors: {
       surfaces: 'Surfaces',
       text: 'Text',
-      accent: 'Accent colour – only for the main action and selection',
+      accent: 'Accent colour petrol – for the main action, selection and shared content',
+      stage: 'Stage – dark full-width surface',
       status: 'Status colours – only for status with meaning',
       chart: 'Chart colours',
       pairs: 'Text on background – measured contrast',
@@ -306,12 +334,14 @@ export const styleguideMessages = defineMessages({
     typography: {
       family: 'Font family',
       levels: {
-        xl: { name: 'Large title', use: 'Page title' },
+        display: { name: 'Stage', use: 'Title on the stage' },
+        '2xl': { name: 'Page title', use: 'Page title, large metrics' },
+        xl: { name: 'Large title', use: 'Title of large tiles' },
         lg: { name: 'Title', use: 'Section or key message' },
         base: { name: 'Body', use: 'Body text and forms' },
         sm: { name: 'Footnote', use: 'Labels and hints' },
       },
-      weights: 'Emphasis through weight: regular, medium, semibold',
+      weights: 'Emphasis through weight: regular, medium, semibold, bold',
       weightSample: 'Aa',
       sample: 'Partnership with impact',
     },
@@ -328,9 +358,33 @@ export const styleguideMessages = defineMessages({
     blocks: {
       tiles: 'Tile',
       tilesHint:
-        'Title, one sentence, a metric or chart, at most two buttons. Large for start and overview, small for lists.',
+        'Badge, title, one sentence, a metric or chart, at most two buttons. Left-aligned. Large for start and overview, small for lists.',
       tileLarge: 'Large',
       tileSmall: 'Small',
+      tileTones: 'Tones: card, stage, shared',
+      tileTonesHint:
+        'Only content the other side of the relationship also sees uses the shared tone.',
+      toneSample: {
+        card: { title: 'Submit rating', sentence: 'Alpha GmbH · by Friday' },
+        stage: { title: 'Quarterly review', sentence: '15 March · 5 agenda items' },
+        shared: { title: 'Rules of engagement', sentence: 'Version 2, shared since 4 November' },
+      },
+      sharedWith: 'Shared with Nordstahl',
+      stage: 'Stage',
+      stageHint:
+        'Full-width head for start (dark) and a supplier overview (light). Large left-aligned title, at most two buttons, up to three metrics.',
+      stageSample: {
+        eyebrow: 'Sunday, 8 November',
+        title: 'Good evening, Lena',
+        text: '3 things are waiting for you.',
+        action: 'Due tasks',
+        metrics: 'At a glance',
+        due: 'due',
+        relationships: 'relationships',
+        lightEyebrow: 'Overview',
+        lightTitle: 'Nordstahl (Demo)',
+        lightText: 'Where the relationship stands and what belongs to it.',
+      },
       tileSample: {
         title: 'Strategy',
         sentence: 'Where we want to take the relationship.',

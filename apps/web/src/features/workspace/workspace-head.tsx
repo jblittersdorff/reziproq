@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * Kopf des Arbeitsbereichs (NAV-06): Segment Ist → Soll, SRO, nächster Termin. Auf dem Überblick
- * groß und zentriert, sonst als schmale Zeile. Der Name steht nur in der lokalen Leiste. Fehlt
+ * groß in der Bühne (PLT-10), sonst als schmale Zeile. Der Name steht nur in der lokalen Leiste. Fehlt
  * Segment oder SRO, steht „noch offen“; ohne Termin entfällt die Angabe.
  */
 export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' }) {
@@ -36,9 +36,7 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
       aria-label={t.workspace.head.label}
       className={cn(
         'flex flex-wrap',
-        size === 'lg'
-          ? 'justify-center gap-x-12 gap-y-4 py-4 text-center'
-          : '-mt-4 gap-x-6 gap-y-1 text-sm',
+        size === 'lg' ? 'gap-x-10 gap-y-6' : '-mt-4 gap-x-6 gap-y-1 text-sm',
       )}
     >
       {head.isFocus && (
@@ -53,12 +51,15 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
         <div
           key={entry.key}
           data-head={entry.key}
-          className={cn('flex', size === 'lg' ? 'flex-col-reverse gap-1' : 'gap-2')}
+          className={cn(
+            'flex',
+            size === 'lg' ? 'flex-col-reverse gap-1 border-border border-l pl-5' : 'gap-2',
+          )}
         >
           <dt className="text-muted-foreground">{entry.label}</dt>
           <dd
             className={cn(
-              size === 'lg' && 'font-semibold text-xl',
+              size === 'lg' && 'font-bold text-xl tracking-title',
               entry.value === null && 'text-muted-foreground',
             )}
           >

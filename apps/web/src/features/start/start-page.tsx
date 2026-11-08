@@ -1,14 +1,16 @@
 import type { DueItem } from '@reziproq/shared';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { buttonVariants } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { Stage, StageMetrics } from '@/components/ui/stage';
 import { Tile, TileActions, TileText, TileTitle } from '@/components/ui/tile';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
+import { useDocumentTitle } from '@/features/shell/page-header';
+import { InStageSlot } from '@/features/shell/stage-slot';
 import { startQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { dayTime } from './greeting';
@@ -36,8 +38,8 @@ export function formatDate(locale: string, date: string) {
 }
 
 /**
- * Start nach dem Login (PLT-11, NAV-05): Begrüßung, Fragefeld und vier Kacheln mit höchstens
- * fünf Einträgen. Auf Start lässt sich nichts bearbeiten; jeder Eintrag führt zum Ort der Sache.
+ * Start nach dem Login (PLT-11, NAV-05): Bühne mit Begrüßung und Kennzahlen (PLT-10), Fragefeld
+ * und vier Kacheln mit höchstens fünf Einträgen. Auf Start lässt sich nichts bearbeiten; jeder Eintrag führt zum Ort der Sache.
  */
 export function StartPage() {
   const t = useT();
@@ -51,9 +53,7 @@ export function StartPage() {
   const accessToken = auth.user?.access_token ?? '';
   const query = useQuery({ ...startQueryOptions(accessToken), enabled: accessToken !== '' });
 
-  useEffect(() => {
-    document.title = `${t.start.title} – ${t.app.name}`;
-  }, [t]);
+  useDocumentTitle(t.start.title);
 
   const greeting = {
     morning: t.start.greetingMorning,
@@ -62,11 +62,50 @@ export function StartPage() {
   }[dayTime(new Date())];
   const data = query.data;
 
+  const today = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
+
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="font-semibold text-xl">
-        {me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName}
-      </h1>
+      <InStageSlot>
+        <Stage
+          eyebrow={today}
+          title={me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName}
+          text={data && t.start.dueSummary(data.due.total)}
+          actions={
+            data &&
+            data.due.total > 0 &&
+            routerLink({
+              href: '/start/faellig',
+              className: buttonVariants(),
+              children: t.start.dueAction,
+            })
+          }
+          aside={
+            data && (
+              <StageMetrics
+                label={t.start.metricsLabel}
+                items={[
+                  {
+                    key: 'due',
+                    value: data.due.total,
+                    label: t.start.metricDue,
+                    accent: data.due.total > 0,
+                  },
+                  {
+                    key: 'relationships',
+                    value: data.relationships.total,
+                    label: supplierSide ? t.start.metricCustomers : t.start.metricRelationships,
+                  },
+                ]}
+              />
+            )
+          }
+        />
+      </InStageSlot>
 
       {!supplierSide && <PromptTrigger />}
 
@@ -81,7 +120,7 @@ export function StartPage() {
             {data.due.items.length === 0 ? (
               <TileText>{t.start.dueEmpty}</TileText>
             ) : (
-              <ul className="flex flex-col gap-1">
+              <ul className="-mx-2 flex flex-col gap-1">
                 {data.due.items.map((item) => (
                   <li key={item.id}>
                     {routerLink({
@@ -130,7 +169,7 @@ export function StartPage() {
                 {supplierSide ? t.start.customersEmpty : t.start.relationshipsEmpty}
               </TileText>
             ) : (
-              <ul className="flex flex-col gap-1">
+              <ul className="-mx-2 flex flex-col gap-1">
                 {data.relationships.items.map((item) => (
                   <li key={item.id}>
                     {routerLink({
@@ -140,7 +179,7 @@ export function StartPage() {
                         <>
                           <span className="font-medium">{item.name}</span>
                           {item.target && (
-                            <span className="ml-2 text-muted-foreground text-sm">
+                            <span className="text-muted-foreground text-sm">
                               {t.start.target(item.target)}
                             </span>
                           )}
