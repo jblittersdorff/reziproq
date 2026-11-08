@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-export const emailTemplates = ['invitation', 'reminder', 'approval', 'escalation'] as const;
+export const emailTemplates = [
+  'invitation',
+  'reminder',
+  'approval',
+  'escalation',
+  'supplier_invitation',
+] as const;
 export const emailTemplateSchema = z.enum(emailTemplates);
 export const emailLocaleSchema = z.enum(['de', 'en']);
 
@@ -17,6 +23,17 @@ const hasControlCharacters = (value: string) =>
     const code = character.codePointAt(0) ?? 0;
     return code < 32 || code === 127;
   });
+
+/** Persönliche Nachricht: Zeilenumbrüche erlaubt, andere Steuerzeichen nicht. */
+const messageText = z
+  .string()
+  .trim()
+  .min(1)
+  .max(500)
+  .refine(
+    (value) => !hasControlCharacters(value.replaceAll('\n', ' ').replaceAll('\r', ' ')),
+    'Darf keine Steuerzeichen enthalten.',
+  );
 
 export const internalLinkSchema = z
   .string()
@@ -50,6 +67,9 @@ export const emailContentSchema = z
     title: shortText(140),
     deadline: shortText(100).optional(),
     link: internalLinkSchema,
+    // Nur supplier_invitation (LIF-01): wer einlädt und eine persönliche Nachricht mit Absätzen.
+    sender: shortText(120).optional(),
+    message: messageText.optional(),
   })
   .strict();
 

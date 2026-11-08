@@ -1,12 +1,17 @@
 import {
+  type AcceptInvitationRequest,
   type AddAssignment,
   type AssignmentRequest,
+  acceptInvitationResponseSchema,
   assignmentResponseSchema,
   auditResponseSchema,
   businessUnitsResponseSchema,
   type ConsolidateRequest,
+  type ContributionObjectiveRequest,
   type CreateRound,
   type CreateSupplierRequest,
+  contributionDetailSchema,
+  contributionSuggestionsResponseSchema,
   createSupplierResponseSchema,
   customersResponseSchema,
   cycleSchema,
@@ -22,25 +27,28 @@ import {
   type ImportPreview,
   type ImportResult,
   type ImportType,
+  type InviteSupplierRequest,
   importPreviewSchema,
   importResultSchema,
+  invitationListSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meResponseSchema,
+  type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
   objectiveCategoryRequestSchema,
   organizationMemberSchema,
   organizationResponseSchema,
+  type PlanObjectiveRequest,
   type PromptEvent,
   type PromptRequest,
-  contributionDetailSchema,
-  contributionSuggestionsResponseSchema,
-  supplierPlanResponseSchema,
   permissionsResponseSchema,
   portfolioMatrixSchema,
   portfolioOpenSchema,
   portfolioSchema,
   promptEventSchema,
+  publicInvitationSchema,
+  type RequestContributions,
   ratingAssignmentListSchema,
   ratingDetailSchema,
   roundCandidatesSchema,
@@ -51,32 +59,29 @@ import {
   type SetFocusRequest,
   type SetRoundSuppliers,
   type SpendRequest,
+  type StrategicTopicOrder,
+  type StrategicTopicRequest,
   segmentationSchema,
   segmentModelResponseSchema,
   startSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
   supplierOverviewSchema,
+  supplierPlanResponseSchema,
   suppliersResponseSchema,
   supportHeader,
   teamResponseSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
   type UpdateMemberRequest,
+  type UpdateObjectiveCategory,
+  type UpdatePlanSummary,
   type UpdateSegmentBoundaries,
   type UpdateSegmentCriterion,
   type UpdateSegmentType,
   type UpdateSegmentWeights,
   type UpdateSupplierRequest,
   type UpdateTeamRequest,
-  type ObjectiveCategoryRequest,
-  type ContributionObjectiveRequest,
-  type PlanObjectiveRequest,
-  type RequestContributions,
-  type StrategicTopicOrder,
-  type StrategicTopicRequest,
-  type UpdateObjectiveCategory,
-  type UpdatePlanSummary,
   type UserLocale,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
@@ -431,11 +436,7 @@ export const supplierOverviewQueryOptions = (accessToken: string, relationshipId
 export const startSupplierCycle = (accessToken: string, relationshipId: string) =>
   sendJson('POST', `/suppliers/${relationshipId}/cycle`, {}, cycleSchema, accessToken);
 
-export const setSupplierJbpDate = (
-  accessToken: string,
-  relationshipId: string,
-  jbpDate: string,
-) =>
+export const setSupplierJbpDate = (accessToken: string, relationshipId: string, jbpDate: string) =>
   sendJson(
     'PUT',
     `/suppliers/${relationshipId}/cycle/jbp-date`,
@@ -639,17 +640,8 @@ export const objectiveCategoriesQueryOptions = (accessToken: string) =>
     retry: retryUnlessDenied,
   });
 
-export const createObjectiveCategory = (
-  accessToken: string,
-  request: ObjectiveCategoryRequest,
-) =>
-  sendJson(
-    'POST',
-    '/objective-categories',
-    request,
-    objectiveCategoryRequestSchema,
-    accessToken,
-  );
+export const createObjectiveCategory = (accessToken: string, request: ObjectiveCategoryRequest) =>
+  sendJson('POST', '/objective-categories', request, objectiveCategoryRequestSchema, accessToken);
 
 export const updateObjectiveCategory = (
   accessToken: string,
@@ -982,3 +974,57 @@ export const dueQueryOptions = (accessToken: string) =>
     queryFn: () => getJson('/start/due', dueListSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+// LIF-01a: Personen des Lieferanten einladen; die Annahme läuft ohne Login.
+
+export const invitationsQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'invitations'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/einladungen`, invitationListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const inviteSupplier = (
+  accessToken: string,
+  relationshipId: string,
+  request: InviteSupplierRequest,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/einladungen`,
+    request,
+    invitationListSchema,
+    accessToken,
+  );
+
+export const revokeInvitation = (accessToken: string, relationshipId: string, id: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/einladungen/${id}/zurueckziehen`,
+    {},
+    invitationListSchema,
+    accessToken,
+  );
+
+/** Ohne Login: Der Token im Link ist der einzige Schlüssel. */
+export const publicInvitationQueryOptions = (token: string) =>
+  queryOptions({
+    queryKey: ['einladung', token],
+    queryFn: () => getJson(`/einladungen/${encodeURIComponent(token)}`, publicInvitationSchema),
+    retry: retryUnlessDenied,
+  });
+
+export async function acceptInvitation(token: string, request: AcceptInvitationRequest) {
+  const path = `/einladungen/${encodeURIComponent(token)}/annahme`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+  return acceptInvitationResponseSchema.parse(await res.json());
+}

@@ -32,13 +32,17 @@ export interface AuditActor {
 }
 
 export interface OutboxEmailPayload {
-  template: 'invitation' | 'reminder' | 'approval' | 'escalation';
+  template: 'invitation' | 'reminder' | 'approval' | 'escalation' | 'supplier_invitation';
   locale: 'de' | 'en';
   recipient: string;
   firstName?: string;
   title: string;
   deadline?: string;
   link: string;
+  /** Nur supplier_invitation: wer einlädt */
+  sender?: string;
+  /** Nur supplier_invitation: persönliche Nachricht */
+  message?: string;
 }
 
 export interface AuditedChangeResult<T> {
@@ -108,6 +112,8 @@ export async function auditedChange<T>(
     emailTitle: change.email?.title ?? null,
     emailDeadline: change.email?.deadline ?? null,
     emailLink: change.email?.link ?? null,
+    emailSender: change.email?.sender ?? null,
+    emailMessage: change.email?.message ?? null,
   });
   return change.result;
 }

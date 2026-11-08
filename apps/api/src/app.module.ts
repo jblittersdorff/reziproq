@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { MasterDataModule } from './modules/master-data/master-data.module.js';
 import { MeModule } from './modules/me/me.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
@@ -47,6 +48,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     RoundsModule,
     StartModule,
     SupplierPlansModule,
+    InvitationsModule,
     ...(env.NODE_ENV === 'production'
       ? [ServeStaticModule.forRoot({ rootPath: webDist, exclude: ['/api/{*path}'] })]
       : []),

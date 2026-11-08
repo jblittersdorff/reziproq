@@ -163,6 +163,16 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       return status === 404 ? 200 : status;
     },
     'portfolio.sehen': async (user) => (await request(user, 'GET', '/api/portfolio')).status,
+    // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'lieferanten.einladen': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/einladungen',
+        { email: 'kim@example.com' },
+      );
+      return status === 404 ? 200 : status;
+    },
   };
 
   beforeAll(async () => {
@@ -237,7 +247,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     });
   });
 
-  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health und /me.', () => {
+  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health, /me und der Einladungslink.', () => {
     const routes = discoverRoutes(testApp.app);
     expect(routes.length).toBeGreaterThan(10);
     const unchecked = routes
@@ -245,7 +255,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       .filter((route) => !route.requires)
       .map((route) => `${route.method} ${route.path}`);
     expect(unchecked).toEqual([]);
-    // Ausnahmen sind genau /health (öffentlich) und /me.
+    // Ausnahmen sind genau /health und der Einladungslink (LIF-01a, beide öffentlich) und /me.
     const exempt = routes.filter((route) => !route.requires).map((route) => route.path);
     expect(new Set(exempt)).toEqual(
       new Set([
@@ -254,6 +264,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         '/api/me/permissions',
         '/api/me/anmeldung',
         '/api/me/sprache',
+        '/api/einladungen/00000000-0000-7000-8000-000000000000',
+        '/api/einladungen/00000000-0000-7000-8000-000000000000/annahme',
       ]),
     );
   });

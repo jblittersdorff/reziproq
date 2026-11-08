@@ -31,9 +31,12 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
         email_title: string;
         email_deadline: string | null;
         email_link: string;
+        email_sender: string | null;
+        email_message: string | null;
       }>(sql`
         SELECT o.id, o.email_template, o.email_locale, o.email_recipient,
-          o.email_first_name, o.email_title, o.email_deadline, o.email_link
+          o.email_first_name, o.email_title, o.email_deadline, o.email_link,
+          o.email_sender, o.email_message
         FROM outbox_event o
         LEFT JOIN email_log l ON l.outbox_event_id = o.id
         WHERE o.processed_at IS NULL
@@ -60,6 +63,8 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
         title: row.email_title,
         ...(row.email_deadline ? { deadline: row.email_deadline } : {}),
         link: row.email_link,
+        ...(row.email_sender ? { sender: row.email_sender } : {}),
+        ...(row.email_message ? { message: row.email_message } : {}),
       });
       const recipientHash = createHash('sha256')
         .update(delivery.recipient.toLowerCase())
@@ -98,7 +103,9 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
             email_first_name = NULL,
             email_title = NULL,
             email_deadline = NULL,
-            email_link = NULL
+            email_link = NULL,
+            email_sender = NULL,
+            email_message = NULL
         WHERE id = ${id} AND processed_at IS NULL
         RETURNING id
       `);

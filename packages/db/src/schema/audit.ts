@@ -54,7 +54,7 @@ export const outboxEvent = pgTable(
     // Leer: noch nicht verarbeitet.
     processedAt: timestamp({ withTimezone: true }),
     emailTemplate: text({
-      enum: ['invitation', 'reminder', 'approval', 'escalation'],
+      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'],
     }),
     emailLocale: text({ enum: ['de', 'en'] }),
     emailRecipient: text(),
@@ -62,6 +62,9 @@ export const outboxEvent = pgTable(
     emailTitle: text(),
     emailDeadline: text(),
     emailLink: text(),
+    // Nur bei supplier_invitation (LIF-01): wer einlädt und eine kurze persönliche Nachricht.
+    emailSender: text(),
+    emailMessage: text(),
   },
   (table) => [
     check(
@@ -70,10 +73,13 @@ export const outboxEvent = pgTable(
         (${table.emailTemplate} IS NULL AND ${table.emailLocale} IS NULL
           AND ${table.emailRecipient} IS NULL AND ${table.emailFirstName} IS NULL
           AND ${table.emailTitle} IS NULL AND ${table.emailDeadline} IS NULL
-          AND ${table.emailLink} IS NULL)
+          AND ${table.emailLink} IS NULL AND ${table.emailSender} IS NULL
+          AND ${table.emailMessage} IS NULL)
         OR
         (${table.emailTemplate} IS NOT NULL
-          AND ${table.emailTemplate} IN ('invitation', 'reminder', 'approval', 'escalation')
+          AND ${table.emailTemplate} IN (
+            'invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'
+          )
           AND ${table.emailLocale} IS NOT NULL
           AND ${table.emailLocale} IN ('de', 'en')
           AND ${table.emailRecipient} IS NOT NULL
@@ -100,7 +106,7 @@ export const emailLog = pgTable(
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     sentAt: timestamp({ withTimezone: true }),
     template: text({
-      enum: ['invitation', 'reminder', 'approval', 'escalation'],
+      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'],
     }).notNull(),
     status: text({ enum: ['sending', 'sent', 'failed'] }).notNull(),
     recipientHash: text().notNull(),

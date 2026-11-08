@@ -18,6 +18,7 @@ import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as EinladungTokenRouteRouteImport } from './routes/einladung/$token/route'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
@@ -34,6 +35,9 @@ import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/pro
 import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprache'
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
+import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
+import { Route as EinladungTokenNameRouteImport } from './routes/einladung/$token/name'
+import { Route as EinladungTokenPasskeyRouteImport } from './routes/einladung/$token/passkey'
 import { Route as AppBewertungenIdIndexRouteImport } from './routes/_app/bewertungen/$id/index'
 import { Route as AppBewertungenIdQualitaetRouteImport } from './routes/_app/bewertungen/$id/qualitaet'
 import { Route as AppBewertungenIdZusammenfassungRouteImport } from './routes/_app/bewertungen/$id/zusammenfassung'
@@ -73,6 +77,7 @@ import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/port
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
 import { Route as AppLieferantenIdBeziehungTeamIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/index'
 import { Route as AppLieferantenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/bearbeiten'
+import { Route as AppLieferantenIdBeziehungTeamEinladenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/einladen'
 import { Route as AppLieferantenIdStrategieLieferantenplanIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/index'
 import { Route as AppLieferantenIdStrategieProfilIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/index'
 import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/bearbeiten'
@@ -133,6 +138,11 @@ const AppWirkungRoute = AppWirkungRouteImport.update({
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EinladungTokenRouteRoute = EinladungTokenRouteRouteImport.update({
+  id: '/einladung/$token',
+  path: '/einladung/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppBetreiberKundenRoute = AppBetreiberKundenRouteImport.update({
@@ -216,6 +226,21 @@ const AppStartFaelligRoute = AppStartFaelligRouteImport.update({
   id: '/start/faellig',
   path: '/start/faellig',
   getParentRoute: () => AppRoute,
+} as any)
+const EinladungTokenIndexRoute = EinladungTokenIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EinladungTokenRouteRoute,
+} as any)
+const EinladungTokenNameRoute = EinladungTokenNameRouteImport.update({
+  id: '/name',
+  path: '/name',
+  getParentRoute: () => EinladungTokenRouteRoute,
+} as any)
+const EinladungTokenPasskeyRoute = EinladungTokenPasskeyRouteImport.update({
+  id: '/passkey',
+  path: '/passkey',
+  getParentRoute: () => EinladungTokenRouteRoute,
 } as any)
 const AppBewertungenIdIndexRoute = AppBewertungenIdIndexRouteImport.update({
   id: '/bewertungen/$id/',
@@ -445,6 +470,12 @@ const AppLieferantenIdBeziehungTeamBearbeitenRoute =
     path: '/beziehung/team/bearbeiten',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
+const AppLieferantenIdBeziehungTeamEinladenRoute =
+  AppLieferantenIdBeziehungTeamEinladenRouteImport.update({
+    id: '/beziehung/team/einladen',
+    path: '/beziehung/team/einladen',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppLieferantenIdStrategieLieferantenplanIndexRoute =
   AppLieferantenIdStrategieLieferantenplanIndexRouteImport.update({
     id: '/',
@@ -559,6 +590,7 @@ const AppLieferantenIdStrategieLieferantenplanZieleObjectiveIdBearbeitenRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/styleguide': typeof StyleguideRoute
+  '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/fragen': typeof AppFragenRoute
   '/menu': typeof AppMenuRoute
@@ -575,12 +607,15 @@ export interface FileRoutesByFullPath {
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
+  '/einladung/$token/name': typeof EinladungTokenNameRoute
+  '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
   '/lieferanten/': typeof AppLieferantenIndexRoute
   '/portfolio/': typeof AppPortfolioIndexRoute
   '/profil/': typeof AppProfilIndexRoute
   '/start/': typeof AppStartIndexRoute
+  '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
   '/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
@@ -619,6 +654,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
+  '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -656,12 +692,15 @@ export interface FileRoutesByTo {
   '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
+  '/einladung/$token/name': typeof EinladungTokenNameRoute
+  '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
   '/lieferanten': typeof AppLieferantenIndexRoute
   '/portfolio': typeof AppPortfolioIndexRoute
   '/profil': typeof AppProfilIndexRoute
   '/start': typeof AppStartIndexRoute
+  '/einladung/$token': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
   '/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
@@ -699,6 +738,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/wirkung': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id': typeof AppPortfolioRundenIdIndexRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
+  '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -723,6 +763,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/styleguide': typeof StyleguideRoute
+  '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_app/fragen': typeof AppFragenRoute
   '/_app/menu': typeof AppMenuRoute
@@ -739,12 +780,15 @@ export interface FileRoutesById {
   '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
+  '/einladung/$token/name': typeof EinladungTokenNameRoute
+  '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
   '/_app/lieferanten/': typeof AppLieferantenIndexRoute
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
   '/_app/start/': typeof AppStartIndexRoute
+  '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/_app/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/_app/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
   '/_app/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
@@ -783,6 +827,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/_app/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
   '/_app/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
+  '/_app/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/_app/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/_app/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -807,6 +852,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/styleguide'
+    | '/einladung/$token'
     | '/$'
     | '/fragen'
     | '/menu'
@@ -823,12 +869,15 @@ export interface FileRouteTypes {
     | '/profil/erscheinungsbild'
     | '/profil/sprache'
     | '/start/faellig'
+    | '/einladung/$token/name'
+    | '/einladung/$token/passkey'
     | '/bewertungen/'
     | '/einstellungen/'
     | '/lieferanten/'
     | '/portfolio/'
     | '/profil/'
     | '/start/'
+    | '/einladung/$token/'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
     | '/einstellungen/business-units/neu'
@@ -867,6 +916,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/wirkung/'
     | '/portfolio/runden/$id/'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
+    | '/lieferanten/$id/beziehung/team/einladen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -904,12 +954,15 @@ export interface FileRouteTypes {
     | '/profil/erscheinungsbild'
     | '/profil/sprache'
     | '/start/faellig'
+    | '/einladung/$token/name'
+    | '/einladung/$token/passkey'
     | '/bewertungen'
     | '/einstellungen'
     | '/lieferanten'
     | '/portfolio'
     | '/profil'
     | '/start'
+    | '/einladung/$token'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
     | '/einstellungen/business-units/neu'
@@ -947,6 +1000,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/wirkung'
     | '/portfolio/runden/$id'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
+    | '/lieferanten/$id/beziehung/team/einladen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -970,6 +1024,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/styleguide'
+    | '/einladung/$token'
     | '/_app/$'
     | '/_app/fragen'
     | '/_app/menu'
@@ -986,12 +1041,15 @@ export interface FileRouteTypes {
     | '/_app/profil/erscheinungsbild'
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
+    | '/einladung/$token/name'
+    | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
     | '/_app/einstellungen/'
     | '/_app/lieferanten/'
     | '/_app/portfolio/'
     | '/_app/profil/'
     | '/_app/start/'
+    | '/einladung/$token/'
     | '/_app/bewertungen/$id/qualitaet'
     | '/_app/bewertungen/$id/zusammenfassung'
     | '/_app/einstellungen/business-units/neu'
@@ -1030,6 +1088,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/wirkung/'
     | '/_app/portfolio/runden/$id/'
     | '/_app/lieferanten/$id/beziehung/team/bearbeiten'
+    | '/_app/lieferanten/$id/beziehung/team/einladen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
     | '/_app/lieferanten/$id/strategie/profil/zuordnung'
     | '/_app/lieferanten/$id/strategie/spend/$jahr'
@@ -1054,6 +1113,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   StyleguideRoute: typeof StyleguideRoute
+  EinladungTokenRouteRoute: typeof EinladungTokenRouteRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
@@ -1120,6 +1180,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/einladung/$token': {
+      id: '/einladung/$token'
+      path: '/einladung/$token'
+      fullPath: '/einladung/$token'
+      preLoaderRoute: typeof EinladungTokenRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/betreiber/kunden': {
@@ -1233,6 +1300,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/start/faellig'
       preLoaderRoute: typeof AppStartFaelligRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/einladung/$token/': {
+      id: '/einladung/$token/'
+      path: '/'
+      fullPath: '/einladung/$token/'
+      preLoaderRoute: typeof EinladungTokenIndexRouteImport
+      parentRoute: typeof EinladungTokenRouteRoute
+    }
+    '/einladung/$token/name': {
+      id: '/einladung/$token/name'
+      path: '/name'
+      fullPath: '/einladung/$token/name'
+      preLoaderRoute: typeof EinladungTokenNameRouteImport
+      parentRoute: typeof EinladungTokenRouteRoute
+    }
+    '/einladung/$token/passkey': {
+      id: '/einladung/$token/passkey'
+      path: '/passkey'
+      fullPath: '/einladung/$token/passkey'
+      preLoaderRoute: typeof EinladungTokenPasskeyRouteImport
+      parentRoute: typeof EinladungTokenRouteRoute
     }
     '/_app/bewertungen/$id/': {
       id: '/_app/bewertungen/$id/'
@@ -1507,6 +1595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdBeziehungTeamBearbeitenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
+    '/_app/lieferanten/$id/beziehung/team/einladen': {
+      id: '/_app/lieferanten/$id/beziehung/team/einladen'
+      path: '/beziehung/team/einladen'
+      fullPath: '/lieferanten/$id/beziehung/team/einladen'
+      preLoaderRoute: typeof AppLieferantenIdBeziehungTeamEinladenRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
     '/_app/lieferanten/$id/strategie/lieferantenplan/': {
       id: '/_app/lieferanten/$id/strategie/lieferantenplan/'
       path: '/'
@@ -1675,6 +1770,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdUmsetzungIndexRoute: typeof AppLieferantenIdUmsetzungIndexRoute
   AppLieferantenIdWirkungIndexRoute: typeof AppLieferantenIdWirkungIndexRoute
   AppLieferantenIdBeziehungTeamBearbeitenRoute: typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
+  AppLieferantenIdBeziehungTeamEinladenRoute: typeof AppLieferantenIdBeziehungTeamEinladenRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   AppLieferantenIdStrategieProfilZuordnungRoute: typeof AppLieferantenIdStrategieProfilZuordnungRoute
   AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -1699,6 +1795,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdWirkungIndexRoute: AppLieferantenIdWirkungIndexRoute,
   AppLieferantenIdBeziehungTeamBearbeitenRoute:
     AppLieferantenIdBeziehungTeamBearbeitenRoute,
+  AppLieferantenIdBeziehungTeamEinladenRoute:
+    AppLieferantenIdBeziehungTeamEinladenRoute,
   AppLieferantenIdStrategieProfilBearbeitenRoute:
     AppLieferantenIdStrategieProfilBearbeitenRoute,
   AppLieferantenIdStrategieProfilZuordnungRoute:
@@ -1849,10 +1947,26 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface EinladungTokenRouteRouteChildren {
+  EinladungTokenNameRoute: typeof EinladungTokenNameRoute
+  EinladungTokenPasskeyRoute: typeof EinladungTokenPasskeyRoute
+  EinladungTokenIndexRoute: typeof EinladungTokenIndexRoute
+}
+
+const EinladungTokenRouteRouteChildren: EinladungTokenRouteRouteChildren = {
+  EinladungTokenNameRoute: EinladungTokenNameRoute,
+  EinladungTokenPasskeyRoute: EinladungTokenPasskeyRoute,
+  EinladungTokenIndexRoute: EinladungTokenIndexRoute,
+}
+
+const EinladungTokenRouteRouteWithChildren =
+  EinladungTokenRouteRoute._addFileChildren(EinladungTokenRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   StyleguideRoute: StyleguideRoute,
+  EinladungTokenRouteRoute: EinladungTokenRouteRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
