@@ -7,7 +7,7 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
     // Tabellen liegen auf einer weißen Karte (Handschrift Bühne, PLT-10).
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-xl bg-card px-3 py-2"
+      className="relative w-full overflow-x-auto rounded-xl bg-card py-2 sm:px-3"
     >
       <table
         data-slot="table"
