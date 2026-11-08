@@ -260,6 +260,13 @@
       "when": 1794146708894,
       "tag": "0036_lieferantenzugang",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794148735703,
+      "tag": "0037_spielregel_kataloge",
+      "breakpoints": true
     }
   ]
 }

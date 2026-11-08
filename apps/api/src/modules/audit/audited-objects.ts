@@ -67,6 +67,18 @@ export const supplierInvitationAudit = auditedObject({
   fields: ['email', 'status'],
 });
 
+/** Kataloge für Spielregeln und Formate (PLB-01): intern beim Käufer. */
+export const ruleCatalogAudit = auditedObject({
+  type: 'rule_catalog_item',
+  visibility: 'internal',
+  fields: ['kind', 'group', 'title', 'counterpart_id', 'min_impact_level'],
+});
+export const formatCatalogAudit = auditedObject({
+  type: 'format_catalog_item',
+  visibility: 'internal',
+  fields: ['name', 'level', 'cadence', 'min_impact_level', 'for_quality_levels'],
+});
+
 /** Interner Lieferantenplan, Ziele und Kategorien (SPL-01). */
 export const supplierPlanAudit = auditedObject({
   type: 'supplier_plan',
@@ -112,6 +124,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   segmentationRoundAudit,
   ratingInvitationAudit,
   supplierInvitationAudit,
+  ruleCatalogAudit,
+  formatCatalogAudit,
   relationshipAssignmentAudit,
   relationshipTeamAudit,
   userRoleAudit,

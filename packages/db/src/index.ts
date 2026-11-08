@@ -8,6 +8,7 @@ export {
   diffFields,
   type OutboxEmailPayload,
 } from './audit.js';
+export { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
 export { createDatabase, type Database } from './client.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {

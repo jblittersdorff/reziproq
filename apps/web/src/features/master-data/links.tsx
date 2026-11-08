@@ -1,4 +1,4 @@
-import { LayoutGridIcon, NetworkIcon, TagsIcon, TargetIcon } from 'lucide-react';
+import { LayoutGridIcon, NetworkIcon, ScaleIcon, TagsIcon, TargetIcon } from 'lucide-react';
 import { SettingsLinkRow } from '@/components/ui/settings-group';
 import { routerLink } from '@/features/shell/navigation';
 import { useT } from '@/lib/i18n';
@@ -27,6 +27,13 @@ export function MasterDataLinks() {
         label={t.segmentModel.title}
         description={t.segmentModel.settingsHint}
         icon={<LayoutGridIcon aria-hidden />}
+        renderLink={routerLink}
+      />
+      <SettingsLinkRow
+        href="/einstellungen/spielregeln"
+        label={t.playbook.title}
+        description={t.playbook.navHint}
+        icon={<ScaleIcon aria-hidden />}
         renderLink={routerLink}
       />
       <SettingsLinkRow

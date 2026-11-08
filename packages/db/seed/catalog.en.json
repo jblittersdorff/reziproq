@@ -1,0 +1,29 @@
+{
+  "rules": [
+    { "key": "price_agreement", "title": "Multi-year price agreement with escalation clause", "description": "Prices apply for several years and follow agreed indices." },
+    { "key": "open_costs", "title": "Open cost structure for agreed parts", "description": "The supplier discloses the cost components of the agreed parts." },
+    { "key": "cost_workshops", "title": "Joint cost workshops", "description": "Both sides regularly look for savings together." },
+    { "key": "productivity_offer", "title": "Annual productivity offer", "description": "Every year the supplier makes a concrete productivity offer." },
+    { "key": "demand_outlook", "title": "Longer demand outlook", "description": "The supplier receives a demand forecast over a longer period." },
+    { "key": "capacity_commitment", "title": "Binding capacity commitment", "description": "The supplier commits to the required capacity." },
+    { "key": "program_changes", "title": "Early information on programme changes", "description": "The supplier learns early about changes to programmes and volumes." },
+    { "key": "risk_warning", "title": "Early warning of supply risks", "description": "The supplier reports foreseeable supply risks immediately." },
+    { "key": "executive_access", "title": "Access to senior management", "description": "The supplier has a direct line to the customer's senior management." },
+    { "key": "executive_contact", "title": "Dedicated contact at senior management level", "description": "The supplier names a fixed person from its senior management." },
+    { "key": "fast_approvals", "title": "Faster approval processes", "description": "Approvals for the supplier follow a shortened path." },
+    { "key": "mutual_feedback", "title": "Taking part in mutual feedback", "description": "The supplier regularly takes part in mutual feedback." },
+    { "key": "early_involvement", "title": "Early involvement in new developments", "description": "The supplier is involved in new development projects from the start." },
+    { "key": "innovation_first", "title": "Offer innovations first", "description": "The supplier offers new solutions to this customer first." },
+    { "key": "technology_roadmap", "title": "Insight into the technology roadmap", "description": "The supplier sees the customer's technology planning." },
+    { "key": "joint_investment", "title": "Investment in joint development goals", "description": "The supplier invests in the jointly agreed development goals." }
+  ],
+  "formats": [
+    { "key": "strategy_dialog", "name": "Executive strategy dialogue", "purpose": "Senior management of both sides aligns direction and goals of the partnership." },
+    { "key": "quarterly_review", "name": "Quarterly review", "purpose": "Assess performance, actions and risks of the quarter together." },
+    { "key": "joint_business_planning", "name": "Joint business planning", "purpose": "Work out the joint plan for the coming year." },
+    { "key": "mutual_feedback", "name": "Mutual feedback", "purpose": "Both sides say openly what works well and what needs to improve." },
+    { "key": "innovation_day", "name": "Innovation day", "purpose": "The supplier presents new technologies and ideas." },
+    { "key": "value_chain_workshop", "name": "Value chain workshop", "purpose": "Improve processes across both companies together." },
+    { "key": "relationship_restart", "name": "Relationship restart", "purpose": "Clarify a difficult collaboration and set it up again." }
+  ]
+}

@@ -5,6 +5,7 @@ import {
   demoSupplierImportRows,
 } from '@reziproq/shared';
 import { eq, inArray, sql } from 'drizzle-orm';
+import { seedDefaultCatalog } from './catalog.js';
 import type { Database } from './client.js';
 import {
   appUser,
@@ -460,6 +461,9 @@ export async function seed(
     await tx
       .insert(relationshipMember)
       .values(seedTeams.map((member) => ({ ...member, orgId: seedBuyers.testOem.id })));
+
+    // PLB-01: Standardkatalog für Spielregeln und Formate; einmalig je Käufer.
+    for (const buyer of Object.values(seedBuyers)) await seedDefaultCatalog(tx, buyer.id);
 
     // LIF-01a: Lena ist SRO beim Test-Lieferanten und hat seinen Key Account Manager eingeladen.
     const invitedRelationship = id(401);

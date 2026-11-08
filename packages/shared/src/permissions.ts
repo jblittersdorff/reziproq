@@ -50,6 +50,8 @@ export const actions = [
   'lieferantenplan.bearbeiten',
   'lieferanten.einladen',
   'kunden.sehen',
+  'spielregeln.sehen',
+  'spielregeln.verwalten',
 ] as const;
 export type Action = (typeof actions)[number];
 

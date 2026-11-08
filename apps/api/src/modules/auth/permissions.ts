@@ -124,6 +124,14 @@ export const permissions: Record<Action, Permission> = {
     description: 'Als Lieferant die eigenen Kunden und ihre Arbeitsbereiche sehen (nur Geteiltes)',
     roles: ['admin', 'member', 'viewer'],
   },
+  'spielregeln.sehen': {
+    description: 'Kataloge für Spielregeln und Formate und die Vorschau je Typ sehen (nur Käufer)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'spielregeln.verwalten': {
+    description: 'Rechte, Pflichten und Formate im Katalog anlegen und ändern (nur Käufer-Admin)',
+    roles: ['admin'],
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],
