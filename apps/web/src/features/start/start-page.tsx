@@ -73,7 +73,37 @@ export function StartPage() {
 
   return (
     <div className="grid items-start gap-10 sidebar:grid-cols-3">
-      <div className="flex min-w-0 flex-col gap-10 sidebar:col-span-2">
+      {/* Zuerst im Dokument: Der Sprung-Link führt direkt zum Fragefeld (PLT-11, PLT-12). */}
+      <aside className="flex flex-col gap-4 sidebar:col-start-3 sidebar:row-start-1">
+        {!supplierSide && <PromptTrigger />}
+        {data && (
+          <dl
+            aria-label={t.start.metricsLabel}
+            className="grid grid-cols-2 gap-4 rounded-xl bg-card p-5"
+          >
+            <div className="flex flex-col-reverse gap-1">
+              <dt className="text-muted-foreground text-sm">{t.start.metricDue}</dt>
+              <dd
+                className={cn(
+                  'font-bold text-2xl tabular-nums tracking-title',
+                  data.due.total > 0 && 'text-primary',
+                )}
+              >
+                {data.due.total}
+              </dd>
+            </div>
+            <div className="flex flex-col-reverse gap-1">
+              <dt className="text-muted-foreground text-sm">
+                {supplierSide ? t.start.metricCustomers : t.start.metricRelationships}
+              </dt>
+              <dd className="font-bold text-2xl tabular-nums tracking-title">
+                {data.relationships.total}
+              </dd>
+            </div>
+          </dl>
+        )}
+      </aside>
+      <div className="flex min-w-0 flex-col gap-10 sidebar:col-span-2 sidebar:col-start-1 sidebar:row-start-1">
         <header className="flex flex-col gap-1">
           <p className="font-semibold text-primary text-sm">{today}</p>
           <h1 className="font-bold text-2xl tracking-title">
@@ -190,36 +220,6 @@ export function StartPage() {
           </>
         )}
       </div>
-
-      <aside className="flex flex-col gap-4">
-        {!supplierSide && <PromptTrigger />}
-        {data && (
-          <dl
-            aria-label={t.start.metricsLabel}
-            className="grid grid-cols-2 gap-4 rounded-xl bg-card p-5"
-          >
-            <div className="flex flex-col-reverse gap-1">
-              <dt className="text-muted-foreground text-sm">{t.start.metricDue}</dt>
-              <dd
-                className={cn(
-                  'font-bold text-2xl tabular-nums tracking-title',
-                  data.due.total > 0 && 'text-primary',
-                )}
-              >
-                {data.due.total}
-              </dd>
-            </div>
-            <div className="flex flex-col-reverse gap-1">
-              <dt className="text-muted-foreground text-sm">
-                {supplierSide ? t.start.metricCustomers : t.start.metricRelationships}
-              </dt>
-              <dd className="font-bold text-2xl tabular-nums tracking-title">
-                {data.relationships.total}
-              </dd>
-            </div>
-          </dl>
-        )}
-      </aside>
     </div>
   );
 }
