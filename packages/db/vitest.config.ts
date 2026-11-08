@@ -1,6 +1,11 @@
 import { defineProject } from 'vitest/config';
 
 export default defineProject({
+  // Das Seed nutzt @reziproq/shared (SEG-01, PLT-07); aus dem Quellcode laden wie in apps/api,
+  // damit die Tests kein vorheriges Bauen brauchen.
+  ssr: {
+    resolve: { conditions: ['@reziproq/source', 'module', 'node', 'development|production'] },
+  },
   test: {
     name: 'db',
     env: {
