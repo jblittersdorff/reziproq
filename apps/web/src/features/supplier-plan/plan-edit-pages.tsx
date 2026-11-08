@@ -75,7 +75,7 @@ export function PlanSummaryPage({ relationshipId }: { relationshipId: string }) 
         }
         if (!plan.canManage) {
           return (
-            <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+            <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
               {t.supplierPlan.noPermission}
             </p>
           );
@@ -218,7 +218,7 @@ export function PlanObjectivePage({
         const canEdit = objective ? objective.canEdit : plan.canManage;
         if (!canEdit) {
           return (
-            <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+            <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
               {t.supplierPlan.noPermission}
             </p>
           );

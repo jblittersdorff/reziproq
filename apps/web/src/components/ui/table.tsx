@@ -4,7 +4,11 @@ import { cn } from '@/lib/utils';
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+    // Tabellen liegen auf einer weißen Karte (Handschrift Bühne, PLT-10).
+    <div
+      data-slot="table-container"
+      className="relative w-full overflow-x-auto rounded-xl bg-card px-3 py-2"
+    >
       <table
         data-slot="table"
         className={cn('w-full caption-bottom text-base', className)}

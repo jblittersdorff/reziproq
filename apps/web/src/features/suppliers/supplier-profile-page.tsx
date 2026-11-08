@@ -130,7 +130,7 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
             <p className="-mt-4 px-4 text-muted-foreground text-sm">{t.suppliers.masterDataHint}</p>
 
             {mayEdit && !supplier.permissions.edit && (
-              <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+              <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
                 {t.team.readOnly}
               </p>
             )}

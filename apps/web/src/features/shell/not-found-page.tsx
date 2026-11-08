@@ -13,7 +13,7 @@ export function NotFoundPage() {
   }, [t]);
 
   return (
-    <section className="flex flex-col items-center gap-4 rounded-xl bg-muted px-6 py-16 text-center">
+    <section className="flex flex-col items-center gap-4 rounded-xl bg-card px-6 py-16 text-center">
       <div className="flex size-20 items-center justify-center rounded-full bg-background text-muted-foreground">
         <CompassIcon className="size-10" aria-hidden />
       </div>

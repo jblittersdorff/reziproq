@@ -7,13 +7,15 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { LocalBar } from '@/components/ui/local-bar';
+import { Stage, StageFacts } from '@/components/ui/stage';
 import { Tile, TileIcon, TileText, TileTitle } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { SharedView } from '@/features/playbook/rule-set-pages';
 import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
-import { PageHeader } from '@/features/shell/page-header';
+import { PageHeader, useDocumentTitle } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
+import { InStageSlot } from '@/features/shell/stage-slot';
 import { ApiError, customerRuleSetQueryOptions, customerWorkspaceQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -111,29 +113,47 @@ function CustomerPath({ workspace, area }: { workspace: CustomerWorkspace; area?
   );
 }
 
-/** Überblick: Kopf mit freigegebenem Typ und nächstem Termin; Kacheln nur für Geteiltes. */
+/**
+ * Überblick: helle Bühne mit Name, freigegebenem Typ und nächstem Termin (PLT-10); Kacheln nur
+ * für Geteiltes.
+ */
 export function CustomerOverviewPage({ relationshipId }: { relationshipId: string }) {
   const text = useT().customers;
   const format = useFormat();
   const query = useCustomerWorkspace(relationshipId);
+  useDocumentTitle(query.data ? `${query.data.name} · ${text.overview}` : text.overview);
   if (!query.data) return null;
   const workspace = query.data;
   return (
     <>
-      <CustomerPath workspace={workspace} />
-      <PageHeader title={workspace.name} purpose={text.overviewPurpose(workspace.name)} />
-      <dl className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <dt className="text-muted-foreground text-sm">{text.relationshipType}</dt>
-          <dd className="font-medium">{workspace.relationshipType ?? text.typeNotShared}</dd>
-        </div>
-        <div className="flex flex-col gap-1">
-          <dt className="text-muted-foreground text-sm">{text.nextMeetingLabel}</dt>
-          <dd className="font-medium">
-            {workspace.nextMeeting ? format.date(workspace.nextMeeting) : text.noneYet}
-          </dd>
-        </div>
-      </dl>
+      <InStageSlot>
+        <Stage
+          tone="light"
+          path={<CustomerPath workspace={workspace} />}
+          eyebrow={text.overview}
+          title={workspace.name}
+          text={text.overviewPurpose(workspace.name)}
+          aside={
+            <StageFacts
+              label={text.overview}
+              items={[
+                {
+                  key: 'type',
+                  label: text.relationshipType,
+                  value: workspace.relationshipType ?? text.typeNotShared,
+                  muted: !workspace.relationshipType,
+                },
+                {
+                  key: 'nextMeeting',
+                  label: text.nextMeetingLabel,
+                  value: workspace.nextMeeting ? format.date(workspace.nextMeeting) : text.noneYet,
+                  muted: !workspace.nextMeeting,
+                },
+              ]}
+            />
+          }
+        />
+      </InStageSlot>
       {/* Noch teilt kein Modul etwas mit dem Lieferanten; Kacheln kommen mit den geteilten Bereichen. */}
       <EmptyState
         size="lg"
@@ -164,7 +184,7 @@ export function CustomerAreaPage({
         <CustomerPath workspace={workspace} area={area} />
         <PageHeader title={text.areas[area]} purpose={text.areaPurpose[area]} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Tile asChild interactive className="flex flex-col items-center gap-3">
+          <Tile asChild interactive className="flex flex-col gap-3">
             <Link to="/kunden/$id/umsetzung/termine" params={{ id: relationshipId }}>
               <TileIcon>
                 <CalendarDaysIcon aria-hidden />
@@ -183,7 +203,7 @@ export function CustomerAreaPage({
         <CustomerPath workspace={workspace} area={area} />
         <PageHeader title={text.areas[area]} purpose={text.areaPurpose[area]} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Tile asChild interactive className="flex flex-col items-center gap-3">
+          <Tile asChild interactive className="flex flex-col gap-3">
             <Link to="/kunden/$id/beziehung/spielregeln" params={{ id: relationshipId }}>
               <TileIcon>
                 <ScaleIcon aria-hidden />

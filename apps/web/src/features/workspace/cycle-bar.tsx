@@ -39,7 +39,7 @@ export function CycleBar({
         {cycle.steps.map((step, index) => {
           const current = index === currentIndex;
           const content = (
-            <div className="flex h-full flex-col gap-2 rounded-md bg-muted/50 p-3">
+            <div className="flex h-full flex-col gap-2 rounded-md bg-card p-3">
               <span
                 aria-hidden
                 className={`flex size-7 items-center justify-center rounded-full text-sm ${

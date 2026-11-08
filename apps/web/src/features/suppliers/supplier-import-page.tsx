@@ -339,14 +339,14 @@ export function SupplierImportPage() {
       </section>
 
       {!canEdit ? (
-        <p className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">{copy.readerOnly}</p>
+        <p className="rounded-lg bg-card px-4 py-3 text-muted-foreground">{copy.readerOnly}</p>
       ) : (
         <>
           <section className="flex flex-col gap-4">
             <h2 className="font-semibold text-lg">{copy.selectFile}</h2>
             <label
               htmlFor="supplier-import-file"
-              className="flex flex-col gap-3 rounded-xl bg-muted p-5 sm:p-7"
+              className="flex flex-col gap-3 rounded-xl bg-card p-5 sm:p-7"
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => {
                 event.preventDefault();

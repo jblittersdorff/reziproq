@@ -40,6 +40,8 @@ function Shell() {
             {t.app.skipToContent}
           </a>
 
+          {/* Betreiber-Ansicht (PLT-13): schmale Leiste ganz oben, über der globalen Leiste. */}
+          <SupportBanner />
           <GlobalBar
             label={t.app.navigation}
             brand={t.app.name}
@@ -61,7 +63,6 @@ function Shell() {
             {/* Bühne über die ganze Breite (PLT-10); leer auf Seiten ohne Bühne. */}
             <div ref={setStageSlot} className="contents" />
             <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8 sidebar:py-12">
-              <SupportBanner />
               <ContentGate />
             </div>
           </main>

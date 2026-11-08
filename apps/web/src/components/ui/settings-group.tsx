@@ -17,7 +17,7 @@ function SettingsGroup({
   return (
     <fieldset className={cn('flex flex-col gap-2', className)}>
       {title && <legend className="mb-2 px-4 font-semibold text-sm">{title}</legend>}
-      <div className="divide-y divide-border rounded-lg bg-muted">{children}</div>
+      <div className="divide-y divide-border overflow-hidden rounded-xl bg-card">{children}</div>
     </fieldset>
   );
 }

@@ -51,7 +51,7 @@ export function CustomersPage({ area: segment }: { area?: string | undefined }) 
               <Tile asChild interactive className="flex h-full flex-col gap-2">
                 <Link to={customerPath(customer.relationshipId, area)} aria-label={customer.name}>
                   <TileTitle className="[overflow-wrap:anywhere]">{customer.name}</TileTitle>
-                  <TileText className="flex items-center justify-center gap-2">
+                  <TileText className="flex items-center gap-2">
                     <CalendarIcon aria-hidden className="size-4 shrink-0" />
                     {customer.nextMeeting
                       ? text.nextMeeting(format.date(customer.nextMeeting))

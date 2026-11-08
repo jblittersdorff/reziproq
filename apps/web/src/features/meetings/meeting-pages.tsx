@@ -300,7 +300,7 @@ function NewMeetingForm({ place }: { place: MeetingPlace }) {
   if (!query.data) return <LoadingState label={text.loading} />;
   if (!query.data.canCreate) {
     return (
-      <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
         {text.noPermission}
       </p>
     );
@@ -642,7 +642,7 @@ export function MeetingEditPage({
       ) : !query.data ? (
         <LoadingState label={text.loading} />
       ) : (kind === 'meeting' ? !query.data.canEditMeeting : !query.data.canContribute) ? (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {query.data.meeting.status === 'closed' ? text.closedHint : text.noPermission}
         </p>
       ) : (
@@ -865,7 +865,7 @@ function EditForm({
               )}
             </FormField>
           ) : (
-            <p className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+            <p className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
               {text.protocolOwnerOnly}
             </p>
           )}
