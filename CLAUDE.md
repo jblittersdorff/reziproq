@@ -8,6 +8,9 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 - pnpm dev: alles lokal starten
 - pnpm typecheck, pnpm lint, pnpm test: vor jedem Commit, alle müssen grün sein
 - pnpm --filter @reziproq/db db:generate / db:migrate: Migrationen
+- pnpm db:seed: Beispieldaten; richtet sie danach mit pnpm demo:setup auf die echten Konten ein
+  (Käufer OEM 1 mit allen Rechten, Lieferant Lieferant 1), ohne erfundene Personen
+- Automatische Tests schreiben nie in die Entwicklungsdatenbank, sondern in reziproq_test
 
 ## Aufbau
 

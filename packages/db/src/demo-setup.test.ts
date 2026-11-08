@@ -1,0 +1,89 @@
+import { sql } from 'drizzle-orm';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { demoSetup } from './demo-setup.js';
+import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+
+// pnpm demo:setup: Beispieldaten gehören danach den echten Konten, erfundene Personen und
+// Reste aus Testläufen verschwinden.
+describe('demo:setup', () => {
+  let temp: Awaited<ReturnType<typeof createTempDatabase>>;
+  const query = async <T extends Record<string, unknown>>(statement: ReturnType<typeof sql>) =>
+    (await temp.db.execute<T>(statement)).rows;
+
+  beforeAll(async () => {
+    temp = await createTempDatabase();
+    await migrateTo(temp.db);
+    await seed(temp.db, { nodeEnv: 'development' });
+    // Echte Konten, wie sie beim ersten Login über Zitadel entstehen.
+    await temp.db.execute(sql`
+      insert into app_user (id, name, email, organization_id, org_role) values
+        ('397517378608492587', 'OEM 1', 'oem1@example.com', ${seedBuyers.testOem.id}, 'viewer'),
+        ('397517298547617835', 'Lieferant 1', 'lieferant1@example.com', ${seedSupplierOrg.id}, 'viewer')
+    `);
+    await temp.db.execute(sql`
+      insert into organization (id, name) values ('01960000-0000-7000-8000-0000000000aa', 'FK-OEM b40e83f3')
+    `);
+  });
+
+  afterAll(async () => {
+    await temp.drop();
+  });
+
+  it('bricht im Betrieb ab', async () => {
+    await expect(demoSetup(temp.db, 'production')).rejects.toThrow(/lokale Entwicklung/);
+  });
+
+  it('macht das Käuferkonto zum Admin mit Controlling und SRO in jeder Beziehung', async () => {
+    const result = await demoSetup(temp.db, 'development');
+    expect(result.buyer?.name).toBe('OEM 1');
+    expect(result.supplier?.name).toBe('Lieferant 1');
+    const [buyer] = await query<{ org_role: string; is_controlling: boolean }>(
+      sql`select org_role, is_controlling from app_user where id = '397517378608492587'`,
+    );
+    expect(buyer).toEqual({ org_role: 'admin', is_controlling: true });
+    const missing = await query(sql`
+      select r.id from relationship r where r.buyer_org_id = ${seedBuyers.testOem.id}
+        and not exists (select 1 from relationship_member m where m.relationship_id = r.id
+          and m.user_id = '397517378608492587' and m.team_role = 'sro')
+    `);
+    expect(missing).toEqual([]);
+  });
+
+  it('macht das Lieferantenkonto zum Admin und Key Account Manager bei jedem Kunden', async () => {
+    const roles = await query<{ team_role: string }>(sql`
+      select m.team_role from relationship_member m where m.user_id = '397517298547617835'
+    `);
+    expect(roles.length).toBe(2);
+    expect(roles.every((row) => row.team_role === 'sro')).toBe(true);
+  });
+
+  it('erfundene Personen verschwinden; ihre Bewertungen, Freigaben und Einladungen gehören den Konten', async () => {
+    expect(await query(sql`select id from app_user where id like 'demo-%'`)).toEqual([]);
+    const raters = await query<{ rater_user_id: string }>(
+      sql`select distinct rater_user_id from rating_assignment where rater_user_id is not null`,
+    );
+    expect(raters).toEqual([{ rater_user_id: '397517378608492587' }]);
+    const approvals = await query<{ approved_by_name: string }>(
+      sql`select distinct approved_by_name from rule_set where approved_by is not null`,
+    );
+    expect(approvals).toEqual([{ approved_by_name: 'OEM 1' }]);
+    const invitations = await query<{ invited_by: string }>(
+      sql`select distinct invited_by from invitation`,
+    );
+    expect(invitations).toEqual([{ invited_by: '397517378608492587' }]);
+  });
+
+  it('räumt Reste aus Testläufen weg und lässt die Beispieldaten stehen', async () => {
+    expect(await query(sql`select id from organization where name like 'FK-OEM%'`)).toEqual([]);
+    const demo = await query<{ n: number }>(
+      sql`select count(*)::int as n from organization where name like '%(Demo)%'`,
+    );
+    expect(demo[0]?.n).toBe(18);
+  });
+
+  it('ein zweiter Lauf ändert nichts mehr', async () => {
+    const again = await demoSetup(temp.db, 'development');
+    expect(again).toMatchObject({ removedPeople: 0, removedTestOrganizations: 0 });
+  });
+});

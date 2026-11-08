@@ -35,9 +35,20 @@ test('PLT-07 importiert die Demo über die Oberfläche in die echte Datenbank', 
     deleteRelationships: (db: BrowserTestApp['adminDb'], orgIds: string[]) => Promise<void>;
   };
   const { demoSupplierImportRows } = await import('../../../packages/shared/src/import-demo.js');
-  const { ensureApiRole, inArray, schema, sql, databaseUrl, apiDatabaseUrl } = await import(
-    '../../../packages/db/src/index.js'
-  );
+  const {
+    ensureApiRole,
+    ensureTestDatabase,
+    inArray,
+    schema,
+    sql,
+    databaseUrl,
+    apiDatabaseUrl,
+    testDatabaseUrl,
+  } = await import('../../../packages/db/src/index.js');
+  // In die Testdatenbank, nie in die lokale Entwicklungsdatenbank (wie die API-Tests).
+  process.env.DATABASE_URL = testDatabaseUrl(databaseUrl());
+  process.env.API_DATABASE_URL = testDatabaseUrl(apiDatabaseUrl());
+  await ensureTestDatabase(databaseUrl());
   const organizationId = randomUUID();
   const userId = `plt07-playwright-${randomUUID()}`;
   const zitadelOrgId = `plt07-zitadel-${randomUUID()}`;
