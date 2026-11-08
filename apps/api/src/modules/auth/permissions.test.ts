@@ -163,6 +163,25 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       return status === 404 ? 200 : status;
     },
     'portfolio.sehen': async (user) => (await request(user, 'GET', '/api/portfolio')).status,
+    'spielregeln.sehen': async (user) => (await request(user, 'GET', '/api/playbook')).status,
+    // Ein unbekannter Eintrag gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'spielregeln.verwalten': async (user) => {
+      const text = { de: 'Probe', en: 'Probe' };
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/playbook/rules/00000000-0000-4000-8000-000000000000',
+        {
+          kind: 'right',
+          group: 'cost',
+          title: text,
+          description: text,
+          counterpartId: null,
+          minImpactLevel: 1,
+        },
+      );
+      return status === 404 ? 200 : status;
+    },
     // Käufer haben keine Kunden; die leere Liste zeigt, dass das Recht greift (LIF-02).
     'kunden.sehen': async (user) => (await request(user, 'GET', '/api/kunden')).status,
     // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
@@ -218,6 +237,12 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       .where(sql`${schema.segmentationRound.orgId} in ${Object.values(orgs)}`);
     await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${Object.values(users)}`);
     await deleteRelationships(db, [orgs.oem]);
+    // GET /api/playbook legt beim ersten Aufruf den Standardkatalog an (PLB-01).
+    for (const table of ['rule_catalog_item', 'format_catalog_item', 'catalog_setup']) {
+      await db.execute(
+        sql`delete from ${sql.identifier(table)} where org_id in ${Object.values(orgs)}`,
+      );
+    }
     await db
       .delete(schema.organization)
       .where(sql`${schema.organization.id} in ${Object.values(orgs)}`);

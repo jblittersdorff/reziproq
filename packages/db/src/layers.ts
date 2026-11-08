@@ -89,6 +89,34 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // PLB-01: Kataloge für Spielregeln und Formate je Käuferorganisation.
+  rule_catalog_item: {
+    kind: 'org_private',
+    testValues: () => ({
+      kind: 'right',
+      group: 'cost',
+      title: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      description: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      min_impact_level: 1,
+      position: 1,
+    }),
+  },
+  format_catalog_item: {
+    kind: 'org_private',
+    testValues: () => ({
+      name: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      purpose: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      level: 'management',
+      cadence: 'annual',
+      min_impact_level: 1,
+      position: 1,
+    }),
+  },
+  catalog_setup: {
+    kind: 'org_private',
+    manual:
+      'Eine Zeile je Organisation (org_id ist der Schlüssel); geschützt wie jede org_private-Tabelle',
+  },
   // LIF-01a: Einladung einer Person des Lieferanten; nur die einladende Organisation sieht sie.
   invitation: {
     kind: 'org_private',

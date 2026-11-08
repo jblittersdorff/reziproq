@@ -50,6 +50,7 @@ import { Route as AppEinstellungenOrganisationNutzerRouteImport } from './routes
 import { Route as AppEinstellungenSegmentmodellIndexRouteImport } from './routes/_app/einstellungen/segmentmodell/index'
 import { Route as AppEinstellungenSegmentmodellGewichteRouteImport } from './routes/_app/einstellungen/segmentmodell/gewichte'
 import { Route as AppEinstellungenSegmentmodellGrenzenRouteImport } from './routes/_app/einstellungen/segmentmodell/grenzen'
+import { Route as AppEinstellungenSpielregelnIndexRouteImport } from './routes/_app/einstellungen/spielregeln/index'
 import { Route as AppEinstellungenWarengruppenIndexRouteImport } from './routes/_app/einstellungen/warengruppen/index'
 import { Route as AppEinstellungenWarengruppenNeuRouteImport } from './routes/_app/einstellungen/warengruppen/neu'
 import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './routes/_app/einstellungen/zielkategorien/index'
@@ -68,6 +69,13 @@ import { Route as AppPortfolioRundenNeuRouteImport } from './routes/_app/portfol
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
 import { Route as AppEinstellungenSegmentmodellKriteriumKeyRouteImport } from './routes/_app/einstellungen/segmentmodell/kriterium/$key'
 import { Route as AppEinstellungenSegmentmodellTypPairRouteImport } from './routes/_app/einstellungen/segmentmodell/typ/$pair'
+import { Route as AppEinstellungenSpielregelnFormateIndexRouteImport } from './routes/_app/einstellungen/spielregeln/formate/index'
+import { Route as AppEinstellungenSpielregelnFormateIdRouteImport } from './routes/_app/einstellungen/spielregeln/formate/$id'
+import { Route as AppEinstellungenSpielregelnFormateNeuRouteImport } from './routes/_app/einstellungen/spielregeln/formate/neu'
+import { Route as AppEinstellungenSpielregelnRechteIndexRouteImport } from './routes/_app/einstellungen/spielregeln/rechte/index'
+import { Route as AppEinstellungenSpielregelnRechteIdRouteImport } from './routes/_app/einstellungen/spielregeln/rechte/$id'
+import { Route as AppEinstellungenSpielregelnRechteNeuRouteImport } from './routes/_app/einstellungen/spielregeln/rechte/neu'
+import { Route as AppEinstellungenSpielregelnTypTypRouteImport } from './routes/_app/einstellungen/spielregeln/typ/$typ'
 import { Route as AppEinstellungenWarengruppenIdBearbeitenRouteImport } from './routes/_app/einstellungen/warengruppen/$id/bearbeiten'
 import { Route as AppEinstellungenZielkategorienKeyBearbeitenRouteImport } from './routes/_app/einstellungen/zielkategorien/$key/bearbeiten'
 import { Route as AppLieferantenIdBeziehungIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/index'
@@ -319,6 +327,12 @@ const AppEinstellungenSegmentmodellGrenzenRoute =
     path: '/einstellungen/segmentmodell/grenzen',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenSpielregelnIndexRoute =
+  AppEinstellungenSpielregelnIndexRouteImport.update({
+    id: '/einstellungen/spielregeln/',
+    path: '/einstellungen/spielregeln/',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenWarengruppenIndexRoute =
   AppEinstellungenWarengruppenIndexRouteImport.update({
     id: '/einstellungen/warengruppen/',
@@ -414,6 +428,48 @@ const AppEinstellungenSegmentmodellTypPairRoute =
   AppEinstellungenSegmentmodellTypPairRouteImport.update({
     id: '/einstellungen/segmentmodell/typ/$pair',
     path: '/einstellungen/segmentmodell/typ/$pair',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnFormateIndexRoute =
+  AppEinstellungenSpielregelnFormateIndexRouteImport.update({
+    id: '/einstellungen/spielregeln/formate/',
+    path: '/einstellungen/spielregeln/formate/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnFormateIdRoute =
+  AppEinstellungenSpielregelnFormateIdRouteImport.update({
+    id: '/einstellungen/spielregeln/formate/$id',
+    path: '/einstellungen/spielregeln/formate/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnFormateNeuRoute =
+  AppEinstellungenSpielregelnFormateNeuRouteImport.update({
+    id: '/einstellungen/spielregeln/formate/neu',
+    path: '/einstellungen/spielregeln/formate/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnRechteIndexRoute =
+  AppEinstellungenSpielregelnRechteIndexRouteImport.update({
+    id: '/einstellungen/spielregeln/rechte/',
+    path: '/einstellungen/spielregeln/rechte/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnRechteIdRoute =
+  AppEinstellungenSpielregelnRechteIdRouteImport.update({
+    id: '/einstellungen/spielregeln/rechte/$id',
+    path: '/einstellungen/spielregeln/rechte/$id',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnRechteNeuRoute =
+  AppEinstellungenSpielregelnRechteNeuRouteImport.update({
+    id: '/einstellungen/spielregeln/rechte/neu',
+    path: '/einstellungen/spielregeln/rechte/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenSpielregelnTypTypRoute =
+  AppEinstellungenSpielregelnTypTypRouteImport.update({
+    id: '/einstellungen/spielregeln/typ/$typ',
+    path: '/einstellungen/spielregeln/typ/$typ',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenWarengruppenIdBearbeitenRoute =
@@ -685,6 +741,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/einstellungen/segmentmodell/': typeof AppEinstellungenSegmentmodellIndexRoute
+  '/einstellungen/spielregeln/': typeof AppEinstellungenSpielregelnIndexRoute
   '/einstellungen/warengruppen/': typeof AppEinstellungenWarengruppenIndexRoute
   '/einstellungen/zielkategorien/': typeof AppEinstellungenZielkategorienIndexRoute
   '/kunden/$id/': typeof AppKundenIdIndexRoute
@@ -695,6 +752,11 @@ export interface FileRoutesByFullPath {
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
+  '/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
+  '/einstellungen/spielregeln/formate/neu': typeof AppEinstellungenSpielregelnFormateNeuRoute
+  '/einstellungen/spielregeln/rechte/$id': typeof AppEinstellungenSpielregelnRechteIdRoute
+  '/einstellungen/spielregeln/rechte/neu': typeof AppEinstellungenSpielregelnRechteNeuRoute
+  '/einstellungen/spielregeln/typ/$typ': typeof AppEinstellungenSpielregelnTypTypRoute
   '/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
@@ -703,6 +765,8 @@ export interface FileRoutesByFullPath {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
+  '/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/lieferanten/$id/beziehung/': typeof AppLieferantenIdBeziehungIndexRoute
   '/lieferanten/$id/plan/': typeof AppLieferantenIdPlanIndexRoute
   '/lieferanten/$id/strategie/': typeof AppLieferantenIdStrategieIndexRoute
@@ -777,6 +841,7 @@ export interface FileRoutesByTo {
   '/einstellungen/business-units': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/einstellungen/organisation': typeof AppEinstellungenOrganisationIndexRoute
   '/einstellungen/segmentmodell': typeof AppEinstellungenSegmentmodellIndexRoute
+  '/einstellungen/spielregeln': typeof AppEinstellungenSpielregelnIndexRoute
   '/einstellungen/warengruppen': typeof AppEinstellungenWarengruppenIndexRoute
   '/einstellungen/zielkategorien': typeof AppEinstellungenZielkategorienIndexRoute
   '/kunden/$id': typeof AppKundenIdIndexRoute
@@ -786,6 +851,11 @@ export interface FileRoutesByTo {
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
+  '/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
+  '/einstellungen/spielregeln/formate/neu': typeof AppEinstellungenSpielregelnFormateNeuRoute
+  '/einstellungen/spielregeln/rechte/$id': typeof AppEinstellungenSpielregelnRechteIdRoute
+  '/einstellungen/spielregeln/rechte/neu': typeof AppEinstellungenSpielregelnRechteNeuRoute
+  '/einstellungen/spielregeln/typ/$typ': typeof AppEinstellungenSpielregelnTypTypRoute
   '/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
@@ -794,6 +864,8 @@ export interface FileRoutesByTo {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/einstellungen/spielregeln/formate': typeof AppEinstellungenSpielregelnFormateIndexRoute
+  '/einstellungen/spielregeln/rechte': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/lieferanten/$id/beziehung': typeof AppLieferantenIdBeziehungIndexRoute
   '/lieferanten/$id/plan': typeof AppLieferantenIdPlanIndexRoute
   '/lieferanten/$id/strategie': typeof AppLieferantenIdStrategieIndexRoute
@@ -873,6 +945,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/_app/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/_app/einstellungen/segmentmodell/': typeof AppEinstellungenSegmentmodellIndexRoute
+  '/_app/einstellungen/spielregeln/': typeof AppEinstellungenSpielregelnIndexRoute
   '/_app/einstellungen/warengruppen/': typeof AppEinstellungenWarengruppenIndexRoute
   '/_app/einstellungen/zielkategorien/': typeof AppEinstellungenZielkategorienIndexRoute
   '/_app/kunden/$id/': typeof AppKundenIdIndexRoute
@@ -883,6 +956,11 @@ export interface FileRoutesById {
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/_app/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/_app/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
+  '/_app/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
+  '/_app/einstellungen/spielregeln/formate/neu': typeof AppEinstellungenSpielregelnFormateNeuRoute
+  '/_app/einstellungen/spielregeln/rechte/$id': typeof AppEinstellungenSpielregelnRechteIdRoute
+  '/_app/einstellungen/spielregeln/rechte/neu': typeof AppEinstellungenSpielregelnRechteNeuRoute
+  '/_app/einstellungen/spielregeln/typ/$typ': typeof AppEinstellungenSpielregelnTypTypRoute
   '/_app/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/_app/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/_app/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
@@ -891,6 +969,8 @@ export interface FileRoutesById {
   '/_app/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/_app/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/_app/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/_app/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
+  '/_app/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/_app/lieferanten/$id/beziehung/': typeof AppLieferantenIdBeziehungIndexRoute
   '/_app/lieferanten/$id/plan/': typeof AppLieferantenIdPlanIndexRoute
   '/_app/lieferanten/$id/strategie/': typeof AppLieferantenIdStrategieIndexRoute
@@ -970,6 +1050,7 @@ export interface FileRouteTypes {
     | '/einstellungen/business-units/'
     | '/einstellungen/organisation/'
     | '/einstellungen/segmentmodell/'
+    | '/einstellungen/spielregeln/'
     | '/einstellungen/warengruppen/'
     | '/einstellungen/zielkategorien/'
     | '/kunden/$id/'
@@ -980,6 +1061,11 @@ export interface FileRouteTypes {
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
+    | '/einstellungen/spielregeln/formate/$id'
+    | '/einstellungen/spielregeln/formate/neu'
+    | '/einstellungen/spielregeln/rechte/$id'
+    | '/einstellungen/spielregeln/rechte/neu'
+    | '/einstellungen/spielregeln/typ/$typ'
     | '/einstellungen/warengruppen/$id/bearbeiten'
     | '/einstellungen/zielkategorien/$key/bearbeiten'
     | '/lieferanten/$id/zyklus/termin'
@@ -988,6 +1074,8 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/einstellungen/spielregeln/formate/'
+    | '/einstellungen/spielregeln/rechte/'
     | '/lieferanten/$id/beziehung/'
     | '/lieferanten/$id/plan/'
     | '/lieferanten/$id/strategie/'
@@ -1062,6 +1150,7 @@ export interface FileRouteTypes {
     | '/einstellungen/business-units'
     | '/einstellungen/organisation'
     | '/einstellungen/segmentmodell'
+    | '/einstellungen/spielregeln'
     | '/einstellungen/warengruppen'
     | '/einstellungen/zielkategorien'
     | '/kunden/$id'
@@ -1071,6 +1160,11 @@ export interface FileRouteTypes {
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
+    | '/einstellungen/spielregeln/formate/$id'
+    | '/einstellungen/spielregeln/formate/neu'
+    | '/einstellungen/spielregeln/rechte/$id'
+    | '/einstellungen/spielregeln/rechte/neu'
+    | '/einstellungen/spielregeln/typ/$typ'
     | '/einstellungen/warengruppen/$id/bearbeiten'
     | '/einstellungen/zielkategorien/$key/bearbeiten'
     | '/lieferanten/$id/zyklus/termin'
@@ -1079,6 +1173,8 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/einstellungen/spielregeln/formate'
+    | '/einstellungen/spielregeln/rechte'
     | '/lieferanten/$id/beziehung'
     | '/lieferanten/$id/plan'
     | '/lieferanten/$id/strategie'
@@ -1157,6 +1253,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/business-units/'
     | '/_app/einstellungen/organisation/'
     | '/_app/einstellungen/segmentmodell/'
+    | '/_app/einstellungen/spielregeln/'
     | '/_app/einstellungen/warengruppen/'
     | '/_app/einstellungen/zielkategorien/'
     | '/_app/kunden/$id/'
@@ -1167,6 +1264,11 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/business-units/$id/bearbeiten'
     | '/_app/einstellungen/segmentmodell/kriterium/$key'
     | '/_app/einstellungen/segmentmodell/typ/$pair'
+    | '/_app/einstellungen/spielregeln/formate/$id'
+    | '/_app/einstellungen/spielregeln/formate/neu'
+    | '/_app/einstellungen/spielregeln/rechte/$id'
+    | '/_app/einstellungen/spielregeln/rechte/neu'
+    | '/_app/einstellungen/spielregeln/typ/$typ'
     | '/_app/einstellungen/warengruppen/$id/bearbeiten'
     | '/_app/einstellungen/zielkategorien/$key/bearbeiten'
     | '/_app/lieferanten/$id/zyklus/termin'
@@ -1175,6 +1277,8 @@ export interface FileRouteTypes {
     | '/_app/portfolio/runden/$id/nachnominieren'
     | '/_app/portfolio/runden/$id/name'
     | '/_app/portfolio/runden/$id/pruefen'
+    | '/_app/einstellungen/spielregeln/formate/'
+    | '/_app/einstellungen/spielregeln/rechte/'
     | '/_app/lieferanten/$id/beziehung/'
     | '/_app/lieferanten/$id/plan/'
     | '/_app/lieferanten/$id/strategie/'
@@ -1500,6 +1604,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenSegmentmodellGrenzenRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/einstellungen/spielregeln/': {
+      id: '/_app/einstellungen/spielregeln/'
+      path: '/einstellungen/spielregeln'
+      fullPath: '/einstellungen/spielregeln/'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/einstellungen/warengruppen/': {
       id: '/_app/einstellungen/warengruppen/'
       path: '/einstellungen/warengruppen'
@@ -1624,6 +1735,55 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/segmentmodell/typ/$pair'
       fullPath: '/einstellungen/segmentmodell/typ/$pair'
       preLoaderRoute: typeof AppEinstellungenSegmentmodellTypPairRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/formate/': {
+      id: '/_app/einstellungen/spielregeln/formate/'
+      path: '/einstellungen/spielregeln/formate'
+      fullPath: '/einstellungen/spielregeln/formate/'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnFormateIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/formate/$id': {
+      id: '/_app/einstellungen/spielregeln/formate/$id'
+      path: '/einstellungen/spielregeln/formate/$id'
+      fullPath: '/einstellungen/spielregeln/formate/$id'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnFormateIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/formate/neu': {
+      id: '/_app/einstellungen/spielregeln/formate/neu'
+      path: '/einstellungen/spielregeln/formate/neu'
+      fullPath: '/einstellungen/spielregeln/formate/neu'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnFormateNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/rechte/': {
+      id: '/_app/einstellungen/spielregeln/rechte/'
+      path: '/einstellungen/spielregeln/rechte'
+      fullPath: '/einstellungen/spielregeln/rechte/'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnRechteIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/rechte/$id': {
+      id: '/_app/einstellungen/spielregeln/rechte/$id'
+      path: '/einstellungen/spielregeln/rechte/$id'
+      fullPath: '/einstellungen/spielregeln/rechte/$id'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnRechteIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/rechte/neu': {
+      id: '/_app/einstellungen/spielregeln/rechte/neu'
+      path: '/einstellungen/spielregeln/rechte/neu'
+      fullPath: '/einstellungen/spielregeln/rechte/neu'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnRechteNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/spielregeln/typ/$typ': {
+      id: '/_app/einstellungen/spielregeln/typ/$typ'
+      path: '/einstellungen/spielregeln/typ/$typ'
+      fullPath: '/einstellungen/spielregeln/typ/$typ'
+      preLoaderRoute: typeof AppEinstellungenSpielregelnTypTypRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/warengruppen/$id/bearbeiten': {
@@ -2033,6 +2193,7 @@ interface AppRouteChildren {
   AppEinstellungenBusinessUnitsIndexRoute: typeof AppEinstellungenBusinessUnitsIndexRoute
   AppEinstellungenOrganisationIndexRoute: typeof AppEinstellungenOrganisationIndexRoute
   AppEinstellungenSegmentmodellIndexRoute: typeof AppEinstellungenSegmentmodellIndexRoute
+  AppEinstellungenSpielregelnIndexRoute: typeof AppEinstellungenSpielregelnIndexRoute
   AppEinstellungenWarengruppenIndexRoute: typeof AppEinstellungenWarengruppenIndexRoute
   AppEinstellungenZielkategorienIndexRoute: typeof AppEinstellungenZielkategorienIndexRoute
   AppPortfolioFokusIndexRoute: typeof AppPortfolioFokusIndexRoute
@@ -2040,6 +2201,11 @@ interface AppRouteChildren {
   AppEinstellungenBusinessUnitsIdBearbeitenRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   AppEinstellungenSegmentmodellKriteriumKeyRoute: typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   AppEinstellungenSegmentmodellTypPairRoute: typeof AppEinstellungenSegmentmodellTypPairRoute
+  AppEinstellungenSpielregelnFormateIdRoute: typeof AppEinstellungenSpielregelnFormateIdRoute
+  AppEinstellungenSpielregelnFormateNeuRoute: typeof AppEinstellungenSpielregelnFormateNeuRoute
+  AppEinstellungenSpielregelnRechteIdRoute: typeof AppEinstellungenSpielregelnRechteIdRoute
+  AppEinstellungenSpielregelnRechteNeuRoute: typeof AppEinstellungenSpielregelnRechteNeuRoute
+  AppEinstellungenSpielregelnTypTypRoute: typeof AppEinstellungenSpielregelnTypTypRoute
   AppEinstellungenWarengruppenIdBearbeitenRoute: typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   AppEinstellungenZielkategorienKeyBearbeitenRoute: typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   AppPortfolioRundenIdBewertendeRoute: typeof AppPortfolioRundenIdBewertendeRoute
@@ -2047,6 +2213,8 @@ interface AppRouteChildren {
   AppPortfolioRundenIdNachnominierenRoute: typeof AppPortfolioRundenIdNachnominierenRoute
   AppPortfolioRundenIdNameRoute: typeof AppPortfolioRundenIdNameRoute
   AppPortfolioRundenIdPruefenRoute: typeof AppPortfolioRundenIdPruefenRoute
+  AppEinstellungenSpielregelnFormateIndexRoute: typeof AppEinstellungenSpielregelnFormateIndexRoute
+  AppEinstellungenSpielregelnRechteIndexRoute: typeof AppEinstellungenSpielregelnRechteIndexRoute
   AppPortfolioRundenIdIndexRoute: typeof AppPortfolioRundenIdIndexRoute
 }
 
@@ -2095,6 +2263,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenOrganisationIndexRoute,
   AppEinstellungenSegmentmodellIndexRoute:
     AppEinstellungenSegmentmodellIndexRoute,
+  AppEinstellungenSpielregelnIndexRoute: AppEinstellungenSpielregelnIndexRoute,
   AppEinstellungenWarengruppenIndexRoute:
     AppEinstellungenWarengruppenIndexRoute,
   AppEinstellungenZielkategorienIndexRoute:
@@ -2107,6 +2276,16 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenSegmentmodellKriteriumKeyRoute,
   AppEinstellungenSegmentmodellTypPairRoute:
     AppEinstellungenSegmentmodellTypPairRoute,
+  AppEinstellungenSpielregelnFormateIdRoute:
+    AppEinstellungenSpielregelnFormateIdRoute,
+  AppEinstellungenSpielregelnFormateNeuRoute:
+    AppEinstellungenSpielregelnFormateNeuRoute,
+  AppEinstellungenSpielregelnRechteIdRoute:
+    AppEinstellungenSpielregelnRechteIdRoute,
+  AppEinstellungenSpielregelnRechteNeuRoute:
+    AppEinstellungenSpielregelnRechteNeuRoute,
+  AppEinstellungenSpielregelnTypTypRoute:
+    AppEinstellungenSpielregelnTypTypRoute,
   AppEinstellungenWarengruppenIdBearbeitenRoute:
     AppEinstellungenWarengruppenIdBearbeitenRoute,
   AppEinstellungenZielkategorienKeyBearbeitenRoute:
@@ -2117,6 +2296,10 @@ const AppRouteChildren: AppRouteChildren = {
     AppPortfolioRundenIdNachnominierenRoute,
   AppPortfolioRundenIdNameRoute: AppPortfolioRundenIdNameRoute,
   AppPortfolioRundenIdPruefenRoute: AppPortfolioRundenIdPruefenRoute,
+  AppEinstellungenSpielregelnFormateIndexRoute:
+    AppEinstellungenSpielregelnFormateIndexRoute,
+  AppEinstellungenSpielregelnRechteIndexRoute:
+    AppEinstellungenSpielregelnRechteIndexRoute,
   AppPortfolioRundenIdIndexRoute: AppPortfolioRundenIdIndexRoute,
 }
 

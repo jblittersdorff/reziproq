@@ -45,6 +45,8 @@ import {
   type PromptEvent,
   type PromptRequest,
   permissionsResponseSchema,
+  playbookCatalogSchema,
+  playbookPreviewSchema,
   portfolioMatrixSchema,
   portfolioOpenSchema,
   portfolioSchema,
@@ -57,7 +59,9 @@ import {
   roundDetailSchema,
   roundListSchema,
   roundRatersSchema,
+  type SaveFormatItem,
   type SaveRating,
+  type SaveRuleItem,
   type SetFocusRequest,
   type SetRoundSuppliers,
   type SpendRequest,
@@ -1046,3 +1050,38 @@ export const customerWorkspaceQueryOptions = (accessToken: string, relationshipI
     queryFn: () => getJson(`/kunden/${relationshipId}`, customerWorkspaceSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+// PLB-01: Kataloge für Spielregeln und Formate.
+
+export const playbookQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['playbook'],
+    queryFn: () => getJson('/playbook', playbookCatalogSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const playbookPreviewQueryOptions = (accessToken: string, impact: number, quality: number) =>
+  queryOptions({
+    queryKey: ['playbook', 'preview', impact, quality],
+    queryFn: () =>
+      getJson(`/playbook/preview/${impact}/${quality}`, playbookPreviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveRuleItem = (accessToken: string, id: string | null, request: SaveRuleItem) =>
+  sendJson(
+    id ? 'PUT' : 'POST',
+    id ? `/playbook/rules/${id}` : '/playbook/rules',
+    request,
+    playbookCatalogSchema,
+    accessToken,
+  );
+
+export const saveFormatItem = (accessToken: string, id: string | null, request: SaveFormatItem) =>
+  sendJson(
+    id ? 'PUT' : 'POST',
+    id ? `/playbook/formats/${id}` : '/playbook/formats',
+    request,
+    playbookCatalogSchema,
+    accessToken,
+  );

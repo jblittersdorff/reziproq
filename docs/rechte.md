@@ -33,3 +33,5 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `lieferantenplan.bearbeiten` | Lieferantenplan verwalten und eigene zugewiesene Ziele bearbeiten | ja | ja | nein | nein |
 | `lieferanten.einladen` | Personen des Lieferanten einladen und Einladungen zurückziehen (Admin oder SRO der Beziehung) | ja | ja | nein | nein |
 | `kunden.sehen` | Als Lieferant die eigenen Kunden und ihre Arbeitsbereiche sehen (nur Geteiltes) | ja | ja | ja | ja |
+| `spielregeln.sehen` | Kataloge für Spielregeln und Formate und die Vorschau je Typ sehen (nur Käufer) | ja | ja | ja | ja |
+| `spielregeln.verwalten` | Rechte, Pflichten und Formate im Katalog anlegen und ändern (nur Käufer-Admin) | ja | nein | nein | nein |

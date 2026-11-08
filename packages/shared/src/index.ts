@@ -12,6 +12,7 @@ export * from './me.js';
 export * from './money.js';
 export * from './organization.js';
 export * from './permissions.js';
+export * from './playbook.js';
 export * from './portfolio.js';
 export * from './prompt.js';
 export * from './ratings.js';

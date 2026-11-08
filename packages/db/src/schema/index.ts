@@ -3,6 +3,7 @@ export * from './audit.js';
 export * from './invitation.js';
 export * from './master-data.js';
 export * from './organization.js';
+export * from './playbook.js';
 export * from './relationship.js';
 export * from './rounds.js';
 export * from './segment.js';
