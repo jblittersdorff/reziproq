@@ -31,7 +31,7 @@ Als Einkäufer sehe ich nur, was funktioniert, finde bei einem Lieferanten alles
    - **Bereichsadressen:** `/lieferanten/<id>/strategie` usw. führen zum Abschnitt auf dem Überblick. Die Bereichsseiten mit Kacheln entfallen, ebenso die Kachel „Hinweise“.
    - **Zyklus-Leiste (ZYK-01):** steht weiter unter dem Kopf.
 3. **Start als Aufgabenliste** (`/start`):
-   - **Titel:** links oben das Datum, darunter der Titel aus der Zahl der fälligen Dinge, z. B. „Drei Dinge für heute“.
+   - **Titel:** links oben das Datum, darunter die Begrüßung als Titel. Über der Liste steht, wie viel heute ansteht, z. B. „3 Dinge für heute“.
    - **Aufgaben:** darunter die fälligen Aufgaben als Liste. Je Zeile stehen Monogramm, was zu tun ist, Lieferant, Frist und ein Knopf, der zur Sache führt. Die erste Zeile hat den gefüllten Knopf.
    - **Erledigt:** Was am Ort der Sache erledigt ist, verschwindet von selbst.
    - **Meine Lieferanten:** darunter als kleine Karten mit Monogramm und Stand.

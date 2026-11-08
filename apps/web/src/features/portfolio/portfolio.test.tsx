@@ -84,13 +84,14 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('SEG-07 Portfolio', () => {
-  it('zeigt fünf Kacheln, vier mit Kennzahl und eine als „kommt“', async () => {
+  it('zeigt vier Kacheln mit Kennzahl und keine für Ungebautes (UMB-05)', async () => {
     renderAt('/portfolio');
     expect(await screen.findByText('Lieferanten in der Matrix')).toBeTruthy();
     expect(screen.getByText('offene Entscheidungen')).toBeTruthy();
     expect(screen.getByText('offene Runde')).toBeTruthy();
     expect(screen.getByText('Fokuslieferanten', { selector: 'dd,span,p' })).toBeTruthy();
-    expect(screen.getAllByText('Kommt mit Release 1.0')).toHaveLength(1);
+    expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
+    expect(screen.queryByText('Stand der Zyklen')).toBeNull();
     expect(screen.getByRole('link', { name: 'Matrix öffnen' }).getAttribute('href')).toBe(
       '/portfolio/matrix',
     );

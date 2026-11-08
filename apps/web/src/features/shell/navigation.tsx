@@ -110,7 +110,9 @@ function RouterAnchor({ href, children, ...props }: Parameters<RenderLink>[0]) {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
           return;
         event.preventDefault();
-        void router.navigate({ to: href });
+        // Ein Abschnitt wie /lieferanten/<id>#strategie (UMB-05) geht als hash mit.
+        const [to = href, hash] = href.split('#');
+        void router.navigate({ to, ...(hash ? { hash } : {}) });
       }}
     >
       {children}

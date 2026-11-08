@@ -1,5 +1,8 @@
 import { type CustomerArea, customerAreas } from '@reziproq/shared';
 
+/** Bereiche mit gebauten Seiten (UMB-05); nur sie stehen in der lokalen Leiste. */
+export const builtCustomerAreas: CustomerArea[] = ['relationship', 'execution'];
+
 /** Adresse eines Bereichs beim Kunden; ohne Bereich der Überblick (LIF-02). */
 export function customerPath(relationshipId: string, area?: CustomerArea): string {
   const segment = customerAreas.find((entry) => entry.key === area)?.segment;

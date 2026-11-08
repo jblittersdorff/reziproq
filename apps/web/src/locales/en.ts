@@ -62,9 +62,6 @@ export const en: Messages = {
     dueContribution: (detail: string | null) =>
       detail ? `Supplier plan contribution · ${detail}` : 'Supplier plan contribution',
     dueBy: (date: string) => `by ${date}`,
-    datesTitle: 'Upcoming dates',
-    notesTitle: 'Notices',
-    comingLater: 'Coming in release 0.2',
     target: (name: string) => `Target: ${name}`,
     relationshipsTitle: 'My relationships',
     relationshipsEmpty: 'You are not in any relationship team yet.',
@@ -76,13 +73,15 @@ export const en: Messages = {
     dueAllTitle: 'Everything due for me',
     dueAllPurpose: 'All open tasks, sorted by due date.',
     back: 'To start',
-    dueSummary: (count: number) =>
+    todayTitle: (count: number) =>
       count === 0
-        ? 'Nothing is waiting for you today.'
+        ? 'Nothing due today'
         : count === 1
-          ? 'One thing is waiting for you.'
-          : `${count} things are waiting for you.`,
-    dueAction: 'Due tasks',
+          ? 'One thing for today'
+          : `${count} things for today`,
+    open: 'Open',
+    openItem: (supplier: string, what: string) => `${supplier}: open ${what}`,
+    allDue: (count: number) => `All ${count} due tasks`,
     metricsLabel: 'At a glance',
     metricDue: 'due',
     metricRelationships: 'relationships',
@@ -801,7 +800,6 @@ export const en: Messages = {
     },
     open: 'Open',
     openLabel: (title: string) => `Open ${title}`,
-    coming: { core: 'Coming with release 1.0', later: 'Coming after release 1.0' },
     internal: 'Internal',
     head: {
       label: 'Relationship status',

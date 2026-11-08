@@ -9,7 +9,12 @@ test.use({ locale: 'de-DE' });
 const id = '0190a0a0-0000-7000-8000-000000000001';
 const base = `/lieferanten/${id}`;
 const url = (path: string) => `http://localhost:5174${path}`;
-const areas = ['Strategie', 'Beziehung', 'Gemeinsamer Plan', 'Umsetzung', 'Wirkung'];
+// Nur Bereiche mit gebauten Unterseiten stehen in der lokalen Leiste (UMB-05).
+const areas = [
+  ['Strategie', 'strategie'],
+  ['Beziehung', 'beziehung'],
+  ['Umsetzung', 'umsetzung'],
+] as const;
 
 async function signIn(page: Page) {
   await fakeZitadel(page);
@@ -73,7 +78,7 @@ async function signIn(page: Page) {
 
 const localBar = (page: Page) => page.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
 
-test('Alle sechs Bereiche haben eigene Adressen; der Wechsel lädt die Seite nicht neu', async ({
+test('Die Bereiche sind Abschnitte auf dem Überblick; der Sprung lädt die Seite nicht neu (UMB-05)', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -85,16 +90,11 @@ test('Alle sechs Bereiche haben eigene Adressen; der Wechsel lädt die Seite nic
   await page.evaluate(() => {
     (window as unknown as { nav06: boolean }).nav06 = true;
   });
-  for (const area of areas) {
-    await localBar(page).getByRole('link', { name: area, exact: true }).click();
-    await expect(page.locator('#inhalt h1')).toHaveText(area);
-    await expect(localBar(page).getByRole('link', { name: area, exact: true })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+  for (const [label, segment] of areas) {
+    await localBar(page).getByRole('link', { name: label, exact: true }).click();
+    await expect(page).toHaveURL(url(`${base}#${segment}`));
+    await expect(page.getByRole('region', { name: label })).toBeInViewport();
   }
-  await localBar(page).getByRole('link', { name: 'Überblick' }).click();
-  await expect(page).toHaveURL(url(base));
   expect(await page.evaluate(() => (window as unknown as { nav06?: boolean }).nav06)).toBe(true);
 });
 
@@ -102,7 +102,7 @@ test('Die lokale Leiste bleibt beim Scrollen sichtbar', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 500 });
   await signIn(page);
   await page.goto(base);
-  await expect(page.getByRole('list', { name: 'Überblick' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Strategie' })).toBeVisible();
   const bar = localBar(page);
   const before = await bar.boundingBox();
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
@@ -128,7 +128,7 @@ for (const path of ['', '/strategie', '/strategie/profil', '/beziehung/team']) {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBe(0);
-    for (const label of ['Überblick', ...areas]) {
+    for (const [label] of areas) {
       const link = localBar(page).getByRole('link', { name: label, exact: true });
       await expect(link).toBeInViewport();
       const box = await link.boundingBox();

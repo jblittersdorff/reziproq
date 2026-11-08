@@ -92,21 +92,13 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Test-OEM (Demo)' })).toBeDefined();
   });
 
-  it('die lokale Leiste hat die Bereiche ohne Strategie, leere Bereiche erklären sich', async () => {
+  it('die lokale Leiste hat nur gebaute Bereiche ohne Strategie (UMB-05); leere Bereiche erklären sich', async () => {
     renderAt(`/kunden/${idA}/plan`);
     const bar = await screen.findByRole('navigation', { name: 'Arbeitsbereich des Kunden' });
     const labels = within(bar)
       .getAllByRole('link')
       .map((link) => link.textContent);
-    expect(labels).toEqual([
-      'Test-OEM (Demo)',
-      'Überblick',
-      'Beziehung',
-      'Gemeinsamer Plan',
-      'Umsetzung',
-      'Wirkung',
-      'Eigene Sicht',
-    ]);
+    expect(labels).toEqual(['Test-OEM (Demo)', 'Überblick', 'Beziehung', 'Umsetzung']);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Gemeinsamer Plan' }),
     ).toBeDefined();
@@ -148,8 +140,8 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
 
   it('Start nennt die Kunden und führt in ihren Arbeitsbereich, ohne Fragefeld', async () => {
     renderAt('/start');
-    expect(await screen.findByText('Meine Kunden')).toBeDefined();
-    expect(screen.getByRole('link', { name: 'Zweit-OEM (Demo)' }).getAttribute('href')).toBe(
+    expect(await screen.findByRole('heading', { level: 2, name: 'Meine Kunden' })).toBeDefined();
+    expect(screen.getByRole('link', { name: /^Zweit-OEM \(Demo\)/ }).getAttribute('href')).toBe(
       `/kunden/${idB}`,
     );
     expect(screen.queryByRole('textbox', { name: /Frage/ })).toBeNull();

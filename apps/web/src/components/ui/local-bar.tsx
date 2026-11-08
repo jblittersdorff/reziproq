@@ -17,6 +17,7 @@ const activeLine =
 function LocalBar({
   label,
   name,
+  nameIcon,
   nameHref,
   items,
   activeKey,
@@ -27,6 +28,8 @@ function LocalBar({
 }: {
   label: string;
   name: string;
+  /** z. B. das Monogramm des Lieferanten (UMB-05), dekorativ */
+  nameIcon?: React.ReactNode;
   nameHref: string;
   items: NavItem[];
   activeKey?: string | undefined;
@@ -52,8 +55,16 @@ function LocalBar({
         {renderLink({
           href: nameHref,
           // Schmal: Name in eigener Zeile, darunter brechen die Bereiche nebeneinander um.
-          className: cn(linkClass, 'w-full font-semibold text-base text-foreground sm:w-auto'),
-          children: name,
+          className: cn(
+            linkClass,
+            'w-full gap-2.5 font-semibold text-base text-foreground sm:w-auto',
+          ),
+          children: (
+            <>
+              {nameIcon}
+              {name}
+            </>
+          ),
         })}
         <ul className="flex flex-1 flex-wrap items-center gap-1">
           {items.map((item) => (

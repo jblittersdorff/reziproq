@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   actionsFor,
@@ -58,24 +58,32 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('NAV-05 Start', () => {
-  it('zeigt „Fällig bei mir“ mit Link zur Bewertung und „Alle“', async () => {
+  it('zeigt die fälligen Aufgaben als Liste mit genau einem Knopf je Zeile (UMB-05)', async () => {
     renderAt('/start');
-    const link = await screen.findByRole('link', { name: /Lieferant 1/ });
-    expect(link.getAttribute('href')).toBe(`/bewertungen/${uuid(0)}`);
-    expect(screen.getAllByRole('link', { name: /Lieferant \d/ })).toHaveLength(5);
-    const all = screen.getAllByRole('link', { name: 'Alle' });
-    expect(all[0]?.getAttribute('href')).toBe('/start/faellig');
-    expect(screen.getAllByText('Kommt mit Release 0.2')).toHaveLength(2);
-    expect(screen.getByRole('link', { name: /Alpha GmbH/ })).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { level: 2, name: '7 Dinge für heute' }),
+    ).toBeTruthy();
+    const list = document.querySelector('[data-slot="due-list"]') as HTMLElement;
+    const rows = within(list).getAllByRole('listitem');
+    expect(rows).toHaveLength(5);
+    for (const row of rows) expect(within(row).getAllByRole('link')).toHaveLength(1);
+    const first = within(rows[0] as HTMLElement).getByRole('link');
+    expect(first.getAttribute('href')).toBe(`/bewertungen/${uuid(0)}`);
+    expect(first.getAttribute('aria-label')).toBe(
+      'Lieferant 1: Bewertung abgeben · Antrieb öffnen',
+    );
+    // Nur die erste Zeile hat den gefüllten Knopf.
+    expect(first.className).toContain('bg-primary');
+    expect(within(rows[1] as HTMLElement).getByRole('link').className).not.toContain('bg-primary');
+    // Mehr als fünf: Link zur vollen Liste.
+    expect(
+      screen.getByRole('link', { name: 'Alle 7 fälligen Aufgaben' }).getAttribute('href'),
+    ).toBe('/start/faellig');
+    expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
+    // Die eigenen Lieferanten als Karten mit Monogramm.
+    const alpha = screen.getByRole('link', { name: /^Alpha GmbH/ });
+    expect(alpha.querySelector('[data-slot="monogram"]')?.textContent).toBe('AL');
     expect(screen.getByText('Soll: Partner')).toBeTruthy();
-  });
-
-  it('die Kacheln stehen auf breiten Bildschirmen zu zweit nebeneinander', async () => {
-    renderAt('/start');
-    await screen.findByRole('link', { name: /Lieferant 1/ });
-    const grid = screen.getByText('Fällig bei mir').closest('[data-slot="tile"]')?.parentElement;
-    expect(grid?.className).toContain('md:grid-cols-2');
-    expect(grid?.className).toContain('gap-6');
   });
 
   it('zeigt auf /start/faellig die vollständige Liste', async () => {

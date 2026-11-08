@@ -268,6 +268,10 @@ export function setUpApp() {
   api.organization = sampleOrganization;
   api.handle = undefined;
   sessionStorage.clear();
+  // jsdom kennt kein Scrollen; der Router springt zu Abschnitten wie #strategie (UMB-05).
+  if (typeof Element.prototype.scrollIntoView !== 'function') {
+    Element.prototype.scrollIntoView = () => {};
+  }
   // Wie ein deutscher Browser; Tests auf Englisch setzen browserLanguages selbst (PLT-09).
   browserLanguages(['de-DE', 'de']);
   vi.stubGlobal(
