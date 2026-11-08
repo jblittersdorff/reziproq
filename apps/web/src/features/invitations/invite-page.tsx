@@ -47,7 +47,7 @@ function InviteForm({ relationshipId, teamPath }: { relationshipId: string; team
   if (!invitations.data) return <LoadingState label={text.loading} />;
   if (!invitations.data.canInvite) {
     return (
-      <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
         {text.noPermission}
       </p>
     );

@@ -91,7 +91,7 @@ function RequestContent({ relationshipId }: { relationshipId: string }) {
   }
   if (!plan.canManage) {
     return (
-      <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
         {t.supplierPlan.noPermission}
       </p>
     );
@@ -299,7 +299,7 @@ function ContributionContent({
     return (
       <>
         <PageHeader title={t.supplierPlan.contributionTitle} />
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {t.supplierPlan.contributionNoPermission}
         </p>
       </>
@@ -515,7 +515,7 @@ function ContributionView({
           </div>
         </>
       ) : (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {detail.status === 'done'
             ? t.supplierPlan.contributionDoneHint
             : t.supplierPlan.contributionNoPermission}

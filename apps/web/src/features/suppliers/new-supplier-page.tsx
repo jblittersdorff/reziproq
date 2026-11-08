@@ -175,7 +175,7 @@ export function NewSupplierPage() {
           </FormField>
         </div>
         {linked && (
-          <p role="status" className="flex items-center gap-2 rounded-lg bg-muted px-4 py-3">
+          <p role="status" className="flex items-center gap-2 rounded-lg bg-card px-4 py-3">
             <LinkIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden />
             {t.suppliers.linked}
           </p>

@@ -20,16 +20,17 @@ function ErrorState({
       role="alert"
       data-slot="error-state"
       className={cn(
-        'flex flex-col items-center justify-center gap-3 rounded-lg bg-destructive-soft px-6 py-12 text-center text-destructive-soft-foreground',
+        'flex flex-col items-center justify-center gap-3 rounded-xl bg-card px-6 py-12 text-center',
         className,
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-full bg-background [&_svg]:size-5">
+      {/* Ruhig: weiße Karte, nur das Symbol trägt die Statusfarbe. */}
+      <div className="flex size-10 items-center justify-center rounded-full bg-destructive-soft text-destructive-soft-foreground [&_svg]:size-5">
         <TriangleAlertIcon aria-hidden />
       </div>
       <div className="flex max-w-sm flex-col gap-1">
         <p className="font-semibold text-base">{title}</p>
-        {description && <p className="text-sm">{description}</p>}
+        {description && <p className="text-muted-foreground text-sm">{description}</p>}
       </div>
       {action}
     </div>

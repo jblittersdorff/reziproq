@@ -68,7 +68,7 @@ export function MasterDataEntryPage({ kind, id }: { kind: MasterDataKind; id?: s
       {manage ? (
         <EntryForm kind={kind} entry={entry} entries={entries} accessToken={accessToken} />
       ) : (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {t.masterData.readOnly}
         </p>
       )}

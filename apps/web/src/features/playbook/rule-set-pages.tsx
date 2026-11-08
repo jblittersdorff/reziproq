@@ -313,7 +313,7 @@ function RuleSetContent({ relationshipId }: { relationshipId: string }) {
         )}
       </div>
       {shared && shared.version !== current.version && (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {text.supplierSees(shared.version, format.date(shared.sharedAt))}
         </p>
       )}
@@ -488,7 +488,7 @@ function EditContent({ relationshipId }: { relationshipId: string }) {
   if (!state.data) return <LoadingState label={text.loading} />;
   if (!state.data.canManage) {
     return (
-      <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
         {text.noPermission}
       </p>
     );

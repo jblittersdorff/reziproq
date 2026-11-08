@@ -323,7 +323,7 @@ function TopicsSection({
           })}
       </div>
       {topics.length > recommendedTopicLimit && (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-sm">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-sm">
           {t.supplierPlan.topicsLimit}
         </p>
       )}
@@ -423,7 +423,7 @@ function ReferenceTiles({
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
-          <li key={card.title} className="rounded-lg bg-muted p-4">
+          <li key={card.title} className="rounded-lg bg-card p-4">
             <h3 className="font-medium">{card.title}</h3>
             {card.href
               ? routerLink({

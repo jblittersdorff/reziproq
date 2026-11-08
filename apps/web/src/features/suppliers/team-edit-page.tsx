@@ -149,7 +149,7 @@ function TeamForm({
           {rows.map((row) => (
             <li
               key={row.userId}
-              className="flex flex-col gap-3 rounded-lg bg-muted p-4 sm:flex-row sm:items-end"
+              className="flex flex-col gap-3 rounded-lg bg-card p-4 sm:flex-row sm:items-end"
             >
               <p className="flex-1 font-medium text-base sm:pb-3">{row.name}</p>
               <div className="flex flex-col gap-1 text-muted-foreground text-sm sm:w-44">

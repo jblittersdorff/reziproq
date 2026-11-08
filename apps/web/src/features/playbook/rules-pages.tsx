@@ -182,7 +182,7 @@ export function RuleFormPage({ id }: { id?: string }) {
       ) : id && !existing ? (
         <EmptyState size="lg" title={text.notFound} description={t.notFound.description} />
       ) : !query.data.canManage ? (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {text.adminOnly}
         </p>
       ) : (

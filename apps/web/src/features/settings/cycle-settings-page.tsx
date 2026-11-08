@@ -40,7 +40,7 @@ export function CycleSettingsPage() {
       ) : canManage ? (
         <CycleSettingsForm />
       ) : (
-        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {t.settings.adminOnly}
         </p>
       )}

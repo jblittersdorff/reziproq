@@ -29,7 +29,7 @@ Als Mitarbeiter von Reziproq wechsle ich auf einer eigenen Seite in einen Kunden
 
 1. `/profil` zeigt Betreibern den Weg „In einen Kunden wechseln“. Er führt zu `/betreiber/kunden`.
 2. Die Seite zeigt die Organisationen mit Feature `buyer` als Kacheln mit Name und Land. Ein Klick wechselt und führt zu `/start`.
-3. Die Hinweisleiste „Betreiber-Ansicht: <Kunde>. Alle Zugriffe werden protokolliert.“ steht oben im Seitenfluss, mit dem Knopf „Verlassen“.
+3. Die Hinweisleiste „Betreiber-Ansicht: <Kunde>. Alle Zugriffe werden protokolliert.“ steht als schmale Leiste ganz oben über der globalen Leiste, im Seitenfluss, mit „Verlassen“ (geändert am 8.11.2026).
 
 ## Fertig, wenn
 

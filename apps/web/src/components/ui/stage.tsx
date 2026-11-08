@@ -95,4 +95,35 @@ function StageMetrics({
   );
 }
 
-export { Stage, StageMetrics };
+/** Angaben neben dem Titel, z. B. Beziehungstyp und nächster Termin; Werte dürfen umbrechen. */
+function StageFacts({
+  label,
+  items,
+}: {
+  label: string;
+  items: { key: string; value: React.ReactNode; label: React.ReactNode; muted?: boolean }[];
+}) {
+  return (
+    <dl aria-label={label} className="flex flex-wrap gap-x-10 gap-y-6">
+      {items.map((item) => (
+        <div
+          key={item.key}
+          data-fact={item.key}
+          className="flex flex-col-reverse gap-1 border-border border-l pl-5"
+        >
+          <dt className="text-muted-foreground">{item.label}</dt>
+          <dd
+            className={cn(
+              'font-bold text-xl tracking-title',
+              item.muted && 'font-normal text-muted-foreground',
+            )}
+          >
+            {item.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+export { Stage, StageFacts, StageMetrics };

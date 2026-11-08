@@ -51,7 +51,7 @@ export function PlaybookPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Tile asChild interactive size="lg" className="flex flex-col items-center gap-3">
+            <Tile asChild interactive size="lg" className="flex flex-col gap-3">
               <Link to={`${playbookPath}/rechte`}>
                 <TileIcon>
                   <ScaleIcon aria-hidden />
@@ -73,7 +73,7 @@ export function PlaybookPage() {
                 })()}
               </Link>
             </Tile>
-            <Tile asChild interactive size="lg" className="flex flex-col items-center gap-3">
+            <Tile asChild interactive size="lg" className="flex flex-col gap-3">
               <Link to={`${playbookPath}/formate`}>
                 <TileIcon>
                   <CalendarClockIcon aria-hidden />

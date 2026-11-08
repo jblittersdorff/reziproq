@@ -166,7 +166,7 @@ export function SegmentModelPage() {
       ) : (
         <div className="flex flex-col gap-8">
           {!canManage && (
-            <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+            <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
               {t.segmentModel.readOnly}
             </p>
           )}
@@ -181,7 +181,7 @@ export function SegmentModelPage() {
             </p>
           )}
           {draft && (
-            <section className="flex flex-col gap-3 rounded-lg bg-muted p-4 sm:flex-row sm:items-center sm:justify-between">
+            <section className="flex flex-col gap-3 rounded-lg bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-col gap-1">
                 <p className="flex items-center gap-2 font-medium">
                   <Badge variant="warning">{t.segmentModel.draft}</Badge>
@@ -281,7 +281,7 @@ function BoundariesSummary({ model, canManage }: { model: SegmentModel; canManag
           })}
       </div>
       <p className="text-muted-foreground text-sm">{t.segmentModel.boundariesHint}</p>
-      <dl className="divide-y divide-border rounded-lg bg-muted">
+      <dl className="divide-y divide-border rounded-lg bg-card">
         <div className="flex items-center justify-between gap-4 px-4 py-3">
           <dt>{t.segmentModel.lowMax}</dt>
           <dd className="font-medium tabular-nums">{model.lowMax}</dd>
@@ -323,7 +323,7 @@ function TypesMatrix({ model, canManage }: { model: SegmentModel; canManage: boo
             <h3 className="font-medium">
               {t.segmentModel.impactAxis}: {levelName(impactLevel, t)}
             </h3>
-            <ul className="divide-y divide-border rounded-lg bg-muted">
+            <ul className="divide-y divide-border rounded-lg bg-card">
               {levels.map((qualityLevel) => {
                 const entry = byCell.get(`${impactLevel}-${qualityLevel}`);
                 return (
@@ -930,7 +930,7 @@ function TypeForm({
 function ReadOnlyNotice() {
   const t = useT();
   return (
-    <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+    <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
       {t.segmentModel.readOnly}
     </p>
   );
