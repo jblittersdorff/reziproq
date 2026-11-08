@@ -115,16 +115,24 @@ export function StartPage() {
       </InStageSlot>
 
       <div className="grid items-start gap-10 sidebar:grid-cols-3">
+        {/* Zuerst im Dokument: Der Sprung-Link führt direkt zum Fragefeld (PLT-11, PLT-12); rechts
+            steht die Spalte trotzdem. */}
+        <aside className="flex flex-col gap-4 sidebar:col-start-3 sidebar:row-start-1">
+          {data?.nextMeeting && (
+            <NextMeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
+          )}
+          {!supplierSide && <PromptTrigger />}
+        </aside>
         {query.isError ? (
-          <div className="sidebar:col-span-2">
+          <div className="sidebar:col-span-2 sidebar:col-start-1 sidebar:row-start-1">
             <ErrorState title={t.start.failed} />
           </div>
         ) : !data ? (
-          <div className="sidebar:col-span-2">
+          <div className="sidebar:col-span-2 sidebar:col-start-1 sidebar:row-start-1">
             <LoadingState label={t.start.loading} />
           </div>
         ) : (
-          <div className="flex min-w-0 flex-col gap-10 sidebar:col-span-2">
+          <div className="flex min-w-0 flex-col gap-10 sidebar:col-span-2 sidebar:col-start-1 sidebar:row-start-1">
             {data.due.items.length > 0 && (
               <section aria-labelledby="start-faellig" className="flex flex-col gap-3">
                 <h2 id="start-faellig" className="font-bold text-xl tracking-title">
@@ -230,13 +238,6 @@ export function StartPage() {
             </section>
           </div>
         )}
-
-        <aside className="flex flex-col gap-4">
-          {data?.nextMeeting && (
-            <NextMeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
-          )}
-          {!supplierSide && <PromptTrigger />}
-        </aside>
       </div>
     </>
   );
