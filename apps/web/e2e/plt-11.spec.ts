@@ -78,7 +78,11 @@ async function signIn(page: Page, { admin = false } = {}) {
   );
   await page.route('**/api/start', (route) =>
     route.fulfill({
-      json: { due: { items: [], total: 0 }, relationships: { items: [], total: 0 } },
+      json: {
+        due: { items: [], total: 0 },
+        relationships: { items: [], total: 0 },
+        nextMeeting: null,
+      },
     }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));

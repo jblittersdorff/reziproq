@@ -50,6 +50,14 @@ async function mock(page: Page) {
           })),
           total: 3,
         },
+        nextMeeting: {
+          id: uuid(90),
+          relationshipId: uuid(60),
+          counterpart: suppliers[0],
+          title: 'Quartalsreview',
+          startsAt: '2099-03-15T09:00:00Z',
+          location: 'Werk Nord',
+        },
       },
     }),
   );

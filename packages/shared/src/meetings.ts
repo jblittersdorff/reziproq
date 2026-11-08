@@ -92,6 +92,28 @@ export const meetingListSchema = z.object({
 
 const ownedRow = { id: z.uuid(), side: z.enum(meetingSides), own: z.boolean() };
 
+/**
+ * Live-Abschnitt eines Termins (QBR-01b): Stand aus seinem Ort, z. B. offene Maßnahmen (QBR-03).
+ * Jede Quelle meldet sich mit ihrem Schlüssel; die Oberfläche kennt den Titel dazu.
+ */
+export const liveSectionSchema = z.object({
+  key: z.string(),
+  items: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      /** z. B. „offen · bis 12.03.“ */
+      status: z.string().nullable(),
+    }),
+  ),
+});
+
+/** Live-Abschnitte; nach dem Abschließen der eingefrorene Stand mit Zeitpunkt. */
+export const meetingLiveSchema = z.object({
+  sections: z.array(liveSectionSchema),
+  frozenAt: z.iso.datetime({ offset: true }).nullable(),
+});
+
 export const meetingDetailSchema = z.object({
   meeting: meetingSummarySchema.extend({
     protocol: z.string().nullable(),
@@ -106,6 +128,20 @@ export const meetingDetailSchema = z.object({
   canEditMeeting: z.boolean(),
   /** Agendapunkte und Beschlüsse ergänzen, Notizen schreiben */
   canContribute: z.boolean(),
+  live: meetingLiveSchema,
+  /** Abschließen: die Seite, die den Termin angelegt hat, solange er offen ist (QBR-01b) */
+  canClose: z.boolean(),
+});
+
+/** Nächster Termin für Start und den Kopf (QBR-01b, Termin-Quelle). */
+export const nextMeetingSchema = z.object({
+  id: z.uuid(),
+  relationshipId: z.uuid(),
+  /** Die andere Seite: Lieferant beim Käufer, Kunde beim Lieferanten */
+  counterpart: z.string(),
+  title: z.string(),
+  startsAt: z.iso.datetime({ offset: true }),
+  location: z.string().nullable(),
 });
 
 export const createMeetingSchema = z
@@ -149,6 +185,8 @@ export const saveMeetingNoteSchema = z.object({ text: z.string().trim().max(10_0
 export type MeetingSummary = z.infer<typeof meetingSummarySchema>;
 export type MeetingList = z.infer<typeof meetingListSchema>;
 export type MeetingDetail = z.infer<typeof meetingDetailSchema>;
+export type LiveSection = z.infer<typeof liveSectionSchema>;
+export type NextMeeting = z.infer<typeof nextMeetingSchema>;
 export type CreateMeeting = z.infer<typeof createMeetingSchema>;
 export type UpdateMeeting = z.infer<typeof updateMeetingSchema>;
 export type SaveAgenda = z.infer<typeof saveAgendaSchema>;

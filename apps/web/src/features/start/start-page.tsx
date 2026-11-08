@@ -1,4 +1,4 @@
-import type { DueItem } from '@reziproq/shared';
+import type { DueItem, NextMeeting } from '@reziproq/shared';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRightIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Monogram } from '@/components/ui/monogram';
+import { Tile } from '@/components/ui/tile';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
@@ -192,6 +193,9 @@ export function StartPage() {
       </div>
 
       <aside className="flex flex-col gap-4">
+        {data?.nextMeeting && (
+          <NextMeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
+        )}
         {!supplierSide && <PromptTrigger />}
         {data && (
           <dl
@@ -221,5 +225,53 @@ export function StartPage() {
         )}
       </aside>
     </div>
+  );
+}
+
+/**
+ * Nächster Termin aus der Termin-Quelle (QBR-01b), als dunkle Kachel: Datum groß, Titel, die
+ * andere Seite und ein Link zur Termin-Seite.
+ */
+function NextMeetingTile({
+  meeting,
+  supplierSide,
+}: {
+  meeting: NextMeeting;
+  supplierSide: boolean;
+}) {
+  const t = useT();
+  const { locale } = useLocale();
+  const start = new Date(meeting.startsAt);
+  const month = new Intl.DateTimeFormat(locale, { month: 'short' }).format(start);
+  const day = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(start);
+  const time = new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(start);
+  const href = `${supplierSide ? '/kunden' : '/lieferanten'}/${meeting.relationshipId}/umsetzung/termine/${meeting.id}`;
+  return (
+    <Tile tone="stage" data-slot="next-meeting">
+      <p className="font-semibold text-primary text-sm">{t.meetings.next}</p>
+      <div className="flex items-center gap-4">
+        <p className="flex flex-col items-center rounded-lg border border-border px-3 py-1">
+          <span className="font-semibold text-primary text-sm uppercase">{month}</span>
+          <span className="font-bold text-2xl tabular-nums tracking-title">{day}</span>
+        </p>
+        <p className="flex min-w-0 flex-col">
+          <span className="font-bold text-lg tracking-title">{meeting.title}</span>
+          <span className="text-muted-foreground text-sm">
+            {meeting.counterpart} · {time}
+          </span>
+        </p>
+      </div>
+      {routerLink({
+        href,
+        className: cn(buttonVariants({ variant: 'link' }), 'self-start px-0 has-[>svg]:px-0'),
+        'aria-label': `${t.meetings.nextOpen}: ${meeting.title}`,
+        children: (
+          <>
+            {t.meetings.nextOpen}
+            <ChevronRightIcon aria-hidden />
+          </>
+        ),
+      })}
+    </Tile>
   );
 }

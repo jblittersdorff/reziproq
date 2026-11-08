@@ -5,11 +5,13 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { and, asc, auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
 import {
   agendaTemplates,
   type CreateMeeting,
+  type LiveSection,
   type MeetingDetail,
   type MeetingList,
   type MeetingSide,
@@ -27,6 +29,7 @@ import { meetingAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { MEETING_LIVE_SOURCES, type MeetingLiveSource } from './live-sections.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -71,7 +74,80 @@ export class MeetingsService {
   constructor(
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(CustomersService) private readonly customers: CustomersService,
+    @Optional()
+    @Inject(MEETING_LIVE_SOURCES)
+    private readonly liveSources: MeetingLiveSource[] = [],
   ) {}
+
+  /** Aktueller Stand aus den Orten der Sachen (QBR-01b); leere Abschnitte entfallen. */
+  private async readLive(scope: MeetingScope): Promise<LiveSection[]> {
+    const sections: LiveSection[] = [];
+    for (const source of this.liveSources) {
+      const section = await source.read(scope.tx, scope.relationshipId);
+      if (section && section.items.length > 0) sections.push(section);
+    }
+    return sections;
+  }
+
+  /** Offen: der Stand von jetzt; abgeschlossen: der eingefrorene Stand, unverändert. */
+  private async live(scope: MeetingScope, meeting: MeetingRow) {
+    if (meeting.status !== 'closed')
+      return { sections: await this.readLive(scope), frozenAt: null };
+    const [snapshot] = await scope.tx
+      .select({
+        frozenAt: schema.meetingSnapshot.frozenAt,
+        content: schema.meetingSnapshot.content,
+      })
+      .from(schema.meetingSnapshot)
+      .where(eq(schema.meetingSnapshot.meetingId, meeting.id));
+    const content = (snapshot?.content ?? { sections: [] }) as { sections: LiveSection[] };
+    return { sections: content.sections, frozenAt: snapshot?.frozenAt.toISOString() ?? null };
+  }
+
+  /**
+   * Termin abschließen (QBR-01b), nur die Seite, die ihn angelegt hat: Erst wird der Status
+   * gesetzt – das geht nur einmal (Trigger app_meeting_closed_unchanged) und sperrt Protokoll und
+   * Beschlüsse –, dann friert meeting_snapshot den Stand der Live-Abschnitte ein.
+   */
+  async close(scope: MeetingScope, meetingId: string): Promise<MeetingDetail> {
+    const meeting = await this.contribute(scope, meetingId);
+    if (meeting.ownerOrgId !== scope.orgId) throw forbidden();
+    const { tx } = scope;
+    const sections = await this.readLive(scope);
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    await guarded(() =>
+      auditedChange(tx, actor, meetingAudit, async () => {
+        await tx
+          .update(schema.meeting)
+          .set({ status: 'closed' })
+          .where(eq(schema.meeting.id, meetingId));
+        await tx.insert(schema.meetingSnapshot).values({
+          meetingId,
+          relationshipId: scope.relationshipId,
+          ownerOrgId: scope.orgId,
+          visibility: 'shared',
+          content: { sections },
+        });
+        return {
+          objectId: meetingId,
+          relationshipId: scope.relationshipId,
+          action: 'updated' as const,
+          before: {
+            title: meeting.title,
+            starts_at: meeting.startsAt.toISOString(),
+            status: meeting.status,
+          },
+          after: {
+            title: meeting.title,
+            starts_at: meeting.startsAt.toISOString(),
+            status: 'closed',
+          },
+          result: undefined,
+        };
+      }),
+    );
+    return this.detail(scope, meetingId);
+  }
 
   /** Käuferseite: eigene Beziehung; ändern Admin oder wer im Team ist, nie mit Teamrolle Leser. */
   buyer<T>(auth: AuthContext, relationshipId: string, work: (scope: MeetingScope) => Promise<T>) {
@@ -349,6 +425,8 @@ export class MeetingsService {
       note: note?.text ?? null,
       canEditMeeting: scope.canEdit && own(meeting.ownerOrgId) && !isClosed,
       canContribute: scope.canEdit && !isClosed,
+      live: await this.live(scope, meeting),
+      canClose: scope.canEdit && own(meeting.ownerOrgId) && !isClosed,
     });
   }
 

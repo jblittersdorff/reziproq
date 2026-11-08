@@ -6,6 +6,7 @@ import { type FormEvent, type ReactNode, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { FormActions, FormField } from '@/components/ui/form-field';
@@ -21,6 +22,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
+  closeMeeting,
   createMeeting,
   type MeetingBase,
   meetingListQueryOptions,
@@ -487,6 +489,8 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
   const dateTime = useDateTime();
   const query = useMeeting(place, meetingId);
   const [message, hideMessage] = useFlash();
+  // Abschließen bleibt auf dieser Seite; die Rückmeldung steht deshalb hier (NAV-04).
+  const [closedMessage, setClosedMessage] = useState<string | null>(null);
   if (query.isError) {
     return (
       <>
@@ -505,6 +509,7 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
   }
   const { meeting, participants, agenda, decisions, note, canEditMeeting, canContribute } =
     query.data;
+  const { live, canClose } = query.data;
   const base = `${webBase(place)}/${meetingId}`;
   return (
     <>
@@ -518,6 +523,9 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
         }
       />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
+      {closedMessage && (
+        <StatusLine message={closedMessage} onHidden={() => setClosedMessage(null)} />
+      )}
       {meeting.status === 'closed' && <StatusLine message={text.closedHint} tone="warning" />}
       <div className="flex flex-col gap-1 text-muted-foreground text-sm">
         <p>
@@ -556,6 +564,31 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           </ol>
         )}
       </Section>
+      {live.sections.length > 0 && (
+        <Section
+          id="termin-live"
+          title={live.frozenAt ? text.liveFrozen(dateTime(live.frozenAt)) : text.live}
+        >
+          {live.sections.map((section) => (
+            <div key={section.key} data-live={section.key} className="flex flex-col gap-2">
+              <h3 className="font-medium">{text.liveSections[section.key] ?? section.key}</h3>
+              <ul className="overflow-hidden rounded-xl bg-card">
+                {section.items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center gap-4 border-border border-b px-5 py-3 last:border-b-0"
+                  >
+                    <span className="flex-1">{item.title}</span>
+                    {item.status && (
+                      <span className="text-muted-foreground text-sm">{item.status}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </Section>
+      )}
       <Section
         id="termin-protokoll"
         title={text.protocol}
@@ -592,7 +625,52 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           <p className="text-muted-foreground">{text.noteEmpty}</p>
         )}
       </Section>
+      {canClose && (
+        <CloseMeeting
+          place={place}
+          meetingId={meetingId}
+          onClosed={() => setClosedMessage(text.closed)}
+        />
+      )}
     </>
+  );
+}
+
+/** QBR-01b: Abschließen mit Bestätigung auf der Seite (NAV-04), nur die anlegende Seite. */
+function CloseMeeting({
+  place,
+  meetingId,
+  onClosed,
+}: {
+  place: MeetingPlace;
+  meetingId: string;
+  onClosed: () => void;
+}) {
+  const text = useT().meetings;
+  const token = useToken();
+  const refresh = useRefreshMeetings(place);
+  const [failed, setFailed] = useState(false);
+  return (
+    <div className="flex flex-col gap-2 border-border border-t pt-6">
+      <ConfirmButton
+        question={text.closeQuestion}
+        confirmLabel={text.closeConfirm}
+        cancelLabel={text.cancel}
+        variant="default"
+        onConfirm={() => {
+          setFailed(false);
+          closeMeeting(token, apiBase(place), meetingId)
+            .then(async () => {
+              onClosed();
+              await refresh();
+            })
+            .catch(() => setFailed(true));
+        }}
+      >
+        {text.close}
+      </ConfirmButton>
+      {failed && <StatusLine message={text.saveFailed} tone="warning" />}
+    </div>
   );
 }
 

@@ -64,6 +64,8 @@ const meeting = (own: boolean): MeetingDetail => ({
   note: own ? 'Preisdruck ansprechen' : 'Kapazität ist knapp',
   canEditMeeting: own,
   canContribute: true,
+  live: { sections: [], frozenAt: null },
+  canClose: own,
 });
 
 let list: MeetingList;

@@ -228,6 +228,25 @@ describe('db:seed', () => {
     expect(counts.rows[0]).toEqual({ organizations: 68, relationships: 70 });
   });
 
+  it('QBR-01: beim Test-Lieferanten ein abgeschlossenes Review mit eingefrorenem Stand und ein kommendes, auch beim zweiten Lauf', async () => {
+    await seed(temp.db, { nodeEnv: 'development' });
+    const rows = await temp.db.execute<{
+      title: string;
+      status: string;
+      snapshots: number;
+      agenda: number;
+    }>(sql`
+      select m.title, m.status,
+        (select count(*)::int from meeting_snapshot s where s.meeting_id = m.id) as snapshots,
+        (select count(*)::int from meeting_agenda_item a where a.meeting_id = m.id) as agenda
+      from meeting m order by m.starts_at
+    `);
+    expect(rows.rows).toEqual([
+      { title: 'Quartalsreview Q3', status: 'closed', snapshots: 1, agenda: 3 },
+      { title: 'Quartalsreview Q4', status: 'planned', snapshots: 0, agenda: 5 },
+    ]);
+  });
+
   it('PLT-02: bricht bei NODE_ENV=production ab, ohne etwas zu schreiben', async () => {
     await temp.db.execute(sql`delete from relationship_spend`);
     await expect(seed(temp.db, { nodeEnv: 'production' })).rejects.toThrow(/production/);

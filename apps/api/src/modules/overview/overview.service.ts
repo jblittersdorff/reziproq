@@ -13,21 +13,22 @@ import {
   type DueItem,
   type SupplierCycle,
   type SupplierOverview,
+  setJbpDateSchema,
   type UpdateCycleSettings,
   updateCycleSettingsSchema,
-  setJbpDateSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { meetingDate, nextMeetingOf } from '../meetings/next-meeting.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
-import { readCycleSettings } from './cycle.js';
 import {
   CYCLE_STEP_SOURCES,
   type CycleStepSource,
   ensureActiveCycle,
   readActiveCycle,
+  readCycleSettings,
   segmentCycleStepSource,
 } from './cycle.js';
 import { OVERVIEW_METRIC_SOURCES, type OverviewMetricSource } from './overview-metric.js';
@@ -65,12 +66,14 @@ export class OverviewService {
           : null;
         return {
           head: {
-            // Konsolidiert aus SEG-06; der nächste Termin kommt mit QBR-01.
+            // Konsolidiert aus SEG-06; der nächste Termin aus der Termin-Quelle (QBR-01b).
             segment: decided
               ? { current: decided.ist.typeName, target: decided.soll.typeName }
               : null,
             sro: await sroOf(tx, organization, relationshipId),
-            nextMeeting: null,
+            nextMeeting: await nextMeetingOf(tx, [relationshipId]).then((row) =>
+              row ? { date: meetingDate(row.startsAt) } : null,
+            ),
             isFocus,
           },
           metrics,
@@ -105,7 +108,11 @@ export class OverviewService {
     });
   }
 
-  async setJbpDate(auth: AuthContext, relationshipId: string, input: unknown): Promise<SupplierCycle> {
+  async setJbpDate(
+    auth: AuthContext,
+    relationshipId: string,
+    input: unknown,
+  ): Promise<SupplierCycle> {
     const request = setJbpDateSchema.parse(input);
     const organization = auth.organization;
     if (!organization?.buyer || !can(auth, 'zyklus.starten')) {
@@ -122,10 +129,7 @@ export class OverviewService {
         .select()
         .from(schema.cycle)
         .where(
-          and(
-            eq(schema.cycle.relationshipId, relationshipId),
-            eq(schema.cycle.status, 'active'),
-          ),
+          and(eq(schema.cycle.relationshipId, relationshipId), eq(schema.cycle.status, 'active')),
         )
         .orderBy(desc(schema.cycle.startedAt))
         .limit(1);
@@ -188,29 +192,26 @@ export class OverviewService {
     if (!organization?.buyer || !can(auth, 'einstellungen.verwalten')) {
       throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
     }
-    return this.tenant.run(
-      { userId: auth.userId, organizationId: organization.id },
-      async (tx) => {
-        for (const setting of request.settings) {
-          await tx
-            .insert(schema.cycleSetting)
-            .values({
-              orgId: organization.id,
-              step: setting.step,
+    return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
+      for (const setting of request.settings) {
+        await tx
+          .insert(schema.cycleSetting)
+          .values({
+            orgId: organization.id,
+            step: setting.step,
+            weeksRelativeToJbp: setting.weeksRelativeToJbp,
+            reminderDaysBefore: setting.reminderDaysBefore,
+          })
+          .onConflictDoUpdate({
+            target: [schema.cycleSetting.orgId, schema.cycleSetting.step],
+            set: {
               weeksRelativeToJbp: setting.weeksRelativeToJbp,
               reminderDaysBefore: setting.reminderDaysBefore,
-            })
-            .onConflictDoUpdate({
-              target: [schema.cycleSetting.orgId, schema.cycleSetting.step],
-              set: {
-                weeksRelativeToJbp: setting.weeksRelativeToJbp,
-                reminderDaysBefore: setting.reminderDaysBefore,
-              },
-            });
-        }
-        return { settings: await readCycleSettings(tx) };
-      },
-    );
+            },
+          });
+      }
+      return { settings: await readCycleSettings(tx) };
+    });
   }
 
   async overdueItems(auth: AuthContext): Promise<DueItem[]> {
@@ -229,10 +230,7 @@ export class OverviewService {
             displayName: supplierName,
           })
           .from(schema.cycle)
-          .innerJoin(
-            schema.relationship,
-            eq(schema.relationship.id, schema.cycle.relationshipId),
-          )
+          .innerJoin(schema.relationship, eq(schema.relationship.id, schema.cycle.relationshipId))
           .innerJoin(
             schema.organization,
             eq(schema.organization.id, schema.relationship.supplierOrgId),

@@ -4,6 +4,7 @@ import {
   type DueItem,
   type DueList,
   dueListSchema,
+  type NextMeeting,
   type StartData,
   startSchema,
 } from '@reziproq/shared';
@@ -11,12 +12,27 @@ import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { PlanContributionsService } from '../supplier-plans/plan-contributions.service.js';
 
 const limit = 5;
+
+const toNext = (row: {
+  id: string;
+  relationshipId: string;
+  title: string;
+  startsAt: Date;
+  location: string | null;
+}) => ({
+  id: row.id,
+  relationshipId: row.relationshipId,
+  title: row.title,
+  startsAt: row.startsAt.toISOString(),
+  location: row.location,
+});
 
 /** Start (NAV-05): liest nur, speichert nichts. Aufgaben kommen von den Modulen. */
 @Injectable()
@@ -53,6 +69,68 @@ export class StartService {
 
   async due(auth: AuthContext): Promise<DueList> {
     return dueListSchema.parse({ items: await this.dueItems(auth) });
+  }
+
+  /**
+   * Nächster Termin (QBR-01b) aus den Beziehungen der Person: beim Käufer die, in deren Team sie
+   * ist, beim Lieferanten alle Kunden, je im Kontext des Kunden.
+   */
+  private async nextMeeting(auth: AuthContext): Promise<NextMeeting | null> {
+    const organization = auth.organization;
+    const subject = {
+      orgRole: auth.orgRole,
+      isControlling: auth.isControlling,
+      isOperator: auth.isOperator,
+    };
+    if (organization && !organization.buyer && can(subject, 'kunden.sehen')) {
+      let next: NextMeeting | null = null;
+      for (const customer of await this.customers.customersOf(auth)) {
+        const row = await this.customers.nextMeeting(auth, customer);
+        if (row && (!next || row.startsAt.toISOString() < next.startsAt)) {
+          next = { ...toNext(row), counterpart: customer.name };
+        }
+      }
+      return next;
+    }
+    if (!organization?.buyer || !can(subject, 'termine.sehen')) return null;
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      async (tx) => {
+        const own = await tx
+          .select({ id: schema.relationshipMember.relationshipId })
+          .from(schema.relationshipMember)
+          .where(
+            and(
+              eq(schema.relationshipMember.orgId, organization.id),
+              eq(schema.relationshipMember.userId, auth.userId),
+            ),
+          );
+        const row = await nextMeetingOf(
+          tx,
+          own.map((entry) => entry.id),
+        );
+        if (!row) return null;
+        const [named] = await tx
+          .select({
+            name: sql<string>`coalesce(${schema.relationshipSide.displayName}, ${schema.organization.name})`,
+          })
+          .from(schema.relationship)
+          .innerJoin(
+            schema.organization,
+            eq(schema.organization.id, schema.relationship.supplierOrgId),
+          )
+          .leftJoin(
+            schema.relationshipSide,
+            and(
+              eq(schema.relationshipSide.relationshipId, schema.relationship.id),
+              eq(schema.relationshipSide.orgId, organization.id),
+            ),
+          )
+          .where(eq(schema.relationship.id, row.relationshipId));
+        return { ...toNext(row), counterpart: named?.name ?? '' };
+      },
+      { readOnly: true },
+    );
   }
 
   private async relationships(auth: AuthContext) {
@@ -119,6 +197,7 @@ export class StartService {
     return startSchema.parse({
       due: { items: due.slice(0, limit), total: due.length },
       relationships: await this.relationships(auth),
+      nextMeeting: await this.nextMeeting(auth),
     });
   }
 }

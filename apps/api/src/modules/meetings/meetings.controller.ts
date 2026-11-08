@@ -100,6 +100,17 @@ export class BuyerMeetingsController {
   ): Promise<MeetingDetail> {
     return this.meetings.buyer(auth, id, (scope) => this.meetings.saveNote(scope, meetingId, body));
   }
+
+  /** QBR-01b: Termin abschließen und den Stand einfrieren. */
+  @Post(':meetingId/abschliessen')
+  @Requires('termine.bearbeiten')
+  close(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('meetingId', ParseUUIDPipe) meetingId: string,
+  ): Promise<MeetingDetail> {
+    return this.meetings.buyer(auth, id, (scope) => this.meetings.close(scope, meetingId));
+  }
 }
 
 /** Termine beim Lieferanten im Kontext des Kunden (QBR-01a). */
@@ -186,5 +197,16 @@ export class SupplierMeetingsController {
     return this.meetings.supplier(auth, id, (scope) =>
       this.meetings.saveNote(scope, meetingId, body),
     );
+  }
+
+  /** QBR-01b: Termin abschließen und den Stand einfrieren. */
+  @Post(':meetingId/abschliessen')
+  @Requires('termine.bearbeiten')
+  close(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('meetingId', ParseUUIDPipe) meetingId: string,
+  ): Promise<MeetingDetail> {
+    return this.meetings.supplier(auth, id, (scope) => this.meetings.close(scope, meetingId));
   }
 }

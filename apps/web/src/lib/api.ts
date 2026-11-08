@@ -1232,6 +1232,16 @@ export const saveMeetingProtocol = (
     accessToken,
   );
 
+/** QBR-01b: Termin abschließen und den Stand einfrieren. */
+export const closeMeeting = (accessToken: string, base: MeetingBase, meetingId: string) =>
+  sendJson(
+    'POST',
+    `${base}/termine/${meetingId}/abschliessen`,
+    {},
+    meetingDetailSchema,
+    accessToken,
+  );
+
 export const saveMeetingNote = (
   accessToken: string,
   base: MeetingBase,

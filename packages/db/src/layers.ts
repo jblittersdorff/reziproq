@@ -132,6 +132,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // QBR-01b: eingefrorener Stand beim Abschließen, geteilt wie der Termin.
+  meeting_snapshot: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      content: JSON.stringify({ sections: [] }),
+    }),
+  },
   // PLB-03: Spielregeln je Beziehung, geteilt angelegt, intern bis SEG-10.
   rule_set: {
     kind: 'shared',
