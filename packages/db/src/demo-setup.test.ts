@@ -80,6 +80,11 @@ describe('demo:setup', () => {
       { created_by_name: 'OEM 1', status: 'closed' },
       { created_by_name: 'OEM 1', status: 'planned' },
     ]);
+    // Maßnahmen gehören danach den Konten (QBR-03).
+    const owners = await query<{ owner_name: string }>(
+      sql`select distinct owner_name from action where owner_user_id is not null`,
+    );
+    expect(owners).toEqual([{ owner_name: 'OEM 1' }]);
   });
 
   it('räumt Reste aus Testläufen weg und lässt die Beispieldaten stehen', async () => {

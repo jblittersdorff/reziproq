@@ -1,13 +1,17 @@
 import {
   type AcceptInvitationRequest,
+  type ActionStatus,
   type AddAssignment,
   type AssignmentRequest,
   acceptInvitationResponseSchema,
+  actionItemSchema,
+  actionListSchema,
   assignmentResponseSchema,
   auditResponseSchema,
   businessUnitsResponseSchema,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
+  type CreateAction,
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
@@ -40,6 +44,7 @@ import {
   meetingDetailSchema,
   meetingListSchema,
   meResponseSchema,
+  myActionsSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
   objectiveCategoryRequestSchema,
@@ -66,6 +71,7 @@ import {
   ruleSetProposalSchema,
   ruleSetResponseSchema,
   ruleSetSharePreviewSchema,
+  type SaveAction,
   type SaveAgenda,
   type SaveFormatItem,
   type SaveMeetingNote,
@@ -1229,6 +1235,43 @@ export const saveMeetingProtocol = (
     `${base}/termine/${meetingId}/protokoll`,
     request,
     meetingDetailSchema,
+    accessToken,
+  );
+
+/** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
+export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['actions', base],
+    queryFn: () => getJson(`${base}/massnahmen`, actionListSchema, accessToken),
+  });
+
+export const myActionsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['actions', 'mine'],
+    queryFn: () => getJson('/start/massnahmen', myActionsSchema, accessToken),
+  });
+
+export const createAction = (accessToken: string, base: MeetingBase, request: CreateAction) =>
+  sendJson('POST', `${base}/massnahmen`, request, actionItemSchema, accessToken);
+
+export const updateAction = (
+  accessToken: string,
+  base: MeetingBase,
+  actionId: string,
+  request: SaveAction,
+) => sendJson('PUT', `${base}/massnahmen/${actionId}`, request, actionItemSchema, accessToken);
+
+export const setActionStatus = (
+  accessToken: string,
+  base: MeetingBase,
+  actionId: string,
+  status: ActionStatus,
+) =>
+  sendJson(
+    'PUT',
+    `${base}/massnahmen/${actionId}/status`,
+    { status },
+    actionItemSchema,
     accessToken,
   );
 

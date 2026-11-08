@@ -33,6 +33,7 @@ import {
   updateMeeting,
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
+import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 
 // QBR-01a: Termine für beide Seiten. Der Käufer arbeitet unter /lieferanten/<id>/umsetzung/termine,
@@ -43,8 +44,14 @@ export interface MeetingPlace {
   relationshipId: string;
 }
 
-const apiBase = ({ side, relationshipId }: MeetingPlace): MeetingBase =>
+export const apiBase = ({ side, relationshipId }: MeetingPlace): MeetingBase =>
   side === 'buyer' ? `/suppliers/${relationshipId}` : `/kunden/${relationshipId}`;
+
+/** Maßnahmen derselben Beziehung (QBR-03), z. B. für „Maßnahme aus Termin“. */
+const actionsPath = ({ side, relationshipId }: MeetingPlace) =>
+  side === 'buyer'
+    ? `/lieferanten/${relationshipId}/umsetzung/massnahmen`
+    : `/kunden/${relationshipId}/umsetzung/massnahmen`;
 
 const webBase = ({ side, relationshipId }: MeetingPlace) =>
   side === 'buyer'
@@ -100,7 +107,7 @@ function toLocalInput(iso: string) {
  * Pfad und Rahmen je Seite: beim Käufer der Arbeitsbereich des Lieferanten (Bereich Umsetzung),
  * beim Lieferanten der Arbeitsbereich des Kunden.
  */
-function MeetingFrame({
+export function MeetingFrame({
   place,
   trail,
   current,
@@ -164,7 +171,7 @@ function CustomerFrame({
   );
 }
 
-function SideBadge({ place, side }: { place: MeetingPlace; side: MeetingSide }) {
+export function SideBadge({ place, side }: { place: MeetingPlace; side: MeetingSide }) {
   const text = useT().meetings;
   const labels = place.side === 'buyer' ? text.sidesBuyerView : text.sidesSupplierView;
   // Nur was von der anderen Seite kommt, ist gekennzeichnet; Eigenes bleibt ruhig.
@@ -485,7 +492,9 @@ export function MeetingPage({ place, meetingId }: { place: MeetingPlace; meeting
 }
 
 function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: string }) {
-  const text = useT().meetings;
+  const t = useT();
+  const text = t.meetings;
+  const format = useFormat();
   const dateTime = useDateTime();
   const query = useMeeting(place, meetingId);
   const [message, hideMessage] = useFlash();
@@ -579,9 +588,17 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
                     className="flex items-center gap-4 border-border border-b px-5 py-3 last:border-b-0"
                   >
                     <span className="flex-1">{item.title}</span>
-                    {item.status && (
-                      <span className="text-muted-foreground text-sm">{item.status}</span>
-                    )}
+                    <span className="text-muted-foreground text-sm">
+                      {[
+                        item.status &&
+                          (section.key === 'actions' && item.status in t.actions.statuses
+                            ? t.actions.statuses[item.status as keyof typeof t.actions.statuses]
+                            : item.status),
+                        item.dueDate && t.actions.due(format.date(item.dueDate)),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -589,6 +606,12 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           ))}
         </Section>
       )}
+      {canContribute &&
+        routerLink({
+          href: `${actionsPath(place)}/neu?termin=${meetingId}`,
+          className: `${buttonVariants({ variant: 'outline' })} self-start`,
+          children: t.actions.fromMeeting,
+        })}
       <Section
         id="termin-protokoll"
         title={text.protocol}

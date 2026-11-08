@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
+  action,
   meeting,
   meetingAgendaItem,
   meetingDecision,
@@ -25,6 +26,7 @@ export async function seedMeetings(
     supplierOrgId: string;
     pastId: string;
     nextId: string;
+    actionIds: [string, string, string];
     createdBy: string;
     createdByName: string;
     now: Date;
@@ -72,15 +74,70 @@ export async function seedMeetings(
     ]);
     // Abschließen wie die API: erst der Status, dann der eingefrorene Stand.
     await tx.update(meeting).set({ status: 'closed' }).where(eq(meeting.id, past.id));
-    await tx
-      .insert(meetingSnapshot)
-      .values({
-        ...base,
-        meetingId: past.id,
-        ownerOrgId: input.buyerOrgId,
-        content: { sections: [] },
-      });
+    await tx.insert(meetingSnapshot).values({
+      ...base,
+      meetingId: past.id,
+      ownerOrgId: input.buyerOrgId,
+      content: { sections: [] },
+    });
   }
+
+  // QBR-03: Maßnahmen aus dem abgeschlossenen Review, eine davon überfällig, dazu eine interne und
+  // eine des Lieferanten. Feste IDs halten den Seed wiederholbar.
+  const iso = (offset: number) =>
+    new Date(input.now.getTime() + offset * day).toISOString().slice(0, 10);
+  const actionBase = {
+    relationshipId: input.relationshipId,
+    createdBy: input.createdBy,
+    createdByName: input.createdByName,
+  };
+  await tx
+    .insert(action)
+    .values([
+      {
+        ...actionBase,
+        id: input.actionIds[0],
+        ownerOrgId: input.buyerOrgId,
+        visibility: 'shared',
+        title: 'Zweitquelle für Gehäuse prüfen',
+        ownerSide: 'buyer',
+        ownerUserId: input.createdBy,
+        ownerName: input.createdByName,
+        dueDate: iso(-3),
+        sourceType: 'meeting',
+        sourceId: input.pastId,
+      },
+      {
+        ...actionBase,
+        id: input.actionIds[1],
+        ownerOrgId: input.buyerOrgId,
+        visibility: 'internal',
+        title: 'Preisspielraum für 2027 klären',
+        ownerSide: 'buyer',
+        ownerUserId: input.createdBy,
+        ownerName: input.createdByName,
+        dueDate: iso(10),
+        sourceType: 'manual',
+        sourceId: null,
+      },
+      {
+        ...actionBase,
+        id: input.actionIds[2],
+        ownerOrgId: input.supplierOrgId,
+        visibility: 'shared',
+        title: 'Wöchentlicher Bericht zur Leiterplatten-Lage',
+        ownerSide: 'supplier',
+        ownerUserId: null,
+        ownerName: 'Key Account Manager',
+        dueDate: iso(14),
+        status: 'in_progress',
+        sourceType: 'meeting',
+        sourceId: input.pastId,
+        createdBy: 'demo-test-lieferant-1',
+        createdByName: 'Key Account Manager',
+      },
+    ])
+    .onConflictDoNothing();
 
   const [next] = await tx
     .insert(meeting)

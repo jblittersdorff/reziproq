@@ -1,5 +1,6 @@
 import { generateKeyPair } from 'jose';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { inBatches } from '../../testing/in-batches.js';
 import { discoverRoutes, type Route } from '../../testing/routes.js';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -62,10 +63,9 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
     const health = await call({ method: 'GET', path: '/api/health' });
     expect(health.status).toBe(200);
 
-    const results = await Promise.all(
-      protectedRoutes.map(
-        async (route) => `${route.method} ${route.path} → ${(await call(route)).status}`,
-      ),
+    const results = await inBatches(
+      protectedRoutes,
+      async (route) => `${route.method} ${route.path} → ${(await call(route)).status}`,
     );
     expect(results).toEqual(protectedRoutes.map((r) => `${r.method} ${r.path} → 401`));
   });

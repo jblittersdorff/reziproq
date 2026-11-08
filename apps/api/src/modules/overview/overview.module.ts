@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { ActionsMetricSource } from '../actions/action-sources.js';
 import { RatingsModule } from '../ratings/ratings.module.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { SpendMetricSource, TeamMetricSource } from '../suppliers/overview-metrics.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import { CYCLE_STEP_SOURCES, segmentCycleStepSource } from './cycle.js';
-import { OverviewController } from './overview.controller.js';
 import { CycleSettingsController } from './cycle-settings.controller.js';
+import { OverviewController } from './overview.controller.js';
 import { OverviewService } from './overview.service.js';
 import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
 
@@ -15,15 +16,17 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
   controllers: [OverviewController, CycleSettingsController],
   providers: [
     OverviewService,
+    ActionsMetricSource,
     { provide: CYCLE_STEP_SOURCES, useValue: [segmentCycleStepSource] },
     {
       provide: OVERVIEW_METRIC_SOURCES,
-      useFactory: (spend: SpendMetricSource, team: TeamMetricSource, ratings: RatingsService) => [
-        ratings,
-        spend,
-        team,
-      ],
-      inject: [SpendMetricSource, TeamMetricSource, RatingsService],
+      useFactory: (
+        spend: SpendMetricSource,
+        team: TeamMetricSource,
+        ratings: RatingsService,
+        actions: ActionsMetricSource,
+      ) => [ratings, spend, team, actions],
+      inject: [SpendMetricSource, TeamMetricSource, RatingsService, ActionsMetricSource],
     },
   ],
   exports: [OverviewService, CYCLE_STEP_SOURCES],

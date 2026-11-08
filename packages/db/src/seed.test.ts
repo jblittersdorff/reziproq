@@ -228,7 +228,7 @@ describe('db:seed', () => {
     expect(counts.rows[0]).toEqual({ organizations: 68, relationships: 70 });
   });
 
-  it('QBR-01: beim Test-Lieferanten ein abgeschlossenes Review mit eingefrorenem Stand und ein kommendes, auch beim zweiten Lauf', async () => {
+  it('QBR-01 und QBR-03: beim Test-Lieferanten ein abgeschlossenes und ein kommendes Review mit Maßnahmen, auch beim zweiten Lauf', async () => {
     await seed(temp.db, { nodeEnv: 'development' });
     const rows = await temp.db.execute<{
       title: string;
@@ -244,6 +244,14 @@ describe('db:seed', () => {
     expect(rows.rows).toEqual([
       { title: 'Quartalsreview Q3', status: 'closed', snapshots: 1, agenda: 3 },
       { title: 'Quartalsreview Q4', status: 'planned', snapshots: 0, agenda: 5 },
+    ]);
+    const actions = await temp.db.execute<{ visibility: string; source_type: string }>(
+      sql`select visibility, source_type from action order by title`,
+    );
+    expect(actions.rows).toEqual([
+      { visibility: 'internal', source_type: 'manual' },
+      { visibility: 'shared', source_type: 'meeting' },
+      { visibility: 'shared', source_type: 'meeting' },
     ]);
   });
 

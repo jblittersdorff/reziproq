@@ -148,6 +148,17 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'massnahmen.sehen': {
+    description:
+      'Maßnahmen einer Beziehung sehen, geteilte und die eigenen internen (beide Seiten)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'massnahmen.bearbeiten': {
+    description:
+      'Maßnahmen anlegen, eigene bearbeiten und den Status ändern (nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

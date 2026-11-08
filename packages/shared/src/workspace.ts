@@ -45,6 +45,13 @@ export const overviewMetricSchema = z.discriminatedUnion('kind', [
     kind: z.literal('team_size'),
     count: z.number().int(),
   }),
+  /** Offene und davon überfällige Maßnahmen (QBR-03) */
+  z.object({
+    tile: z.literal('execution'),
+    kind: z.literal('actions'),
+    open: z.number().int(),
+    overdue: z.number().int(),
+  }),
 ]);
 
 export type OverviewMetric = z.infer<typeof overviewMetricSchema>;

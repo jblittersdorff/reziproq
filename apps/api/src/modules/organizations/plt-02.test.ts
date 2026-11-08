@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { schema, sql } from '@reziproq/db';
 import { organizationResponseSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { inBatches } from '../../testing/in-batches.js';
 import { callRoute, discoverRoutes } from '../../testing/routes.js';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -87,13 +88,11 @@ describe('PLT-02 über die API', () => {
     );
     expect(routes.length).toBeGreaterThan(2);
 
-    const results = await Promise.all(
-      routes.map(async (route) => {
-        const res = await callRoute(baseUrl, route, token);
-        const body = (await res.json()) as { code?: string };
-        return `${route.method} ${route.path} → ${res.status} ${body.code ?? ''}`;
-      }),
-    );
+    const results = await inBatches(routes, async (route) => {
+      const res = await callRoute(baseUrl, route, token);
+      const body = (await res.json()) as { code?: string };
+      return `${route.method} ${route.path} → ${res.status} ${body.code ?? ''}`;
+    });
     expect(results).toEqual(
       routes.map((route) => `${route.method} ${route.path} → 403 keine_organisation`),
     );

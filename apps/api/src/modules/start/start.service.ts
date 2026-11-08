@@ -9,6 +9,7 @@ import {
   startSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
+import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
@@ -43,6 +44,7 @@ export class StartService {
     @Inject(OverviewService) private readonly overviews: OverviewService,
     @Inject(PlanContributionsService) private readonly contributions: PlanContributionsService,
     @Inject(CustomersService) private readonly customers: CustomersService,
+    @Inject(ActionsService) private readonly actions: ActionsService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -61,7 +63,9 @@ export class StartService {
         ? await this.overviews.overdueItems(auth)
         : [];
     const contributions = await this.contributions.dueItems(auth);
-    const items = [...ratings, ...cycles, ...contributions];
+    // QBR-03: offene Maßnahmen, für die die Person verantwortlich ist (beide Seiten).
+    const actions = await this.actions.dueItems(auth);
+    const items = [...ratings, ...cycles, ...contributions, ...actions];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),
     );

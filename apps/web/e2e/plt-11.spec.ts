@@ -19,7 +19,7 @@ const greeting = /^Guten (Morgen|Tag|Abend), Anna$/;
 
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  { path: '/start', title: greeting, empty: 'Nichts fällig.' },
+  { path: '/start', title: greeting, empty: 'Heute ist nichts fällig' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Portfolio' },
   { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },

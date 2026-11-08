@@ -81,6 +81,20 @@ export const meetingAudit = auditedObject({
   fields: ['title', 'starts_at', 'status'],
 });
 
+/** Geteilte Maßnahmen (QBR-03): beide Seiten sehen den Verlauf. */
+export const actionAudit = auditedObject({
+  type: 'action',
+  visibility: 'shared',
+  fields: ['title', 'owner_name', 'due_date', 'status'],
+});
+
+/** Interne Maßnahmen (QBR-03): Verlauf nur für die eigene Seite. */
+export const actionInternalAudit = auditedObject({
+  type: 'action_internal',
+  visibility: 'internal',
+  fields: ['title', 'owner_name', 'due_date', 'status'],
+});
+
 /** Kataloge für Spielregeln und Formate (PLB-01): intern beim Käufer. */
 export const ruleCatalogAudit = auditedObject({
   type: 'rule_catalog_item',
@@ -148,6 +162,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   ruleSetAudit,
   relationshipTargetAudit,
   meetingAudit,
+  actionAudit,
+  actionInternalAudit,
   ruleCatalogAudit,
   formatCatalogAudit,
   relationshipAssignmentAudit,

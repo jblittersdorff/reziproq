@@ -38,3 +38,5 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `spielregeln.festlegen` | Spielregeln einer Beziehung vorschlagen lassen, bearbeiten und intern freigeben (Admin oder SRO) | ja | ja | nein | nein |
 | `termine.sehen` | Termine einer Beziehung sehen, auf beiden Seiten (geteilte und eigene) | ja | ja | ja | ja |
 | `termine.bearbeiten` | Termine anlegen, Agenda, Protokoll, Beschlüsse und interne Notizen pflegen (nicht mit Teamrolle Leser) | ja | ja | nein | nein |
+| `massnahmen.sehen` | Maßnahmen einer Beziehung sehen, geteilte und die eigenen internen (beide Seiten) | ja | ja | ja | ja |
+| `massnahmen.bearbeiten` | Maßnahmen anlegen, eigene bearbeiten und den Status ändern (nicht mit Teamrolle Leser) | ja | ja | nein | nein |

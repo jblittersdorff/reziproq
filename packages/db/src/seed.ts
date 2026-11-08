@@ -632,6 +632,7 @@ export async function seed(
       supplierOrgId: seedSupplierOrg.id,
       pastId: id(901),
       nextId: id(902),
+      actionIds: [id(911), id(912), id(913)],
       createdBy: 'demo-test-oem-1',
       createdByName: 'Lena Berger',
       now,

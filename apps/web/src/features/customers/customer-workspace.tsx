@@ -1,7 +1,14 @@
 import { type CustomerArea, type CustomerWorkspace, customerAreas } from '@reziproq/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
-import { CalendarDaysIcon, EyeOffIcon, InboxIcon, ScaleIcon, SearchXIcon } from 'lucide-react';
+import {
+  CalendarDaysIcon,
+  EyeOffIcon,
+  InboxIcon,
+  ListChecksIcon,
+  ScaleIcon,
+  SearchXIcon,
+} from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -121,7 +128,8 @@ function CustomerPath({ workspace, area }: { workspace: CustomerWorkspace; area?
  * für Geteiltes.
  */
 export function CustomerOverviewPage({ relationshipId }: { relationshipId: string }) {
-  const text = useT().customers;
+  const t = useT();
+  const text = t.customers;
   const format = useFormat();
   const query = useCustomerWorkspace(relationshipId);
   useDocumentTitle(query.data ? `${query.data.name} · ${text.overview}` : text.overview);
@@ -189,6 +197,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: text.meetingsTitle,
               status: text.meetingsHint,
             },
+            {
+              key: 'actions',
+              href: `${customerPath(relationshipId, 'execution')}/massnahmen`,
+              title: t.actions.title,
+              status: t.actions.purpose,
+            },
           ]}
         />
       </section>
@@ -204,7 +218,8 @@ export function CustomerAreaPage({
   relationshipId: string;
   area: CustomerArea;
 }) {
-  const text = useT().customers;
+  const t = useT();
+  const text = t.customers;
   const query = useCustomerWorkspace(relationshipId);
   if (!query.data) return null;
   const workspace = query.data;
@@ -222,6 +237,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{text.meetingsTitle}</TileTitle>
               <TileText>{text.meetingsHint}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/umsetzung/massnahmen" params={{ id: relationshipId }}>
+              <TileIcon>
+                <ListChecksIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.actions.title}</TileTitle>
+              <TileText>{t.actions.purpose}</TileText>
             </Link>
           </Tile>
         </div>
