@@ -74,6 +74,13 @@ export const relationshipTargetAudit = auditedObject({
   fields: ['type_name', 'rule_set_version'],
 });
 
+/** Termine (QBR-01): geteilt, beide Seiten sehen den Verlauf. */
+export const meetingAudit = auditedObject({
+  type: 'meeting',
+  visibility: 'shared',
+  fields: ['title', 'starts_at', 'status'],
+});
+
 /** Kataloge für Spielregeln und Formate (PLB-01): intern beim Käufer. */
 export const ruleCatalogAudit = auditedObject({
   type: 'rule_catalog_item',
@@ -140,6 +147,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   supplierInvitationAudit,
   ruleSetAudit,
   relationshipTargetAudit,
+  meetingAudit,
   ruleCatalogAudit,
   formatCatalogAudit,
   relationshipAssignmentAudit,

@@ -90,6 +90,48 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // QBR-01a: Termine sind geteilt; jede Seite ändert nur ihre Zeilen. Notizen gehören einer Seite.
+  meeting: {
+    kind: 'shared',
+    testValues: {
+      type: 'other',
+      title: 'Probe',
+      starts_at: new Date('2099-01-01T09:00:00Z'),
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    },
+  },
+  meeting_participant: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      name: 'Probe',
+      position: 1,
+    }),
+  },
+  meeting_agenda_item: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      title: 'Probe',
+      position: 1,
+    }),
+  },
+  meeting_decision: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      text: 'Probe',
+      position: 1,
+    }),
+  },
+  meeting_note: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      text: 'Probe',
+    }),
+  },
   // PLB-03: Spielregeln je Beziehung, geteilt angelegt, intern bis SEG-10.
   rule_set: {
     kind: 'shared',

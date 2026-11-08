@@ -1,7 +1,7 @@
 import { type CustomerArea, type CustomerWorkspace, customerAreas } from '@reziproq/shared';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
-import { EyeOffIcon, InboxIcon, ScaleIcon, SearchXIcon } from 'lucide-react';
+import { CalendarDaysIcon, EyeOffIcon, InboxIcon, ScaleIcon, SearchXIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -19,7 +19,7 @@ import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { customerAreaOf, customerPath } from './customer-areas';
 
-function useCustomerWorkspace(relationshipId: string) {
+export function useCustomerWorkspace(relationshipId: string) {
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   return useQuery({
@@ -158,6 +158,25 @@ export function CustomerAreaPage({
   if (!query.data) return null;
   const workspace = query.data;
   const own = area === 'own';
+  if (area === 'execution') {
+    return (
+      <>
+        <CustomerPath workspace={workspace} area={area} />
+        <PageHeader title={text.areas[area]} purpose={text.areaPurpose[area]} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Tile asChild interactive className="flex flex-col items-center gap-3">
+            <Link to="/kunden/$id/umsetzung/termine" params={{ id: relationshipId }}>
+              <TileIcon>
+                <CalendarDaysIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{text.meetingsTitle}</TileTitle>
+              <TileText>{text.meetingsHint}</TileText>
+            </Link>
+          </Tile>
+        </div>
+      </>
+    );
+  }
   if (area === 'relationship') {
     return (
       <>

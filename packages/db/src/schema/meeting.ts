@@ -1,0 +1,111 @@
+import { sql } from 'drizzle-orm';
+import { check, index, integer, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { organization } from './organization.js';
+import { relationship } from './relationship.js';
+import { ruleSetItem } from './rule-set.js';
+
+// QBR-01: Termine einer Beziehung. Alles außer den Notizen ist shared mit visibility shared; jede
+// Seite ändert nur Zeilen, deren owner_org_id sie ist (PLT-04). Personen stehen als Name ohne
+// Fremdschlüssel auf app_user, denn app_user ist für die andere Seite privat.
+
+const sharedColumns = () => ({
+  relationshipId: uuid()
+    .notNull()
+    .references(() => relationship.id),
+  ownerOrgId: uuid()
+    .notNull()
+    .references(() => organization.id),
+  visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+});
+
+export const meeting = pgTable(
+  'meeting',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    ...sharedColumns(),
+    type: text({ enum: ['quarterly_review', 'strategy_dialogue', 'jbp', 'format', 'other'] }).notNull(),
+    // Format aus den Spielregeln (PLB-03); geteilte Tabelle auf geteilte Tabelle.
+    ruleSetItemId: uuid().references(() => ruleSetItem.id, { onDelete: 'set null' }),
+    title: text().notNull(),
+    startsAt: timestamp({ withTimezone: true }).notNull(),
+    location: text(),
+    status: text({ enum: ['planned', 'held', 'closed'] }).notNull().default('planned'),
+    protocol: text(),
+    createdBy: text().notNull(),
+    createdByName: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'meeting_type',
+      sql`${table.type} in ('quarterly_review', 'strategy_dialogue', 'jbp', 'format', 'other')`,
+    ),
+    check('meeting_status', sql`${table.status} in ('planned', 'held', 'closed')`),
+    check('meeting_title', sql`length(trim(${table.title})) between 1 and 200`),
+    index('meeting_relationship').on(table.relationshipId, table.startsAt),
+  ],
+);
+
+export const meetingParticipant = pgTable(
+  'meeting_participant',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    ...sharedColumns(),
+    name: text().notNull(),
+    position: integer().notNull(),
+  },
+  (table) => [index('meeting_participant_meeting').on(table.meetingId)],
+);
+
+export const meetingAgendaItem = pgTable(
+  'meeting_agenda_item',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    ...sharedColumns(),
+    title: text().notNull(),
+    position: integer().notNull(),
+    linkedObjectType: text(),
+    linkedObjectId: uuid(),
+  },
+  (table) => [index('meeting_agenda_item_meeting').on(table.meetingId)],
+);
+
+export const meetingDecision = pgTable(
+  'meeting_decision',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    ...sharedColumns(),
+    text: text().notNull(),
+    position: integer().notNull(),
+  },
+  (table) => [index('meeting_decision_meeting').on(table.meetingId)],
+);
+
+/** Interne Notiz einer Seite zum Termin (org_private); eine je Organisation und Termin. */
+export const meetingNote = pgTable(
+  'meeting_note',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    text: text().notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique('meeting_note_per_org').on(table.meetingId, table.orgId)],
+);

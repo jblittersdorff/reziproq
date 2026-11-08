@@ -9,6 +9,7 @@ export * from './import-demo.js';
 export * from './invitations.js';
 export * from './master-data.js';
 export * from './me.js';
+export * from './meetings.js';
 export * from './money.js';
 export * from './organization.js';
 export * from './permissions.js';

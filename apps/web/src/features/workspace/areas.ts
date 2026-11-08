@@ -34,7 +34,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
     { key: 'scorecard', coming: 'later' },
   ],
   execution: [
-    { key: 'meetings', coming: 'core' },
+    { key: 'meetings', segment: 'termine' },
     { key: 'actions', coming: 'core' },
   ],
   impact: [
