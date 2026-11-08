@@ -10,6 +10,7 @@ export {
 } from './audit.js';
 export { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
 export { createDatabase, type Database } from './client.js';
+export { ensureTestDatabase, testDatabaseUrl } from './test-database.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {
   checkLayers,
