@@ -1,4 +1,4 @@
-export { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
+export { and, asc, desc, eq, gte, inArray, or, sql } from 'drizzle-orm';
 export {
   type AuditActor,
   type AuditedChangeResult,
@@ -6,9 +6,10 @@ export {
   auditedChange,
   auditedObject,
   diffFields,
+  type OutboxEmailPayload,
 } from './audit.js';
 export { createDatabase, type Database } from './client.js';
-export { apiDatabaseUrl, databaseUrl } from './env.js';
+export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {
   checkLayers,
   type LayerEntry,

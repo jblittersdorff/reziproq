@@ -6,13 +6,12 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Tile, TileText, TileTitle } from '@/components/ui/tile';
 import { useMe } from '@/features/auth/use-me';
-import { PagePath } from '@/features/shell/page-path';
 import { PageHeader } from '@/features/shell/page-header';
+import { PagePath } from '@/features/shell/page-path';
 import { ApiError, customersQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { useSupportSwitch } from './use-support-switch';
-
 
 /**
  * In einen Kunden wechseln (UMB-01) als eigene Seite statt Fenster: die Kunden als Kacheln, ein
@@ -68,9 +67,7 @@ export function CustomersPage() {
                     onClick={() => enter({ id: customer.id, name: customer.name })}
                   >
                     <TileTitle>{customer.name}</TileTitle>
-                    <TileText>
-                      {format.country(customer.country)}
-                    </TileText>
+                    <TileText>{format.country(customer.country)}</TileText>
                   </button>
                 </Tile>
               </li>

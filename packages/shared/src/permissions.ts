@@ -25,6 +25,7 @@ export type TeamRole = (typeof teamRoles)[number];
 /** Alles, was nicht jede Rolle darf. Jede Spec ergänzt ihre Aktionen hier und in der Matrix. */
 export const actions = [
   'organisation.sehen',
+  'start.sehen',
   'rollen.aendern',
   'einstellungen.verwalten',
   'lieferanten.sehen',
@@ -35,6 +36,18 @@ export const actions = [
   'kunden.wechseln',
   'stammdaten.verwalten',
   'zuordnung.bearbeiten',
+  'segmentmodell.sehen',
+  'segmentmodell.verwalten',
+  'runden.sehen',
+  'runden.verwalten',
+  'runden.nachnominieren',
+  'bewertungen.sehen',
+  'bewertungen.abgeben',
+  'segmentierung.konsolidieren',
+  'portfolio.sehen',
+  'fokus.setzen',
+  'zyklus.starten',
+  'lieferantenplan.bearbeiten',
 ] as const;
 export type Action = (typeof actions)[number];
 

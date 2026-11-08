@@ -35,11 +35,11 @@ Als SRO bitte ich die Verantwortlichen der Business Units und Warengruppen, ihre
 
 Je Kriterium ein Test.
 
-- [ ] Eine Anfrage für alle BUs und Warengruppen eines Lieferanten lässt sich in einem Schritt stellen.
-- [ ] Jede angefragte Person bekommt genau eine Mail und sieht die Anfrage auf Start.
-- [ ] Ziele aus einem Beitrag erscheinen sofort im Plan mit dem richtigen Bezug.
-- [ ] Der Fortschritt stimmt mit den Beiträgen überein.
-- [ ] Eine angefragte Person kann nur Ziele ihres Bezugs anlegen.
+- [x] Eine Anfrage für alle BUs und Warengruppen eines Lieferanten lässt sich in einem Schritt stellen (`apps/api/src/modules/supplier-plans/plan-contributions.test.ts`, `apps/web/e2e/spl-03.spec.ts`).
+- [x] Jede angefragte Person bekommt genau eine Mail und sieht die Anfrage auf Start (`apps/api/src/modules/supplier-plans/plan-contributions.test.ts`).
+- [x] Ziele aus einem Beitrag erscheinen sofort im Plan mit dem richtigen Bezug (`apps/api/src/modules/supplier-plans/plan-contributions.test.ts`).
+- [x] Der Fortschritt stimmt mit den Beiträgen überein (`apps/api/src/modules/supplier-plans/plan-contributions.test.ts`, `apps/web/e2e/spl-03.spec.ts`).
+- [x] Eine angefragte Person kann nur Ziele ihres Bezugs anlegen; Bezug und Verantwortliche kommen aus dem Beitrag (`apps/api/src/modules/supplier-plans/plan-contributions.test.ts`).
 
 ## Nicht Teil dieser Funktion
 

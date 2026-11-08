@@ -8,6 +8,7 @@ import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { overviewComing, workspacePath } from './areas';
+import { CycleBar } from './cycle-bar';
 import { useOverview } from './use-overview';
 import { WorkspaceHead } from './workspace-head';
 import { TileGrid, WorkspaceTile } from './workspace-tile';
@@ -37,9 +38,17 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
       ) : !overview.data ? (
         <LoadingState label={t.workspace.loading} />
       ) : (
-        <WorkspaceHead head={overview.data.head} size="lg" />
+        <>
+          <WorkspaceHead head={overview.data.head} size="lg" />
+          {overview.data.cycle && (
+            <CycleBar
+              cycle={overview.data.cycle}
+              relationshipId={relationshipId}
+              canSetJbpDate={overview.data.canSetJbpDate}
+            />
+          )}
+        </>
       )}
-      {/* Hier steht ab ZYK-01 die Zyklus-Leiste. */}
       <TileGrid label={t.workspace.overview}>
         {overviewTiles.map((tile) => (
           <WorkspaceTile
@@ -67,6 +76,13 @@ function Metric({ metric }: { metric: OverviewMetric | undefined }) {
         <TileMetric
           value={formatMoney(metric.amount, locale, { compact: true })}
           label={t.workspace.metrics.spend(metric.year)}
+        />
+      );
+    case 'segment_target':
+      return (
+        <TileMetric
+          value={metric.typeName}
+          label={t.workspace.metrics.target(metric.provisional)}
         />
       );
     case 'team_size':

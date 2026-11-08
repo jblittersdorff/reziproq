@@ -38,12 +38,12 @@ Als SRO lege ich die Unternehmenssicht auf einen Lieferanten fest: Ist und Soll,
 
 Je Kriterium ein Test.
 
-- [ ] Ohne Begründung lässt sich nicht festlegen.
-- [ ] Eine neue Konsolidierung erzeugt eine neue Version. Die alte bleibt unverändert lesbar.
-- [ ] Nach dem Festlegen zeigt der Kopf Ist → Soll gesamt.
-- [ ] Nach dem Festlegen sehen alle Käufer-Nutzer mit Zugriff alle Bewertungen.
-- [ ] Nur SRO und Admin konsolidieren. Alle anderen bekommen 403.
-- [ ] Der Zweit-OEM und der Test-Lieferant sehen nichts davon (PLT-04).
+- [x] Ohne Begründung lässt sich nicht festlegen.
+- [x] Eine neue Konsolidierung erzeugt eine neue Version. Die alte bleibt unverändert lesbar.
+- [x] Nach dem Festlegen zeigt der Kopf Ist → Soll gesamt.
+- [x] Nach dem Festlegen sehen alle Käufer-Nutzer mit Zugriff alle Bewertungen.
+- [x] Nur SRO und Admin konsolidieren. Alle anderen bekommen 403.
+- [x] Der Zweit-OEM und der Test-Lieferant sehen nichts davon (PLT-04).
 
 ## Nicht Teil dieser Funktion
 

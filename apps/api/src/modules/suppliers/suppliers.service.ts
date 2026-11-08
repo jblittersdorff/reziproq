@@ -48,7 +48,7 @@ export class SuppliersService {
    * Lieferanten der eigenen Organisation mit Anzahl und Gesamtspend des letzten vollen Jahres
    * (PLT-03). Beendete Beziehungen kommen mit, zählen aber nicht mit.
    */
-  async list(auth: AuthContext): Promise<SuppliersResponse> {
+  async list(auth: AuthContext, spendYear = lastFullYear()): Promise<SuppliersResponse> {
     if (!can(auth, 'lieferanten.sehen')) {
       throw forbidden('keine_berechtigung', 'Dir fehlt eine Rolle, um Lieferanten zu sehen.');
     }
@@ -61,14 +61,17 @@ export class SuppliersService {
       throw forbidden('keine_berechtigung', 'Die Lieferantenliste gibt es nur für Käufer.');
     }
 
-    const spendYear = lastFullYear();
-    const suppliers = await this.tenant.run(
+    const { suppliers, filters } = await this.tenant.run(
       { userId: auth.userId, organizationId: organization.id },
-      (tx) => listSuppliers(tx, spendYear),
+      async (tx) => ({
+        suppliers: await listSuppliers(tx, spendYear, auth.userId),
+        filters: await readFilters(tx),
+      }),
     );
     const current = suppliers.filter((supplier) => supplier.status !== 'ended');
     return {
       suppliers,
+      filters,
       count: current.length,
       spendYear,
       totalSpend: totalByCurrency(current),
@@ -76,11 +79,13 @@ export class SuppliersService {
   }
 
   /**
-   * Suche für das Prompt-Fenster (PLT-12). Läuft über list(), also mit denselben Rechten und
+   * Suche für die Fragen-Seite (PLT-12). Läuft über list(), also mit denselben Rechten und
    * derselben Mandanten-Session wie GET /api/suppliers, und liefert höchstens 20 Treffer.
    */
   async search(auth: AuthContext, filter: SupplierFilter): Promise<Supplier[]> {
-    const suppliers = (await this.list(auth)).suppliers.filter((s) => s.status !== 'ended');
+    const suppliers = (await this.list(auth, filter.year)).suppliers.filter(
+      (s) => s.status !== 'ended',
+    );
     const contains = (value: string, part: string | undefined) =>
       !part || value.toLocaleLowerCase('de').includes(part.trim().toLocaleLowerCase('de'));
     // Spend-Filter gelten in Euro. Beträge in anderen Währungen werden nicht umgerechnet und
@@ -90,9 +95,13 @@ export class SuppliersService {
 
     const hits = suppliers.filter(
       (supplier) =>
-        contains(supplier.name, filter.name) &&
+        (filter.exactName
+          ? supplier.name.toLocaleLowerCase('de') === filter.name?.trim().toLocaleLowerCase('de')
+          : contains(supplier.name, filter.name)) &&
         contains(supplier.externalRef ?? '', filter.nummer) &&
         (!filter.land || supplier.country === filter.land.toUpperCase()) &&
+        contains((supplier.businessUnits ?? []).join(' '), filter.businessUnit) &&
+        contains(supplier.materialGroups.join(' '), filter.materialGroup) &&
         (!spendFilter || supplier.spend?.currency === 'EUR') &&
         (filter.minSpendEuro === undefined || euro(supplier) >= filter.minSpendEuro) &&
         (filter.maxSpendEuro === undefined || euro(supplier) <= filter.maxSpendEuro),
@@ -458,6 +467,7 @@ async function readDetail(
       duns: organization.duns,
       externalRef: relationshipSide.externalRef,
       notes: relationshipSide.notes,
+      isFocus: sql<boolean>`coalesce(${relationshipSide.isFocus}, false)`,
       status: relationship.status,
       createdAt: relationship.createdAt,
       endedAt: relationship.endedAt,
@@ -504,6 +514,10 @@ export interface SupplierFilter {
   land?: string | undefined;
   minSpendEuro?: number | undefined;
   maxSpendEuro?: number | undefined;
+  businessUnit?: string | undefined;
+  materialGroup?: string | undefined;
+  year?: number | undefined;
+  exactName?: boolean | undefined;
   sortierung?: 'spend_absteigend' | 'spend_aufsteigend' | 'name' | undefined;
   anzahl?: number | undefined;
 }
@@ -513,7 +527,11 @@ export interface SupplierFilter {
  * relationship_side und relationship_spend liefern nur die eigenen Zeilen (PLT-04). Ohne gesetzte
  * Organisation liefert die Abfrage nichts. Auch PLT-12 nutzt diese Funktion.
  */
-export async function listSuppliers(tx: TenantTransaction, spendYear: number): Promise<Supplier[]> {
+export async function listSuppliers(
+  tx: TenantTransaction,
+  spendYear: number,
+  userId?: string,
+): Promise<Supplier[]> {
   const { organization, relationship, relationshipSide, relationshipSpend } = schema;
   const rows = await tx
     .select({
@@ -521,15 +539,45 @@ export async function listSuppliers(tx: TenantTransaction, spendYear: number): P
       name: sql<string>`coalesce(${relationshipSide.displayName}, ${organization.name})`,
       country: organization.country,
       externalRef: relationshipSide.externalRef,
+      isFocus: sql<boolean>`coalesce(${relationshipSide.isFocus}, false)`,
       status: relationship.status,
       amountCents: relationshipSpend.amountCents,
       currency: relationshipSpend.currency,
+      businessUnits: sql<string[]>`coalesce((
+        select array_agg(b.name order by b.name)
+        from relationship_business_unit rb
+        join business_unit b on b.id = rb.business_unit_id
+        where rb.relationship_id = ${relationship.id}
+      ), '{}')`,
       // Warengruppen der Zuordnung (PLT-06), die Haupt-Warengruppe zuerst.
       materialGroups: sql<string[]>`coalesce((
         select array_agg(g.name order by rg.is_primary desc, g.name)
         from relationship_material_group rg join material_group g on g.id = rg.material_group_id
         where rg.relationship_id = ${relationship.id}
       ), '{}')`,
+      businessUnitIds: sql<string[]>`coalesce((
+        select array_agg(rb.business_unit_id::text)
+        from relationship_business_unit rb where rb.relationship_id = ${relationship.id}
+      ), '{}')`,
+      materialGroupIds: sql<string[]>`coalesce((
+        select array_agg(rg.material_group_id::text)
+        from relationship_material_group rg where rg.relationship_id = ${relationship.id}
+      ), '{}')`,
+      targetType: sql<string | null>`(
+        select sd.soll_impact_level || '-' || sd.soll_quality_level
+        from segment_decision sd
+        where sd.relationship_id = ${relationship.id} and sd.scope = 'total'
+        order by sd.version desc limit 1
+      )`,
+      isMine: sql<boolean>`${
+        userId
+          ? sql`exists (
+        select 1 from relationship_member rm
+        where rm.relationship_id = ${relationship.id}
+          and rm.org_id = ${relationship.buyerOrgId} and rm.user_id = ${userId}
+      )`
+          : sql`false`
+      }`,
       hasPrimary: sql<boolean>`exists (
         select 1 from relationship_material_group rg
         where rg.relationship_id = ${relationship.id} and rg.is_primary
@@ -558,6 +606,41 @@ export async function listSuppliers(tx: TenantTransaction, spendYear: number): P
     spend: amountCents !== null && currency !== null ? { amountCents, currency } : null,
     primaryMaterialGroup: hasPrimary ? (supplier.materialGroups[0] ?? null) : null,
   }));
+}
+
+/** Auswahl für die Filter: aktive Business Units und Warengruppen, Soll-Typen des aktiven Modells. */
+async function readFilters(
+  tx: TenantTransaction,
+): Promise<NonNullable<SuppliersResponse['filters']>> {
+  const units = await tx
+    .select({ id: schema.businessUnit.id, name: schema.businessUnit.name })
+    .from(schema.businessUnit)
+    .where(eq(schema.businessUnit.active, true))
+    .orderBy(schema.businessUnit.name);
+  const groups = await tx
+    .select({
+      id: schema.materialGroup.id,
+      name: schema.materialGroup.name,
+      parentId: schema.materialGroup.parentId,
+    })
+    .from(schema.materialGroup)
+    .where(eq(schema.materialGroup.active, true))
+    .orderBy(schema.materialGroup.name);
+  const types = await tx
+    .select({
+      impact: schema.segmentType.impactLevel,
+      quality: schema.segmentType.qualityLevel,
+      name: schema.segmentType.name,
+    })
+    .from(schema.segmentType)
+    .innerJoin(schema.segmentModel, eq(schema.segmentModel.id, schema.segmentType.modelId))
+    .where(eq(schema.segmentModel.status, 'active'))
+    .orderBy(desc(schema.segmentType.impactLevel), desc(schema.segmentType.qualityLevel));
+  return {
+    businessUnits: units,
+    materialGroups: groups,
+    targetTypes: types.map((type) => ({ key: `${type.impact}-${type.quality}`, name: type.name })),
+  };
 }
 
 function totalByCurrency(suppliers: Supplier[]): Money[] {

@@ -35,8 +35,11 @@ async function signIn(page: Page) {
     const question = route.request().postDataJSON().messages.at(-1).content as string;
     const events = question.includes('Portfolio')
       ? [
-          { type: 'text', delta: 'Ich öffne Portfolio.' },
-          { type: 'navigate', to: '/portfolio' },
+          { type: 'text', delta: 'Hier ist der Link zu Portfolio.' },
+          {
+            type: 'navigate',
+            destination: { type: 'area', path: '/portfolio' },
+          },
           { type: 'done' },
         ]
       : [
@@ -85,12 +88,15 @@ for (const shortcut of ['Meta+k', 'Control+k']) {
   });
 }
 
-test('Das Feld auf Start führt zur selben Seite', async ({ page }) => {
+test('Das Feld auf Start stellt eine Frage auf /fragen', async ({ page }) => {
   await signIn(page);
   await page.goto('/start');
-  await page.getByRole('link', { name: /Frag Reziproq …/ }).click();
-  await expect(page).toHaveURL('http://localhost:5174/fragen');
-  await expect(field(page)).toBeFocused();
+  await page.getByRole('textbox', { name: 'Deine Frage an Reziproq' }).fill('Öffne das Portfolio');
+  await page.getByRole('button', { name: 'Fragen' }).click();
+  await expect(page).toHaveURL(/http:\/\/localhost:5174\/fragen\?q=/);
+  await expect(questions(page).getByText('Hier ist der Link zu Portfolio.')).toBeVisible();
+  await page.getByRole('link', { name: 'Bereich öffnen' }).click();
+  await expect(page).toHaveURL('http://localhost:5174/portfolio');
 });
 
 test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen', async ({
@@ -112,6 +118,8 @@ test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen',
 
   await field(page).fill('Öffne das Portfolio');
   await page.keyboard.press('Enter');
+  await expect(questions(page).getByRole('link', { name: 'Bereich öffnen' })).toBeVisible();
+  await questions(page).getByRole('link', { name: 'Bereich öffnen' }).click();
   await expect(page).toHaveURL('http://localhost:5174/portfolio');
 });
 

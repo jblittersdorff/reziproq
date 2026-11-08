@@ -1,6 +1,6 @@
 /**
  * Die Ziele der globalen Leiste in fester Reihenfolge (PLT-11). Die Oberfläche baut daraus Leiste
- * und Menüseite; das Prompt-Werkzeug (PLT-12) springt nur zu diesen Zielen.
+ * und Menüseite; das Prompt-Werkzeug (PLT-12) verlinkt nur auf freigegebene Ziele.
  */
 export const areas = [
   { key: 'start', path: '/start', name: 'Start' },

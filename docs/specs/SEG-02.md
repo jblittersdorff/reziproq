@@ -41,11 +41,11 @@ Als Leitung des Lieferantenmanagements lege ich bewusst fest, welche Lieferanten
 
 Je Kriterium ein Test.
 
-- [ ] Ohne Begründung lässt sich der Fokus nicht setzen und nicht entfernen.
-- [ ] Der Vorschlag nennt mit Testdaten die richtigen Lieferanten und den richtigen Grund.
-- [ ] Kein Lieferant wird ohne Klick eines Admins Fokuslieferant.
-- [ ] Der Test-Lieferant sieht das Feld nie (PLT-04).
-- [ ] Die Änderung steht im internen Verlauf.
+- [x] Ohne Begründung lässt sich der Fokus nicht setzen und nicht entfernen.
+- [x] Der Vorschlag nennt mit Testdaten die richtigen Lieferanten und den richtigen Grund.
+- [x] Kein Lieferant wird ohne Klick eines Admins Fokuslieferant.
+- [x] Der Test-Lieferant sieht das Feld nie (PLT-04).
+- [x] Die Änderung steht im internen Verlauf.
 
 ## Nicht Teil dieser Funktion
 

@@ -19,9 +19,9 @@ const greeting = /^Guten (Morgen|Tag|Abend), Anna$/;
 
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  { path: '/start', title: greeting, empty: 'Hier steht bald' },
+  { path: '/start', title: greeting, empty: 'Nichts fällig.' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
-  { path: '/portfolio', title: 'Portfolio', empty: 'Noch kein Portfolio' },
+  { path: '/portfolio', title: 'Portfolio' },
   { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
   { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
   { path: '/profil', title: 'Profil' },
@@ -74,6 +74,11 @@ async function signIn(page: Page, { admin = false } = {}) {
         country: 'DE',
         members: [{ name: 'Anna Schmidt', email: 'anna.schmidt@beispiel-einkauf.de' }],
       },
+    }),
+  );
+  await page.route('**/api/start', (route) =>
+    route.fulfill({
+      json: { due: { items: [], total: 0 }, relationships: { items: [], total: 0 } },
     }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
@@ -311,7 +316,7 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     'Zum Inhalt springen',
     'Reziproq',
     ...barTargets.map((target) => target.name),
-    'Frag Reziproq',
+    'Deine Frage an Reziproq',
   ];
   const visited: string[] = [];
   for (const _ of expected) {
@@ -337,8 +342,9 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
   });
 
   // Enter auf dem Feld öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
+  await page.keyboard.type('Wer ist mein Fokuslieferant?');
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(url('/fragen'));
+  await expect(page).toHaveURL(/\/fragen\?q=/);
   await page.goto('/profil/erscheinungsbild');
   await pageSettled(page);
   await page.getByRole('radio', { name: 'System' }).focus();
@@ -354,7 +360,7 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.locator(':focus')).toContainText('Frag Reziproq');
+  await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Deine Frage an Reziproq');
 });
 
 test('Hell- und Dunkelmodus folgen dem System', async ({ page }) => {

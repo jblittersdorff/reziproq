@@ -67,6 +67,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
    */
   const endpoints: Record<Action, ((user: string) => Promise<number>) | 'nur-oberflaeche'> = {
     'organisation.sehen': async (user) => (await request(user, 'GET', '/api/organisation')).status,
+    'start.sehen': async (user) => (await request(user, 'GET', '/api/start')).status,
     'rollen.aendern': async (user) =>
       (
         await request(user, 'PUT', `/api/organisation/mitglieder/${users.target}`, {
@@ -106,6 +107,62 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
           primaryMaterialGroupId: null,
         })
       ).status,
+    'segmentmodell.sehen': 'nur-oberflaeche',
+    'segmentmodell.verwalten': 'nur-oberflaeche',
+    'runden.sehen': async (user) => (await request(user, 'GET', '/api/rounds')).status,
+    'runden.verwalten': async (user) =>
+      (await request(user, 'POST', '/api/rounds', { name: 'Probe', dueDate: '2099-01-01' })).status,
+    'runden.nachnominieren': async (user) =>
+      (await request(user, 'GET', '/api/rounds/raters')).status,
+    'bewertungen.sehen': async (user) => (await request(user, 'GET', '/api/ratings/mine')).status,
+    // Eine unbekannte Einladung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'bewertungen.abgeben': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/ratings/00000000-0000-4000-8000-000000000000',
+        { criterionKey: 'x', ist: 1 },
+      );
+      return status === 404 ? 200 : status;
+    },
+    // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'segmentierung.konsolidieren': async (user) => {
+      const level = { impactLevel: 1, qualityLevel: 1 };
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/ratings/relationship/00000000-0000-4000-8000-000000000000/decisions',
+        { total: { ist: level, soll: level, reason: 'x' }, entries: [] },
+      );
+      return status === 404 ? 200 : status;
+    },
+    // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'fokus.setzen': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/portfolio/fokus/00000000-0000-4000-8000-000000000000',
+        { isFocus: true, reason: 'x' },
+      );
+      return status === 404 ? 200 : status;
+    },
+    'zyklus.starten': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/cycle',
+      );
+      return status === 404 ? 200 : status;
+    },
+    'lieferantenplan.bearbeiten': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/plan',
+      );
+      return status === 404 ? 200 : status;
+    },
+    'portfolio.sehen': async (user) => (await request(user, 'GET', '/api/portfolio')).status,
   };
 
   beforeAll(async () => {
@@ -144,6 +201,9 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
   });
 
   afterAll(async () => {
+    await db
+      .delete(schema.segmentationRound)
+      .where(sql`${schema.segmentationRound.orgId} in ${Object.values(orgs)}`);
     await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${Object.values(users)}`);
     await deleteRelationships(db, [orgs.oem]);
     await db

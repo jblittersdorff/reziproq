@@ -8,6 +8,12 @@ export const supplierSearchSchema = z.object({
   suche: z.string().optional().catch(undefined),
   sortierung: z.enum(['spend', 'name']).optional().catch(undefined),
   beendet: z.literal(1).optional().catch(undefined),
+  // NAV-12: Filter der Liste
+  bu: z.string().optional().catch(undefined),
+  wg: z.string().optional().catch(undefined),
+  typ: z.string().optional().catch(undefined),
+  fokus: z.literal(1).optional().catch(undefined),
+  meine: z.literal(1).optional().catch(undefined),
 });
 
 export type SupplierSearch = z.infer<typeof supplierSearchSchema>;
@@ -35,7 +41,29 @@ export function sortSuppliers(suppliers: Supplier[], key: SortKey): Supplier[] {
 }
 
 /** Was die Liste zeigt: ohne beendete Beziehungen, außer der Filter holt sie zurück. */
-export function visibleSuppliers(suppliers: Supplier[], search: SupplierSearch): Supplier[] {
-  const current = search.beendet ? suppliers : suppliers.filter((s) => s.status !== 'ended');
+export function visibleSuppliers(
+  suppliers: Supplier[],
+  search: SupplierSearch,
+  groups: { id: string; parentId: string | null }[] = [],
+): Supplier[] {
+  // Eine Oberebene der Warengruppe schließt ihre Untergruppen ein.
+  const groupIds = new Set(
+    search.wg
+      ? [search.wg, ...groups.filter((g) => g.parentId === search.wg).map((g) => g.id)]
+      : [],
+  );
+  const current = suppliers.filter(
+    (s) =>
+      (search.beendet || s.status !== 'ended') &&
+      (!search.bu || s.businessUnitIds?.includes(search.bu)) &&
+      (!search.wg || s.materialGroupIds?.some((id) => groupIds.has(id))) &&
+      (!search.typ || s.targetType === search.typ) &&
+      (!search.fokus || s.isFocus) &&
+      (!search.meine || s.isMine),
+  );
   return sortSuppliers(filterSuppliers(current, search.suche ?? ''), search.sortierung ?? 'spend');
 }
+
+/** Anzahl der gesetzten Filter ohne Suche, Sortierung und „Beendete zeigen“. */
+export const activeFilters = (search: SupplierSearch) =>
+  [search.bu, search.wg, search.typ, search.fokus, search.meine].filter(Boolean).length;

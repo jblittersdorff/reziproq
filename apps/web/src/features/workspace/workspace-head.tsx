@@ -1,4 +1,6 @@
 import type { WorkspaceHead as Head } from '@reziproq/shared';
+import { StarIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -39,6 +41,14 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
           : '-mt-4 gap-x-6 gap-y-1 text-sm',
       )}
     >
+      {head.isFocus && (
+        <div data-head="focus" className="flex items-center">
+          <Badge variant="selected">
+            <StarIcon aria-hidden />
+            {t.portfolio.focusPage.badge}
+          </Badge>
+        </div>
+      )}
       {entries.map((entry) => (
         <div
           key={entry.key}

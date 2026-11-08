@@ -31,12 +31,23 @@ export interface AuditActor {
   organizationId: string;
 }
 
+export interface OutboxEmailPayload {
+  template: 'invitation' | 'reminder' | 'approval' | 'escalation';
+  locale: 'de' | 'en';
+  recipient: string;
+  firstName?: string;
+  title: string;
+  deadline?: string;
+  link: string;
+}
+
 export interface AuditedChangeResult<T> {
   objectId: string;
   relationshipId: string | null;
   action: AuditAction;
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
+  email?: OutboxEmailPayload;
   result: T;
 }
 
@@ -85,11 +96,18 @@ export async function auditedChange<T>(
     .returning({ id: auditEvent.id });
   if (!event) throw new Error('Verlaufseintrag nicht angelegt');
   await tx.insert(outboxEvent).values({
-    eventType: `${object.type}.${change.action}`,
+    eventType: change.email ? `email.${change.email.template}` : `${object.type}.${change.action}`,
     objectType: object.type,
     objectId: change.objectId,
     auditEventId: event.id,
     orgId: actor.organizationId,
+    emailTemplate: change.email?.template ?? null,
+    emailLocale: change.email?.locale ?? null,
+    emailRecipient: change.email?.recipient ?? null,
+    emailFirstName: change.email?.firstName ?? null,
+    emailTitle: change.email?.title ?? null,
+    emailDeadline: change.email?.deadline ?? null,
+    emailLink: change.email?.link ?? null,
   });
   return change.result;
 }

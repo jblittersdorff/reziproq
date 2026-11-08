@@ -1,4 +1,4 @@
-import { Building2Icon } from 'lucide-react';
+import { Building2Icon, CalendarRangeIcon } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
@@ -34,6 +34,13 @@ export function SettingsPage() {
             label={t.settings.organization}
             description={t.settings.organizationHint}
             icon={<Building2Icon aria-hidden />}
+            renderLink={routerLink}
+          />
+          <SettingsLinkRow
+            href="/einstellungen/zyklus"
+            label={t.settings.cycleSettings.navTitle}
+            description={t.settings.cycleSettings.navHint}
+            icon={<CalendarRangeIcon aria-hidden />}
             renderLink={routerLink}
           />
           {permissions.viewBuyerAreas && <MasterDataLinks />}

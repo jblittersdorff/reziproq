@@ -158,9 +158,15 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'active',
         spend: { amountCents: 500_000_00, currency: 'EUR' },
+        businessUnits: [],
         // Ohne Zuordnung (PLT-06)
         primaryMaterialGroup: null,
         materialGroups: [],
+        isFocus: false,
+        businessUnitIds: [],
+        materialGroupIds: [],
+        targetType: null,
+        isMine: false,
       },
       {
         relationshipId: ids.relAShared,
@@ -169,9 +175,15 @@ describe('GET /api/suppliers', () => {
         externalRef: 'A-1',
         status: 'active',
         spend: { amountCents: 123_456_78, currency: 'EUR' },
+        businessUnits: [],
         // Ohne Zuordnung (PLT-06)
         primaryMaterialGroup: null,
         materialGroups: [],
+        isFocus: false,
+        businessUnitIds: [],
+        materialGroupIds: [],
+        targetType: null,
+        isMine: false,
       },
       {
         relationshipId: ids.relEnded,
@@ -180,9 +192,15 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'ended',
         spend: { amountCents: 1_000_00, currency: 'EUR' },
+        businessUnits: [],
         // Ohne Zuordnung (PLT-06)
         primaryMaterialGroup: null,
         materialGroups: [],
+        isFocus: false,
+        businessUnitIds: [],
+        materialGroupIds: [],
+        targetType: null,
+        isMine: false,
       },
       {
         relationshipId: ids.relDraft,
@@ -191,9 +209,15 @@ describe('GET /api/suppliers', () => {
         externalRef: null,
         status: 'draft',
         spend: null,
+        businessUnits: [],
         // Ohne Zuordnung (PLT-06)
         primaryMaterialGroup: null,
         materialGroups: [],
+        isFocus: false,
+        businessUnitIds: [],
+        materialGroupIds: [],
+        targetType: null,
+        isMine: false,
       },
     ]);
   });

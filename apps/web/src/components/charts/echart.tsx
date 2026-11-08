@@ -28,19 +28,28 @@ export function EChart({
   option,
   height,
   label,
+  onSelect,
 }: {
   option: EChartsCoreOption;
   height: number;
   label: string;
+  /** Klick auf ein Datum mit `index` */
+  onSelect?: (index: number) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const chart = useRef<ReturnType<typeof init> | null>(null);
+  const select = useRef(onSelect);
+  select.current = onSelect;
 
   useEffect(() => {
     const element = container.current;
     if (!element) return;
     const instance = init(element, null, { renderer: 'svg' });
     chart.current = instance;
+    instance.on('click', (params) => {
+      const index = (params.data as { index?: number } | undefined)?.index;
+      if (index !== undefined) select.current?.(index);
+    });
     const resize = new ResizeObserver(() => instance.resize());
     resize.observe(element);
     return () => {

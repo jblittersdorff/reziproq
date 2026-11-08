@@ -1,8 +1,10 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { ArrowUpIcon, RefreshCwIcon, SparklesIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/features/shell/page-header';
+import { PagePath } from '@/features/shell/page-path';
 import { SupplierCard } from '@/features/suppliers/supplier-card';
 import { useT } from '@/lib/i18n';
 import { type PromptTurn, usePromptConversation } from './use-prompt-conversation';
@@ -11,16 +13,29 @@ import { type PromptTurn, usePromptConversation } from './use-prompt-conversatio
  * Fragen an Reziproq als eigene Seite (PLT-11, PLT-12): ein großes Feld, Vorschläge oder das
  * Gespräch, ein Hinweis. Cmd+K führt von jeder Seite hierher.
  */
-export function QuestionsPage() {
+export function QuestionsPage({ initialQuestion }: { initialQuestion?: string | undefined }) {
   const t = useT();
-  const navigate = useNavigate();
   const [question, setQuestion] = useState('');
   const input = useRef<HTMLInputElement>(null);
   const end = useRef<HTMLDivElement>(null);
+  const submittedQuestion = useRef<string | null>(null);
 
-  const { turns, ask, reset, busy } = usePromptConversation({
-    onNavigate: (to) => void navigate({ to }),
-  });
+  const { turns, ask, reset, busy } = usePromptConversation();
+
+  useEffect(() => {
+    const text = initialQuestion?.trim();
+    if (!text) {
+      submittedQuestion.current = null;
+      return;
+    }
+    if (submittedQuestion.current === text) return;
+    // StrictMode runs effects twice in development; defer until its cleanup replay has finished.
+    const timer = window.setTimeout(() => {
+      submittedQuestion.current = text;
+      void ask(text);
+    });
+    return () => window.clearTimeout(timer);
+  }, [ask, initialQuestion]);
 
   // Neue Antworten bleiben sichtbar, auch wenn das Gespräch länger wird.
   const lastAnswer = turns.at(-1)?.answer;
@@ -38,27 +53,27 @@ export function QuestionsPage() {
 
   const suggestions = [
     t.prompt.suggestionTopSpend,
-    t.prompt.suggestionCountry,
-    t.prompt.suggestionPortfolio,
+    t.prompt.suggestionMaterialGroup,
+    t.prompt.suggestionSupplierSpend,
   ];
 
   return (
     <div className="flex flex-col gap-6">
+      <PagePath trail={[{ label: t.app.name, href: '/start' }]} current={t.prompt.title} />
       <PageHeader title={t.prompt.title} purpose={t.prompt.disclaimer} />
       <form
         onSubmit={submit}
         className="flex items-center gap-2 rounded-xl border border-input bg-background p-2 focus-within:border-ring"
       >
         <SparklesIcon aria-hidden className="ml-2 size-6 shrink-0 text-muted-foreground" />
-        <input
+        <Input
           ref={input}
-          // biome-ignore lint/a11y/noAutofocus: Die Seite ist für genau diese Eingabe da (PLT-12).
           autoFocus
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           aria-label={t.prompt.question}
           placeholder={t.prompt.placeholder}
-          className="h-12 min-w-0 flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground"
+          className="h-12 flex-1 border-0 bg-transparent text-lg shadow-none focus-visible:ring-0"
         />
         <Button
           type="submit"
@@ -77,17 +92,18 @@ export function QuestionsPage() {
               {t.prompt.suggestions}
             </h2>
             {suggestions.map((suggestion) => (
-              <button
+              <Button
                 key={suggestion}
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setQuestion(suggestion);
                   input.current?.focus();
                 }}
-                className="flex min-h-11 items-center rounded-lg px-3 text-left text-base transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-auto min-h-11 w-full justify-start whitespace-normal rounded-lg px-3 py-2 text-left text-base font-normal"
               >
                 {suggestion}
-              </button>
+              </Button>
             ))}
           </section>
         ) : (
@@ -142,6 +158,22 @@ function Turn({ turn }: { turn: PromptTurn }) {
               <SupplierCard key={supplier.relationshipId} supplier={supplier} headingLevel={3} />
             ))}
           </ul>
+        )}
+
+        {turn.destination?.type === 'area' && (
+          <Button asChild variant="outline" className="w-fit">
+            <Link to={turn.destination.path}>{t.prompt.openArea}</Link>
+          </Button>
+        )}
+        {turn.destination?.type === 'supplierSpend' && (
+          <Button asChild variant="outline" className="w-fit">
+            <Link
+              to="/lieferanten/$id/strategie/spend"
+              params={{ id: turn.destination.relationshipId }}
+            >
+              {t.prompt.openSpend}
+            </Link>
+          </Button>
         )}
 
         {turn.status === 'failed' && (

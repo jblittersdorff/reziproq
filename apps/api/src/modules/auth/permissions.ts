@@ -19,6 +19,10 @@ export const permissions: Record<Action, Permission> = {
     description: 'Organisation und Mitglieder sehen',
     roles: ['admin', 'member', 'viewer'],
   },
+  'start.sehen': {
+    description: 'Die eigene Startseite mit Aufgaben und Beziehungen sehen',
+    roles: ['admin', 'member', 'viewer'],
+  },
   'rollen.aendern': {
     description: 'Rollen, Controlling und Standardfunktion ändern',
     roles: ['admin'],
@@ -54,6 +58,59 @@ export const permissions: Record<Action, Permission> = {
   },
   'zuordnung.bearbeiten': {
     description: 'Lieferanten Business Units und Warengruppen zuordnen (nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
+  'segmentmodell.sehen': {
+    description: 'Segmentmodell der eigenen Käuferorganisation ansehen',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'segmentmodell.verwalten': {
+    description: 'Segmentmodell der Organisation ändern und aktivieren',
+    roles: ['admin'],
+  },
+  'runden.sehen': {
+    description:
+      'Bewertungsrunden ansehen (Admin alle, SRO die eigenen Lieferanten, sonst nur Einladungen)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'runden.verwalten': {
+    description: 'Bewertungsrunde anlegen, starten, verlängern und schließen',
+    roles: ['admin'],
+  },
+  'runden.nachnominieren': {
+    description: 'Bewertende nachnominieren (Admin, SRO nur für die eigenen Lieferanten)',
+    roles: ['admin', 'member'],
+  },
+  'bewertungen.sehen': {
+    description:
+      'Eigene Einladungen und die Bewertungen ansehen, die die Regeln der Runde freigeben',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'bewertungen.abgeben': {
+    description: 'Als bewertende Person Werte eintragen, Entwurf speichern und abgeben',
+    roles: ['admin', 'member'],
+  },
+  'segmentierung.konsolidieren': {
+    description: 'Ist und Soll eines Lieferanten festlegen (nur SRO der Beziehung und Admin)',
+    roles: ['admin', 'member'],
+  },
+  'portfolio.sehen': {
+    description: 'Portfolio mit Matrix und offenen Entscheidungen ansehen (nur Käufer)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'fokus.setzen': {
+    description: 'Fokuslieferanten setzen und entfernen, mit Begründung (nur Käufer-Admin)',
+    roles: ['admin'],
+  },
+  'zyklus.starten': {
+    description:
+      'Zyklus eines Fokuslieferanten starten und JBP-Termin festlegen oder verschieben (Käufer-Admin oder SRO)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
+  'lieferantenplan.bearbeiten': {
+    description: 'Lieferantenplan verwalten und eigene zugewiesene Ziele bearbeiten',
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },

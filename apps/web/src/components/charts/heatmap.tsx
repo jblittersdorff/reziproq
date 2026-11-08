@@ -1,9 +1,21 @@
 import type { EChartsCoreOption } from 'echarts/core';
+import { useSyncExternalStore } from 'react';
 
 import { type ChartEmptyText, ChartFrame } from './chart-frame';
 import { echartsBase, useChartTheme } from './chart-theme';
 import { EChart } from './echart';
 import { sequentialStep } from './sequential-scale';
+
+/** Schmal heißt: unter dem Breakpoint sm aus den Design-Tokens. */
+const narrowQuery = () => {
+  const sm = getComputedStyle(document.documentElement).getPropertyValue('--breakpoint-sm');
+  return sm ? `(width < ${sm.trim()})` : 'not all';
+};
+const subscribeNarrow = (notify: () => void) => {
+  const media = window.matchMedia(narrowQuery());
+  media.addEventListener('change', notify);
+  return () => media.removeEventListener('change', notify);
+};
 
 /** Abweichungen zwischen Business Units: eine Farbskala von hell nach dunkel, Zahl im Feld. */
 export function Heatmap({
@@ -27,6 +39,12 @@ export function Heatmap({
   empty: ChartEmptyText;
 }) {
   const theme = useChartTheme();
+  // Schmal werden die Spaltenköpfe schräg gestellt, damit ECharts keinen ausblendet.
+  const narrow = useSyncExternalStore(
+    subscribeNarrow,
+    () => window.matchMedia(narrowQuery()).matches,
+    () => false,
+  );
   if (!theme) return null;
   const { colors, fontSize, sequential } = theme;
 
@@ -41,19 +59,22 @@ export function Heatmap({
     }),
   );
 
-  const categoryAxis = (names: string[]) => ({
+  const categoryAxis = (names: string[], label: object = {}) => ({
     type: 'category',
     data: names,
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: colors.axis, fontSize: fontSize.sm },
+    axisLabel: { color: colors.axis, fontSize: fontSize.sm, ...label },
     splitLine: { show: false },
   });
 
   const option: EChartsCoreOption = {
     ...echartsBase(theme),
-    grid: { left: 128, right: 8, top: 32, bottom: 8 },
-    xAxis: { ...categoryAxis(columns), position: 'top' },
+    grid: { left: 128, right: 8, top: narrow ? 72 : 32, bottom: 8 },
+    xAxis: {
+      ...categoryAxis(columns, { interval: 0, ...(narrow && { rotate: 40 }) }),
+      position: 'top',
+    },
     yAxis: { ...categoryAxis(rows), inverse: true },
     tooltip: { show: false },
     // Pflicht für Heatmaps in ECharts; dieselben Stufen wie sequentialStep, ohne eigene Legende
@@ -93,7 +114,7 @@ export function Heatmap({
       isEmpty={values.length === 0 || columns.length === 0}
       empty={empty}
     >
-      <EChart option={option} height={rows.length * 48 + 40} label={title} />
+      <EChart option={option} height={rows.length * 48 + (narrow ? 80 : 40)} label={title} />
     </ChartFrame>
   );
 }

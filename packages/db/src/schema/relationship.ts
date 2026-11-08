@@ -3,6 +3,8 @@ import {
   bigint,
   boolean,
   check,
+  date,
+  index,
   integer,
   pgTable,
   text,
@@ -65,11 +67,82 @@ export const relationshipSide = pgTable(
     notes: text(),
     isFocus: boolean().notNull().default(false),
     focusReason: text(),
+    focusSetBy: text().references(() => appUser.id),
+    focusSetAt: timestamp({ withTimezone: true }),
   },
   (table) => [unique('relationship_side_je_seite').on(table.relationshipId, table.orgId)],
 );
 
 export const spendSources = ['manual', 'import', 'seed'] as const;
+
+export const cycleStatuses = ['active', 'closed'] as const;
+
+/** Jahreszyklus der Käuferorganisation, geschützt wie Spend durch die buyer-private Session. */
+export const cycle = pgTable(
+  'cycle',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid('relationship_id')
+      .notNull()
+      .references(() => relationship.id),
+    label: text().notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    jbpDate: date('jbp_date'),
+    status: text({ enum: cycleStatuses }).notNull().default('active'),
+  },
+  (table) => [
+    check('cycle_status', sql`${table.status} in ('active', 'closed')`),
+    index('cycle_relationship').on(table.relationshipId, table.startedAt),
+    unique('cycle_id_relationship').on(table.id, table.relationshipId),
+    uniqueIndex('cycle_one_active').on(table.relationshipId).where(sql`${table.status} = 'active'`),
+  ],
+);
+
+export const cycleSettingSteps = ['feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard'] as const;
+
+/** Organisationsweite Abstände zum JBP-Termin (ZYK-02), nur für den Käufer sichtbar. */
+export const cycleSetting = pgTable(
+  'cycle_setting',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organization.id),
+    step: text({ enum: cycleSettingSteps }).notNull(),
+    weeksRelativeToJbp: integer('weeks_relative_to_jbp').notNull(),
+    reminderDaysBefore: integer('reminder_days_before').notNull().default(7),
+  },
+  (table) => [
+    unique('cycle_setting_je_schritt').on(table.orgId, table.step),
+    check('cycle_setting_step', sql`${table.step} in ('feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard')`),
+    check('cycle_setting_wochen', sql`${table.weeksRelativeToJbp} between -104 and 104`),
+    check('cycle_setting_erinnerung', sql`${table.reminderDaysBefore} between 0 and 365`),
+  ],
+);
+
+/** Idempotenzschlüssel für Erinnerungen; enthält keine Mailadresse oder Mailinhalte. */
+export const cycleReminderSent = pgTable(
+  'cycle_reminder_sent',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    cycleId: uuid('cycle_id')
+      .notNull()
+      .references(() => cycle.id),
+    relationshipId: uuid('relationship_id')
+      .notNull()
+      .references(() => relationship.id),
+    step: text({ enum: cycleSettingSteps }).notNull(),
+    dueDate: date('due_date').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('cycle_reminder_sent_je_faelligkeit').on(table.cycleId, table.step, table.dueDate),
+    check(
+      'cycle_reminder_sent_step',
+      sql`${table.step} in ('feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard')`,
+    ),
+  ],
+);
 
 /** Spend je Jahr, nur für den Käufer (buyer_private). Geld als ganze Cent mit Währung. */
 export const relationshipSpend = pgTable(

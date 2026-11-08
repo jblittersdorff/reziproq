@@ -1,0 +1,2 @@
+ALTER TABLE "segment_model" ADD COLUMN "deviation_threshold" smallint DEFAULT 30 NOT NULL;--> statement-breakpoint
+ALTER TABLE "segment_model" ADD CONSTRAINT "segment_model_deviation" CHECK ("segment_model"."deviation_threshold" between 1 and 100);

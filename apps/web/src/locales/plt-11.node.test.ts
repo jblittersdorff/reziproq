@@ -18,7 +18,7 @@ function sourceFiles(dir: string): string[] {
 
 const rules: [kind: string, pattern: RegExp][] = [
   // >Text< zwischen Tags, mit mindestens zwei Buchstaben
-  ['Text im JSX', />\s*[A-Za-zÄÖÜäöüß][^<>{}]*[A-Za-zÄÖÜäöüß.!?…][^<>{}]*</],
+  ['Text im JSX', /(?<!=)>\s*[A-Za-zÄÖÜäöüß][^<>{}]*[A-Za-zÄÖÜäöüß.!?…][^<>{}]*</],
   // Beschriftungen als feste Zeichenkette
   [
     'feste Beschriftung',

@@ -56,12 +56,15 @@ Als Admin lege ich fest, nach welchen Kriterien wir Lieferanten einordnen und wi
 
 Je Kriterium ein Test.
 
-- [ ] Jede Organisation mit Feature `buyer` hat nach dem Seed ein aktives Standardmodell.
-- [ ] Gewichte je Achse ergeben 100, sonst lässt sich nicht speichern.
-- [ ] Die Rechnung von Achsenwert, Stufe und Typ stimmt für Grenzfälle (33, 34, 66, 67).
-- [ ] Ein aktiviertes Modell erhöht die Version. Bewertungen behalten ihre alte Version.
-- [ ] Nur Admins ändern. Alle anderen bekommen 403.
-- [ ] Der Zweit-OEM sieht das Modell des Test-OEM nicht (PLT-04).
+- [x] Jede Organisation mit Feature `buyer` hat nach dem Seed ein aktives Standardmodell.
+- [x] Gewichte je Achse ergeben 100, sonst lässt sich nicht speichern.
+- [x] Die Rechnung von Achsenwert, Stufe und Typ stimmt für Grenzfälle (33, 34, 66, 67).
+- [x] Ein aktiviertes Modell erhöht die Version und retired die alte.
+- [x] Nur Admins ändern. Alle anderen bekommen 403.
+- [x] Der Zweit-OEM sieht das Modell des Test-OEM nicht (PLT-04).
+
+Die unveränderliche Modellversion einer laufenden Bewertungsrunde wird beim Anlegen der Runde
+gespeichert und in SEG-03 getestet.
 
 ## Nicht Teil dieser Funktion
 

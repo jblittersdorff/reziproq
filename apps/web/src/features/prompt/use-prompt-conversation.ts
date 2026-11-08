@@ -1,4 +1,5 @@
 import {
+  type PromptDestination,
   type PromptEvent,
   type PromptRequest,
   promptLimits,
@@ -14,20 +15,21 @@ export interface PromptTurn {
   answer: string;
   /** null, solange keine Suche lief; [] heißt „Keine Treffer“. */
   suppliers: Supplier[] | null;
+  destination: PromptDestination | null;
   status: 'answering' | 'done' | 'failed' | 'rateLimited';
 }
 
 /**
- * Gespräch im Prompt-Fenster. Es lebt nur, solange das Fenster offen ist, und wird nirgends
+ * Gespräch auf der Fragen-Seite. Es lebt nur, solange die Seite offen ist, und wird nirgends
  * gespeichert (PLT-12). Weitere Fragen schicken den bisherigen Verlauf mit.
  */
-export function usePromptConversation({ onNavigate }: { onNavigate: (to: string) => void }) {
+export function usePromptConversation() {
   const auth = useAuth();
   const [turns, setTurns] = useState<PromptTurn[]>([]);
   const nextId = useRef(1);
   const running = useRef<AbortController | null>(null);
 
-  // Schließt das Fenster, bricht auch eine laufende Antwort ab.
+  // Verlässt man die Seite, wird auch eine laufende Antwort abgebrochen.
   useEffect(() => () => running.current?.abort(), []);
 
   const update = (id: number, change: (turn: PromptTurn) => PromptTurn) =>
@@ -45,7 +47,7 @@ export function usePromptConversation({ onNavigate }: { onNavigate: (to: string)
         }));
         break;
       case 'navigate':
-        onNavigate(event.to);
+        update(id, (turn) => ({ ...turn, destination: event.destination }));
         break;
       case 'done':
         update(id, (turn) => ({ ...turn, status: 'done' }));
@@ -70,7 +72,7 @@ export function usePromptConversation({ onNavigate }: { onNavigate: (to: string)
     const id = nextId.current++;
     setTurns((current) => [
       ...current,
-      { id, question, answer: '', suppliers: null, status: 'answering' },
+      { id, question, answer: '', suppliers: null, destination: null, status: 'answering' },
     ]);
 
     running.current?.abort();

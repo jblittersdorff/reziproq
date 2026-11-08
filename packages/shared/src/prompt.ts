@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { areas } from './areas.js';
+import { type AreaPath, areas } from './areas.js';
 import { supplierSchema } from './suppliers.js';
 
-// Prompt-Fenster (PLT-12): Frage und Antwort leben nur in der laufenden Sitzung im Browser.
+// Fragen-Seite (PLT-12): Frage und Antwort leben nur in der laufenden Sitzung im Browser.
 
 export const promptLimits = {
   messages: 20,
@@ -26,13 +26,20 @@ export const promptRequestSchema = z.object({
 
 export type PromptRequest = z.infer<typeof promptRequestSchema>;
 
-const areaPaths = areas.map((area) => area.path) as [string, ...string[]];
+const areaPaths = areas.map((area) => area.path) as [AreaPath, ...AreaPath[]];
+
+export const promptDestinationSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('area'), path: z.enum(areaPaths) }),
+  z.object({ type: z.literal('supplierSpend'), relationshipId: z.string().uuid() }),
+]);
+
+export type PromptDestination = z.infer<typeof promptDestinationSchema>;
 
 /** Ereignisse, die POST /api/prompt als NDJSON streamt, eine Zeile je Ereignis. */
 export const promptEventSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('text'), delta: z.string() }),
   z.object({ type: z.literal('suppliers'), suppliers: z.array(supplierSchema) }),
-  z.object({ type: z.literal('navigate'), to: z.enum(areaPaths) }),
+  z.object({ type: z.literal('navigate'), destination: promptDestinationSchema }),
   z.object({ type: z.literal('done') }),
   z.object({ type: z.literal('error'), message: z.string() }),
 ]);

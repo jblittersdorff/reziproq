@@ -22,6 +22,8 @@ export function SegmentMatrix({
   levels,
   formatVolume,
   empty,
+  labels = true,
+  onSelect,
 }: {
   title: string;
   description?: string;
@@ -31,6 +33,10 @@ export function SegmentMatrix({
   levels: [string, string, string];
   formatVolume: (cents: number) => string;
   empty: ChartEmptyText;
+  /** Punktbeschriftung; bei vielen Punkten aus, dann nennt der Hinweis den Namen */
+  labels?: boolean;
+  /** Klick auf einen Punkt; Index in `suppliers` */
+  onSelect?: (index: number) => void;
 }) {
   const theme = useChartTheme();
   if (!theme) return null;
@@ -64,7 +70,7 @@ export function SegmentMatrix({
   const option: EChartsCoreOption = {
     ...echartsBase(theme),
     // Rechts Platz für die direkte Beschriftung der Punkte
-    grid: { left: 72, right: 112, top: 8, bottom: 56 },
+    grid: { left: 72, right: labels ? 112 : 16, top: 8, bottom: 56 },
     xAxis: axis(axes.x, 32),
     yAxis: axis(axes.y, 56),
     tooltip: {
@@ -104,7 +110,9 @@ export function SegmentMatrix({
       },
       {
         type: 'scatter',
-        data: suppliers.map((s) => ({
+        cursor: onSelect ? 'pointer' : 'default',
+        data: suppliers.map((s, index) => ({
+          index,
           name: s.name,
           volumeCents: s.volumeCents,
           value: [s.current.x, s.current.y],
@@ -112,7 +120,7 @@ export function SegmentMatrix({
           // Grau für Kontext, Akzent für Lieferanten mit Ziel
           itemStyle: { color: s.target ? colors.accent : colors.context, opacity: 0.9 },
           label: {
-            show: true,
+            show: labels,
             formatter: s.name,
             position: 'right',
             distance: 6,
@@ -131,7 +139,7 @@ export function SegmentMatrix({
       isEmpty={suppliers.length === 0}
       empty={empty}
     >
-      <EChart option={option} height={400} label={title} />
+      <EChart option={option} height={400} label={title} {...(onSelect && { onSelect })} />
     </ChartFrame>
   );
 }

@@ -7,7 +7,7 @@ import { startTestApp } from '../../testing/test-app.js';
 import { PromptLog, type PromptLogEntry } from './prompt-log.js';
 import { RATE_LIMIT } from './rate-limiter.js';
 
-// Tests zu docs/specs/PLT-12.md über die API, mit KI_ANBIETER=test: ohne Schlüssel und Internet.
+// Tests zu docs/specs/PLT-12.md über die API, mit AI_PROVIDER=test: ohne Schlüssel und Internet.
 describe('POST /api/prompt', () => {
   let testApp: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
@@ -22,6 +22,8 @@ describe('POST /api/prompt', () => {
     relAShared: randomUUID(),
     relAOnly: randomUUID(),
     relBShared: randomUUID(),
+    businessUnit: randomUUID(),
+    materialGroup: randomUUID(),
   };
   const users = { a: `prompt-a-${run}`, b: `prompt-b-${run}`, norole: `prompt-ohne-${run}` };
   const names = { shared: `Gemeinsam ${run}`, onlyA: `Nur A ${run}` };
@@ -88,7 +90,10 @@ describe('POST /api/prompt', () => {
         buyer: ids.oemA,
         supplier: ids.onlyA,
         externalRef: 'A-200',
-        spend: [{ year, amountCents: 900_000_00 }],
+        spend: [
+          { year, amountCents: 900_000_00 },
+          { year: year - 1, amountCents: 450_000_00 },
+        ],
       },
       {
         id: ids.relBShared,
@@ -98,6 +103,27 @@ describe('POST /api/prompt', () => {
         spend: [{ year, amountCents: 77_000_00 }],
       },
     ]);
+    await db.insert(schema.businessUnit).values({
+      id: ids.businessUnit,
+      orgId: ids.oemA,
+      name: 'Einkauf',
+      code: `EINKAUF-${run}`,
+    });
+    await db.insert(schema.materialGroup).values({
+      id: ids.materialGroup,
+      orgId: ids.oemA,
+      name: 'Elektronik',
+      code: `ELEKTRONIK-${run}`,
+    });
+    await db.insert(schema.relationshipBusinessUnit).values({
+      relationshipId: ids.relAOnly,
+      businessUnitId: ids.businessUnit,
+    });
+    await db.insert(schema.relationshipMaterialGroup).values({
+      relationshipId: ids.relAOnly,
+      materialGroupId: ids.materialGroup,
+      isPrimary: true,
+    });
     await db.insert(appUser).values([
       { id: users.a, name: 'Anna A', email: 'a@example.com', organizationId: ids.oemA },
       { id: users.b, name: 'Bea B', email: 'b@example.com', organizationId: ids.oemB },
@@ -114,6 +140,12 @@ describe('POST /api/prompt', () => {
     const orgIds = Object.values(ids).slice(0, 4);
     await db.delete(appUser).where(sql`${appUser.id} in ${Object.values(users)}`);
     await deleteRelationships(db, orgIds);
+    await db
+      .delete(schema.businessUnit)
+      .where(sql`${schema.businessUnit.id} = ${ids.businessUnit}`);
+    await db
+      .delete(schema.materialGroup)
+      .where(sql`${schema.materialGroup.id} = ${ids.materialGroup}`);
     await db.delete(organization).where(sql`${organization.id} in ${orgIds}`);
     await testApp.close();
   });
@@ -134,6 +166,15 @@ describe('POST /api/prompt', () => {
     expect(res.status).toBe(200);
   });
 
+  it('verweigert Fragen ohne Organisation mit 403', async () => {
+    const res = await testApp.post(
+      '/api/prompt',
+      { messages: [{ role: 'user', content: 'Hallo' }] },
+      await token(`prompt-keine-org-${run}`),
+    );
+    expect(res.status).toBe(403);
+  });
+
   it('lehnt ungültige Anfragen mit 400 ab', async () => {
     const res = await testApp.post('/api/prompt', { messages: [] }, await token(users.a));
     expect(res.status).toBe(400);
@@ -141,8 +182,11 @@ describe('POST /api/prompt', () => {
 
   it('„Öffne das Portfolio“ führt zu /portfolio', async () => {
     const events = await ask(users.a, 'Öffne das Portfolio');
-    expect(events).toContainEqual({ type: 'navigate', to: '/portfolio' });
-    expect(textOf(events)).toBe('Ich öffne Portfolio.');
+    expect(events).toContainEqual({
+      type: 'navigate',
+      destination: { type: 'area', path: '/portfolio' },
+    });
+    expect(textOf(events)).toBe('Hier ist der Link zu Portfolio.');
     expect(events.at(-1)).toEqual({ type: 'done' });
   });
 
@@ -168,6 +212,40 @@ describe('POST /api/prompt', () => {
   it('filtert nach Land', async () => {
     const events = await ask(users.a, 'Welche Lieferanten haben wir in Polen?');
     expect(suppliersOf(events).map((s) => [s.name, s.country])).toEqual([[names.onlyA, 'PL']]);
+  });
+
+  it('filtert nach Business Unit und Warengruppe über die geschützte Lieferantensuche', async () => {
+    const businessUnit = await ask(
+      users.a,
+      'Welche Lieferanten gehören zur Business Unit Einkauf?',
+    );
+    expect(suppliersOf(businessUnit).map((supplier) => supplier.name)).toEqual([names.onlyA]);
+
+    const materialGroup = await ask(
+      users.a,
+      'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
+    );
+    expect(suppliersOf(materialGroup).map((supplier) => supplier.name)).toEqual([names.onlyA]);
+  });
+
+  it('sucht Spend im angefragten Jahr statt nur im letzten vollen Jahr', async () => {
+    const year = lastFullYear() - 1;
+    const events = await ask(users.a, `Welche Lieferanten hatten ${year} den höchsten Spend?`);
+    expect(
+      suppliersOf(events).map((supplier) => [supplier.name, supplier.spend?.amountCents ?? null]),
+    ).toEqual([
+      [names.onlyA, 450_000_00],
+      [names.shared, null],
+    ]);
+  });
+
+  it('öffnet den Spend eines exakt gefundenen Lieferanten erst nach Nutzerklick', async () => {
+    const events = await ask(users.a, `Öffne den Spend von ${names.onlyA}`);
+    expect(events).toContainEqual({
+      type: 'navigate',
+      destination: { type: 'supplierSpend', relationshipId: ids.relAOnly },
+    });
+    expect(textOf(events)).toBe(`Hier ist der Link zu Spend von ${names.onlyA}.`);
   });
 
   it('trennt die Daten: Der Zweit-OEM bekommt nie Werte des anderen Käufers', async () => {
@@ -201,9 +279,21 @@ describe('POST /api/prompt', () => {
     expect(log).toHaveLength(1);
     const [entry] = log;
     expect(Object.keys(entry ?? {}).sort()).toEqual(
-      ['ausgabeTokens', 'dauerMs', 'eingabeTokens', 'erfolg', 'nutzerId', 'zeitpunkt'].sort(),
+      [
+        'ausgabeTokens',
+        'dauerMs',
+        'eingabeTokens',
+        'erfolg',
+        'nutzerId',
+        'organisationId',
+        'zeitpunkt',
+      ].sort(),
     );
-    expect(entry).toMatchObject({ nutzerId: users.a, erfolg: true });
+    expect(entry).toMatchObject({
+      nutzerId: users.a,
+      organisationId: ids.oemA,
+      erfolg: true,
+    });
     const logged = JSON.stringify(log);
     expect(logged).not.toContain('Polen');
     expect(logged).not.toContain(names.onlyA);

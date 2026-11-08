@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { FactoryIcon, LockIcon, PlusIcon } from 'lucide-react';
+import { FactoryIcon, FileUpIcon, LockIcon, PlusIcon } from 'lucide-react';
 import { useId } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -13,7 +13,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { ApiError } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
-import { type SortKey, type SupplierSearch, visibleSuppliers } from './search';
+import { activeFilters, type SortKey, type SupplierSearch, visibleSuppliers } from './search';
 import { SupplierCard } from './supplier-card';
 import { supplierSummary, useSuppliers } from './use-suppliers';
 
@@ -33,6 +33,11 @@ export function SuppliersPage() {
   const canEdit = useCan('lieferanten.bearbeiten');
   const sortId = useId();
   const endedId = useId();
+  const unitId = useId();
+  const groupId = useId();
+  const typeId = useId();
+  const focusId = useId();
+  const mineId = useId();
 
   const title = t.suppliers.title;
 
@@ -83,10 +88,21 @@ export function SuppliersPage() {
       </Link>
     </Button>
   );
+  const importButton = (
+    <Button asChild variant={canEdit ? 'outline' : 'default'}>
+      <Link to="/lieferanten/importieren">
+        <FileUpIcon />
+        {t.suppliers.importPage.title}
+      </Link>
+    </Button>
+  );
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <PageHeader title={title} purpose={supplierSummary(data, t, format)} />
-      {addButton}
+      <div className="flex flex-wrap gap-3">
+        {importButton}
+        {addButton}
+      </div>
     </div>
   );
 
@@ -104,7 +120,9 @@ export function SuppliersPage() {
     );
   }
 
-  const visible = visibleSuppliers(data.suppliers, search);
+  const filters = data.filters;
+  const visible = visibleSuppliers(data.suppliers, search, filters?.materialGroups);
+  const filterCount = activeFilters(search);
   const query = search.suche ?? '';
 
   return (
@@ -147,9 +165,94 @@ export function SuppliersPage() {
         </div>
       </div>
 
+      {filters && (
+        <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0 sm:flex-row sm:flex-wrap sm:items-end">
+          <legend className="sr-only">{t.suppliers.filters.label}</legend>
+          {(
+            [
+              [unitId, t.suppliers.filters.businessUnit, 'bu', filters.businessUnits],
+              [
+                groupId,
+                t.suppliers.filters.materialGroup,
+                'wg',
+                filters.materialGroups.map((g) => ({
+                  id: g.id,
+                  name: g.parentId ? `– ${g.name}` : g.name,
+                })),
+              ],
+              [
+                typeId,
+                t.suppliers.filters.targetType,
+                'typ',
+                filters.targetTypes.map((type) => ({ id: type.key, name: type.name })),
+              ],
+            ] as const
+          ).map(([id, label, key, options]) => (
+            <div key={key} className="flex flex-col gap-1 sm:w-56">
+              <label htmlFor={id} className="text-muted-foreground text-sm">
+                {label}
+              </label>
+              <NativeSelect
+                id={id}
+                value={search[key] ?? ''}
+                onChange={(event) => update({ [key]: event.target.value || undefined })}
+                className="h-12 rounded-lg"
+              >
+                <option value="">{t.suppliers.filters.all}</option>
+                {options.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+          ))}
+          <div className="flex min-h-12 items-center gap-3">
+            <Switch
+              id={focusId}
+              checked={search.fokus === 1}
+              onCheckedChange={(checked) => update({ fokus: checked ? 1 : undefined })}
+            />
+            <label htmlFor={focusId} className="text-base">
+              {t.suppliers.filters.focusOnly}
+            </label>
+          </div>
+          <div className="flex min-h-12 items-center gap-3">
+            <Switch
+              id={mineId}
+              checked={search.meine === 1}
+              onCheckedChange={(checked) => update({ meine: checked ? 1 : undefined })}
+            />
+            <label htmlFor={mineId} className="text-base">
+              {t.suppliers.filters.mineOnly}
+            </label>
+          </div>
+        </fieldset>
+      )}
+      <div className="flex flex-wrap items-center gap-4">
+        <p className="text-muted-foreground text-sm">{t.suppliers.filters.hits(visible.length)}</p>
+        {filterCount > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              update({
+                bu: undefined,
+                wg: undefined,
+                typ: undefined,
+                fokus: undefined,
+                meine: undefined,
+              })
+            }
+          >
+            {t.suppliers.filters.reset}
+          </Button>
+        )}
+      </div>
+
       {visible.length === 0 ? (
         <p role="status" className="text-muted-foreground">
-          {t.suppliers.noResults(query.trim())}
+          {query.trim() ? t.suppliers.noResults(query.trim()) : t.suppliers.filters.noMatch}
         </p>
       ) : (
         <div className="@container">

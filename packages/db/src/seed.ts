@@ -1,4 +1,9 @@
-import { inArray, sql } from 'drizzle-orm';
+import {
+  defaultSegmentCriteria,
+  defaultSegmentTypes,
+  demoSupplierImportRows,
+} from '@reziproq/shared';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
   appUser,
@@ -7,12 +12,17 @@ import {
   type OrgRole,
   organization,
   organizationFeature,
+  ratingAssignment,
   relationship,
   relationshipBusinessUnit,
   relationshipMaterialGroup,
   relationshipMember,
   relationshipSide,
   relationshipSpend,
+  segmentationRound,
+  segmentCriterion,
+  segmentModel,
+  segmentType,
 } from './schema/index.js';
 
 // Beispieldaten für die lokale Entwicklung (PLT-02, PLT-03). Alle Namen sind erfunden und tragen „(Demo)“.
@@ -267,11 +277,16 @@ export interface SeedResult {
   organizations: number;
   relationships: number;
   users: number;
+  manySuppliers: number;
 }
 
 export async function seed(
   db: Database,
-  { nodeEnv, now = new Date() }: { nodeEnv: string | undefined; now?: Date },
+  {
+    nodeEnv,
+    now = new Date(),
+    many = false,
+  }: { nodeEnv: string | undefined; now?: Date; many?: boolean },
 ) {
   if (nodeEnv === 'production') {
     throw new Error(
@@ -280,10 +295,26 @@ export async function seed(
   }
 
   return db.transaction(async (tx): Promise<SeedResult> => {
+    const manySuppliers = many
+      ? demoSupplierImportRows.map((supplier, index) => ({
+          ...supplier,
+          id: id(1001 + index),
+        }))
+      : [];
+    const manyRelationships = manySuppliers.map((supplier, index) => ({
+      id: id(2001 + index),
+      buyerOrgId: seedBuyers.testOem.id,
+      supplierOrgId: supplier.id,
+      status: 'draft' as const,
+      externalRef: supplier.externalRef,
+      spend: null,
+    }));
+    const allRelationships = [...relationships, ...manyRelationships];
     const organizations = [
       ...Object.values(seedBuyers),
       seedSupplierOrg,
       ...suppliers.map(({ id, name, country, vatId }) => ({ id, name, country, vatId })),
+      ...manySuppliers.map(({ id, name, country, vatId }) => ({ id, name, country, vatId })),
     ];
     await tx
       .insert(organization)
@@ -308,6 +339,41 @@ export async function seed(
       )
       .onConflictDoNothing();
 
+    const buyerOrganizations = await tx
+      .select({ orgId: organizationFeature.organizationId })
+      .from(organizationFeature)
+      .where(eq(organizationFeature.feature, 'buyer'));
+    for (const { orgId } of buyerOrganizations) {
+      const versions = await tx
+        .select({ version: segmentModel.version, status: segmentModel.status })
+        .from(segmentModel)
+        .where(eq(segmentModel.orgId, orgId));
+      if (versions.some((model) => model.status === 'active' || model.status === 'draft')) continue;
+
+      const version = Math.max(0, ...versions.map((model) => model.version)) + 1;
+      const [model] = await tx
+        .insert(segmentModel)
+        .values({
+          orgId,
+          version,
+          status: 'active',
+          lowMax: 33,
+          midMax: 66,
+          createdAt: now,
+          activatedAt: now,
+        })
+        .returning({ id: segmentModel.id });
+      if (!model)
+        throw new Error(`Segmentmodell für Organisation ${orgId} konnte nicht angelegt werden.`);
+
+      await tx
+        .insert(segmentCriterion)
+        .values(defaultSegmentCriteria.map((criterion) => ({ ...criterion, modelId: model.id })));
+      await tx
+        .insert(segmentType)
+        .values(defaultSegmentTypes.map((type) => ({ ...type, modelId: model.id })));
+    }
+
     await tx
       .insert(appUser)
       .values(seedUsers)
@@ -327,7 +393,7 @@ export async function seed(
     await tx
       .insert(relationship)
       .values(
-        relationships.map(({ id, buyerOrgId, supplierOrgId, status }) => ({
+        allRelationships.map(({ id, buyerOrgId, supplierOrgId, status }) => ({
           id,
           buyerOrgId,
           supplierOrgId,
@@ -340,7 +406,7 @@ export async function seed(
     await tx
       .insert(relationshipSide)
       .values(
-        relationships
+        allRelationships
           .filter((entry) => entry.externalRef !== null)
           .map((entry) => ({
             relationshipId: entry.id,
@@ -358,7 +424,7 @@ export async function seed(
     await tx
       .insert(relationshipSpend)
       .values(
-        relationships.flatMap((entry, index) =>
+        allRelationships.flatMap((entry, index) =>
           entry.spend === null
             ? []
             : [
@@ -430,10 +496,58 @@ export async function seed(
       ),
     );
 
+    // Eine laufende Bewertungsrunde (SEG-03) für zehn Lieferanten des Test-OEM. Nur beim ersten
+    // Lauf: Eine später geschlossene Runde nimmt keine neuen Zuordnungen mehr an.
+    const roundId = id(7001);
+    const [existingRound] = await tx
+      .select({ id: segmentationRound.id })
+      .from(segmentationRound)
+      .where(eq(segmentationRound.id, roundId));
+    if (!existingRound) {
+      const due = new Date(now);
+      due.setDate(due.getDate() + 30);
+      await tx.insert(segmentationRound).values({
+        id: roundId,
+        orgId: seedBuyers.testOem.id,
+        name: 'Segmentierung (Demo)',
+        dueDate: due.toISOString().slice(0, 10),
+        status: 'open',
+        modelVersion: 1,
+        createdBy: 'demo-test-oem-1',
+        startedAt: now,
+      });
+      const roundSuppliers = seedAssignments.slice(0, 10);
+      await tx.insert(ratingAssignment).values(
+        roundSuppliers.flatMap((entry, index) => [
+          {
+            roundId,
+            relationshipId: entry.relationshipId,
+            businessUnitId: id(entry.units[0] ?? 501),
+            materialGroupId: id(entry.groups[0] ?? 601),
+            function: 'purchasing' as const,
+            raterUserId: 'demo-test-oem-1',
+          },
+          ...(index < 5
+            ? [
+                {
+                  roundId,
+                  relationshipId: entry.relationshipId,
+                  businessUnitId: id(entry.units[0] ?? 501),
+                  materialGroupId: id(entry.groups[0] ?? 601),
+                  function: 'quality' as const,
+                  raterUserId: 'demo-test-oem-2',
+                },
+              ]
+            : []),
+        ]),
+      );
+    }
+
     return {
       organizations: organizations.length,
-      relationships: relationships.length,
+      relationships: allRelationships.length,
       users: seedUsers.length,
+      manySuppliers: manySuppliers.length,
     };
   });
 }

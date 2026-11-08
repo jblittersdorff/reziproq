@@ -47,6 +47,8 @@ export interface LayerEntry {
   appendOnly?: boolean;
 }
 
+let nextSegmentLayerTestVersion = 0;
+
 export const layerRegister: Record<string, LayerEntry> = {
   organization: {
     kind: 'global',
@@ -67,8 +69,43 @@ export const layerRegister: Record<string, LayerEntry> = {
       'sieht alle seine Beziehungen, der Lieferant nur aktive im Kontext dieses Kunden (PLT-03)',
   },
   relationship_side: { kind: 'org_private' },
+  cycle: { kind: 'buyer_private', testValues: { label: 'Probe' } },
+  cycle_setting: {
+    kind: 'org_private',
+    testValues: { step: 'feedback', weeks_relative_to_jbp: -8 },
+  },
+  cycle_reminder_sent: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      cycle_id: buyer && probe('cycle', buyer),
+      step: 'feedback',
+      due_date: '2099-01-01',
+    }),
+  },
+  objective_category: {
+    kind: 'org_private',
+    testValues: { key: 'probe', name: 'Probe', position: 99 },
+  },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  segment_model: {
+    kind: 'org_private',
+    testValues: () => ({
+      version: ++nextSegmentLayerTestVersion,
+      status: 'retired',
+      low_max: 33,
+      mid_max: 66,
+      activated_at: new Date(0),
+    }),
+  },
+  segment_criterion: {
+    kind: 'org_private',
+    manual: 'Über segment_model geschützt; der Eltern-Datensatz erzwingt die Organisation',
+  },
+  segment_type: {
+    kind: 'org_private',
+    manual: 'Über segment_model geschützt; der Eltern-Datensatz erzwingt die Organisation',
+  },
   // PLT-06: Stammdaten je Organisation und ihre Zuordnung zu Lieferanten.
   business_unit: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
   material_group: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
@@ -85,6 +122,94 @@ export const layerRegister: Record<string, LayerEntry> = {
       is_primary: true,
     }),
   },
+  supplier_plan: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      cycle_id: buyer && probe('cycle', buyer),
+      version: 1,
+      status: 'draft',
+    }),
+  },
+  plan_objective: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      plan_id: buyer && probe('supplier_plan', buyer),
+      category_key: 'cost',
+      business_unit_id: buyer && probe('business_unit', buyer),
+      material_group_id: null,
+      text: 'Probe-Ziel',
+      owner_user_id: 'demo-test-oem-1',
+      target_year: 2099,
+    }),
+  },
+  plan_contribution: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      plan_id: buyer && probe('supplier_plan', buyer),
+      business_unit_id: buyer && probe('business_unit', buyer),
+      material_group_id: null,
+      assignee_user_id: 'demo-test-oem-1',
+      due_date: '2099-01-01',
+      status: 'open',
+    }),
+  },
+  strategic_topic: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      plan_id: buyer && probe('supplier_plan', buyer),
+      title: 'Thema',
+      reason: 'Begründung',
+      priority: 1,
+    }),
+  },
+  strategic_topic_objective: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      topic_id: buyer && probe('strategic_topic', buyer),
+      objective_id: buyer && probe('plan_objective', buyer),
+    }),
+  },
+  // SEG-03: Bewertungsrunden der Käuferorganisation und ihre Zuordnungen je Beziehung.
+  segmentation_round: {
+    kind: 'org_private',
+    testValues: { name: 'Probe', due_date: '2099-01-01', created_by: 'demo-test-oem-1' },
+  },
+  rating_assignment: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      round_id: buyer && probe('segmentation_round', buyer),
+      business_unit_id: buyer && probe('business_unit', buyer),
+      function: 'quality',
+    }),
+  },
+  rating: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      assignment_id: buyer && probe('rating_assignment', buyer),
+      criterion_key: 'probe',
+      model_version: 1,
+    }),
+  },
+  // SEG-06: Konsolidierung; nur anfügen, frühere Stände bleiben lesbar.
+  segment_decision: {
+    kind: 'buyer_private',
+    appendOnly: true,
+    testValues: {
+      scope: 'total',
+      ist_impact_level: 1,
+      ist_quality_level: 1,
+      soll_impact_level: 2,
+      soll_quality_level: 2,
+      reason: 'Probe',
+      model_version: 1,
+      decided_by: 'demo-test-oem-1',
+      version: 1,
+    },
+  },
+  supplier_contact: {
+    kind: 'buyer_private',
+    testValues: { name: 'Probe', email: 'probe@example.com' },
+  },
   audit_event: {
     kind: 'shared',
     appendOnly: true,
@@ -99,6 +224,10 @@ export const layerRegister: Record<string, LayerEntry> = {
   outbox_event: {
     kind: 'global',
     manual: 'Outbox nur für den Betrieb: Die API legt Einträge an und liest nichts (PLT-08)',
+  },
+  email_log: {
+    kind: 'global',
+    manual: 'Versandprotokoll ohne Mailinhalt, nur für den E-Mail-Job (QS-01)',
   },
   support_access_log: {
     kind: 'global',
@@ -163,8 +292,8 @@ export async function checkLayers(
 const layerColumns = new Set(['id', 'relationship_id', 'org_id', 'owner_org_id', 'visibility']);
 
 /**
- * Fachspalten privater Tabellen (PLT-08): Solche Felder dürfen nie in einem geteilten
- * Verlaufseintrag stehen. Liefert je Spaltenname die Tabellen, in denen sie vorkommt.
+ * Spalten, die nur in privaten Tabellen vorkommen (PLT-08), damit gleichnamige geteilte Felder
+ * nicht fälschlich als private Verlaufsdaten gelten.
  */
 export async function privateColumns(
   db: Pick<Database, 'execute'>,
@@ -173,9 +302,23 @@ export async function privateColumns(
   const privateTables = Object.entries(register)
     .filter(([, entry]) => privateKinds.includes(entry.kind))
     .map(([table]) => table);
+  const nonPrivateTables = Object.entries(register)
+    .filter(([, entry]) => !privateKinds.includes(entry.kind))
+    .map(([table]) => table);
+  const nonPrivateColumnClause = nonPrivateTables.length
+    ? sql`and not exists (
+        select 1 from information_schema.columns as visible_column
+        where visible_column.table_schema = 'public'
+          and visible_column.table_name in ${nonPrivateTables}
+          and visible_column.column_name = private_column.column_name
+      )`
+    : sql``;
   const result = await db.execute<{ table_name: string; column_name: string }>(sql`
-    select table_name, column_name from information_schema.columns
-    where table_schema = 'public' and table_name in ${privateTables}
+    select private_column.table_name, private_column.column_name
+    from information_schema.columns as private_column
+    where private_column.table_schema = 'public'
+      and private_column.table_name in ${privateTables}
+      ${nonPrivateColumnClause}
   `);
   const columns = new Map<string, string[]>();
   for (const row of result.rows) {

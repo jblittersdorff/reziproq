@@ -1,0 +1,1 @@
+ALTER TABLE "cycle_reminder_sent" ADD CONSTRAINT "cycle_reminder_sent_step" CHECK ("cycle_reminder_sent"."step" in ('feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard'));

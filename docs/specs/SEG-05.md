@@ -39,12 +39,12 @@ Als SRO sehe ich auf einer Seite, wie meine Organisation einen Lieferanten einor
 
 Je Kriterium ein Test.
 
-- [ ] Matrix, Tabelle und Heatmap stimmen mit den Bewertungen in der Datenbank überein.
-- [ ] Die größten Abweichungen stehen oben. Ein Klick führt zu den Begründungen.
-- [ ] Ein Nutzer der BU A sieht vor der Konsolidierung nur Zeilen der BU A (Regel aus SEG-04).
-- [ ] Ohne Konsolidierung steht „vorläufig“ an jedem Typ.
-- [ ] Die Diagramme nutzen ECharts mit Diagramm-Tokens und sind mit 10 Bewertenden lesbar.
-- [ ] Die Seite trägt das Kennzeichen „Intern“, und der Test-Lieferant bekommt 403.
+- [x] Matrix, Tabelle und Heatmap stimmen mit den Bewertungen in der Datenbank überein.
+- [ ] Die größten Abweichungen stehen oben. Ein Klick führt zu den Begründungen. (Die größten Abweichungen stehen oben; die Begründungen öffnen über die Kriterienliste unter der Heatmap, nicht per Klick auf eine Zelle.)
+- [x] Ein Nutzer der BU A sieht vor der Konsolidierung nur Zeilen der BU A (Regel aus SEG-04).
+- [x] Ohne Konsolidierung steht „vorläufig“ an jedem Typ.
+- [x] Die Diagramme nutzen ECharts mit Diagramm-Tokens und sind mit 10 Bewertenden lesbar.
+- [x] Die Seite trägt das Kennzeichen „Intern“, und der Test-Lieferant bekommt 403.
 
 ## Nicht Teil dieser Funktion
 

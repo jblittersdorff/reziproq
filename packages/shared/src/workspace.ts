@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { cycleDeadlineSchema } from './cycle.js';
 import { moneySchema } from './money.js';
 
 /**
@@ -31,6 +32,13 @@ export const overviewMetricSchema = z.discriminatedUnion('kind', [
     year: z.number().int(),
     amount: moneySchema,
   }),
+  /** Soll-Typ aus den abgegebenen Bewertungen (SEG-05); vorläufig bis zur Konsolidierung */
+  z.object({
+    tile: z.literal('strategy'),
+    kind: z.literal('segment_target'),
+    typeName: z.string(),
+    provisional: z.boolean(),
+  }),
   /** Personen im internen Team (PLT-05b) */
   z.object({
     tile: z.literal('relationship'),
@@ -40,6 +48,43 @@ export const overviewMetricSchema = z.discriminatedUnion('kind', [
 ]);
 
 export type OverviewMetric = z.infer<typeof overviewMetricSchema>;
+
+export const cycleStepKeys = [
+  'segment',
+  'feedback',
+  'touchpoints',
+  'supplierPlan',
+  'jbp',
+  'scorecard',
+  'execution',
+] as const;
+export type CycleStepKey = (typeof cycleStepKeys)[number];
+
+export const cycleStepStatusSchema = z.enum([
+  'open',
+  'in_progress',
+  'completed',
+  'overdue',
+  'unavailable',
+]);
+export type CycleStepStatus = z.infer<typeof cycleStepStatusSchema>;
+
+export const cycleStepSchema = z.object({
+  key: z.enum(cycleStepKeys),
+  status: cycleStepStatusSchema,
+  href: z.string().nullable(),
+  dueDate: z.iso.date().nullable(),
+});
+
+export const cycleSchema = z.object({
+  id: z.uuid(),
+  label: z.string(),
+  startedAt: z.string(),
+  jbpDate: z.string().nullable(),
+  schedule: z.array(cycleDeadlineSchema).length(5),
+  steps: z.array(cycleStepSchema).length(cycleStepKeys.length),
+});
+export type SupplierCycle = z.infer<typeof cycleSchema>;
 
 /**
  * Kopf des Arbeitsbereichs: liest jeden Wert an seinem Ort. null heißt „noch offen“ (Segment, SRO)
@@ -52,6 +97,8 @@ export const workspaceHeadSchema = z.object({
   sro: z.object({ userId: z.string(), name: z.string() }).nullable(),
   /** Nächster Termin (QBR-01); bis dahin null */
   nextMeeting: z.object({ date: z.string() }).nullable(),
+  /** Fokuslieferant (SEG-02) */
+  isFocus: z.boolean().optional(),
 });
 
 export type WorkspaceHead = z.infer<typeof workspaceHeadSchema>;
@@ -60,6 +107,9 @@ export type WorkspaceHead = z.infer<typeof workspaceHeadSchema>;
 export const supplierOverviewSchema = z.object({
   head: workspaceHeadSchema,
   metrics: z.array(overviewMetricSchema),
+  cycle: cycleSchema.nullable(),
+  canStartCycle: z.boolean(),
+  canSetJbpDate: z.boolean(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

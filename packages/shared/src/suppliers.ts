@@ -22,6 +22,17 @@ export const supplierSchema = z.object({
   primaryMaterialGroup: z.string().nullable().default(null),
   /** Namen aller zugeordneten Warengruppen, damit die Suche sie findet (PLT-06) */
   materialGroups: z.array(z.string()).default([]),
+  /** Zugeordnete Business Units, damit die Suche sie findet (PLT-06). */
+  businessUnits: z.array(z.string()).optional(),
+  /** Fokuslieferant (SEG-02); nur die Käuferseite kennt das Feld */
+  isFocus: z.boolean().optional(),
+  /** Ids der zugeordneten Business Units und Warengruppen, für die Filter (NAV-12) */
+  businessUnitIds: z.array(z.string()).optional(),
+  materialGroupIds: z.array(z.string()).optional(),
+  /** Soll-Typ aus der Konsolidierung als „Impact-Qualität“, z. B. „3-3“ (SEG-06); sonst null */
+  targetType: z.string().nullable().optional(),
+  /** Die Person ist im Team der Beziehung (NAV-12) */
+  isMine: z.boolean().optional(),
 });
 
 export type Supplier = z.infer<typeof supplierSchema>;
@@ -38,6 +49,16 @@ export const suppliersResponseSchema = z.object({
    * Verschiedene Währungen werden nie zusammengezählt.
    */
   totalSpend: z.array(moneySchema),
+  /** Auswahl für die Filter der Liste (NAV-12) */
+  filters: z
+    .object({
+      businessUnits: z.array(z.object({ id: z.string(), name: z.string() })),
+      materialGroups: z.array(
+        z.object({ id: z.string(), name: z.string(), parentId: z.string().nullable() }),
+      ),
+      targetTypes: z.array(z.object({ key: z.string(), name: z.string() })),
+    })
+    .optional(),
 });
 
 export type SuppliersResponse = z.infer<typeof suppliersResponseSchema>;
@@ -178,6 +199,8 @@ export const supplierDetailSchema = z.object({
   spend: z.array(z.object({ year: z.number().int(), amount: moneySchema })),
   /** Was die Person an dieser Beziehung darf, aus can() mit Teamrolle (PLT-05b) */
   permissions: z.object({ edit: z.boolean(), editTeam: z.boolean() }),
+  /** Fokuslieferant (SEG-02); für Lieferanten immer false */
+  isFocus: z.boolean().optional(),
 });
 export type SupplierDetail = z.infer<typeof supplierDetailSchema>;
 

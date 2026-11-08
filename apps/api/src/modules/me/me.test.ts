@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { generateKeyPair } from 'jose';
 import { permissionsResponseSchema } from '@reziproq/shared';
+import { generateKeyPair } from 'jose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp } from '../../testing/test-app.js';
 

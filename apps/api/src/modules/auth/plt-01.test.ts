@@ -68,14 +68,14 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
       abgelaufen: await testApp.signToken({ expiresAt: Math.floor(Date.now() / 1000) - 60 }),
     };
 
-    const results = await Promise.all(
-      Object.entries(badTokens).flatMap(([kind, token]) =>
-        protectedRoutes.map(
-          async (route) =>
-            `${kind}: ${route.method} ${route.path} → ${(await call(route, token)).status}`,
-        ),
-      ),
-    );
+    const results: string[] = [];
+    for (const [kind, token] of Object.entries(badTokens)) {
+      for (const route of protectedRoutes) {
+        results.push(
+          `${kind}: ${route.method} ${route.path} → ${(await call(route, token)).status}`,
+        );
+      }
+    }
     expect(results).toEqual(
       Object.keys(badTokens).flatMap((kind) =>
         protectedRoutes.map((route) => `${kind}: ${route.method} ${route.path} → 401`),

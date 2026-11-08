@@ -86,7 +86,12 @@ describe('NAV-06: Kopf und Überblick über die API', () => {
 
   it('Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.', async () => {
     // Ohne Team, Segment und Termin: alles noch offen.
-    expect((await overview()).head).toEqual({ segment: null, sro: null, nextMeeting: null });
+    expect((await overview()).head).toEqual({
+      segment: null,
+      sro: null,
+      nextMeeting: null,
+      isFocus: false,
+    });
 
     await setTeam([
       { userId: users.admin, teamRole: 'sro', function: 'purchasing' },
