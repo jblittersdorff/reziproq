@@ -138,6 +138,16 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'termine.sehen': {
+    description: 'Termine einer Beziehung sehen, auf beiden Seiten (geteilte und eigene)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'termine.bearbeiten': {
+    description:
+      'Termine anlegen, Agenda, Protokoll, Beschlüsse und interne Notizen pflegen (nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

@@ -191,6 +191,24 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
+    'termine.sehen': async (user) => {
+      const { status } = await request(
+        user,
+        'GET',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/termine',
+      );
+      return status === 404 ? 200 : status;
+    },
+    'termine.bearbeiten': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/termine/00000000-0000-4000-8000-000000000000/notiz',
+        { text: 'x' },
+      );
+      return status === 404 ? 200 : status;
+    },
     // Käufer haben keine Kunden; die leere Liste zeigt, dass das Recht greift (LIF-02).
     'kunden.sehen': async (user) => (await request(user, 'GET', '/api/kunden')).status,
     // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.

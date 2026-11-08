@@ -2,6 +2,7 @@ export * from './app-user.js';
 export * from './audit.js';
 export * from './invitation.js';
 export * from './master-data.js';
+export * from './meeting.js';
 export * from './organization.js';
 export * from './playbook.js';
 export * from './relationship.js';

@@ -8,6 +8,7 @@ import {
   businessUnitsResponseSchema,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
+  type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
   contributionDetailSchema,
@@ -36,6 +37,8 @@ import {
   invitationListSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
+  meetingDetailSchema,
+  meetingListSchema,
   meResponseSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
@@ -63,7 +66,10 @@ import {
   ruleSetProposalSchema,
   ruleSetResponseSchema,
   ruleSetSharePreviewSchema,
+  type SaveAgenda,
   type SaveFormatItem,
+  type SaveMeetingNote,
+  type SaveProtocol,
   type SaveRating,
   type SaveRuleItem,
   type SaveRuleSet,
@@ -84,6 +90,7 @@ import {
   teamResponseSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
+  type UpdateMeeting,
   type UpdateMemberRequest,
   type UpdateObjectiveCategory,
   type UpdatePlanSummary,
@@ -1174,3 +1181,61 @@ export const customerRuleSetQueryOptions = (accessToken: string, relationshipId:
       getJson(`/kunden/${relationshipId}/spielregeln`, customerRuleSetSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+// QBR-01a: Termine auf beiden Seiten; base ist /suppliers/<id> (Käufer) oder /kunden/<id> (Lieferant).
+
+export type MeetingBase = `/suppliers/${string}` | `/kunden/${string}`;
+
+export const meetingListQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['meetings', base],
+    queryFn: () => getJson(`${base}/termine`, meetingListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const meetingQueryOptions = (accessToken: string, base: MeetingBase, meetingId: string) =>
+  queryOptions({
+    queryKey: ['meetings', base, meetingId],
+    queryFn: () => getJson(`${base}/termine/${meetingId}`, meetingDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createMeeting = (accessToken: string, base: MeetingBase, request: CreateMeeting) =>
+  sendJson('POST', `${base}/termine`, request, meetingDetailSchema, accessToken);
+
+export const updateMeeting = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  request: UpdateMeeting,
+) => sendJson('PUT', `${base}/termine/${meetingId}`, request, meetingDetailSchema, accessToken);
+
+export const saveMeetingAgenda = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  request: SaveAgenda,
+) =>
+  sendJson('PUT', `${base}/termine/${meetingId}/agenda`, request, meetingDetailSchema, accessToken);
+
+export const saveMeetingProtocol = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  request: SaveProtocol,
+) =>
+  sendJson(
+    'PUT',
+    `${base}/termine/${meetingId}/protokoll`,
+    request,
+    meetingDetailSchema,
+    accessToken,
+  );
+
+export const saveMeetingNote = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  request: SaveMeetingNote,
+) =>
+  sendJson('PUT', `${base}/termine/${meetingId}/notiz`, request, meetingDetailSchema, accessToken);
