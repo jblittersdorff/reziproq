@@ -49,6 +49,8 @@ Grundlage ist das Dokument „Reziproq – Produktkonzept und Anforderungen“ v
 
 Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umgesetzt“ steht als Vermerk; der Status bleibt „offen“, bis die Spec vollständig erfüllt ist.
 
+**Testlauf-Pfad (seit 8.11.2026):** UMB-05, QBR-01b, QBR-03, SPL-07, JBP-01 bis JBP-09, PNL-01 bis PNL-06 kommen vor den übrigen Blöcken, siehe [`docs/umsetzungsplan.md`](../umsetzungsplan.md), Abschnitt 8.
+
 **Release 1.0** ist der Kernpfad M0 bis M15 (Ende Juni 2027). Die Blöcke danach folgen als 1.1, 1.2 usw.:
 
 - **F** Feedback
@@ -99,6 +101,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 36 | PLB-03 | Spielregeln je Beziehung | PLB-03 | PLB-01, SEG-06 | 1.0 | M14 | C | fertig | Statt segment_type_id speichert rule_set Stufen und Namen des Soll-Typs (segment_type hat keine id, wie bei SEG-06). Begründungen in rule_set_note auch für abgewählte Katalogeinträge. Wer anlegt oder freigibt, steht ohne Fremdschlüssel auf app_user (geteilte Tabelle). Eigene Einträge haben einen Text für beide Sprachen. |
 | 37 | SEG-10 | Typ und Spielregeln an Lieferanten freigeben | SEG-10, PLB-07 | PLB-03, LIF-02, SEG-06 | 1.0 | M14 | C | fertig | Teilen nur für intern freigegebene Versionen; eine früher geteilte Version wird wieder intern, der Lieferant sieht genau eine. Name und Beschreibung kommen beim Teilen aus dem aktiven Modell. relationship_target mit rule_set_id und ID und Name ohne Fremdschlüssel auf app_user. Seed: drei Fokuslieferanten mit Spielregeln, beim Test-Lieferanten geteilt. |
 | 38 | QBR-01a | Termine: Agenda, Teilnehmende, Protokoll | QBR-01, QBR-02 | PLB-03, LIF-02, NAV-05 | 1.0 | M15 | A | fertig | Teil a von QBR-01. Jede Seite ändert nur ihre Zeilen (PLT-04): Den Termin und das Protokoll pflegt, wer ihn angelegt hat; Agendapunkte und Beschlüsse ergänzt jede Seite für sich. Teilnehmende als Namen (geteilte Tabelle, kein Fremdschlüssel auf app_user). Sperre abgeschlossener Termine schon per Trigger. |
+| 38a | UMB-05 | Einfachere Oberfläche | NAV-05, NAV-06, NAV-10 | PLT-10, NAV-06, NAV-05 | 1.0 | Testlauf | A | offen | Entscheidung vom 8.11.2026, Testlauf-Pfad |
 | 39 | QBR-01b | Termine: Live-Abschnitte, Abschließen, Termin-Quelle | QBR-01, QBR-02 | QBR-01a | 1.0 | M15 | A | offen | Teil b von QBR-01 |
 | 40 | QBR-03 | Maßnahmen | QBR-03, QBR-05 | QBR-01b | 1.0 | M15 | A | offen | – |
 | 41 | PUL-01 | Fragebogen | PUL-01 | PLT-09 | nach 1.0 | Block F | A | offen | – |
@@ -118,7 +121,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 55 | SPL-07 | Freigabe und Versionen des Lieferantenplans | SPL-07, SPL-09 | SPL-03, SPL-06, SPL-01, PLT-05b | nach 1.0 | Block P | C | offen | – |
 | 56 | QBR-04 | Erinnerung und Eskalation | QBR-04 | QBR-03, QS-01 | nach 1.0 | Block P | A | offen | – |
 | 57 | PLB-06 | Kontaktpunkte | PLB-06 | PLB-03, PLT-07b | nach 1.0 | Block P | C | offen | – |
-| 58 | JBP-01 | Vorbereitung des Joint Business Planning | JBP-01 | QBR-01b, SPL-07, PUL-03, SEG-10, ZYK-02 | nach 1.0 | Block J | C | offen | – |
+| 58 | JBP-01 | Vorbereitung des Joint Business Planning | JBP-01 | QBR-01b, SPL-07, SEG-10, ZYK-02 | nach 1.0 | Block J | C | offen | Testlauf-Pfad (umsetzungsplan.md, Abschnitt 8). PUL-03 nur weich: Der Feedback-Abschnitt erscheint, sobald Block F gebaut ist. |
 | 59 | JBP-02 | Themen beider Seiten | JBP-02, LIF-04 | JBP-01, SPL-06 | nach 1.0 | Block J | C | offen | – |
 | 60 | JBP-03 | Initiativen und Roadmap | JBP-03, JBP-04 | JBP-02 | nach 1.0 | Block J | C | offen | – |
 | 61 | JBP-05 | Zusagen | JBP-05 | JBP-03 | nach 1.0 | Block J | C | offen | – |

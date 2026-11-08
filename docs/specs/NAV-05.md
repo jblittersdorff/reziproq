@@ -1,5 +1,7 @@
 # NAV-05 Start
 
+> Geändert durch UMB-05 (8.11.2026): Start als Aufgabenliste, nur gebaute Kacheln.
+
 Release 0.1 · baut auf PLT-11, NAV-06, SEG-04 · deckt ab NAV-05
 
 ## Ziel

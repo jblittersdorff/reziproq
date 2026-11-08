@@ -1,5 +1,7 @@
 # NAV-06 Lieferanten-Arbeitsbereich
 
+> Geändert durch UMB-05 (8.11.2026): ein Lieferant auf einer Seite mit Abschnitten statt Bereichsseiten, nur gebaute Module, kein „Kommt mit Release …“.
+
 Release 0.1 · baut auf PLT-03, PLT-05, PLT-11 · deckt ab NAV-06, NAV-07, NAV-08, NAV-09
 
 ## Ziel

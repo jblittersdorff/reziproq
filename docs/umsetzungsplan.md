@@ -515,4 +515,37 @@ Am 31.10.2026 bestätigt.
 
 1. **Umfang von Release 1.0:** 1.0 Ende Juni 2027 ist genau der Kernpfad (M0 bis M15). Die Blöcke F bis K folgen als 1.1, 1.2 usw. UMB-04 passt die Release-Spalte der README an.
 2. **Wirkung:** keine Zusatz-Spec. Block W folgt nach F, P und J, weil er die Initiativen aus JBP-03 braucht.
-3. **Reihenfolge der Blöcke:** F, S, P, J, W, R, K. Nach dem Testlauf im Juni wird sie noch einmal geprüft.
+3. **Reihenfolge der Blöcke:** F, S, P, J, W, R, K. Nach dem Testlauf im Juni wird sie noch einmal geprüft. Am 8.11.2026 geändert, siehe 8.
+
+## 8. Testlauf-Pfad (Entscheidung vom 8.11.2026)
+
+Der Kernpfad ist bis auf QBR-01b und QBR-03 gebaut, aus Block P fehlen nur SPL-07, QBR-04 und PLB-06. Der Gründer möchte bald einen Testlauf mit einem Lieferanten durch alle Funktionen machen:
+
+- Segmentierung je Warengruppe
+- Terminvorbereitung
+- Joint Business Planning
+- Business Impact Scorecard
+- Maßnahmen mit ihrer Nachverfolgung
+
+Dafür gilt diese Reihenfolge vor den übrigen Blöcken:
+
+| # | Spec | Wofür im Testlauf |
+|---|---|---|
+| 1 | UMB-05 | Einfachere Oberfläche: nur Gebautes, ein Lieferant auf einer Seite, Start als Aufgabenliste |
+| 2 | QBR-01b | Termin live führen, abschließen, nächster Termin auf Start |
+| 3 | QBR-03 | Maßnahmen dokumentieren und ihren Stand verfolgen |
+| 4 | SPL-07 | Lieferantenplan freigeben, Eingang ins JBP |
+| 5 | JBP-01 | Vorbereitung des Joint Business Planning |
+| 6 | JBP-02 | Themen beider Seiten |
+| 7 | JBP-03 | Initiativen und Roadmap |
+| 8 | JBP-05 | Zusagen |
+| 9 | JBP-06 | Freigabe und Versionen des Gemeinsamen Plans |
+| 10 | JBP-07 | Scorecard mit Zielwerten und Unterschrift (Business Impact Scorecard) |
+| 11 | JBP-09 | Ist-Werte der Kennzahlen |
+| 12 | PNL-01 | Wirkung einrichten, Hebel |
+| 13 | PNL-03 | Baseline und Reifegrade |
+| 14 | PNL-05 | Monatswerte Plan und Ist |
+| 15 | PNL-06 | Freigabe durch Controlling |
+
+- **JBP-01 ohne PUL-03:** Das Feedback-Ergebnis ist in JBP-01 ohnehin nur sichtbar, wenn es aufgedeckt ist. Bis Block F gebaut ist, entfällt der Abschnitt. Die Abhängigkeit ist damit weich.
+- **Danach:** F (Feedback), dann der Rest von P (QBR-04, PLB-06), S, PNL-07 bis PNL-11, R und K.
