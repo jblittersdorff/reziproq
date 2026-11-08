@@ -22,7 +22,7 @@ const copy = {
     },
     supplier_invitation: {
       subject: 'Einladung zur Zusammenarbeit',
-      body: 'Du bist eingeladen, mit uns in Reziproq zusammenzuarbeiten. Du brauchst nur deinen Namen und einen Passkey, kein Passwort.',
+      body: 'In Reziproq arbeitet ihr gemeinsam an eurer Beziehung. Du brauchst nur deinen Namen und einen Passkey, kein Passwort.',
       deadline: 'Der Link gilt bis',
       link: 'Einladung annehmen',
     },
@@ -54,7 +54,7 @@ const copy = {
     },
     supplier_invitation: {
       subject: 'Invitation to collaborate',
-      body: 'You are invited to work with us in Reziproq. All you need is your name and a passkey, no password.',
+      body: 'In Reziproq you work together on your relationship. All you need is your name and a passkey, no password.',
       deadline: 'The link is valid until',
       link: 'Accept invitation',
     },
