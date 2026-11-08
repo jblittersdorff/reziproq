@@ -31,3 +31,4 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `fokus.setzen` | Fokuslieferanten setzen und entfernen, mit Begründung (nur Käufer-Admin) | ja | nein | nein | nein |
 | `zyklus.starten` | Zyklus eines Fokuslieferanten starten und JBP-Termin festlegen oder verschieben (Käufer-Admin oder SRO) | ja | ja | nein | nein |
 | `lieferantenplan.bearbeiten` | Lieferantenplan verwalten und eigene zugewiesene Ziele bearbeiten | ja | ja | nein | nein |
+| `lieferanten.einladen` | Personen des Lieferanten einladen und Einladungen zurückziehen (Admin oder SRO der Beziehung) | ja | ja | nein | nein |

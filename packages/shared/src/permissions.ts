@@ -48,6 +48,7 @@ export const actions = [
   'fokus.setzen',
   'zyklus.starten',
   'lieferantenplan.bearbeiten',
+  'lieferanten.einladen',
 ] as const;
 export type Action = (typeof actions)[number];
 

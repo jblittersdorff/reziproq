@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   defaultSegmentCriteria,
   defaultSegmentTypes,
@@ -8,6 +9,7 @@ import type { Database } from './client.js';
 import {
   appUser,
   businessUnit,
+  invitation,
   materialGroup,
   type OrgRole,
   organization,
@@ -197,6 +199,12 @@ const relationships = [
     spend: null,
   })),
 ];
+
+/**
+ * Offene Einladung beim Test-Lieferanten (LIF-01a). Der feste Token macht /einladung/<token> lokal
+ * aufrufbar; in der Datenbank steht wie immer nur sein SHA-256.
+ */
+export const seedInvitationToken = 'demo-einladung-test-lieferant-0001';
 
 /**
  * Teams für die ersten fünf Lieferanten des Test-OEM (PLT-05): Lena als SRO, Tom als Sponsor,
@@ -451,6 +459,40 @@ export async function seed(
     await tx
       .insert(relationshipMember)
       .values(seedTeams.map((member) => ({ ...member, orgId: seedBuyers.testOem.id })));
+
+    // LIF-01a: Lena ist SRO beim Test-Lieferanten und hat seinen Key Account Manager eingeladen.
+    const invitedRelationship = id(401);
+    await tx
+      .insert(relationshipMember)
+      .values({
+        relationshipId: invitedRelationship,
+        orgId: seedBuyers.testOem.id,
+        userId: 'demo-test-oem-1',
+        teamRole: 'sro',
+        function: 'purchasing',
+      })
+      .onConflictDoNothing();
+    await tx
+      .insert(invitation)
+      .values({
+        id: id(901),
+        relationshipId: invitedRelationship,
+        orgId: seedBuyers.testOem.id,
+        email: 'kim.test-lieferant@example.com',
+        message: 'Hallo Kim, wir möchten die Zusammenarbeit gern in Reziproq führen.',
+        tokenHash: createHash('sha256').update(seedInvitationToken).digest('hex'),
+        invitedBy: 'demo-test-oem-1',
+        expiresAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .onConflictDoUpdate({
+        target: invitation.id,
+        set: {
+          expiresAt: sql`excluded.expires_at`,
+          acceptedAt: null,
+          acceptedUserId: null,
+          revokedAt: null,
+        },
+      });
 
     // Business Units und Warengruppen (PLT-06); Oberebenen vor ihren Untergruppen.
     await tx

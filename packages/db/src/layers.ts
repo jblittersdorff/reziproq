@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 
@@ -88,6 +89,16 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // LIF-01a: Einladung einer Person des Lieferanten; nur die einladende Organisation sieht sie.
+  invitation: {
+    kind: 'org_private',
+    testValues: () => ({
+      email: 'probe@example.com',
+      token_hash: randomBytes(32).toString('hex'),
+      invited_by: 'demo-test-oem-1',
+      expires_at: new Date('2099-01-01T00:00:00Z'),
+    }),
+  },
   segment_model: {
     kind: 'org_private',
     testValues: () => ({

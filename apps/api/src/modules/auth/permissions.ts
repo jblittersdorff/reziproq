@@ -114,6 +114,12 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'lieferanten.einladen': {
+    description:
+      'Personen des Lieferanten einladen und Einladungen zurückziehen (Admin oder SRO der Beziehung)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

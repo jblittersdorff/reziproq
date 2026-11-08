@@ -15,6 +15,8 @@ export class EmailService {
       title: notification.title,
       ...(notification.deadline === undefined ? {} : { deadline: notification.deadline }),
       link: notification.link,
+      ...(notification.sender === undefined ? {} : { sender: notification.sender }),
+      ...(notification.message === undefined ? {} : { message: notification.message }),
     };
   }
 }

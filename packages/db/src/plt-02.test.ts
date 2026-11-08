@@ -97,6 +97,7 @@ describe('PLT-02 in der Datenbank', () => {
       'cycle_reminder_sent',
       'cycle_setting',
       'email_log',
+      'invitation',
       'material_group',
       'objective_category',
       'organization',

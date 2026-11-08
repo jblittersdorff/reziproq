@@ -20,6 +20,12 @@ const copy = {
       deadline: 'Frist',
       link: 'Freigabe öffnen',
     },
+    supplier_invitation: {
+      subject: 'Einladung zur Zusammenarbeit',
+      body: 'In Reziproq arbeitet ihr gemeinsam an eurer Beziehung. Du brauchst nur deinen Namen und einen Passkey, kein Passwort.',
+      deadline: 'Der Link gilt bis',
+      link: 'Einladung annehmen',
+    },
     escalation: {
       subject: 'Eskalation',
       body: 'Der folgende Vorgang benötigt deine Aufmerksamkeit.',
@@ -45,6 +51,12 @@ const copy = {
       body: 'Your approval is needed for the following item.',
       deadline: 'Due date',
       link: 'Open approval',
+    },
+    supplier_invitation: {
+      subject: 'Invitation to collaborate',
+      body: 'In Reziproq you work together on your relationship. All you need is your name and a passkey, no password.',
+      deadline: 'The link is valid until',
+      link: 'Accept invitation',
     },
     escalation: {
       subject: 'Escalation',
@@ -86,7 +98,21 @@ export function renderEmail(content: EmailContent, webAppUrl: string) {
       ? 'Hallo,'
       : 'Hello,';
   const deadlineText = safe.deadline ? `${language.deadline}: ${safe.deadline}` : '';
-  const text = [greeting, language.body, safe.title, deadlineText, `${language.link}: ${url}`]
+  // Einladung eines Lieferanten (LIF-01): Wer einlädt, steht vor dem Kunden im Titel.
+  const senderText = safe.sender
+    ? safe.locale === 'de'
+      ? `${safe.sender} von ${safe.title} lädt dich ein.`
+      : `${safe.sender} from ${safe.title} invites you.`
+    : '';
+  const text = [
+    greeting,
+    senderText,
+    language.body,
+    safe.message ?? '',
+    senderText ? '' : safe.title,
+    deadlineText,
+    `${language.link}: ${url}`,
+  ]
     .filter(Boolean)
     .join('\n\n');
   const deadlineHtml = safe.deadline
@@ -99,8 +125,15 @@ export function renderEmail(content: EmailContent, webAppUrl: string) {
     html: [
       `<html lang="${safe.locale}"><body>`,
       `<p>${escapeHtml(greeting)}</p>`,
+      senderText ? `<p>${escapeHtml(senderText)}</p>` : '',
       `<p>${escapeHtml(language.body)}</p>`,
       `<h1>${escapeHtml(safe.title)}</h1>`,
+      safe.message
+        ? `<blockquote>${safe.message
+            .split(/\r?\n/u)
+            .map((line) => escapeHtml(line))
+            .join('<br>')}</blockquote>`
+        : '',
       deadlineHtml,
       `<p><a href="${escapeHtml(url)}">${escapeHtml(language.link)}</a></p>`,
       '</body></html>',

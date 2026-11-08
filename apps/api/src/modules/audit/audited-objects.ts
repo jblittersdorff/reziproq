@@ -60,6 +60,13 @@ export const ratingInvitationAudit = auditedObject({
   fields: ['round'],
 });
 
+/** Einladung einer Person des Lieferanten (LIF-01): nur die einladende Organisation sieht sie. */
+export const supplierInvitationAudit = auditedObject({
+  type: 'invitation',
+  visibility: 'internal',
+  fields: ['email', 'status'],
+});
+
 /** Interner Lieferantenplan, Ziele und Kategorien (SPL-01). */
 export const supplierPlanAudit = auditedObject({
   type: 'supplier_plan',
@@ -69,7 +76,14 @@ export const supplierPlanAudit = auditedObject({
 export const planObjectiveAudit = auditedObject({
   type: 'plan_objective',
   visibility: 'internal',
-  fields: ['category_key', 'business_unit_id', 'material_group_id', 'text', 'owner_user_id', 'target_year'],
+  fields: [
+    'category_key',
+    'business_unit_id',
+    'material_group_id',
+    'text',
+    'owner_user_id',
+    'target_year',
+  ],
 });
 /** Angeforderter Beitrag zum Lieferantenplan (SPL-03); die Anfrage-Mail hängt am Verlaufseintrag. */
 export const planContributionAudit = auditedObject({
@@ -97,6 +111,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   supplierPlanAudit,
   segmentationRoundAudit,
   ratingInvitationAudit,
+  supplierInvitationAudit,
   relationshipAssignmentAudit,
   relationshipTeamAudit,
   userRoleAudit,

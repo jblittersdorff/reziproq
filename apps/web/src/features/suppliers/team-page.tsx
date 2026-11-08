@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AuditHistory } from '@/features/audit/audit-history';
+import { InvitationsSection } from '@/features/invitations/invitations-section';
 import { PageHeader } from '@/features/shell/page-header';
 import { useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
@@ -101,6 +102,7 @@ export function TeamPage({ relationshipId }: { relationshipId: string }) {
               )}
             </>
           )}
+          <InvitationsSection relationshipId={relationshipId} />
           <section aria-labelledby="team-verlauf" className="flex flex-col gap-4">
             <h2 id="team-verlauf" className="font-semibold text-lg">
               {t.suppliers.history}

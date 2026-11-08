@@ -72,6 +72,45 @@ describe('QS-01 E-Mail-Vorlagen', () => {
     ).toThrow();
   });
 
+  it.each(['de', 'en'] as const)(
+    'die Einladung eines Lieferanten nennt Kunde, SRO, Frist und Nachricht (%s, LIF-01)',
+    (locale) => {
+      const result = renderEmail(
+        {
+          template: 'supplier_invitation',
+          locale,
+          title: 'Test-OEM (Demo)',
+          sender: 'Lena Berger',
+          deadline: '15. November 2026',
+          message: 'Hallo Kim,\n<b>bis bald</b>',
+          link: '/einladung/abcDEF_123-abcDEF_123-abc',
+        },
+        'https://app.example.com',
+      );
+      expect(result.subject).toContain('Test-OEM (Demo)');
+      expect(result.text).toContain('Lena Berger');
+      expect(result.text).toContain('15. November 2026');
+      expect(result.text).toContain('Hallo Kim,\n<b>bis bald</b>');
+      expect(result.html).toContain('Hallo Kim,<br>&lt;b&gt;bis bald&lt;/b&gt;');
+      expect(result.html).toContain(
+        'href="https://app.example.com/einladung/abcDEF_123-abcDEF_123-abc"',
+      );
+    },
+  );
+
+  it('eine Nachricht mit Steuerzeichen außer Zeilenumbrüchen wird abgelehnt', () => {
+    expect(() =>
+      new EmailService().prepare({
+        recipient: 'kim@example.com',
+        template: 'supplier_invitation',
+        locale: 'de',
+        title: 'Test-OEM (Demo)',
+        message: 'Hallo\u0007',
+        link: '/einladung/abc',
+      }),
+    ).toThrow();
+  });
+
   it.each(['https://evil.example', '//evil.example', '/fragen?token=secret', '/a/../b'])(
     'lehnt unsicheren E-Mail-Link %s ab',
     (link) => {
@@ -90,7 +129,9 @@ describe('QS-01 Outbox-Verarbeitung', () => {
       claimNext,
       markSent: vi.fn<EmailOutboxStore['markSent']>().mockResolvedValue(undefined),
       markFailed: vi.fn<EmailOutboxStore['markFailed']>().mockResolvedValue(undefined),
-      reminderOrganizations: vi.fn<EmailOutboxStore['reminderOrganizations']>().mockResolvedValue([]),
+      reminderOrganizations: vi
+        .fn<EmailOutboxStore['reminderOrganizations']>()
+        .mockResolvedValue([]),
     };
     const sendMail = vi.fn<EmailTransport['sendMail']>().mockResolvedValue(undefined);
     const processor = new EmailProcessor(outbox, { sendMail });
@@ -114,7 +155,9 @@ describe('QS-01 Outbox-Verarbeitung', () => {
       claimNext,
       markSent: vi.fn<EmailOutboxStore['markSent']>().mockResolvedValue(undefined),
       markFailed: vi.fn<EmailOutboxStore['markFailed']>().mockResolvedValue(undefined),
-      reminderOrganizations: vi.fn<EmailOutboxStore['reminderOrganizations']>().mockResolvedValue([]),
+      reminderOrganizations: vi
+        .fn<EmailOutboxStore['reminderOrganizations']>()
+        .mockResolvedValue([]),
     };
     const sendMail = vi
       .fn<EmailTransport['sendMail']>()

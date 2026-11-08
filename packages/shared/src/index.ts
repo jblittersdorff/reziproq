@@ -5,6 +5,7 @@ export * from './focus.js';
 export * from './health.js';
 export * from './import.js';
 export * from './import-demo.js';
+export * from './invitations.js';
 export * from './master-data.js';
 export * from './me.js';
 export * from './money.js';

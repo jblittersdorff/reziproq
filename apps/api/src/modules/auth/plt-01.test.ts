@@ -26,7 +26,7 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
     testApp = await startTestApp();
     baseUrl = await testApp.app.getUrl();
     routes = discoverRoutes(testApp.app);
-    protectedRoutes = routes.filter((r) => !(r.method === 'GET' && r.path === '/api/health'));
+    protectedRoutes = routes.filter((r) => !r.isPublic);
   });
 
   afterAll(async () => {
@@ -47,7 +47,18 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
     );
   });
 
-  it('Jede Route außer GET /health antwortet ohne Token mit 401', async () => {
+  it('Öffentlich sind nur GET /health und der Einladungslink (LIF-01a)', () => {
+    expect(routes.filter((r) => r.isPublic).map((r) => `${r.method} ${r.path}`)).toEqual(
+      expect.arrayContaining([
+        'GET /api/health',
+        'GET /api/einladungen/00000000-0000-7000-8000-000000000000',
+        'POST /api/einladungen/00000000-0000-7000-8000-000000000000/annahme',
+      ]),
+    );
+    expect(routes.filter((r) => r.isPublic)).toHaveLength(3);
+  });
+
+  it('Jede andere Route antwortet ohne Token mit 401', async () => {
     const health = await call({ method: 'GET', path: '/api/health' });
     expect(health.status).toBe(200);
 

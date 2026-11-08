@@ -132,6 +132,52 @@ export class AccountStore {
   }
 }
 
+/** Zeile aus app_einladung_lesen (LIF-01a): status open, expired, used oder revoked. */
+export interface InvitationLookup {
+  status: 'open' | 'expired' | 'used' | 'revoked';
+  customer: string;
+  sro: string | null;
+  supplier: string;
+  supplier_org_id: string;
+  zitadel_org_id: string | null;
+  email: string;
+  kam_taken: boolean;
+}
+
+/**
+ * Einladung ohne Login lesen und annehmen (LIF-01a), nur über app_einladung_lesen und
+ * app_einladung_annehmen. Beide bekommen den SHA-256 des Tokens, nie den Token.
+ */
+@Injectable()
+export class InvitationStore {
+  constructor(@Inject(DATABASE) private readonly db: Database) {}
+
+  async lookup(tokenHash: string): Promise<InvitationLookup | null> {
+    const result = await this.db.execute<InvitationLookup & Record<string, unknown>>(
+      sql`select * from app_einladung_lesen(${tokenHash})`,
+    );
+    return result.rows[0] ?? null;
+  }
+
+  async accept(input: {
+    tokenHash: string;
+    userId: string;
+    name: string;
+    givenName: string;
+    email: string;
+    zitadelOrgId: string;
+    teamRole: string;
+    locale: UserLocale;
+  }): Promise<void> {
+    await this.db.execute(sql`
+      select * from app_einladung_annehmen(
+        ${input.tokenHash}, ${input.userId}, ${input.name}, ${input.givenName}, ${input.email},
+        ${input.zitadelOrgId}, ${input.teamRole}, ${input.locale}
+      )
+    `);
+  }
+}
+
 @Global()
 @Module({
   providers: [
@@ -143,7 +189,8 @@ export class AccountStore {
     },
     TenantDatabase,
     AccountStore,
+    InvitationStore,
   ],
-  exports: [TenantDatabase, AccountStore],
+  exports: [TenantDatabase, AccountStore, InvitationStore],
 })
 export class DatabaseModule {}

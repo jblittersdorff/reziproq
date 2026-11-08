@@ -35,8 +35,10 @@ describe('PLT-05b: Team je Beziehung in der Datenbank', () => {
       select array_agg(team_role order by team_role) as roles from relationship_member
       group by relationship_id order by relationship_id
     `);
-    expect(teams.rows).toHaveLength(5);
-    expect(teams.rows.filter((row) => row.roles.includes('sro'))).toHaveLength(5);
+    // Dazu der Test-Lieferant mit Lena als SRO allein, für die offene Einladung (LIF-01a).
+    expect(teams.rows).toHaveLength(6);
+    expect(teams.rows.filter((row) => row.roles.length >= 3)).toHaveLength(5);
+    expect(teams.rows.filter((row) => row.roles.includes('sro'))).toHaveLength(6);
     expect(teams.rows.filter((row) => row.roles.includes('viewer'))).toHaveLength(1);
   });
 
