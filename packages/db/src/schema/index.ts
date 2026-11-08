@@ -6,6 +6,7 @@ export * from './organization.js';
 export * from './playbook.js';
 export * from './relationship.js';
 export * from './rounds.js';
+export * from './rule-set.js';
 export * from './segment.js';
 export * from './supplier-contact.js';
 export * from './supplier-plan.js';

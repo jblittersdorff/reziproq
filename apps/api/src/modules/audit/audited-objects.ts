@@ -79,6 +79,13 @@ export const formatCatalogAudit = auditedObject({
   fields: ['name', 'level', 'cadence', 'min_impact_level', 'for_quality_levels'],
 });
 
+/** Spielregeln einer Beziehung (PLB-03): intern, bis SEG-10 sie teilt. */
+export const ruleSetAudit = auditedObject({
+  type: 'rule_set',
+  visibility: 'internal',
+  fields: ['version', 'status', 'type_name'],
+});
+
 /** Interner Lieferantenplan, Ziele und Kategorien (SPL-01). */
 export const supplierPlanAudit = auditedObject({
   type: 'supplier_plan',
@@ -124,6 +131,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   segmentationRoundAudit,
   ratingInvitationAudit,
   supplierInvitationAudit,
+  ruleSetAudit,
   ruleCatalogAudit,
   formatCatalogAudit,
   relationshipAssignmentAudit,

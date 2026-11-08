@@ -132,6 +132,12 @@ export const permissions: Record<Action, Permission> = {
     description: 'Rechte, Pflichten und Formate im Katalog anlegen und ändern (nur Käufer-Admin)',
     roles: ['admin'],
   },
+  'spielregeln.festlegen': {
+    description:
+      'Spielregeln einer Beziehung vorschlagen lassen, bearbeiten und intern freigeben (Admin oder SRO)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

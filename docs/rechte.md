@@ -35,3 +35,4 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `kunden.sehen` | Als Lieferant die eigenen Kunden und ihre Arbeitsbereiche sehen (nur Geteiltes) | ja | ja | ja | ja |
 | `spielregeln.sehen` | Kataloge für Spielregeln und Formate und die Vorschau je Typ sehen (nur Käufer) | ja | ja | ja | ja |
 | `spielregeln.verwalten` | Rechte, Pflichten und Formate im Katalog anlegen und ändern (nur Käufer-Admin) | ja | nein | nein | nein |
+| `spielregeln.festlegen` | Spielregeln einer Beziehung vorschlagen lassen, bearbeiten und intern freigeben (Admin oder SRO) | ja | ja | nein | nein |

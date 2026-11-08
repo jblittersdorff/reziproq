@@ -52,6 +52,7 @@ export const actions = [
   'kunden.sehen',
   'spielregeln.sehen',
   'spielregeln.verwalten',
+  'spielregeln.festlegen',
 ] as const;
 export type Action = (typeof actions)[number];
 

@@ -26,4 +26,5 @@ export const buyerOnlyActions: readonly Action[] = [
   'lieferantenplan.bearbeiten',
   'spielregeln.sehen',
   'spielregeln.verwalten',
+  'spielregeln.festlegen',
 ];

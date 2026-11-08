@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 
@@ -49,6 +49,7 @@ export interface LayerEntry {
 }
 
 let nextSegmentLayerTestVersion = 0;
+let nextRuleSetLayerTestVersion = 0;
 
 export const layerRegister: Record<string, LayerEntry> = {
   organization: {
@@ -89,6 +90,37 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
   relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // PLB-03: Spielregeln je Beziehung, geteilt angelegt, intern bis SEG-10.
+  rule_set: {
+    kind: 'shared',
+    testValues: () => ({
+      version: ++nextRuleSetLayerTestVersion,
+      target_impact_level: 2,
+      target_quality_level: 2,
+      type_name: 'Probe',
+      created_by: 'demo-test-oem-1',
+    }),
+  },
+  rule_set_item: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      rule_set_id: buyer && probe('rule_set', buyer),
+      kind: 'right',
+      group: 'cost',
+      title: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      description: JSON.stringify({ de: 'Probe', en: 'Probe' }),
+      origin: 'custom',
+      position: 1,
+    }),
+  },
+  rule_set_note: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      rule_set_id: buyer && probe('rule_set', buyer),
+      catalog_item_id: randomUUID(),
+      deviation_reason: 'Probe',
+    }),
+  },
   // PLB-01: Kataloge für Spielregeln und Formate je Käuferorganisation.
   rule_catalog_item: {
     kind: 'org_private',
