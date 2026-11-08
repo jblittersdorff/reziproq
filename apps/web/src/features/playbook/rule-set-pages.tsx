@@ -34,7 +34,9 @@ import {
   approveRuleSet,
   ruleSetProposalQueryOptions,
   ruleSetQueryOptions,
+  ruleSetSharePreviewQueryOptions,
   saveRuleSet,
+  shareRuleSet,
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
@@ -63,14 +65,17 @@ function useRefreshRuleSet(relationshipId: string) {
     queryClient.invalidateQueries({ queryKey: ['suppliers', relationshipId, 'rule-set'] });
 }
 
-type ListedItem = Pick<RuleSetItem, 'kind' | 'group' | 'title' | 'description' | 'cadence'> & {
+export type ListedItem = Pick<
+  RuleSetItem,
+  'kind' | 'group' | 'title' | 'description' | 'cadence'
+> & {
   key: string;
   custom?: boolean;
   reason?: string | null;
 };
 
 /** Rechte und Pflichten je Gruppe nebeneinander, darunter die Formate mit Takt. */
-function ItemsView({ items }: { items: ListedItem[] }) {
+export function ItemsView({ items }: { items: ListedItem[] }) {
   const text = useT().ruleSets;
   const catalog = useT().playbook;
   const localized = useLocalized();
@@ -202,7 +207,7 @@ function RuleSetContent({ relationshipId }: { relationshipId: string }) {
       </>
     );
   }
-  const { current, target, targetChanged, canManage } = query.data;
+  const { current, target, targetChanged, canManage, shared } = query.data;
 
   const run = async (work: () => Promise<unknown>, done: string, failed: string) => {
     setBusy(true);
@@ -301,7 +306,17 @@ function RuleSetContent({ relationshipId }: { relationshipId: string }) {
         {current.status !== 'draft' && canManage && (
           <p className="text-muted-foreground text-sm">{text.lockedHint}</p>
         )}
+        {shared && shared.version === current.version && (
+          <p className="text-muted-foreground text-sm">
+            {text.sharedOn(format.date(shared.sharedAt))}
+          </p>
+        )}
       </div>
+      {shared && shared.version !== current.version && (
+        <p role="status" className="rounded-lg bg-muted px-4 py-3 text-muted-foreground">
+          {text.supplierSees(shared.version, format.date(shared.sharedAt))}
+        </p>
+      )}
       {canManage && (
         <div className="flex flex-wrap gap-3">
           {current.status === 'draft' && (
@@ -320,6 +335,16 @@ function RuleSetContent({ relationshipId }: { relationshipId: string }) {
             >
               {text.approve}
             </ConfirmButton>
+          )}
+          {current.status === 'approved' && (
+            <Button asChild>
+              <Link
+                to="/lieferanten/$id/beziehung/spielregeln/teilen"
+                params={{ id: relationshipId }}
+              >
+                {text.share}
+              </Link>
+            </Button>
           )}
           <Button asChild variant="outline">
             <Link
@@ -801,5 +826,94 @@ function EditForm({
         </Button>
       </FormActions>
     </form>
+  );
+}
+
+/** Mit Lieferant teilen (SEG-10): Vorschau genau so, wie der Lieferant sie sieht, dann bestätigen. */
+export function RuleSetSharePage({ relationshipId }: { relationshipId: string }) {
+  const text = useT().ruleSets;
+  return (
+    <SupplierFrame
+      relationshipId={relationshipId}
+      area="relationship"
+      trail={() => [{ label: text.title, href: rulesPath(relationshipId) }]}
+      current={text.shareTitle}
+      header={<PageHeader title={text.shareTitle} purpose={text.sharePurpose} />}
+    >
+      {() => <ShareContent relationshipId={relationshipId} />}
+    </SupplierFrame>
+  );
+}
+
+function ShareContent({ relationshipId }: { relationshipId: string }) {
+  const text = useT().ruleSets;
+  const accessToken = useToken();
+  const navigate = useNavigate();
+  const refresh = useRefreshRuleSet(relationshipId);
+  const query = useQuery({
+    ...ruleSetSharePreviewQueryOptions(accessToken, relationshipId),
+    enabled: accessToken !== '',
+  });
+  const [failed, setFailed] = useState(false);
+  if (query.isError) return <ErrorState title={text.failed} />;
+  if (!query.data) return <LoadingState label={text.loading} />;
+  const preview = query.data;
+  const share = async () => {
+    setFailed(false);
+    try {
+      await shareRuleSet(accessToken, relationshipId);
+      await refresh();
+      flash.set(text.sharedDone);
+      await navigate({
+        to: '/lieferanten/$id/beziehung/spielregeln',
+        params: { id: relationshipId },
+      });
+    } catch {
+      setFailed(true);
+    }
+  };
+  return (
+    <>
+      {failed && <StatusLine message={text.shareFailed} tone="warning" />}
+      <SharedView
+        typeName={preview.typeName}
+        typeDescription={preview.typeDescription}
+        items={preview.items}
+      />
+      <ConfirmButton
+        variant="default"
+        question={text.shareQuestion(preview.version)}
+        confirmLabel={text.shareYes}
+        cancelLabel={text.shareCancel}
+        onConfirm={() => void share()}
+      >
+        {text.share}
+      </ConfirmButton>
+    </>
+  );
+}
+
+/** Was der Lieferant sieht: Typ mit Beschreibung, darunter die Spielregeln (SEG-10). */
+export function SharedView({
+  typeName,
+  typeDescription,
+  items,
+}: {
+  typeName: string;
+  typeDescription: string;
+  items: Omit<ListedItem, 'key'>[];
+}) {
+  const text = useT().ruleSets;
+  return (
+    <div className="flex flex-col gap-8">
+      <section aria-labelledby="sr-typ" className="flex flex-col gap-1 rounded-lg bg-secondary p-5">
+        <h2 id="sr-typ" className="text-muted-foreground text-sm">
+          {text.typeHeading}
+        </h2>
+        <p className="font-semibold text-lg">{typeName}</p>
+        {typeDescription && <p className="text-muted-foreground">{typeDescription}</p>}
+      </section>
+      <ItemsView items={items.map((item, index) => ({ ...item, key: `${index}` }))} />
+    </div>
   );
 }

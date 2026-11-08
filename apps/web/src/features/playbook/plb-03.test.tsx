@@ -95,7 +95,7 @@ beforeEach(() => {
   setUpApp();
   api.permissions = actionsFor.admin;
   sent = [];
-  response = { current: draft, target, targetChanged: false, canManage: true };
+  response = { current: draft, target, targetChanged: false, canManage: true, shared: null };
   api.handle = (request) => {
     if (request.url === `/api/suppliers/${rel}`) return Response.json(detail);
     if (request.url.startsWith(`/api/suppliers/${rel}/overview`)) {
@@ -124,14 +124,14 @@ const page = `/lieferanten/${rel}/beziehung/spielregeln`;
 
 describe('PLB-03 Spielregeln je Beziehung', () => {
   it('ohne Soll-Typ erklärt die Seite den nächsten Schritt', async () => {
-    response = { current: null, target: null, targetChanged: false, canManage: true };
+    response = { current: null, target: null, targetChanged: false, canManage: true, shared: null };
     renderAt(page);
     expect(await screen.findByText('Noch kein Soll-Typ')).toBeDefined();
     expect(screen.getByRole('link', { name: 'Zur Segmentierung' })).toBeDefined();
   });
 
   it('ohne Spielregeln übernimmt ein Klick den Vorschlag', async () => {
-    response = { current: null, target, targetChanged: false, canManage: true };
+    response = { current: null, target, targetChanged: false, canManage: true, shared: null };
     renderAt(page);
     fireEvent.click(await screen.findByRole('button', { name: 'Vorschlag übernehmen' }));
     await waitFor(() => expect(sent).toHaveLength(1));

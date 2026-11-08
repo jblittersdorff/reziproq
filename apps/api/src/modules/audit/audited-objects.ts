@@ -67,6 +67,13 @@ export const supplierInvitationAudit = auditedObject({
   fields: ['email', 'status'],
 });
 
+/** Mit dem Lieferanten geteilter Beziehungstyp (SEG-10): beide Seiten sehen, dass geteilt wurde. */
+export const relationshipTargetAudit = auditedObject({
+  type: 'relationship_target',
+  visibility: 'shared',
+  fields: ['type_name', 'rule_set_version'],
+});
+
 /** Kataloge für Spielregeln und Formate (PLB-01): intern beim Käufer. */
 export const ruleCatalogAudit = auditedObject({
   type: 'rule_catalog_item',
@@ -132,6 +139,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   ratingInvitationAudit,
   supplierInvitationAudit,
   ruleSetAudit,
+  relationshipTargetAudit,
   ruleCatalogAudit,
   formatCatalogAudit,
   relationshipAssignmentAudit,

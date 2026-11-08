@@ -438,6 +438,17 @@ export const en: Messages = {
     acceptUnavailable: 'Accepting invitations is not set up here yet. Please try again later.',
   },
   customers: {
+    rulesTitle: 'Rules of engagement',
+    rulesPurpose:
+      'What you agreed with this customer: relationship type, rights, obligations and formats.',
+    rulesHint: 'Relationship type, rights, obligations and formats',
+    rulesLoading: 'Loading rules of engagement …',
+    rulesFailed: 'The rules of engagement could not be loaded.',
+    rulesEmptyTitle: 'No rules of engagement shared yet',
+    rulesEmpty: (name: string) =>
+      `As soon as ${name} shares the rules of engagement, they appear here.`,
+    sharedOn: (date: string) => `Shared on ${date}`,
+    typeHeading: 'Relationship type',
     title: 'Customers',
     purpose:
       'You work with each customer in a separate area. You only see what they share with you.',
@@ -570,6 +581,19 @@ export const en: Messages = {
     previewEmpty: 'There are no entries for this type yet.',
   },
   ruleSets: {
+    share: 'Share with supplier',
+    shareTitle: 'Share with supplier',
+    sharePurpose:
+      'This is how the supplier sees the relationship type and the rules. Reasons stay internal.',
+    shareQuestion: (version: number) => `Share version ${version} with the supplier?`,
+    shareYes: 'Yes, share',
+    shareCancel: 'Cancel',
+    sharedDone: 'Relationship type and rules are shared with the supplier.',
+    shareFailed: 'Sharing did not work.',
+    sharedOn: (date: string) => `Shared on ${date}`,
+    supplierSees: (version: number, date: string) =>
+      `The supplier sees version ${version}, shared on ${date}. This version is not shared yet.`,
+    typeHeading: 'Relationship type',
     title: 'Rules of engagement',
     purpose: 'Which rights, obligations and formats apply in this relationship.',
     loading: 'Loading rules of engagement …',

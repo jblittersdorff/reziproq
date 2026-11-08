@@ -235,6 +235,10 @@ describe('PLT-04: Drei Datenebenen', () => {
     await temp.db.execute(sql`delete from rating_assignment`);
     await temp.db.execute(sql`delete from segmentation_round`);
     await temp.db.execute(sql`delete from segment_model`);
+    await temp.db.execute(sql`delete from relationship_target`);
+    await temp.db.execute(sql`delete from rule_set_note`);
+    await temp.db.execute(sql`delete from rule_set_item`);
+    await temp.db.execute(sql`delete from rule_set`);
     await temp.db.execute(sql`delete from invitation`);
     await temp.db.execute(sql`delete from relationship_spend`);
     await temp.db.execute(sql`delete from relationship_side`);

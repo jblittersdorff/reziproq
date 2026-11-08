@@ -129,3 +129,39 @@ export const ruleSetNote = pgTable(
     index('rule_set_note_set').on(table.ruleSetId),
   ],
 );
+
+/**
+ * Mit dem Lieferanten geteilter Beziehungstyp (SEG-10), shared und geteilt. Name und Beschreibung
+ * sind der Stand beim Teilen; eine spätere Umbenennung im Modell ändert sie nicht. Eine Zeile je
+ * Beziehung, beim nächsten Teilen überschrieben.
+ */
+export const relationshipTarget = pgTable(
+  'relationship_target',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    typeName: text().notNull(),
+    typeDescription: text().notNull(),
+    ruleSetId: uuid()
+      .notNull()
+      .references(() => ruleSet.id),
+    ruleSetVersion: integer().notNull(),
+    sharedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // Wie im Verlauf: ID und Name ohne Fremdschlüssel auf app_user.
+    sharedBy: text().notNull(),
+    sharedByName: text().notNull(),
+  },
+  (table) => [
+    unique('relationship_target_relationship').on(
+      table.relationshipId,
+      table.ownerOrgId,
+      table.visibility,
+    ),
+  ],
+);

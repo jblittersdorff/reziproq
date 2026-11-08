@@ -447,6 +447,16 @@ export const de = {
     acceptUnavailable: 'Die Annahme ist hier noch nicht eingerichtet. Bitte versuche es später.',
   },
   customers: {
+    rulesTitle: 'Spielregeln',
+    rulesPurpose:
+      'Was ihr mit diesem Kunden vereinbart habt: Beziehungstyp, Rechte, Pflichten und Formate.',
+    rulesHint: 'Beziehungstyp, Rechte, Pflichten und Formate',
+    rulesLoading: 'Spielregeln werden geladen …',
+    rulesFailed: 'Die Spielregeln konnten nicht geladen werden.',
+    rulesEmptyTitle: 'Noch keine Spielregeln geteilt',
+    rulesEmpty: (name: string) => `Sobald ${name} die Spielregeln teilt, stehen sie hier.`,
+    sharedOn: (date: string) => `Geteilt am ${date}`,
+    typeHeading: 'Beziehungstyp',
     title: 'Kunden',
     purpose:
       'Mit jedem Kunden arbeitest du in einem eigenen Bereich. Du siehst nur, was er mit euch teilt.',
@@ -576,6 +586,19 @@ export const de = {
     previewEmpty: 'Für diesen Typ gibt es noch keine Einträge.',
   },
   ruleSets: {
+    share: 'Mit Lieferant teilen',
+    shareTitle: 'Mit Lieferant teilen',
+    sharePurpose:
+      'So sieht der Lieferant den Beziehungstyp und die Spielregeln. Begründungen bleiben intern.',
+    shareQuestion: (version: number) => `Version ${version} mit dem Lieferanten teilen?`,
+    shareYes: 'Ja, teilen',
+    shareCancel: 'Abbrechen',
+    sharedDone: 'Beziehungstyp und Spielregeln sind mit dem Lieferanten geteilt.',
+    shareFailed: 'Das Teilen hat nicht geklappt.',
+    sharedOn: (date: string) => `Geteilt am ${date}`,
+    supplierSees: (version: number, date: string) =>
+      `Der Lieferant sieht Version ${version}, geteilt am ${date}. Diese Version ist noch nicht geteilt.`,
+    typeHeading: 'Beziehungstyp',
     title: 'Spielregeln',
     purpose: 'Welche Rechte, Pflichten und Formate in dieser Beziehung gelten.',
     loading: 'Spielregeln werden geladen …',

@@ -1,9 +1,11 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { asc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type CustomerList,
+  type CustomerRuleSet,
   type CustomerWorkspace,
   customerListSchema,
+  customerRuleSetSchema,
   customerWorkspaceSchema,
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
@@ -87,11 +89,49 @@ export class CustomersService {
         .from(schema.relationship)
         .where(eq(schema.relationship.id, relationshipId));
       if (!relationship) throw notFound();
+      // Den Typ sieht der Lieferant erst, wenn der Käufer ihn geteilt hat (SEG-10).
+      const [target] = await tx
+        .select({ typeName: schema.relationshipTarget.typeName })
+        .from(schema.relationshipTarget)
+        .where(eq(schema.relationshipTarget.relationshipId, relationshipId));
       return customerWorkspaceSchema.parse({
         relationshipId,
         name: customer.name,
-        relationshipType: null,
+        relationshipType: target?.typeName ?? null,
         nextMeeting: null,
+      });
+    });
+  }
+  /**
+   * Geteilte Spielregeln (SEG-10): Typ mit Beschreibung beim Teilen und die Einträge dieser
+   * Version. RLS lässt nur geteilte Zeilen dieses Kunden durch; Begründungen sind käuferprivat.
+   */
+  ruleSet(auth: AuthContext, relationshipId: string): Promise<CustomerRuleSet> {
+    return this.inCustomer(auth, relationshipId, async (tx) => {
+      const [target] = await tx
+        .select()
+        .from(schema.relationshipTarget)
+        .where(eq(schema.relationshipTarget.relationshipId, relationshipId));
+      if (!target) return customerRuleSetSchema.parse({ target: null, items: [] });
+      const items = await tx
+        .select({
+          kind: schema.ruleSetItem.kind,
+          group: schema.ruleSetItem.group,
+          title: schema.ruleSetItem.title,
+          description: schema.ruleSetItem.description,
+          cadence: schema.ruleSetItem.cadence,
+        })
+        .from(schema.ruleSetItem)
+        .where(eq(schema.ruleSetItem.ruleSetId, target.ruleSetId))
+        .orderBy(asc(schema.ruleSetItem.position));
+      return customerRuleSetSchema.parse({
+        target: {
+          version: target.ruleSetVersion,
+          typeName: target.typeName,
+          typeDescription: target.typeDescription,
+          sharedAt: target.sharedAt.toISOString(),
+        },
+        items,
       });
     });
   }

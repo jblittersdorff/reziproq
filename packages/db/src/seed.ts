@@ -27,6 +27,7 @@ import {
   segmentModel,
   segmentType,
 } from './schema/index.js';
+import { seedRuleSets } from './seed-rule-sets.js';
 
 // Beispieldaten für die lokale Entwicklung (PLT-02, PLT-03). Alle Namen sind erfunden und tragen „(Demo)“.
 // Feste IDs machen das Skript wiederholbar: Ein zweiter Lauf aktualisiert, statt zu verdoppeln.
@@ -589,6 +590,39 @@ export async function seed(
         ]),
       );
     }
+
+    // PLB-03 und SEG-10: drei Fokuslieferanten des Test-OEM mit Spielregeln; beim Test-Lieferanten
+    // geteilt, damit Sven und Ida sie in ihrem Arbeitsbereich sehen.
+    await seedRuleSets(
+      tx,
+      seedBuyers.testOem.id,
+      'demo-test-oem-1',
+      'Lena Berger',
+      [
+        {
+          relationshipId: id(201),
+          ist: [3, 2],
+          soll: [3, 3],
+          status: 'approved',
+          focusReason: 'Größter Spend in der Elektronik, Schlüssel für die neue Plattform.',
+        },
+        {
+          relationshipId: id(202),
+          ist: [2, 1],
+          soll: [2, 3],
+          status: 'draft',
+          focusReason: 'Lieferprobleme im letzten Jahr; die Zusammenarbeit soll stabil werden.',
+        },
+        {
+          relationshipId: id(401),
+          ist: [2, 2],
+          soll: [3, 2],
+          status: 'shared',
+          focusReason: 'Neuer strategischer Partner für Antriebstechnik.',
+        },
+      ],
+      now,
+    );
 
     return {
       organizations: organizations.length,

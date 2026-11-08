@@ -136,6 +136,7 @@ describe('Migrationen', () => {
       'relationship_member',
       'relationship_side',
       'relationship_spend',
+      'relationship_target',
       'strategic_topic',
       'strategic_topic_objective',
       'supplier_plan',

@@ -1,17 +1,20 @@
 import { type CustomerArea, type CustomerWorkspace, customerAreas } from '@reziproq/shared';
 import { useQuery } from '@tanstack/react-query';
-import { Outlet, useRouterState } from '@tanstack/react-router';
-import { EyeOffIcon, InboxIcon, SearchXIcon } from 'lucide-react';
+import { Link, Outlet, useRouterState } from '@tanstack/react-router';
+import { EyeOffIcon, InboxIcon, ScaleIcon, SearchXIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { LocalBar } from '@/components/ui/local-bar';
+import { Tile, TileIcon, TileText, TileTitle } from '@/components/ui/tile';
+import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { SharedView } from '@/features/playbook/rule-set-pages';
 import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { ApiError, customerWorkspaceQueryOptions } from '@/lib/api';
+import { ApiError, customerRuleSetQueryOptions, customerWorkspaceQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { customerAreaOf, customerPath } from './customer-areas';
@@ -155,6 +158,25 @@ export function CustomerAreaPage({
   if (!query.data) return null;
   const workspace = query.data;
   const own = area === 'own';
+  if (area === 'relationship') {
+    return (
+      <>
+        <CustomerPath workspace={workspace} area={area} />
+        <PageHeader title={text.areas[area]} purpose={text.areaPurpose[area]} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Tile asChild interactive className="flex flex-col items-center gap-3">
+            <Link to="/kunden/$id/beziehung/spielregeln" params={{ id: relationshipId }}>
+              <TileIcon>
+                <ScaleIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{text.rulesTitle}</TileTitle>
+              <TileText>{text.rulesHint}</TileText>
+            </Link>
+          </Tile>
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <CustomerPath workspace={workspace} area={area} />
@@ -165,6 +187,64 @@ export function CustomerAreaPage({
         title={own ? text.ownLaterTitle : text.sharedLaterTitle}
         description={own ? text.ownLater : text.sharedLater(workspace.name)}
       />
+    </>
+  );
+}
+
+/** Beziehung › Spielregeln beim Kunden (SEG-10): der geteilte Stand, gekennzeichnet „Geteilt am …“. */
+export function CustomerRulesPage({ relationshipId }: { relationshipId: string }) {
+  const text = useT().customers;
+  const format = useFormat();
+  const auth = useAuth();
+  const accessToken = auth.user?.access_token ?? '';
+  const workspace = useCustomerWorkspace(relationshipId);
+  const query = useQuery({
+    ...customerRuleSetQueryOptions(accessToken, relationshipId),
+    enabled: accessToken !== '',
+  });
+  if (!workspace.data) return null;
+  const name = workspace.data.name;
+  const target = query.data?.target;
+  return (
+    <>
+      <PagePath
+        trail={[
+          { label: text.title, href: '/kunden' },
+          { label: name, href: customerPath(relationshipId) },
+          { label: text.areas.relationship, href: customerPath(relationshipId, 'relationship') },
+        ]}
+        current={text.rulesTitle}
+      />
+      <PageHeader
+        title={text.rulesTitle}
+        purpose={text.rulesPurpose}
+        badge={
+          target && (
+            <VisibilityBadge
+              visibility="shared"
+              label={text.sharedOn(format.date(target.sharedAt))}
+            />
+          )
+        }
+      />
+      {query.isError ? (
+        <ErrorState title={text.rulesFailed} />
+      ) : !query.data ? (
+        <LoadingState label={text.rulesLoading} />
+      ) : !target ? (
+        <EmptyState
+          size="lg"
+          icon={<InboxIcon aria-hidden />}
+          title={text.rulesEmptyTitle}
+          description={text.rulesEmpty(name)}
+        />
+      ) : (
+        <SharedView
+          typeName={target.typeName}
+          typeDescription={target.typeDescription}
+          items={query.data.items}
+        />
+      )}
     </>
   );
 }
