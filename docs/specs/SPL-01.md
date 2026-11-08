@@ -22,10 +22,11 @@ Als SRO halte ich auf einer internen Seite fest, was wir mit einem Fokuslieferan
 |---|---|---|
 | `objective_category` | `org_id`, `key`, `name`, `position`, `active` | `org_private` |
 | `supplier_plan` | `id`, `relationship_id`, `cycle_id`, `version`, `status` (`draft`, `in_review`, `approved`, `superseded`), `summary`, `created_at` | `buyer_private` |
-| `plan_objective` | `id`, `plan_id`, `category_key`, `business_unit_id` oder `material_group_id`, `text`, `owner_user_id`, `target_year` | `buyer_private` |
+| `plan_objective` | `id`, `relationship_id`, `plan_id`, `category_key`, `business_unit_id` oder `material_group_id`, `text`, `owner_user_id`, `target_year` | `buyer_private` |
 
-- **Standard-Kategorien**, je Kunde änderbar: Kosten, Qualität, Technologie, Versorgung, Nachhaltigkeit, Kapazität und Standort.
+- **Sieben Standard-Kategorien**, je Kunde änderbar: Kosten, Qualität, Technologie, Versorgung, Nachhaltigkeit, Kapazität und Standort.
 - **Der Plan speichert nur, was ihm gehört.** Soll-Typ, SRO, Spend, Feedback und Finanzen zeigt er als Kennzahl mit Verweis aus ihrem Ort.
+- `plan_objective.relationship_id` ist für die buyer-private RLS erforderlich; ein zusammengesetzter Fremdschlüssel bindet es an die Beziehung des Plans.
 
 ## Ablauf
 
@@ -47,12 +48,12 @@ Als SRO halte ich auf einer internen Seite fest, was wir mit einem Fokuslieferan
 
 Je Kriterium ein Test.
 
-- [ ] Ein Plan gehört zu genau einem Zyklus. Je Zyklus gibt es höchstens einen Entwurf.
-- [ ] Jedes Ziel hat Kategorie, Bezug, Verantwortliche und Zieljahr.
-- [ ] Der Plan speichert weder Spend noch Finanzen noch Soll-Typ. Ein Test prüft die Spalten.
-- [ ] Ändert sich der Soll-Typ in SEG-06, zeigt der Plan den neuen ohne Bearbeitung.
-- [ ] Neue Käuferorganisationen haben die sechs Standard-Kategorien.
-- [ ] Der Test-Lieferant bekommt 403 auf allen Seiten und Endpunkten des Plans (PLT-04).
+- [x] Ein Plan gehört zu genau einem Zyklus. Je Zyklus gibt es höchstens einen Entwurf.
+- [x] Jedes Ziel hat Kategorie, Bezug, Verantwortliche und Zieljahr.
+- [x] Der Plan speichert weder Spend noch Finanzen noch Soll-Typ. Ein Test prüft die Spalten.
+- [x] Ändert sich der Soll-Typ in SEG-06, zeigt der Plan den neuen ohne Bearbeitung.
+- [x] Beim ersten Aufruf des Plans oder der Kategorien erhalten Käuferorganisationen idempotent alle sieben Standard-Kategorien.
+- [x] Der Test-Lieferant bekommt 403 auf Plan- und Kategorien-Endpunkten (PLT-04).
 
 ## Nicht Teil dieser Funktion
 

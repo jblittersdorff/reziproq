@@ -55,6 +55,59 @@ describe('Migrationen', () => {
       'notes',
       'is_focus',
       'focus_reason',
+      'focus_set_by',
+      'focus_set_at',
+    ]);
+    expect(await columns('cycle')).toEqual([
+      'id',
+      'relationship_id',
+      'label',
+      'started_at',
+      'jbp_date',
+      'status',
+    ]);
+    expect(await columns('cycle_setting')).toEqual([
+      'id',
+      'org_id',
+      'step',
+      'weeks_relative_to_jbp',
+      'reminder_days_before',
+    ]);
+    expect(await columns('cycle_reminder_sent')).toEqual([
+      'id',
+      'cycle_id',
+      'relationship_id',
+      'step',
+      'due_date',
+      'created_at',
+    ]);
+    expect(await columns('objective_category')).toEqual([
+      'org_id',
+      'key',
+      'name',
+      'position',
+      'active',
+      'id',
+    ]);
+    expect(await columns('supplier_plan')).toEqual([
+      'id',
+      'relationship_id',
+      'cycle_id',
+      'version',
+      'status',
+      'summary',
+      'created_at',
+    ]);
+    expect(await columns('plan_objective')).toEqual([
+      'id',
+      'relationship_id',
+      'plan_id',
+      'category_key',
+      'business_unit_id',
+      'material_group_id',
+      'text',
+      'owner_user_id',
+      'target_year',
     ]);
     expect(await columns('relationship_spend')).toEqual([
       'id',
@@ -68,15 +121,24 @@ describe('Migrationen', () => {
     expect(await columns('beziehung_kaeufer')).toEqual([]);
 
     const rls = await temp.db.execute<{ relname: string }>(
-      sql`select relname from pg_class where relrowsecurity and relforcerowsecurity and relname like 'relationship%' and relkind = 'r' order by relname`,
+      sql`select relname from pg_class where relrowsecurity and relforcerowsecurity and (relname like 'relationship%' or relname like 'cycle%' or relname in ('objective_category', 'plan_contribution', 'plan_objective', 'strategic_topic', 'strategic_topic_objective', 'supplier_plan')) and relkind = 'r' order by relname`,
     );
     expect(rls.rows.map((row) => row.relname)).toEqual([
+      'cycle',
+      'cycle_reminder_sent',
+      'cycle_setting',
+      'objective_category',
+      'plan_contribution',
+      'plan_objective',
       'relationship',
       'relationship_business_unit',
       'relationship_material_group',
       'relationship_member',
       'relationship_side',
       'relationship_spend',
+      'strategic_topic',
+      'strategic_topic_objective',
+      'supplier_plan',
     ]);
   });
 

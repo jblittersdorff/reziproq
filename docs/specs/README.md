@@ -78,20 +78,20 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 15 | NAV-06 | Lieferanten-Arbeitsbereich | NAV-06, NAV-07, NAV-08, NAV-09 | PLT-03b, PLT-05b, PLT-11 | 1.0 | M5 | A | fertig | – |
 | 16 | PLT-09 | Deutsch und Englisch | PLT-09 | PLT-11 | 1.0 | M5 | A | fertig | – |
 | 17 | PLT-06 | Business Units und Warengruppen | PLT-06 | PLT-03b, PLT-05b | 1.0 | M6 | C | fertig | – |
-| 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | PR offen | Spend überführt schon PLT-03a; der Freitext Warengruppe entfällt (Entscheidung zu PLT-03a) |
-| 19 | PLT-07a | Import: Baustein, Lieferanten und Spend | PLT-07 | PLT-06 | 1.0 | M6 | C | offen | Teil a von PLT-07 |
-| 20 | PLT-07b | Import: Business Units und Kontakte | PLT-07 | PLT-07a | 1.0 | M6 | C | offen | Teil b von PLT-07 |
-| 21 | PLT-12 | Fragen-Seite | PLT-12, NAV-11 | NAV-06, PLT-06, PLT-03b, PLT-05b | 1.0 | M7 | A | offen | teilweise umgesetzt; seit PLT-11 Seite /fragen statt Fenster |
-| 22 | QS-01 | E-Mail-Versand | QS-01 | PLT-08, PLT-09 | 1.0 | M7 | B | offen | – |
-| 23 | SEG-01 | Segmentmodell | SEG-01 | PLT-05b, PLT-06 | 1.0 | M8 | B | offen | – |
-| 24 | SEG-03 | Bewertungsrunde starten | SEG-03 | SEG-01, QS-01, PLT-06 | 1.0 | M8 | B | offen | – |
-| 25 | SEG-04 | Bewertung abgeben | SEG-04 | SEG-03 | 1.0 | M9 | B | offen | – |
-| 26 | NAV-05 | Start | NAV-05 | NAV-06, SEG-04, PLT-11 | 1.0 | M9 | A | offen | teilweise umgesetzt: Begrüßung und Fragefeld auf /start (PLT-11) |
-| 27 | SEG-05 | Segmentierung je Lieferant mit Abweichungen | SEG-05, SEG-09 | SEG-04, NAV-06 | 1.0 | M10 | C | offen | – |
-| 28 | SEG-06 | Konsolidierung | SEG-06 | SEG-05, PLT-05b | 1.0 | M10 | C | offen | – |
-| 29 | SEG-07 | Portfolio | SEG-07, SEG-08 | SEG-06, PLT-11 | 1.0 | M11 | C | offen | – |
-| 30 | SEG-02 | Fokuslieferanten | SEG-02 | SEG-07 | 1.0 | M11 | C | offen | – |
-| 31 | NAV-12 | Filter der Lieferantenliste | NAV-12 | SEG-02, PLT-06, SEG-06 | 1.0 | M12 | A | offen | – |
+| 18 | UMB-03 | Bestandsdaten in die neuen Tabellen überführen | – | PLT-03b, PLT-06 | 1.0 | M6 | C | fertig | Spend überführt schon PLT-03a; der Freitext Warengruppe entfällt (Entscheidung zu PLT-03a) |
+| 19 | PLT-07a | Import: Baustein, Lieferanten und Spend | PLT-07 | PLT-06 | 1.0 | M6 | C | fertig | Manuell abgenommen |
+| 20 | PLT-07b | Import: Business Units und Kontakte | PLT-07 | PLT-07a | 1.0 | M6 | C | fertig | Manuell abgenommen; KI-Import zurückgestellt |
+| 21 | PLT-12 | Fragen-Seite | PLT-12, NAV-11 | NAV-06, PLT-06, PLT-03b, PLT-05b | 1.0 | M7 | A | fertig | Vercel AI SDK, Bedrock in EU, geschützte Suche, Fragen-URL und bewusste Ziellinks getestet |
+| 22 | QS-01 | E-Mail-Versand | QS-01 | PLT-08, PLT-09 | 1.0 | M7 | B | fertig | Outbox, vier DE/EN-Vorlagen, Mailpit, Retry, Idempotenz, Deep-Link- und Rechtehinweis getestet |
+| 23 | SEG-01 | Segmentmodell | SEG-01 | PLT-05b, PLT-06 | 1.0 | M8 | B | fertig | – |
+| 24 | SEG-03 | Bewertungsrunde starten | SEG-03 | SEG-01, QS-01, PLT-06 | 1.0 | M8 | B | fertig | – |
+| 25 | SEG-04 | Bewertung abgeben | SEG-04 | SEG-03 | 1.0 | M9 | B | fertig | – |
+| 26 | NAV-05 | Start | NAV-05 | NAV-06, SEG-04, PLT-11 | 1.0 | M9 | A | fertig | Kacheln Termine und Hinweise zeigen „Kommt mit Release 0.2“; „Alle“ bei Beziehungen führt zu /lieferanten ohne Filter; Ladezeit bei 50 Lieferanten nicht gemessen |
+| 27 | SEG-05 | Segmentierung je Lieferant mit Abweichungen | SEG-05, SEG-09 | SEG-04, NAV-06 | 1.0 | M10 | C | fertig | Heatmap-Zelle ohne Klick; Begründungen über Kriterienliste. Kachel „Strategie“ zeigt den Soll-Typ. |
+| 28 | SEG-06 | Konsolidierung | SEG-06 | SEG-05, PLT-05b | 1.0 | M10 | C | fertig | Speichert Stufen statt ist_type_id/soll_type_id (segment_type hat keine id); gilt je Beziehung, nicht je Runde. Schritte laufen auf einer Adresse, nicht je Schritt. |
+| 29 | SEG-07 | Portfolio | SEG-07, SEG-08 | SEG-06, PLT-11 | 1.0 | M11 | C | fertig | Schwellwert für Abweichungen liegt am Segmentmodell (Standard 30), im Editor änderbar. Kachel „Stand der Zyklen“ kommt mit ZYK-04. |
+| 30 | SEG-02 | Fokuslieferanten | SEG-02 | SEG-07 | 1.0 | M11 | C | fertig | Spend-Anteil-Schwellwert liegt am Segmentmodell (Standard 80 %), im Editor änderbar. Entfernen des Fokus verlangt ebenfalls eine Begründung. |
+| 31 | NAV-12 | Filter der Lieferantenliste | NAV-12 | SEG-02, PLT-06, SEG-06 | 1.0 | M12 | A | fertig | Gefiltert wird in der Oberfläche; die API liefert je Lieferant Zuordnung, Soll-Typ, Fokus und Team-Zugehörigkeit sowie die Filterauswahl. Die Oberebene einer Warengruppe schließt ihre Untergruppen ein. |
 | 32 | LIF-01a | Lieferanten einladen: Einladung und Annahme | LIF-01, LIF-05 | PLT-03b, QS-01 | 1.0 | M12 | B | offen | Teil a von LIF-01 |
 | 33 | LIF-01b | Lieferanten einladen: Zitadel-Organisation anlegen | LIF-01, LIF-05 | LIF-01a | 1.0 | M12 | B | offen | Teil b von LIF-01 |
 | 34 | LIF-02 | Arbeitsbereich des Lieferanten | LIF-02 | LIF-01b, NAV-05, NAV-06 | 1.0 | M13 | B | offen | – |
@@ -110,11 +110,11 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 47 | PUL-06 | Maßnahmen aus Lücken und Verlauf | PUL-06, PUL-07 | PUL-03, QBR-03 | nach 1.0 | Block F | A | offen | – |
 | 48 | SPL-04 | Spend-Entwicklung | SPL-04 | PLT-07b, PLT-03b, PLT-06 | nach 1.0 | Block S | A | offen | – |
 | 49 | SPL-05 | Profil und Finanzen | SPL-05 | SPL-04 | nach 1.0 | Block S | A | offen | – |
-| 50 | ZYK-01 | Zyklus und Zyklus-Leiste | ZYK-01, ZYK-03 | SEG-02, NAV-06 | nach 1.0 | Block P | B | offen | – |
-| 51 | ZYK-02 | Planung rückwärts vom JBP | ZYK-02, ZYK-06 | ZYK-01, QS-01 | nach 1.0 | Block P | B | offen | – |
-| 52 | SPL-01 | Lieferantenplan und Zielkategorien | SPL-01, SPL-02 | ZYK-01, SEG-06, PLT-06 | nach 1.0 | Block P | C | offen | – |
-| 53 | SPL-03 | Beiträge der Funktionen | SPL-03 | SPL-01, NAV-05, QS-01 | nach 1.0 | Block P | C | offen | – |
-| 54 | SPL-06 | Strategische Themen | SPL-06 | SPL-01 | nach 1.0 | Block P | C | offen | – |
+| 50 | ZYK-01 | Zyklus und Zyklus-Leiste | ZYK-01, ZYK-03 | SEG-02, NAV-06 | nach 1.0 | Block P | B | fertig | Käuferprivater Zyklus startet automatisch mit dem Fokus; Segmentstatus aus Konsolidierungen, weitere Schritte bis zum Modul als „noch nicht verfügbar“. |
+| 51 | ZYK-02 | Planung rückwärts vom JBP | ZYK-02, ZYK-06 | ZYK-01, QS-01 | nach 1.0 | Block P | B | fertig | Berechnete Fristen, Admin-Einstellungen, tägliche idempotente SRO-Erinnerungen und überfällige Start-Aufgaben. |
+| 52 | SPL-01 | Lieferantenplan und Zielkategorien | SPL-01, SPL-02 | ZYK-01, SEG-06, PLT-06 | nach 1.0 | Block P | C | fertig | Käuferprivater Lieferantenplan mit Zielen, dynamischem Soll-Typ, sieben Standardkategorien und Admin-Verwaltung; RLS und API-Rechte getestet. |
+| 53 | SPL-03 | Beiträge der Funktionen | SPL-03 | SPL-01, NAV-05, QS-01 | nach 1.0 | Block P | C | fertig | – |
+| 54 | SPL-06 | Strategische Themen | SPL-06 | SPL-01 | nach 1.0 | Block P | C | fertig | Themen nur im Entwurf änderbar; Ordnen speichert die ganze Reihenfolge; ohne Löschen. |
 | 55 | SPL-07 | Freigabe und Versionen des Lieferantenplans | SPL-07, SPL-09 | SPL-03, SPL-06, SPL-01, PLT-05b | nach 1.0 | Block P | C | offen | – |
 | 56 | QBR-04 | Erinnerung und Eskalation | QBR-04 | QBR-03, QS-01 | nach 1.0 | Block P | A | offen | – |
 | 57 | PLB-06 | Kontaktpunkte | PLB-06 | PLB-03, PLT-07b | nach 1.0 | Block P | C | offen | – |

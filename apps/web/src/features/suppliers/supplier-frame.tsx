@@ -15,6 +15,7 @@ export function SupplierFrame({
   area,
   trail = () => [],
   current,
+  header,
   children,
 }: {
   relationshipId: string;
@@ -23,6 +24,8 @@ export function SupplierFrame({
   trail?: (supplier: SupplierDetail) => { label: string; href: string }[];
   /** Titel der aktuellen Seite */
   current: string;
+  /** Titelzeile der Seite; steht in jedem Zustand, auch beim Laden und bei Fehlern. */
+  header?: ReactNode;
   children: (supplier: SupplierDetail) => ReactNode;
 }) {
   const t = useT();
@@ -41,6 +44,7 @@ export function SupplierFrame({
         ]}
         current={current}
       />
+      {header}
       {children(data)}
     </>
   );

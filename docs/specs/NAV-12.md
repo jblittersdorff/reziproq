@@ -34,11 +34,11 @@ Als Einkäufer grenze ich die Lieferantenliste mit wenigen Klicks ein, z. B. auf
 
 Je Kriterium ein Test.
 
-- [ ] Jeder Filter liefert allein und in Kombination die richtigen Lieferanten.
-- [ ] Die Filter stehen in der Adresse. Ein geteilter Link zeigt dieselbe Auswahl.
-- [ ] Zurück aus einem Lieferanten erhält die Filter.
-- [ ] `meine=1` zeigt genau die Beziehungen, in deren Team der Nutzer ist.
-- [ ] Bei 390 px Breite brechen die Filter um, ohne waagerechtes Scrollen.
+- [x] Jeder Filter liefert allein und in Kombination die richtigen Lieferanten.
+- [x] Die Filter stehen in der Adresse. Ein geteilter Link zeigt dieselbe Auswahl.
+- [x] Zurück aus einem Lieferanten erhält die Filter.
+- [x] `meine=1` zeigt genau die Beziehungen, in deren Team der Nutzer ist.
+- [x] Bei 390 px Breite brechen die Filter um, ohne waagerechtes Scrollen.
 
 ## Nicht Teil dieser Funktion
 

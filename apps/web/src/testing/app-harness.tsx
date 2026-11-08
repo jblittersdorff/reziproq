@@ -60,6 +60,18 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'prompt.nutzen',
     'stammdaten.verwalten',
     'zuordnung.bearbeiten',
+    'segmentmodell.sehen',
+    'segmentmodell.verwalten',
+    'runden.sehen',
+    'runden.verwalten',
+    'runden.nachnominieren',
+    'bewertungen.sehen',
+    'bewertungen.abgeben',
+    'segmentierung.konsolidieren',
+    'portfolio.sehen',
+    'fokus.setzen',
+    'zyklus.starten',
+    'lieferantenplan.bearbeiten',
   ],
   member: [
     'organisation.sehen',
@@ -68,8 +80,26 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'verlauf.sehen',
     'prompt.nutzen',
     'zuordnung.bearbeiten',
+    'segmentmodell.sehen',
+    'runden.sehen',
+    'runden.nachnominieren',
+    'bewertungen.sehen',
+    'bewertungen.abgeben',
+    'segmentierung.konsolidieren',
+    'portfolio.sehen',
+    'zyklus.starten',
+    'lieferantenplan.bearbeiten',
   ],
-  viewer: ['organisation.sehen', 'lieferanten.sehen', 'verlauf.sehen', 'prompt.nutzen'],
+  viewer: [
+    'organisation.sehen',
+    'lieferanten.sehen',
+    'verlauf.sehen',
+    'prompt.nutzen',
+    'segmentmodell.sehen',
+    'runden.sehen',
+    'bewertungen.sehen',
+    'portfolio.sehen',
+  ],
 };
 
 const mio = (euro: number) => Math.round(euro * 1_000_000 * 100);
@@ -192,7 +222,11 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   const own = api.handle?.({
     method: init?.method ?? 'GET',
     url,
-    body: init?.body ? JSON.parse(String(init.body)) : undefined,
+    body: init?.body
+      ? headers.get('content-type')?.includes('application/json')
+        ? JSON.parse(String(init.body))
+        : init.body
+      : undefined,
   });
   if (own) return own;
   if (url === '/api/me/permissions') return Response.json({ actions: api.permissions });

@@ -8,6 +8,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | Aktion | Was | Admin | Nutzer | Leser | Betreiber |
 | --- | --- | --- | --- | --- | --- |
 | `organisation.sehen` | Organisation und Mitglieder sehen | ja | ja | ja | ja |
+| `start.sehen` | Die eigene Startseite mit Aufgaben und Beziehungen sehen | ja | ja | ja | ja |
 | `rollen.aendern` | Rollen, Controlling und Standardfunktion ändern | ja | nein | nein | nein |
 | `einstellungen.verwalten` | Alle Einstellungen der Organisation öffnen | ja | nein | nein | nein |
 | `lieferanten.sehen` | Lieferanten und Spend sehen | ja | ja | ja | ja |
@@ -18,3 +19,15 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `kunden.wechseln` | Als Betreiber in einen Kunden wechseln | nein | nein | nein | ja |
 | `stammdaten.verwalten` | Business Units und Warengruppen anlegen, umbenennen, deaktivieren, löschen | ja | nein | nein | nein |
 | `zuordnung.bearbeiten` | Lieferanten Business Units und Warengruppen zuordnen (nicht mit Teamrolle Leser) | ja | ja | nein | nein |
+| `segmentmodell.sehen` | Segmentmodell der eigenen Käuferorganisation ansehen | ja | ja | ja | ja |
+| `segmentmodell.verwalten` | Segmentmodell der Organisation ändern und aktivieren | ja | nein | nein | nein |
+| `runden.sehen` | Bewertungsrunden ansehen (Admin alle, SRO die eigenen Lieferanten, sonst nur Einladungen) | ja | ja | ja | ja |
+| `runden.verwalten` | Bewertungsrunde anlegen, starten, verlängern und schließen | ja | nein | nein | nein |
+| `runden.nachnominieren` | Bewertende nachnominieren (Admin, SRO nur für die eigenen Lieferanten) | ja | ja | nein | nein |
+| `bewertungen.sehen` | Eigene Einladungen und die Bewertungen ansehen, die die Regeln der Runde freigeben | ja | ja | ja | ja |
+| `bewertungen.abgeben` | Als bewertende Person Werte eintragen, Entwurf speichern und abgeben | ja | ja | nein | nein |
+| `segmentierung.konsolidieren` | Ist und Soll eines Lieferanten festlegen (nur SRO der Beziehung und Admin) | ja | ja | nein | nein |
+| `portfolio.sehen` | Portfolio mit Matrix und offenen Entscheidungen ansehen (nur Käufer) | ja | ja | ja | ja |
+| `fokus.setzen` | Fokuslieferanten setzen und entfernen, mit Begründung (nur Käufer-Admin) | ja | nein | nein | nein |
+| `zyklus.starten` | Zyklus eines Fokuslieferanten starten und JBP-Termin festlegen oder verschieben (Käufer-Admin oder SRO) | ja | ja | nein | nein |
+| `lieferantenplan.bearbeiten` | Lieferantenplan verwalten und eigene zugewiesene Ziele bearbeiten | ja | ja | nein | nein |

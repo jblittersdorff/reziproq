@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { check, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // PLT-08: Verlauf und Outbox. Beide entstehen in derselben Transaktion wie die Änderung
 // (auditedChange in src/audit.ts). Keine Fremdschlüssel: Der Verlauf überdauert das Objekt.
@@ -41,14 +41,74 @@ export const auditEvent = pgTable(
 );
 
 /** Outbox (nur Betrieb): Später verschicken E-Mails (QS-01) und Erinnerungen von hier aus. */
-export const outboxEvent = pgTable('outbox_event', {
-  id: uuid().primaryKey().default(sql`uuidv7()`),
-  occurredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  eventType: text().notNull(),
-  objectType: text().notNull(),
-  objectId: text().notNull(),
-  auditEventId: uuid().notNull(),
-  orgId: uuid().notNull(),
-  // Leer: noch nicht verarbeitet.
-  processedAt: timestamp({ withTimezone: true }),
-});
+export const outboxEvent = pgTable(
+  'outbox_event',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    occurredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    eventType: text().notNull(),
+    objectType: text().notNull(),
+    objectId: text().notNull(),
+    auditEventId: uuid().notNull(),
+    orgId: uuid().notNull(),
+    // Leer: noch nicht verarbeitet.
+    processedAt: timestamp({ withTimezone: true }),
+    emailTemplate: text({
+      enum: ['invitation', 'reminder', 'approval', 'escalation'],
+    }),
+    emailLocale: text({ enum: ['de', 'en'] }),
+    emailRecipient: text(),
+    emailFirstName: text(),
+    emailTitle: text(),
+    emailDeadline: text(),
+    emailLink: text(),
+  },
+  (table) => [
+    check(
+      'outbox_event_email_payload',
+      sql`(
+        (${table.emailTemplate} IS NULL AND ${table.emailLocale} IS NULL
+          AND ${table.emailRecipient} IS NULL AND ${table.emailFirstName} IS NULL
+          AND ${table.emailTitle} IS NULL AND ${table.emailDeadline} IS NULL
+          AND ${table.emailLink} IS NULL)
+        OR
+        (${table.emailTemplate} IS NOT NULL
+          AND ${table.emailTemplate} IN ('invitation', 'reminder', 'approval', 'escalation')
+          AND ${table.emailLocale} IS NOT NULL
+          AND ${table.emailLocale} IN ('de', 'en')
+          AND ${table.emailRecipient} IS NOT NULL
+          AND length(trim(${table.emailRecipient})) > 0
+          AND ${table.emailTitle} IS NOT NULL
+          AND length(trim(${table.emailTitle})) > 0
+          AND ${table.emailLink} IS NOT NULL
+          AND ${table.emailLink} LIKE '/%'
+          AND ${table.emailLink} NOT LIKE '//%'
+          AND position('?' in ${table.emailLink}) = 0
+          AND position('#' in ${table.emailLink}) = 0
+          AND position(chr(92) in ${table.emailLink}) = 0)
+      )`,
+    ),
+  ],
+);
+
+export const emailLog = pgTable(
+  'email_log',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    outboxEventId: uuid().notNull().unique(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp({ withTimezone: true }),
+    template: text({
+      enum: ['invitation', 'reminder', 'approval', 'escalation'],
+    }).notNull(),
+    status: text({ enum: ['sending', 'sent', 'failed'] }).notNull(),
+    recipientHash: text().notNull(),
+    attemptCount: integer().notNull().default(1),
+    nextAttemptAt: timestamp({ withTimezone: true }),
+  },
+  (table) => [
+    check('email_log_status', sql`${table.status} in ('sending', 'sent', 'failed')`),
+    check('email_log_attempt_count', sql`${table.attemptCount} > 0`),
+  ],
+);

@@ -28,6 +28,10 @@ const apiEnvSchema = z.object({
   API_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
 });
 
+const jobsEnvSchema = z.object({
+  JOBS_DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+});
+
 /**
  * Adresse, mit der sich die API verbindet: als Rolle reziproq_api, die nicht Eigentümer der
  * Tabellen ist (PLT-02). DATABASE_URL bleibt für Migrationen und Skripte.
@@ -40,4 +44,15 @@ export function apiDatabaseUrl(): string {
     );
   }
   return result.data.API_DATABASE_URL;
+}
+
+/** Adresse des Hintergrundjobs: eigene Rolle, getrennt von API und Migrationen (QS-01). */
+export function jobsDatabaseUrl(): string {
+  const result = jobsEnvSchema.safeParse(process.env);
+  if (!result.success) {
+    throw new Error(
+      'JOBS_DATABASE_URL fehlt oder ist ungültig. Trage sie in die .env im Hauptordner ein (Vorlage: .env.example) und führe pnpm db:roles aus.',
+    );
+  }
+  return result.data.JOBS_DATABASE_URL;
 }

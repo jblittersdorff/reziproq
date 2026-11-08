@@ -1,4 +1,4 @@
-import { type Money, countryCodes } from '@reziproq/shared';
+import { countryCodes, type Money } from '@reziproq/shared';
 import { useMemo } from 'react';
 import { type Locale, useLocale } from './i18n';
 import { formatMoney, localeTags } from './money';

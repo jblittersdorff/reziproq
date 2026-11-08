@@ -136,7 +136,7 @@ describe('PLT-02 über die API', () => {
     ]);
   });
 
-  it('Datenzugriff nur über die Mandanten-Session: kein Modul nutzt die Verbindung direkt', () => {
+  it('Fachmodule nutzen die Mandanten-Session; der QS-01-Job die eigene Betriebsrolle', () => {
     const src = fileURLToPath(new URL('../../', import.meta.url));
     const files = (function walk(dir: string): string[] {
       return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -145,7 +145,8 @@ describe('PLT-02 über die API', () => {
         return /\.ts$/.test(entry.name) && !/\.test\.ts$/.test(entry.name) ? [path] : [];
       });
     })(src);
-    const allowed = new Set(['common/database.module.ts']);
+    const jobsStore = 'modules/email/email-outbox.store.ts';
+    const allowed = new Set(['common/database.module.ts', jobsStore]);
     const direct = files
       .map((file) => relative(src, file))
       .filter((file) => !allowed.has(file) && !file.startsWith('testing/'))
@@ -154,10 +155,10 @@ describe('PLT-02 über die API', () => {
           readFileSync(join(src, file), 'utf8'),
         ),
       );
-    expect(
-      direct,
-      'Bitte TenantDatabase oder AccountStore aus common/database.module.ts nutzen',
-    ).toEqual([]);
+    expect(direct, 'Fachmodule müssen TenantDatabase oder AccountStore nutzen').toEqual([]);
+    const jobsSource = readFileSync(join(src, jobsStore), 'utf8');
+    expect(jobsSource).toMatch(/\bjobsDatabaseUrl\(\)/);
+    expect(jobsSource).not.toMatch(/\b(?:databaseUrl|apiDatabaseUrl)\s*\(/);
   });
 
   it('Die API verbindet sich als reziproq_api, nicht als Eigentümer der Tabellen', async () => {

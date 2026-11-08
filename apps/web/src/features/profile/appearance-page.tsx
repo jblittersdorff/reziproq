@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { FormActions } from '@/components/ui/form-field';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
-import { PagePath, useGoBack } from '@/features/shell/page-path';
 import { PageHeader } from '@/features/shell/page-header';
+import { PagePath, useGoBack } from '@/features/shell/page-path';
 import { useT } from '@/lib/i18n';
 import { type ThemePreference, useTheme } from '@/lib/theme';
 

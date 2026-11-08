@@ -23,6 +23,8 @@ function allRoutes(): string[] {
       .replace('$jahr', '2025')
       .replace('$nutzer', 'nina')
       .replace(/\/\$$/, '/gibt-es-nicht')
+      // Weitere Parameter wie $key oder $topicId bekommen die Beispiel-ID.
+      .replace(/\$[A-Za-z]+/g, id)
       .replace(/(.)\/$/, '$1'),
   );
 }
@@ -55,10 +57,13 @@ const keyPaths = leaves(de)
   .filter((path) => path.includes('.'));
 
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-/** Fundstellen deutscher Texte als ganze Wörter, damit „Land“ nicht in „Poland“ anschlägt. */
+/**
+ * Fundstellen deutscher Texte als ganze Wörter, damit „Land“ nicht in „Poland“ anschlägt. Ein
+ * Bindestrich gehört zum Wort: Namen wie „Test-Lieferant (Demo)“ sind Eigennamen.
+ */
 function germanIn(text: string): string[] {
   return germanTexts.filter((german) =>
-    new RegExp(`(^|[^\\p{L}])${escapeRegExp(german)}($|[^\\p{L}])`, 'u').test(text),
+    new RegExp(`(^|[^\\p{L}-])${escapeRegExp(german)}($|[^\\p{L}-])`, 'u').test(text),
   );
 }
 
@@ -246,19 +251,24 @@ test.describe('auf Englisch', () => {
     // Die Prüfung findet deutsche Texte und rohe Schlüssel.
     expect(germanIn('Your profile: Lieferanten')).toEqual(['Lieferanten']);
     expect(germanIn('Poland')).toEqual([]);
+    expect(germanIn('Acme-Lieferant')).toEqual([]);
     expect(keyPaths).toContain('workspace.areas.plan');
   });
 
   test('Ein Playwright-Test besucht jede Route auf Englisch. Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.', async ({
     page,
   }) => {
-    test.setTimeout(120_000);
+    // Rund 60 Routen; auf dem langsameren CI-Rechner braucht der Rundgang mehrere Minuten.
+    test.setTimeout(480_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page, { locale: 'en' });
     const findings: string[] = [];
     for (const path of allRoutes()) {
       await page.goto(path);
-      await expect(page.locator('#inhalt h1, main h1, h1').first()).toBeVisible();
+      // Weich, damit ein Lauf alle Routen ohne Titel meldet statt nur die erste.
+      await expect
+        .soft(page.locator('#inhalt h1, main h1, h1').first(), path)
+        .toBeVisible({ timeout: 15_000 });
       await page.waitForLoadState('networkidle');
       const text = (await page.locator('body').textContent()) ?? '';
       for (const german of germanIn(text)) findings.push(`${path}: „${german}“`);

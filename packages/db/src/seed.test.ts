@@ -26,20 +26,29 @@ describe('db:seed', () => {
       beziehungen: number;
       privat: number;
       nutzer: number;
+      aktiveModelle: number;
     }>(sql`
       select
         (select count(*)::int from organization_feature where feature = 'buyer') as kaeufer,
         (select count(*)::int from organization) as organisationen,
         (select count(*)::int from relationship) as beziehungen,
         (select count(*)::int from relationship_spend) as privat,
-        (select count(*)::int from app_user where id like 'demo-%') as nutzer
+        (select count(*)::int from app_user where id like 'demo-%') as nutzer,
+        (select count(*)::int from segment_model where status = 'active') as "aktiveModelle"
     `);
     return result.rows[0];
   };
 
   // 15 Lieferanten beim Test-OEM, drei davon auch beim Zweit-OEM, der Test-Lieferant bei beiden;
   // Spend für zwei Jahre je Beziehung außer beim Test-Lieferanten (PLT-03).
-  const expected = { kaeufer: 2, organisationen: 18, beziehungen: 20, privat: 36, nutzer: 8 };
+  const expected = {
+    kaeufer: 2,
+    organisationen: 18,
+    beziehungen: 20,
+    privat: 36,
+    nutzer: 8,
+    aktiveModelle: 2,
+  };
 
   it('PLT-02: legt Test-OEM, Zweit-OEM und Test-Lieferant mit ihren Nutzern an', async () => {
     await seed(temp.db, { nodeEnv: 'development' });
@@ -62,6 +71,63 @@ describe('db:seed', () => {
     await seed(temp.db, { nodeEnv: 'development' });
     await seed(temp.db, { nodeEnv: 'development' });
     expect(await counts()).toEqual(expected);
+  });
+
+  it('SEG-03: legt eine laufende Runde mit zehn Lieferanten an, auch beim zweiten Lauf', async () => {
+    await seed(temp.db, { nodeEnv: 'development' });
+    await seed(temp.db, { nodeEnv: 'development' });
+    const result = await temp.db.execute<{
+      runden: number;
+      lieferanten: number;
+      status: string;
+    }>(sql`
+      select count(distinct r.id)::int as runden,
+        count(distinct a.relationship_id)::int as lieferanten, min(r.status) as status
+      from segmentation_round r join rating_assignment a on a.round_id = r.id
+    `);
+    expect(result.rows[0]).toEqual({ runden: 1, lieferanten: 10, status: 'open' });
+  });
+
+  it('SEG-01: legt für jede Käuferorganisation ein aktives Standardmodell an', async () => {
+    await seed(temp.db, { nodeEnv: 'development' });
+    const models = await temp.db.execute<{
+      name: string;
+      version: number;
+      status: string;
+      impact: number;
+      quality: number;
+      types: number;
+    }>(sql`
+      select o.name, m.version, m.status,
+        count(distinct c.key) filter (where c.axis = 'impact')::int as impact,
+        count(distinct c.key) filter (where c.axis = 'quality')::int as quality,
+        count(distinct (t.impact_level, t.quality_level))::int as types
+      from segment_model m
+      join organization o on o.id = m.org_id
+      left join segment_criterion c on c.model_id = m.id
+      left join segment_type t on t.model_id = m.id
+      where m.status = 'active'
+      group by o.name, m.id
+      order by o.name
+    `);
+    expect(models.rows).toEqual([
+      {
+        name: 'Test-OEM (Demo)',
+        version: 1,
+        status: 'active',
+        impact: 6,
+        quality: 4,
+        types: 9,
+      },
+      {
+        name: 'Zweit-OEM (Demo)',
+        version: 1,
+        status: 'active',
+        impact: 6,
+        quality: 4,
+        types: 9,
+      },
+    ]);
   });
 
   it('ordnet vorhandene Nutzer nicht mehr zu; das macht der Login über Zitadel', async () => {
@@ -138,6 +204,25 @@ describe('db:seed', () => {
       where s.name = 'Test-Lieferant (Demo)' and r.status = 'draft' order by b.name
     `);
     expect(drafts.rows.map((row) => row.kaeufer)).toEqual(['Test-OEM (Demo)', 'Zweit-OEM (Demo)']);
+  });
+
+  it('PLT-07b: --viele legt 50 zusätzliche Demo-Lieferanten wiederholbar an', async () => {
+    const result = await seed(temp.db, { nodeEnv: 'development', many: true });
+    expect(result.manySuppliers).toBe(50);
+    let counts = await temp.db.execute<{ organizations: number; relationships: number }>(sql`
+      select
+        (select count(*)::int from organization) as organizations,
+        (select count(*)::int from relationship) as relationships
+    `);
+    expect(counts.rows[0]).toEqual({ organizations: 68, relationships: 70 });
+
+    await seed(temp.db, { nodeEnv: 'development', many: true });
+    counts = await temp.db.execute(sql`
+      select
+        (select count(*)::int from organization) as organizations,
+        (select count(*)::int from relationship) as relationships
+    `);
+    expect(counts.rows[0]).toEqual({ organizations: 68, relationships: 70 });
   });
 
   it('PLT-02: bricht bei NODE_ENV=production ab, ohne etwas zu schreiben', async () => {

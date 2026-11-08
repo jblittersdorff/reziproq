@@ -4,6 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 export interface PromptLogEntry {
   zeitpunkt: string;
   nutzerId: string;
+  organisationId: string | null;
   dauerMs: number;
   eingabeTokens: number;
   ausgabeTokens: number;

@@ -1,26 +1,26 @@
-import type Anthropic from '@anthropic-ai/sdk';
+import type { LanguageModel, ModelMessage, ToolSet } from 'ai';
 
 export const PROMPT_MODEL = Symbol('PROMPT_MODEL');
 
 export interface TurnRequest {
   system: string;
-  messages: Anthropic.Beta.BetaMessageParam[];
-  tools: Anthropic.Beta.BetaTool[];
-  /** Jedes Textstück, sobald es da ist; so streamt die Antwort Wort für Wort. */
+  messages: ModelMessage[];
+  tools: ToolSet;
+  invokeTool: (name: string, input: unknown) => Promise<unknown>;
   onText: (delta: string) => void;
   signal: AbortSignal;
 }
 
 export interface TurnResult {
-  content: Anthropic.Beta.BetaContentBlock[];
-  stopReason: Anthropic.Beta.BetaStopReason | null;
   usage: { inputTokens: number; outputTokens: number };
 }
 
 /**
- * Ein Modell beantwortet einen Schritt des Gesprächs. Ob Claude oder das feste Testmodell
- * antwortet, entscheidet KI_ANBIETER; Werkzeuge und Ablauf sind für beide gleich.
+ * Ein Modell beantwortet eine Frage. Provider und Modell kommen aus der Konfiguration;
+ * Werkzeugausführung und Datengrenzen bleiben für alle Provider gleich.
  */
 export interface PromptModel {
   turn(request: TurnRequest): Promise<TurnResult>;
 }
+
+export type PromptLanguageModel = LanguageModel;

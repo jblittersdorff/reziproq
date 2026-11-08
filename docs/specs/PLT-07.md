@@ -41,6 +41,12 @@ Zwei Pull Requests:
 - **PLT-07a:** Baustein Import (Upload, Vorschau, Fehlerdatei), Lieferanten und Spend.
 - **PLT-07b:** Business Units und Kontakte, `docs/demo/lieferanten-50.xlsx`. Die 50 Lieferanten lädt zusätzlich `pnpm db:seed --viele`.
 
+## Umsetzungsstand
+
+**PLT-07a und PLT-07b sind technisch implementiert; PLT-07 bleibt offen.** Lieferanten, Spend, Business Units und geschäftliche Kontakte können als CSV oder XLSX geprüft und importiert werden. Kontakte liegen in einer buyer-private Tabelle; Business-Unit-Importe sind Admins vorbehalten. Die Demo-XLSX mit 50 gültigen und drei fehlerhaften Lieferanten sowie der Seed-Modus `--viele` sind vorhanden und automatisiert getestet.
+
+API-, Datenbank-, UI- und Playwright-Tests decken Import, Rechte, Idempotenz, Datentrennung, Vorschau, Fehlerdatei und den Abgleich der Verlaufseinträge mit dem manuellen Anlegen ab. Der echte Playwright-Test importiert die Demo über UI und API in die Datenbank und prüft 50 gespeicherte Lieferanten sowie die drei abgelehnten Zeilen. Uploads werden nur im Arbeitsspeicher verarbeitet und nicht gespeichert. Offen bleibt die manuelle Fünf-Minuten-Prüfung durch einen Gründer; deshalb wird PLT-07 noch nicht als fertig geführt.
+
 ## Ablauf
 
 1. Der Nutzer öffnet **Lieferanten → Importieren** oder den Import-Knopf im leeren Zustand.
@@ -64,17 +70,17 @@ Ein Skript erzeugt `docs/demo/lieferanten-50.xlsx` mit 50 erfundenen Lieferanten
 
 Je Kriterium ein Test.
 
-- [ ] Ein Playwright-Test importiert `lieferanten-50.xlsx` über die Oberfläche. 50 Lieferanten sind danach da, die drei fehlerhaften Zeilen sind markiert und nicht importiert.
+- [x] Ein Playwright-Test importiert `lieferanten-50.xlsx` über die Oberfläche. 50 Lieferanten sind danach da, die drei fehlerhaften Zeilen sind markiert und nicht importiert.
 - [ ] Von Hand geprüft und im Pull Request notiert: Ein Gründer schafft den Import der 50 Lieferanten samt Korrektur der Fehler in unter fünf Minuten.
-- [ ] Alle vier Vorlagen lassen sich als Excel und CSV herunterladen und unverändert wieder importieren.
-- [ ] Ein zweiter Import derselben Datei erzeugt keine Duplikate und meldet „unverändert“.
-- [ ] Beträge in deutschem und englischem Format werden richtig in Cent umgerechnet. Unklare Formate sind Fehler.
-- [ ] Die Fehlerdatei enthält genau die fehlerhaften Zeilen mit Fehlertext.
-- [ ] Rechte nach der Tabelle oben: Leser bekommt 403, Nutzer darf keine BUs importieren.
-- [ ] Zu große Dateien, falsche Dateitypen und mehr als 5.000 Zeilen werden mit klarer Meldung abgelehnt.
-- [ ] Der Import erzeugt dieselben Verlaufseinträge wie das Anlegen von Hand (PLT-08).
-- [ ] Kontakte und Spend sind für den Zweit-OEM und den Test-Lieferanten unsichtbar (Prüfungen aus PLT-04).
-- [ ] Die hochgeladene Datei liegt nach dem Import nirgends mehr.
+- [x] Alle vier Vorlagen lassen sich als Excel und CSV herunterladen und unverändert wieder importieren.
+- [x] Ein zweiter Import derselben Datei erzeugt keine Duplikate und meldet „unverändert“.
+- [x] Beträge in deutschem und englischem Format werden richtig in Cent umgerechnet. Unklare Formate sind Fehler.
+- [x] Die Fehlerdatei enthält genau die fehlerhaften Zeilen mit Fehlertext.
+- [x] Rechte nach der Tabelle oben: Leser bekommt 403, Nutzer darf keine BUs importieren.
+- [x] Zu große Dateien, falsche Dateitypen und mehr als 5.000 Zeilen werden mit klarer Meldung abgelehnt.
+- [x] Der Import erzeugt dieselben Verlaufseinträge wie das Anlegen von Hand (PLT-08).
+- [x] Kontakte und Spend sind für den Zweit-OEM und den Test-Lieferanten unsichtbar (Prüfungen aus PLT-04).
+- [x] Die hochgeladene Datei liegt nach dem Import nirgends mehr.
 
 ## Nicht Teil dieser Funktion
 

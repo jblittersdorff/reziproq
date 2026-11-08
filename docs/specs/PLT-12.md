@@ -24,11 +24,11 @@ Als Nutzer frage ich Reziproq in einfachen Sätzen nach meinen Lieferanten oder 
 | Werkzeug | Macht |
 |---|---|
 | `lieferanten_suchen` | Sucht nach Name, Land, BU, Warengruppe, Spend und Jahr. Liefert höchstens 20 Treffer über denselben Dienst wie die Lieferantenliste. |
-| `seite_oeffnen` | Nennt eine feste Route: einen Hauptbereich oder einen Bereich eines Lieferanten, z. B. `/lieferanten/<id>/strategie/spend`. |
+| `seite_oeffnen` | Bereitet einen Link zu einem festen Hauptbereich oder zum Spend eines exakt gefundenen Lieferanten vor. Die Oberfläche navigiert erst nach Klick. |
 
 - Die KI schreibt keine Datenbankabfragen.
-- Anbieter über `AI_PROVIDER`: `test` (Standard, ohne Schlüssel), `anthropic` (nur mit Beispieldaten), `bedrock` (ab Staging, Pflicht für echte Daten).
-- Das Modell kommt aus `AI_MODEL`. Umgesetzt mit dem Vercel AI SDK.
+- Anbieter über `AI_PROVIDER`: `test` (Standard, ohne Schlüssel), `anthropic` (nur mit Beispieldaten), `bedrock` (ab Staging, Pflicht für echte Daten). Im Betrieb sind ausschließlich Bedrock-Aufrufe aus einer AWS-EU-Region zulässig.
+- Modell und Rate-Limit kommen aus `AI_MODEL` und `AI_REQUESTS_PER_MINUTE`. Umgesetzt mit dem Vercel AI SDK und der AWS SDK Default Credential Provider Chain.
 
 ## Ablauf
 
@@ -54,17 +54,19 @@ Sie stehen im System-Prompt:
 
 Je Kriterium ein Test. Alle laufen mit `AI_PROVIDER=test`, ohne Schlüssel und ohne Internet.
 
-- [ ] Cmd+K und Ctrl+K öffnen `/fragen` mit Fokus im Feld. Zurück führt zur Ausgangsseite.
-- [ ] `/fragen?q=…` stellt die Frage beim Öffnen.
-- [ ] Ein Klick auf einen Vorschlag übernimmt ihn.
-- [ ] Eine Frage nach Lieferanten ruft `lieferanten_suchen` auf. Karten und Zahlen stimmen mit der Datenbank überein.
-- [ ] Ein Nutzer des Zweit-OEM bekommt nie Daten des Test-OEM, auch nicht auf ausdrückliche Frage.
-- [ ] Ohne Login gibt es 401, ohne Organisation 403.
-- [ ] Keine Treffer zeigt „Keine Treffer“. Lade- und Fehlerzustand sind sichtbar.
-- [ ] Das Protokoll enthält keinen Text aus Frage oder Antwort.
-- [ ] Die API startet nicht mit `AI_PROVIDER=anthropic` und `NODE_ENV=production`.
-- [ ] Die Anfragen je Nutzer und Minute sind begrenzt, der Wert steht in der Konfiguration.
-- [ ] Es gibt kein Overlay und kein Fenster (Prüfung aus PLT-10).
+- [x] Cmd+K und Ctrl+K öffnen `/fragen` mit Fokus im Feld. Zurück führt zur Ausgangsseite.
+- [x] `/fragen?q=…` stellt die Frage beim Öffnen; Start übergibt die Frage in der URL.
+- [x] Ein Klick auf einen Vorschlag übernimmt ihn.
+- [x] Fragen zu Lieferanten rufen `lieferanten_suchen` über den geschützten Dienst auf. Karten und Zahlen stimmen mit der Datenbank überein; BU, Warengruppe und Jahr sind Filter.
+- [x] Ein Nutzer des Zweit-OEM bekommt nie Daten des Test-OEM, auch nicht auf ausdrückliche Frage.
+- [x] Ohne Login gibt es 401, ohne Organisation 403.
+- [x] Keine Treffer zeigt „Keine Treffer“. Lade- und Fehlerzustand sind sichtbar.
+- [x] Das Protokoll enthält keinen Text aus Frage oder Antwort.
+- [x] Die API startet nicht mit `AI_PROVIDER=anthropic` und `NODE_ENV=production`.
+- [x] Bedrock benötigt Region und Anthropic-Modell-ID; Produktionsaufrufe sind auf AWS-EU-Regionen beschränkt.
+- [x] Die Anfragen je Nutzer und Minute sind begrenzt; der Wert steht in der Konfiguration.
+- [x] Bereiche und exakt gefundene Lieferanten-Spend-Ziele erscheinen als Links; Navigation erfolgt erst nach Klick.
+- [x] Es gibt kein Overlay und kein Fenster (Prüfung aus PLT-10).
 
 ## Nicht Teil dieser Funktion
 

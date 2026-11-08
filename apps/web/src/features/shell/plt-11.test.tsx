@@ -82,13 +82,16 @@ describe('Nach dem Login landet der Nutzer auf /start', () => {
     expect(await screen.findByRole('heading', { level: 1, name: greeting })).toBeDefined();
   });
 
-  it('zeigt auf Start das Fragefeld, das zu /fragen führt, und den leeren Zustand', async () => {
+  it('zeigt auf Start das Fragefeld, das eine Frage an /fragen übergibt', async () => {
     const router = renderAt('/start');
     await screen.findByRole('heading', { level: 1 });
-    expect(screen.getByText('Hier steht bald, was bei dir fällig ist')).toBeDefined();
-    fireEvent.click(screen.getByRole('link', { name: /Frag Reziproq/ }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Deine Frage an Reziproq' }), {
+      target: { value: 'Zeig mir meine Lieferanten' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Fragen' }));
     await screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
     expect(router.state.location.pathname).toBe('/fragen');
+    expect(router.state.location.search).toEqual({ q: 'Zeig mir meine Lieferanten' });
   });
 });
 
@@ -170,15 +173,21 @@ describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Tit
     ).toBeDefined();
   });
 
-  it.each([
-    ['/portfolio', 'Portfolio', 'Noch kein Portfolio'],
-    ['/wirkung', 'Wirkung', 'Noch keine Wirkung'],
-  ])('%s zeigt den leeren Zustand und setzt den Tab-Titel', async (path, title, empty) => {
-    renderAt(path);
-    await screen.findByRole('heading', { level: 1, name: title });
-    expect(screen.getByText(empty)).toBeDefined();
-    expect(document.title).toBe(`${title} – Reziproq`);
-  });
+  it.each([['/wirkung', 'Wirkung', 'Noch keine Wirkung']])(
+    '%s zeigt den leeren Zustand und setzt den Tab-Titel',
+    async (path, title, empty) => {
+      renderAt(path);
+      await screen.findByRole('heading', { level: 1, name: title });
+      expect(screen.getByText(empty)).toBeDefined();
+      expect(document.title).toBe(`${title} – Reziproq`);
+    },
+  );
+});
+
+it('/portfolio setzt den Tab-Titel', async () => {
+  renderAt('/portfolio');
+  await screen.findByRole('heading', { level: 1, name: 'Portfolio' });
+  expect(document.title).toBe('Portfolio – Reziproq');
 });
 
 describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mitglied sieht Organisation', () => {

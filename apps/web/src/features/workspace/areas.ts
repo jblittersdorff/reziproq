@@ -15,8 +15,8 @@ export type SubPage = { key: PageKey } & ({ segment: string } | { coming: Coming
  */
 export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   strategy: [
-    { key: 'segmentation', coming: 'core' },
-    { key: 'supplierPlan', coming: 'later' },
+    { key: 'segmentation', segment: 'segmentierung' },
+    { key: 'supplierPlan', segment: 'lieferantenplan' },
     { key: 'spend', segment: 'spend' },
     { key: 'profile', segment: 'profil' },
   ],

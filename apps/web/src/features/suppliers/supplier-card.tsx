@@ -1,6 +1,6 @@
 import { lastFullYear, type Supplier } from '@reziproq/shared';
 import { Link } from '@tanstack/react-router';
-import { CircleDashedIcon, CircleOffIcon } from 'lucide-react';
+import { CircleDashedIcon, CircleOffIcon, StarIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tile } from '@/components/ui/tile';
 import { useFormat } from '@/lib/format';
@@ -33,6 +33,12 @@ export function SupplierCard({
         <Link to="/lieferanten/$id" params={{ id: supplier.relationshipId }}>
           <div className="flex flex-col items-start gap-2">
             <Heading className="font-semibold text-lg">{supplier.name}</Heading>
+            {supplier.isFocus && (
+              <Badge variant="selected">
+                <StarIcon aria-hidden />
+                {t.portfolio.focusPage.badge}
+              </Badge>
+            )}
             {supplier.status === 'draft' && (
               <Badge>
                 <CircleDashedIcon aria-hidden />

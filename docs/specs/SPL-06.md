@@ -32,10 +32,10 @@ Als SRO verdichte ich die Ziele zu drei bis fünf strategischen Themen, die wir 
 
 Je Kriterium ein Test.
 
-- [ ] Jedes Thema hat Titel, Begründung und mindestens ein verknüpftes Ziel.
-- [ ] Die Reihenfolge bleibt nach dem Neuladen erhalten.
-- [ ] Ab sechs Themen erscheint der Hinweis.
-- [ ] Der Test-Lieferant sieht keine Themen (PLT-04).
+- [x] Jedes Thema hat Titel, Begründung und mindestens ein verknüpftes Ziel (`apps/api/src/modules/supplier-plans/strategic-topics.test.ts`, `apps/web/e2e/spl-06.spec.ts`).
+- [x] Die Reihenfolge bleibt nach dem Neuladen erhalten; Pfeile per Tastatur (`apps/api/src/modules/supplier-plans/strategic-topics.test.ts`, `apps/web/e2e/spl-06.spec.ts`).
+- [x] Ab sechs Themen erscheint der Hinweis (`apps/api/src/modules/supplier-plans/strategic-topics.test.ts`, `apps/web/e2e/spl-06.spec.ts`).
+- [x] Der Test-Lieferant sieht keine Themen (PLT-04) (`apps/api/src/modules/supplier-plans/strategic-topics.test.ts`).
 
 ## Nicht Teil dieser Funktion
 

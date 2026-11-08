@@ -7,7 +7,7 @@ import type * as React from 'react';
 export type RenderLink = (props: {
   href: string;
   className: string;
-  'aria-current'?: 'page' | undefined;
+  'aria-current'?: React.AriaAttributes['aria-current'];
   'aria-label'?: string | undefined;
   children: React.ReactNode;
 }) => React.ReactNode;

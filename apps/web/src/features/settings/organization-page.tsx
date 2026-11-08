@@ -23,7 +23,6 @@ import { useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 
-
 /**
  * Einstellungen › Organisation (PLT-02, PLT-05): Name, Land und Mitglieder mit Rolle und
  * Controlling. Jedes Mitglied sieht sie; Admins öffnen über den Namen die Seite des Mitglieds.
@@ -80,9 +79,7 @@ function OrganizationDetails() {
           <span className="text-base">{organization.data.name}</span>
         </SettingsRow>
         <SettingsRow label={t.settings.organizationCountry}>
-          <span className="text-base">
-            {format.country(organization.data.country)}
-          </span>
+          <span className="text-base">{format.country(organization.data.country)}</span>
         </SettingsRow>
       </SettingsGroup>
       <Table>

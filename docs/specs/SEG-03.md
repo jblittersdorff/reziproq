@@ -44,14 +44,15 @@ Als Admin starte ich in einem geführten Ablauf eine Bewertungsrunde: welche Lie
 
 Je Kriterium ein Test.
 
-- [ ] Eine Runde für zehn Lieferanten lässt sich in einem Ablauf starten.
-- [ ] Jeder Schritt hat eine eigene Adresse. Zurück behält die Eingaben.
-- [ ] Die Vorschläge kommen aus Team und Standardfunktion und lassen sich ändern.
-- [ ] Beim Start gibt es genau eine Mail je bewertender Person, nur mit Titel und Link.
-- [ ] Die Runde speichert die Version des Segmentmodells.
-- [ ] Eine geschlossene Runde nimmt keine Bewertungen mehr an.
-- [ ] Nur Admins starten Runden. Ein SRO nominiert nur für seine Lieferanten nach.
-- [ ] Der Zweit-OEM sieht keine Runde des Test-OEM (PLT-04).
+- [x] Eine Runde für zehn Lieferanten lässt sich in einem Ablauf starten.
+- [x] Jeder Schritt hat eine eigene Adresse. Zurück behält die Eingaben.
+- [x] Die Vorschläge kommen aus Team und Standardfunktion und lassen sich ändern.
+- [x] Beim Start gibt es genau eine Mail je bewertender Person, nur mit Titel und Link.
+- [x] Die Runde speichert die beim Start aktive Version des Segmentmodells; spätere Aktivierungen
+      ändern die Version einer laufenden Runde nicht.
+- [x] Eine geschlossene Runde nimmt keine Bewertungen mehr an.
+- [x] Nur Admins starten Runden. Ein SRO nominiert nur für seine Lieferanten nach.
+- [x] Der Zweit-OEM sieht keine Runde des Test-OEM (PLT-04).
 
 ## Nicht Teil dieser Funktion
 

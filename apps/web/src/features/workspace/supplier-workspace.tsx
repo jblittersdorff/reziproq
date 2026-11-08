@@ -11,6 +11,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useT } from '@/lib/i18n';
 import { areaOf, workspacePath } from './areas';
+import { CycleAction } from './cycle-action';
 import { useOverview } from './use-overview';
 import { WorkspaceHead } from './workspace-head';
 
@@ -22,6 +23,7 @@ import { WorkspaceHead } from './workspace-head';
 export function SupplierWorkspace({ relationshipId }: { relationshipId: string }) {
   const t = useT();
   const supplier = useSupplier(relationshipId);
+  const overview = useOverview(relationshipId);
   const area = useRouterState({ select: (state) => areaOf(state.location.pathname) });
   const root = { label: t.suppliers.title, href: '/lieferanten' };
 
@@ -66,6 +68,11 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
           nameHref={workspacePath(relationshipId)}
           items={items}
           activeKey={area ?? 'overview'}
+          action={
+            overview.data && (
+              <CycleAction relationshipId={relationshipId} overview={overview.data} />
+            )
+          }
           renderLink={routerLink}
         />
       </InLocalBarSlot>

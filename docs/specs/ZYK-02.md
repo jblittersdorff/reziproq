@@ -18,7 +18,8 @@ Als SRO setze ich nur den Termin des Joint Business Planning. Reziproq rechnet f
 
 | Tabelle | Felder | Art |
 |---|---|---|
-| `cycle_settings` | `org_id`, `step`, `weeks_relative_to_jbp` (negativ davor, positiv danach), `reminder_days_before` | `org_private` |
+| `cycle_setting` | `org_id`, `step`, `weeks_relative_to_jbp` (negativ davor, positiv danach), `reminder_days_before` | `org_private` |
+| `cycle_reminder_sent` | `cycle_id`, `relationship_id`, `step`, `due_date` (eindeutig je Zyklus, Schritt und Frist) | `buyer_private` |
 
 **Standardwerte**, je Kunde änderbar:
 
@@ -33,7 +34,8 @@ Als SRO setze ich nur den Termin des Joint Business Planning. Reziproq rechnet f
 Erinnert wird 7 Tage vor der Fälligkeit.
 
 - Fälligkeiten werden berechnet, nicht gespeichert: Termin plus Abstand.
-- Erinnerungen laufen als täglicher Job und gehen per Mail über QS-01 an den SRO.
+- Erinnerungen laufen täglich und gehen per Mail über QS-01 an den SRO. Ein privater Idempotenzschlüssel verhindert doppelte Erinnerungen.
+- Der Job ermittelt Organisationen nur über Outbox-Metadaten und liest Fachdaten danach ausschließlich in der jeweiligen Mandanten-Session.
 - Ist ein Schritt überfällig, steht er in der Zyklus-Leiste auf „überfällig“ und erscheint auf Start (NAV-05).
 
 ## Ablauf
@@ -47,11 +49,11 @@ Erinnert wird 7 Tage vor der Fälligkeit.
 
 Je Kriterium ein Test.
 
-- [ ] Nach Setzen des Termins stimmen alle Fälligkeiten mit den Abständen überein.
-- [ ] Eine Verschiebung verschiebt alle Fälligkeiten, nichts davon ist gespeichert.
-- [ ] Sieben Tage vor einer Fälligkeit geht genau eine Erinnerung an den SRO, nur mit Titel und Link.
-- [ ] Ein überfälliger Schritt erscheint auf Start und in der Leiste als überfällig.
-- [ ] Nur Admins ändern die Abstände.
+- [x] Nach Setzen des Termins stimmen alle Fälligkeiten mit den Abständen überein.
+- [x] Eine Verschiebung verschiebt alle Fälligkeiten, nichts davon ist gespeichert.
+- [x] Sieben Tage vor einer Fälligkeit geht genau eine Erinnerung an den SRO, nur mit Titel und Link.
+- [x] Ein überfälliger Schritt erscheint auf Start und in der Leiste als überfällig.
+- [x] Nur Admins ändern die Abstände.
 
 ## Nicht Teil dieser Funktion
 

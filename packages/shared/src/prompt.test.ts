@@ -34,9 +34,33 @@ describe('promptRequestSchema', () => {
 });
 
 describe('promptEventSchema', () => {
-  it('erlaubt Sprünge nur zu den festen Bereichen', () => {
-    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/portfolio' }).success).toBe(true);
-    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/admin' }).success).toBe(false);
-    expect(promptEventSchema.safeParse({ type: 'navigate', to: '/puls' }).success).toBe(false);
+  it('erlaubt feste Bereiche und Lieferanten-Spend-Ziele, aber keine freien Routen', () => {
+    expect(
+      promptEventSchema.safeParse({
+        type: 'navigate',
+        destination: { type: 'area', path: '/portfolio' },
+      }).success,
+    ).toBe(true);
+    expect(
+      promptEventSchema.safeParse({
+        type: 'navigate',
+        destination: {
+          type: 'supplierSpend',
+          relationshipId: '00000000-0000-4000-8000-000000000001',
+        },
+      }).success,
+    ).toBe(true);
+    expect(
+      promptEventSchema.safeParse({
+        type: 'navigate',
+        destination: { type: 'area', path: '/admin' },
+      }).success,
+    ).toBe(false);
+    expect(
+      promptEventSchema.safeParse({
+        type: 'navigate',
+        destination: { type: 'supplierSpend', relationshipId: '../admin' },
+      }).success,
+    ).toBe(false);
   });
 });

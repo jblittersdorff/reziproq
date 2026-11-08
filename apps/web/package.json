@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsr generate && tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
-    "test:e2e": "playwright test"
+    "test:e2e": "pnpm --filter \"@reziproq/api...\" build && pnpm --filter @reziproq/api build:test-tools && playwright test"
   },
   "dependencies": {
     "@reziproq/shared": "workspace:*",

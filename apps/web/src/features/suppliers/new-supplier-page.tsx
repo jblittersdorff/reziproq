@@ -70,7 +70,8 @@ export function NewSupplierPage() {
     event.preventDefault();
     setFailed(false);
     setExisting(null);
-    const amountCents = form.amount.trim() === '' ? undefined : parseEuroToCents(form.amount, format.locale);
+    const amountCents =
+      form.amount.trim() === '' ? undefined : parseEuroToCents(form.amount, format.locale);
     const request = {
       name: form.name,
       country: form.country,

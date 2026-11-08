@@ -3,4 +3,8 @@ export * from './audit.js';
 export * from './master-data.js';
 export * from './organization.js';
 export * from './relationship.js';
+export * from './rounds.js';
+export * from './segment.js';
+export * from './supplier-contact.js';
 export * from './support-access-log.js';
+export * from './supplier-plan.js';

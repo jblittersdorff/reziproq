@@ -11,7 +11,8 @@ export function PageHeader({
   badge,
 }: {
   title: string;
-  purpose: string;
+  /** Fehlt nur, solange die Seite lädt oder nicht geladen werden konnte. */
+  purpose?: string;
   badge?: ReactNode;
 }) {
   const t = useT();
@@ -26,7 +27,7 @@ export function PageHeader({
         <h1 className="font-semibold text-xl">{title}</h1>
         {badge}
       </div>
-      <p className="text-muted-foreground">{purpose}</p>
+      {purpose && <p className="text-muted-foreground">{purpose}</p>}
     </header>
   );
 }

@@ -64,7 +64,9 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
   const seen = await signInAsOperator(page);
   await page.goto('/lieferanten');
   // Ohne eigene Organisation sieht ein Betreiber nur den Hinweis, bis er einen Kunden wählt (PLT-02).
-  await expect(page.locator('#inhalt').getByRole('status')).toContainText('In einen Kunden wechseln');
+  await expect(page.locator('#inhalt').getByRole('status')).toContainText(
+    'In einen Kunden wechseln',
+  );
   await expect(page.locator('#inhalt h1')).toHaveCount(0);
 
   await switchTo(page, 'Zweit-OEM (Demo)');

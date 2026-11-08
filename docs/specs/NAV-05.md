@@ -42,11 +42,11 @@ Als Nutzer sehe ich nach dem Login, was ich heute tun muss, und komme mit einem 
 
 Je Kriterium ein Test.
 
-- [ ] Eine offene Bewertung erscheint unter „Fällig bei mir“ und führt zur Bewertung. Nach der Abgabe verschwindet sie.
-- [ ] Jede Kachel zeigt höchstens fünf Einträge. **Alle** führt zur vollständigen Liste.
-- [ ] Start und `/start/faellig` speichern nichts. Ein Test prüft, dass keine Tabelle dafür existiert.
-- [ ] Ein Nutzer sieht nur Aufgaben, die ihm gehören, und nur Lieferanten, die er sehen darf.
-- [ ] Die Kacheln stehen auf breiten Bildschirmen zu zweit nebeneinander, auf schmalen untereinander.
+- [x] Eine offene Bewertung erscheint unter „Fällig bei mir“ und führt zur Bewertung. Nach der Abgabe verschwindet sie.
+- [x] Jede Kachel zeigt höchstens fünf Einträge. **Alle** führt zur vollständigen Liste.
+- [x] Start und `/start/faellig` speichern nichts. Ein Test prüft, dass keine Tabelle dafür existiert.
+- [x] Ein Nutzer sieht nur Aufgaben, die ihm gehören, und nur Lieferanten, die er sehen darf.
+- [x] Die Kacheln stehen auf breiten Bildschirmen zu zweit nebeneinander, auf schmalen untereinander.
 - [ ] Die Seite lädt bei 50 Lieferanten in unter zwei Sekunden (lokale Messung).
 
 ## Nicht Teil dieser Funktion

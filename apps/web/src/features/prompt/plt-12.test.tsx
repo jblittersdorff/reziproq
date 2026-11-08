@@ -64,11 +64,19 @@ describe('Öffnen', () => {
     expect(await questionsPage()).toBeDefined();
   });
 
-  it('das Feld auf Start führt zur selben Seite', async () => {
-    renderAt('/start');
-    fireEvent.click(await screen.findByRole('link', { name: /Frag Reziproq …/ }));
-    expect(await questionsPage()).toBeDefined();
-    expect(document.activeElement).toBe(field());
+  it('fragt mit dem Feld auf Start und übergibt die Frage über die URL', async () => {
+    api.prompt.events = [{ type: 'text', delta: 'Antwort auf Start.' }, { type: 'done' }];
+    const router = renderAt('/start');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Deine Frage an Reziproq' }), {
+      target: { value: 'Wie geht es meinen Lieferanten?' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Fragen' }));
+    await questionsPage();
+    await screen.findByText('Antwort auf Start.');
+    expect(router.state.location.search).toEqual({ q: 'Wie geht es meinen Lieferanten?' });
+    expect(api.promptRequests[0]).toEqual({
+      messages: [{ role: 'user', content: 'Wie geht es meinen Lieferanten?' }],
+    });
   });
 });
 
@@ -80,8 +88,8 @@ describe('Leere Seite', () => {
     );
     expect(suggestions.map((button) => button.textContent)).toEqual([
       'Zeig mir die Lieferanten mit dem höchsten Spend',
-      'Welche Lieferanten haben wir in Polen?',
-      'Öffne das Portfolio',
+      'Welche Lieferanten haben wir in der Warengruppe Elektronik?',
+      'Öffne den Spend von Beispiel AG (Demo)',
     ]);
     expect(
       screen.getByText('Antworten beruhen nur auf Daten, die du sehen darfst. Bitte prüfen.'),
@@ -90,24 +98,44 @@ describe('Leere Seite', () => {
 
   it('ein Klick auf einen Vorschlag übernimmt den Text, ohne schon zu fragen', async () => {
     await openWithShortcut();
-    fireEvent.click(screen.getByRole('button', { name: 'Öffne das Portfolio' }));
-    expect(field()).toHaveProperty('value', 'Öffne das Portfolio');
+    fireEvent.click(screen.getByRole('button', { name: 'Öffne den Spend von Beispiel AG (Demo)' }));
+    expect(field()).toHaveProperty('value', 'Öffne den Spend von Beispiel AG (Demo)');
     expect(document.activeElement).toBe(field());
     expect(api.promptRequests).toEqual([]);
   });
 });
 
 describe('Antworten', () => {
-  it('„Öffne das Portfolio“ wechselt zu /portfolio', async () => {
+  it('zeigt für das Portfolio einen Link, den der Nutzer bewusst öffnet', async () => {
     api.prompt.events = [
-      { type: 'text', delta: 'Ich öffne Portfolio.' },
-      { type: 'navigate', to: '/portfolio' },
+      { type: 'text', delta: 'Hier ist der Link zu Portfolio.' },
+      { type: 'navigate', destination: { type: 'area', path: '/portfolio' } },
       { type: 'done' },
     ];
     const router = await openWithShortcut();
     await askQuestion('Öffne das Portfolio');
+    const open = await screen.findByRole('link', { name: 'Bereich öffnen' });
+    expect(router.state.location.pathname).toBe('/fragen');
+    fireEvent.click(open);
     await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio'));
     expect(await screen.findByRole('heading', { level: 1, name: 'Portfolio' })).toBeDefined();
+  });
+
+  it('verlinkt zum Spend der exakt gefundenen Lieferantenbeziehung', async () => {
+    const relationshipId = '00000000-0000-4000-8000-000000000001';
+    api.prompt.events = [
+      {
+        type: 'navigate',
+        destination: { type: 'supplierSpend', relationshipId },
+      },
+      { type: 'done' },
+    ];
+    await openWithShortcut();
+    await askQuestion('Öffne den Spend von Pearl River Components');
+    const open = await screen.findByRole('link', { name: 'Spend öffnen' });
+    expect(open.getAttribute('href')).toMatch(
+      new RegExp(`/lieferanten/${relationshipId}/strategie/spend/?$`),
+    );
   });
 
   it('zeigt die Antwort Stück für Stück und die Treffer als Karten', async () => {

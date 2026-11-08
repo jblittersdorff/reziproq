@@ -42,14 +42,14 @@ Als Fachfunktion bewerte ich einen Lieferanten für meine Business Unit und Ware
 
 Je Kriterium ein Test.
 
-- [ ] Ein Nutzer der BU A sieht vor der Konsolidierung keine Bewertung der BU B. SRO und Admin sehen beide.
-- [ ] Nach der Konsolidierung sehen alle Käufer-Nutzer mit Zugriff alle Bewertungen.
-- [ ] Der Entwurf überlebt Abmelden und Neuladen.
-- [ ] Ohne Werte für alle Kriterien lässt sich nicht abgeben. Die Seite nennt die fehlenden.
-- [ ] Achsenwerte und Typ in der Zusammenfassung stimmen mit der Rechnung aus SEG-01 überein.
-- [ ] Nach dem Schließen der Runde ist nichts mehr änderbar.
-- [ ] Der Test-Lieferant sieht keine Bewertung (PLT-04).
-- [ ] Der Ablauf ist per Tastatur bedienbar, auch die Regler.
+- [x] Ein Nutzer der BU A sieht vor der Konsolidierung keine Bewertung der BU B. SRO und Admin sehen beide.
+- [x] Nach der Konsolidierung sehen alle Käufer-Nutzer mit Zugriff alle Bewertungen.
+- [x] Der Entwurf überlebt Abmelden und Neuladen.
+- [x] Ohne Werte für alle Kriterien lässt sich nicht abgeben. Die Seite nennt die fehlenden.
+- [x] Achsenwerte und Typ in der Zusammenfassung stimmen mit der Rechnung aus SEG-01 überein.
+- [x] Nach dem Schließen der Runde ist nichts mehr änderbar.
+- [x] Der Test-Lieferant sieht keine Bewertung (PLT-04).
+- [x] Der Ablauf ist per Tastatur bedienbar, auch die Regler.
 
 ## Nicht Teil dieser Funktion
 

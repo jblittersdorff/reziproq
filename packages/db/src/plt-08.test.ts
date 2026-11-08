@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { type AuditActor, auditedChange, auditedObject, diffFields } from './audit.js';
+import {
+  type AuditActor,
+  auditedChange,
+  auditedObject,
+  diffFields,
+  type OutboxEmailPayload,
+} from './audit.js';
 import { privateColumns } from './layers.js';
 import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
 import { type TenantTransaction, withTenant } from './tenant.js';
@@ -41,7 +47,12 @@ describe('PLT-08: Verlauf in der Datenbank', () => {
     withTenant(temp.db, { userId: actor.userId, organizationId: actor.organizationId }, work);
 
   /** Legt ein Probe-Objekt mit Verlauf an und gibt seine ID zurück. */
-  const createProbe = (actor: AuditActor, relationshipId: string, titel = 'Erster Entwurf') =>
+  const createProbe = (
+    actor: AuditActor,
+    relationshipId: string,
+    titel = 'Erster Entwurf',
+    email?: OutboxEmailPayload,
+  ) =>
     as(actor, (tx) =>
       auditedChange(tx, actor, probeObject, async () => {
         const id = randomUUID();
@@ -54,6 +65,7 @@ describe('PLT-08: Verlauf in der Datenbank', () => {
           relationshipId,
           action: 'created',
           after: { status: 'draft', titel, spend_cents: 4200 },
+          ...(email ? { email } : {}),
           result: id,
         };
       }),
@@ -288,11 +300,86 @@ describe('PLT-08: Verlauf in der Datenbank', () => {
     expect(Number(orphans.rows[0]?.n)).toBe(0);
   });
 
+  it('Eine Mail liegt mit dem Verlauf in genau demselben Outbox-Eintrag', async () => {
+    const id = await createProbe(lena, relationshipA, 'Einladung Beispiel AG (Demo)', {
+      template: 'invitation',
+      locale: 'de',
+      recipient: 'anna@example.com',
+      firstName: 'Anna',
+      title: 'Einladung Beispiel AG (Demo)',
+      deadline: '30. Juni 2027',
+      link: '/bewertungen/123',
+    });
+    const entries = await temp.db.execute<{
+      event_type: string;
+      email_template: string;
+      email_locale: string;
+      email_recipient: string;
+      email_title: string;
+      email_link: string;
+    }>(sql`
+      select event_type, email_template, email_locale, email_recipient, email_title, email_link
+      from outbox_event where object_id = ${id}
+    `);
+
+    expect(entries.rows).toEqual([
+      {
+        event_type: 'email.invitation',
+        email_template: 'invitation',
+        email_locale: 'de',
+        email_recipient: 'anna@example.com',
+        email_title: 'Einladung Beispiel AG (Demo)',
+        email_link: '/bewertungen/123',
+      },
+    ]);
+  });
+
   it('Die API liest die Outbox nicht', async () => {
     const error = await as(lena, (tx) => tx.execute(sql`select * from outbox_event`)).catch(
       (caught: unknown) => caught,
     );
     expect(String((error as Error).cause)).toMatch(/permission denied/);
+  });
+
+  it('Nur die Betriebsrolle liest Outbox und E-Mail-Protokoll', async () => {
+    const objectId = await createProbe(lena, relationshipA, 'Einladung Beispiel AG (Demo)', {
+      template: 'invitation',
+      locale: 'de',
+      recipient: 'anna@example.com',
+      title: 'Einladung Beispiel AG (Demo)',
+      link: '/bewertungen/123',
+    });
+    const [outbox] = (
+      await temp.db.execute<{ id: string }>(
+        sql`select id::text from outbox_event where object_id = ${objectId}`,
+      )
+    ).rows;
+    const outboxId = outbox?.id;
+    if (!outboxId) throw new Error('Outbox-Ereignis fehlt.');
+
+    const logRows = await temp.db.transaction(async (tx) => {
+      await tx.execute(sql`set local role reziproq_jobs`);
+      const events = await tx.execute<{ email_recipient: string }>(sql`
+        select email_recipient from outbox_event where id = ${outboxId}
+      `);
+      await tx.execute(sql`
+        insert into email_log (outbox_event_id, template, status, recipient_hash)
+        values (${outboxId}, 'invitation', 'sending', 'test-hash')
+      `);
+      const logs = await tx.execute<{ status: string }>(sql`
+        select status from email_log where outbox_event_id = ${outboxId}
+      `);
+      return { events: events.rows, logs: logs.rows };
+    });
+    expect(logRows).toEqual({
+      events: [{ email_recipient: 'anna@example.com' }],
+      logs: [{ status: 'sending' }],
+    });
+
+    const apiError = await as(lena, (tx) => tx.execute(sql`select * from email_log`)).catch(
+      (caught: unknown) => caught,
+    );
+    expect(String((apiError as Error).cause)).toMatch(/permission denied/);
   });
 
   it('Einträge zu internen Objekten ohne Beziehung sieht nur die eigene Organisation', async () => {

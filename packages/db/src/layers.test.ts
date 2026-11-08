@@ -206,9 +206,13 @@ describe('PLT-04: Drei Datenebenen', () => {
 
   /** ID der Gerüst-Zeile ohne Beziehung, die eine Organisation in einer Tabelle hat. */
   const probe = (table: string, org: string) => {
-    const found = [...rows.entries()].find(
-      ([, meta]) => meta.table === table && meta.org === org && meta.relationship === null,
+    const inTable = [...rows.entries()].filter(
+      ([, meta]) =>
+        meta.table === table &&
+        (meta.org === org || (meta.relationship && relationships[meta.relationship].buyer === org)),
     );
+    // Tabellen mit Beziehung haben keine Zeile ohne Beziehung; dann genügt irgendeine des Käufers.
+    const found = inTable.find(([, meta]) => meta.relationship === null) ?? inTable[0];
     if (!found) throw new Error(`Keine Probe-Zeile in ${table} für ${org}`);
     return found[0];
   };
@@ -226,11 +230,17 @@ describe('PLT-04: Drei Datenebenen', () => {
     await migrateTo(temp.db);
     await seed(temp.db, { nodeEnv: 'development' });
     // Nur die Beziehungen des Gerüsts, damit jede sichtbare Zeile aus dem Gerüst stammt.
+    await temp.db.execute(sql`delete from segment_decision`);
+    await temp.db.execute(sql`delete from rating`);
+    await temp.db.execute(sql`delete from rating_assignment`);
+    await temp.db.execute(sql`delete from segmentation_round`);
+    await temp.db.execute(sql`delete from segment_model`);
     await temp.db.execute(sql`delete from relationship_spend`);
     await temp.db.execute(sql`delete from relationship_side`);
     await temp.db.execute(sql`delete from relationship_member`);
     await temp.db.execute(sql`delete from relationship_business_unit`);
     await temp.db.execute(sql`delete from relationship_material_group`);
+    await temp.db.execute(sql`delete from cycle`);
     await temp.db.execute(sql`delete from business_unit`);
     await temp.db.execute(sql`delete from material_group where parent_id is not null`);
     await temp.db.execute(sql`delete from material_group`);

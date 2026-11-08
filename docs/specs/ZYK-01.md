@@ -49,11 +49,11 @@ Als SRO sehe ich für jeden Fokuslieferanten, wo der Jahreszyklus steht und was 
 
 Je Kriterium ein Test.
 
-- [ ] Fokus setzen erzeugt genau einen aktiven Zyklus.
-- [ ] Jeder Schritt leitet seinen Status aus dem Modul ab. Ein Test schließt den Schritt Segment über eine Konsolidierung ab und prüft die Leiste.
-- [ ] Der Knopf Nächster Schritt zeigt immer den ersten offenen Schritt und führt zur richtigen Seite.
-- [ ] Schritte ohne Modul zeigen „noch nicht verfügbar“ statt eines falschen Status.
-- [ ] Der Test-Lieferant sieht keinen Zyklus (PLT-04).
+- [x] Fokus setzen erzeugt genau einen aktiven Zyklus.
+- [x] Jeder Schritt leitet seinen Status aus dem Modul ab. Ein Test schließt den Schritt Segment über eine Konsolidierung ab und prüft die Leiste.
+- [x] Der Knopf Nächster Schritt zeigt immer den ersten offenen Schritt und führt zur richtigen Seite.
+- [x] Schritte ohne Modul zeigen „noch nicht verfügbar“ statt eines falschen Status.
+- [x] Der Test-Lieferant sieht keinen Zyklus (PLT-04).
 
 ## Nicht Teil dieser Funktion
 

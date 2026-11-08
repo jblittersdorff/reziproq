@@ -1,21 +1,31 @@
 import { Module } from '@nestjs/common';
+import { RatingsModule } from '../ratings/ratings.module.js';
+import { RatingsService } from '../ratings/ratings.service.js';
 import { SpendMetricSource, TeamMetricSource } from '../suppliers/overview-metrics.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
+import { CYCLE_STEP_SOURCES, segmentCycleStepSource } from './cycle.js';
 import { OverviewController } from './overview.controller.js';
+import { CycleSettingsController } from './cycle-settings.controller.js';
 import { OverviewService } from './overview.service.js';
 import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
 
 /** Überblick des Arbeitsbereichs (NAV-06). Jedes Modul mit Kennzahl trägt hier seine Quelle ein. */
 @Module({
-  imports: [SuppliersModule],
-  controllers: [OverviewController],
+  imports: [SuppliersModule, RatingsModule],
+  controllers: [OverviewController, CycleSettingsController],
   providers: [
     OverviewService,
+    { provide: CYCLE_STEP_SOURCES, useValue: [segmentCycleStepSource] },
     {
       provide: OVERVIEW_METRIC_SOURCES,
-      useFactory: (spend: SpendMetricSource, team: TeamMetricSource) => [spend, team],
-      inject: [SpendMetricSource, TeamMetricSource],
+      useFactory: (spend: SpendMetricSource, team: TeamMetricSource, ratings: RatingsService) => [
+        ratings,
+        spend,
+        team,
+      ],
+      inject: [SpendMetricSource, TeamMetricSource, RatingsService],
     },
   ],
+  exports: [OverviewService, CYCLE_STEP_SOURCES],
 })
 export class OverviewModule {}
