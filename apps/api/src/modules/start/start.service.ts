@@ -10,10 +10,11 @@ import {
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { CustomersService } from '../customers/customers.service.js';
+import { OverviewService } from '../overview/overview.service.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { PlanContributionsService } from '../supplier-plans/plan-contributions.service.js';
-import { OverviewService } from '../overview/overview.service.js';
 
 const limit = 5;
 
@@ -25,6 +26,7 @@ export class StartService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(OverviewService) private readonly overviews: OverviewService,
     @Inject(PlanContributionsService) private readonly contributions: PlanContributionsService,
+    @Inject(CustomersService) private readonly customers: CustomersService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -60,6 +62,16 @@ export class StartService {
       isControlling: auth.isControlling,
       isOperator: auth.isOperator,
     };
+    // Lieferantenseite (LIF-02): die eigenen Kunden, je mit Namen; ohne Soll-Typ des Käufers.
+    if (organization && !organization.buyer && can(subject, 'kunden.sehen')) {
+      const customers = await this.customers.customersOf(auth);
+      return {
+        items: customers
+          .slice(0, limit)
+          .map((customer) => ({ id: customer.relationshipId, name: customer.name, target: null })),
+        total: customers.length,
+      };
+    }
     if (!organization?.buyer || !can(subject, 'lieferanten.sehen')) {
       return { items: [], total: 0 };
     }

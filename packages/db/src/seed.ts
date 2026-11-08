@@ -189,12 +189,13 @@ const relationships = [
     externalRef: entry.externalRef,
     spend: entry.spend as number | null,
   })),
-  // Der Test-Lieferant ist bei beiden OEMs angelegt, aber noch nicht eingeladen (LIF-01).
+  // Der Test-Lieferant arbeitet mit beiden OEMs (LIF-02); Sven und Ida sind seine Nutzer. Beim
+  // Test-OEM liegt zusätzlich eine offene Einladung für eine weitere Person (LIF-01).
   ...Object.values(seedBuyers).map((buyer, index) => ({
     id: id(401 + index),
     buyerOrgId: buyer.id,
     supplierOrgId: seedSupplierOrg.id,
-    status: 'draft' as const,
+    status: 'active' as const,
     externalRef: null,
     spend: null,
   })),

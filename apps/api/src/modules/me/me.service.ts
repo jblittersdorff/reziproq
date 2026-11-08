@@ -1,6 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
-  type Action,
   actions,
   type MeResponse,
   type PermissionsResponse,
@@ -8,6 +7,7 @@ import {
 } from '@reziproq/shared';
 import { AccountStore } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { buyerOnlyActions } from '../auth/buyer-only.js';
 import { can } from '../auth/can.js';
 import { UserinfoClient } from './userinfo.client.js';
 
@@ -72,6 +72,8 @@ export class MeService {
         // Lieferanten nur mit Käuferfunktionen und Rolle; so fragt die Oberfläche gar nicht erst an.
         viewSuppliers: (organization?.buyer ?? false) && can(subject, 'lieferanten.sehen'),
         switchCustomer: can(subject, 'kunden.wechseln'),
+        // Lieferantenzugang (LIF-02): Organisationen ohne Käuferfunktionen arbeiten je Kunde.
+        viewCustomers: organization !== null && !organization.buyer && can(subject, 'kunden.sehen'),
       },
     };
   }
@@ -89,18 +91,11 @@ export class MeService {
     const buyer = auth.organization?.buyer ?? false;
     return {
       actions: actions.filter(
-        (action) => can(auth, action) && (buyer || !buyerOnly.includes(action)),
+        (action) => can(auth, action) && (buyer || !buyerOnlyActions.includes(action)),
       ),
     };
   }
 }
-
-/** Aktionen, die nur Organisationen mit Käuferfunktionen haben (PLT-02). */
-const buyerOnly: readonly Action[] = [
-  'lieferanten.sehen',
-  'lieferanten.bearbeiten',
-  'prompt.nutzen',
-];
 
 function firstWord(name: string): string {
   return name.trim().split(/\s+/)[0] ?? name;

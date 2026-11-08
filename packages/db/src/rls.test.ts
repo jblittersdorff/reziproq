@@ -43,8 +43,9 @@ describe('Row-Level Security', () => {
         );
         return result.rows[0]?.n;
       });
-    expect(await count(seedBuyers.testOem.id)).toBe(15);
-    expect(await count(seedBuyers.zweitOem.id)).toBe(3);
+    // Je 15 bzw. 3 Demo-Lieferanten plus der Test-Lieferant (seit LIF-02 aktiv).
+    expect(await count(seedBuyers.testOem.id)).toBe(16);
+    expect(await count(seedBuyers.zweitOem.id)).toBe(4);
   });
 
   it('zeigt beim selben Lieferanten jedem Käufer nur seine eigenen Werte', async () => {

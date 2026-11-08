@@ -191,10 +191,13 @@ describe('NAV-05 Start über die API', () => {
     expect(data.relationships.total).toBe(0);
   });
 
-  it('der Test-Lieferant bekommt keine Käuferdaten', async () => {
+  it('der Lieferant bekommt keine Käuferdaten, sieht aber seinen Kunden (LIF-02)', async () => {
     const data = await overview(users.supplier);
     expect(data.due.total).toBe(0);
-    expect(data.relationships.total).toBe(0);
+    // Nur der Name des Kunden, kein Soll-Typ und keine Aufgaben des Käufers.
+    expect(data.relationships.items).toEqual([
+      { id: relationships[0], name: expect.stringMatching(/^ST-OEM/), target: null },
+    ]);
   });
 
   it('Start speichert nichts: Es gibt keine Tabelle dafür', async () => {

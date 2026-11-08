@@ -17,6 +17,7 @@ export const de = {
     suppliers: 'Lieferanten',
     portfolio: 'Portfolio',
     impact: 'Wirkung',
+    customers: 'Kunden',
     questions: 'Fragen',
     profile: 'Profil',
   },
@@ -69,6 +70,8 @@ export const de = {
     target: (name: string) => `Soll: ${name}`,
     relationshipsTitle: 'Meine Beziehungen',
     relationshipsEmpty: 'Du bist noch in keinem Beziehungsteam.',
+    customersTitle: 'Meine Kunden',
+    customersEmpty: 'Noch kein Kunde hat dich eingeladen.',
     all: 'Alle',
     loading: 'Start wird geladen …',
     failed: 'Die Startseite konnte nicht geladen werden.',
@@ -443,6 +446,50 @@ export const de = {
     acceptFailed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
     acceptUnavailable: 'Die Annahme ist hier noch nicht eingerichtet. Bitte versuche es später.',
   },
+  customers: {
+    title: 'Kunden',
+    purpose:
+      'Mit jedem Kunden arbeitest du in einem eigenen Bereich. Du siehst nur, was er mit euch teilt.',
+    loading: 'Kunden werden geladen …',
+    failed: 'Die Kunden konnten nicht geladen werden.',
+    emptyTitle: 'Noch keine Kunden',
+    emptyDescription: 'Sobald dich ein Kunde einlädt und du annimmst, erscheint er hier.',
+    nextMeeting: (date: string) => `Nächster Termin: ${date}`,
+    noMeeting: 'Noch kein gemeinsamer Termin',
+    switchHint: (area: string) => `Ein Klick öffnet bei diesem Kunden den Bereich ${area}.`,
+    workspaceLabel: 'Arbeitsbereich des Kunden',
+    switchCustomer: 'Kunde wechseln',
+    notFoundTitle: 'Diesen Kunden gibt es hier nicht',
+    notFoundDescription:
+      'Vielleicht ist die Zusammenarbeit beendet. Deine aktiven Kunden findest du unter Kunden.',
+    detailLoading: 'Kunde wird geladen …',
+    detailFailed: 'Der Kunde konnte nicht geladen werden.',
+    overview: 'Überblick',
+    areas: {
+      relationship: 'Beziehung',
+      plan: 'Gemeinsamer Plan',
+      execution: 'Umsetzung',
+      impact: 'Wirkung',
+      own: 'Eigene Sicht',
+    },
+    overviewPurpose: (name: string) => `Was ${name} mit euch teilt.`,
+    relationshipType: 'Beziehungstyp',
+    typeNotShared: 'Noch nicht freigegeben',
+    nextMeetingLabel: 'Nächster Termin',
+    noneYet: 'Noch keiner',
+    areaPurpose: {
+      relationship: 'Spielregeln, Team und Kontaktpunkte, die ihr gemeinsam vereinbart.',
+      plan: 'Themen, Initiativen und Zusagen eures gemeinsamen Plans.',
+      execution: 'Termine und Maßnahmen, die ihr gemeinsam umsetzt.',
+      impact: 'Die Wirkung eurer gemeinsamen Initiativen.',
+      own: 'Wie du die Beziehung siehst. Der Kunde sieht davon nichts.',
+    },
+    sharedLaterTitle: 'Noch nichts geteilt',
+    sharedLater: (name: string) =>
+      `Sobald ${name} hier etwas mit euch teilt, steht es an dieser Stelle.`,
+    ownLaterTitle: 'Kommt bald',
+    ownLater: 'Deine eigene Sicht auf diese Beziehung kommt mit einem der nächsten Releases.',
+  },
   team: {
     title: 'Team',
     purpose:
@@ -529,7 +576,8 @@ export const de = {
       dateLoading: 'Zyklus wird geladen …',
       dateFailed: 'Der Zyklus konnte nicht geladen werden.',
       dateNoCycle: 'Noch kein aktiver Zyklus',
-      dateNoCycleHint: 'Starte den Zyklus auf dem Lieferanten-Überblick, bevor du den Termin setzt.',
+      dateNoCycleHint:
+        'Starte den Zyklus auf dem Lieferanten-Überblick, bevor du den Termin setzt.',
       dateNoPermission: 'Nur der SRO oder ein Admin kann den Termin festlegen.',
       nextStep: (step: string) => `Nächster Schritt: ${step}`,
       steps: {
@@ -610,7 +658,8 @@ export const de = {
     sro: 'SRO',
     noSro: 'Noch nicht festgelegt',
     summary: 'Zusammenfassung',
-    summaryEmpty: 'Fasst in wenigen Sätzen zusammen, was ihr mit diesem Lieferanten erreichen wollt.',
+    summaryEmpty:
+      'Fasst in wenigen Sätzen zusammen, was ihr mit diesem Lieferanten erreichen wollt.',
     editSummary: 'Zusammenfassung bearbeiten',
     summaryPageTitle: 'Zusammenfassung bearbeiten',
     summaryPagePurpose: 'Formuliere die gemeinsame Stoßrichtung eures internen Plans.',
@@ -1181,6 +1230,7 @@ export const de = {
       'Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.',
     // PLT-02: Organisation ohne Feature buyer; die Lieferantenansicht kommt mit Release 0.2.
     supplierAccessSoon: 'Der Lieferantenzugang kommt bald.',
+    buyerOnly: 'Diese Seite gibt es nur für Käufer. Deine Kunden findest du unter Kunden.',
   },
 
   notFound: {

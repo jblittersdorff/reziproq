@@ -253,6 +253,13 @@
       "when": 1794142094587,
       "tag": "0035_einladungen",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794146708894,
+      "tag": "0036_lieferantenzugang",
+      "breakpoints": true
     }
   ]
 }

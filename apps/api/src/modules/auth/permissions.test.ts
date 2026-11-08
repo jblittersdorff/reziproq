@@ -163,6 +163,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       return status === 404 ? 200 : status;
     },
     'portfolio.sehen': async (user) => (await request(user, 'GET', '/api/portfolio')).status,
+    // Käufer haben keine Kunden; die leere Liste zeigt, dass das Recht greift (LIF-02).
+    'kunden.sehen': async (user) => (await request(user, 'GET', '/api/kunden')).status,
     // Eine unbekannte Beziehung gibt für Berechtigte 404; das Recht selbst ist damit erwiesen.
     'lieferanten.einladen': async (user) => {
       const { status } = await request(

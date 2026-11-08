@@ -1,5 +1,6 @@
 export * from './areas.js';
 export * from './audit.js';
+export * from './customers.js';
 export * from './cycle.js';
 export * from './focus.js';
 export * from './health.js';

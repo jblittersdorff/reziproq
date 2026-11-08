@@ -48,6 +48,8 @@ export const meResponseSchema = z.object({
      */
     viewBuyerAreas: z.boolean().default(true),
     viewSuppliers: z.boolean(),
+    /** Kunden und ihre Arbeitsbereiche (LIF-02): Organisationen ohne Käuferfunktionen. */
+    viewCustomers: z.boolean().default(false),
     switchCustomer: z.boolean(),
   }),
 });

@@ -13,6 +13,7 @@ import type { Request } from 'express';
 import { z } from 'zod';
 import { type AccountOrganization, AccountStore } from '../../common/database.module.js';
 import { SupportAccessService } from '../support/support-access.service.js';
+import { buyerOnlyActions } from './buyer-only.js';
 import { can } from './can.js';
 import { IS_PUBLIC } from './public.decorator.js';
 import { REQUIRES } from './requires.decorator.js';
@@ -130,6 +131,10 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
     if (action && !can(auth, action)) {
+      throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
+    }
+    // Käuferaktionen nur mit Käuferfunktionen, schon vor jedem Dienst (PLT-02, LIF-02).
+    if (action && buyerOnlyActions.includes(action) && !auth.organization?.buyer) {
       throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
     }
 
