@@ -57,10 +57,10 @@ Zwei Pull Requests:
 Je Kriterium ein Test.
 
 - [ ] Ein Termin lässt sich ohne andere Werkzeuge vorbereiten und protokollieren.
-- [ ] Die Live-Abschnitte zeigen den aktuellen Stand aus ihrem Ort. Ein Test ändert eine Maßnahme und prüft den Termin.
-- [ ] Nach dem Abschließen sind Protokoll und Beschlüsse gesperrt, und der eingefrorene Stand ändert sich nicht mehr.
+- [x] Die Live-Abschnitte zeigen den aktuellen Stand aus ihrem Ort. Ein Test ändert eine Maßnahme und prüft den Termin.
+- [x] Nach dem Abschließen sind Protokoll und Beschlüsse gesperrt, und der eingefrorene Stand ändert sich nicht mehr.
 - [ ] Interne Notizen sieht die andere Seite nie (PLT-04).
-- [ ] Der nächste Termin erscheint im Kopf des Lieferanten und auf Start beider Seiten.
+- [x] Der nächste Termin erscheint im Kopf des Lieferanten und auf Start beider Seiten.
 
 ## Nicht Teil dieser Funktion
 

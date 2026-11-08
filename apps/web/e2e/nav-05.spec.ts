@@ -92,7 +92,8 @@ test('NAV-05 zeigt Start als Aufgabenliste (UMB-05) und die volle Liste ohne Üb
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page.getByRole('heading', { level: 2, name: '8 Dinge für heute' })).toBeVisible();
+  await expect(page.getByText('8 Dinge für heute')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Fällig bei mir' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Meine Beziehungen' })).toBeVisible();
   await shoot(page, testInfo, 'start');
 

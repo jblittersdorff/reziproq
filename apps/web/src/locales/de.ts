@@ -83,6 +83,11 @@ export const de = {
           ? 'Eine Sache für heute'
           : `${count} Dinge für heute`,
     open: 'Öffnen',
+    nextStep: 'Zur nächsten Aufgabe',
+    relationshipsEmptyHint:
+      'Ein Admin nimmt dich in das Team eines Lieferanten auf. Bis dahin findest du alle Lieferanten in der Liste.',
+    customersEmptyHint: 'Sobald ein Kunde dich einlädt, arbeitet ihr hier zusammen.',
+    toSuppliers: 'Zu den Lieferanten',
     openItem: (supplier: string, what: string) => `${supplier}: ${what} öffnen`,
     allDue: (count: number) => `Alle ${count} fälligen Aufgaben`,
     metricsLabel: 'Auf einen Blick',

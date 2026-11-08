@@ -80,6 +80,11 @@ export const en: Messages = {
           ? 'One thing for today'
           : `${count} things for today`,
     open: 'Open',
+    nextStep: 'Go to next task',
+    relationshipsEmptyHint:
+      'An admin adds you to a supplier team. Until then you will find all suppliers in the list.',
+    customersEmptyHint: 'As soon as a customer invites you, you will work together here.',
+    toSuppliers: 'To suppliers',
     openItem: (supplier: string, what: string) => `${supplier}: open ${what}`,
     allDue: (count: number) => `All ${count} due tasks`,
     metricsLabel: 'At a glance',

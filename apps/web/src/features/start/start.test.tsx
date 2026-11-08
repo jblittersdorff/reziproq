@@ -61,9 +61,12 @@ afterEach(tearDownApp);
 describe('NAV-05 Start', () => {
   it('zeigt die fälligen Aufgaben als Liste mit genau einem Knopf je Zeile (UMB-05)', async () => {
     renderAt('/start');
-    expect(
-      await screen.findByRole('heading', { level: 2, name: '7 Dinge für heute' }),
-    ).toBeTruthy();
+    // Die Bühne nennt die Lage und führt zur nächsten Aufgabe; darunter die Liste.
+    expect(await screen.findByText('7 Dinge für heute')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Zur nächsten Aufgabe' }).getAttribute('href')).toBe(
+      `/bewertungen/${uuid(0)}`,
+    );
+    expect(screen.getByRole('heading', { level: 2, name: 'Fällig bei mir' })).toBeTruthy();
     const list = document.querySelector('[data-slot="due-list"]') as HTMLElement;
     const rows = within(list).getAllByRole('listitem');
     expect(rows).toHaveLength(5);
@@ -131,6 +134,9 @@ describe('NAV-05 Start', () => {
           })
         : undefined;
     renderAt('/start');
-    expect(await screen.findByText('Nichts fällig.')).toBeTruthy();
+    expect(await screen.findByText('Heute ist nichts fällig')).toBeTruthy();
+    // Kein leerer Kasten für die Aufgaben, dafür ein Weg zu den Lieferanten.
+    expect(document.querySelector('[data-slot="due-list"]')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Zu den Lieferanten' })).toBeTruthy();
   });
 });
