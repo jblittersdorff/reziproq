@@ -57,6 +57,9 @@ export const actions = [
   'termine.bearbeiten',
   'massnahmen.sehen',
   'massnahmen.bearbeiten',
+  'jbp.sehen',
+  'jbp.anlegen',
+  'jbp.bearbeiten',
 ] as const;
 export type Action = (typeof actions)[number];
 

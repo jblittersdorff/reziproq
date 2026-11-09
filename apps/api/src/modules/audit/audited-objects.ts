@@ -88,6 +88,20 @@ export const planApprovalRequestAudit = auditedObject({
   fields: ['recipient', 'round'],
 });
 
+/** Gemeinsamer Plan (JBP-01): geteilt, beide Seiten sehen den Verlauf. */
+export const jbpAudit = auditedObject({
+  type: 'jbp',
+  visibility: 'shared',
+  fields: ['version', 'status'],
+});
+
+/** Geschäftsupdate einer Seite im JBP (JBP-01): geteilt. */
+export const jbpBusinessUpdateAudit = auditedObject({
+  type: 'jbp_business_update',
+  visibility: 'shared',
+  fields: ['text'],
+});
+
 /** Geteilte Maßnahmen (QBR-03): beide Seiten sehen den Verlauf. */
 export const actionAudit = auditedObject({
   type: 'action',
@@ -170,6 +184,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   relationshipTargetAudit,
   meetingAudit,
   actionAudit,
+  jbpAudit,
+  jbpBusinessUpdateAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

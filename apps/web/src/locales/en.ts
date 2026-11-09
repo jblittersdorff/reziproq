@@ -729,6 +729,48 @@ export const en: Messages = {
     },
   },
 
+  jbp: {
+    title: 'Preparation',
+    purpose:
+      'Meeting, agenda and the business updates of both sides for the Joint Business Planning.',
+    loading: 'Loading preparation …',
+    failed: 'The preparation could not be loaded.',
+    emptyTitle: 'No joint plan yet',
+    emptyText:
+      'As soon as the SRO creates the joint plan, you prepare the Joint Business Planning here.',
+    emptyBuyer: 'Create the joint plan. Meeting and agenda are set up in the same step.',
+    create: 'Create joint plan',
+    date: 'Date',
+    dateHint: 'Suggested is the JBP date from the cycle.',
+    time: 'Time',
+    location: 'Place or link',
+    required: 'Please fill in.',
+    failedSave: 'That did not work. Please try again.',
+    meeting: 'Meeting',
+    toMeeting: 'Go to meeting',
+    participants: 'Participants',
+    noParticipants: 'No participants yet.',
+    agenda: 'Agenda',
+    ready: 'ready',
+    missing: 'missing',
+    live: 'From their source',
+    rules: (type: string) => `Relationship type and rules: ${type}`,
+    planHint: 'The supplier plan is not approved yet. Only you see this note.',
+    toPlan: 'Go to supplier plan',
+    updates: 'Business updates',
+    updateOf: { buyer: 'Business update buyer', supplier: 'Business update supplier' },
+    updateEmpty: 'Not written yet.',
+    editUpdate: 'Write your business update',
+    updateTitle: 'Business update',
+    updatePurpose:
+      'What has changed on your side since last year and what you plan. The other side sees it.',
+    updateLabel: 'Your business update',
+    save: 'Save',
+    cancel: 'Cancel',
+    saved: 'Saved.',
+    noPermission: 'Team members write the business update.',
+  },
+
   meetings: {
     title: 'Meetings',
     purpose:
@@ -747,7 +789,7 @@ export const en: Messages = {
     types: {
       quarterly_review: 'Quarterly review',
       strategy_dialogue: 'Strategy dialogue',
-      jbp: 'Joint business planning',
+      jbp: 'Joint Business Planning',
       format: 'Format from the rules of engagement',
       other: 'Other meeting',
     },

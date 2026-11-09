@@ -24,6 +24,7 @@ export const buyerOnlyActions: readonly Action[] = [
   'fokus.setzen',
   'zyklus.starten',
   'lieferantenplan.bearbeiten',
+  'jbp.anlegen',
   'spielregeln.sehen',
   'spielregeln.verwalten',
   'spielregeln.festlegen',

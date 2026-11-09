@@ -48,18 +48,23 @@ export const agendaTemplates: Record<MeetingType, { de: string[]; en: string[] }
       'Agreements',
     ],
   },
+  // JBP-01: Reihenfolge wie jbpSections; Feedback und Spielregeln erscheinen live, nicht hier.
   jbp: {
     de: [
-      'Rückblick auf den gemeinsamen Plan',
-      'Gemeinsame Themen',
-      'Initiativen und Zusagen',
-      'Scorecard für das nächste Jahr',
+      'Geschäftsupdate Käufer',
+      'Geschäftsupdate Lieferant',
+      'Themen beider Seiten',
+      'Initiativen und Roadmap',
+      'Zusagen',
+      'Scorecard',
     ],
     en: [
-      'Review of the joint plan',
-      'Joint topics',
-      'Initiatives and commitments',
-      'Scorecard for next year',
+      'Business update buyer',
+      'Business update supplier',
+      'Topics of both sides',
+      'Initiatives and roadmap',
+      'Commitments',
+      'Scorecard',
     ],
   },
   format: {

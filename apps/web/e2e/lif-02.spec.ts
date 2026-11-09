@@ -96,15 +96,15 @@ test('LIF-02 Kunden, Arbeitsbereich und Kundenwechsel', async ({ page }, testInf
 
   await page.setViewportSize({ width: 1440, height: 900 });
   const bar = page.getByRole('navigation', { name: 'Arbeitsbereich des Kunden' });
-  // Nur gebaute Bereiche stehen in der Leiste (UMB-05).
-  await expect(bar.getByRole('link', { name: 'Gemeinsamer Plan' })).toHaveCount(0);
-  await bar.getByRole('link', { name: 'Umsetzung' }).click();
-  await expect(page.locator('#inhalt h1')).toHaveText('Umsetzung');
+  // Nur gebaute Bereiche stehen in der Leiste (UMB-05); Wirkung fehlt noch.
+  await expect(bar.getByRole('link', { name: 'Wirkung' })).toHaveCount(0);
+  await bar.getByRole('link', { name: 'Gemeinsamer Plan' }).click();
+  await expect(page.locator('#inhalt h1')).toHaveText('Gemeinsamer Plan');
   await expect(bar.getByRole('link', { name: 'Strategie' })).toHaveCount(0);
   await shoot(page, testInfo, 'lif-02-bereich');
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await bar.getByRole('link', { name: 'Test-OEM (Demo)' }).click();
   await page.getByRole('link', { name: /Zweit-OEM/ }).click();
-  await expect(page).toHaveURL(new RegExp(`/kunden/${idB}/umsetzung$`));
+  await expect(page).toHaveURL(new RegExp(`/kunden/${idB}/plan$`));
 });

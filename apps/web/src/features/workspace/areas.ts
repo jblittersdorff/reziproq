@@ -28,7 +28,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
     { key: 'touchpoints', coming: 'later' },
   ],
   plan: [
-    { key: 'preparation', coming: 'later' },
+    { key: 'preparation', segment: 'vorbereitung' },
     { key: 'topics', coming: 'later' },
     { key: 'initiatives', coming: 'later' },
     { key: 'commitments', coming: 'later' },

@@ -4,6 +4,7 @@ import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import {
   CalendarDaysIcon,
   EyeOffIcon,
+  HandshakeIcon,
   InboxIcon,
   ListChecksIcon,
   ScaleIcon,
@@ -183,6 +184,23 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
           ]}
         />
       </section>
+      <section aria-labelledby="kunde-plan" className="flex flex-col gap-3">
+        <h2 id="kunde-plan" className="font-bold text-xl tracking-title">
+          {text.areas.plan}
+        </h2>
+        <LinkList
+          label={text.areas.plan}
+          renderLink={routerLink}
+          items={[
+            {
+              key: 'preparation',
+              href: `${customerPath(relationshipId, 'plan')}/vorbereitung`,
+              title: t.jbp.title,
+              status: t.jbp.purpose,
+            },
+          ]}
+        />
+      </section>
       <section aria-labelledby="kunde-umsetzung" className="flex flex-col gap-3">
         <h2 id="kunde-umsetzung" className="font-bold text-xl tracking-title">
           {text.areas.execution}
@@ -246,6 +264,25 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.actions.title}</TileTitle>
               <TileText>{t.actions.purpose}</TileText>
+            </Link>
+          </Tile>
+        </div>
+      </>
+    );
+  }
+  if (area === 'plan') {
+    return (
+      <>
+        <CustomerPath workspace={workspace} area={area} />
+        <PageHeader title={text.areas[area]} purpose={text.areaPurpose[area]} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/vorbereitung" params={{ id: relationshipId }}>
+              <TileIcon>
+                <HandshakeIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.title}</TileTitle>
+              <TileText>{t.jbp.purpose}</TileText>
             </Link>
           </Tile>
         </div>

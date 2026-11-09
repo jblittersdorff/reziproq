@@ -142,8 +142,13 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
     const links = within(localBar()).getAllByRole('listitem');
-    // Gemeinsamer Plan und Wirkung haben noch keine Unterseite und fehlen.
-    expect(links.map((item) => item.textContent)).toEqual(['Strategie', 'Beziehung', 'Umsetzung']);
+    // Wirkung hat noch keine Unterseite und fehlt.
+    expect(links.map((item) => item.textContent)).toEqual([
+      'Strategie',
+      'Beziehung',
+      'Gemeinsamer Plan',
+      'Umsetzung',
+    ]);
     // Der Name steht links in der Leiste und führt zum Überblick.
     expect(within(localBar()).getByRole('link', { name: detail.name }).getAttribute('href')).toBe(
       base,
@@ -152,6 +157,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     for (const [label, segment] of [
       ['Strategie', 'strategie'],
       ['Beziehung', 'beziehung'],
+      ['Gemeinsamer Plan', 'plan'],
       ['Umsetzung', 'umsetzung'],
     ] as const) {
       const link = within(localBar()).getByRole('link', { name: label });
@@ -168,6 +174,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
       Beziehung: ['Team', 'Spielregeln'],
+      'Gemeinsamer Plan': ['Vorbereitung'],
       Umsetzung: ['Termine', 'Maßnahmen'],
     };
     for (const [area, titles] of Object.entries(expected)) {
@@ -179,7 +186,6 @@ describe('Arbeitsbereich eines Lieferanten', () => {
           .map((link) => link.querySelector('span')?.textContent),
       ).toEqual(titles);
     }
-    expect(screen.queryByRole('region', { name: 'Gemeinsamer Plan' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Wirkung' })).toBeNull();
     expect(document.body.textContent).not.toMatch(/Kommt (mit|nach) Release/);
   });

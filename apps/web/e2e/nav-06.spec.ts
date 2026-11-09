@@ -13,6 +13,7 @@ const url = (path: string) => `http://localhost:5174${path}`;
 const areas = [
   ['Strategie', 'strategie'],
   ['Beziehung', 'beziehung'],
+  ['Gemeinsamer Plan', 'plan'],
   ['Umsetzung', 'umsetzung'],
 ] as const;
 
