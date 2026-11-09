@@ -159,6 +159,20 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'jbp.sehen': {
+    description: 'Gemeinsamen Plan und seine Vorbereitung sehen (beide Seiten)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'jbp.anlegen': {
+    description: 'Gemeinsamen Plan anlegen, mit Termin und Agenda (Käufer: Admin oder SRO)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
+  'jbp.bearbeiten': {
+    description: 'Eigenes Geschäftsupdate schreiben (beide Seiten, nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'kunden.wechseln': {
     description: 'Als Betreiber in einen Kunden wechseln',
     roles: [],

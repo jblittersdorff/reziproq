@@ -153,6 +153,26 @@ export const layerRegister: Record<string, LayerEntry> = {
       source_id: '0190a0a0-0000-7000-8000-000000000001',
     }),
   },
+  // JBP-01: Gemeinsamer Plan, geteilt; der Zyklus-Verweis ist käuferprivat.
+  jbp: {
+    kind: 'shared',
+    testValues: { created_by: 'demo-test-oem-1', created_by_name: 'Probe' },
+  },
+  jbp_cycle_link: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      cycle_id: buyer && probe('cycle', buyer),
+    }),
+  },
+  jbp_business_update: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      side: 'buyer',
+      text: 'Probe',
+    }),
+  },
   // QBR-01b: eingefrorener Stand beim Abschließen, geteilt wie der Termin.
   meeting_snapshot: {
     kind: 'shared',

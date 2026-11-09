@@ -309,6 +309,13 @@
       "when": 1794182785974,
       "tag": "0043_lieferantenplan_freigabe",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794212796319,
+      "tag": "0044_gemeinsamer_plan",
+      "breakpoints": true
     }
   ]
 }

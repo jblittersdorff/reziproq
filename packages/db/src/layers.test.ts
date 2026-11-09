@@ -238,6 +238,7 @@ describe('PLT-04: Drei Datenebenen', () => {
     await temp.db.execute(sql`delete from relationship_target`);
     await temp.db.execute(sql`delete from rule_set_note`);
     // Termine aus den Beispieldaten (QBR-01); die Kaskade nimmt Agenda, Beschlüsse und Stand mit.
+    await temp.db.execute(sql`delete from jbp`);
     await temp.db.execute(sql`delete from action_private_source`);
     await temp.db.execute(sql`delete from action`);
     await temp.db.execute(sql`delete from meeting_note`);
