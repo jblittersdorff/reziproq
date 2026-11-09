@@ -227,6 +227,13 @@ describe('JBP-01 Vorbereitung des Joint Business Planning', () => {
       sharedByName: 'Sara Ost',
     });
     expect((await prep(users.kam, supplier)).live.rules?.typeName).toBe('Strategischer Partner');
+    // Der Überblick des Käufers nennt die geteilten Spielregeln mit Version (NAV-06, A2).
+    const overview = (await call(users.sro, 'GET', `/suppliers/${rel}/overview`)).body as {
+      metrics: { kind: string }[];
+    };
+    expect(overview.metrics).toContainEqual(
+      expect.objectContaining({ tile: 'relationship', kind: 'rules', version: 1 }),
+    );
     await db.execute(sql`delete from relationship_target where relationship_id = ${rel}`);
     await db.execute(sql`delete from rule_set where relationship_id = ${rel}`);
   });

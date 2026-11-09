@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ActionsMetricSource } from '../actions/action-sources.js';
+import { JbpMetricSource } from '../jbp/jbp-sources.js';
+import { RulesMetricSource } from '../playbook/rule-set-sources.js';
 import { RatingsModule } from '../ratings/ratings.module.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { SpendMetricSource, TeamMetricSource } from '../suppliers/overview-metrics.js';
@@ -21,6 +23,8 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
   providers: [
     OverviewService,
     ActionsMetricSource,
+    RulesMetricSource,
+    JbpMetricSource,
     {
       provide: CYCLE_STEP_SOURCES,
       useValue: [segmentCycleStepSource, supplierPlanCycleStepSource],
@@ -32,8 +36,17 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
         team: TeamMetricSource,
         ratings: RatingsService,
         actions: ActionsMetricSource,
-      ) => [ratings, spend, team, actions],
-      inject: [SpendMetricSource, TeamMetricSource, RatingsService, ActionsMetricSource],
+        rules: RulesMetricSource,
+        plan: JbpMetricSource,
+      ) => [ratings, spend, team, actions, rules, plan],
+      inject: [
+        SpendMetricSource,
+        TeamMetricSource,
+        RatingsService,
+        ActionsMetricSource,
+        RulesMetricSource,
+        JbpMetricSource,
+      ],
     },
   ],
   exports: [OverviewService, CYCLE_STEP_SOURCES],

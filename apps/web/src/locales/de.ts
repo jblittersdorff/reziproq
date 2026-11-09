@@ -1092,6 +1092,48 @@ export const de = {
       sro: 'SRO',
       nextMeeting: 'Nächster Termin',
       open: 'noch offen',
+      spend: (year: number) => `Spend ${year}`,
+      noSpend: 'Spend',
+    },
+    // Überblick in der Handschrift A2: Beziehungstyp Ist → Soll und je Bereich eine Kachel
+    typeFigure: {
+      title: 'Beziehungstyp',
+      current: 'Ist',
+      target: 'Soll',
+      open: 'noch offen',
+    },
+    sharedWith: (name: string) => `Geteilt mit ${name}`,
+    tiles: {
+      strategyTarget: (provisional: boolean) =>
+        (provisional
+          ? 'Soll aus den Bewertungen, noch vorläufig.'
+          : 'Soll, konsolidiert.') as string,
+      strategyEmpty: 'Bewertung offen',
+      strategyEmptyText: 'Sobald Bewertungen da sind, steht hier das Soll.',
+      rules: (version: number) => `Spielregeln, Version ${version}`,
+      rulesShared: (date: string) => `Seit ${date} geteilt.`,
+      rulesEmpty: 'Spielregeln noch nicht geteilt',
+      team: (count: number) => (count === 1 ? '1 Person im Team.' : `${count} Personen im Team.`),
+      noTeam: 'Noch kein Team.',
+      plan: {
+        draft: 'Im Entwurf',
+        in_review: 'In Prüfung',
+        approved: 'Freigegeben',
+      },
+      planDate: (date: string) => `Joint Business Planning am ${date}`,
+      planCounts: (topics: number, initiatives: number) =>
+        `${topics === 1 ? '1 Thema' : `${topics} Themen`}, ${initiatives === 1 ? '1 Initiative' : `${initiatives} Initiativen`}.`,
+      planEmpty: 'Noch kein Gemeinsamer Plan',
+      planEmptyText: 'Der SRO legt ihn in der Vorbereitung an.',
+      meeting: (date: string) => `Nächster Termin am ${date}`,
+      noMeeting: 'Kein Termin geplant',
+      actions: (open: number, overdue: number) =>
+        overdue > 0
+          ? `${open} offene Maßnahmen, ${overdue} überfällig.`
+          : open === 1
+            ? '1 offene Maßnahme.'
+            : `${open} offene Maßnahmen.`,
+      noActions: 'Keine offenen Maßnahmen.',
     },
     cycle: {
       title: (label: string) => `Zyklus ${label}`,

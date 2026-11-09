@@ -1067,6 +1067,46 @@ export const en: Messages = {
       sro: 'SRO',
       nextMeeting: 'Next meeting',
       open: 'still open',
+      spend: (year: number) => `Spend ${year}`,
+      noSpend: 'Spend',
+    },
+    typeFigure: {
+      title: 'Relationship type',
+      current: 'Current',
+      target: 'Target',
+      open: 'still open',
+    },
+    sharedWith: (name: string) => `Shared with ${name}`,
+    tiles: {
+      strategyTarget: (provisional: boolean) =>
+        provisional ? 'Target from the ratings, still provisional.' : 'Target, consolidated.',
+      strategyEmpty: 'Rating open',
+      strategyEmptyText: 'Once ratings are in, the target shows here.',
+      rules: (version: number) => `Rules, version ${version}`,
+      rulesShared: (date: string) => `Shared since ${date}.`,
+      rulesEmpty: 'Rules not shared yet',
+      team: (count: number) =>
+        count === 1 ? '1 person in the team.' : `${count} people in the team.`,
+      noTeam: 'No team yet.',
+      plan: {
+        draft: 'In draft',
+        in_review: 'In review',
+        approved: 'Approved',
+      },
+      planDate: (date: string) => `Joint Business Planning on ${date}`,
+      planCounts: (topics: number, initiatives: number) =>
+        `${topics === 1 ? '1 topic' : `${topics} topics`}, ${initiatives === 1 ? '1 initiative' : `${initiatives} initiatives`}.`,
+      planEmpty: 'No joint plan yet',
+      planEmptyText: 'The SRO creates it in the preparation.',
+      meeting: (date: string) => `Next meeting on ${date}`,
+      noMeeting: 'No meeting planned',
+      actions: (open: number, overdue: number) =>
+        overdue > 0
+          ? `${open} open actions, ${overdue} overdue.`
+          : open === 1
+            ? '1 open action.'
+            : `${open} open actions.`,
+      noActions: 'No open actions.',
     },
     cycle: {
       title: (label: string) => `Cycle ${label}`,
