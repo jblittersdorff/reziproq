@@ -2,6 +2,7 @@ import { appliesTo } from '@reziproq/shared';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
+  cycle,
   formatCatalogItem,
   relationshipSide,
   relationshipTarget,
@@ -89,6 +90,19 @@ export async function seedRuleSets(
           focusSetAt: sql`excluded.focus_set_at`,
         },
       });
+
+    // ZYK-01: Mit dem Fokus startet der Jahreszyklus; der JBP-Termin liegt acht Wochen voraus.
+    const jbpDate = new Date(now.getTime() + 56 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    await tx
+      .insert(cycle)
+      .values({
+        relationshipId: entry.relationshipId,
+        label: String(now.getUTCFullYear()),
+        startedAt: now,
+        jbpDate,
+        status: 'active',
+      })
+      .onConflictDoNothing();
 
     const [existing] = await tx
       .select({ id: ruleSet.id })
