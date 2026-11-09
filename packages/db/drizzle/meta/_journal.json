@@ -302,6 +302,13 @@
       "when": 1794180884689,
       "tag": "0042_massnahmen",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794182785974,
+      "tag": "0043_lieferantenplan_freigabe",
+      "breakpoints": true
     }
   ]
 }

@@ -10,15 +10,17 @@ import {
   Put,
 } from '@nestjs/common';
 import {
-  objectiveCategoriesResponseSchema,
-  objectiveCategoryRequestSchema,
   contributionDetailSchema,
   contributionObjectiveRequestSchema,
   contributionSuggestionsResponseSchema,
+  objectiveCategoriesResponseSchema,
+  objectiveCategoryRequestSchema,
+  type PlanDecision,
+  planDecisionSchema,
   planObjectiveRequestSchema,
+  requestContributionsSchema,
   strategicTopicOrderSchema,
   strategicTopicRequestSchema,
-  requestContributionsSchema,
   supplierPlanResponseSchema,
   updateObjectiveCategorySchema,
   updatePlanSummarySchema,
@@ -27,6 +29,7 @@ import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
+import { PlanApprovalsService } from './plan-approvals.service.js';
 import { PlanContributionsService } from './plan-contributions.service.js';
 import { StrategicTopicsService } from './strategic-topics.service.js';
 import { SupplierPlansService } from './supplier-plans.service.js';
@@ -48,10 +51,7 @@ export class SupplierPlansController {
 
   @Post()
   @Requires('lieferantenplan.bearbeiten')
-  create(
-    @CurrentUser() auth: AuthContext,
-    @Param('relationshipId', uuid) relationshipId: string,
-  ) {
+  create(@CurrentUser() auth: AuthContext, @Param('relationshipId', uuid) relationshipId: string) {
     return this.plans.create(auth, relationshipId);
   }
 
@@ -191,7 +191,12 @@ export class StrategicTopicsController {
     @Param('planId', uuid) planId: string,
     @Body(new ZodValidationPipe(strategicTopicRequestSchema)) body: unknown,
   ) {
-    return this.topics.create(auth, relationshipId, planId, strategicTopicRequestSchema.parse(body));
+    return this.topics.create(
+      auth,
+      relationshipId,
+      planId,
+      strategicTopicRequestSchema.parse(body),
+    );
   }
 
   @Put('topic-order')
@@ -251,5 +256,51 @@ export class ObjectiveCategoriesController {
     @Body(new ZodValidationPipe(updateObjectiveCategorySchema)) body: unknown,
   ) {
     return this.plans.updateCategory(auth, key, updateObjectiveCategorySchema.parse(body));
+  }
+}
+
+/** SPL-07: Freigabe und Versionen des Lieferantenplans (käuferintern). */
+@Controller('suppliers/:relationshipId/plan')
+export class PlanApprovalsController {
+  constructor(@Inject(PlanApprovalsService) private readonly approvals: PlanApprovalsService) {}
+
+  @Get('versions')
+  @Requires('lieferanten.sehen')
+  versions(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+  ) {
+    return this.approvals.versions(auth, relationshipId);
+  }
+
+  @Post(':planId/submit')
+  @Requires('lieferantenplan.bearbeiten')
+  submit(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+  ) {
+    return this.approvals.submit(auth, relationshipId, planId);
+  }
+
+  @Post(':planId/decision')
+  @Requires('lieferantenplan.bearbeiten')
+  decide(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+    @Body(new ZodValidationPipe(planDecisionSchema)) body: PlanDecision,
+  ) {
+    return this.approvals.decide(auth, relationshipId, planId, body);
+  }
+
+  @Post(':planId/new-version')
+  @Requires('lieferantenplan.bearbeiten')
+  newVersion(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+  ) {
+    return this.approvals.newVersion(auth, relationshipId, planId);
   }
 }

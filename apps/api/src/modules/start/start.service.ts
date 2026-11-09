@@ -17,6 +17,7 @@ import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
+import { PlanApprovalsService } from '../supplier-plans/plan-approvals.service.js';
 import { PlanContributionsService } from '../supplier-plans/plan-contributions.service.js';
 
 const limit = 5;
@@ -45,6 +46,7 @@ export class StartService {
     @Inject(PlanContributionsService) private readonly contributions: PlanContributionsService,
     @Inject(CustomersService) private readonly customers: CustomersService,
     @Inject(ActionsService) private readonly actions: ActionsService,
+    @Inject(PlanApprovalsService) private readonly approvals: PlanApprovalsService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -65,7 +67,9 @@ export class StartService {
     const contributions = await this.contributions.dueItems(auth);
     // QBR-03: offene Maßnahmen, für die die Person verantwortlich ist (beide Seiten).
     const actions = await this.actions.dueItems(auth);
-    const items = [...ratings, ...cycles, ...contributions, ...actions];
+    // SPL-07: Freigaben des Lieferantenplans, über die die Person noch entscheidet.
+    const approvals = await this.approvals.dueItems(auth);
+    const items = [...ratings, ...cycles, ...contributions, ...actions, ...approvals];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),
     );

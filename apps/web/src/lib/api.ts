@@ -50,10 +50,12 @@ import {
   objectiveCategoryRequestSchema,
   organizationMemberSchema,
   organizationResponseSchema,
+  type PlanDecision,
   type PlanObjectiveRequest,
   type PromptEvent,
   type PromptRequest,
   permissionsResponseSchema,
+  planVersionsSchema,
   playbookCatalogSchema,
   playbookPreviewSchema,
   portfolioMatrixSchema,
@@ -487,6 +489,50 @@ export const supplierPlanQueryOptions = (accessToken: string, relationshipId: st
       getJson(`/suppliers/${relationshipId}/plan`, supplierPlanResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/** SPL-07: Versionen des Plans im aktiven Zyklus. */
+export const planVersionsQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'supplier-plan', 'versions'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/plan/versions`, planVersionsSchema, accessToken),
+  });
+
+export const submitSupplierPlan = (accessToken: string, relationshipId: string, planId: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/plan/${planId}/submit`,
+    {},
+    z.unknown(),
+    accessToken,
+  );
+
+export const decideSupplierPlan = (
+  accessToken: string,
+  relationshipId: string,
+  planId: string,
+  request: PlanDecision,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/plan/${planId}/decision`,
+    request,
+    z.unknown(),
+    accessToken,
+  );
+
+export const newSupplierPlanVersion = (
+  accessToken: string,
+  relationshipId: string,
+  planId: string,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/plan/${planId}/new-version`,
+    {},
+    z.object({ id: z.string() }),
+    accessToken,
+  );
 
 export const createSupplierPlan = (accessToken: string, relationshipId: string) =>
   sendJson(

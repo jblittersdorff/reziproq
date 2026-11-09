@@ -42,12 +42,24 @@ Als SRO gebe ich den Lieferantenplan gemeinsam mit dem Sponsor frei. Danach ist 
 
 Je Kriterium ein Test.
 
-- [ ] Freigegeben erst mit SRO und Sponsor bzw. nur SRO, wenn kein Sponsor im Team ist.
-- [ ] Eine freigegebene Version lässt sich nicht ändern. Bearbeiten erzeugt eine neue Version.
-- [ ] Zurückgeben setzt den Status auf Entwurf und verlangt eine Begründung.
-- [ ] Der Vergleich zeigt geänderte Ziele, Themen und Zusammenfassung.
-- [ ] Die Freigabe erledigt den Zyklus-Schritt Lieferantenplan.
-- [ ] Ein Test geht alle Tabellen des Lieferantenplans durch: Der Test-Lieferant sieht keine Zeile (SPL-09).
+- [x] Freigegeben erst mit SRO und Sponsor bzw. nur SRO, wenn kein Sponsor im Team ist.
+- [x] Eine freigegebene Version lässt sich nicht ändern. Bearbeiten erzeugt eine neue Version.
+- [x] Zurückgeben setzt den Status auf Entwurf und verlangt eine Begründung.
+- [x] Der Vergleich zeigt geänderte Ziele, Themen und Zusammenfassung.
+- [x] Die Freigabe erledigt den Zyklus-Schritt Lieferantenplan.
+- [x] Ein Test geht alle Tabellen des Lieferantenplans durch: Der Test-Lieferant sieht keine Zeile (SPL-09).
+
+## Umgesetzt mit (PR zu SPL-07)
+
+- **Runden:** Jede Einreichung zählt `review_round` hoch. Freigegeben ist der Plan, wenn in der laufenden Runde der SRO und, falls es einen gibt, ein Sponsor zugestimmt haben. Jede Person entscheidet einmal je Runde.
+- **Einreichen:** Das darf der SRO der Beziehung. Je freigebende Person entsteht ein interner Verlaufseintrag `plan_approval_request` mit Mail (Vorlage `approval`).
+- **Aufgabe:** „Lieferantenplan freigeben“ steht unter „Fällig bei mir“, mit Frist eine Woche nach dem Einreichen.
+- **Sperre auch in der Datenbank:** `app_plan_content_locked` (Ziele, Themen) und `app_plan_summary_locked` (Zusammenfassung, kein Weg zurück aus freigegeben oder abgelöst).
+- **Neue Version:** Sie kopiert Zusammenfassung, Ziele und Themen samt Verknüpfungen. Beiträge bleiben bei der alten Version. Die alte wird `superseded`.
+- **Zyklus:** Der Schritt Lieferantenplan gilt als erledigt, sobald im Zyklus eine Version freigegeben oder abgelöst ist. Er führt zum Plan.
+- **Vergleich in der Oberfläche:**
+  - Ziele gelten über Kategorie, Bezug, Text und Jahr als gleich.
+  - Themen gelten über den Titel als gleich; geänderte Begründung oder Priorität zählt als geändert.
 
 ## Nicht Teil dieser Funktion
 

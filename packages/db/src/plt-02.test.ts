@@ -113,6 +113,7 @@ describe('PLT-02 in der Datenbank', () => {
       'organization',
       'organization_feature',
       'outbox_event',
+      'plan_approval',
       'plan_contribution',
       'plan_objective',
       'rating',

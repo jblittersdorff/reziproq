@@ -307,6 +307,18 @@ export const layerRegister: Record<string, LayerEntry> = {
       status: 'open',
     }),
   },
+  // SPL-07: Entscheidungen über den eingereichten Plan, nur beim Käufer.
+  plan_approval: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      plan_id: buyer && probe('supplier_plan', buyer),
+      round: 1,
+      user_id: `demo-test-oem-${Math.random().toString(36).slice(2, 8)}`,
+      user_name: 'Probe',
+      role: 'sro',
+      decision: 'approved',
+    }),
+  },
   strategic_topic: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

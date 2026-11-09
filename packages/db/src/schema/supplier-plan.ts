@@ -54,6 +54,10 @@ export const supplierPlan = pgTable(
     status: text({ enum: planStatuses }).notNull().default('draft'),
     summary: text().notNull().default(''),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    // SPL-07: Freigaberunde (zählt jede Einreichung), eingereicht und freigegeben am.
+    reviewRound: integer('review_round').notNull().default(0),
+    submittedAt: timestamp('submitted_at', { withTimezone: true }),
+    approvedAt: timestamp('approved_at', { withTimezone: true }),
   },
   (table) => [
     check('supplier_plan_version', sql`${table.version} > 0`),
@@ -201,5 +205,44 @@ export const strategicTopicObjective = pgTable(
       name: 'strategic_topic_objective_objective_fk',
     }).onDelete('cascade'),
     unique('strategic_topic_objective_once').on(table.topicId, table.objectiveId),
+  ],
+);
+
+export const planApprovalRoles = ['sro', 'sponsor'] as const;
+export const planApprovalDecisions = ['approved', 'returned'] as const;
+
+/**
+ * Entscheidung über einen eingereichten Plan (SPL-07), käuferprivat. Je Runde entscheidet jede
+ * Person einmal; Zurückgeben braucht eine Begründung.
+ */
+export const planApproval = pgTable(
+  'plan_approval',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid('relationship_id')
+      .notNull()
+      .references(() => relationship.id),
+    planId: uuid('plan_id').notNull(),
+    round: integer().notNull(),
+    userId: text('user_id').notNull(),
+    userName: text('user_name').notNull(),
+    role: text({ enum: planApprovalRoles }).notNull(),
+    decision: text({ enum: planApprovalDecisions }).notNull(),
+    comment: text(),
+    decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.planId, table.relationshipId],
+      foreignColumns: [supplierPlan.id, supplierPlan.relationshipId],
+      name: 'plan_approval_plan_relationship_fk',
+    }).onDelete('cascade'),
+    check('plan_approval_role', sql`${table.role} in ('sro', 'sponsor')`),
+    check('plan_approval_decision', sql`${table.decision} in ('approved', 'returned')`),
+    check(
+      'plan_approval_reason',
+      sql`${table.decision} = 'approved' or length(trim(coalesce(${table.comment}, ''))) > 0`,
+    ),
+    unique('plan_approval_once').on(table.planId, table.round, table.userId),
   ],
 );

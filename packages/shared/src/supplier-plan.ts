@@ -150,6 +150,31 @@ export const strategicTopicOrderSchema = z.object({
 });
 export type StrategicTopicOrder = z.infer<typeof strategicTopicOrderSchema>;
 
+/** SPL-07: Stand der Freigabe des Plans. */
+export const planApprovalStateSchema = z.object({
+  round: z.number().int(),
+  submittedAt: z.string().nullable(),
+  approvedAt: z.string().nullable(),
+  /** Gibt es keinen Sponsor im Team, genügt der SRO (mit Hinweis). */
+  hasSponsor: z.boolean(),
+  decisions: z.array(
+    z.object({
+      userName: z.string(),
+      role: z.enum(['sro', 'sponsor']),
+      decision: z.enum(['approved', 'returned']),
+      comment: z.string().nullable(),
+      decidedAt: z.string(),
+      round: z.number().int(),
+    }),
+  ),
+  /** Offene Beiträge und fehlende Themen als Hinweis vor dem Einreichen */
+  hints: z.object({ openContributions: z.number().int(), noTopics: z.boolean() }),
+  canSubmit: z.boolean(),
+  canDecide: z.boolean(),
+  canNewVersion: z.boolean(),
+});
+export type PlanApprovalState = z.infer<typeof planApprovalStateSchema>;
+
 export const supplierPlanSchema = z.object({
   id: z.string(),
   relationshipId: z.string(),
@@ -168,8 +193,43 @@ export const supplierPlanSchema = z.object({
   }),
   topics: z.array(strategicTopicSchema),
   canManage: z.boolean(),
+  approval: planApprovalStateSchema,
 });
 export type SupplierPlan = z.infer<typeof supplierPlanSchema>;
+
+/** SPL-07: Freigabe – eine Entscheidung je Person und Runde. */
+export const planDecisionSchema = z
+  .object({
+    decision: z.enum(['approved', 'returned']),
+    comment: z.string().trim().max(2000).nullable(),
+  })
+  .strict()
+  .refine((value) => value.decision === 'approved' || (value.comment ?? '').length > 0, {
+    message: 'Zurückgeben braucht eine Begründung',
+    path: ['comment'],
+  });
+export type PlanDecision = z.infer<typeof planDecisionSchema>;
+
+/** SPL-07: Versionen eines Plans im Zyklus, je mit Inhalt für den Vergleich. */
+export const planVersionSchema = z.object({
+  id: z.string(),
+  version: z.number().int().positive(),
+  status: z.enum(planStatuses),
+  approvedAt: z.string().nullable(),
+  summary: z.string(),
+  objectives: z.array(
+    z.object({
+      categoryName: z.string(),
+      reference: z.string().nullable(),
+      text: z.string(),
+      targetYear: z.number().int(),
+    }),
+  ),
+  topics: z.array(z.object({ title: z.string(), reason: z.string(), priority: z.number().int() })),
+});
+export const planVersionsSchema = z.object({ versions: z.array(planVersionSchema) });
+export type PlanVersion = z.infer<typeof planVersionSchema>;
+export type PlanVersions = z.infer<typeof planVersionsSchema>;
 
 export const supplierPlanResponseSchema = z.object({
   plan: supplierPlanSchema.nullable(),
