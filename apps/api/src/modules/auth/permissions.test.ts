@@ -200,6 +200,32 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'jbp.sehen': async (user) => {
+      const { status } = await request(
+        user,
+        'GET',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/jbp',
+      );
+      return status === 404 ? 200 : status;
+    },
+    'jbp.anlegen': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/jbp',
+        { startsAt: '2099-01-01T09:00:00Z', location: null, locale: 'de' },
+      );
+      return status === 404 ? 200 : status;
+    },
+    'jbp.bearbeiten': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/jbp/geschaeftsupdate',
+        { text: 'x' },
+      );
+      return status === 404 ? 200 : status;
+    },
     'massnahmen.sehen': async (user) => {
       const { status } = await request(user, 'GET', '/api/start/massnahmen');
       return status;

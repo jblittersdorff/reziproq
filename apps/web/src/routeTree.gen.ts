@@ -58,7 +58,6 @@ import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './route
 import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/_app/einstellungen/zielkategorien/neu'
 import { Route as AppKundenIdIndexRouteImport } from './routes/_app/kunden/$id/index'
 import { Route as AppKundenIdEigeneSichtRouteImport } from './routes/_app/kunden/$id/eigene-sicht'
-import { Route as AppKundenIdPlanRouteImport } from './routes/_app/kunden/$id/plan'
 import { Route as AppKundenIdWirkungRouteImport } from './routes/_app/kunden/$id/wirkung'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
 import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfolio/fokus/index'
@@ -79,6 +78,7 @@ import { Route as AppEinstellungenWarengruppenIdBearbeitenRouteImport } from './
 import { Route as AppEinstellungenZielkategorienKeyBearbeitenRouteImport } from './routes/_app/einstellungen/zielkategorien/$key/bearbeiten'
 import { Route as AppKundenIdBeziehungIndexRouteImport } from './routes/_app/kunden/$id/beziehung/index'
 import { Route as AppKundenIdBeziehungSpielregelnRouteImport } from './routes/_app/kunden/$id/beziehung/spielregeln'
+import { Route as AppKundenIdPlanIndexRouteImport } from './routes/_app/kunden/$id/plan/index'
 import { Route as AppKundenIdUmsetzungIndexRouteImport } from './routes/_app/kunden/$id/umsetzung/index'
 import { Route as AppLieferantenIdBeziehungIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/index'
 import { Route as AppLieferantenIdPlanIndexRouteImport } from './routes/_app/lieferanten/$id/plan/index'
@@ -93,6 +93,8 @@ import { Route as AppPortfolioRundenIdLieferantenRouteImport } from './routes/_a
 import { Route as AppPortfolioRundenIdNachnominierenRouteImport } from './routes/_app/portfolio/runden/$id/nachnominieren'
 import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/portfolio/runden/$id/name'
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
+import { Route as AppKundenIdPlanVorbereitungIndexRouteImport } from './routes/_app/kunden/$id/plan/vorbereitung/index'
+import { Route as AppKundenIdPlanVorbereitungGeschaeftsupdateRouteImport } from './routes/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate'
 import { Route as AppKundenIdUmsetzungMassnahmenIndexRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/index'
 import { Route as AppKundenIdUmsetzungMassnahmenActionIdRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/$actionId'
 import { Route as AppKundenIdUmsetzungMassnahmenNeuRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/neu'
@@ -105,6 +107,8 @@ import { Route as AppLieferantenIdBeziehungSpielregelnVorschlagRouteImport } fro
 import { Route as AppLieferantenIdBeziehungTeamIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/index'
 import { Route as AppLieferantenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/bearbeiten'
 import { Route as AppLieferantenIdBeziehungTeamEinladenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/einladen'
+import { Route as AppLieferantenIdPlanVorbereitungIndexRouteImport } from './routes/_app/lieferanten/$id/plan/vorbereitung/index'
+import { Route as AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport } from './routes/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
 import { Route as AppLieferantenIdStrategieLieferantenplanIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/index'
 import { Route as AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
 import { Route as AppLieferantenIdStrategieLieferantenplanVersionenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
@@ -400,11 +404,6 @@ const AppKundenIdEigeneSichtRoute = AppKundenIdEigeneSichtRouteImport.update({
   path: '/eigene-sicht',
   getParentRoute: () => AppKundenIdRouteRoute,
 } as any)
-const AppKundenIdPlanRoute = AppKundenIdPlanRouteImport.update({
-  id: '/plan',
-  path: '/plan',
-  getParentRoute: () => AppKundenIdRouteRoute,
-} as any)
 const AppKundenIdWirkungRoute = AppKundenIdWirkungRouteImport.update({
   id: '/wirkung',
   path: '/wirkung',
@@ -519,6 +518,11 @@ const AppKundenIdBeziehungSpielregelnRoute =
     path: '/beziehung/spielregeln',
     getParentRoute: () => AppKundenIdRouteRoute,
   } as any)
+const AppKundenIdPlanIndexRoute = AppKundenIdPlanIndexRouteImport.update({
+  id: '/plan/',
+  path: '/plan/',
+  getParentRoute: () => AppKundenIdRouteRoute,
+} as any)
 const AppKundenIdUmsetzungIndexRoute =
   AppKundenIdUmsetzungIndexRouteImport.update({
     id: '/umsetzung/',
@@ -603,6 +607,18 @@ const AppPortfolioRundenIdPruefenRoute =
     path: '/portfolio/runden/$id/pruefen',
     getParentRoute: () => AppRoute,
   } as any)
+const AppKundenIdPlanVorbereitungIndexRoute =
+  AppKundenIdPlanVorbereitungIndexRouteImport.update({
+    id: '/plan/vorbereitung/',
+    path: '/plan/vorbereitung/',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
+const AppKundenIdPlanVorbereitungGeschaeftsupdateRoute =
+  AppKundenIdPlanVorbereitungGeschaeftsupdateRouteImport.update({
+    id: '/plan/vorbereitung/geschaeftsupdate',
+    path: '/plan/vorbereitung/geschaeftsupdate',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
 const AppKundenIdUmsetzungMassnahmenIndexRoute =
   AppKundenIdUmsetzungMassnahmenIndexRouteImport.update({
     id: '/umsetzung/massnahmen/',
@@ -673,6 +689,18 @@ const AppLieferantenIdBeziehungTeamEinladenRoute =
   AppLieferantenIdBeziehungTeamEinladenRouteImport.update({
     id: '/beziehung/team/einladen',
     path: '/beziehung/team/einladen',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanVorbereitungIndexRoute =
+  AppLieferantenIdPlanVorbereitungIndexRouteImport.update({
+    id: '/plan/vorbereitung/',
+    path: '/plan/vorbereitung/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute =
+  AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport.update({
+    id: '/plan/vorbereitung/geschaeftsupdate',
+    path: '/plan/vorbereitung/geschaeftsupdate',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdStrategieLieferantenplanIndexRoute =
@@ -929,7 +957,6 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/kunden/$id/eigene-sicht': typeof AppKundenIdEigeneSichtRoute
-  '/kunden/$id/plan': typeof AppKundenIdPlanRoute
   '/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -965,6 +992,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/kunden/$id/beziehung/': typeof AppKundenIdBeziehungIndexRoute
+  '/kunden/$id/plan/': typeof AppKundenIdPlanIndexRoute
   '/kunden/$id/umsetzung/': typeof AppKundenIdUmsetzungIndexRoute
   '/lieferanten/$id/beziehung/': typeof AppLieferantenIdBeziehungIndexRoute
   '/lieferanten/$id/plan/': typeof AppLieferantenIdPlanIndexRoute
@@ -972,6 +1000,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
   '/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -980,6 +1009,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -989,10 +1019,12 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
+  '/kunden/$id/plan/vorbereitung/': typeof AppKundenIdPlanVorbereitungIndexRoute
   '/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/lieferanten/$id/beziehung/team/': typeof AppLieferantenIdBeziehungTeamIndexRoute
+  '/lieferanten/$id/plan/vorbereitung/': typeof AppLieferantenIdPlanVorbereitungIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan/': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1057,7 +1089,6 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/kunden/$id/eigene-sicht': typeof AppKundenIdEigeneSichtRoute
-  '/kunden/$id/plan': typeof AppKundenIdPlanRoute
   '/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -1092,6 +1123,7 @@ export interface FileRoutesByTo {
   '/einstellungen/spielregeln/formate': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/kunden/$id/beziehung': typeof AppKundenIdBeziehungIndexRoute
+  '/kunden/$id/plan': typeof AppKundenIdPlanIndexRoute
   '/kunden/$id/umsetzung': typeof AppKundenIdUmsetzungIndexRoute
   '/lieferanten/$id/beziehung': typeof AppLieferantenIdBeziehungIndexRoute
   '/lieferanten/$id/plan': typeof AppLieferantenIdPlanIndexRoute
@@ -1099,6 +1131,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id': typeof AppPortfolioRundenIdIndexRoute
+  '/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
   '/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -1107,6 +1140,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -1116,10 +1150,12 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
+  '/kunden/$id/plan/vorbereitung': typeof AppKundenIdPlanVorbereitungIndexRoute
   '/kunden/$id/umsetzung/massnahmen': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/spielregeln': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/lieferanten/$id/beziehung/team': typeof AppLieferantenIdBeziehungTeamIndexRoute
+  '/lieferanten/$id/plan/vorbereitung': typeof AppLieferantenIdPlanVorbereitungIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/lieferanten/$id/strategie/profil': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1189,7 +1225,6 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/_app/kunden/$id/eigene-sicht': typeof AppKundenIdEigeneSichtRoute
-  '/_app/kunden/$id/plan': typeof AppKundenIdPlanRoute
   '/_app/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -1225,6 +1260,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/_app/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/_app/kunden/$id/beziehung/': typeof AppKundenIdBeziehungIndexRoute
+  '/_app/kunden/$id/plan/': typeof AppKundenIdPlanIndexRoute
   '/_app/kunden/$id/umsetzung/': typeof AppKundenIdUmsetzungIndexRoute
   '/_app/lieferanten/$id/beziehung/': typeof AppLieferantenIdBeziehungIndexRoute
   '/_app/lieferanten/$id/plan/': typeof AppLieferantenIdPlanIndexRoute
@@ -1232,6 +1268,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/_app/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/_app/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
   '/_app/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/_app/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/_app/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -1240,6 +1277,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/_app/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/_app/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -1249,10 +1287,12 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/_app/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/_app/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
+  '/_app/kunden/$id/plan/vorbereitung/': typeof AppKundenIdPlanVorbereitungIndexRoute
   '/_app/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/_app/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/_app/lieferanten/$id/beziehung/team/': typeof AppLieferantenIdBeziehungTeamIndexRoute
+  '/_app/lieferanten/$id/plan/vorbereitung/': typeof AppLieferantenIdPlanVorbereitungIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/_app/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/_app/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1322,7 +1362,6 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
     | '/kunden/$id/eigene-sicht'
-    | '/kunden/$id/plan'
     | '/kunden/$id/wirkung'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
@@ -1358,6 +1397,7 @@ export interface FileRouteTypes {
     | '/einstellungen/spielregeln/formate/'
     | '/einstellungen/spielregeln/rechte/'
     | '/kunden/$id/beziehung/'
+    | '/kunden/$id/plan/'
     | '/kunden/$id/umsetzung/'
     | '/lieferanten/$id/beziehung/'
     | '/lieferanten/$id/plan/'
@@ -1365,6 +1405,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/'
     | '/lieferanten/$id/wirkung/'
     | '/portfolio/runden/$id/'
+    | '/kunden/$id/plan/vorbereitung/geschaeftsupdate'
     | '/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
@@ -1373,6 +1414,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1382,10 +1424,12 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
+    | '/kunden/$id/plan/vorbereitung/'
     | '/kunden/$id/umsetzung/massnahmen/'
     | '/kunden/$id/umsetzung/termine/'
     | '/lieferanten/$id/beziehung/spielregeln/'
     | '/lieferanten/$id/beziehung/team/'
+    | '/lieferanten/$id/plan/vorbereitung/'
     | '/lieferanten/$id/strategie/lieferantenplan/'
     | '/lieferanten/$id/strategie/profil/'
     | '/lieferanten/$id/strategie/segmentierung/'
@@ -1450,7 +1494,6 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
     | '/kunden/$id/eigene-sicht'
-    | '/kunden/$id/plan'
     | '/kunden/$id/wirkung'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
@@ -1485,6 +1528,7 @@ export interface FileRouteTypes {
     | '/einstellungen/spielregeln/formate'
     | '/einstellungen/spielregeln/rechte'
     | '/kunden/$id/beziehung'
+    | '/kunden/$id/plan'
     | '/kunden/$id/umsetzung'
     | '/lieferanten/$id/beziehung'
     | '/lieferanten/$id/plan'
@@ -1492,6 +1536,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung'
     | '/lieferanten/$id/wirkung'
     | '/portfolio/runden/$id'
+    | '/kunden/$id/plan/vorbereitung/geschaeftsupdate'
     | '/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
@@ -1500,6 +1545,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1509,10 +1555,12 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
+    | '/kunden/$id/plan/vorbereitung'
     | '/kunden/$id/umsetzung/massnahmen'
     | '/kunden/$id/umsetzung/termine'
     | '/lieferanten/$id/beziehung/spielregeln'
     | '/lieferanten/$id/beziehung/team'
+    | '/lieferanten/$id/plan/vorbereitung'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/lieferanten/$id/strategie/profil'
     | '/lieferanten/$id/strategie/segmentierung'
@@ -1581,7 +1629,6 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/neu'
     | '/_app/einstellungen/zielkategorien/neu'
     | '/_app/kunden/$id/eigene-sicht'
-    | '/_app/kunden/$id/plan'
     | '/_app/kunden/$id/wirkung'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
@@ -1617,6 +1664,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/spielregeln/formate/'
     | '/_app/einstellungen/spielregeln/rechte/'
     | '/_app/kunden/$id/beziehung/'
+    | '/_app/kunden/$id/plan/'
     | '/_app/kunden/$id/umsetzung/'
     | '/_app/lieferanten/$id/beziehung/'
     | '/_app/lieferanten/$id/plan/'
@@ -1624,6 +1672,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/'
     | '/_app/lieferanten/$id/wirkung/'
     | '/_app/portfolio/runden/$id/'
+    | '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate'
     | '/_app/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/_app/kunden/$id/umsetzung/massnahmen/neu'
     | '/_app/kunden/$id/umsetzung/termine/neu'
@@ -1632,6 +1681,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/_app/lieferanten/$id/beziehung/team/bearbeiten'
     | '/_app/lieferanten/$id/beziehung/team/einladen'
+    | '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1641,10 +1691,12 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/_app/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/_app/lieferanten/$id/umsetzung/termine/neu'
+    | '/_app/kunden/$id/plan/vorbereitung/'
     | '/_app/kunden/$id/umsetzung/massnahmen/'
     | '/_app/kunden/$id/umsetzung/termine/'
     | '/_app/lieferanten/$id/beziehung/spielregeln/'
     | '/_app/lieferanten/$id/beziehung/team/'
+    | '/_app/lieferanten/$id/plan/vorbereitung/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/'
     | '/_app/lieferanten/$id/strategie/profil/'
     | '/_app/lieferanten/$id/strategie/segmentierung/'
@@ -2025,13 +2077,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdEigeneSichtRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
-    '/_app/kunden/$id/plan': {
-      id: '/_app/kunden/$id/plan'
-      path: '/plan'
-      fullPath: '/kunden/$id/plan'
-      preLoaderRoute: typeof AppKundenIdPlanRouteImport
-      parentRoute: typeof AppKundenIdRouteRoute
-    }
     '/_app/kunden/$id/wirkung': {
       id: '/_app/kunden/$id/wirkung'
       path: '/wirkung'
@@ -2172,6 +2217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdBeziehungSpielregelnRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
+    '/_app/kunden/$id/plan/': {
+      id: '/_app/kunden/$id/plan/'
+      path: '/plan'
+      fullPath: '/kunden/$id/plan/'
+      preLoaderRoute: typeof AppKundenIdPlanIndexRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/umsetzung/': {
       id: '/_app/kunden/$id/umsetzung/'
       path: '/umsetzung'
@@ -2270,6 +2322,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPortfolioRundenIdPruefenRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/kunden/$id/plan/vorbereitung/': {
+      id: '/_app/kunden/$id/plan/vorbereitung/'
+      path: '/plan/vorbereitung'
+      fullPath: '/kunden/$id/plan/vorbereitung/'
+      preLoaderRoute: typeof AppKundenIdPlanVorbereitungIndexRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
+    '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate': {
+      id: '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+      path: '/plan/vorbereitung/geschaeftsupdate'
+      fullPath: '/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+      preLoaderRoute: typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/umsetzung/massnahmen/': {
       id: '/_app/kunden/$id/umsetzung/massnahmen/'
       path: '/umsetzung/massnahmen'
@@ -2352,6 +2418,20 @@ declare module '@tanstack/react-router' {
       path: '/beziehung/team/einladen'
       fullPath: '/lieferanten/$id/beziehung/team/einladen'
       preLoaderRoute: typeof AppLieferantenIdBeziehungTeamEinladenRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/vorbereitung/': {
+      id: '/_app/lieferanten/$id/plan/vorbereitung/'
+      path: '/plan/vorbereitung'
+      fullPath: '/lieferanten/$id/plan/vorbereitung/'
+      preLoaderRoute: typeof AppLieferantenIdPlanVorbereitungIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': {
+      id: '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+      path: '/plan/vorbereitung/geschaeftsupdate'
+      fullPath: '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+      preLoaderRoute: typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/strategie/lieferantenplan/': {
@@ -2597,15 +2677,17 @@ declare module '@tanstack/react-router' {
 
 interface AppKundenIdRouteRouteChildren {
   AppKundenIdEigeneSichtRoute: typeof AppKundenIdEigeneSichtRoute
-  AppKundenIdPlanRoute: typeof AppKundenIdPlanRoute
   AppKundenIdWirkungRoute: typeof AppKundenIdWirkungRoute
   AppKundenIdIndexRoute: typeof AppKundenIdIndexRoute
   AppKundenIdBeziehungSpielregelnRoute: typeof AppKundenIdBeziehungSpielregelnRoute
   AppKundenIdBeziehungIndexRoute: typeof AppKundenIdBeziehungIndexRoute
+  AppKundenIdPlanIndexRoute: typeof AppKundenIdPlanIndexRoute
   AppKundenIdUmsetzungIndexRoute: typeof AppKundenIdUmsetzungIndexRoute
+  AppKundenIdPlanVorbereitungGeschaeftsupdateRoute: typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
   AppKundenIdUmsetzungMassnahmenActionIdRoute: typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   AppKundenIdUmsetzungMassnahmenNeuRoute: typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   AppKundenIdUmsetzungTermineNeuRoute: typeof AppKundenIdUmsetzungTermineNeuRoute
+  AppKundenIdPlanVorbereitungIndexRoute: typeof AppKundenIdPlanVorbereitungIndexRoute
   AppKundenIdUmsetzungMassnahmenIndexRoute: typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   AppKundenIdUmsetzungTermineIndexRoute: typeof AppKundenIdUmsetzungTermineIndexRoute
   AppKundenIdUmsetzungTermineMeetingIdAgendaRoute: typeof AppKundenIdUmsetzungTermineMeetingIdAgendaRoute
@@ -2617,17 +2699,20 @@ interface AppKundenIdRouteRouteChildren {
 
 const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdEigeneSichtRoute: AppKundenIdEigeneSichtRoute,
-  AppKundenIdPlanRoute: AppKundenIdPlanRoute,
   AppKundenIdWirkungRoute: AppKundenIdWirkungRoute,
   AppKundenIdIndexRoute: AppKundenIdIndexRoute,
   AppKundenIdBeziehungSpielregelnRoute: AppKundenIdBeziehungSpielregelnRoute,
   AppKundenIdBeziehungIndexRoute: AppKundenIdBeziehungIndexRoute,
+  AppKundenIdPlanIndexRoute: AppKundenIdPlanIndexRoute,
   AppKundenIdUmsetzungIndexRoute: AppKundenIdUmsetzungIndexRoute,
+  AppKundenIdPlanVorbereitungGeschaeftsupdateRoute:
+    AppKundenIdPlanVorbereitungGeschaeftsupdateRoute,
   AppKundenIdUmsetzungMassnahmenActionIdRoute:
     AppKundenIdUmsetzungMassnahmenActionIdRoute,
   AppKundenIdUmsetzungMassnahmenNeuRoute:
     AppKundenIdUmsetzungMassnahmenNeuRoute,
   AppKundenIdUmsetzungTermineNeuRoute: AppKundenIdUmsetzungTermineNeuRoute,
+  AppKundenIdPlanVorbereitungIndexRoute: AppKundenIdPlanVorbereitungIndexRoute,
   AppKundenIdUmsetzungMassnahmenIndexRoute:
     AppKundenIdUmsetzungMassnahmenIndexRoute,
   AppKundenIdUmsetzungTermineIndexRoute: AppKundenIdUmsetzungTermineIndexRoute,
@@ -2702,6 +2787,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdBeziehungSpielregelnVorschlagRoute: typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   AppLieferantenIdBeziehungTeamBearbeitenRoute: typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   AppLieferantenIdBeziehungTeamEinladenRoute: typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute: typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   AppLieferantenIdStrategieProfilZuordnungRoute: typeof AppLieferantenIdStrategieProfilZuordnungRoute
   AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -2711,6 +2797,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdUmsetzungTermineNeuRoute: typeof AppLieferantenIdUmsetzungTermineNeuRoute
   AppLieferantenIdBeziehungSpielregelnIndexRoute: typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   AppLieferantenIdBeziehungTeamIndexRoute: typeof AppLieferantenIdBeziehungTeamIndexRoute
+  AppLieferantenIdPlanVorbereitungIndexRoute: typeof AppLieferantenIdPlanVorbereitungIndexRoute
   AppLieferantenIdStrategieProfilIndexRoute: typeof AppLieferantenIdStrategieProfilIndexRoute
   AppLieferantenIdStrategieSegmentierungIndexRoute: typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   AppLieferantenIdStrategieSpendIndexRoute: typeof AppLieferantenIdStrategieSpendIndexRoute
@@ -2745,6 +2832,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdBeziehungTeamBearbeitenRoute,
   AppLieferantenIdBeziehungTeamEinladenRoute:
     AppLieferantenIdBeziehungTeamEinladenRoute,
+  AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute:
+    AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute,
   AppLieferantenIdStrategieProfilBearbeitenRoute:
     AppLieferantenIdStrategieProfilBearbeitenRoute,
   AppLieferantenIdStrategieProfilZuordnungRoute:
@@ -2763,6 +2852,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdBeziehungSpielregelnIndexRoute,
   AppLieferantenIdBeziehungTeamIndexRoute:
     AppLieferantenIdBeziehungTeamIndexRoute,
+  AppLieferantenIdPlanVorbereitungIndexRoute:
+    AppLieferantenIdPlanVorbereitungIndexRoute,
   AppLieferantenIdStrategieProfilIndexRoute:
     AppLieferantenIdStrategieProfilIndexRoute,
   AppLieferantenIdStrategieSegmentierungIndexRoute:

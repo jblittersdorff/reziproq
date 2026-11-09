@@ -12,6 +12,7 @@ import {
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
   type CreateAction,
+  type CreateJbp,
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
@@ -39,6 +40,7 @@ import {
   importPreviewSchema,
   importResultSchema,
   invitationListSchema,
+  jbpPreparationSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meetingDetailSchema,
@@ -1283,6 +1285,19 @@ export const saveMeetingProtocol = (
     meetingDetailSchema,
     accessToken,
   );
+
+/** JBP-01: Vorbereitung des Gemeinsamen Plans, je Seite unter ihrer Basis. */
+export const jbpQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', base],
+    queryFn: () => getJson(`${base}/jbp`, jbpPreparationSchema, accessToken),
+  });
+
+export const createJbp = (accessToken: string, base: MeetingBase, request: CreateJbp) =>
+  sendJson('POST', `${base}/jbp`, request, jbpPreparationSchema, accessToken);
+
+export const saveBusinessUpdate = (accessToken: string, base: MeetingBase, text: string) =>
+  sendJson('PUT', `${base}/jbp/geschaeftsupdate`, { text }, jbpPreparationSchema, accessToken);
 
 /** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
 export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>

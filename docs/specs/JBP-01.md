@@ -56,11 +56,22 @@ Punkte 3 und 4 erscheinen live aus ihrem Ort.
 
 Je Kriterium ein Test.
 
-- [ ] Anlegen erzeugt Plan, Termin der Art `jbp` und Agenda nach Vorlage in einem Schritt.
-- [ ] Feedback-Ergebnis und Spielregeln erscheinen nur, wenn sie aufgedeckt bzw. geteilt sind.
-- [ ] Jede Seite bearbeitet nur ihr eigenes Geschäftsupdate.
-- [ ] Der Hinweis zum Lieferantenplan ist für den Lieferanten unsichtbar.
+- [x] Anlegen erzeugt Plan, Termin der Art `jbp` und Agenda nach Vorlage in einem Schritt.
+- [x] Feedback-Ergebnis und Spielregeln erscheinen nur, wenn sie aufgedeckt bzw. geteilt sind.
+- [x] Jede Seite bearbeitet nur ihr eigenes Geschäftsupdate.
+- [x] Der Hinweis zum Lieferantenplan ist für den Lieferanten unsichtbar.
 - [ ] Eine Vorbereitung ist in unter einer Stunde vorbefüllt (von Hand geprüft, im Pull Request notiert).
+
+## Umgesetzt mit (PR zu JBP-01)
+
+- **Darstellung (UMB-05):** Statt sechs Kacheln erscheint der Gemeinsame Plan als Abschnitt auf dem Überblick, mit einer Zeile je gebauter Seite. Heute ist das „Vorbereitung“; Themen, Initiativen, Zusagen, Scorecard und Freigabe kommen mit JBP-02 bis JBP-07.
+- **Agenda:** Die Vorlage hat sechs Punkte (Geschäftsupdates, Themen, Initiativen und Roadmap, Zusagen, Scorecard).
+  - Jeder Punkt trägt seinen Abschnitt als `linked_object_type` = `jbp:<abschnitt>`.
+  - Bereit oder fehlt ergibt sich daraus. Bis zu ihren Specs gelten Themen, Initiativen, Zusagen und Scorecard als „fehlt“.
+- **Live aus ihrem Ort:** „Beziehungstyp und Spielregeln“ erscheint, sobald sie geteilt sind (SEG-10). Das Feedback-Ergebnis folgt mit Block F (Testlauf-Pfad).
+- **Termin:** Der Vorschlag ist der JBP-Termin des Zyklus, die Uhrzeit wählbar. Termin und Agenda gehören dem Käufer; der Lieferant ergänzt eigene Agendapunkte wie bei jedem Termin (QBR-01).
+- **Zweites Anlegen** legt nichts doppelt an.
+- **Vorbefüllt in unter einer Stunde:** Anlegen ist ein Schritt, das Geschäftsupdate je Seite ein Formular. Im Testlauf von Hand zu prüfen.
 
 ## Nicht Teil dieser Funktion
 

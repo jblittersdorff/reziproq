@@ -99,15 +99,20 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
     const labels = within(bar)
       .getAllByRole('link')
       .map((link) => link.textContent);
-    expect(labels).toEqual(['Test-OEM (Demo)', 'Überblick', 'Beziehung', 'Umsetzung']);
+    expect(labels).toEqual([
+      'Test-OEM (Demo)',
+      'Überblick',
+      'Beziehung',
+      'Gemeinsamer Plan',
+      'Umsetzung',
+    ]);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Gemeinsamer Plan' }),
     ).toBeDefined();
-    expect(
-      screen.getByText(
-        'Sobald Test-OEM (Demo) hier etwas mit euch teilt, steht es an dieser Stelle.',
-      ),
-    ).toBeDefined();
+    // Der Bereich führt zur Vorbereitung des Joint Business Planning (JBP-01).
+    expect(screen.getByRole('link', { name: /Vorbereitung/ }).getAttribute('href')).toBe(
+      `/kunden/${idA}/plan/vorbereitung`,
+    );
   });
 
   it('der Kundenwechsel behält den Bereich', async () => {

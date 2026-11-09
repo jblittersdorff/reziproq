@@ -742,6 +742,49 @@ export const de = {
     },
   },
 
+  // JBP-01 Vorbereitung des Joint Business Planning
+  jbp: {
+    title: 'Vorbereitung',
+    purpose:
+      'Termin, Agenda und die Geschäftsupdates beider Seiten für das Joint Business Planning.',
+    loading: 'Vorbereitung wird geladen …',
+    failed: 'Die Vorbereitung konnte nicht geladen werden.',
+    emptyTitle: 'Noch kein Gemeinsamer Plan',
+    emptyText:
+      'Sobald der SRO den Gemeinsamen Plan anlegt, bereitet ihr hier das Joint Business Planning vor.',
+    emptyBuyer: 'Lege den Gemeinsamen Plan an. Termin und Agenda entstehen dabei in einem Schritt.',
+    create: 'Gemeinsamen Plan anlegen',
+    date: 'Termin',
+    dateHint: 'Vorgeschlagen ist der JBP-Termin aus dem Zyklus.',
+    time: 'Uhrzeit',
+    location: 'Ort oder Link',
+    required: 'Bitte ausfüllen.',
+    failedSave: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    meeting: 'Termin',
+    toMeeting: 'Zum Termin',
+    participants: 'Teilnehmende',
+    noParticipants: 'Noch keine Teilnehmenden eingetragen.',
+    agenda: 'Agenda',
+    ready: 'bereit',
+    missing: 'fehlt',
+    live: 'Aus ihrem Ort',
+    rules: (type: string) => `Beziehungstyp und Spielregeln: ${type}`,
+    planHint: 'Der Lieferantenplan ist noch nicht freigegeben. Nur ihr seht diesen Hinweis.',
+    toPlan: 'Zum Lieferantenplan',
+    updates: 'Geschäftsupdates',
+    updateOf: { buyer: 'Geschäftsupdate Käufer', supplier: 'Geschäftsupdate Lieferant' },
+    updateEmpty: 'Noch nicht geschrieben.',
+    editUpdate: 'Eigenes Geschäftsupdate schreiben',
+    updateTitle: 'Geschäftsupdate',
+    updatePurpose:
+      'Was sich bei euch seit dem letzten Jahr verändert hat und was ihr plant. Die andere Seite sieht es.',
+    updateLabel: 'Euer Geschäftsupdate',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    saved: 'Gespeichert.',
+    noPermission: 'Das Geschäftsupdate schreiben Mitglieder des Teams.',
+  },
+
   meetings: {
     title: 'Termine',
     purpose:
