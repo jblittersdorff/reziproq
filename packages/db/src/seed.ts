@@ -27,6 +27,7 @@ import {
   segmentModel,
   segmentType,
 } from './schema/index.js';
+import { seedMeetings } from './seed-meetings.js';
 import { seedRuleSets } from './seed-rule-sets.js';
 
 // Beispieldaten für die lokale Entwicklung (PLT-02, PLT-03). Alle Namen sind erfunden und tragen „(Demo)“.
@@ -623,6 +624,18 @@ export async function seed(
       ],
       now,
     );
+
+    // QBR-01: beim Test-Lieferanten ein abgeschlossenes und ein kommendes Quartalsreview.
+    await seedMeetings(tx, {
+      relationshipId: id(401),
+      buyerOrgId: seedBuyers.testOem.id,
+      supplierOrgId: seedSupplierOrg.id,
+      pastId: id(901),
+      nextId: id(902),
+      createdBy: 'demo-test-oem-1',
+      createdByName: 'Lena Berger',
+      now,
+    });
 
     return {
       organizations: organizations.length,

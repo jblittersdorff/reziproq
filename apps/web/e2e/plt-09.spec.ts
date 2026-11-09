@@ -117,7 +117,8 @@ test.describe('mit deutschem Browser', () => {
     await page.getByRole('button', { name: 'Anmelden' }).click();
     // Nach der Anmeldung gilt wieder die gespeicherte Sprache.
     await expect(page.locator('#inhalt h1')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.lang)).toBe('en');
+    // Die Sprache aus dem Konto gilt, sobald /me geladen ist; der Titel steht schon vorher.
+    await expect.poll(() => page.evaluate(() => document.documentElement.lang)).toBe('en');
     await expect(
       page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', {
         name: 'Suppliers',

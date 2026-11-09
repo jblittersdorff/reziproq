@@ -10,6 +10,7 @@ import {
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { meetingDate, nextMeetingOf } from '../meetings/next-meeting.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -51,13 +52,33 @@ export class CustomersService {
 
   async list(auth: AuthContext): Promise<CustomerList> {
     const customers = await this.customersOf(auth);
-    return customerListSchema.parse({
-      customers: customers.map((customer) => ({
+    const cards = [];
+    for (const customer of customers) {
+      const next = await this.nextMeeting(auth, customer);
+      cards.push({
         relationshipId: customer.relationshipId,
         name: customer.name,
-        nextMeeting: null,
-      })),
-    });
+        nextMeeting: next ? meetingDate(next.startsAt) : null,
+      });
+    }
+    return customerListSchema.parse({ customers: cards });
+  }
+
+  /**
+   * Nächster gemeinsamer Termin mit einem Kunden (QBR-01b, Termin-Quelle), im Kontext genau dieses
+   * Kunden; nur so lässt die Row-Level Security die geteilten Termine durch.
+   */
+  async nextMeeting(auth: AuthContext, customer: OwnCustomer) {
+    const organization = this.supplier(auth);
+    return this.tenant.run(
+      {
+        userId: auth.userId,
+        organizationId: organization.id,
+        customerOrganizationId: customer.buyerOrgId,
+      },
+      (tx) => nextMeetingOf(tx, [customer.relationshipId]),
+      { readOnly: true },
+    );
   }
 
   /** Arbeit im Kontext genau eines Kunden; eine fremde oder beendete Beziehung gibt 404. */
@@ -98,7 +119,9 @@ export class CustomersService {
         relationshipId,
         name: customer.name,
         relationshipType: target?.typeName ?? null,
-        nextMeeting: null,
+        nextMeeting: await nextMeetingOf(tx, [relationshipId]).then((row) =>
+          row ? meetingDate(row.startsAt) : null,
+        ),
       });
     });
   }

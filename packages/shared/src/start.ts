@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { nextMeetingSchema } from './meetings.js';
 
 // NAV-05: Start zeigt, was für die Person fällig ist. Jedes Modul meldet seine Aufgaben als DueItem.
 
@@ -29,6 +30,8 @@ export const startSchema = z.object({
     items: z.array(startRelationshipSchema),
     total: z.number().int(),
   }),
+  /** Nächster Termin aus den eigenen Beziehungen (QBR-01b); null ohne geplanten Termin */
+  nextMeeting: nextMeetingSchema.nullable(),
 });
 
 export type DueItem = z.infer<typeof dueItemSchema>;

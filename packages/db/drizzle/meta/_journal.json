@@ -288,6 +288,13 @@
       "when": 1794161641722,
       "tag": "0040_termine",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794179766038,
+      "tag": "0041_termine_abschliessen",
+      "breakpoints": true
     }
   ]
 }

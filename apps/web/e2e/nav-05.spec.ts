@@ -50,6 +50,14 @@ async function mock(page: Page) {
           })),
           total: 3,
         },
+        nextMeeting: {
+          id: uuid(90),
+          relationshipId: uuid(60),
+          counterpart: suppliers[0],
+          title: 'Quartalsreview',
+          startsAt: '2099-03-15T09:00:00Z',
+          location: 'Werk Nord',
+        },
       },
     }),
   );
@@ -84,7 +92,8 @@ test('NAV-05 zeigt Start als Aufgabenliste (UMB-05) und die volle Liste ohne Üb
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page.getByRole('heading', { level: 2, name: '8 Dinge für heute' })).toBeVisible();
+  await expect(page.getByText('8 Dinge für heute')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Fällig bei mir' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: 'Meine Beziehungen' })).toBeVisible();
   await shoot(page, testInfo, 'start');
 

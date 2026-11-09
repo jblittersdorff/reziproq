@@ -40,6 +40,7 @@ const start: StartData = {
     })),
     total: 2,
   },
+  nextMeeting: null,
 };
 
 beforeEach(() => {

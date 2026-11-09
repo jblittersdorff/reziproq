@@ -72,6 +72,14 @@ describe('demo:setup', () => {
       sql`select distinct invited_by from invitation`,
     );
     expect(invitations).toEqual([{ invited_by: '397517378608492587' }]);
+    // Auch abgeschlossene Termine gehen über, trotz Sperre (QBR-01b).
+    const meetings = await query<{ created_by_name: string; status: string }>(
+      sql`select created_by_name, status from meeting order by starts_at`,
+    );
+    expect(meetings).toEqual([
+      { created_by_name: 'OEM 1', status: 'closed' },
+      { created_by_name: 'OEM 1', status: 'planned' },
+    ]);
   });
 
   it('räumt Reste aus Testläufen weg und lässt die Beispieldaten stehen', async () => {

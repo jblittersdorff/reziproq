@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, index, integer, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 import { ruleSetItem } from './rule-set.js';
@@ -108,4 +118,24 @@ export const meetingNote = pgTable(
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [unique('meeting_note_per_org').on(table.meetingId, table.orgId)],
+);
+
+/**
+ * QBR-01b: eingefrorener Stand der Live-Abschnitte beim Abschließen. Ein Archiv, kein zweiter Ort:
+ * einer je Termin, danach unveränderlich (Trigger in der Migration).
+ */
+export const meetingSnapshot = pgTable(
+  'meeting_snapshot',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    ...sharedColumns(),
+    frozenAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    content: jsonb().notNull(),
+  },
+  // Je Termin einer: Die API setzt erst den Status auf closed (geht nur einmal, Trigger
+  // app_meeting_closed_unchanged) und schreibt dann den Stand.
+  (table) => [index('meeting_snapshot_meeting').on(table.meetingId)],
 );

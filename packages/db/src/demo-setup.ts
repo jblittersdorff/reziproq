@@ -78,10 +78,14 @@ async function takeOver(
       update relationship_target set shared_by = ${account.id}, shared_by_name = ${account.name}
       where shared_by in ${ids}
     `);
+    // Abgeschlossene Termine sind gesperrt (QBR-01b, Trigger app_meeting_closed_unchanged); wer
+    // sie angelegt hat, geht trotzdem auf das echte Konto über.
+    await tx.execute(sql`set local session_replication_role = replica`);
     await tx.execute(sql`
       update meeting set created_by = ${account.id}, created_by_name = ${account.name}
       where created_by in ${ids}
     `);
+    await tx.execute(sql`set local session_replication_role = origin`);
     await tx.execute(sql`delete from relationship_member where user_id in ${ids}`);
     await tx.execute(sql`delete from app_user where id in ${ids}`);
   }
