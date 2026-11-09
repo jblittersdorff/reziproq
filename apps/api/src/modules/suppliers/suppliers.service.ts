@@ -471,6 +471,12 @@ async function readDetail(
       status: relationship.status,
       createdAt: relationship.createdAt,
       endedAt: relationship.endedAt,
+      // Warengruppen der Zuordnung (PLT-06), die Haupt-Warengruppe zuerst; käuferprivat.
+      materialGroups: sql<string[]>`coalesce((
+        select array_agg(g.name order by rg.is_primary desc, g.name)
+        from relationship_material_group rg join material_group g on g.id = rg.material_group_id
+        where rg.relationship_id = ${relationship.id}
+      ), '{}')`,
     })
     .from(relationship)
     .innerJoin(organization, eq(organization.id, relationship.supplierOrgId))

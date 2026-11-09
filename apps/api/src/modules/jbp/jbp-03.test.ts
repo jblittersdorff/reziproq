@@ -152,6 +152,19 @@ describe('JBP-03 Initiativen und Roadmap', () => {
       topicIds: [topicIds[1]],
     });
     expect(again.status).toBe(400);
+    // Der Überblick des Lieferanten meldet den Stand des Plans (NAV-06, A2).
+    const overview = (await call(users.sro, 'GET', `/suppliers/${rel}/overview`)).body as {
+      metrics: { kind: string }[];
+    };
+    expect(overview.metrics).toContainEqual(
+      expect.objectContaining({
+        tile: 'plan',
+        kind: 'jbp',
+        status: 'draft',
+        topics: 2,
+        initiatives: 1,
+      }),
+    );
     // Die Agenda meldet Initiativen bereit.
     const prep = jbpPreparationSchema.parse((await call(users.sro, 'GET', buyer)).body);
     expect(prep.agenda.find((item) => item.section === 'initiatives')?.ready).toBe(true);

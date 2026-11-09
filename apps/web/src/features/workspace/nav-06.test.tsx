@@ -209,10 +209,12 @@ describe('Arbeitsbereich eines Lieferanten', () => {
 
   it('Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.', async () => {
     renderAt(base);
+    // Auf dem Überblick (A2): Spend und SRO groß unter dem Namen, Ist → Soll als Grafik daneben.
     const big = await screen.findByLabelText('Stand der Beziehung');
-    expect(big.textContent).toBe('Segmentnoch offenSROLena Berger');
-    // Ohne Termin entfällt die Angabe.
-    expect(within(big).queryByText('Nächster Termin')).toBeNull();
+    expect(big.textContent).toMatch(/^Spend 2025.+SROLena Berger$/);
+    const figure = document.querySelector('[data-slot="type-figure"]') as HTMLElement;
+    expect(figure.textContent).toContain('Beziehungstyp');
+    expect(figure.textContent).toContain('noch offen');
 
     // Neuer SRO im Team: Der Kopf liest ihn dort, ohne eigene Kopie.
     const router = renderAgain(`${base}/beziehung/team/bearbeiten`);
@@ -263,7 +265,10 @@ describe('Arbeitsbereich eines Lieferanten', () => {
   it('Der Überblick speichert keine eigenen Daten; die Zeilen zeigen den Stand aus den Modulen.', async () => {
     renderAt(base);
     const strategy = await screen.findByRole('region', { name: 'Strategie' });
-    await waitFor(() => expect(strategy.textContent).toContain('Spend 2025'));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Stand der Beziehung').textContent).toContain('Spend 2025'),
+    );
+    expect(strategy.textContent).toContain('Bewertung offen');
     const relationship = screen.getByRole('region', { name: 'Beziehung' });
     expect(relationship.textContent).toContain('2 Personen im Team');
     // Der Überblick liest nur.
@@ -284,14 +289,17 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       const badge = heading.closest('header')?.querySelector('[data-visibility="internal"]');
       expect(badge?.textContent, path).toBe('Intern');
     }
-    // Auf dem Überblick trägt nur der Abschnitt Strategie das Kennzeichen.
+    // Auf dem Überblick ist nur Strategie intern; die übrigen Bereiche sind mit dem Lieferanten geteilt.
     renderAgain(base);
     const strategy = await screen.findByRole('region', { name: 'Strategie' });
     expect(strategy.querySelector('[data-visibility="internal"]')?.textContent).toBe('Intern');
-    const relationship = screen.getByRole('region', { name: 'Beziehung' });
-    expect(
-      relationship.querySelector('h2')?.parentElement?.querySelector('[data-visibility]'),
-    ).toBeNull();
+    for (const area of ['Beziehung', 'Gemeinsamer Plan', 'Umsetzung']) {
+      const section = screen.getByRole('region', { name: area });
+      expect(section.querySelector('[data-visibility="internal"]')).toBeNull();
+      expect(section.querySelector('[data-visibility="shared"]')?.textContent).toMatch(
+        /^Geteilt mit /,
+      );
+    }
   });
 
   it('Die Seiten aus PLT-03 und PLT-05 (Profil, Spend, Team) liegen im Arbeitsbereich und haben einen Pfad mit Zurück.', async () => {

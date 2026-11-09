@@ -258,7 +258,7 @@ export function SuppliersPage() {
         <div className="@container">
           <ul
             aria-label={title}
-            className="grid gap-4 @xl:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4"
+            className="grid gap-4 @xl:grid-cols-2 @4xl:grid-cols-3"
           >
             {visible.map((supplier) => (
               <SupplierCard

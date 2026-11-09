@@ -201,6 +201,8 @@ export const supplierDetailSchema = z.object({
   permissions: z.object({ edit: z.boolean(), editTeam: z.boolean() }),
   /** Fokuslieferant (SEG-02); für Lieferanten immer false */
   isFocus: z.boolean().optional(),
+  /** Warengruppen (PLT-06), die Haupt-Warengruppe zuerst */
+  materialGroups: z.array(z.string()).optional(),
 });
 export type SupplierDetail = z.infer<typeof supplierDetailSchema>;
 

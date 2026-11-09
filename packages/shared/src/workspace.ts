@@ -45,6 +45,23 @@ export const overviewMetricSchema = z.discriminatedUnion('kind', [
     kind: z.literal('team_size'),
     count: z.number().int(),
   }),
+  /** Geteilte Spielregeln (SEG-10): Typ, Version und seit wann geteilt */
+  z.object({
+    tile: z.literal('relationship'),
+    kind: z.literal('rules'),
+    typeName: z.string(),
+    version: z.number().int(),
+    sharedAt: z.string(),
+  }),
+  /** Gemeinsamer Plan (JBP-01 bis JBP-03): Stand, Termin, Themen und Initiativen */
+  z.object({
+    tile: z.literal('plan'),
+    kind: z.literal('jbp'),
+    status: z.enum(['draft', 'in_review', 'approved']),
+    meetingDate: z.string().nullable(),
+    topics: z.number().int(),
+    initiatives: z.number().int(),
+  }),
   /** Offene und davon überfällige Maßnahmen (QBR-03) */
   z.object({
     tile: z.literal('execution'),
