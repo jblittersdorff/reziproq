@@ -105,6 +105,8 @@ describe('PLT-02 in der Datenbank', () => {
       'jbp',
       'jbp_business_update',
       'jbp_cycle_link',
+      'jbp_topic',
+      'jbp_topic_origin',
       'material_group',
       'meeting',
       'meeting_agenda_item',

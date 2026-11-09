@@ -3,6 +3,7 @@ import { check, index, integer, pgTable, text, timestamp, unique, uuid } from 'd
 import { meeting } from './meeting.js';
 import { organization } from './organization.js';
 import { cycle, relationship } from './relationship.js';
+import { strategicTopic } from './supplier-plan.js';
 
 // JBP-01: Gemeinsamer Plan einer Beziehung (Joint Business Planning). Geteilt; der Verweis auf
 // den Zyklus ist käuferprivat, weil der Zyklus es ist. Geschäftsupdates schreibt jede Seite selbst.
@@ -77,4 +78,67 @@ export const jbpBusinessUpdate = pgTable(
     check('jbp_business_update_text', sql`length(${table.text}) <= 10000`),
     unique('jbp_business_update_per_side').on(table.jbpId, table.ownerOrgId, table.visibility),
   ],
+);
+
+export const jbpTopicStatuses = ['proposed', 'merged', 'parked'] as const;
+
+/**
+ * JBP-02: Thema einer Seite im Gemeinsamen Plan, geteilt. Nur Titel und eine teilbare
+ * Beschreibung; Begründung und Ziele bleiben im Lieferantenplan.
+ */
+export const jbpTopic = pgTable(
+  'jbp_topic',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    jbpId: uuid()
+      .notNull()
+      .references(() => jbp.id, { onDelete: 'cascade' }),
+    side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    title: text().notNull(),
+    description: text().notNull().default(''),
+    priority: integer().notNull(),
+    status: text({ enum: jbpTopicStatuses }).notNull().default('proposed'),
+    parkReason: text(),
+    createdBy: text().notNull(),
+    createdByName: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('jbp_topic_side', sql`${table.side} in ('buyer', 'supplier')`),
+    check('jbp_topic_status', sql`${table.status} in ('proposed', 'merged', 'parked')`),
+    check('jbp_topic_title', sql`length(trim(${table.title})) between 1 and 200`),
+    check('jbp_topic_description', sql`length(${table.description}) <= 2000`),
+    check('jbp_topic_priority', sql`${table.priority} > 0`),
+    check(
+      'jbp_topic_park_reason',
+      sql`${table.status} <> 'parked' or length(trim(coalesce(${table.parkReason}, ''))) > 0`,
+    ),
+    index('jbp_topic_jbp').on(table.jbpId, table.side, table.priority),
+  ],
+);
+
+/** Herkunft eines Themas aus dem Lieferantenplan (SPL-06), nur beim Käufer. */
+export const jbpTopicOrigin = pgTable(
+  'jbp_topic_origin',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    jbpTopicId: uuid()
+      .notNull()
+      .references(() => jbpTopic.id, { onDelete: 'cascade' }),
+    strategicTopicId: uuid()
+      .notNull()
+      .references(() => strategicTopic.id, { onDelete: 'cascade' }),
+  },
+  (table) => [unique('jbp_topic_origin_once').on(table.jbpTopicId)],
 );

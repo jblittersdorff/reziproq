@@ -27,7 +27,7 @@ import { useLocale, useT } from '@/lib/i18n';
 // JBP-01: Vorbereitung des Joint Business Planning. Der Käufer arbeitet unter
 // /lieferanten/<id>/plan/vorbereitung, der Lieferant unter /kunden/<beziehung>/plan/vorbereitung.
 
-const preparationPath = ({ side, relationshipId }: MeetingPlace) =>
+export const preparationPath = ({ side, relationshipId }: MeetingPlace) =>
   side === 'buyer'
     ? `/lieferanten/${relationshipId}/plan/vorbereitung`
     : `/kunden/${relationshipId}/plan/vorbereitung`;
@@ -37,7 +37,7 @@ const meetingsPath = ({ side, relationshipId }: MeetingPlace) =>
     ? `/lieferanten/${relationshipId}/umsetzung/termine`
     : `/kunden/${relationshipId}/umsetzung/termine`;
 
-function useToken() {
+export function useToken() {
   const auth = useAuth();
   return auth.user?.access_token ?? '';
 }
@@ -52,7 +52,7 @@ function usePreparation(place: MeetingPlace) {
 }
 
 /** Rahmen je Seite: beim Käufer Bereich Gemeinsamer Plan, beim Lieferanten der Kunde. */
-function JbpFrame({
+export function JbpFrame({
   place,
   trail,
   current,

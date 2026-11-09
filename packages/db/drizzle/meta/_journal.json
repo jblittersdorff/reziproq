@@ -316,6 +316,13 @@
       "when": 1794212796319,
       "tag": "0044_gemeinsamer_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794217277591,
+      "tag": "0045_jbp_themen",
+      "breakpoints": true
     }
   ]
 }
