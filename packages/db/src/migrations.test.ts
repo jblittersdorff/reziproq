@@ -97,6 +97,9 @@ describe('Migrationen', () => {
       'status',
       'summary',
       'created_at',
+      'review_round',
+      'submitted_at',
+      'approved_at',
     ]);
     expect(await columns('plan_objective')).toEqual([
       'id',
