@@ -53,6 +53,8 @@ const detail = {
   note: 'Preisdruck aus dem Einkauf ansprechen, aber erst nach den Kennzahlen.',
   canEditMeeting: true,
   canContribute: true,
+  live: { sections: [], frozenAt: null },
+  canClose: false,
 };
 
 async function mockBuyer(page: Page) {
