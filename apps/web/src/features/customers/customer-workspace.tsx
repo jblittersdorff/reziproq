@@ -7,6 +7,7 @@ import {
   HandshakeIcon,
   InboxIcon,
   ListChecksIcon,
+  ListOrderedIcon,
   ScaleIcon,
   SearchXIcon,
 } from 'lucide-react';
@@ -198,6 +199,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: t.jbp.title,
               status: t.jbp.purpose,
             },
+            {
+              key: 'topics',
+              href: `${customerPath(relationshipId, 'plan')}/themen`,
+              title: t.jbp.topics.title,
+              status: t.jbp.topics.purpose,
+            },
           ]}
         />
       </section>
@@ -283,6 +290,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.jbp.title}</TileTitle>
               <TileText>{t.jbp.purpose}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/themen" params={{ id: relationshipId }}>
+              <TileIcon>
+                <ListOrderedIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.topics.title}</TileTitle>
+              <TileText>{t.jbp.topics.purpose}</TileText>
             </Link>
           </Tile>
         </div>
