@@ -1,6 +1,6 @@
 # JBP-01 Vorbereitung des Joint Business Planning
 
-Release 0.3 · baut auf QBR-01, ZYK-02, SPL-07, PUL-03, SEG-10
+Release 0.3 · baut auf QBR-01, ZYK-02, SPL-07, SEG-10 · PUL-03 nur weich: Der Feedback-Abschnitt entfällt, bis Block F gebaut ist (Testlauf-Pfad, 8.11.2026)
 
 ## Ziel
 

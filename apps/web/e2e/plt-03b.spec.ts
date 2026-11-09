@@ -144,14 +144,17 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
   await expect(page.getByRole('table', { name: 'Spend' })).toContainText('980.000,00');
 
-  // Zurück-Pfeil im Pfad führt eine Ebene nach oben zum Bereich Strategie (seit NAV-06), von dort
-  // die Kachel zum Profil.
+  // Zurück-Pfeil im Pfad führt eine Ebene nach oben zum Bereich Strategie, seit UMB-05 ein
+  // Abschnitt auf dem Überblick; von dort die Zeile zum Profil.
   await page
     .getByRole('navigation', { name: 'Pfad' })
     .getByRole('link', { name: 'Zurück zu Strategie' })
     .click();
-  await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie`));
-  await page.getByRole('link', { name: 'Profil öffnen' }).click();
+  await expect(page).toHaveURL(url(`/lieferanten/${id}#strategie`));
+  await page
+    .getByRole('region', { name: 'Strategie' })
+    .getByRole('link', { name: /^Profil/ })
+    .click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
 
   // Beenden mit Bestätigung auf der Seite.

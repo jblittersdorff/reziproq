@@ -67,7 +67,6 @@ export function PortfolioPage() {
             }
             href="/portfolio/fokus"
           />
-          <WorkspaceTile title={text.cycles} text={text.tiles.cycles} coming="core" />
         </TileGrid>
       )}
     </>

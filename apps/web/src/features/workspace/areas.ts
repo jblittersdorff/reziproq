@@ -1,4 +1,4 @@
-import { type OverviewTile, type WorkspaceArea, workspaceAreas } from '@reziproq/shared';
+import { type WorkspaceArea, workspaceAreas } from '@reziproq/shared';
 import type { Messages } from '@/locales/de';
 
 /** Wann ein noch fehlendes Modul kommt: im Kernpfad mit Release 1.0 oder in einem Block danach. */
@@ -10,8 +10,9 @@ export type PageKey = keyof Messages['workspace']['pages'];
 export type SubPage = { key: PageKey } & ({ segment: string } | { coming: Coming });
 
 /**
- * Unterseiten je Bereich als Kacheln (NAV-06), höchstens sechs. Die Reihenfolge folgt der Arbeit:
- * erst bewerten und planen, dann die Daten. Kommt ein Modul dazu, bekommt es hier seine Adresse.
+ * Unterseiten je Bereich (NAV-06, UMB-05). Die Reihenfolge folgt der Arbeit: erst bewerten und
+ * planen, dann die Daten. Kommt ein Modul dazu, bekommt es hier seine Adresse und erscheint dann
+ * erst auf dem Überblick und in der lokalen Leiste.
  */
 export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   strategy: [
@@ -44,18 +45,21 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   ],
 };
 
-/**
- * Kacheln des Überblicks ohne eigenes Modul zeigen den Release-Hinweis statt einer Kennzahl.
- * Strategie und Beziehung melden ihre Kennzahl über die API.
- */
-export const overviewComing: Record<OverviewTile, Coming | null> = {
-  strategy: null,
-  relationship: null,
-  plan: 'later',
-  execution: 'core',
-  impact: 'later',
-  hints: 'later',
-};
+/** Gebaute Unterseiten eines Bereichs (UMB-05: nur Gebautes erscheint). */
+export function builtPages(area: WorkspaceArea): { key: PageKey; segment: string }[] {
+  return areaPages[area].filter(
+    (page): page is { key: PageKey; segment: string } => 'segment' in page,
+  );
+}
+
+/** Bereiche mit mindestens einer gebauten Unterseite, in der Reihenfolge der lokalen Leiste. */
+export const builtAreas: WorkspaceArea[] = workspaceAreas
+  .map((entry) => entry.key)
+  .filter((area) => builtPages(area).length > 0);
+
+/** Abschnitt eines Bereichs auf dem Überblick, z. B. /lieferanten/<id>#strategie. */
+export const sectionHref = (relationshipId: string, area: WorkspaceArea) =>
+  `/lieferanten/${relationshipId}#${workspaceAreas.find((entry) => entry.key === area)?.segment}`;
 
 export const workspacePath = (relationshipId: string, area?: WorkspaceArea) => {
   const segment = workspaceAreas.find((entry) => entry.key === area)?.segment;

@@ -5,6 +5,7 @@ import { CalendarDaysIcon, EyeOffIcon, InboxIcon, ScaleIcon, SearchXIcon } from 
 import { useAuth } from 'react-oidc-context';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { LinkList } from '@/components/ui/link-list';
 import { LoadingState } from '@/components/ui/loading-state';
 import { LocalBar } from '@/components/ui/local-bar';
 import { Stage, StageFacts } from '@/components/ui/stage';
@@ -19,7 +20,7 @@ import { InStageSlot } from '@/features/shell/stage-slot';
 import { ApiError, customerRuleSetQueryOptions, customerWorkspaceQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
-import { customerAreaOf, customerPath } from './customer-areas';
+import { builtCustomerAreas, customerAreaOf, customerPath } from './customer-areas';
 
 export function useCustomerWorkspace(relationshipId: string) {
   const auth = useAuth();
@@ -76,11 +77,13 @@ export function CustomerWorkspaceLayout({ relationshipId }: { relationshipId: st
   const segment = customerAreas.find((entry) => entry.key === area)?.segment;
   const items = [
     { key: 'overview', label: text.overview, href: customerPath(relationshipId) },
-    ...customerAreas.map(({ key }) => ({
-      key,
-      label: text.areas[key],
-      href: customerPath(relationshipId, key),
-    })),
+    ...customerAreas
+      .filter(({ key }) => builtCustomerAreas.includes(key))
+      .map(({ key }) => ({
+        key,
+        label: text.areas[key],
+        href: customerPath(relationshipId, key),
+      })),
   ];
   return (
     <>
@@ -154,13 +157,41 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
           }
         />
       </InStageSlot>
-      {/* Noch teilt kein Modul etwas mit dem Lieferanten; Kacheln kommen mit den geteilten Bereichen. */}
-      <EmptyState
-        size="lg"
-        icon={<InboxIcon aria-hidden />}
-        title={text.sharedLaterTitle}
-        description={text.sharedLater(workspace.name)}
-      />
+      {/* Nur Gebautes (UMB-05): je Bereich die geteilten Seiten als Zeilen. */}
+      <section aria-labelledby="kunde-beziehung" className="flex flex-col gap-3">
+        <h2 id="kunde-beziehung" className="font-bold text-xl tracking-title">
+          {text.areas.relationship}
+        </h2>
+        <LinkList
+          label={text.areas.relationship}
+          renderLink={routerLink}
+          items={[
+            {
+              key: 'rules',
+              href: `${customerPath(relationshipId, 'relationship')}/spielregeln`,
+              title: text.rulesTitle,
+              status: text.rulesHint,
+            },
+          ]}
+        />
+      </section>
+      <section aria-labelledby="kunde-umsetzung" className="flex flex-col gap-3">
+        <h2 id="kunde-umsetzung" className="font-bold text-xl tracking-title">
+          {text.areas.execution}
+        </h2>
+        <LinkList
+          label={text.areas.execution}
+          renderLink={routerLink}
+          items={[
+            {
+              key: 'meetings',
+              href: `${customerPath(relationshipId, 'execution')}/termine`,
+              title: text.meetingsTitle,
+              status: text.meetingsHint,
+            },
+          ]}
+        />
+      </section>
     </>
   );
 }

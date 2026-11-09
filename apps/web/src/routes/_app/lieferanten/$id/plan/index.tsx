@@ -1,9 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { AreaPage } from '@/features/workspace/area-page';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { builtAreas } from '@/features/workspace/areas';
 
+// Der Bereich ist ein Abschnitt auf dem Überblick (UMB-05). Ohne gebaute Unterseite führt die
+// Adresse zum Überblick selbst.
 export const Route = createFileRoute('/_app/lieferanten/$id/plan/')({
-  component: function PlanArea() {
-    const { id } = Route.useParams();
-    return <AreaPage relationshipId={id} area="plan" />;
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/lieferanten/$id',
+      params: { id: params.id },
+      ...(builtAreas.includes('plan') ? { hash: 'plan' } : {}),
+    });
   },
 });

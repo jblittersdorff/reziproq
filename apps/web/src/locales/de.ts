@@ -64,9 +64,6 @@ export const de = {
     dueContribution: (detail: string | null) =>
       detail ? `Beitrag zum Lieferantenplan · ${detail}` : 'Beitrag zum Lieferantenplan',
     dueBy: (date: string) => `bis ${date}`,
-    datesTitle: 'Nächste Termine',
-    notesTitle: 'Hinweise',
-    comingLater: 'Kommt mit Release 0.2',
     target: (name: string) => `Soll: ${name}`,
     relationshipsTitle: 'Meine Beziehungen',
     relationshipsEmpty: 'Du bist noch in keinem Beziehungsteam.',
@@ -78,14 +75,16 @@ export const de = {
     dueAllTitle: 'Alles, was bei mir fällig ist',
     dueAllPurpose: 'Alle offenen Aufgaben, nach Frist sortiert.',
     back: 'Zu Start',
-    // Bühne (PLT-10)
-    dueSummary: (count: number) =>
+    // Aufgabenliste (UMB-05)
+    todayTitle: (count: number) =>
       count === 0
-        ? 'Heute wartet nichts auf dich.'
+        ? 'Heute ist nichts fällig'
         : count === 1
-          ? 'Eine Sache wartet auf dich.'
-          : `${count} Dinge warten auf dich.`,
-    dueAction: 'Fällige Aufgaben',
+          ? 'Eine Sache für heute'
+          : `${count} Dinge für heute`,
+    open: 'Öffnen',
+    openItem: (supplier: string, what: string) => `${supplier}: ${what} öffnen`,
+    allDue: (count: number) => `Alle ${count} fälligen Aufgaben`,
     metricsLabel: 'Auf einen Blick',
     metricDue: 'fällig',
     metricRelationships: 'Beziehungen',
@@ -808,7 +807,6 @@ export const de = {
     },
     open: 'Öffnen',
     openLabel: (title: string) => `${title} öffnen`,
-    coming: { core: 'Kommt mit Release 1.0', later: 'Kommt nach Release 1.0' },
     internal: 'Intern',
     head: {
       label: 'Stand der Beziehung',

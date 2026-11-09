@@ -1,27 +1,24 @@
-import { ChevronRightIcon, ClockIcon } from 'lucide-react';
+import { ChevronRightIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { buttonVariants } from '@/components/ui/button';
 import { Tile, TileActions, TileText, TileTitle } from '@/components/ui/tile';
 import { routerLink } from '@/features/shell/navigation';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import type { Coming } from './areas';
 
 /**
- * Kachel im Arbeitsbereich (NAV-06): Titel, ein Satz, eine Kennzahl und „Öffnen“. Fehlt das
- * Modul noch, steht dort der Release-Hinweis; ohne Adresse gibt es keinen Knopf.
+ * Kachel z. B. im Portfolio: Titel, ein Satz, eine Kennzahl und „Öffnen“. Nur für Gebautes
+ * (UMB-05); ohne Adresse gibt es keinen Knopf.
  */
 export function WorkspaceTile({
   title,
   text,
   metric,
-  coming,
   href,
 }: {
   title: string;
   text: string;
   metric?: ReactNode;
-  coming?: Coming | null | undefined;
   href?: string | undefined;
 }) {
   const t = useT();
@@ -30,21 +27,16 @@ export function WorkspaceTile({
       <Tile size="lg">
         <TileTitle>{title}</TileTitle>
         <TileText>{text}</TileText>
-        {/* Der Hinweis ist leise; laut ist nur eine echte Kennzahl. */}
-        {coming ? (
-          <p className="flex items-center gap-2 text-muted-foreground text-sm">
-            <ClockIcon aria-hidden className="size-4" />
-            {t.workspace.coming[coming]}
-          </p>
-        ) : (
-          metric
-        )}
+        {metric}
         {href && (
           <TileActions>
             {routerLink({
               href,
               // Leiser Link statt gefülltem Knopf: Die Seite hat nur eine Hauptaktion (PLT-10).
-              className: cn(buttonVariants({ variant: 'link' }), 'px-0 font-semibold has-[>svg]:px-0'),
+              className: cn(
+                buttonVariants({ variant: 'link' }),
+                'px-0 font-semibold has-[>svg]:px-0',
+              ),
               'aria-label': t.workspace.openLabel(title),
               children: (
                 <>

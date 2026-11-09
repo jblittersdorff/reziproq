@@ -1,23 +1,24 @@
-import { workspaceAreas } from '@reziproq/shared';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { SearchXIcon } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { LocalBar } from '@/components/ui/local-bar';
+import { Monogram } from '@/components/ui/monogram';
 import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
 import { PagePath } from '@/features/shell/page-path';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useT } from '@/lib/i18n';
-import { areaOf, workspacePath } from './areas';
+import { areaOf, builtAreas, sectionHref, workspacePath } from './areas';
 import { CycleAction } from './cycle-action';
 import { useOverview } from './use-overview';
 import { WorkspaceHead } from './workspace-head';
 
 /**
- * Arbeitsbereich eines Lieferanten (NAV-06): lokale Leiste unter der globalen Leiste mit Name und
- * den sechs Bereichen, darunter auf allen Seiten außer dem Überblick der Kopf als schmale Zeile.
+ * Arbeitsbereich eines Lieferanten (NAV-06, UMB-05): lokale Leiste unter der globalen Leiste mit
+ * Name und den Bereichen, die schon Unterseiten haben – ein Klick springt zum Abschnitt auf dem
+ * Überblick. Darunter auf allen Seiten außer dem Überblick der Kopf als schmale Zeile.
  * Hier liegen auch Lade-, Fehler- und Nicht-gefunden-Zustand für alle Seiten eines Lieferanten.
  */
 export function SupplierWorkspace({ relationshipId }: { relationshipId: string }) {
@@ -50,14 +51,11 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   }
   if (!supplier.data) return <LoadingState label={t.suppliers.detailLoading} />;
 
-  const items = [
-    { key: 'overview', label: t.workspace.overview, href: workspacePath(relationshipId) },
-    ...workspaceAreas.map(({ key }) => ({
-      key,
-      label: t.workspace.areas[key],
-      href: workspacePath(relationshipId, key),
-    })),
-  ];
+  const items = builtAreas.map((key) => ({
+    key,
+    label: t.workspace.areas[key],
+    href: sectionHref(relationshipId, key),
+  }));
 
   return (
     <>
@@ -65,9 +63,16 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
         <LocalBar
           label={t.workspace.label}
           name={supplier.data.name}
+          nameIcon={
+            <Monogram
+              name={supplier.data.name}
+              size="sm"
+              emphasis={Boolean(overview.data?.head.isFocus)}
+            />
+          }
           nameHref={workspacePath(relationshipId)}
           items={items}
-          activeKey={area ?? 'overview'}
+          activeKey={area}
           action={
             overview.data && (
               <CycleAction relationshipId={relationshipId} overview={overview.data} />

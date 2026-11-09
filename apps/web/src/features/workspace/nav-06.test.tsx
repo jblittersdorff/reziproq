@@ -135,82 +135,70 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 const localBar = () => screen.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
-const areas = [
-  { label: 'Strategie', path: `${base}/strategie` },
-  { label: 'Beziehung', path: `${base}/beziehung` },
-  { label: 'Gemeinsamer Plan', path: `${base}/plan` },
-  { label: 'Umsetzung', path: `${base}/umsetzung` },
-  { label: 'Wirkung', path: `${base}/wirkung` },
-];
 
 describe('Arbeitsbereich eines Lieferanten', () => {
-  it('Alle sechs Bereiche haben eigene Adressen. Der aktive ist markiert, und der Wechsel lädt die Seite nicht neu.', async () => {
+  it('Die lokale Leiste zeigt nur Bereiche mit gebauten Unterseiten; ein Klick springt zum Abschnitt, ohne Neuladen (UMB-05)', async () => {
     const router = renderAt(base);
     // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
     const links = within(localBar()).getAllByRole('listitem');
-    expect(links.map((item) => item.textContent)).toEqual([
-      'Überblick',
-      'Strategie',
-      'Beziehung',
-      'Gemeinsamer Plan',
-      'Umsetzung',
-      'Wirkung',
-    ]);
+    // Gemeinsamer Plan und Wirkung haben noch keine Unterseite und fehlen.
+    expect(links.map((item) => item.textContent)).toEqual(['Strategie', 'Beziehung', 'Umsetzung']);
     // Der Name steht links in der Leiste und führt zum Überblick.
     expect(within(localBar()).getByRole('link', { name: detail.name }).getAttribute('href')).toBe(
       base,
     );
-    expect(
-      within(localBar()).getByRole('link', { name: 'Überblick' }).getAttribute('aria-current'),
-    ).toBe('page');
-
-    // Ohne Neuladen bleibt der Rahmen mit der Leiste derselbe; der Browser-Test prüft es echt.
     const bar = localBar();
-    for (const area of areas) {
-      fireEvent.click(within(localBar()).getByRole('link', { name: area.label }));
-      await waitFor(() => expect(router.state.location.pathname).toBe(area.path));
-      expect(await screen.findByRole('heading', { level: 1, name: area.label })).toBeDefined();
-      const active = within(localBar())
-        .getAllByRole('link')
-        .filter((link) => link.getAttribute('aria-current') === 'page');
-      expect(active.map((link) => link.textContent)).toEqual([area.label]);
+    for (const [label, segment] of [
+      ['Strategie', 'strategie'],
+      ['Beziehung', 'beziehung'],
+      ['Umsetzung', 'umsetzung'],
+    ] as const) {
+      const link = within(localBar()).getByRole('link', { name: label });
+      expect(link.getAttribute('href')).toBe(`${base}#${segment}`);
+      fireEvent.click(link);
+      await waitFor(() => expect(router.state.location.hash).toBe(segment));
+      expect(router.state.location.pathname).toBe(base);
     }
     expect(localBar()).toBe(bar);
   });
 
-  it('Jede Bereichsseite zeigt ihre Unterseiten als Kacheln. Höchstens sechs je Seite.', async () => {
+  it('Der Überblick zeigt je gebautem Bereich einen Abschnitt mit seinen Unterseiten als Zeilen, ohne Release-Hinweis (UMB-05)', async () => {
+    renderAt(base);
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
-      Beziehung: ['Team', 'Spielregeln', 'Feedback', 'Kontaktpunkte'],
-      'Gemeinsamer Plan': ['Vorbereitung', 'Themen', 'Initiativen', 'Zusagen', 'Scorecard'],
-      Umsetzung: ['Termine', 'Maßnahmen'],
-      Wirkung: ['Wirkung je Initiative', 'Monatswerte', 'P&L-Brücke'],
+      Beziehung: ['Team', 'Spielregeln'],
+      Umsetzung: ['Termine'],
     };
-    for (const area of areas) {
-      renderAgain(area.path);
-      const list = await screen.findByRole('list', { name: area.label });
-      const titles = within(list)
-        .getAllByRole('heading', { level: 3 })
-        .map((heading) => heading.textContent);
-      expect(titles).toEqual(expected[area.label]);
-      expect(titles.length).toBeLessThanOrEqual(6);
+    for (const [area, titles] of Object.entries(expected)) {
+      const section = await screen.findByRole('region', { name: area });
+      const list = within(section).getByRole('list', { name: area });
+      expect(
+        within(list)
+          .getAllByRole('link')
+          .map((link) => link.querySelector('span')?.textContent),
+      ).toEqual(titles);
     }
+    expect(screen.queryByRole('region', { name: 'Gemeinsamer Plan' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Wirkung' })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Kommt (mit|nach) Release/);
   });
 
-  it('Kacheln führen zu ihren verfügbaren Unterseiten; fehlende zeigen den Release-Hinweis', async () => {
-    const router = renderAt(`${base}/strategie`);
-    const list = await screen.findByRole('list', { name: 'Strategie' });
-    const plan = within(list).getAllByRole('listitem')[1] as HTMLElement;
+  it('Die Zeilen führen zu ihren Unterseiten; die alte Bereichsadresse führt zum Abschnitt', async () => {
+    const router = renderAt(base);
+    const strategy = await screen.findByRole('region', { name: 'Strategie' });
     expect(
-      within(plan).getByRole('link', { name: 'Lieferantenplan öffnen' }).getAttribute('href'),
-    ).toBe(`${base}/strategie/lieferantenplan`);
-    expect(
-      within(list).getByRole('link', { name: 'Segmentierung öffnen' }).getAttribute('href'),
+      within(strategy)
+        .getByRole('link', { name: /^Segmentierung/ })
+        .getAttribute('href'),
     ).toBe(`${base}/strategie/segmentierung`);
-
-    fireEvent.click(within(list).getByRole('link', { name: 'Spend öffnen' }));
+    fireEvent.click(within(strategy).getByRole('link', { name: /^Spend/ }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/strategie/spend`));
+
+    const again = renderAgain(`${base}/strategie`);
+    await waitFor(() => expect(again.state.location.pathname).toBe(base));
+    expect(again.state.location.hash).toBe('strategie');
+    await screen.findByRole('region', { name: 'Strategie' });
   });
 
   it('Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.', async () => {
@@ -266,36 +254,18 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     expect(screen.queryByRole('button', { name: 'Zyklus starten' })).toBeNull();
   });
 
-  it('Der Überblick speichert keine eigenen Daten. Ohne Modul zeigt die Kachel den Release-Hinweis.', async () => {
+  it('Der Überblick speichert keine eigenen Daten; die Zeilen zeigen den Stand aus den Modulen.', async () => {
     renderAt(base);
-    const list = await screen.findByRole('list', { name: 'Überblick' });
-    await waitFor(() => expect(list.textContent).toContain('Spend 2025'));
-    const tiles = within(list).getAllByRole('listitem');
-    expect(tiles.map((tile) => tile.querySelector('h3')?.textContent)).toEqual([
-      'Strategie',
-      'Beziehung',
-      'Gemeinsamer Plan',
-      'Umsetzung',
-      'Wirkung',
-      'Hinweise',
-    ]);
-    expect(tiles[1]?.textContent).toContain('2Personen im Team');
-    expect(tiles[2]?.textContent).toContain('Kommt nach Release 1.0');
-    expect(tiles[3]?.textContent).toContain('Kommt mit Release 1.0');
-    expect(tiles[4]?.textContent).toContain('Kommt nach Release 1.0');
-    expect(tiles[5]?.textContent).toContain('Kommt nach Release 1.0');
-    // Jede Bereichskachel hat „Öffnen“, die Hinweise haben noch keine Seite.
-    expect(
-      within(tiles[2] as HTMLElement).getByRole('link', { name: 'Gemeinsamer Plan öffnen' }),
-    ).toBeDefined();
-    expect(within(tiles[5] as HTMLElement).queryByRole('link')).toBeNull();
+    const strategy = await screen.findByRole('region', { name: 'Strategie' });
+    await waitFor(() => expect(strategy.textContent).toContain('Spend 2025'));
+    const relationship = screen.getByRole('region', { name: 'Beziehung' });
+    expect(relationship.textContent).toContain('2 Personen im Team');
     // Der Überblick liest nur.
     expect(requests.filter((request) => request.method !== 'GET')).toEqual([]);
   });
 
   it('Jede Seite im Bereich Strategie trägt das Kennzeichen „Intern“', async () => {
     const strategyPages: [path: string, title: string][] = [
-      ['strategie', 'Strategie'],
       ['strategie/profil', 'Profil'],
       ['strategie/profil/bearbeiten', 'Deine Werte bearbeiten'],
       ['strategie/spend', 'Spend'],
@@ -308,10 +278,14 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       const badge = heading.closest('header')?.querySelector('[data-visibility="internal"]');
       expect(badge?.textContent, path).toBe('Intern');
     }
-    // Andere Bereiche tragen es nicht als Bereich.
-    renderAgain(`${base}/beziehung`);
-    const heading = await screen.findByRole('heading', { level: 1, name: 'Beziehung' });
-    expect(heading.closest('header')?.querySelector('[data-visibility]')).toBeNull();
+    // Auf dem Überblick trägt nur der Abschnitt Strategie das Kennzeichen.
+    renderAgain(base);
+    const strategy = await screen.findByRole('region', { name: 'Strategie' });
+    expect(strategy.querySelector('[data-visibility="internal"]')?.textContent).toBe('Intern');
+    const relationship = screen.getByRole('region', { name: 'Beziehung' });
+    expect(
+      relationship.querySelector('h2')?.parentElement?.querySelector('[data-visibility]'),
+    ).toBeNull();
   });
 
   it('Die Seiten aus PLT-03 und PLT-05 (Profil, Spend, Team) liegen im Arbeitsbereich und haben einen Pfad mit Zurück.', async () => {
@@ -320,19 +294,19 @@ describe('Arbeitsbereich eines Lieferanten', () => {
         path: `${base}/strategie/profil`,
         title: 'Profil',
         area: 'Strategie',
-        back: `${base}/strategie`,
+        hash: 'strategie',
       },
       {
         path: `${base}/strategie/spend`,
         title: 'Spend',
         area: 'Strategie',
-        back: `${base}/strategie`,
+        hash: 'strategie',
       },
       {
         path: `${base}/beziehung/team`,
         title: 'Team',
         area: 'Beziehung',
-        back: `${base}/beziehung`,
+        hash: 'beziehung',
       },
     ];
     for (const page of pages) {
@@ -350,7 +324,9 @@ describe('Arbeitsbereich eines Lieferanten', () => {
           .filter(Boolean),
       ).toEqual(['Lieferanten', detail.name, page.area]);
       fireEvent.click(within(path).getByRole('link', { name: `Zurück zu ${page.area}` }));
-      await waitFor(() => expect(router.state.location.pathname).toBe(page.back));
+      // Zurück führt zum Abschnitt des Bereichs auf dem Überblick (UMB-05).
+      await waitFor(() => expect(router.state.location.pathname).toBe(base));
+      expect(router.state.location.hash).toBe(page.hash);
     }
   });
 });

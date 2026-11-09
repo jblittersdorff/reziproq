@@ -79,13 +79,13 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   }
 }
 
-test('NAV-05 zeigt Start mit vier Kacheln und die volle Liste ohne Überlauf', async ({
+test('NAV-05 zeigt Start als Aufgabenliste (UMB-05) und die volle Liste ohne Überlauf', async ({
   page,
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page.getByText('Fällig bei mir')).toBeVisible();
-  await expect(page.getByText('Meine Beziehungen')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: '8 Dinge für heute' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Meine Beziehungen' })).toBeVisible();
   await shoot(page, testInfo, 'start');
 
   await page.goto('/start/faellig');
