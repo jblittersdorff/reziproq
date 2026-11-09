@@ -4,6 +4,7 @@ import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import {
   CalendarDaysIcon,
   EyeOffIcon,
+  HandHeartIcon,
   HandshakeIcon,
   InboxIcon,
   ListChecksIcon,
@@ -212,6 +213,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: t.jbp.initiatives.title,
               status: t.jbp.initiatives.purpose,
             },
+            {
+              key: 'commitments',
+              href: `${customerPath(relationshipId, 'plan')}/zusagen`,
+              title: t.jbp.commitments.title,
+              status: t.jbp.commitments.purpose,
+            },
           ]}
         />
       </section>
@@ -315,6 +322,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.jbp.initiatives.title}</TileTitle>
               <TileText>{t.jbp.initiatives.purpose}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/zusagen" params={{ id: relationshipId }}>
+              <TileIcon>
+                <HandHeartIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.commitments.title}</TileTitle>
+              <TileText>{t.jbp.commitments.purpose}</TileText>
             </Link>
           </Tile>
         </div>

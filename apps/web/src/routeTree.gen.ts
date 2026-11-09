@@ -101,6 +101,9 @@ import { Route as AppKundenIdPlanThemenNeuRouteImport } from './routes/_app/kund
 import { Route as AppKundenIdPlanThemenZusammenfuehrenRouteImport } from './routes/_app/kunden/$id/plan/themen/zusammenfuehren'
 import { Route as AppKundenIdPlanVorbereitungIndexRouteImport } from './routes/_app/kunden/$id/plan/vorbereitung/index'
 import { Route as AppKundenIdPlanVorbereitungGeschaeftsupdateRouteImport } from './routes/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+import { Route as AppKundenIdPlanZusagenIndexRouteImport } from './routes/_app/kunden/$id/plan/zusagen/index'
+import { Route as AppKundenIdPlanZusagenCommitmentIdRouteImport } from './routes/_app/kunden/$id/plan/zusagen/$commitmentId'
+import { Route as AppKundenIdPlanZusagenNeuRouteImport } from './routes/_app/kunden/$id/plan/zusagen/neu'
 import { Route as AppKundenIdUmsetzungMassnahmenIndexRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/index'
 import { Route as AppKundenIdUmsetzungMassnahmenActionIdRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/$actionId'
 import { Route as AppKundenIdUmsetzungMassnahmenNeuRouteImport } from './routes/_app/kunden/$id/umsetzung/massnahmen/neu'
@@ -122,6 +125,9 @@ import { Route as AppLieferantenIdPlanThemenUebernehmenRouteImport } from './rou
 import { Route as AppLieferantenIdPlanThemenZusammenfuehrenRouteImport } from './routes/_app/lieferanten/$id/plan/themen/zusammenfuehren'
 import { Route as AppLieferantenIdPlanVorbereitungIndexRouteImport } from './routes/_app/lieferanten/$id/plan/vorbereitung/index'
 import { Route as AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport } from './routes/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+import { Route as AppLieferantenIdPlanZusagenIndexRouteImport } from './routes/_app/lieferanten/$id/plan/zusagen/index'
+import { Route as AppLieferantenIdPlanZusagenCommitmentIdRouteImport } from './routes/_app/lieferanten/$id/plan/zusagen/$commitmentId'
+import { Route as AppLieferantenIdPlanZusagenNeuRouteImport } from './routes/_app/lieferanten/$id/plan/zusagen/neu'
 import { Route as AppLieferantenIdStrategieLieferantenplanIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/index'
 import { Route as AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
 import { Route as AppLieferantenIdStrategieLieferantenplanVersionenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
@@ -672,6 +678,24 @@ const AppKundenIdPlanVorbereitungGeschaeftsupdateRoute =
     path: '/plan/vorbereitung/geschaeftsupdate',
     getParentRoute: () => AppKundenIdRouteRoute,
   } as any)
+const AppKundenIdPlanZusagenIndexRoute =
+  AppKundenIdPlanZusagenIndexRouteImport.update({
+    id: '/plan/zusagen/',
+    path: '/plan/zusagen/',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
+const AppKundenIdPlanZusagenCommitmentIdRoute =
+  AppKundenIdPlanZusagenCommitmentIdRouteImport.update({
+    id: '/plan/zusagen/$commitmentId',
+    path: '/plan/zusagen/$commitmentId',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
+const AppKundenIdPlanZusagenNeuRoute =
+  AppKundenIdPlanZusagenNeuRouteImport.update({
+    id: '/plan/zusagen/neu',
+    path: '/plan/zusagen/neu',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
 const AppKundenIdUmsetzungMassnahmenIndexRoute =
   AppKundenIdUmsetzungMassnahmenIndexRouteImport.update({
     id: '/umsetzung/massnahmen/',
@@ -796,6 +820,24 @@ const AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute =
   AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport.update({
     id: '/plan/vorbereitung/geschaeftsupdate',
     path: '/plan/vorbereitung/geschaeftsupdate',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanZusagenIndexRoute =
+  AppLieferantenIdPlanZusagenIndexRouteImport.update({
+    id: '/plan/zusagen/',
+    path: '/plan/zusagen/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanZusagenCommitmentIdRoute =
+  AppLieferantenIdPlanZusagenCommitmentIdRouteImport.update({
+    id: '/plan/zusagen/$commitmentId',
+    path: '/plan/zusagen/$commitmentId',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanZusagenNeuRoute =
+  AppLieferantenIdPlanZusagenNeuRouteImport.update({
+    id: '/plan/zusagen/neu',
+    path: '/plan/zusagen/neu',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdStrategieLieferantenplanIndexRoute =
@@ -1124,6 +1166,8 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/plan/themen/neu': typeof AppKundenIdPlanThemenNeuRoute
   '/kunden/$id/plan/themen/zusammenfuehren': typeof AppKundenIdPlanThemenZusammenfuehrenRoute
   '/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/kunden/$id/plan/zusagen/$commitmentId': typeof AppKundenIdPlanZusagenCommitmentIdRoute
+  '/kunden/$id/plan/zusagen/neu': typeof AppKundenIdPlanZusagenNeuRoute
   '/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -1138,6 +1182,8 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/plan/themen/uebernehmen': typeof AppLieferantenIdPlanThemenUebernehmenRoute
   '/lieferanten/$id/plan/themen/zusammenfuehren': typeof AppLieferantenIdPlanThemenZusammenfuehrenRoute
   '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/lieferanten/$id/plan/zusagen/$commitmentId': typeof AppLieferantenIdPlanZusagenCommitmentIdRoute
+  '/lieferanten/$id/plan/zusagen/neu': typeof AppLieferantenIdPlanZusagenNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -1150,6 +1196,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/themen/': typeof AppKundenIdPlanThemenIndexRoute
   '/kunden/$id/plan/vorbereitung/': typeof AppKundenIdPlanVorbereitungIndexRoute
+  '/kunden/$id/plan/zusagen/': typeof AppKundenIdPlanZusagenIndexRoute
   '/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
@@ -1157,6 +1204,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/plan/initiativen/': typeof AppLieferantenIdPlanInitiativenIndexRoute
   '/lieferanten/$id/plan/themen/': typeof AppLieferantenIdPlanThemenIndexRoute
   '/lieferanten/$id/plan/vorbereitung/': typeof AppLieferantenIdPlanVorbereitungIndexRoute
+  '/lieferanten/$id/plan/zusagen/': typeof AppLieferantenIdPlanZusagenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan/': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1272,6 +1320,8 @@ export interface FileRoutesByTo {
   '/kunden/$id/plan/themen/neu': typeof AppKundenIdPlanThemenNeuRoute
   '/kunden/$id/plan/themen/zusammenfuehren': typeof AppKundenIdPlanThemenZusammenfuehrenRoute
   '/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/kunden/$id/plan/zusagen/$commitmentId': typeof AppKundenIdPlanZusagenCommitmentIdRoute
+  '/kunden/$id/plan/zusagen/neu': typeof AppKundenIdPlanZusagenNeuRoute
   '/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -1286,6 +1336,8 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/plan/themen/uebernehmen': typeof AppLieferantenIdPlanThemenUebernehmenRoute
   '/lieferanten/$id/plan/themen/zusammenfuehren': typeof AppLieferantenIdPlanThemenZusammenfuehrenRoute
   '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/lieferanten/$id/plan/zusagen/$commitmentId': typeof AppLieferantenIdPlanZusagenCommitmentIdRoute
+  '/lieferanten/$id/plan/zusagen/neu': typeof AppLieferantenIdPlanZusagenNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -1298,6 +1350,7 @@ export interface FileRoutesByTo {
   '/kunden/$id/plan/initiativen': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/themen': typeof AppKundenIdPlanThemenIndexRoute
   '/kunden/$id/plan/vorbereitung': typeof AppKundenIdPlanVorbereitungIndexRoute
+  '/kunden/$id/plan/zusagen': typeof AppKundenIdPlanZusagenIndexRoute
   '/kunden/$id/umsetzung/massnahmen': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/spielregeln': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
@@ -1305,6 +1358,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/plan/initiativen': typeof AppLieferantenIdPlanInitiativenIndexRoute
   '/lieferanten/$id/plan/themen': typeof AppLieferantenIdPlanThemenIndexRoute
   '/lieferanten/$id/plan/vorbereitung': typeof AppLieferantenIdPlanVorbereitungIndexRoute
+  '/lieferanten/$id/plan/zusagen': typeof AppLieferantenIdPlanZusagenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/lieferanten/$id/strategie/profil': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1426,6 +1480,8 @@ export interface FileRoutesById {
   '/_app/kunden/$id/plan/themen/neu': typeof AppKundenIdPlanThemenNeuRoute
   '/_app/kunden/$id/plan/themen/zusammenfuehren': typeof AppKundenIdPlanThemenZusammenfuehrenRoute
   '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate': typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/_app/kunden/$id/plan/zusagen/$commitmentId': typeof AppKundenIdPlanZusagenCommitmentIdRoute
+  '/_app/kunden/$id/plan/zusagen/neu': typeof AppKundenIdPlanZusagenNeuRoute
   '/_app/kunden/$id/umsetzung/massnahmen/$actionId': typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   '/_app/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/_app/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
@@ -1440,6 +1496,8 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/plan/themen/uebernehmen': typeof AppLieferantenIdPlanThemenUebernehmenRoute
   '/_app/lieferanten/$id/plan/themen/zusammenfuehren': typeof AppLieferantenIdPlanThemenZusammenfuehrenRoute
   '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate': typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
+  '/_app/lieferanten/$id/plan/zusagen/$commitmentId': typeof AppLieferantenIdPlanZusagenCommitmentIdRoute
+  '/_app/lieferanten/$id/plan/zusagen/neu': typeof AppLieferantenIdPlanZusagenNeuRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
@@ -1452,6 +1510,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/_app/kunden/$id/plan/themen/': typeof AppKundenIdPlanThemenIndexRoute
   '/_app/kunden/$id/plan/vorbereitung/': typeof AppKundenIdPlanVorbereitungIndexRoute
+  '/_app/kunden/$id/plan/zusagen/': typeof AppKundenIdPlanZusagenIndexRoute
   '/_app/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/_app/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
@@ -1459,6 +1518,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/plan/initiativen/': typeof AppLieferantenIdPlanInitiativenIndexRoute
   '/_app/lieferanten/$id/plan/themen/': typeof AppLieferantenIdPlanThemenIndexRoute
   '/_app/lieferanten/$id/plan/vorbereitung/': typeof AppLieferantenIdPlanVorbereitungIndexRoute
+  '/_app/lieferanten/$id/plan/zusagen/': typeof AppLieferantenIdPlanZusagenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/': typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   '/_app/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/_app/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
@@ -1580,6 +1640,8 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/themen/neu'
     | '/kunden/$id/plan/themen/zusammenfuehren'
     | '/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/kunden/$id/plan/zusagen/$commitmentId'
+    | '/kunden/$id/plan/zusagen/neu'
     | '/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
@@ -1594,6 +1656,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/themen/uebernehmen'
     | '/lieferanten/$id/plan/themen/zusammenfuehren'
     | '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/lieferanten/$id/plan/zusagen/$commitmentId'
+    | '/lieferanten/$id/plan/zusagen/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1606,6 +1670,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/initiativen/'
     | '/kunden/$id/plan/themen/'
     | '/kunden/$id/plan/vorbereitung/'
+    | '/kunden/$id/plan/zusagen/'
     | '/kunden/$id/umsetzung/massnahmen/'
     | '/kunden/$id/umsetzung/termine/'
     | '/lieferanten/$id/beziehung/spielregeln/'
@@ -1613,6 +1678,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/initiativen/'
     | '/lieferanten/$id/plan/themen/'
     | '/lieferanten/$id/plan/vorbereitung/'
+    | '/lieferanten/$id/plan/zusagen/'
     | '/lieferanten/$id/strategie/lieferantenplan/'
     | '/lieferanten/$id/strategie/profil/'
     | '/lieferanten/$id/strategie/segmentierung/'
@@ -1728,6 +1794,8 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/themen/neu'
     | '/kunden/$id/plan/themen/zusammenfuehren'
     | '/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/kunden/$id/plan/zusagen/$commitmentId'
+    | '/kunden/$id/plan/zusagen/neu'
     | '/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
@@ -1742,6 +1810,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/themen/uebernehmen'
     | '/lieferanten/$id/plan/themen/zusammenfuehren'
     | '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/lieferanten/$id/plan/zusagen/$commitmentId'
+    | '/lieferanten/$id/plan/zusagen/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1754,6 +1824,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/initiativen'
     | '/kunden/$id/plan/themen'
     | '/kunden/$id/plan/vorbereitung'
+    | '/kunden/$id/plan/zusagen'
     | '/kunden/$id/umsetzung/massnahmen'
     | '/kunden/$id/umsetzung/termine'
     | '/lieferanten/$id/beziehung/spielregeln'
@@ -1761,6 +1832,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/initiativen'
     | '/lieferanten/$id/plan/themen'
     | '/lieferanten/$id/plan/vorbereitung'
+    | '/lieferanten/$id/plan/zusagen'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/lieferanten/$id/strategie/profil'
     | '/lieferanten/$id/strategie/segmentierung'
@@ -1881,6 +1953,8 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/plan/themen/neu'
     | '/_app/kunden/$id/plan/themen/zusammenfuehren'
     | '/_app/kunden/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/_app/kunden/$id/plan/zusagen/$commitmentId'
+    | '/_app/kunden/$id/plan/zusagen/neu'
     | '/_app/kunden/$id/umsetzung/massnahmen/$actionId'
     | '/_app/kunden/$id/umsetzung/massnahmen/neu'
     | '/_app/kunden/$id/umsetzung/termine/neu'
@@ -1895,6 +1969,8 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/plan/themen/uebernehmen'
     | '/_app/lieferanten/$id/plan/themen/zusammenfuehren'
     | '/_app/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
+    | '/_app/lieferanten/$id/plan/zusagen/$commitmentId'
+    | '/_app/lieferanten/$id/plan/zusagen/neu'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
@@ -1907,6 +1983,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/plan/initiativen/'
     | '/_app/kunden/$id/plan/themen/'
     | '/_app/kunden/$id/plan/vorbereitung/'
+    | '/_app/kunden/$id/plan/zusagen/'
     | '/_app/kunden/$id/umsetzung/massnahmen/'
     | '/_app/kunden/$id/umsetzung/termine/'
     | '/_app/lieferanten/$id/beziehung/spielregeln/'
@@ -1914,6 +1991,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/plan/initiativen/'
     | '/_app/lieferanten/$id/plan/themen/'
     | '/_app/lieferanten/$id/plan/vorbereitung/'
+    | '/_app/lieferanten/$id/plan/zusagen/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/'
     | '/_app/lieferanten/$id/strategie/profil/'
     | '/_app/lieferanten/$id/strategie/segmentierung/'
@@ -2599,6 +2677,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
+    '/_app/kunden/$id/plan/zusagen/': {
+      id: '/_app/kunden/$id/plan/zusagen/'
+      path: '/plan/zusagen'
+      fullPath: '/kunden/$id/plan/zusagen/'
+      preLoaderRoute: typeof AppKundenIdPlanZusagenIndexRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
+    '/_app/kunden/$id/plan/zusagen/$commitmentId': {
+      id: '/_app/kunden/$id/plan/zusagen/$commitmentId'
+      path: '/plan/zusagen/$commitmentId'
+      fullPath: '/kunden/$id/plan/zusagen/$commitmentId'
+      preLoaderRoute: typeof AppKundenIdPlanZusagenCommitmentIdRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
+    '/_app/kunden/$id/plan/zusagen/neu': {
+      id: '/_app/kunden/$id/plan/zusagen/neu'
+      path: '/plan/zusagen/neu'
+      fullPath: '/kunden/$id/plan/zusagen/neu'
+      preLoaderRoute: typeof AppKundenIdPlanZusagenNeuRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/umsetzung/massnahmen/': {
       id: '/_app/kunden/$id/umsetzung/massnahmen/'
       path: '/umsetzung/massnahmen'
@@ -2744,6 +2843,27 @@ declare module '@tanstack/react-router' {
       path: '/plan/vorbereitung/geschaeftsupdate'
       fullPath: '/lieferanten/$id/plan/vorbereitung/geschaeftsupdate'
       preLoaderRoute: typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/zusagen/': {
+      id: '/_app/lieferanten/$id/plan/zusagen/'
+      path: '/plan/zusagen'
+      fullPath: '/lieferanten/$id/plan/zusagen/'
+      preLoaderRoute: typeof AppLieferantenIdPlanZusagenIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/zusagen/$commitmentId': {
+      id: '/_app/lieferanten/$id/plan/zusagen/$commitmentId'
+      path: '/plan/zusagen/$commitmentId'
+      fullPath: '/lieferanten/$id/plan/zusagen/$commitmentId'
+      preLoaderRoute: typeof AppLieferantenIdPlanZusagenCommitmentIdRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/zusagen/neu': {
+      id: '/_app/lieferanten/$id/plan/zusagen/neu'
+      path: '/plan/zusagen/neu'
+      fullPath: '/lieferanten/$id/plan/zusagen/neu'
+      preLoaderRoute: typeof AppLieferantenIdPlanZusagenNeuRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/strategie/lieferantenplan/': {
@@ -3028,12 +3148,15 @@ interface AppKundenIdRouteRouteChildren {
   AppKundenIdPlanThemenNeuRoute: typeof AppKundenIdPlanThemenNeuRoute
   AppKundenIdPlanThemenZusammenfuehrenRoute: typeof AppKundenIdPlanThemenZusammenfuehrenRoute
   AppKundenIdPlanVorbereitungGeschaeftsupdateRoute: typeof AppKundenIdPlanVorbereitungGeschaeftsupdateRoute
+  AppKundenIdPlanZusagenCommitmentIdRoute: typeof AppKundenIdPlanZusagenCommitmentIdRoute
+  AppKundenIdPlanZusagenNeuRoute: typeof AppKundenIdPlanZusagenNeuRoute
   AppKundenIdUmsetzungMassnahmenActionIdRoute: typeof AppKundenIdUmsetzungMassnahmenActionIdRoute
   AppKundenIdUmsetzungMassnahmenNeuRoute: typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   AppKundenIdUmsetzungTermineNeuRoute: typeof AppKundenIdUmsetzungTermineNeuRoute
   AppKundenIdPlanInitiativenIndexRoute: typeof AppKundenIdPlanInitiativenIndexRoute
   AppKundenIdPlanThemenIndexRoute: typeof AppKundenIdPlanThemenIndexRoute
   AppKundenIdPlanVorbereitungIndexRoute: typeof AppKundenIdPlanVorbereitungIndexRoute
+  AppKundenIdPlanZusagenIndexRoute: typeof AppKundenIdPlanZusagenIndexRoute
   AppKundenIdUmsetzungMassnahmenIndexRoute: typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   AppKundenIdUmsetzungTermineIndexRoute: typeof AppKundenIdUmsetzungTermineIndexRoute
   AppKundenIdPlanInitiativenInitiativeIdBearbeitenRoute: typeof AppKundenIdPlanInitiativenInitiativeIdBearbeitenRoute
@@ -3060,6 +3183,9 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
     AppKundenIdPlanThemenZusammenfuehrenRoute,
   AppKundenIdPlanVorbereitungGeschaeftsupdateRoute:
     AppKundenIdPlanVorbereitungGeschaeftsupdateRoute,
+  AppKundenIdPlanZusagenCommitmentIdRoute:
+    AppKundenIdPlanZusagenCommitmentIdRoute,
+  AppKundenIdPlanZusagenNeuRoute: AppKundenIdPlanZusagenNeuRoute,
   AppKundenIdUmsetzungMassnahmenActionIdRoute:
     AppKundenIdUmsetzungMassnahmenActionIdRoute,
   AppKundenIdUmsetzungMassnahmenNeuRoute:
@@ -3068,6 +3194,7 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdPlanInitiativenIndexRoute: AppKundenIdPlanInitiativenIndexRoute,
   AppKundenIdPlanThemenIndexRoute: AppKundenIdPlanThemenIndexRoute,
   AppKundenIdPlanVorbereitungIndexRoute: AppKundenIdPlanVorbereitungIndexRoute,
+  AppKundenIdPlanZusagenIndexRoute: AppKundenIdPlanZusagenIndexRoute,
   AppKundenIdUmsetzungMassnahmenIndexRoute:
     AppKundenIdUmsetzungMassnahmenIndexRoute,
   AppKundenIdUmsetzungTermineIndexRoute: AppKundenIdUmsetzungTermineIndexRoute,
@@ -3152,6 +3279,8 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanThemenUebernehmenRoute: typeof AppLieferantenIdPlanThemenUebernehmenRoute
   AppLieferantenIdPlanThemenZusammenfuehrenRoute: typeof AppLieferantenIdPlanThemenZusammenfuehrenRoute
   AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute: typeof AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute
+  AppLieferantenIdPlanZusagenCommitmentIdRoute: typeof AppLieferantenIdPlanZusagenCommitmentIdRoute
+  AppLieferantenIdPlanZusagenNeuRoute: typeof AppLieferantenIdPlanZusagenNeuRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   AppLieferantenIdStrategieProfilZuordnungRoute: typeof AppLieferantenIdStrategieProfilZuordnungRoute
   AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -3164,6 +3293,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanInitiativenIndexRoute: typeof AppLieferantenIdPlanInitiativenIndexRoute
   AppLieferantenIdPlanThemenIndexRoute: typeof AppLieferantenIdPlanThemenIndexRoute
   AppLieferantenIdPlanVorbereitungIndexRoute: typeof AppLieferantenIdPlanVorbereitungIndexRoute
+  AppLieferantenIdPlanZusagenIndexRoute: typeof AppLieferantenIdPlanZusagenIndexRoute
   AppLieferantenIdStrategieProfilIndexRoute: typeof AppLieferantenIdStrategieProfilIndexRoute
   AppLieferantenIdStrategieSegmentierungIndexRoute: typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   AppLieferantenIdStrategieSpendIndexRoute: typeof AppLieferantenIdStrategieSpendIndexRoute
@@ -3211,6 +3341,9 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdPlanThemenZusammenfuehrenRoute,
   AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute:
     AppLieferantenIdPlanVorbereitungGeschaeftsupdateRoute,
+  AppLieferantenIdPlanZusagenCommitmentIdRoute:
+    AppLieferantenIdPlanZusagenCommitmentIdRoute,
+  AppLieferantenIdPlanZusagenNeuRoute: AppLieferantenIdPlanZusagenNeuRoute,
   AppLieferantenIdStrategieProfilBearbeitenRoute:
     AppLieferantenIdStrategieProfilBearbeitenRoute,
   AppLieferantenIdStrategieProfilZuordnungRoute:
@@ -3234,6 +3367,7 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdPlanThemenIndexRoute: AppLieferantenIdPlanThemenIndexRoute,
   AppLieferantenIdPlanVorbereitungIndexRoute:
     AppLieferantenIdPlanVorbereitungIndexRoute,
+  AppLieferantenIdPlanZusagenIndexRoute: AppLieferantenIdPlanZusagenIndexRoute,
   AppLieferantenIdStrategieProfilIndexRoute:
     AppLieferantenIdStrategieProfilIndexRoute,
   AppLieferantenIdStrategieSegmentierungIndexRoute:

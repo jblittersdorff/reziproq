@@ -110,3 +110,46 @@ export const initiativeMilestone = pgTable(
     index('initiative_milestone_initiative').on(table.initiativeId, table.dueOn),
   ],
 );
+
+export const commitmentStatuses = ['open', 'kept', 'missed'] as const;
+
+/**
+ * JBP-05: Zusage einer Seite an die andere, geteilt. Jede Seite legt nur ihre eigenen Zusagen an
+ * und setzt ihren Status (owner_org_id ist die zusagende Seite). Verantwortlich ist eine Person
+ * der eigenen Seite; der Name steht dabei, damit die andere Seite ihn sieht.
+ */
+export const commitment = pgTable(
+  'commitment',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    jbpId: uuid()
+      .notNull()
+      .references(() => jbp.id, { onDelete: 'cascade' }),
+    initiativeId: uuid().references(() => initiative.id, { onDelete: 'set null' }),
+    side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    title: text().notNull(),
+    ownerUserId: text(),
+    ownerName: text().notNull(),
+    dueOn: date().notNull(),
+    status: text({ enum: commitmentStatuses }).notNull().default('open'),
+    createdBy: text().notNull(),
+    createdByName: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('commitment_side', sql`${table.side} in ('buyer', 'supplier')`),
+    check('commitment_status', sql`${table.status} in ('open', 'kept', 'missed')`),
+    check('commitment_title', sql`length(trim(${table.title})) between 1 and 200`),
+    check('commitment_owner', sql`length(trim(${table.ownerName})) between 1 and 200`),
+    index('commitment_jbp').on(table.jbpId, table.dueOn),
+    index('commitment_owner_user').on(table.ownerUserId),
+  ],
+);

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { personSchema } from './commitments.js';
 import { meetingSides } from './meetings.js';
 
 // JBP-03: Gemeinsame Initiativen mit Meilensteinen und Roadmap, für beide Seiten gleich.
@@ -22,6 +23,9 @@ export const initiativeSchema = z.object({
   benefitSupplier: z.string(),
   ownerBuyerName: z.string(),
   ownerSupplierName: z.string(),
+  /** Gewählte Person je Seite (JBP-05); null, solange nur ein Name eingetragen ist */
+  ownerBuyerUserId: z.string().nullable(),
+  ownerSupplierUserId: z.string().nullable(),
   startsOn: z.iso.date(),
   endsOn: z.iso.date(),
   status: z.enum(initiativeStatuses),
@@ -37,6 +41,9 @@ export const initiativesSchema = z.object({
   /** Freigegebener Plan (JBP-06): nur noch Status und Meilensteine änderbar */
   approved: z.boolean(),
   canEdit: z.boolean(),
+  ownSide: z.enum(meetingSides),
+  /** Personen der eigenen Seite für die Verantwortung (JBP-05) */
+  people: z.array(personSchema),
   initiatives: z.array(initiativeSchema),
 });
 export type Initiatives = z.infer<typeof initiativesSchema>;
@@ -45,6 +52,8 @@ export const initiativeDetailSchema = z.object({
   initiative: initiativeSchema,
   approved: z.boolean(),
   canEdit: z.boolean(),
+  ownSide: z.enum(meetingSides),
+  people: z.array(personSchema),
 });
 export type InitiativeDetail = z.infer<typeof initiativeDetailSchema>;
 
@@ -57,8 +66,11 @@ export const saveInitiativeSchema = z
     // Nutzen für beide Seiten ist Pflicht (JBP-03).
     benefitBuyer: text(2000),
     benefitSupplier: text(2000),
+    /** Name je Seite; die andere Seite nur beim Anlegen, danach pflegt sie ihn selbst */
     ownerBuyerName: text(200),
     ownerSupplierName: text(200),
+    /** Verantwortliche Person der eigenen Seite (JBP-05); ihr Name ersetzt den eigenen Namen */
+    ownerUserId: z.string().min(1).nullable().optional(),
     startsOn: z.iso.date(),
     endsOn: z.iso.date(),
     /** Beim Zusammenführen: Themen beider Seiten, die in die Initiative eingehen */

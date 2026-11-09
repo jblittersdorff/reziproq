@@ -10,6 +10,7 @@ export * from './invitations.js';
 export * from './master-data.js';
 export * from './me.js';
 export * from './actions.js';
+export * from './commitments.js';
 export * from './initiatives.js';
 export * from './jbp.js';
 export * from './meetings.js';
