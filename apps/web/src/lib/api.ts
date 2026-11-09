@@ -9,6 +9,7 @@ import {
   assignmentResponseSchema,
   auditResponseSchema,
   businessUnitsResponseSchema,
+  type CommitmentStatus,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
   type CreateAction,
@@ -16,6 +17,7 @@ import {
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
+  commitmentsSchema,
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
   createSupplierResponseSchema,
@@ -83,6 +85,7 @@ import {
   ruleSetSharePreviewSchema,
   type SaveAction,
   type SaveAgenda,
+  type SaveCommitment,
   type SaveFormatItem,
   type SaveInitiative,
   type SaveJbpTopic,
@@ -1445,6 +1448,32 @@ export const deleteMilestone = (
     initiativeDetailSchema,
     accessToken,
   );
+
+/** JBP-05: Zusagen beider Seiten, je Seite unter ihrer Basis. */
+export const commitmentsQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', 'commitments', base],
+    queryFn: () => getJson(`${base}/jbp/zusagen`, commitmentsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createCommitment = (accessToken: string, base: MeetingBase, request: SaveCommitment) =>
+  sendJson('POST', `${base}/jbp/zusagen`, request, commitmentsSchema, accessToken);
+
+export const updateCommitment = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  request: SaveCommitment,
+) => sendJson('PUT', `${base}/jbp/zusagen/${id}`, request, commitmentsSchema, accessToken);
+
+export const setCommitmentStatus = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  status: CommitmentStatus,
+) =>
+  sendJson('PUT', `${base}/jbp/zusagen/${id}/status`, { status }, commitmentsSchema, accessToken);
 
 /** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
 export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>

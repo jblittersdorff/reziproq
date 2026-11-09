@@ -685,18 +685,25 @@ export function JbpInitiativeFormPage({
     ...jbpTopicsQueryOptions(accessToken, base),
     enabled: accessToken !== '' && topicIds.length > 0,
   });
+  // Beim Anlegen kommen Personen und eigene Seite aus der Liste, beim Bearbeiten aus der Initiative.
+  const list = useQuery({
+    ...initiativesQueryOptions(accessToken, base),
+    enabled: accessToken !== '' && !initiativeId,
+  });
+  const context = existing.data ?? list.data;
   const title = initiativeId ? text.editTitle : text.new;
   const trail = [{ label: text.title, href: initiativesPath(place) }];
   const loading =
+    !context ||
     (initiativeId && !existing.data && !existing.isError) ||
     (topicIds.length > 0 && !topics.data && !topics.isError);
   return (
     <JbpFrame place={place} trail={trail} current={title} header={<PageHeader title={title} />}>
-      {existing.isError ? (
+      {existing.isError || list.isError ? (
         <ErrorState title={text.notFound} />
       ) : loading ? (
         <LoadingState label={text.loading} />
-      ) : existing.data && !existing.data.canEdit ? (
+      ) : !context?.canEdit ? (
         <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {text.noPermission}
         </p>
@@ -705,6 +712,8 @@ export function JbpInitiativeFormPage({
           place={place}
           accessToken={accessToken}
           existing={existing.data?.initiative}
+          ownSide={context.ownSide}
+          people={context.people}
           merged={[...(topics.data?.buyer ?? []), ...(topics.data?.supplier ?? [])].filter(
             (topic) => topicIds.includes(topic.id),
           )}
@@ -718,11 +727,15 @@ function InitiativeForm({
   place,
   accessToken,
   existing,
+  ownSide,
+  people,
   merged,
 }: {
   place: MeetingPlace;
   accessToken: string;
   existing?: Initiative | undefined;
+  ownSide: 'buyer' | 'supplier';
+  people: { userId: string; name: string }[];
   merged: { id: string; title: string; description: string }[];
 }) {
   const text = useT().jbp.initiatives;
@@ -739,8 +752,10 @@ function InitiativeForm({
         .join('\n'),
     benefitBuyer: existing?.benefitBuyer ?? '',
     benefitSupplier: existing?.benefitSupplier ?? '',
-    ownerBuyerName: existing?.ownerBuyerName ?? '',
-    ownerSupplierName: existing?.ownerSupplierName ?? '',
+    // Eigene Seite: gewählte Person. Andere Seite: Name, nur beim Anlegen einzutragen.
+    ownerUserId:
+      (ownSide === 'buyer' ? existing?.ownerBuyerUserId : existing?.ownerSupplierUserId) ?? '',
+    otherName: (ownSide === 'buyer' ? existing?.ownerSupplierName : existing?.ownerBuyerName) ?? '',
     startsOn: existing?.startsOn ?? `${year}-01-01`,
     endsOn: existing?.endsOn ?? `${year}-12-31`,
   });
@@ -759,8 +774,8 @@ function InitiativeForm({
       'goal',
       'benefitBuyer',
       'benefitSupplier',
-      'ownerBuyerName',
-      'ownerSupplierName',
+      'ownerUserId',
+      'otherName',
       'startsOn',
       'endsOn',
     ] as const) {
@@ -771,13 +786,19 @@ function InitiativeForm({
     }
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    const request: SaveInitiative = {
+    const base = {
       title: values.title.trim(),
       goal: values.goal.trim(),
       benefitBuyer: values.benefitBuyer.trim(),
       benefitSupplier: values.benefitSupplier.trim(),
-      ownerBuyerName: values.ownerBuyerName.trim(),
-      ownerSupplierName: values.ownerSupplierName.trim(),
+    };
+    const ownName = people.find((person) => person.userId === values.ownerUserId)?.name ?? '';
+    const otherName = values.otherName.trim();
+    const request: SaveInitiative = {
+      ...base,
+      ownerBuyerName: ownSide === 'buyer' ? ownName : otherName,
+      ownerSupplierName: ownSide === 'buyer' ? otherName : ownName,
+      ownerUserId: values.ownerUserId,
       startsOn: values.startsOn,
       endsOn: values.endsOn,
       ...(merged.length > 0 && !existing ? { topicIds: merged.map((topic) => topic.id) } : {}),
@@ -848,8 +869,45 @@ function InitiativeForm({
       <div className="grid gap-6 sm:grid-cols-2">
         {area('benefitBuyer', text.benefitBuyer, text.benefitHint)}
         {area('benefitSupplier', text.benefitSupplier, text.benefitHint)}
-        {line('ownerBuyerName', text.ownerBuyer)}
-        {line('ownerSupplierName', text.ownerSupplier)}
+        <FormField label={text.ownerOwn} error={errors.ownerUserId}>
+          {(field) => (
+            <NativeSelect
+              {...field}
+              value={values.ownerUserId}
+              onChange={(event) => set('ownerUserId')(event.target.value)}
+            >
+              <option value="">{text.ownerPick}</option>
+              {people.map((person) => (
+                <option key={person.userId} value={person.userId}>
+                  {person.name}
+                </option>
+              ))}
+            </NativeSelect>
+          )}
+        </FormField>
+        {existing ? (
+          <div className="flex flex-col gap-2">
+            <p className="font-medium text-sm">
+              {ownSide === 'buyer' ? text.ownerSupplier : text.ownerBuyer}
+            </p>
+            <p className="flex min-h-11 items-center text-muted-foreground">{values.otherName}</p>
+          </div>
+        ) : (
+          <FormField
+            label={ownSide === 'buyer' ? text.ownerSupplier : text.ownerBuyer}
+            hint={text.ownerOtherHint}
+            error={errors.otherName}
+          >
+            {(field) => (
+              <Input
+                {...field}
+                maxLength={200}
+                value={values.otherName}
+                onChange={(event) => set('otherName')(event.target.value)}
+              />
+            )}
+          </FormField>
+        )}
         {line('startsOn', text.startsOn, 'date')}
         {line('endsOn', text.endsOn, 'date')}
       </div>

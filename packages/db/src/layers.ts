@@ -209,6 +209,19 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2027-06-30',
     }),
   },
+  // JBP-05: Zusagen einer Seite.
+  commitment: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      side: 'buyer',
+      title: 'Probe',
+      owner_name: 'Probe',
+      due_on: '2027-03-31',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    }),
+  },
   jbp_business_update: {
     kind: 'shared',
     testValues: ({ buyer, probe }) => ({

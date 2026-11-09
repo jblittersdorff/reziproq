@@ -330,6 +330,13 @@
       "when": 1794223448384,
       "tag": "0046_initiativen",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794230511788,
+      "tag": "0047_zusagen",
+      "breakpoints": true
     }
   ]
 }

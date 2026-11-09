@@ -1,6 +1,7 @@
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
-import type { OverviewMetric } from '@reziproq/shared';
+import { and, asc, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import type { LiveSection, OverviewMetric } from '@reziproq/shared';
 import type { AuthContext } from '../auth/auth.guard.js';
+import type { MeetingLiveSource } from '../meetings/live-sections.js';
 import type { OverviewMetricSource } from '../overview/overview-metric.js';
 
 /**
@@ -37,6 +38,40 @@ export class JbpMetricSource implements OverviewMetricSource {
       meetingDate: plan.startsAt ? plan.startsAt.toISOString() : null,
       topics: topics?.value ?? 0,
       initiatives: initiatives?.value ?? 0,
+    };
+  }
+}
+
+/** Live-Abschnitt im Termin (QBR-01, JBP-05): offene Zusagen beider Seiten, aus ihrem Ort gelesen. */
+export class CommitmentsLiveSource implements MeetingLiveSource {
+  readonly key = 'commitments';
+  async read(tx: TenantTransaction, relationshipId: string): Promise<LiveSection | null> {
+    const [plan] = await tx
+      .select({ id: schema.jbp.id })
+      .from(schema.jbp)
+      .where(eq(schema.jbp.relationshipId, relationshipId))
+      .orderBy(desc(schema.jbp.version))
+      .limit(1);
+    if (!plan) return null;
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = await tx
+      .select({
+        id: schema.commitment.id,
+        title: schema.commitment.title,
+        status: schema.commitment.status,
+        dueOn: schema.commitment.dueOn,
+      })
+      .from(schema.commitment)
+      .where(and(eq(schema.commitment.jbpId, plan.id), eq(schema.commitment.status, 'open')))
+      .orderBy(asc(schema.commitment.dueOn));
+    return {
+      key: this.key,
+      items: rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        status: row.dueOn < today ? 'overdue' : row.status,
+        dueDate: row.dueOn,
+      })),
     };
   }
 }

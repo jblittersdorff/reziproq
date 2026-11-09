@@ -120,6 +120,13 @@ export const initiativeAudit = auditedObject({
   ],
 });
 
+/** Zusage einer Seite (JBP-05): geteilt, beide Seiten sehen jede Änderung. */
+export const commitmentAudit = auditedObject({
+  type: 'commitment',
+  visibility: 'shared',
+  fields: ['title', 'owner_name', 'due_on', 'status', 'initiative'],
+});
+
 /** Geschäftsupdate einer Seite im JBP (JBP-01): geteilt. */
 export const jbpBusinessUpdateAudit = auditedObject({
   type: 'jbp_business_update',
@@ -213,6 +220,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   jbpBusinessUpdateAudit,
   jbpTopicAudit,
   initiativeAudit,
+  commitmentAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

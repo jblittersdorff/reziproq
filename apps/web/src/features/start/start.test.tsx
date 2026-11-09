@@ -162,6 +162,39 @@ describe('NAV-05 Start (Handschrift Bühne A2)', () => {
     expect(within(tile).getByText('Werk Nord')).toBeDefined();
   });
 
+  it('eine fällige Zusage oder ein Meilenstein steht als Aufgabe auf Start (JBP-05)', async () => {
+    api.handle = (request) =>
+      request.url === '/api/start'
+        ? Response.json(
+            start({
+              due: {
+                items: [
+                  {
+                    id: uuid(80),
+                    kind: 'commitment',
+                    supplier: 'Alpha GmbH',
+                    detail: 'Bedarfsausblick 2027',
+                    dueDate: '2099-03-31',
+                    href: `/lieferanten/${uuid(60)}/plan/zusagen#${uuid(80)}`,
+                  },
+                ],
+                total: 1,
+              },
+            }),
+          )
+        : undefined;
+    renderAt('/start');
+    const tile = (
+      await screen.findByRole('heading', { level: 2, name: 'Zusage einhalten' })
+    ).closest('[data-slot="due-tile"]') as HTMLElement;
+    expect(within(tile).getByText('Alpha GmbH · Bedarfsausblick 2027')).toBeTruthy();
+    expect(
+      within(tile)
+        .getByRole('link', { name: 'Alpha GmbH: Zusage · Bedarfsausblick 2027 öffnen' })
+        .getAttribute('href'),
+    ).toBe(`/lieferanten/${uuid(60)}/plan/zusagen#${uuid(80)}`);
+  });
+
   it('zeigt auf /start/faellig die vollständige Liste', async () => {
     renderAt('/start/faellig');
     await waitFor(() =>

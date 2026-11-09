@@ -419,8 +419,11 @@ export class ActionsService {
     return items;
   }
 
-  /** Läuft je eigener Beziehung in der passenden Mandanten-Session, nur lesend. */
-  private async eachRelationship(
+  /**
+   * Läuft je eigener Beziehung in der passenden Mandanten-Session, nur lesend. Auch für andere
+   * Aufgaben-Quellen der Beziehung, z. B. Zusagen und Meilensteine (JBP-05), mit ihrem Recht.
+   */
+  async eachRelationship(
     auth: AuthContext,
     work: (
       tx: TenantTransaction,
@@ -432,9 +435,10 @@ export class ActionsService {
         base: string;
       },
     ) => Promise<void>,
+    permission: Parameters<typeof can>[1] = 'massnahmen.sehen',
   ) {
     const organization = auth.organization;
-    if (!organization || !can(auth, 'massnahmen.sehen')) return;
+    if (!organization || !can(auth, permission)) return;
     if (!organization.buyer) {
       for (const customer of await this.customers.customersOf(auth)) {
         await this.tenant.run(

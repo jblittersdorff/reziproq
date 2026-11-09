@@ -3,7 +3,15 @@ import { nextMeetingSchema } from './meetings.js';
 
 // NAV-05: Start zeigt, was für die Person fällig ist. Jedes Modul meldet seine Aufgaben als DueItem.
 
-export const dueKinds = ['rating', 'cycle', 'contribution', 'action', 'approval'] as const;
+export const dueKinds = [
+  'rating',
+  'cycle',
+  'contribution',
+  'action',
+  'approval',
+  'commitment',
+  'milestone',
+] as const;
 
 export const dueItemSchema = z.object({
   id: z.string().min(1),

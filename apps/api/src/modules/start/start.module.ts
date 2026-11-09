@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ActionsModule } from '../actions/actions.module.js';
 import { CustomersModule } from '../customers/customers.module.js';
+import { JbpModule } from '../jbp/jbp.module.js';
 import { OverviewModule } from '../overview/overview.module.js';
 import { PortfolioModule } from '../portfolio/portfolio.module.js';
 import { RatingsModule } from '../ratings/ratings.module.js';
@@ -16,6 +17,7 @@ import { StartService } from './start.service.js';
     CustomersModule,
     ActionsModule,
     PortfolioModule,
+    JbpModule,
   ],
   controllers: [StartController],
   providers: [StartService],

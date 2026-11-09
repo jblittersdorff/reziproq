@@ -10,7 +10,9 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  type Commitments,
   type CreateJbp,
+  commitmentStatusSchema,
   createJbpSchema,
   type ImportJbpTopics,
   type InitiativeDetail,
@@ -25,11 +27,14 @@ import {
   type ParkJbpTopic,
   parkJbpTopicSchema,
   type SaveBusinessUpdate,
+  type SaveCommitment,
   type SaveInitiative,
   type SaveJbpTopic,
   type SaveMilestone,
+  type SetCommitmentStatus,
   type SetInitiativeStatus,
   saveBusinessUpdateSchema,
+  saveCommitmentSchema,
   saveInitiativeSchema,
   saveJbpTopicSchema,
   saveMilestoneSchema,
@@ -39,6 +44,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { type JbpScope, JbpService } from './jbp.service.js';
+import { JbpCommitmentsService } from './jbp-commitments.service.js';
 import { JbpInitiativesService } from './jbp-initiatives.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
 
@@ -322,3 +328,69 @@ export class BuyerJbpInitiativesController extends initiativeRoutes('buyer') {}
 /** Initiativen beim Lieferanten im Kontext des Kunden (JBP-03). */
 @Controller('kunden/:id/jbp/initiativen')
 export class SupplierJbpInitiativesController extends initiativeRoutes('supplier') {}
+
+/** JBP-05: Zusagen; dieselben Endpunkte je Seite. */
+function commitmentRoutes(side: Side) {
+  class SideCommitmentsController {
+    constructor(
+      @Inject(JbpService) readonly jbp: JbpService,
+      @Inject(JbpCommitmentsService) readonly commitments: JbpCommitmentsService,
+    ) {}
+
+    run<T>(auth: AuthContext, id: string, work: (scope: JbpScope) => Promise<T>) {
+      return side === 'buyer' ? this.jbp.buyer(auth, id, work) : this.jbp.supplier(auth, id, work);
+    }
+
+    @Get()
+    @Requires('jbp.sehen')
+    list(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<Commitments> {
+      return this.run(auth, id, (scope) => this.commitments.list(scope));
+    }
+
+    @Post()
+    @Requires('jbp.bearbeiten')
+    create(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Body(new ZodValidationPipe(saveCommitmentSchema)) body: SaveCommitment,
+    ): Promise<Commitments> {
+      return this.run(auth, id, (scope) => this.commitments.create(scope, body));
+    }
+
+    @Put(':commitmentId')
+    @Requires('jbp.bearbeiten')
+    update(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('commitmentId', ParseUUIDPipe) commitmentId: string,
+      @Body(new ZodValidationPipe(saveCommitmentSchema)) body: SaveCommitment,
+    ): Promise<Commitments> {
+      return this.run(auth, id, (scope) => this.commitments.update(scope, commitmentId, body));
+    }
+
+    @Put(':commitmentId/status')
+    @Requires('jbp.bearbeiten')
+    status(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('commitmentId', ParseUUIDPipe) commitmentId: string,
+      @Body(new ZodValidationPipe(commitmentStatusSchema)) body: SetCommitmentStatus,
+    ): Promise<Commitments> {
+      return this.run(auth, id, (scope) =>
+        this.commitments.setStatus(scope, commitmentId, body.status),
+      );
+    }
+  }
+  return SideCommitmentsController;
+}
+
+/** Zusagen beim Käufer (JBP-05). */
+@Controller('suppliers/:id/jbp/zusagen')
+export class BuyerJbpCommitmentsController extends commitmentRoutes('buyer') {}
+
+/** Zusagen beim Lieferanten im Kontext des Kunden (JBP-05). */
+@Controller('kunden/:id/jbp/zusagen')
+export class SupplierJbpCommitmentsController extends commitmentRoutes('supplier') {}

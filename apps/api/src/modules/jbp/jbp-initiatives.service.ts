@@ -30,6 +30,7 @@ import { actorOf } from '../audit/actor.js';
 import { initiativeAudit } from '../audit/audited-objects.js';
 import { can } from '../auth/can.js';
 import type { JbpScope } from './jbp.service.js';
+import { teamPeople } from './people.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -108,6 +109,8 @@ export class JbpInitiativesService {
       benefitSupplier: row.benefitSupplier,
       ownerBuyerName: row.ownerBuyerName,
       ownerSupplierName: row.ownerSupplierName,
+      ownerBuyerUserId: row.ownerBuyerUserId,
+      ownerSupplierUserId: row.ownerSupplierUserId,
       startsOn: row.startsOn,
       endsOn: row.endsOn,
       status: row.status,
@@ -134,6 +137,8 @@ export class JbpInitiativesService {
       hasPlan: Boolean(plan),
       approved: plan?.status === 'approved',
       canEdit: Boolean(plan) && this.canEdit(scope),
+      ownSide: scope.side,
+      people: await this.people(scope),
       initiatives: await this.load(tx, rows),
     });
   }
@@ -167,7 +172,23 @@ export class JbpInitiativesService {
       initiative,
       approved,
       canEdit: this.canEdit(scope),
+      ownSide: scope.side,
+      people: await this.people(scope),
     });
+  }
+
+  private people(scope: JbpScope) {
+    return this.canEdit(scope)
+      ? teamPeople(scope.tx, scope.relationshipId, scope.orgId, scope.auth.userId)
+      : Promise.resolve([]);
+  }
+
+  /** Die gewählte Person der eigenen Seite; sie muss zur eigenen Seite gehören. */
+  private async ownOwner(scope: JbpScope, userId: string | null | undefined) {
+    if (!userId) return null;
+    const person = (await this.people(scope)).find((entry) => entry.userId === userId);
+    if (!person) throw new BadRequestException({ statusCode: 400, code: 'person_unbekannt' });
+    return person;
   }
 
   /** Verlauf: vorher und nachher als Schnappschuss, Meilensteine als eine Zeile. */
@@ -232,6 +253,13 @@ export class JbpInitiativesService {
       .select({ name: schema.appUser.name })
       .from(schema.appUser)
       .where(eq(schema.appUser.id, scope.auth.userId));
+    const owner = await this.ownOwner(scope, input.ownerUserId);
+    const own = scope.side === 'buyer' ? 'Buyer' : 'Supplier';
+    const names = {
+      ownerBuyerName: input.ownerBuyerName,
+      ownerSupplierName: input.ownerSupplierName,
+      ...(owner ? { [`owner${own}Name`]: owner.name, [`owner${own}UserId`]: owner.userId } : {}),
+    };
     const id = crypto.randomUUID();
     await this.audited(scope, id, 'created', async () => {
       await tx.insert(schema.initiative).values({
@@ -244,8 +272,7 @@ export class JbpInitiativesService {
         goal: input.goal,
         benefitBuyer: input.benefitBuyer,
         benefitSupplier: input.benefitSupplier,
-        ownerBuyerName: input.ownerBuyerName,
-        ownerSupplierName: input.ownerSupplierName,
+        ...names,
         startsOn: input.startsOn,
         endsOn: input.endsOn,
         createdBy: scope.auth.userId,
@@ -271,19 +298,33 @@ export class JbpInitiativesService {
     return this.row(scope, initiativeId);
   }
 
+  /**
+   * Inhalte ändern. Den Verantwortlichen der anderen Seite pflegt nur sie selbst: Sein Name bleibt,
+   * wie er ist. Die eigene Seite wählt eine Person (app_initiative_owner) oder trägt einen Namen ein.
+   */
   async update(scope: JbpScope, initiativeId: string, input: SaveInitiative) {
-    const { approved } = await this.editable(scope, initiativeId);
+    const { row, approved } = await this.editable(scope, initiativeId);
     if (approved) throw approvedConflict();
     if (input.topicIds?.length) {
       throw new BadRequestException({ statusCode: 400, code: 'themen_nur_beim_anlegen' });
     }
-    await this.audited(scope, initiativeId, 'updated', () =>
-      this.call(() =>
+    const owner = await this.ownOwner(scope, input.ownerUserId);
+    const buyerSide = scope.side === 'buyer';
+    const ownName = owner?.name ?? (buyerSide ? input.ownerBuyerName : input.ownerSupplierName);
+    const ownerBuyerName = buyerSide ? ownName : row.ownerBuyerName;
+    const ownerSupplierName = buyerSide ? row.ownerSupplierName : ownName;
+    await this.audited(scope, initiativeId, 'updated', async () => {
+      await this.call(() =>
         scope.tx.execute(
-          sql`select app_initiative_save(${initiativeId}, ${input.title}, ${input.goal}, ${input.benefitBuyer}, ${input.benefitSupplier}, ${input.ownerBuyerName}, ${input.ownerSupplierName}, ${input.startsOn}::date, ${input.endsOn}::date)`,
+          sql`select app_initiative_save(${initiativeId}, ${input.title}, ${input.goal}, ${input.benefitBuyer}, ${input.benefitSupplier}, ${ownerBuyerName}, ${ownerSupplierName}, ${input.startsOn}::date, ${input.endsOn}::date)`,
         ),
-      ),
-    );
+      );
+      await this.call(() =>
+        scope.tx.execute(
+          sql`select app_initiative_owner(${initiativeId}, ${owner?.userId ?? null}, ${ownName})`,
+        ),
+      );
+    });
     return this.get(scope, initiativeId);
   }
 

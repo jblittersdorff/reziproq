@@ -43,6 +43,8 @@ const initiative = (n: number, extra: Partial<Initiative> = {}): Initiative => (
   benefitSupplier: 'Mehr Volumen',
   ownerBuyerName: 'Sara Ost',
   ownerSupplierName: 'Kim Kaiser',
+  ownerBuyerUserId: 'sara',
+  ownerSupplierUserId: null,
   startsOn: '2027-01-01',
   endsOn: '2027-12-31',
   status: 'planned',
@@ -54,10 +56,16 @@ const one = initiative(20, {
   milestones: [{ id: uuid(40), title: 'Muster frei', dueOn: '2027-07-02', doneOn: null }],
   topics: [{ id: uuid(50), title: 'Ausfälle senken', side: 'buyer' }],
 });
+const people = [
+  { userId: 'mia', name: 'Mia Mitglied' },
+  { userId: 'sara', name: 'Sara Ost' },
+];
 const list = (extra: Partial<Initiatives> = {}): Initiatives => ({
   hasPlan: true,
   approved: false,
   canEdit: true,
+  ownSide: 'buyer',
+  people,
   initiatives: [one],
   ...extra,
 });
@@ -105,7 +113,7 @@ beforeEach(() => {
   api.permissions = actionsFor.admin;
   sent = [];
   current = list();
-  detail = { initiative: one, approved: false, canEdit: true };
+  detail = { initiative: one, approved: false, canEdit: true, ownSide: 'buyer', people };
   api.handle = (request) => {
     if (request.url === `/api/suppliers/${rel}`) return Response.json(supplier);
     if (request.url.startsWith(`/api/suppliers/${rel}/overview`)) {
@@ -197,8 +205,8 @@ describe('JBP-03 Initiativen in der Oberfläche', () => {
     renderAt(`${base}/neu`);
     fireEvent.change(await screen.findByLabelText('Titel'), { target: { value: 'Neu' } });
     fireEvent.change(screen.getByLabelText('Ziel'), { target: { value: 'Ziel' } });
-    fireEvent.change(screen.getByLabelText('Verantwortlich beim Käufer'), {
-      target: { value: 'Sara Ost' },
+    fireEvent.change(screen.getByLabelText('Verantwortlich bei euch'), {
+      target: { value: 'sara' },
     });
     fireEvent.change(screen.getByLabelText('Verantwortlich beim Lieferanten'), {
       target: { value: 'Kim Kaiser' },
@@ -214,22 +222,29 @@ describe('JBP-03 Initiativen in der Oberfläche', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Initiative anlegen' }));
     await waitFor(() => expect(sent).toHaveLength(1));
+    // Die eigene Seite wählt eine Person; ihr Name geht mit, die andere Seite nur als Name.
     expect(sent[0]).toMatchObject({
       method: 'POST',
-      body: { benefitBuyer: 'Weniger Ausfälle', benefitSupplier: 'Mehr Volumen' },
+      body: {
+        benefitBuyer: 'Weniger Ausfälle',
+        benefitSupplier: 'Mehr Volumen',
+        ownerUserId: 'sara',
+        ownerBuyerName: 'Sara Ost',
+        ownerSupplierName: 'Kim Kaiser',
+      },
     });
   });
 
   it('nach der Freigabe gibt es kein Anlegen und Bearbeiten mehr, Status und Meilensteine schon', async () => {
     current = list({ approved: true });
-    detail = { initiative: one, approved: true, canEdit: true };
+    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people };
     renderAt(base);
     expect(await screen.findByText(/Der Plan ist freigegeben/)).toBeDefined();
     expect(screen.queryByRole('link', { name: 'Neue Initiative' })).toBeNull();
   });
 
   it('die Initiative zeigt Status, Meilensteine, Herkunft und Verlauf; Status lässt sich ändern', async () => {
-    detail = { initiative: one, approved: true, canEdit: true };
+    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people };
     renderAt(`${base}/${uuid(20)}`);
     expect(await screen.findByRole('heading', { level: 2, name: 'Verlauf' })).toBeDefined();
     expect(screen.queryByRole('link', { name: 'Bearbeiten' })).toBeNull();
@@ -272,7 +287,7 @@ describe('JBP-03 Initiativen in der Oberfläche', () => {
     for (const [label, value] of [
       [/^Nutzen für den Käufer/, 'A'],
       [/^Nutzen für den Lieferanten/, 'B'],
-      ['Verantwortlich beim Käufer', 'Sara Ost'],
+      ['Verantwortlich bei euch', 'mia'],
       ['Verantwortlich beim Lieferanten', 'Kim Kaiser'],
     ] as const) {
       fireEvent.change(screen.getByLabelText(label), { target: { value } });
