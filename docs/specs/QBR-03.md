@@ -39,12 +39,29 @@ Beide Seiten halten Maßnahmen mit Verantwortlichen und Fristen fest und sehen j
 
 Je Kriterium ein Test.
 
-- [ ] Jede Maßnahme hat genau eine Quelle.
-- [ ] Eine geteilte Maßnahme hat keinen Fremdschlüssel auf eine private Quelle (Prüfung aus PLT-04).
-- [ ] Interne Maßnahmen sieht die andere Seite nie.
-- [ ] Der SRO sieht auf `/start/massnahmen` alle offenen Maßnahmen seiner Beziehungen.
-- [ ] Überfällige Maßnahmen sind markiert und erscheinen auf Start der verantwortlichen Person.
-- [ ] Änderungen geteilter Maßnahmen stehen im Verlauf.
+- [x] Jede Maßnahme hat genau eine Quelle.
+- [x] Eine geteilte Maßnahme hat keinen Fremdschlüssel auf eine private Quelle (Prüfung aus PLT-04).
+- [x] Interne Maßnahmen sieht die andere Seite nie.
+- [x] Der SRO sieht auf `/start/massnahmen` alle offenen Maßnahmen seiner Beziehungen.
+- [x] Überfällige Maßnahmen sind markiert und erscheinen auf Start der verantwortlichen Person.
+- [x] Änderungen geteilter Maßnahmen stehen im Verlauf.
+
+## Umgesetzt mit (PR zu QBR-03)
+
+- **Status über die Seiten hinweg:**
+  - Eine geteilte Maßnahme gehört der Seite, die sie angelegt hat (PLT-04).
+  - Ihren Status ändert die andere Seite über die Funktion `app_massnahme_status`. Sie läuft als enge Rolle `reziproq_massnahmen`, darf nur `status`, `done_at` und `updated_at` schreiben und prüft die Partei samt Kundenkontext.
+- **Frist ist Pflicht:** Nur so erscheint jede offene Maßnahme unter „Fällig bei mir“.
+- **Verantwortlich:**
+  - auf der eigenen Seite eine Person aus dem Team der Beziehung (oder man selbst)
+  - auf der anderen Seite ein Name ohne ID
+- **Quellen:**
+  - Die Oberfläche legt heute `manual` und `meeting` an. Die Prüfung `action_one_source` steht in der Datenbank.
+  - `action_private_source` ist angelegt und wartet auf FS-01.
+- **Verlauf:** Geteilte Maßnahmen schreiben `action`, interne `action_internal`.
+- **Live-Abschnitt:** Offene Maßnahmen erscheinen im Termin (QBR-01b) und werden beim Abschließen eingefroren.
+- **Kennzahl im Überblick:** „n offen · m überfällig“; ohne Offene keine Kennzahl.
+- **Ein Klick von Start:** Der Link aus Start und `/start/massnahmen` führt zur Zeile in der Liste (`…/massnahmen#<id>`).
 
 ## Nicht Teil dieser Funktion
 

@@ -102,8 +102,9 @@ export const liveSectionSchema = z.object({
     z.object({
       id: z.string(),
       title: z.string(),
-      /** z. B. „offen · bis 12.03.“ */
+      /** Statusschlüssel der Quelle, z. B. open; die Oberfläche übersetzt ihn */
       status: z.string().nullable(),
+      dueDate: z.iso.date().nullable().default(null),
     }),
   ),
 });

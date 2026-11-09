@@ -168,7 +168,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
       Beziehung: ['Team', 'Spielregeln'],
-      Umsetzung: ['Termine'],
+      Umsetzung: ['Termine', 'Maßnahmen'],
     };
     for (const [area, titles] of Object.entries(expected)) {
       const section = await screen.findByRole('region', { name: area });

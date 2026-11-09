@@ -132,6 +132,27 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // QBR-03: Maßnahmen, geteilt oder intern; private Quellen gehören einer Seite.
+  action: {
+    kind: 'shared',
+    testValues: {
+      title: 'Probe',
+      owner_side: 'buyer',
+      owner_name: 'Probe',
+      due_date: '2099-01-01',
+      source_type: 'manual',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    },
+  },
+  action_private_source: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      action_id: buyer && probe('action', buyer),
+      source_type: 'hint',
+      source_id: '0190a0a0-0000-7000-8000-000000000001',
+    }),
+  },
   // QBR-01b: eingefrorener Stand beim Abschließen, geteilt wie der Termin.
   meeting_snapshot: {
     kind: 'shared',

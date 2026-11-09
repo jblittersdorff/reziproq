@@ -200,6 +200,19 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'massnahmen.sehen': async (user) => {
+      const { status } = await request(user, 'GET', '/api/start/massnahmen');
+      return status;
+    },
+    'massnahmen.bearbeiten': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/massnahmen/00000000-0000-4000-8000-000000000000/status',
+        { status: 'done' },
+      );
+      return status === 404 ? 200 : status;
+    },
     'termine.bearbeiten': async (user) => {
       const { status } = await request(
         user,

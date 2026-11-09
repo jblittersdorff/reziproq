@@ -133,6 +133,10 @@ function PageStatus({ page, metrics }: { page: PageKey; metrics: OverviewMetric[
   const target = metric('segment_target');
   const spend = metric('spend');
   const team = metric('team_size');
+  const actions = metric('actions');
+  if (page === 'actions' && actions?.kind === 'actions') {
+    return t.actions.metric(actions.open, actions.overdue);
+  }
   if (page === 'segmentation' && target?.kind === 'segment_target') {
     return `${t.workspace.metrics.target(target.provisional)}: ${target.typeName}`;
   }

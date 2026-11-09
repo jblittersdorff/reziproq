@@ -32,6 +32,7 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
     return t.start.dueCycle(step);
   }
   if (item.kind === 'contribution') return t.start.dueContribution(item.detail);
+  if (item.kind === 'action') return t.start.dueAction(item.detail);
   return t.start.dueRating(item.detail);
 }
 
@@ -165,6 +166,19 @@ export function StartPage() {
                     );
                   })}
                 </ol>
+                {routerLink({
+                  href: '/start/massnahmen',
+                  className: cn(
+                    buttonVariants({ variant: 'link' }),
+                    'self-start px-0 has-[>svg]:px-0',
+                  ),
+                  children: (
+                    <>
+                      {t.actions.mine.link}
+                      <ChevronRightIcon aria-hidden />
+                    </>
+                  ),
+                })}
                 {data.due.total > data.due.items.length &&
                   routerLink({
                     href: '/start/faellig',

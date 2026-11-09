@@ -90,6 +90,8 @@ describe('PLT-02 in der Datenbank', () => {
       order by c.relname
     `);
     expect(tables.rows.map((row) => row.relname)).toEqual([
+      'action',
+      'action_private_source',
       'app_user',
       'audit_event',
       'business_unit',

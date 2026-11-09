@@ -12,3 +12,4 @@ export * from './segment.js';
 export * from './supplier-contact.js';
 export * from './supplier-plan.js';
 export * from './support-access-log.js';
+export * from './action.js';

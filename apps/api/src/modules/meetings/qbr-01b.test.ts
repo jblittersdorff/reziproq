@@ -32,7 +32,7 @@ describe('QBR-01b Termine abschließen und Termin-Quelle', () => {
     key: 'actions',
     read: async () => ({
       key: 'actions',
-      items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: live.status }],
+      items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: live.status, dueDate: null }],
     }),
   };
 
@@ -144,7 +144,10 @@ describe('QBR-01b Termine abschließen und Termin-Quelle', () => {
   it('die Live-Abschnitte zeigen den aktuellen Stand aus ihrem Ort, auf beiden Seiten', async () => {
     expect((await detail(users.sro, buyer)).live).toEqual({
       sections: [
-        { key: 'actions', items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: 'offen' }] },
+        {
+          key: 'actions',
+          items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: 'offen', dueDate: null }],
+        },
       ],
       frozenAt: null,
     });

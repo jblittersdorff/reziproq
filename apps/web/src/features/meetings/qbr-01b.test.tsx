@@ -57,7 +57,10 @@ const open = (): MeetingDetail => ({
   canContribute: true,
   live: {
     sections: [
-      { key: 'actions', items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: 'offen' }] },
+      {
+        key: 'actions',
+        items: [{ id: 'a1', title: 'Zweitquelle Gehäuse', status: 'offen', dueDate: null }],
+      },
     ],
     frozenAt: null,
   },

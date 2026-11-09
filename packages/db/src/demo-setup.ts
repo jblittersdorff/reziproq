@@ -86,6 +86,15 @@ async function takeOver(
       where created_by in ${ids}
     `);
     await tx.execute(sql`set local session_replication_role = origin`);
+    // QBR-03: verantwortliche Person und wer angelegt hat.
+    await tx.execute(sql`
+      update action set owner_user_id = ${account.id}, owner_name = ${account.name}
+      where owner_user_id in ${ids}
+    `);
+    await tx.execute(sql`
+      update action set created_by = ${account.id}, created_by_name = ${account.name}
+      where created_by in ${ids}
+    `);
     await tx.execute(sql`delete from relationship_member where user_id in ${ids}`);
     await tx.execute(sql`delete from app_user where id in ${ids}`);
   }
