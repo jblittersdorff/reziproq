@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { personSchema } from './commitments.js';
+import { maturitySchema } from './impact.js';
+import { initiativeSources } from './levers.js';
 import { meetingSides } from './meetings.js';
 
 // JBP-03: Gemeinsame Initiativen mit Meilensteinen und Roadmap, für beide Seiten gleich.
@@ -29,6 +31,8 @@ export const initiativeSchema = z.object({
   startsOn: z.iso.date(),
   endsOn: z.iso.date(),
   status: z.enum(initiativeStatuses),
+  /** PNL-01: Herkunft; vom Lieferanten angelegt ist sie eine Lieferantenidee */
+  source: z.enum(initiativeSources),
   milestones: z.array(initiativeMilestoneSchema),
   /** Herkunfts-Themen aus dem Zusammenführen (JBP-02) */
   topics: z.array(z.object({ id: z.uuid(), title: z.string(), side: z.enum(meetingSides) })),
@@ -50,6 +54,10 @@ export type Initiatives = z.infer<typeof initiativesSchema>;
 
 export const initiativeDetailSchema = z.object({
   initiative: initiativeSchema,
+  /** PNL-03: Reifegrad mit Stufen und Nachweisen, für beide Seiten */
+  maturity: maturitySchema,
+  /** Nur beim Käufer: Wirkung eingerichtet (Betrag folgt mit PNL-05) */
+  impact: z.object({ effectType: z.string(), lever: z.string() }).nullable(),
   approved: z.boolean(),
   canEdit: z.boolean(),
   ownSide: z.enum(meetingSides),

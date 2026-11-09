@@ -10,6 +10,7 @@ import { CustomersModule } from './modules/customers/customers.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { ImpactModule } from './modules/impact/impact.module.js';
 import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { JbpModule } from './modules/jbp/jbp.module.js';
 import { MasterDataModule } from './modules/master-data/master-data.module.js';
@@ -59,6 +60,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     MeetingsModule,
     ActionsModule,
     JbpModule,
+    ImpactModule,
     ...(env.NODE_ENV === 'production'
       ? [ServeStaticModule.forRoot({ rootPath: webDist, exclude: ['/api/{*path}'] })]
       : []),

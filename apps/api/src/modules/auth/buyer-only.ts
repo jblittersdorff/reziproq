@@ -28,4 +28,6 @@ export const buyerOnlyActions: readonly Action[] = [
   'spielregeln.sehen',
   'spielregeln.verwalten',
   'spielregeln.festlegen',
+  'wirkung.sehen',
+  'wirkung.bearbeiten',
 ];

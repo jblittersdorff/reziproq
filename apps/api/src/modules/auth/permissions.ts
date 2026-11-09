@@ -178,4 +178,14 @@ export const permissions: Record<Action, Permission> = {
     roles: [],
     operator: true,
   },
+  'wirkung.sehen': {
+    description: 'GuV-Wirkung der Initiativen, Baseline und Reifegrad sehen (nur Käufer)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'wirkung.bearbeiten': {
+    description:
+      'Wirkung einrichten, Baseline einfrieren, Reifegrad mit Nachweis erhöhen (nur Käufer, nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
 };

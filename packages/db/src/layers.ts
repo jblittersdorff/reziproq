@@ -76,6 +76,8 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     testValues: { step: 'feedback', weeks_relative_to_jbp: -8 },
   },
+  // PNL-01: GuV-Zeilen je Organisation.
+  pnl_line: { kind: 'org_private', testValues: { key: 'probe', name: 'Probe', position: 99 } },
   // JBP-09: Toleranz „knapp“ je Kunde.
   scorecard_setting: { kind: 'org_private', testValues: { tolerance_percent: 10 } },
   cycle_reminder_sent: {
@@ -261,6 +263,42 @@ export const layerRegister: Record<string, LayerEntry> = {
       side: 'buyer',
       user_id: 'demo-test-oem-1',
       user_name: 'Probe',
+    }),
+  },
+  // PNL-01, PNL-03: Wirkung, Baseline (käuferprivat) und Reifegrad (geteilt) je Initiative.
+  initiative_impact: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      lever: 'price',
+      lever_template_version: 1,
+      pnl_line_key: 'material',
+      effect_type: 'ebit',
+      created_by: 'demo-test-oem-1',
+    }),
+  },
+  initiative_baseline: {
+    kind: 'buyer_private',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      version: 1,
+      lever_template_version: 1,
+      inputs: JSON.stringify({ price_old: '1000' }),
+      frozen_by: 'demo-test-oem-1',
+      frozen_by_name: 'Probe',
+    }),
+  },
+  maturity_step: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      from_level: 1,
+      to_level: 2,
+      evidence: 'Probe',
+      decided_by: 'demo-test-oem-1',
+      decided_by_name: 'Probe',
     }),
   },
   // JBP-09: Ist-Werte je Kennzahl und Monat.

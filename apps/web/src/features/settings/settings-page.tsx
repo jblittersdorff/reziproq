@@ -1,4 +1,4 @@
-import { Building2Icon, CalendarRangeIcon } from 'lucide-react';
+import { Building2Icon, CalendarRangeIcon, ReceiptEuroIcon } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
@@ -43,6 +43,15 @@ export function SettingsPage() {
             icon={<CalendarRangeIcon aria-hidden />}
             renderLink={routerLink}
           />
+          {permissions.viewBuyerAreas && (
+            <SettingsLinkRow
+              href="/einstellungen/guv-zeilen"
+              label={t.settings.pnlLines.navTitle}
+              description={t.settings.pnlLines.navHint}
+              icon={<ReceiptEuroIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
           {permissions.viewBuyerAreas && <MasterDataLinks />}
         </SettingsGroup>
       )}

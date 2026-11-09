@@ -60,6 +60,8 @@ export const actions = [
   'jbp.sehen',
   'jbp.anlegen',
   'jbp.bearbeiten',
+  'wirkung.sehen',
+  'wirkung.bearbeiten',
 ] as const;
 export type Action = (typeof actions)[number];
 

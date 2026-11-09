@@ -142,12 +142,13 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
     const links = within(localBar()).getAllByRole('listitem');
-    // Wirkung hat noch keine Unterseite und fehlt.
+    // Wirkung hat seit PNL-01 die Unterseite Initiativen.
     expect(links.map((item) => item.textContent)).toEqual([
       'Strategie',
       'Beziehung',
       'Gemeinsamer Plan',
       'Umsetzung',
+      'Wirkung',
     ]);
     // Der Name steht links in der Leiste und führt zum Überblick.
     expect(within(localBar()).getByRole('link', { name: detail.name }).getAttribute('href')).toBe(
@@ -174,7 +175,14 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
       Beziehung: ['Team', 'Spielregeln'],
-      'Gemeinsamer Plan': ['Vorbereitung', 'Themen', 'Initiativen', 'Zusagen', 'Freigabe', 'Scorecard'],
+      'Gemeinsamer Plan': [
+        'Vorbereitung',
+        'Themen',
+        'Initiativen',
+        'Zusagen',
+        'Freigabe',
+        'Scorecard',
+      ],
       Umsetzung: ['Termine', 'Maßnahmen'],
     };
     for (const [area, titles] of Object.entries(expected)) {
@@ -186,7 +194,14 @@ describe('Arbeitsbereich eines Lieferanten', () => {
           .map((link) => link.querySelector('span')?.textContent),
       ).toEqual(titles);
     }
-    expect(screen.queryByRole('region', { name: 'Wirkung' })).toBeNull();
+    // Wirkung (PNL-01) ist intern und führt zu den Initiativen.
+    const impact = screen.getByRole('region', { name: 'Wirkung' });
+    expect(impact.querySelector('[data-visibility="internal"]')).not.toBeNull();
+    expect(
+      within(impact)
+        .getByRole('link', { name: /^Wirkung je Initiative/ })
+        .getAttribute('href'),
+    ).toBe(`${base}/wirkung/initiativen`);
     expect(document.body.textContent).not.toMatch(/Kommt (mit|nach) Release/);
   });
 

@@ -47,6 +47,8 @@ export const initiative = pgTable(
     startsOn: date().notNull(),
     endsOn: date().notNull(),
     status: text({ enum: initiativeStatuses }).notNull().default('planned'),
+    // PNL-01: Woher die Initiative kommt; vom Lieferanten angelegt ist sie eine Lieferantenidee.
+    source: text({ enum: ['jbp', 'action', 'supplier_idea'] }).notNull().default('jbp'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -54,6 +56,7 @@ export const initiative = pgTable(
   },
   (table) => [
     check('initiative_status', sql`${table.status} in ('planned', 'running', 'done', 'stopped')`),
+    check('initiative_source', sql`${table.source} in ('jbp', 'action', 'supplier_idea')`),
     check('initiative_title', sql`length(trim(${table.title})) between 1 and 200`),
     check('initiative_goal', sql`length(trim(${table.goal})) between 1 and 2000`),
     // Nutzen für beide Seiten ist Pflicht (JBP-03).

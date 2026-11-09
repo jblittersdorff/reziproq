@@ -209,7 +209,7 @@ function AreaTile({
         // Die klebenden Leisten verdecken sonst den Titel, wenn die Seite zum Abschnitt springt.
         className="min-h-72 scroll-mt-32 gap-2"
       >
-        {area === 'strategy' ? (
+        {area === 'strategy' || area === 'impact' ? (
           <VisibilityBadge visibility="internal" label={t.workspace.internal} />
         ) : (
           // Kurz wie im Entwurf A2: „Geteilt mit Rheintal“.
@@ -277,6 +277,9 @@ function useAreaStatement(area: WorkspaceArea, head: WorkspaceHead, metrics: Ove
           big: false,
         }
       : { statement: text.rulesEmpty, detail: teamText, big: false };
+  }
+  if (area === 'impact') {
+    return { statement: text.impact, detail: text.impactText, big: false };
   }
   if (area === 'plan') {
     const plan = find('jbp');
