@@ -37,9 +37,12 @@ import {
   type ImportPreview,
   type ImportResult,
   type ImportType,
+  type InitiativeStatus,
   type InviteSupplierRequest,
   importPreviewSchema,
   importResultSchema,
+  initiativeDetailSchema,
+  initiativesSchema,
   invitationListSchema,
   jbpPreparationSchema,
   jbpTopicCandidatesSchema,
@@ -81,8 +84,10 @@ import {
   type SaveAction,
   type SaveAgenda,
   type SaveFormatItem,
+  type SaveInitiative,
   type SaveJbpTopic,
   type SaveMeetingNote,
+  type SaveMilestone,
   type SaveProtocol,
   type SaveRating,
   type SaveRuleItem,
@@ -350,12 +355,22 @@ export const organizationQueryOptions = (accessToken: string) =>
   });
 
 /** Verlauf eines Objekts (PLT-08), neueste zuerst. */
-export const auditQueryOptions = (accessToken: string, objectType: string, objectId: string) =>
+export const auditQueryOptions = (
+  accessToken: string,
+  objectType: string,
+  objectId: string,
+  /** Lieferantenseite: Verlauf im Kontext dieses Kunden (JBP-03) */
+  relationshipId?: string,
+) =>
   queryOptions({
     queryKey: ['audit', objectType, objectId],
     queryFn: () =>
       getJson(
-        `/audit?${new URLSearchParams({ object_type: objectType, object_id: objectId })}`,
+        `/audit?${new URLSearchParams({
+          object_type: objectType,
+          object_id: objectId,
+          ...(relationshipId ? { relationship_id: relationshipId } : {}),
+        })}`,
         auditResponseSchema,
         accessToken,
       ),
@@ -377,7 +392,7 @@ export const memberQueryOptions = (accessToken: string, userId: string) =>
 
 /** Schreibt über die API und prüft die Antwort; Fehler kommen mit Status und Antwort zurück. */
 async function sendJson<T extends z.ZodType>(
-  method: 'POST' | 'PATCH' | 'PUT',
+  method: 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   path: string,
   body: unknown,
   schema: T,
@@ -1348,6 +1363,88 @@ export const reorderJbpTopics = (accessToken: string, base: MeetingBase, ids: st
 
 export const importJbpTopics = (accessToken: string, base: MeetingBase, request: ImportJbpTopics) =>
   sendJson('POST', `${base}/jbp/themen/uebernehmen`, request, jbpTopicsSchema, accessToken);
+
+/** JBP-03: Initiativen und Roadmap, je Seite unter ihrer Basis. */
+export const initiativesQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', 'initiatives', base],
+    queryFn: () => getJson(`${base}/jbp/initiativen`, initiativesSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const initiativeQueryOptions = (accessToken: string, base: MeetingBase, id: string) =>
+  queryOptions({
+    queryKey: ['jbp', 'initiatives', base, id],
+    queryFn: () => getJson(`${base}/jbp/initiativen/${id}`, initiativeDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createInitiative = (accessToken: string, base: MeetingBase, request: SaveInitiative) =>
+  sendJson('POST', `${base}/jbp/initiativen`, request, initiativeDetailSchema, accessToken);
+
+export const updateInitiative = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  request: SaveInitiative,
+) => sendJson('PUT', `${base}/jbp/initiativen/${id}`, request, initiativeDetailSchema, accessToken);
+
+export const setInitiativeStatus = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  status: InitiativeStatus,
+) =>
+  sendJson(
+    'PUT',
+    `${base}/jbp/initiativen/${id}/status`,
+    { status },
+    initiativeDetailSchema,
+    accessToken,
+  );
+
+export const addMilestone = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  request: SaveMilestone,
+) =>
+  sendJson(
+    'POST',
+    `${base}/jbp/initiativen/${id}/meilensteine`,
+    request,
+    initiativeDetailSchema,
+    accessToken,
+  );
+
+export const updateMilestone = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  milestoneId: string,
+  request: SaveMilestone,
+) =>
+  sendJson(
+    'PUT',
+    `${base}/jbp/initiativen/${id}/meilensteine/${milestoneId}`,
+    request,
+    initiativeDetailSchema,
+    accessToken,
+  );
+
+export const deleteMilestone = (
+  accessToken: string,
+  base: MeetingBase,
+  id: string,
+  milestoneId: string,
+) =>
+  sendJson(
+    'DELETE',
+    `${base}/jbp/initiativen/${id}/meilensteine/${milestoneId}`,
+    {},
+    initiativeDetailSchema,
+    accessToken,
+  );
 
 /** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
 export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>

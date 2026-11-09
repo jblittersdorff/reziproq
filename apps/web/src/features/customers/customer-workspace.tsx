@@ -10,6 +10,7 @@ import {
   ListOrderedIcon,
   ScaleIcon,
   SearchXIcon,
+  TargetIcon,
 } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -205,6 +206,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: t.jbp.topics.title,
               status: t.jbp.topics.purpose,
             },
+            {
+              key: 'initiatives',
+              href: `${customerPath(relationshipId, 'plan')}/initiativen`,
+              title: t.jbp.initiatives.title,
+              status: t.jbp.initiatives.purpose,
+            },
           ]}
         />
       </section>
@@ -299,6 +306,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.jbp.topics.title}</TileTitle>
               <TileText>{t.jbp.topics.purpose}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/initiativen" params={{ id: relationshipId }}>
+              <TileIcon>
+                <TargetIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.initiatives.title}</TileTitle>
+              <TileText>{t.jbp.initiatives.purpose}</TileText>
             </Link>
           </Tile>
         </div>

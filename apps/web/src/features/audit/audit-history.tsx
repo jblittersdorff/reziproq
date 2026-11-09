@@ -11,13 +11,22 @@ import { formatAuditEntry } from './format';
  * Verlauf eines Objekts (PLT-08): lädt die Einträge und zeigt sie mit dem Baustein Verlauf.
  * Welche Einträge sichtbar sind, entscheidet die Datenbank wie beim Objekt selbst.
  */
-export function AuditHistory({ objectType, objectId }: { objectType: string; objectId: string }) {
+export function AuditHistory({
+  objectType,
+  objectId,
+  relationshipId,
+}: {
+  objectType: string;
+  objectId: string;
+  /** Lieferantenseite: Verlauf im Kontext des Kunden (JBP-03) */
+  relationshipId?: string;
+}) {
   const t = useT();
   const format = useFormat();
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const history = useQuery({
-    ...auditQueryOptions(accessToken, objectType, objectId),
+    ...auditQueryOptions(accessToken, objectType, objectId, relationshipId),
     enabled: accessToken !== '',
   });
 

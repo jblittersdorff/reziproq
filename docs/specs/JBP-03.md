@@ -41,16 +41,25 @@ Beide Seiten legen gemeinsame Initiativen mit Ziel, Nutzen für beide, Verantwor
    - Weiter zur neuen Initiative, vorbefüllt
    - Die Themen stehen danach auf `merged` und sind über `initiative_topic` mit der Initiative verknüpft.
 
+## Umsetzung
+
+- Alle Änderungen an Initiativen und Meilensteinen laufen über Funktionen mit der engen Rolle
+  `reziproq_initiativen` (Migration 0046): `app_initiative_save` lehnt Inhalte nach der Freigabe ab,
+  `app_initiative_status`, `app_initiative_milestone_save` und `_delete` bleiben möglich,
+  `app_jbp_topic_merge` setzt Themen beider Seiten auf `merged`.
+- Verantwortliche stehen beidseitig als Namen (`owner_*_name`); die Nutzer-IDs bleiben vorerst leer.
+- Der Verlauf der Lieferantenseite liest `GET /api/audit` mit `relationship_id` im Kontext des Kunden.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Ohne Nutzen für beide Seiten lässt sich keine Initiative speichern.
-- [ ] Die Roadmap zeigt alle Initiativen mit richtigen Zeiträumen und Meilensteinen. Ein Klick öffnet die Initiative.
-- [ ] Nach der Freigabe sind nur Status und Meilensteine änderbar.
-- [ ] Jede Änderung steht im Verlauf, für beide Seiten sichtbar.
-- [ ] Die Roadmap ist mit 15 Initiativen über drei Jahre lesbar.
-- [ ] Zusammenführen setzt die Themen auf `merged` und verknüpft sie über `initiative_topic` mit der Initiative.
+- [x] Ohne Nutzen für beide Seiten lässt sich keine Initiative speichern.
+- [x] Die Roadmap zeigt alle Initiativen mit richtigen Zeiträumen und Meilensteinen. Ein Klick öffnet die Initiative.
+- [x] Nach der Freigabe sind nur Status und Meilensteine änderbar.
+- [x] Jede Änderung steht im Verlauf, für beide Seiten sichtbar.
+- [x] Die Roadmap ist mit 15 Initiativen über drei Jahre lesbar.
+- [x] Zusammenführen setzt die Themen auf `merged` und verknüpft sie über `initiative_topic` mit der Initiative.
 
 ## Nicht Teil dieser Funktion
 

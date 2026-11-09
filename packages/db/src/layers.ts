@@ -177,6 +177,38 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by_name: 'Probe',
     }),
   },
+  // JBP-03: Initiativen mit Meilensteinen und Herkunfts-Themen.
+  initiative: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      title: 'Probe',
+      goal: 'Probe',
+      benefit_buyer: 'Probe',
+      benefit_supplier: 'Probe',
+      owner_buyer_name: 'Probe',
+      owner_supplier_name: 'Probe',
+      starts_on: '2027-01-01',
+      ends_on: '2027-12-31',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    }),
+  },
+  initiative_topic: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      jbp_topic_id: buyer && probe('jbp_topic', buyer),
+    }),
+  },
+  initiative_milestone: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      title: 'Probe',
+      due_on: '2027-06-30',
+    }),
+  },
   jbp_business_update: {
     kind: 'shared',
     testValues: ({ buyer, probe }) => ({

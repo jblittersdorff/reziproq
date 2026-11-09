@@ -174,7 +174,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
       Beziehung: ['Team', 'Spielregeln'],
-      'Gemeinsamer Plan': ['Vorbereitung', 'Themen'],
+      'Gemeinsamer Plan': ['Vorbereitung', 'Themen', 'Initiativen'],
       Umsetzung: ['Termine', 'Maßnahmen'],
     };
     for (const [area, titles] of Object.entries(expected)) {

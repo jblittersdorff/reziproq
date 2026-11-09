@@ -114,6 +114,13 @@ function TopicsContent({ place }: { place: MeetingPlace }) {
               className: buttonVariants({ variant: 'outline' }),
               children: text.import,
             })}
+          {/* JBP-03: offene Themen beider Seiten zu einer Initiative zusammenführen */}
+          {[...data.buyer, ...data.supplier].some((topic) => topic.status === 'proposed') &&
+            routerLink({
+              href: `${topicsPath(place)}/zusammenfuehren`,
+              className: buttonVariants({ variant: 'outline' }),
+              children: text.merge,
+            })}
         </div>
       )}
       {failed && <p className="text-destructive">{text.saveFailed}</p>}
@@ -207,6 +214,7 @@ function TopicRow({
           {topic.origin && (
             <span className="text-muted-foreground text-sm">{text.origin(topic.origin.title)}</span>
           )}
+          {topic.status === 'merged' && <Badge variant="selected">{text.merged}</Badge>}
           {parked && topic.parkReason && (
             <Badge variant="neutral">{text.parkedReason(topic.parkReason)}</Badge>
           )}
