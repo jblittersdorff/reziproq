@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, index, integer, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { meeting } from './meeting.js';
 import { organization } from './organization.js';
 import { cycle, relationship } from './relationship.js';
@@ -141,4 +151,63 @@ export const jbpTopicOrigin = pgTable(
       .references(() => strategicTopic.id, { onDelete: 'cascade' }),
   },
   (table) => [unique('jbp_topic_origin_once').on(table.jbpTopicId)],
+);
+
+/**
+ * JBP-06: Entscheidung einer Seite über eine Version des Gemeinsamen Plans, geteilt und nur
+ * anfügbar. Zurückgeben verlangt eine Begründung.
+ */
+export const jbpApproval = pgTable(
+  'jbp_approval',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    jbpId: uuid()
+      .notNull()
+      .references(() => jbp.id, { onDelete: 'cascade' }),
+    version: integer().notNull(),
+    side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    userId: text().notNull(),
+    userName: text().notNull(),
+    decision: text({ enum: ['approved', 'returned'] }).notNull(),
+    comment: text(),
+    decidedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('jbp_approval_side', sql`${table.side} in ('buyer', 'supplier')`),
+    check('jbp_approval_decision', sql`${table.decision} in ('approved', 'returned')`),
+    check(
+      'jbp_approval_comment',
+      sql`${table.decision} <> 'returned' or length(trim(coalesce(${table.comment}, ''))) > 0`,
+    ),
+    index('jbp_approval_jbp').on(table.jbpId, table.version, table.decidedAt),
+  ],
+);
+
+/** JBP-06: Eingefrorener Inhalt einer freigegebenen Version (Themen, Initiativen, Zusagen). */
+export const jbpVersion = pgTable(
+  'jbp_version',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    jbpId: uuid()
+      .notNull()
+      .references(() => jbp.id, { onDelete: 'cascade' }),
+    version: integer().notNull(),
+    content: jsonb().notNull(),
+    approvedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('jbp_version_jbp').on(table.jbpId, table.version)],
 );

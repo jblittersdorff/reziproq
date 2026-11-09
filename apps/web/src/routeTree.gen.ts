@@ -79,9 +79,13 @@ import { Route as AppEinstellungenZielkategorienKeyBearbeitenRouteImport } from 
 import { Route as AppKundenIdBeziehungIndexRouteImport } from './routes/_app/kunden/$id/beziehung/index'
 import { Route as AppKundenIdBeziehungSpielregelnRouteImport } from './routes/_app/kunden/$id/beziehung/spielregeln'
 import { Route as AppKundenIdPlanIndexRouteImport } from './routes/_app/kunden/$id/plan/index'
+import { Route as AppKundenIdPlanFreigabeRouteImport } from './routes/_app/kunden/$id/plan/freigabe'
+import { Route as AppKundenIdPlanVersionenRouteImport } from './routes/_app/kunden/$id/plan/versionen'
 import { Route as AppKundenIdUmsetzungIndexRouteImport } from './routes/_app/kunden/$id/umsetzung/index'
 import { Route as AppLieferantenIdBeziehungIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/index'
 import { Route as AppLieferantenIdPlanIndexRouteImport } from './routes/_app/lieferanten/$id/plan/index'
+import { Route as AppLieferantenIdPlanFreigabeRouteImport } from './routes/_app/lieferanten/$id/plan/freigabe'
+import { Route as AppLieferantenIdPlanVersionenRouteImport } from './routes/_app/lieferanten/$id/plan/versionen'
 import { Route as AppLieferantenIdStrategieIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/index'
 import { Route as AppLieferantenIdStrategieLieferantenplanRouteRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/route'
 import { Route as AppLieferantenIdUmsetzungIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/index'
@@ -546,6 +550,17 @@ const AppKundenIdPlanIndexRoute = AppKundenIdPlanIndexRouteImport.update({
   path: '/plan/',
   getParentRoute: () => AppKundenIdRouteRoute,
 } as any)
+const AppKundenIdPlanFreigabeRoute = AppKundenIdPlanFreigabeRouteImport.update({
+  id: '/plan/freigabe',
+  path: '/plan/freigabe',
+  getParentRoute: () => AppKundenIdRouteRoute,
+} as any)
+const AppKundenIdPlanVersionenRoute =
+  AppKundenIdPlanVersionenRouteImport.update({
+    id: '/plan/versionen',
+    path: '/plan/versionen',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
 const AppKundenIdUmsetzungIndexRoute =
   AppKundenIdUmsetzungIndexRouteImport.update({
     id: '/umsetzung/',
@@ -562,6 +577,18 @@ const AppLieferantenIdPlanIndexRoute =
   AppLieferantenIdPlanIndexRouteImport.update({
     id: '/plan/',
     path: '/plan/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanFreigabeRoute =
+  AppLieferantenIdPlanFreigabeRouteImport.update({
+    id: '/plan/freigabe',
+    path: '/plan/freigabe',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdPlanVersionenRoute =
+  AppLieferantenIdPlanVersionenRouteImport.update({
+    id: '/plan/versionen',
+    path: '/plan/versionen',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdStrategieIndexRoute =
@@ -1144,6 +1171,10 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/kunden/$id/beziehung/spielregeln': typeof AppKundenIdBeziehungSpielregelnRoute
+  '/kunden/$id/plan/freigabe': typeof AppKundenIdPlanFreigabeRoute
+  '/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
+  '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
+  '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -1298,6 +1329,10 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/kunden/$id/beziehung/spielregeln': typeof AppKundenIdBeziehungSpielregelnRoute
+  '/kunden/$id/plan/freigabe': typeof AppKundenIdPlanFreigabeRoute
+  '/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
+  '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
+  '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -1458,6 +1493,10 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/$id/bearbeiten': typeof AppEinstellungenWarengruppenIdBearbeitenRoute
   '/_app/einstellungen/zielkategorien/$key/bearbeiten': typeof AppEinstellungenZielkategorienKeyBearbeitenRoute
   '/_app/kunden/$id/beziehung/spielregeln': typeof AppKundenIdBeziehungSpielregelnRoute
+  '/_app/kunden/$id/plan/freigabe': typeof AppKundenIdPlanFreigabeRoute
+  '/_app/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
+  '/_app/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
+  '/_app/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/_app/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/_app/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/_app/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -1618,6 +1657,10 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/$id/bearbeiten'
     | '/einstellungen/zielkategorien/$key/bearbeiten'
     | '/kunden/$id/beziehung/spielregeln'
+    | '/kunden/$id/plan/freigabe'
+    | '/kunden/$id/plan/versionen'
+    | '/lieferanten/$id/plan/freigabe'
+    | '/lieferanten/$id/plan/versionen'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -1772,6 +1815,10 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/$id/bearbeiten'
     | '/einstellungen/zielkategorien/$key/bearbeiten'
     | '/kunden/$id/beziehung/spielregeln'
+    | '/kunden/$id/plan/freigabe'
+    | '/kunden/$id/plan/versionen'
+    | '/lieferanten/$id/plan/freigabe'
+    | '/lieferanten/$id/plan/versionen'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -1931,6 +1978,10 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/$id/bearbeiten'
     | '/_app/einstellungen/zielkategorien/$key/bearbeiten'
     | '/_app/kunden/$id/beziehung/spielregeln'
+    | '/_app/kunden/$id/plan/freigabe'
+    | '/_app/kunden/$id/plan/versionen'
+    | '/_app/lieferanten/$id/plan/freigabe'
+    | '/_app/lieferanten/$id/plan/versionen'
     | '/_app/lieferanten/$id/zyklus/termin'
     | '/_app/portfolio/runden/$id/bewertende'
     | '/_app/portfolio/runden/$id/lieferanten'
@@ -2523,6 +2574,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdPlanIndexRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
+    '/_app/kunden/$id/plan/freigabe': {
+      id: '/_app/kunden/$id/plan/freigabe'
+      path: '/plan/freigabe'
+      fullPath: '/kunden/$id/plan/freigabe'
+      preLoaderRoute: typeof AppKundenIdPlanFreigabeRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
+    '/_app/kunden/$id/plan/versionen': {
+      id: '/_app/kunden/$id/plan/versionen'
+      path: '/plan/versionen'
+      fullPath: '/kunden/$id/plan/versionen'
+      preLoaderRoute: typeof AppKundenIdPlanVersionenRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/umsetzung/': {
       id: '/_app/kunden/$id/umsetzung/'
       path: '/umsetzung'
@@ -2542,6 +2607,20 @@ declare module '@tanstack/react-router' {
       path: '/plan'
       fullPath: '/lieferanten/$id/plan/'
       preLoaderRoute: typeof AppLieferantenIdPlanIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/freigabe': {
+      id: '/_app/lieferanten/$id/plan/freigabe'
+      path: '/plan/freigabe'
+      fullPath: '/lieferanten/$id/plan/freigabe'
+      preLoaderRoute: typeof AppLieferantenIdPlanFreigabeRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/plan/versionen': {
+      id: '/_app/lieferanten/$id/plan/versionen'
+      path: '/plan/versionen'
+      fullPath: '/lieferanten/$id/plan/versionen'
+      preLoaderRoute: typeof AppLieferantenIdPlanVersionenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/strategie/': {
@@ -3140,6 +3219,8 @@ interface AppKundenIdRouteRouteChildren {
   AppKundenIdWirkungRoute: typeof AppKundenIdWirkungRoute
   AppKundenIdIndexRoute: typeof AppKundenIdIndexRoute
   AppKundenIdBeziehungSpielregelnRoute: typeof AppKundenIdBeziehungSpielregelnRoute
+  AppKundenIdPlanFreigabeRoute: typeof AppKundenIdPlanFreigabeRoute
+  AppKundenIdPlanVersionenRoute: typeof AppKundenIdPlanVersionenRoute
   AppKundenIdBeziehungIndexRoute: typeof AppKundenIdBeziehungIndexRoute
   AppKundenIdPlanIndexRoute: typeof AppKundenIdPlanIndexRoute
   AppKundenIdUmsetzungIndexRoute: typeof AppKundenIdUmsetzungIndexRoute
@@ -3173,6 +3254,8 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdWirkungRoute: AppKundenIdWirkungRoute,
   AppKundenIdIndexRoute: AppKundenIdIndexRoute,
   AppKundenIdBeziehungSpielregelnRoute: AppKundenIdBeziehungSpielregelnRoute,
+  AppKundenIdPlanFreigabeRoute: AppKundenIdPlanFreigabeRoute,
+  AppKundenIdPlanVersionenRoute: AppKundenIdPlanVersionenRoute,
   AppKundenIdBeziehungIndexRoute: AppKundenIdBeziehungIndexRoute,
   AppKundenIdPlanIndexRoute: AppKundenIdPlanIndexRoute,
   AppKundenIdUmsetzungIndexRoute: AppKundenIdUmsetzungIndexRoute,
@@ -3262,6 +3345,8 @@ const AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren =
 interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdIndexRoute: typeof AppLieferantenIdIndexRoute
   AppLieferantenIdStrategieLieferantenplanRouteRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
+  AppLieferantenIdPlanFreigabeRoute: typeof AppLieferantenIdPlanFreigabeRoute
+  AppLieferantenIdPlanVersionenRoute: typeof AppLieferantenIdPlanVersionenRoute
   AppLieferantenIdZyklusTerminRoute: typeof AppLieferantenIdZyklusTerminRoute
   AppLieferantenIdBeziehungIndexRoute: typeof AppLieferantenIdBeziehungIndexRoute
   AppLieferantenIdPlanIndexRoute: typeof AppLieferantenIdPlanIndexRoute
@@ -3314,6 +3399,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdIndexRoute: AppLieferantenIdIndexRoute,
   AppLieferantenIdStrategieLieferantenplanRouteRoute:
     AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren,
+  AppLieferantenIdPlanFreigabeRoute: AppLieferantenIdPlanFreigabeRoute,
+  AppLieferantenIdPlanVersionenRoute: AppLieferantenIdPlanVersionenRoute,
   AppLieferantenIdZyklusTerminRoute: AppLieferantenIdZyklusTerminRoute,
   AppLieferantenIdBeziehungIndexRoute: AppLieferantenIdBeziehungIndexRoute,
   AppLieferantenIdPlanIndexRoute: AppLieferantenIdPlanIndexRoute,

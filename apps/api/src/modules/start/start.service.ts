@@ -13,6 +13,7 @@ import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
@@ -51,6 +52,7 @@ export class StartService {
     @Inject(PlanApprovalsService) private readonly approvals: PlanApprovalsService,
     @Inject(PortfolioService) private readonly portfolio: PortfolioService,
     @Inject(JbpCommitmentsService) private readonly commitments: JbpCommitmentsService,
+    @Inject(JbpApprovalService) private readonly jbpApproval: JbpApprovalService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -75,6 +77,8 @@ export class StartService {
     const approvals = await this.approvals.dueItems(auth);
     // JBP-05: offene Zusagen und Meilensteine, für die die Person verantwortlich ist.
     const commitments = await this.commitments.dueItems(auth);
+    // JBP-06: Gemeinsamer Plan in Prüfung beim Lieferanten.
+    const reviews = await this.jbpApproval.dueItems(auth);
     const items = [
       ...ratings,
       ...cycles,
@@ -82,6 +86,7 @@ export class StartService {
       ...actions,
       ...approvals,
       ...commitments,
+      ...reviews,
     ];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),

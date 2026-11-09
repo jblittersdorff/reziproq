@@ -124,8 +124,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 58 | JBP-01 | Vorbereitung des Joint Business Planning | JBP-01 | QBR-01b, SPL-07, SEG-10, ZYK-02 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad (umsetzungsplan.md, Abschnitt 8). PUL-03 nur weich: Der Feedback-Abschnitt erscheint, sobald Block F gebaut ist. |
 | 59 | JBP-02 | Themen beider Seiten | JBP-02, LIF-04 | JBP-01, SPL-06 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Zusammenführen zu Initiativen mit JBP-03. |
 | 60 | JBP-03 | Initiativen und Roadmap | JBP-03, JBP-04 | JBP-02 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Änderungen beider Seiten über app_initiative_* (Rolle reziproq_initiativen); Roadmap mit Legende. |
-| 61 | JBP-05 | Zusagen | JBP-05 | JBP-03 | nach 1.0 | Block J | C | PR offen | Testlauf-Pfad. Jede Seite nur eigene Zusagen; Person der eigenen Seite, Aufgaben auf Start auch für Meilensteine; live im Termin. |
-| 62 | JBP-06 | Freigabe und Versionen des Gemeinsamen Plans | JBP-06 | JBP-05, JBP-02, JBP-03 | nach 1.0 | Block J | C | offen | – |
+| 61 | JBP-05 | Zusagen | JBP-05 | JBP-03 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Jede Seite nur eigene Zusagen; Person der eigenen Seite, Aufgaben auf Start auch für Meilensteine; live im Termin. |
+| 62 | JBP-06 | Freigabe und Versionen des Gemeinsamen Plans | JBP-06 | JBP-05, JBP-02, JBP-03 | nach 1.0 | Block J | C | PR offen | Testlauf-Pfad. Status über app_jbp_transition (Rolle reziproq_jbp_freigabe); Mail an angenommene Einladungen; Zyklus-Schritt JBP. |
 | 63 | JBP-07 | Scorecard und Unterschrift | JBP-07, JBP-08 | JBP-06, ZYK-02 | nach 1.0 | Block J | C | offen | – |
 | 64 | JBP-09 | Ist-Werte der Kennzahlen | JBP-09 | JBP-07 | nach 1.0 | Block J | C | offen | – |
 | 65 | PNL-01 | Wirkung einrichten und Hebel-Vorlagen | PNL-01, PNL-02, JBP-10 | JBP-03, QBR-03 | nach 1.0 | Block W | B | offen | – |

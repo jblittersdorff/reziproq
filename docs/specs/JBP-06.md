@@ -39,15 +39,27 @@ Der Käufer füllt vor, der Lieferant kommentiert und ergänzt, und beide geben 
    - Die Seite zeigt „Freigegeben von beiden am …“.
 5. **Versionen** (`/…/plan/versionen`): Liste und Vergleich zweier Versionen.
 
+## Umsetzung
+
+- Den Status ändert für beide Seiten `app_jbp_transition` (Rolle `reziproq_jbp_freigabe`,
+  Migration 0048). Sie erlaubt nur die Übergänge des Ablaufs; `approved` nur, wenn für die
+  laufende Version eine Freigabe des Käufers und des Lieferanten vorliegt.
+- Zur Prüfung geben gilt als Freigabe des Käufers für diese Version.
+- Die Mail geht an die Personen des Lieferanten, die die Einladung des Käufers angenommen haben
+  (käuferprivat bekannt); die Aufgabe steht auf Start der Lieferantenseite.
+- `jbp_approval` und `jbp_version` sind nur anfügbar. Eine neue Version erhöht die Versionsnummer
+  des Plans; Themen, Initiativen und Zusagen bleiben am Plan, der alte Stand liegt in `jbp_version`.
+- Nach der Freigabe lehnen Themen, Initiativen und Zusagen Inhaltsänderungen mit 409 ab.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Der Plan ist erst freigegeben, wenn beide Seiten zugestimmt haben.
-- [ ] Nach der Freigabe sind die gesperrten Felder unveränderbar, Status und Meilensteine änderbar.
-- [ ] Eine neue Version verlangt wieder beide Freigaben, die alte bleibt lesbar.
-- [ ] Zurückgeben verlangt eine Begründung und setzt den Status auf Entwurf.
-- [ ] Die Freigabe erledigt den Zyklus-Schritt JBP.
+- [x] Der Plan ist erst freigegeben, wenn beide Seiten zugestimmt haben.
+- [x] Nach der Freigabe sind die gesperrten Felder unveränderbar, Status und Meilensteine änderbar.
+- [x] Eine neue Version verlangt wieder beide Freigaben, die alte bleibt lesbar.
+- [x] Zurückgeben verlangt eine Begründung und setzt den Status auf Entwurf.
+- [x] Die Freigabe erledigt den Zyklus-Schritt JBP.
 
 ## Nicht Teil dieser Funktion
 

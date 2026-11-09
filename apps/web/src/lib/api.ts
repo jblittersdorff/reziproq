@@ -27,6 +27,7 @@ import {
   customerWorkspaceSchema,
   cycleSchema,
   cycleSettingsResponseSchema,
+  type DecideJbp,
   decisionHistorySchema,
   dueListSchema,
   type ExtendRound,
@@ -46,9 +47,11 @@ import {
   initiativeDetailSchema,
   initiativesSchema,
   invitationListSchema,
+  jbpApprovalViewSchema,
   jbpPreparationSchema,
   jbpTopicCandidatesSchema,
   jbpTopicsSchema,
+  jbpVersionsSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meetingDetailSchema,
@@ -1448,6 +1451,30 @@ export const deleteMilestone = (
     initiativeDetailSchema,
     accessToken,
   );
+
+/** JBP-06: Freigabe und Versionen des Gemeinsamen Plans. */
+export const jbpApprovalQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', 'approval', base],
+    queryFn: () => getJson(`${base}/jbp/freigabe`, jbpApprovalViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const submitJbp = (accessToken: string, base: MeetingBase) =>
+  sendJson('POST', `${base}/jbp/freigabe/einreichen`, {}, jbpApprovalViewSchema, accessToken);
+
+export const decideJbp = (accessToken: string, base: MeetingBase, request: DecideJbp) =>
+  sendJson('POST', `${base}/jbp/freigabe/entscheiden`, request, jbpApprovalViewSchema, accessToken);
+
+export const startJbpVersion = (accessToken: string, base: MeetingBase) =>
+  sendJson('POST', `${base}/jbp/freigabe/neue-version`, {}, jbpApprovalViewSchema, accessToken);
+
+export const jbpVersionsQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', 'versions', base],
+    queryFn: () => getJson(`${base}/jbp/versionen`, jbpVersionsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
 
 /** JBP-05: Zusagen beider Seiten, je Seite unter ihrer Basis. */
 export const commitmentsQueryOptions = (accessToken: string, base: MeetingBase) =>

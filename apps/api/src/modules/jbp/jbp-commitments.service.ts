@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -43,7 +44,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 async function currentPlan(tx: TenantTransaction, relationshipId: string) {
   const [row] = await tx
-    .select({ id: schema.jbp.id })
+    .select({ id: schema.jbp.id, status: schema.jbp.status })
     .from(schema.jbp)
     .where(eq(schema.jbp.relationshipId, relationshipId))
     .orderBy(desc(schema.jbp.version))
@@ -130,6 +131,10 @@ export class JbpCommitmentsService {
     if (!this.canEdit(scope)) throw forbidden();
     const plan = await currentPlan(scope.tx, scope.relationshipId);
     if (!plan) throw notFound();
+    // JBP-06: Nach der Freigabe ändert sich der Inhalt nur über eine neue Version; Status bleibt.
+    if (plan.status === 'approved') {
+      throw new ConflictException({ statusCode: 409, code: 'plan_freigegeben' });
+    }
     const people = await teamPeople(scope.tx, scope.relationshipId, scope.orgId, scope.auth.userId);
     const owner = people.find((person) => person.userId === input.ownerUserId);
     if (!owner) throw new BadRequestException({ statusCode: 400, code: 'person_unbekannt' });
