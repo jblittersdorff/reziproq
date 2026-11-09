@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, date, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  date,
+  index,
+  integer,
+  numeric,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { jbp, jbpTopic } from './jbp.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
@@ -151,5 +161,103 @@ export const commitment = pgTable(
     check('commitment_owner', sql`length(trim(${table.ownerName})) between 1 and 200`),
     index('commitment_jbp').on(table.jbpId, table.dueOn),
     index('commitment_owner_user').on(table.ownerUserId),
+  ],
+);
+
+export const scorecardStatuses = ['draft', 'signed'] as const;
+
+/**
+ * JBP-07: Scorecard des Gemeinsamen Plans, geteilt. Status und Version ändert für beide Seiten
+ * app_scorecard_transition (Migration 0049): signed erst mit beiden Unterschriften derselben Version.
+ */
+export const scorecard = pgTable(
+  'scorecard',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    jbpId: uuid()
+      .notNull()
+      .references(() => jbp.id, { onDelete: 'cascade' }),
+    version: integer().notNull().default(1),
+    status: text({ enum: scorecardStatuses }).notNull().default('draft'),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('scorecard_status', sql`${table.status} in ('draft', 'signed')`),
+    check('scorecard_version', sql`${table.version} > 0`),
+    index('scorecard_jbp').on(table.jbpId),
+  ],
+);
+
+/** Kennzahl der Scorecard; jede Seite schlägt ihre eigenen vor und bearbeitet nur diese. */
+export const scorecardKpi = pgTable(
+  'scorecard_kpi',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    scorecardId: uuid()
+      .notNull()
+      .references(() => scorecard.id, { onDelete: 'cascade' }),
+    initiativeId: uuid().references(() => initiative.id, { onDelete: 'set null' }),
+    name: text().notNull(),
+    unit: text().notNull(),
+    direction: text({ enum: ['higher', 'lower'] }).notNull(),
+    // Dezimalzahl, nie Gleitkomma; Geldbeträge stehen als Einheit „EUR“ in ganzen Euro.
+    baseline: numeric({ precision: 18, scale: 4 }),
+    target: numeric({ precision: 18, scale: 4 }).notNull(),
+    targetDate: date().notNull(),
+    ownerSide: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    ownerUserId: text(),
+    ownerName: text().notNull(),
+    benefitFor: text({ enum: ['buyer', 'supplier', 'both'] }).notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('scorecard_kpi_direction', sql`${table.direction} in ('higher', 'lower')`),
+    check('scorecard_kpi_owner_side', sql`${table.ownerSide} in ('buyer', 'supplier')`),
+    check('scorecard_kpi_benefit', sql`${table.benefitFor} in ('buyer', 'supplier', 'both')`),
+    check('scorecard_kpi_name', sql`length(trim(${table.name})) between 1 and 120`),
+    check('scorecard_kpi_unit', sql`length(trim(${table.unit})) between 1 and 30`),
+    check('scorecard_kpi_owner', sql`length(trim(${table.ownerName})) between 1 and 200`),
+    index('scorecard_kpi_scorecard').on(table.scorecardId),
+  ],
+);
+
+/** Unterschrift einer Seite unter eine Version der Scorecard, geteilt und nur anfügbar. */
+export const scorecardSignature = pgTable(
+  'scorecard_signature',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    scorecardId: uuid()
+      .notNull()
+      .references(() => scorecard.id, { onDelete: 'cascade' }),
+    version: integer().notNull(),
+    side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    userId: text().notNull(),
+    userName: text().notNull(),
+    signedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('scorecard_signature_side', sql`${table.side} in ('buyer', 'supplier')`),
+    index('scorecard_signature_scorecard').on(table.scorecardId, table.version),
   ],
 );

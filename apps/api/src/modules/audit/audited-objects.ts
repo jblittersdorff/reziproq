@@ -127,6 +127,36 @@ export const jbpReviewRequestAudit = auditedObject({
   fields: ['recipient', 'version'],
 });
 
+/** Scorecard (JBP-07): Version, Status und wer unterschrieben hat; beide Seiten sehen den Verlauf. */
+export const scorecardAudit = auditedObject({
+  type: 'scorecard',
+  visibility: 'shared',
+  fields: ['version', 'status', 'signed_by'],
+});
+
+/** Kennzahl der Scorecard (JBP-07): geteilt. */
+export const scorecardKpiAudit = auditedObject({
+  type: 'scorecard_kpi',
+  visibility: 'shared',
+  fields: [
+    'name',
+    'unit',
+    'direction',
+    'baseline',
+    'target',
+    'target_date',
+    'owner_name',
+    'benefit_for',
+  ],
+});
+
+/** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */
+export const scorecardSignRequestAudit = auditedObject({
+  type: 'scorecard_sign_request',
+  visibility: 'internal',
+  fields: ['recipient', 'version'],
+});
+
 /** Zusage einer Seite (JBP-05): geteilt, beide Seiten sehen jede Änderung. */
 export const commitmentAudit = auditedObject({
   type: 'commitment',
@@ -229,6 +259,9 @@ export const auditedObjects: readonly AuditedObject[] = [
   initiativeAudit,
   commitmentAudit,
   jbpReviewRequestAudit,
+  scorecardAudit,
+  scorecardKpiAudit,
+  scorecardSignRequestAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

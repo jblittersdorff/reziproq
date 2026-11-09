@@ -239,7 +239,8 @@ describe('SEG-02 Fokuslieferanten über die API', () => {
       { key: 'supplierPlan', status: 'open' },
       // JBP-06: Der Schritt Gemeinsamer Plan ist gebaut; ohne Plan ist er offen.
       { key: 'jbp', status: 'open' },
-      { key: 'scorecard', status: 'unavailable' },
+      // JBP-07: Die Scorecard ist gebaut; ohne Plan ist der Schritt offen.
+      { key: 'scorecard', status: 'open' },
       { key: 'execution', status: 'unavailable' },
     ]);
     expect((await call(users.supplier, 'GET', `/suppliers/${second.id}/overview`)).status).toBe(

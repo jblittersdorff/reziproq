@@ -15,6 +15,7 @@ import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
+import { JbpScorecardService } from '../jbp/jbp-scorecard.service.js';
 import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
@@ -53,6 +54,7 @@ export class StartService {
     @Inject(PortfolioService) private readonly portfolio: PortfolioService,
     @Inject(JbpCommitmentsService) private readonly commitments: JbpCommitmentsService,
     @Inject(JbpApprovalService) private readonly jbpApproval: JbpApprovalService,
+    @Inject(JbpScorecardService) private readonly scorecards: JbpScorecardService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -79,6 +81,8 @@ export class StartService {
     const commitments = await this.commitments.dueItems(auth);
     // JBP-06: Gemeinsamer Plan in Prüfung beim Lieferanten.
     const reviews = await this.jbpApproval.dueItems(auth);
+    // JBP-07: Scorecard, die die eigene Seite noch nicht unterschrieben hat.
+    const signatures = await this.scorecards.dueItems(auth);
     const items = [
       ...ratings,
       ...cycles,
@@ -87,6 +91,7 @@ export class StartService {
       ...approvals,
       ...commitments,
       ...reviews,
+      ...signatures,
     ];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),

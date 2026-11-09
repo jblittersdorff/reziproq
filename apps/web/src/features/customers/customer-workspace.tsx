@@ -5,6 +5,7 @@ import {
   BadgeCheckIcon,
   CalendarDaysIcon,
   EyeOffIcon,
+  GaugeIcon,
   HandHeartIcon,
   HandshakeIcon,
   InboxIcon,
@@ -226,6 +227,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: t.jbp.approval.title,
               status: t.jbp.approval.purpose,
             },
+            {
+              key: 'scorecard',
+              href: `${customerPath(relationshipId, 'plan')}/scorecard`,
+              title: t.jbp.scorecard.title,
+              status: t.jbp.scorecard.purpose,
+            },
           ]}
         />
       </section>
@@ -347,6 +354,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.jbp.approval.title}</TileTitle>
               <TileText>{t.jbp.approval.purpose}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/scorecard" params={{ id: relationshipId }}>
+              <TileIcon>
+                <GaugeIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.scorecard.title}</TileTitle>
+              <TileText>{t.jbp.scorecard.purpose}</TileText>
             </Link>
           </Tile>
         </div>

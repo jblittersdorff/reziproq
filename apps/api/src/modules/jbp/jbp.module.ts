@@ -7,17 +7,20 @@ import {
   BuyerJbpCommitmentsController,
   BuyerJbpController,
   BuyerJbpInitiativesController,
+  BuyerJbpScorecardController,
   BuyerJbpTopicsController,
   SupplierJbpApprovalController,
   SupplierJbpCommitmentsController,
   SupplierJbpController,
   SupplierJbpInitiativesController,
+  SupplierJbpScorecardController,
   SupplierJbpTopicsController,
 } from './jbp.controller.js';
 import { JbpService } from './jbp.service.js';
 import { JbpApprovalService } from './jbp-approval.service.js';
 import { JbpCommitmentsService } from './jbp-commitments.service.js';
 import { JbpInitiativesService } from './jbp-initiatives.service.js';
+import { JbpScorecardService } from './jbp-scorecard.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
 
 /** Gemeinsamer Plan (JBP-01 ff.). */
@@ -34,6 +37,8 @@ import { JbpTopicsService } from './jbp-topics.service.js';
     SupplierJbpCommitmentsController,
     BuyerJbpApprovalController,
     SupplierJbpApprovalController,
+    BuyerJbpScorecardController,
+    SupplierJbpScorecardController,
   ],
   providers: [
     JbpService,
@@ -41,7 +46,8 @@ import { JbpTopicsService } from './jbp-topics.service.js';
     JbpInitiativesService,
     JbpCommitmentsService,
     JbpApprovalService,
+    JbpScorecardService,
   ],
-  exports: [JbpService, JbpCommitmentsService, JbpApprovalService],
+  exports: [JbpService, JbpCommitmentsService, JbpApprovalService, JbpScorecardService],
 })
 export class JbpModule {}
