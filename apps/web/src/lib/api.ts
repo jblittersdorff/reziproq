@@ -33,6 +33,7 @@ import {
   focusListSchema,
   forbiddenCodes,
   healthResponseSchema,
+  type ImportJbpTopics,
   type ImportPreview,
   type ImportResult,
   type ImportType,
@@ -41,6 +42,8 @@ import {
   importResultSchema,
   invitationListSchema,
   jbpPreparationSchema,
+  jbpTopicCandidatesSchema,
+  jbpTopicsSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meetingDetailSchema,
@@ -78,6 +81,7 @@ import {
   type SaveAction,
   type SaveAgenda,
   type SaveFormatItem,
+  type SaveJbpTopic,
   type SaveMeetingNote,
   type SaveProtocol,
   type SaveRating,
@@ -1298,6 +1302,52 @@ export const createJbp = (accessToken: string, base: MeetingBase, request: Creat
 
 export const saveBusinessUpdate = (accessToken: string, base: MeetingBase, text: string) =>
   sendJson('PUT', `${base}/jbp/geschaeftsupdate`, { text }, jbpPreparationSchema, accessToken);
+
+/** JBP-02: Themen beider Seiten im Gemeinsamen Plan. */
+export const jbpTopicsQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', base, 'themen'],
+    queryFn: () => getJson(`${base}/jbp/themen`, jbpTopicsSchema, accessToken),
+  });
+
+export const jbpTopicCandidatesQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', base, 'themen', 'vorschlaege'],
+    queryFn: () => getJson(`${base}/jbp/themen/vorschlaege`, jbpTopicCandidatesSchema, accessToken),
+  });
+
+export const createJbpTopic = (accessToken: string, base: MeetingBase, request: SaveJbpTopic) =>
+  sendJson('POST', `${base}/jbp/themen`, request, jbpTopicsSchema, accessToken);
+
+export const updateJbpTopic = (
+  accessToken: string,
+  base: MeetingBase,
+  topicId: string,
+  request: SaveJbpTopic,
+) => sendJson('PUT', `${base}/jbp/themen/${topicId}`, request, jbpTopicsSchema, accessToken);
+
+export const parkJbpTopic = (
+  accessToken: string,
+  base: MeetingBase,
+  topicId: string,
+  reason: string,
+) =>
+  sendJson('PUT', `${base}/jbp/themen/${topicId}/parken`, { reason }, jbpTopicsSchema, accessToken);
+
+export const restoreJbpTopic = (accessToken: string, base: MeetingBase, topicId: string) =>
+  sendJson(
+    'PUT',
+    `${base}/jbp/themen/${topicId}/wieder-aufnehmen`,
+    {},
+    jbpTopicsSchema,
+    accessToken,
+  );
+
+export const reorderJbpTopics = (accessToken: string, base: MeetingBase, ids: string[]) =>
+  sendJson('PUT', `${base}/jbp/themen/reihenfolge`, { ids }, jbpTopicsSchema, accessToken);
+
+export const importJbpTopics = (accessToken: string, base: MeetingBase, request: ImportJbpTopics) =>
+  sendJson('POST', `${base}/jbp/themen/uebernehmen`, request, jbpTopicsSchema, accessToken);
 
 /** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
 export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>

@@ -35,10 +35,10 @@ Beide Seiten bringen ihre wichtigsten Themen ein und sehen sie nebeneinander. De
 
 Je Kriterium ein Test.
 
-- [ ] Übernommene Themen zeigen dem Lieferanten nur Titel und teilbare Beschreibung, nie Begründung oder Ziele.
-- [ ] Die Herkunft eines Themas sieht nur der Käufer (PLT-04).
-- [ ] Jede Seite ändert nur ihre eigenen Themen.
-- [ ] Geparkte Themen bleiben mit Begründung sichtbar.
+- [x] Übernommene Themen zeigen dem Lieferanten nur Titel und teilbare Beschreibung, nie Begründung oder Ziele.
+- [x] Die Herkunft eines Themas sieht nur der Käufer (PLT-04).
+- [x] Jede Seite ändert nur ihre eigenen Themen.
+- [x] Geparkte Themen bleiben mit Begründung sichtbar.
 
 ## Nicht Teil dieser Funktion
 

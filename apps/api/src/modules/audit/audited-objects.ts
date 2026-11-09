@@ -95,6 +95,13 @@ export const jbpAudit = auditedObject({
   fields: ['version', 'status'],
 });
 
+/** Thema einer Seite im Gemeinsamen Plan (JBP-02): geteilt. */
+export const jbpTopicAudit = auditedObject({
+  type: 'jbp_topic',
+  visibility: 'shared',
+  fields: ['title', 'description', 'status', 'priority'],
+});
+
 /** Geschäftsupdate einer Seite im JBP (JBP-01): geteilt. */
 export const jbpBusinessUpdateAudit = auditedObject({
   type: 'jbp_business_update',
@@ -186,6 +193,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   actionAudit,
   jbpAudit,
   jbpBusinessUpdateAudit,
+  jbpTopicAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

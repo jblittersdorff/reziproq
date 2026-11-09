@@ -230,10 +230,21 @@ export class JbpService {
           .from(schema.meetingAgendaItem)
           .where(eq(schema.meetingAgendaItem.meetingId, meeting.id))
       : [];
+    // JBP-02: Themen sind bereit, sobald beide Seiten mindestens ein offenes Thema haben.
+    const topics = await tx
+      .select({ side: schema.jbpTopic.side })
+      .from(schema.jbpTopic)
+      .where(and(eq(schema.jbpTopic.jbpId, plan.id), eq(schema.jbpTopic.status, 'proposed')));
     const ready = (section: JbpSection | null) => {
       if (section === 'buyer_update') return Boolean(buyerUpdate?.text);
       if (section === 'supplier_update') return Boolean(supplierUpdate?.text);
-      // Themen, Initiativen, Zusagen und Scorecard melden ihren Stand mit JBP-02 bis JBP-07.
+      if (section === 'topics') {
+        return (
+          topics.some((row) => row.side === 'buyer') &&
+          topics.some((row) => row.side === 'supplier')
+        );
+      }
+      // Initiativen, Zusagen und Scorecard melden ihren Stand mit JBP-03 bis JBP-07.
       return section ? false : null;
     };
     // Erst die Punkte der Seite, die den Termin angelegt hat, dann die der anderen.

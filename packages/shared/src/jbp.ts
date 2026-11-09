@@ -73,3 +73,69 @@ export const saveBusinessUpdateSchema = z
   .object({ text: z.string().trim().max(10_000) })
   .strict();
 export type SaveBusinessUpdate = z.infer<typeof saveBusinessUpdateSchema>;
+
+// JBP-02: Themen beider Seiten. Der Lieferant sieht nur Titel und teilbare Beschreibung.
+
+export const jbpTopicSchema = z.object({
+  id: z.uuid(),
+  side: z.enum(meetingSides),
+  own: z.boolean(),
+  title: z.string(),
+  description: z.string(),
+  priority: z.number().int(),
+  status: z.enum(['proposed', 'merged', 'parked']),
+  parkReason: z.string().nullable(),
+  /** Nur beim Käufer: aus welchem internen Thema des Lieferantenplans (SPL-06) */
+  origin: z.object({ title: z.string() }).nullable(),
+});
+export type JbpTopic = z.infer<typeof jbpTopicSchema>;
+
+export const jbpTopicsSchema = z.object({
+  /** Ohne Gemeinsamen Plan gibt es noch keine Themen */
+  hasPlan: z.boolean(),
+  ownSide: z.enum(meetingSides),
+  buyer: z.array(jbpTopicSchema),
+  supplier: z.array(jbpTopicSchema),
+  canEditOwn: z.boolean(),
+  /** SRO oder Admin beim Käufer: aus dem Lieferantenplan übernehmen */
+  canImport: z.boolean(),
+});
+export type JbpTopics = z.infer<typeof jbpTopicsSchema>;
+
+export const saveJbpTopicSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    description: z.string().trim().max(2000),
+  })
+  .strict();
+export type SaveJbpTopic = z.infer<typeof saveJbpTopicSchema>;
+
+export const parkJbpTopicSchema = z
+  .object({ reason: z.string().trim().min(1).max(500) })
+  .strict();
+export type ParkJbpTopic = z.infer<typeof parkJbpTopicSchema>;
+
+export const jbpTopicOrderSchema = z.object({ ids: z.array(z.uuid()).min(1).max(100) }).strict();
+export type JbpTopicOrder = z.infer<typeof jbpTopicOrderSchema>;
+
+/** Interne Themen des Lieferantenplans, die noch nicht übernommen sind (nur Käufer). */
+export const jbpTopicCandidatesSchema = z.object({
+  candidates: z.array(z.object({ id: z.uuid(), title: z.string(), reason: z.string() })),
+});
+export type JbpTopicCandidates = z.infer<typeof jbpTopicCandidatesSchema>;
+
+export const importJbpTopicsSchema = z
+  .object({
+    items: z
+      .array(
+        z.object({
+          strategicTopicId: z.uuid(),
+          /** Die teilbare Beschreibung; die Begründung bleibt intern */
+          description: z.string().trim().max(2000),
+        }),
+      )
+      .min(1)
+      .max(20),
+  })
+  .strict();
+export type ImportJbpTopics = z.infer<typeof importJbpTopicsSchema>;

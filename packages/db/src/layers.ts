@@ -165,6 +165,18 @@ export const layerRegister: Record<string, LayerEntry> = {
       cycle_id: buyer && probe('cycle', buyer),
     }),
   },
+  // JBP-02: Themen beider Seiten, geteilt; die Herkunft aus dem Lieferantenplan bleibt beim Käufer.
+  jbp_topic: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      side: 'buyer',
+      title: 'Probe',
+      priority: 1,
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    }),
+  },
   jbp_business_update: {
     kind: 'shared',
     testValues: ({ buyer, probe }) => ({
@@ -346,6 +358,14 @@ export const layerRegister: Record<string, LayerEntry> = {
       title: 'Thema',
       reason: 'Begründung',
       priority: 1,
+    }),
+  },
+  // JBP-02: Herkunft eines Themas aus dem Lieferantenplan, nach strategic_topic angelegt.
+  jbp_topic_origin: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      jbp_topic_id: buyer && probe('jbp_topic', buyer),
+      strategic_topic_id: buyer && probe('strategic_topic', buyer),
     }),
   },
   strategic_topic_objective: {
