@@ -200,6 +200,62 @@ describe('NAV-05 Start über die API', () => {
     ]);
   });
 
+  it('der Käufer bekommt Zahlen und Fokuslieferanten mit Stand der Spielregeln (A2)', async () => {
+    const [first, second] = relationships as [string, string];
+    await db.insert(schema.relationshipSide).values(
+      [first, second].map((relationshipId) => ({
+        relationshipId,
+        orgId: oem,
+        isFocus: true,
+        focusReason: 'Test',
+      })),
+    );
+    const ruleSetId = randomUUID();
+    await db.insert(schema.ruleSet).values({
+      id: ruleSetId,
+      relationshipId: first,
+      ownerOrgId: oem,
+      visibility: 'shared',
+      version: 1,
+      status: 'shared',
+      targetImpactLevel: 3,
+      targetQualityLevel: 3,
+      typeName: 'Strategischer Partner',
+      createdBy: users.rater,
+      approvedBy: users.rater,
+      approvedByName: 'Pat',
+      approvedAt: new Date(),
+    });
+    await db.insert(schema.relationshipTarget).values({
+      relationshipId: first,
+      ownerOrgId: oem,
+      visibility: 'shared',
+      typeName: 'Strategischer Partner',
+      typeDescription: 'Test',
+      ruleSetId,
+      ruleSetVersion: 1,
+      sharedBy: users.rater,
+      sharedByName: 'Pat',
+    });
+    try {
+      const data = await overview(users.rater);
+      expect(data.portfolio).toMatchObject({ suppliers: 7, focusTotal: 2 });
+      expect(data.portfolio?.openDecisions).toBeGreaterThanOrEqual(0);
+      expect(data.portfolio?.focus).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: first, rulesShared: true }),
+          expect.objectContaining({ id: second, rulesShared: false }),
+        ]),
+      );
+      expect(data.openActions).toBe(0);
+      // Der Lieferant bekommt keine Portfolio-Zahlen des Käufers.
+      expect((await overview(users.supplier)).portfolio).toBeNull();
+    } finally {
+      await db.execute(sql`delete from relationship_target where relationship_id = ${first}`);
+      await db.execute(sql`delete from rule_set where relationship_id = ${first}`);
+    }
+  });
+
   it('Start speichert nichts: Es gibt keine Tabelle dafür', async () => {
     const result = await db.execute(
       sql`select table_name from information_schema.tables where table_schema = 'public' and table_name like 'start%'`,

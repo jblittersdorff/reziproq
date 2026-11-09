@@ -78,12 +78,13 @@ function StageMetrics({
         <div
           key={item.key}
           data-metric={item.key}
-          className="flex min-w-0 flex-1 flex-col-reverse gap-2 px-4 sm:px-6"
+          className="grid min-w-0 flex-1 content-start gap-2 px-4 sm:px-6"
         >
-          <dt className="text-muted-foreground text-sm">{item.label}</dt>
+          {/* dt vor dd für Screenreader; sichtbar steht die Zahl oben, alle auf einer Höhe. */}
+          <dt className="row-start-2 text-muted-foreground text-sm">{item.label}</dt>
           <dd
             className={cn(
-              'truncate font-bold text-xl tabular-nums tracking-title sm:text-2xl',
+              'row-start-1 truncate font-bold text-xl tabular-nums tracking-title sm:text-2xl',
               item.accent && 'text-primary',
             )}
           >

@@ -32,6 +32,17 @@ export const startSchema = z.object({
   }),
   /** Nächster Termin aus den eigenen Beziehungen (QBR-01b); null ohne geplanten Termin */
   nextMeeting: nextMeetingSchema.nullable(),
+  /** Zahlen und Fokuslieferanten für die Kacheln (Handschrift Bühne, A2); nur beim Käufer */
+  portfolio: z
+    .object({
+      suppliers: z.number().int(),
+      focusTotal: z.number().int(),
+      openDecisions: z.number().int(),
+      focus: z.array(z.object({ id: z.uuid(), name: z.string(), rulesShared: z.boolean() })),
+    })
+    .nullable(),
+  /** Offene Maßnahmen der eigenen Beziehungen (QBR-03) */
+  openActions: z.number().int(),
 });
 
 export type DueItem = z.infer<typeof dueItemSchema>;

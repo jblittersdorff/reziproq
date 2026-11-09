@@ -41,6 +41,8 @@ const start: StartData = {
     total: 2,
   },
   nextMeeting: null,
+  portfolio: null,
+  openActions: 0,
 };
 
 beforeEach(() => {

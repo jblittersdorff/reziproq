@@ -1,16 +1,18 @@
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowUpIcon, SparklesIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowUpIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useT } from '@/lib/i18n';
 
-const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
-
-/** Großes Feld auf Start; es führt zur Seite /fragen, wie Cmd+K (PLT-12). */
+/**
+ * Fragefeld auf Start (PLT-12): ruhige Fläche wie ein Chatfenster, ohne Symbol. Enter schickt die
+ * Frage an /fragen, Umschalt+Enter macht eine neue Zeile.
+ */
 export function PromptTrigger() {
   const t = useT();
   const navigate = useNavigate();
+  const form = useRef<HTMLFormElement>(null);
   const [question, setQuestion] = useState('');
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -19,21 +21,32 @@ export function PromptTrigger() {
   };
   return (
     <form
+      ref={form}
       onSubmit={submit}
-      className="flex min-h-14 items-center gap-2 rounded-xl border border-input bg-background px-3 focus-within:border-ring"
+      data-slot="prompt"
+      className="flex items-end gap-3 rounded-xl border border-border bg-card p-2 pl-4 transition-colors focus-within:border-ring"
     >
-      <SparklesIcon aria-hidden className="ml-1 size-6 shrink-0 text-muted-foreground" />
-      <Input
+      <Textarea
         value={question}
+        rows={1}
         onChange={(event) => setQuestion(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            form.current?.requestSubmit();
+          }
+        }}
         aria-label={t.prompt.question}
         placeholder={t.prompt.placeholder}
-        className="h-12 min-w-0 flex-1 border-0 bg-transparent text-lg shadow-none focus-visible:ring-0"
+        className="field-sizing-content max-h-48 min-h-11 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-lg shadow-none focus-visible:ring-0"
       />
-      <kbd className="hidden shrink-0 rounded-md bg-muted px-2 py-0.5 font-sans text-sm sm:inline">
-        {isMac ? t.prompt.shortcutMac : t.prompt.shortcutOther}
-      </kbd>
-      <Button type="submit" size="icon" aria-label={t.prompt.send} disabled={!question.trim()}>
+      <Button
+        type="submit"
+        size="icon"
+        className="shrink-0 rounded-full"
+        aria-label={t.prompt.send}
+        disabled={!question.trim()}
+      >
         <ArrowUpIcon aria-hidden />
       </Button>
     </form>
