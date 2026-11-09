@@ -59,11 +59,12 @@ async function cardColumns(page: Page) {
   return new Set(xs).size;
 }
 
-test('Auf breiten Bildschirmen stehen die Karten in vier Spalten', async ({ page }) => {
+// Handschrift A2: größere Karten mit Spend als Kennzahl, daher drei statt vier Spalten.
+test('Auf breiten Bildschirmen stehen die Karten in drei Spalten', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await page.goto('/lieferanten');
-  expect(await cardColumns(page)).toBe(4);
+  expect(await cardColumns(page)).toBe(3);
 });
 
 test('Bei 390 px stehen die Karten einspaltig, ohne waagerechte Scrollleiste', async ({ page }) => {
