@@ -12,6 +12,7 @@ import {
   auditedChange,
   desc,
   eq,
+  inArray,
   schema,
   sql,
   type TenantTransaction,
@@ -19,15 +20,25 @@ import {
 import {
   calculateCycleDeadlines,
   type DueItem,
+  defaultKpiTolerance,
   type Kpi,
+  type KpiDetail,
+  type KpiImportPreview,
+  kpiDetailSchema,
+  kpiImportPreviewSchema,
+  kpiTrack,
   maxScorecardKpis,
+  parseKpiMonth,
+  parseKpiNumber,
   type SaveKpi,
+  type SaveKpiValue,
   type ScorecardView,
   scorecardViewSchema,
 } from '@reziproq/shared';
 import { ActionsService } from '../actions/actions.service.js';
 import { actorOf } from '../audit/actor.js';
 import {
+  kpiValueAudit,
   scorecardAudit,
   scorecardKpiAudit,
   scorecardSignRequestAudit,
@@ -36,8 +47,34 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { EmailService } from '../email/email.service.js';
 import { readCycleSettings } from '../overview/cycle.js';
+import { normalizeHeader } from '../suppliers/import-file.js';
 import type { JbpScope } from './jbp.service.js';
 import { teamPeople } from './people.js';
+
+/** Toleranz „knapp“ des Kunden (JBP-09); beide Seiten lesen sie über app_kpi_tolerance. */
+export async function kpiTolerance(tx: TenantTransaction, relationshipId: string) {
+  const result = await tx.execute<{ tolerance: number }>(
+    sql`select app_kpi_tolerance(${relationshipId}) as tolerance`,
+  );
+  return Number(result.rows[0]?.tolerance ?? defaultKpiTolerance);
+}
+
+/** Je Kennzahl und Monat der jüngste Wert, älteste Monate zuerst. */
+export async function valuesOf(tx: TenantTransaction, kpiIds: string[]) {
+  if (kpiIds.length === 0) return [];
+  const rows = await tx
+    .select()
+    .from(schema.kpiValue)
+    .where(inArray(schema.kpiValue.kpiId, kpiIds))
+    .orderBy(asc(schema.kpiValue.period), desc(schema.kpiValue.enteredAt));
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = `${row.kpiId}|${row.period}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -156,8 +193,17 @@ export class JbpScorecardService {
     const signatures = card ? await this.signatures(tx, card) : [];
     const status = card?.status ?? 'draft';
     const editable = Boolean(plan) && status === 'draft' && this.canEdit(scope);
+    const tolerance = plan ? await kpiTolerance(tx, scope.relationshipId) : defaultKpiTolerance;
+    const values = await valuesOf(
+      tx,
+      rows.map((row) => row.id),
+    );
     const kpis: Kpi[] = rows.map((row) => {
       const initiative = initiatives.find((entry) => entry.id === row.initiativeId);
+      const own = values
+        .filter((entry) => entry.kpiId === row.id)
+        .map((entry) => ({ period: entry.period, value: entry.value }));
+      const startDate = row.createdAt.toISOString().slice(0, 10);
       return {
         id: row.id,
         own: row.ownerOrgId === scope.orgId,
@@ -172,6 +218,10 @@ export class JbpScorecardService {
         ownerUserId: row.ownerUserId,
         ownerName: row.ownerName,
         benefitFor: row.benefitFor,
+        startDate,
+        values: own,
+        track: kpiTrack({ ...row, startDate }, own, tolerance),
+        canEnter: row.ownerOrgId === scope.orgId && this.canEdit(scope),
       };
     });
     return scorecardViewSchema.parse({
@@ -186,6 +236,7 @@ export class JbpScorecardService {
         signedAt: row.signedAt.toISOString(),
       })),
       deadline: plan && scope.side === 'buyer' ? await this.deadline(tx, plan.id) : null,
+      tolerancePercent: tolerance,
       canEdit: editable,
       canSign:
         status === 'draft' &&
@@ -463,6 +514,185 @@ export class JbpScorecardService {
       };
     });
     return this.view(scope);
+  }
+
+  /** Kennzahl mit allen Ist-Werten (JBP-09); sehen dürfen beide Seiten. */
+  async kpiDetail(scope: JbpScope, kpiId: string): Promise<KpiDetail> {
+    const view = await this.view(scope);
+    const kpi = view.kpis.find((entry) => entry.id === kpiId);
+    if (!kpi) throw notFound();
+    const values = await valuesOf(scope.tx, [kpiId]);
+    return kpiDetailSchema.parse({
+      kpi,
+      values: values
+        .map((row) => ({
+          period: row.period,
+          value: row.value,
+          source: row.source,
+          enteredByName: row.enteredByName,
+          enteredAt: row.enteredAt.toISOString(),
+        }))
+        .reverse(),
+      tolerancePercent: view.tolerancePercent,
+    });
+  }
+
+  /** Kennzahl, für die die eigene Seite Werte erfasst; auch nach der Unterschrift. */
+  private async enterable(scope: JbpScope, kpiId: string) {
+    if (!this.canEdit(scope)) throw forbidden();
+    const [row] = await scope.tx
+      .select()
+      .from(schema.scorecardKpi)
+      .where(
+        and(
+          eq(schema.scorecardKpi.id, kpiId),
+          eq(schema.scorecardKpi.relationshipId, scope.relationshipId),
+        ),
+      );
+    if (!row) throw notFound();
+    if (row.ownerOrgId !== scope.orgId) throw forbidden();
+    return row;
+  }
+
+  /** Ein Wert je Monat: ein neuer ersetzt den alten; der Verlauf hält beide fest. */
+  private async writeValue(
+    scope: JbpScope,
+    kpi: KpiRow,
+    period: string,
+    value: string,
+    source: 'manual' | 'csv',
+  ) {
+    const { tx } = scope;
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    const [before] = await tx
+      .select()
+      .from(schema.kpiValue)
+      .where(and(eq(schema.kpiValue.kpiId, kpi.id), eq(schema.kpiValue.period, period)));
+    await auditedChange(tx, actor, kpiValueAudit, async () => {
+      if (before) {
+        await tx
+          .update(schema.kpiValue)
+          .set({
+            value,
+            source,
+            enteredBy: scope.auth.userId,
+            enteredByName: actor.name,
+            enteredAt: new Date(),
+          })
+          .where(eq(schema.kpiValue.id, before.id));
+      } else {
+        await tx.insert(schema.kpiValue).values({
+          relationshipId: scope.relationshipId,
+          ownerOrgId: scope.orgId,
+          visibility: 'shared',
+          kpiId: kpi.id,
+          period,
+          value,
+          source,
+          enteredBy: scope.auth.userId,
+          enteredByName: actor.name,
+        });
+      }
+      return {
+        objectId: kpi.id,
+        relationshipId: scope.relationshipId,
+        action: before ? ('updated' as const) : ('created' as const),
+        before: before
+          ? { period: before.period, value: Number(before.value).toString(), source: before.source }
+          : null,
+        after: { period, value: Number(value).toString(), source },
+        result: undefined,
+      };
+    });
+  }
+
+  async enterValue(scope: JbpScope, kpiId: string, input: SaveKpiValue): Promise<KpiDetail> {
+    const kpi = await this.enterable(scope, kpiId);
+    await this.writeValue(scope, kpi, `${input.month}-01`, input.value, 'manual');
+    return this.kpiDetail(scope, kpiId);
+  }
+
+  /**
+   * CSV-Import (JBP-09): Spalten Kennzahl, Monat, Wert. Die Vorschau markiert fehlerhafte Zeilen;
+   * übernommen wird nur, wenn keine Zeile fehlerhaft ist.
+   */
+  async importPreview(
+    scope: JbpScope,
+    rows: { row: number; values: Record<string, string> }[],
+  ): Promise<KpiImportPreview> {
+    if (!this.canEdit(scope)) throw forbidden();
+    const plan = await this.plan(scope.tx, scope.relationshipId);
+    const card = plan ? await this.scorecard(scope.tx, plan.id) : null;
+    const kpis = card
+      ? await scope.tx
+          .select()
+          .from(schema.scorecardKpi)
+          .where(eq(schema.scorecardKpi.scorecardId, card.id))
+      : [];
+    const byName = new Map(kpis.map((kpi) => [kpi.name.trim().toLocaleLowerCase('de'), kpi]));
+    const seen = new Set<string>();
+    // Spaltenköpfe wie in PLT-07 normalisiert: „Kennzahl“, „KPI“, „Monat“, „Month“, „Wert“, „Value“.
+    const pick = (values: Record<string, string>, keys: string[]) => {
+      const normalized = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [normalizeHeader(key), value]),
+      );
+      return keys.map((key) => normalized[key]).find((value) => value !== undefined) ?? '';
+    };
+    const result = rows.map(({ row, values }) => {
+      const kpiName = pick(values, ['kennzahl', 'kpi']).trim();
+      const month = pick(values, ['monat', 'month']).trim();
+      const value = pick(values, ['wert', 'value']).trim();
+      const errors: KpiImportPreview['rows'][number]['errors'] = [];
+      const kpi = byName.get(kpiName.toLocaleLowerCase('de'));
+      if (!kpi) errors.push('kennzahl_unbekannt');
+      else if (kpi.ownerOrgId !== scope.orgId) errors.push('kennzahl_andere_seite');
+      const period = parseKpiMonth(month);
+      if (!period) errors.push('monat_ungueltig');
+      if (!parseKpiNumber(value)) errors.push('wert_ungueltig');
+      // Doppelt ist nur eine sonst gültige Zeile zu Kennzahl und Monat, die schon vorkam.
+      const key = `${kpi?.id}|${period}`;
+      if (errors.length === 0 && seen.has(key)) errors.push('doppelt');
+      if (errors.length === 0) seen.add(key);
+      return { row, kpi: kpiName, month, value, errors };
+    });
+    const invalid = result.filter((entry) => entry.errors.length > 0).length;
+    return kpiImportPreviewSchema.parse({
+      rows: result,
+      valid: result.length - invalid,
+      invalid,
+    });
+  }
+
+  async importApply(
+    scope: JbpScope,
+    rows: { row: number; values: Record<string, string> }[],
+  ): Promise<KpiImportPreview> {
+    const preview = await this.importPreview(scope, rows);
+    if (preview.invalid > 0) {
+      throw new BadRequestException({ statusCode: 400, code: 'import_fehlerhaft', preview });
+    }
+    const plan = await this.plan(scope.tx, scope.relationshipId);
+    const card = plan ? await this.scorecard(scope.tx, plan.id) : null;
+    const kpis = card
+      ? await scope.tx
+          .select()
+          .from(schema.scorecardKpi)
+          .where(eq(schema.scorecardKpi.scorecardId, card.id))
+      : [];
+    for (const entry of preview.rows) {
+      const kpi = kpis.find(
+        (candidate) =>
+          candidate.name.trim().toLocaleLowerCase('de') === entry.kpi.toLocaleLowerCase('de'),
+      ) as KpiRow;
+      await this.writeValue(
+        scope,
+        kpi,
+        parseKpiMonth(entry.month) as string,
+        parseKpiNumber(entry.value) as string,
+        'csv',
+      );
+    }
+    return preview;
   }
 
   /** Start (JBP-07): Scorecard mit Kennzahlen, die die eigene Seite noch nicht unterschrieben hat. */

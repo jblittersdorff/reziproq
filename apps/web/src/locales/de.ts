@@ -414,6 +414,10 @@ export const de = {
       milestones: 'Meilensteine',
       owner_name: 'Verantwortlich',
       due_on: 'Frist',
+      period: 'Monat',
+      value: 'Wert',
+      source: 'Quelle',
+      tolerance_percent: 'Toleranz in %',
       initiative: 'Initiative',
     } as Record<string, string>,
     values: {
@@ -1081,6 +1085,68 @@ export const de = {
       signConfirm: 'Für unsere Seite unterschreiben',
       signHint: 'Mit eurer Unterschrift sagt ihr zu, an diesen Kennzahlen gemessen zu werden.',
       signDone: 'Unterschrieben.',
+      // JBP-09: Ist-Werte
+      columns2: { track: 'Stand' },
+      tracks: {
+        on_track: 'Auf Kurs',
+        close: 'Knapp',
+        off: 'Nicht auf Kurs',
+        none: 'Noch kein Wert',
+      } as Record<string, string>,
+      trackHint: (tolerance: number) =>
+        `Auf Kurs heißt: auf oder vor der Linie von der Basis zum Ziel. Bis ${tolerance} % dahinter ist knapp.`,
+      sparkline: (name: string) => `Verlauf ${name}`,
+      import: 'Werte importieren',
+      importTitle: 'Ist-Werte importieren',
+      importPurpose:
+        'CSV oder Excel mit den Spalten Kennzahl, Monat und Wert. Erst die Vorschau, dann übernehmen; mit fehlerhaften Zeilen wird nichts übernommen.',
+      importFile: 'Datei',
+      importFileHint:
+        'CSV (Komma oder Semikolon) oder XLSX. Monat als 2027-03 oder 03.2027, Wert wie 97,5.',
+      importPreview: 'Vorschau',
+      importApply: (count: number) => `${count} Werte übernehmen`,
+      importDone: (count: number) => `${count} Werte übernommen.`,
+      importCount: (valid: number, invalid: number) =>
+        invalid > 0
+          ? `${valid} Zeilen in Ordnung, ${invalid} fehlerhaft. Bitte die Datei korrigieren.`
+          : `${valid} Zeilen in Ordnung.`,
+      importColumns: {
+        row: 'Zeile',
+        kpi: 'Kennzahl',
+        month: 'Monat',
+        value: 'Wert',
+        state: 'Prüfung',
+      },
+      importOk: 'In Ordnung',
+      importErrors: {
+        kennzahl_unbekannt: 'Kennzahl unbekannt',
+        kennzahl_andere_seite: 'Kennzahl der anderen Seite',
+        monat_ungueltig: 'Monat ungültig',
+        wert_ungueltig: 'Wert ungültig',
+        doppelt: 'Monat doppelt',
+      } as Record<string, string>,
+      importFailed: 'Die Datei konnte nicht gelesen werden.',
+      chooseFile: 'Bitte eine Datei wählen.',
+      detailPurpose: (unit: string, direction: string) => `In ${unit}, ${direction}.`,
+      chartTitle: (track: string) => `Stand: ${track}`,
+      chartEmpty: 'Noch keine Ist-Werte',
+      chartEmptyHint: 'Sobald die verantwortliche Seite Werte erfasst, steht hier der Verlauf.',
+      seriesActual: 'Ist',
+      seriesPlan: 'Linie zum Ziel',
+      valuesTitle: 'Werte',
+      valueColumns: { month: 'Monat', value: 'Wert', source: 'Quelle', by: 'Erfasst von' },
+      sources: { manual: 'von Hand', csv: 'Import' } as Record<string, string>,
+      enter: 'Wert erfassen',
+      enterTitle: 'Wert erfassen',
+      enterPurpose: 'Ein Wert je Monat; ein neuer Wert für denselben Monat ersetzt den alten.',
+      monthLabel: 'Monat',
+      valueLabel: (unit: string) => `Wert in ${unit}`,
+      historyTitle: 'Verlauf',
+      onlyOwner: 'Werte erfasst die verantwortliche Seite.',
+      tolerance: 'Toleranz „knapp“ für Scorecards',
+      toleranceHint:
+        'Ab wie viel Prozent Rückstand eine Kennzahl nicht mehr knapp, sondern nicht auf Kurs ist.',
+      toleranceSaved: 'Toleranz gespeichert.',
       signNotPossible:
         'Ihr könnt gerade nicht unterschreiben: Es fehlen Kennzahlen, eure Seite hat schon unterschrieben oder die Scorecard ist gesperrt.',
     },
@@ -1170,10 +1236,11 @@ export const de = {
     // QBR-01b
     live: 'Aktueller Stand',
     liveFrozen: (date: string) => `Stand zum Abschluss am ${date}`,
-    liveSections: { actions: 'Offene Maßnahmen', commitments: 'Offene Zusagen' } as Record<
-      string,
-      string
-    >,
+    liveSections: {
+      actions: 'Offene Maßnahmen',
+      commitments: 'Offene Zusagen',
+      scorecard: 'Scorecard',
+    } as Record<string, string>,
     close: 'Termin abschließen',
     closeQuestion: 'Protokoll und Beschlüsse sperren und den Stand einfrieren?',
     closeConfirm: 'Abschließen',

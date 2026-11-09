@@ -351,6 +351,13 @@
       "when": 1794231957731,
       "tag": "0049_scorecard",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794233914796,
+      "tag": "0050_istwerte",
+      "breakpoints": true
     }
   ]
 }

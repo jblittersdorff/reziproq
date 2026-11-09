@@ -150,6 +150,20 @@ export const scorecardKpiAudit = auditedObject({
   ],
 });
 
+/** Ist-Werte einer Kennzahl (JBP-09): je Monat, geteilt; Objekt ist die Kennzahl. */
+export const kpiValueAudit = auditedObject({
+  type: 'kpi_value',
+  visibility: 'shared',
+  fields: ['period', 'value', 'source'],
+});
+
+/** Toleranz „knapp“ des Kunden (JBP-09): Verlauf nur intern. */
+export const scorecardSettingAudit = auditedObject({
+  type: 'scorecard_setting',
+  visibility: 'internal',
+  fields: ['tolerance_percent'],
+});
+
 /** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */
 export const scorecardSignRequestAudit = auditedObject({
   type: 'scorecard_sign_request',
@@ -262,6 +276,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   scorecardAudit,
   scorecardKpiAudit,
   scorecardSignRequestAudit,
+  kpiValueAudit,
+  scorecardSettingAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

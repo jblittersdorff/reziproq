@@ -52,6 +52,8 @@ import {
   jbpTopicCandidatesSchema,
   jbpTopicsSchema,
   jbpVersionsSchema,
+  kpiDetailSchema,
+  kpiImportPreviewSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meetingDetailSchema,
@@ -93,17 +95,20 @@ import {
   type SaveInitiative,
   type SaveJbpTopic,
   type SaveKpi,
+  type SaveKpiValue,
   type SaveMeetingNote,
   type SaveMilestone,
   type SaveProtocol,
   type SaveRating,
   type SaveRuleItem,
   type SaveRuleSet,
+  type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
   type SpendRequest,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  scorecardSettingSchema,
   scorecardViewSchema,
   segmentationSchema,
   segmentModelResponseSchema,
@@ -1488,6 +1493,61 @@ export const signScorecard = (accessToken: string, base: MeetingBase) =>
 
 export const startScorecardVersion = (accessToken: string, base: MeetingBase) =>
   sendJson('POST', `${base}/jbp/scorecard/neue-version`, {}, scorecardViewSchema, accessToken);
+
+/** JBP-09: Ist-Werte der Kennzahlen, Import und Toleranz „knapp“. */
+export const kpiDetailQueryOptions = (accessToken: string, base: MeetingBase, kpiId: string) =>
+  queryOptions({
+    queryKey: ['jbp', 'scorecard', base, kpiId],
+    queryFn: () =>
+      getJson(`${base}/jbp/scorecard/kennzahlen/${kpiId}`, kpiDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const enterKpiValue = (
+  accessToken: string,
+  base: MeetingBase,
+  kpiId: string,
+  request: SaveKpiValue,
+) =>
+  sendJson(
+    'POST',
+    `${base}/jbp/scorecard/kennzahlen/${kpiId}/werte`,
+    request,
+    kpiDetailSchema,
+    accessToken,
+  );
+
+/** Datei hochladen: Vorschau oder Übernahme; Fehler kommen als ApiError mit Vorschau im Body. */
+export async function uploadKpiValues(
+  accessToken: string,
+  base: MeetingBase,
+  file: File,
+  apply: boolean,
+) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = `${base}/jbp/scorecard/import${apply ? '' : '/vorschau'}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, body);
+  }
+  return kpiImportPreviewSchema.parse(await res.json());
+}
+
+export const scorecardSettingQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['scorecard-setting'],
+    queryFn: () => getJson('/scorecard/settings', scorecardSettingSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveScorecardSetting = (accessToken: string, request: ScorecardSetting) =>
+  sendJson('PUT', '/scorecard/settings', request, scorecardSettingSchema, accessToken);
 
 /** JBP-06: Freigabe und Versionen des Gemeinsamen Plans. */
 export const jbpApprovalQueryOptions = (accessToken: string, base: MeetingBase) =>

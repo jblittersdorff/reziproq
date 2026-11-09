@@ -595,7 +595,9 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
                             ? t.actions.statuses[item.status as keyof typeof t.actions.statuses]
                             : section.key === 'commitments'
                               ? (t.jbp.commitments.statuses[item.status] ?? item.status)
-                              : item.status),
+                              : section.key === 'scorecard'
+                                ? (t.jbp.scorecard.tracks[item.status] ?? item.status)
+                                : item.status),
                         item.dueDate && t.actions.due(format.date(item.dueDate)),
                       ]
                         .filter(Boolean)

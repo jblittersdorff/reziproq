@@ -22,6 +22,7 @@ import { JbpCommitmentsService } from './jbp-commitments.service.js';
 import { JbpInitiativesService } from './jbp-initiatives.service.js';
 import { JbpScorecardService } from './jbp-scorecard.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
+import { ScorecardSettingsController } from './scorecard-settings.controller.js';
 
 /** Gemeinsamer Plan (JBP-01 ff.). */
 @Module({
@@ -39,6 +40,7 @@ import { JbpTopicsService } from './jbp-topics.service.js';
     SupplierJbpApprovalController,
     BuyerJbpScorecardController,
     SupplierJbpScorecardController,
+    ScorecardSettingsController,
   ],
   providers: [
     JbpService,

@@ -1,18 +1,23 @@
 import type { CycleSetting } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState, type FormEvent } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
-import { LoadingState } from '@/components/ui/loading-state';
 import { Input } from '@/components/ui/input';
+import { LoadingState } from '@/components/ui/loading-state';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
-import { useCan } from '@/features/auth/use-permissions';
 import { useMe } from '@/features/auth/use-me';
+import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { cycleSettingsQueryOptions, updateCycleSettings } from '@/lib/api';
+import {
+  cycleSettingsQueryOptions,
+  saveScorecardSetting,
+  scorecardSettingQueryOptions,
+  updateCycleSettings,
+} from '@/lib/api';
 import { useT } from '@/lib/i18n';
 
 export function CycleSettingsPage() {
@@ -57,6 +62,12 @@ function CycleSettingsForm() {
     ...cycleSettingsQueryOptions(accessToken),
     enabled: accessToken !== '',
   });
+  // JBP-09: Toleranz „knapp“ für Scorecards, im selben Formular gespeichert.
+  const tolerance = useQuery({
+    ...scorecardSettingQueryOptions(accessToken),
+    enabled: accessToken !== '',
+  });
+  const [toleranceDraft, setToleranceDraft] = useState<number | null>(null);
   const [draft, setDraft] = useState<CycleSetting[]>([]);
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -73,6 +84,10 @@ function CycleSettingsForm() {
     setSaved(false);
     try {
       const result = await updateCycleSettings(accessToken, { settings: draft });
+      if (toleranceDraft !== null) {
+        await saveScorecardSetting(accessToken, { tolerancePercent: toleranceDraft });
+        await queryClient.invalidateQueries({ queryKey: ['scorecard-setting'] });
+      }
       setDraft(result.settings);
       await queryClient.invalidateQueries({ queryKey: ['cycle-settings'] });
       setSaved(true);
@@ -148,6 +163,24 @@ function CycleSettingsForm() {
           );
         })}
       </div>
+      <SettingsGroup title={t.jbp.scorecard.title}>
+        <SettingsRow
+          label={t.jbp.scorecard.tolerance}
+          description={t.jbp.scorecard.toleranceHint}
+          htmlFor="scorecard-tolerance"
+        >
+          <Input
+            id="scorecard-tolerance"
+            type="number"
+            min={0}
+            max={50}
+            step={1}
+            required
+            value={toleranceDraft ?? tolerance.data?.tolerancePercent ?? 10}
+            onChange={(event) => setToleranceDraft(Number(event.target.value))}
+          />
+        </SettingsRow>
+      </SettingsGroup>
       <Button className="self-start" loading={saving} type="submit">
         {t.settings.save}
       </Button>

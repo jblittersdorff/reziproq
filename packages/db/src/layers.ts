@@ -76,6 +76,8 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     testValues: { step: 'feedback', weeks_relative_to_jbp: -8 },
   },
+  // JBP-09: Toleranz „knapp“ je Kunde.
+  scorecard_setting: { kind: 'org_private', testValues: { tolerance_percent: 10 } },
   cycle_reminder_sent: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({
@@ -259,6 +261,18 @@ export const layerRegister: Record<string, LayerEntry> = {
       side: 'buyer',
       user_id: 'demo-test-oem-1',
       user_name: 'Probe',
+    }),
+  },
+  // JBP-09: Ist-Werte je Kennzahl und Monat.
+  kpi_value: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      kpi_id: buyer && probe('scorecard_kpi', buyer),
+      period: '2027-01-01',
+      value: '95',
+      source: 'manual',
+      entered_by: 'demo-test-oem-1',
+      entered_by_name: 'Probe',
     }),
   },
   // JBP-05: Zusagen einer Seite.
