@@ -69,9 +69,7 @@ export const createJbpSchema = z
   .strict();
 export type CreateJbp = z.infer<typeof createJbpSchema>;
 
-export const saveBusinessUpdateSchema = z
-  .object({ text: z.string().trim().max(10_000) })
-  .strict();
+export const saveBusinessUpdateSchema = z.object({ text: z.string().trim().max(10_000) }).strict();
 export type SaveBusinessUpdate = z.infer<typeof saveBusinessUpdateSchema>;
 
 // JBP-02: Themen beider Seiten. Der Lieferant sieht nur Titel und teilbare Beschreibung.
@@ -110,9 +108,7 @@ export const saveJbpTopicSchema = z
   .strict();
 export type SaveJbpTopic = z.infer<typeof saveJbpTopicSchema>;
 
-export const parkJbpTopicSchema = z
-  .object({ reason: z.string().trim().min(1).max(500) })
-  .strict();
+export const parkJbpTopicSchema = z.object({ reason: z.string().trim().min(1).max(500) }).strict();
 export type ParkJbpTopic = z.infer<typeof parkJbpTopicSchema>;
 
 export const jbpTopicOrderSchema = z.object({ ids: z.array(z.uuid()).min(1).max(100) }).strict();
@@ -139,3 +135,78 @@ export const importJbpTopicsSchema = z
   })
   .strict();
 export type ImportJbpTopics = z.infer<typeof importJbpTopicsSchema>;
+
+// JBP-06: Freigabe und Versionen des Gemeinsamen Plans.
+
+export const jbpPlanStatuses = ['draft', 'in_review', 'approved'] as const;
+
+/** Eingefrorener Inhalt einer freigegebenen Version; Grundlage für den Vergleich. */
+export const jbpContentSchema = z.object({
+  topics: z.array(z.object({ title: z.string(), side: z.enum(meetingSides), status: z.string() })),
+  initiatives: z.array(
+    z.object({
+      title: z.string(),
+      goal: z.string(),
+      benefitBuyer: z.string(),
+      benefitSupplier: z.string(),
+      ownerBuyerName: z.string(),
+      ownerSupplierName: z.string(),
+      startsOn: z.string(),
+      endsOn: z.string(),
+    }),
+  ),
+  commitments: z.array(
+    z.object({
+      title: z.string(),
+      side: z.enum(meetingSides),
+      ownerName: z.string(),
+      dueOn: z.string(),
+    }),
+  ),
+});
+export type JbpContent = z.infer<typeof jbpContentSchema>;
+
+export const jbpDecisionSchema = z.object({
+  id: z.uuid(),
+  version: z.number().int(),
+  side: z.enum(meetingSides),
+  userName: z.string(),
+  decision: z.enum(['approved', 'returned']),
+  comment: z.string().nullable(),
+  decidedAt: z.string(),
+});
+export type JbpDecision = z.infer<typeof jbpDecisionSchema>;
+
+export const jbpApprovalViewSchema = z.object({
+  hasPlan: z.boolean(),
+  ownSide: z.enum(meetingSides),
+  status: z.enum(jbpPlanStatuses),
+  version: z.number().int(),
+  /** Entscheidungen der laufenden Version, neueste zuerst */
+  decisions: z.array(jbpDecisionSchema),
+  /** Freigegeben von beiden am …; nur bei status approved */
+  approvedAt: z.string().nullable(),
+  canSubmit: z.boolean(),
+  canDecide: z.boolean(),
+  canNewVersion: z.boolean(),
+});
+export type JbpApprovalView = z.infer<typeof jbpApprovalViewSchema>;
+
+export const decideJbpSchema = z
+  .object({
+    decision: z.enum(['approved', 'returned']),
+    comment: z.string().trim().max(2000).nullable(),
+  })
+  .strict()
+  .refine((value) => value.decision === 'approved' || (value.comment ?? '').length > 0, {
+    path: ['comment'],
+    message: 'begruendung_fehlt',
+  });
+export type DecideJbp = z.infer<typeof decideJbpSchema>;
+
+export const jbpVersionsSchema = z.object({
+  versions: z.array(
+    z.object({ version: z.number().int(), approvedAt: z.string(), content: jbpContentSchema }),
+  ),
+});
+export type JbpVersions = z.infer<typeof jbpVersionsSchema>;

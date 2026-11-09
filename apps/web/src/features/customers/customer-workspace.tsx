@@ -2,6 +2,7 @@ import { type CustomerArea, type CustomerWorkspace, customerAreas } from '@rezip
 import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import {
+  BadgeCheckIcon,
   CalendarDaysIcon,
   EyeOffIcon,
   HandHeartIcon,
@@ -219,6 +220,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               title: t.jbp.commitments.title,
               status: t.jbp.commitments.purpose,
             },
+            {
+              key: 'approval',
+              href: `${customerPath(relationshipId, 'plan')}/freigabe`,
+              title: t.jbp.approval.title,
+              status: t.jbp.approval.purpose,
+            },
           ]}
         />
       </section>
@@ -331,6 +338,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{t.jbp.commitments.title}</TileTitle>
               <TileText>{t.jbp.commitments.purpose}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/plan/freigabe" params={{ id: relationshipId }}>
+              <TileIcon>
+                <BadgeCheckIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.jbp.approval.title}</TileTitle>
+              <TileText>{t.jbp.approval.purpose}</TileText>
             </Link>
           </Tile>
         </div>

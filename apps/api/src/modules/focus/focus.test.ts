@@ -237,7 +237,8 @@ describe('SEG-02 Fokuslieferanten über die API', () => {
       { key: 'feedback', status: 'unavailable' },
       { key: 'touchpoints', status: 'unavailable' },
       { key: 'supplierPlan', status: 'open' },
-      { key: 'jbp', status: 'unavailable' },
+      // JBP-06: Der Schritt Gemeinsamer Plan ist gebaut; ohne Plan ist er offen.
+      { key: 'jbp', status: 'open' },
       { key: 'scorecard', status: 'unavailable' },
       { key: 'execution', status: 'unavailable' },
     ]);

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -35,7 +36,7 @@ type TopicRow = typeof schema.jbpTopic.$inferSelect;
 /** Der jüngste Gemeinsame Plan der Beziehung, wie die Session ihn sieht. */
 async function currentPlan(tx: TenantTransaction, relationshipId: string) {
   const [row] = await tx
-    .select({ id: schema.jbp.id })
+    .select({ id: schema.jbp.id, status: schema.jbp.status })
     .from(schema.jbp)
     .where(eq(schema.jbp.relationshipId, relationshipId))
     .orderBy(desc(schema.jbp.version))
@@ -156,6 +157,10 @@ export class JbpTopicsService {
   private async requirePlan(scope: JbpScope) {
     const plan = await currentPlan(scope.tx, scope.relationshipId);
     if (!plan) throw notFound();
+    // JBP-06: Nach der Freigabe ändern sich Themen nur über eine neue Version.
+    if (plan.status === 'approved') {
+      throw new ConflictException({ statusCode: 409, code: 'plan_freigegeben' });
+    }
     return plan;
   }
 
@@ -282,6 +287,7 @@ export class JbpTopicsService {
       );
     if (!row) throw notFound();
     if (row.ownerOrgId !== scope.orgId) throw forbidden();
+    await this.requirePlan(scope);
     return row;
   }
 

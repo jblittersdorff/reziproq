@@ -37,6 +37,7 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'approval') return t.start.dueApproval(item.supplier);
   if (item.kind === 'commitment') return t.start.dueCommitment(item.detail);
   if (item.kind === 'milestone') return t.start.dueMilestone(item.detail);
+  if (item.kind === 'review') return t.start.dueReview(item.supplier);
   return t.start.dueRating(item.detail);
 }
 

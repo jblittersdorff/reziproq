@@ -209,6 +209,28 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2027-06-30',
     }),
   },
+  // JBP-06: Entscheidungen und freigegebene Versionen des Gemeinsamen Plans, nur anfügbar.
+  jbp_approval: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      version: 1,
+      side: 'buyer',
+      user_id: 'demo-test-oem-1',
+      user_name: 'Probe',
+      decision: 'approved',
+    }),
+  },
+  jbp_version: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      jbp_id: buyer && probe('jbp', buyer),
+      version: 1,
+      content: JSON.stringify({ topics: [], initiatives: [], commitments: [] }),
+    }),
+  },
   // JBP-05: Zusagen einer Seite.
   commitment: {
     kind: 'shared',

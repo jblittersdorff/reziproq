@@ -14,15 +14,19 @@ import {
   type CreateJbp,
   commitmentStatusSchema,
   createJbpSchema,
+  type DecideJbp,
+  decideJbpSchema,
   type ImportJbpTopics,
   type InitiativeDetail,
   type Initiatives,
   importJbpTopicsSchema,
   initiativeStatusSchema,
+  type JbpApprovalView,
   type JbpPreparation,
   type JbpTopicCandidates,
   type JbpTopicOrder,
   type JbpTopics,
+  type JbpVersions,
   jbpTopicOrderSchema,
   type ParkJbpTopic,
   parkJbpTopicSchema,
@@ -44,6 +48,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { type JbpScope, JbpService } from './jbp.service.js';
+import { JbpApprovalService } from './jbp-approval.service.js';
 import { JbpCommitmentsService } from './jbp-commitments.service.js';
 import { JbpInitiativesService } from './jbp-initiatives.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
@@ -394,3 +399,72 @@ export class BuyerJbpCommitmentsController extends commitmentRoutes('buyer') {}
 /** Zusagen beim Lieferanten im Kontext des Kunden (JBP-05). */
 @Controller('kunden/:id/jbp/zusagen')
 export class SupplierJbpCommitmentsController extends commitmentRoutes('supplier') {}
+
+/** JBP-06: Freigabe und Versionen; dieselben Lese-Endpunkte je Seite. */
+function approvalRoutes(side: Side) {
+  class SideApprovalController {
+    constructor(
+      @Inject(JbpService) readonly jbp: JbpService,
+      @Inject(JbpApprovalService) readonly approval: JbpApprovalService,
+    ) {}
+
+    run<T>(auth: AuthContext, id: string, work: (scope: JbpScope) => Promise<T>) {
+      return side === 'buyer' ? this.jbp.buyer(auth, id, work) : this.jbp.supplier(auth, id, work);
+    }
+
+    @Get('freigabe')
+    @Requires('jbp.sehen')
+    view(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<JbpApprovalView> {
+      return this.run(auth, id, (scope) => this.approval.view(scope));
+    }
+
+    @Post('freigabe/neue-version')
+    @Requires('jbp.bearbeiten')
+    newVersion(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<JbpApprovalView> {
+      return this.run(auth, id, (scope) => this.approval.newVersion(scope));
+    }
+
+    @Get('versionen')
+    @Requires('jbp.sehen')
+    versions(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<JbpVersions> {
+      return this.run(auth, id, (scope) => this.approval.versions(scope));
+    }
+  }
+  return SideApprovalController;
+}
+
+/** Freigabe beim Käufer: der SRO gibt zur Prüfung (JBP-06). */
+@Controller('suppliers/:id/jbp')
+export class BuyerJbpApprovalController extends approvalRoutes('buyer') {
+  @Post('freigabe/einreichen')
+  @Requires('jbp.anlegen')
+  submit(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<JbpApprovalView> {
+    return this.jbp.buyer(auth, id, (scope) => this.approval.submit(scope));
+  }
+}
+
+/** Freigabe beim Lieferanten: freigeben oder mit Begründung zurückgeben (JBP-06). */
+@Controller('kunden/:id/jbp')
+export class SupplierJbpApprovalController extends approvalRoutes('supplier') {
+  @Post('freigabe/entscheiden')
+  @Requires('jbp.bearbeiten')
+  decide(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(decideJbpSchema)) body: DecideJbp,
+  ): Promise<JbpApprovalView> {
+    return this.jbp.supplier(auth, id, (scope) => this.approval.decide(scope, body));
+  }
+}

@@ -32,6 +32,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
     { key: 'topics', segment: 'themen' },
     { key: 'initiatives', segment: 'initiativen' },
     { key: 'commitments', segment: 'zusagen' },
+    { key: 'approval', segment: 'freigabe' },
     { key: 'scorecard', coming: 'later' },
   ],
   execution: [

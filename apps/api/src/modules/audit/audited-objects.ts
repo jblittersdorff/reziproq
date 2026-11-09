@@ -120,6 +120,13 @@ export const initiativeAudit = auditedObject({
   ],
 });
 
+/** Anfrage zur Prüfung des Gemeinsamen Plans an eine Person des Lieferanten (JBP-06), mit Mail. */
+export const jbpReviewRequestAudit = auditedObject({
+  type: 'jbp_review_request',
+  visibility: 'internal',
+  fields: ['recipient', 'version'],
+});
+
 /** Zusage einer Seite (JBP-05): geteilt, beide Seiten sehen jede Änderung. */
 export const commitmentAudit = auditedObject({
   type: 'commitment',
@@ -221,6 +228,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   jbpTopicAudit,
   initiativeAudit,
   commitmentAudit,
+  jbpReviewRequestAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

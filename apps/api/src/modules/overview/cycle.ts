@@ -1,11 +1,11 @@
-import { and, desc, eq, gte, or, schema, type TenantTransaction } from '@reziproq/db';
+import { and, desc, eq, gte, inArray, or, schema, type TenantTransaction } from '@reziproq/db';
 import {
-  calculateCycleDeadlines,
-  defaultCycleSettings,
-  type CycleStepKey,
   type CycleScheduleStep,
+  type CycleStepKey,
   type CycleStepStatus,
+  calculateCycleDeadlines,
   cycleStepKeys,
+  defaultCycleSettings,
   type SupplierCycle,
 } from '@reziproq/shared';
 
@@ -40,10 +40,38 @@ export const supplierPlanCycleStepSource: CycleStepSource = {
   },
 };
 
+/**
+ * JBP-06: Gemeinsamer Plan erledigt, sobald eine Version des Plans dieses Zyklus von beiden Seiten
+ * freigegeben ist; begonnen, sobald der Plan angelegt ist. Der Verweis auf den Zyklus ist
+ * käuferprivat (jbp_cycle_link), passend zur Zyklus-Leiste des Käufers.
+ */
+export const jbpCycleStepSource: CycleStepSource = {
+  key: 'jbp',
+  async cycleStepStatus(cycle, tx) {
+    const plans = await tx
+      .select({ id: schema.jbpCycleLink.jbpId })
+      .from(schema.jbpCycleLink)
+      .where(eq(schema.jbpCycleLink.cycleId, cycle.id));
+    if (plans.length === 0) return 'open';
+    const [approved] = await tx
+      .select({ id: schema.jbpVersion.id })
+      .from(schema.jbpVersion)
+      .where(
+        inArray(
+          schema.jbpVersion.jbpId,
+          plans.map((plan) => plan.id),
+        ),
+      )
+      .limit(1);
+    return approved ? 'completed' : 'in_progress';
+  },
+};
+
 /** Wohin ein Schritt der Zyklus-Leiste führt, sobald sein Modul gebaut ist. */
 const stepPaths: Partial<Record<CycleStepKey, string>> = {
   segment: 'strategie/segmentierung',
   supplierPlan: 'strategie/lieferantenplan',
+  jbp: 'plan/freigabe',
 };
 
 export async function readCycleSettings(tx: TenantTransaction) {
