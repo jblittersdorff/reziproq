@@ -51,9 +51,9 @@ export const de = {
 
   start: {
     title: 'Start',
-    greetingMorning: (firstName: string) => `Guten Morgen, ${firstName}`,
-    greetingDay: (firstName: string) => `Guten Tag, ${firstName}`,
-    greetingEvening: (firstName: string) => `Guten Abend, ${firstName}`,
+    greetingMorning: (firstName: string) => `Guten Morgen, ${firstName}.`,
+    greetingDay: (firstName: string) => `Guten Tag, ${firstName}.`,
+    greetingEvening: (firstName: string) => `Guten Abend, ${firstName}.`,
     greetingWithoutName: 'Willkommen bei Reziproq',
     dueTitle: 'Fällig bei mir',
     dueEmptyHint: 'Sobald dir etwas zugewiesen ist, erscheint es hier.',
@@ -80,10 +80,10 @@ export const de = {
     // Aufgabenliste (UMB-05)
     todayTitle: (count: number) =>
       count === 0
-        ? 'Heute ist nichts fällig'
+        ? 'Heute wartet nichts auf dich.'
         : count === 1
-          ? 'Eine Sache für heute'
-          : `${count} Dinge für heute`,
+          ? 'Eine Sache wartet heute auf dich.'
+          : `${['Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs', 'Sieben', 'Acht', 'Neun', 'Zehn', 'Elf', 'Zwölf'][count - 2] ?? count} Dinge warten heute auf dich.`,
     open: 'Öffnen',
     nextStep: 'Zur nächsten Aufgabe',
     relationshipsEmptyHint:
@@ -96,6 +96,37 @@ export const de = {
     metricDue: 'fällig',
     metricRelationships: 'Beziehungen',
     metricCustomers: 'Kunden',
+    // Kacheln (A2)
+    toDue: 'Fällige Aufgaben',
+    allTasks: 'Alle Aufgaben',
+    metricSuppliers: 'Lieferanten',
+    metricFocus: 'im Fokus',
+    metricDecisions: 'offene Entscheidungen',
+    metricActions: 'offene Maßnahmen',
+    kind: {
+      rating: 'Bewertung abgeben',
+      cycle: 'Zyklus-Schritt',
+      contribution: 'Beitrag zum Lieferantenplan',
+      action: 'Maßnahme',
+      approval: 'Lieferantenplan freigeben',
+    },
+    rateNow: 'Jetzt bewerten',
+    internal: 'Nur intern',
+    internalShort: 'intern',
+    sharedWith: (name: string) => `Geteilt mit ${name}`,
+    noMeeting: 'Kein Termin geplant',
+    noMeetingHint: 'Sobald ein gemeinsamer Termin steht, erscheint er hier.',
+    agenda: 'Agenda öffnen',
+    focusTitle: 'Im Fokus',
+    focusEmpty: 'Noch kein Fokuslieferant festgelegt.',
+    rulesShared: 'Spielregeln geteilt',
+    toPortfolio: 'Zum Portfolio',
+    decisionsTitle: 'Offene Entscheidungen',
+    decisionsText: 'Wo noch bewertet oder ein Soll-Typ festgelegt werden muss.',
+    decisionsLink: 'Entscheidungen ansehen',
+    actionsTitle: 'Offene Maßnahmen',
+    actionsText: 'Gemeinsam vereinbart und noch nicht erledigt.',
+    actionsLink: 'Maßnahmen ansehen',
   },
 
   // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)

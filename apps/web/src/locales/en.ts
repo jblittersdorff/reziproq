@@ -50,9 +50,9 @@ export const en: Messages = {
 
   start: {
     title: 'Start',
-    greetingMorning: (firstName: string) => `Good morning, ${firstName}`,
-    greetingDay: (firstName: string) => `Good afternoon, ${firstName}`,
-    greetingEvening: (firstName: string) => `Good evening, ${firstName}`,
+    greetingMorning: (firstName: string) => `Good morning, ${firstName}.`,
+    greetingDay: (firstName: string) => `Good afternoon, ${firstName}.`,
+    greetingEvening: (firstName: string) => `Good evening, ${firstName}.`,
     greetingWithoutName: 'Welcome to Reziproq',
     dueTitle: 'Due for me',
     dueEmptyHint: 'As soon as something is assigned to you, it shows up here.',
@@ -77,10 +77,10 @@ export const en: Messages = {
     back: 'To start',
     todayTitle: (count: number) =>
       count === 0
-        ? 'Nothing due today'
+        ? 'Nothing is waiting for you today.'
         : count === 1
-          ? 'One thing for today'
-          : `${count} things for today`,
+          ? 'One thing is waiting for you today.'
+          : `${['Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'][count - 2] ?? count} things are waiting for you today.`,
     open: 'Open',
     nextStep: 'Go to next task',
     relationshipsEmptyHint:
@@ -93,6 +93,36 @@ export const en: Messages = {
     metricDue: 'due',
     metricRelationships: 'relationships',
     metricCustomers: 'customers',
+    toDue: 'Due tasks',
+    allTasks: 'All tasks',
+    metricSuppliers: 'suppliers',
+    metricFocus: 'in focus',
+    metricDecisions: 'open decisions',
+    metricActions: 'open actions',
+    kind: {
+      rating: 'Submit rating',
+      cycle: 'Cycle step',
+      contribution: 'Supplier plan contribution',
+      action: 'Action',
+      approval: 'Approve supplier plan',
+    },
+    rateNow: 'Rate now',
+    internal: 'Internal only',
+    internalShort: 'internal',
+    sharedWith: (name: string) => `Shared with ${name}`,
+    noMeeting: 'No meeting planned',
+    noMeetingHint: 'As soon as a joint meeting is set, it shows up here.',
+    agenda: 'Open agenda',
+    focusTitle: 'In focus',
+    focusEmpty: 'No focus supplier set yet.',
+    rulesShared: 'Rules shared',
+    toPortfolio: 'To portfolio',
+    decisionsTitle: 'Open decisions',
+    decisionsText: 'Where ratings or a target type are still missing.',
+    decisionsLink: 'View decisions',
+    actionsTitle: 'Open actions',
+    actionsText: 'Agreed together and not yet done.',
+    actionsLink: 'View actions',
   },
 
   portfolio: {
