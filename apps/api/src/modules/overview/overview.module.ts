@@ -4,7 +4,11 @@ import { RatingsModule } from '../ratings/ratings.module.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { SpendMetricSource, TeamMetricSource } from '../suppliers/overview-metrics.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
-import { CYCLE_STEP_SOURCES, segmentCycleStepSource } from './cycle.js';
+import {
+  CYCLE_STEP_SOURCES,
+  segmentCycleStepSource,
+  supplierPlanCycleStepSource,
+} from './cycle.js';
 import { CycleSettingsController } from './cycle-settings.controller.js';
 import { OverviewController } from './overview.controller.js';
 import { OverviewService } from './overview.service.js';
@@ -17,7 +21,10 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
   providers: [
     OverviewService,
     ActionsMetricSource,
-    { provide: CYCLE_STEP_SOURCES, useValue: [segmentCycleStepSource] },
+    {
+      provide: CYCLE_STEP_SOURCES,
+      useValue: [segmentCycleStepSource, supplierPlanCycleStepSource],
+    },
     {
       provide: OVERVIEW_METRIC_SOURCES,
       useFactory: (

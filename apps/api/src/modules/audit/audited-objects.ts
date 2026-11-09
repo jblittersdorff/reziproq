@@ -81,6 +81,13 @@ export const meetingAudit = auditedObject({
   fields: ['title', 'starts_at', 'status'],
 });
 
+/** Freigabe-Anfrage an SRO oder Sponsor (SPL-07): je Person ein Eintrag mit Mail, intern. */
+export const planApprovalRequestAudit = auditedObject({
+  type: 'plan_approval_request',
+  visibility: 'internal',
+  fields: ['recipient', 'round'],
+});
+
 /** Geteilte Maßnahmen (QBR-03): beide Seiten sehen den Verlauf. */
 export const actionAudit = auditedObject({
   type: 'action',
@@ -163,6 +170,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   relationshipTargetAudit,
   meetingAudit,
   actionAudit,
+  planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,
   formatCatalogAudit,

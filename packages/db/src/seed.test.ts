@@ -255,6 +255,14 @@ describe('db:seed', () => {
     ]);
   });
 
+  it('ZYK-01: die drei Fokuslieferanten des Test-OEM haben einen aktiven Zyklus mit JBP-Termin', async () => {
+    await seed(temp.db, { nodeEnv: 'development' });
+    const rows = await temp.db.execute<{ count: number }>(
+      sql`select count(*)::int as count from cycle where status = 'active' and jbp_date is not null`,
+    );
+    expect(rows.rows[0]?.count).toBe(3);
+  });
+
   it('PLT-02: bricht bei NODE_ENV=production ab, ohne etwas zu schreiben', async () => {
     await temp.db.execute(sql`delete from relationship_spend`);
     await expect(seed(temp.db, { nodeEnv: 'production' })).rejects.toThrow(/production/);

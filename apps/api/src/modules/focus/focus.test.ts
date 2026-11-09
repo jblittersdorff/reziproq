@@ -236,7 +236,7 @@ describe('SEG-02 Fokuslieferanten über die API', () => {
       { key: 'segment', status: 'completed' },
       { key: 'feedback', status: 'unavailable' },
       { key: 'touchpoints', status: 'unavailable' },
-      { key: 'supplierPlan', status: 'unavailable' },
+      { key: 'supplierPlan', status: 'open' },
       { key: 'jbp', status: 'unavailable' },
       { key: 'scorecard', status: 'unavailable' },
       { key: 'execution', status: 'unavailable' },

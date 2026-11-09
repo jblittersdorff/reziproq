@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, auditedChange, eq, schema, type TenantTransaction } from '@reziproq/db';
+import { and, asc, auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
 import {
   defaultObjectiveCategories,
   objectiveCategoriesResponseSchema,
@@ -27,6 +27,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { readContributions, summarizeContributions } from './contributions.js';
+import { approvalStateOf } from './plan-approvals.service.js';
 import { readTopics } from './strategic-topics.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
 
@@ -174,10 +175,12 @@ export class SupplierPlansService {
             canCreate: false,
           });
         }
+        // Die jüngste Version zählt; abgelöste bleiben unter „Versionen“ lesbar (SPL-07).
         const [plan] = await tx
           .select()
           .from(schema.supplierPlan)
           .where(eq(schema.supplierPlan.cycleId, cycle.id))
+          .orderBy(desc(schema.supplierPlan.version))
           .limit(1);
         const categoryByKey = new Map(categories.map((category) => [category.key, category]));
         const teamCandidates = await this.teamCandidatesIn(tx, organization.id, relationshipId);
@@ -244,6 +247,11 @@ export class SupplierPlansService {
             canManage: permissions.canManage && plan.status === 'draft',
             contributions: summarizeContributions(contributions),
             topics,
+            approval: await approvalStateOf(tx, auth, organization.id, plan, {
+              canManage: permissions.canManage,
+              openContributions: contributions.filter((entry) => entry.status === 'open').length,
+              topicCount: topics.length,
+            }),
             objectives: objectives.map((objective) => ({
               id: objective.id,
               categoryKey: objective.categoryKey,

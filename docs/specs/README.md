@@ -118,7 +118,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 52 | SPL-01 | Lieferantenplan und Zielkategorien | SPL-01, SPL-02 | ZYK-01, SEG-06, PLT-06 | nach 1.0 | Block P | C | fertig | Käuferprivater Lieferantenplan mit Zielen, dynamischem Soll-Typ, sieben Standardkategorien und Admin-Verwaltung; RLS und API-Rechte getestet. |
 | 53 | SPL-03 | Beiträge der Funktionen | SPL-03 | SPL-01, NAV-05, QS-01 | nach 1.0 | Block P | C | fertig | – |
 | 54 | SPL-06 | Strategische Themen | SPL-06 | SPL-01 | nach 1.0 | Block P | C | fertig | Themen nur im Entwurf änderbar; Ordnen speichert die ganze Reihenfolge; ohne Löschen. |
-| 55 | SPL-07 | Freigabe und Versionen des Lieferantenplans | SPL-07, SPL-09 | SPL-03, SPL-06, SPL-01, PLT-05b | nach 1.0 | Block P | C | offen | – |
+| 55 | SPL-07 | Freigabe und Versionen des Lieferantenplans | SPL-07, SPL-09 | SPL-03, SPL-06, SPL-01, PLT-05b | nach 1.0 | Block P | C | PR offen | Testlauf-Pfad. Runden mit plan_approval; Sperre per Trigger; neue Version kopiert Ziele und Themen; Zyklus-Schritt erledigt. |
 | 56 | QBR-04 | Erinnerung und Eskalation | QBR-04 | QBR-03, QS-01 | nach 1.0 | Block P | A | offen | – |
 | 57 | PLB-06 | Kontaktpunkte | PLB-06 | PLB-03, PLT-07b | nach 1.0 | Block P | C | offen | – |
 | 58 | JBP-01 | Vorbereitung des Joint Business Planning | JBP-01 | QBR-01b, SPL-07, SEG-10, ZYK-02 | nach 1.0 | Block J | C | offen | Testlauf-Pfad (umsetzungsplan.md, Abschnitt 8). PUL-03 nur weich: Der Feedback-Abschnitt erscheint, sobald Block F gebaut ist. |

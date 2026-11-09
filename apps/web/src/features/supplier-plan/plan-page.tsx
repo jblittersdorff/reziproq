@@ -4,24 +4,28 @@ import { ArrowDownIcon, ArrowUpIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { StatusLine } from '@/components/ui/status-line';
+import { useToken } from '@/features/ratings/use-rating';
+import { routerLink } from '@/features/shell/navigation';
+import { PageHeader } from '@/features/shell/page-header';
+import { formatDate } from '@/features/start/start-page';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { workspacePath } from '@/features/workspace/areas';
-import { PageHeader } from '@/features/shell/page-header';
-import { routerLink } from '@/features/shell/navigation';
 import {
   createSupplierPlan,
+  newSupplierPlanVersion,
   reorderStrategicTopics,
+  submitSupplierPlan,
   supplierPlanQueryOptions,
 } from '@/lib/api';
-import { useToken } from '@/features/ratings/use-rating';
 import { useFlash } from '@/lib/flash';
-import { formatDate } from '@/features/start/start-page';
 import { useLocale, useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export function SupplierPlanPage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
@@ -29,11 +33,7 @@ export function SupplierPlanPage({ relationshipId }: { relationshipId: string })
 
   if (!supplier.data) return null;
   return (
-    <SupplierFrame
-      relationshipId={relationshipId}
-      area="strategy"
-      current={t.supplierPlan.title}
-    >
+    <SupplierFrame relationshipId={relationshipId} area="strategy" current={t.supplierPlan.title}>
       {() => <PlanContent relationshipId={relationshipId} supplier={supplier.data} />}
     </SupplierFrame>
   );
@@ -93,9 +93,7 @@ function PlanContent({
       <>
         <PageHeader title={t.supplierPlan.title} purpose={t.supplierPlan.purpose} />
         {message && <StatusLine message={message} onHidden={hideMessage} />}
-        {createFailed && (
-          <StatusLine message={t.supplierPlan.createFailed} tone="warning" />
-        )}
+        {createFailed && <StatusLine message={t.supplierPlan.createFailed} tone="warning" />}
         {!cycleId ? (
           <EmptyState
             size="lg"
@@ -156,16 +154,16 @@ function PlanContent({
             children: t.supplierPlan.requestContributions,
           })}
           <Button asChild>
-              {routerLink({
-                href: `/lieferanten/${relationshipId}/strategie/lieferantenplan/ziele/neu`,
-                className: '',
-                children: (
-                  <>
-                    <PlusIcon aria-hidden />
-                    {t.supplierPlan.addGoal}
-                  </>
-                ),
-              })}
+            {routerLink({
+              href: `/lieferanten/${relationshipId}/strategie/lieferantenplan/ziele/neu`,
+              className: '',
+              children: (
+                <>
+                  <PlusIcon aria-hidden />
+                  {t.supplierPlan.addGoal}
+                </>
+              ),
+            })}
           </Button>
         </div>
       )}
@@ -178,6 +176,7 @@ function PlanContent({
           {t.supplierPlan.sro}: {plan.sro?.name ?? t.supplierPlan.noSro}
         </span>
       </div>
+      <PlanApprovalBar relationshipId={relationshipId} plan={plan} />
 
       <section aria-labelledby="plan-summary" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -272,13 +271,7 @@ function PlanContent({
   );
 }
 
-function TopicsSection({
-  relationshipId,
-  plan,
-}: {
-  relationshipId: string;
-  plan: SupplierPlan;
-}) {
+function TopicsSection({ relationshipId, plan }: { relationshipId: string; plan: SupplierPlan }) {
   const t = useT();
   const accessToken = useToken();
   const queryClient = useQueryClient();
@@ -343,7 +336,8 @@ function TopicsSection({
                 </h3>
                 <p className="whitespace-pre-wrap text-muted-foreground">{topic.reason}</p>
                 <p className="text-sm text-muted-foreground">
-                  {t.supplierPlan.topicLinked}: {topic.objectives.map((entry) => entry.text).join(' · ')}
+                  {t.supplierPlan.topicLinked}:{' '}
+                  {topic.objectives.map((entry) => entry.text).join(' · ')}
                 </p>
               </div>
               {plan.canManage && (
@@ -425,17 +419,117 @@ function ReferenceTiles({
         {cards.map((card) => (
           <li key={card.title} className="rounded-lg bg-card p-4">
             <h3 className="font-medium">{card.title}</h3>
-            {card.href
-              ? routerLink({
-                  href: card.href,
-                  className:
-                    'mt-2 inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-                  children: card.value,
-                })
-              : <p className="mt-2 text-muted-foreground">{card.value}</p>}
+            {card.href ? (
+              routerLink({
+                href: card.href,
+                className:
+                  'mt-2 inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                children: card.value,
+              })
+            ) : (
+              <p className="mt-2 text-muted-foreground">{card.value}</p>
+            )}
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/**
+ * SPL-07: Freigabe auf der Plan-Seite. Im Entwurf „Zur Freigabe“ mit Hinweisen davor, in Freigabe
+ * der Weg zur Freigabe-Seite, freigegeben das Datum und „Neue Version“. Versionen immer.
+ */
+function PlanApprovalBar({ relationshipId, plan }: { relationshipId: string; plan: SupplierPlan }) {
+  const t = useT();
+  const text = t.supplierPlan.approvalFlow;
+  const { locale } = useLocale();
+  const accessToken = useToken();
+  const queryClient = useQueryClient();
+  const [failed, setFailed] = useState(false);
+  const { approval } = plan;
+  const base = `/lieferanten/${relationshipId}/strategie/lieferantenplan`;
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ['suppliers', relationshipId, 'supplier-plan'] });
+  const date = (iso: string) => formatDate(locale, iso.slice(0, 10));
+  const hints = [
+    approval.hints.openContributions > 0 &&
+      text.hintContributions(approval.hints.openContributions),
+    approval.hints.noTopics && text.hintTopics,
+  ].filter((hint): hint is string => Boolean(hint));
+
+  return (
+    <section
+      aria-label={t.supplierPlan.approval}
+      data-slot="plan-approval"
+      className="flex flex-col gap-3 rounded-xl bg-card px-5 py-4"
+    >
+      {plan.status === 'draft' && approval.canSubmit && (
+        <>
+          {hints.length > 0 && (
+            <ul className="flex flex-col gap-1 text-sm text-warning-soft-foreground">
+              {hints.map((hint) => (
+                <li key={hint}>{hint}</li>
+              ))}
+            </ul>
+          )}
+          <ConfirmButton
+            question={text.submitQuestion}
+            confirmLabel={text.submitConfirm}
+            cancelLabel={t.supplierPlan.cancel}
+            variant="default"
+            onConfirm={() => {
+              setFailed(false);
+              submitSupplierPlan(accessToken, relationshipId, plan.id)
+                .then(() => refresh())
+                .catch(() => setFailed(true));
+            }}
+          >
+            {text.submit}
+          </ConfirmButton>
+        </>
+      )}
+      {plan.status === 'in_review' && (
+        <div className="flex flex-wrap items-center gap-4">
+          <p className="flex-1">
+            {approval.submittedAt && text.inReview(date(approval.submittedAt))}
+          </p>
+          {routerLink({
+            href: `${base}/freigabe`,
+            className: buttonVariants({ variant: approval.canDecide ? 'default' : 'outline' }),
+            children: text.toApproval,
+          })}
+        </div>
+      )}
+      {plan.status === 'approved' && (
+        <div className="flex flex-wrap items-center gap-4">
+          <p className="flex-1 font-semibold">
+            {approval.approvedAt && text.approvedAt(date(approval.approvedAt))}
+          </p>
+          {approval.canNewVersion && (
+            <ConfirmButton
+              question={text.newVersionQuestion}
+              confirmLabel={text.newVersionConfirm}
+              cancelLabel={t.supplierPlan.cancel}
+              variant="default"
+              onConfirm={() => {
+                setFailed(false);
+                newSupplierPlanVersion(accessToken, relationshipId, plan.id)
+                  .then(() => refresh())
+                  .catch(() => setFailed(true));
+              }}
+            >
+              {text.newVersion}
+            </ConfirmButton>
+          )}
+        </div>
+      )}
+      {failed && <p className="text-destructive text-sm">{text.failed}</p>}
+      {routerLink({
+        href: `${base}/versionen`,
+        className: cn(buttonVariants({ variant: 'link' }), 'self-start px-0'),
+        children: text.versions,
+      })}
     </section>
   );
 }

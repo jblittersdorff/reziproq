@@ -25,6 +25,27 @@ export interface CycleStepSource {
 
 export const CYCLE_STEP_SOURCES = Symbol('CYCLE_STEP_SOURCES');
 
+/** SPL-07: Lieferantenplan erledigt, sobald eine Version im Zyklus freigegeben ist. */
+export const supplierPlanCycleStepSource: CycleStepSource = {
+  key: 'supplierPlan',
+  async cycleStepStatus(cycle, tx) {
+    const plans = await tx
+      .select({ status: schema.supplierPlan.status })
+      .from(schema.supplierPlan)
+      .where(eq(schema.supplierPlan.cycleId, cycle.id));
+    if (plans.some((plan) => plan.status === 'approved' || plan.status === 'superseded')) {
+      return 'completed';
+    }
+    return plans.length > 0 ? 'in_progress' : 'open';
+  },
+};
+
+/** Wohin ein Schritt der Zyklus-Leiste führt, sobald sein Modul gebaut ist. */
+const stepPaths: Partial<Record<CycleStepKey, string>> = {
+  segment: 'strategie/segmentierung',
+  supplierPlan: 'strategie/lieferantenplan',
+};
+
 export async function readCycleSettings(tx: TenantTransaction) {
   const rows = await tx.select().from(schema.cycleSetting);
   const stored = new Map(rows.map((row) => [row.step, row]));
@@ -103,7 +124,6 @@ export async function readActiveCycle(
     .limit(1);
   if (!cycle) return null;
 
-  const href = `/lieferanten/${relationshipId}/strategie/segmentierung`;
   const schedule = calculateCycleDeadlines(cycle.jbpDate, await readCycleSettings(tx));
   const deadlines = new Map(
     schedule.map(({ step, dueDate }): [CycleScheduleStep, string | null] => [step, dueDate]),
@@ -126,7 +146,7 @@ export async function readActiveCycle(
         return {
           key,
           status: dueDate && dueDate < today && status !== 'completed' ? 'overdue' : status,
-          href: key === 'segment' ? href : null,
+          href: stepPaths[key] ? `/lieferanten/${relationshipId}/${stepPaths[key]}` : null,
           dueDate,
         };
       }),

@@ -106,6 +106,8 @@ import { Route as AppLieferantenIdBeziehungTeamIndexRouteImport } from './routes
 import { Route as AppLieferantenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/bearbeiten'
 import { Route as AppLieferantenIdBeziehungTeamEinladenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/einladen'
 import { Route as AppLieferantenIdStrategieLieferantenplanIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/index'
+import { Route as AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
+import { Route as AppLieferantenIdStrategieLieferantenplanVersionenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
 import { Route as AppLieferantenIdStrategieProfilIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/index'
 import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/bearbeiten'
 import { Route as AppLieferantenIdStrategieProfilZuordnungRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/zuordnung'
@@ -679,6 +681,18 @@ const AppLieferantenIdStrategieLieferantenplanIndexRoute =
     path: '/',
     getParentRoute: () => AppLieferantenIdStrategieLieferantenplanRouteRoute,
   } as any)
+const AppLieferantenIdStrategieLieferantenplanFreigabeRoute =
+  AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport.update({
+    id: '/freigabe',
+    path: '/freigabe',
+    getParentRoute: () => AppLieferantenIdStrategieLieferantenplanRouteRoute,
+  } as any)
+const AppLieferantenIdStrategieLieferantenplanVersionenRoute =
+  AppLieferantenIdStrategieLieferantenplanVersionenRouteImport.update({
+    id: '/versionen',
+    path: '/versionen',
+    getParentRoute: () => AppLieferantenIdStrategieLieferantenplanRouteRoute,
+  } as any)
 const AppLieferantenIdStrategieProfilIndexRoute =
   AppLieferantenIdStrategieProfilIndexRouteImport.update({
     id: '/strategie/profil/',
@@ -966,6 +980,8 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
+  '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -1091,6 +1107,8 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
+  '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -1222,6 +1240,8 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/_app/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/_app/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
+  '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/_app/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/_app/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
@@ -1353,6 +1373,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
+    | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -1478,6 +1500,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
+    | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$jahr'
@@ -1608,6 +1632,8 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/_app/lieferanten/$id/beziehung/team/bearbeiten'
     | '/_app/lieferanten/$id/beziehung/team/einladen'
+    | '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
+    | '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
     | '/_app/lieferanten/$id/strategie/profil/zuordnung'
     | '/_app/lieferanten/$id/strategie/spend/$jahr'
@@ -2335,6 +2361,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdStrategieLieferantenplanIndexRouteImport
       parentRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRoute
     }
+    '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe': {
+      id: '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
+      path: '/freigabe'
+      fullPath: '/lieferanten/$id/strategie/lieferantenplan/freigabe'
+      preLoaderRoute: typeof AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport
+      parentRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': {
+      id: '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
+      path: '/versionen'
+      fullPath: '/lieferanten/$id/strategie/lieferantenplan/versionen'
+      preLoaderRoute: typeof AppLieferantenIdStrategieLieferantenplanVersionenRouteImport
+      parentRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRoute
+    }
     '/_app/lieferanten/$id/strategie/profil/': {
       id: '/_app/lieferanten/$id/strategie/profil/'
       path: '/strategie/profil'
@@ -2607,6 +2647,8 @@ const AppKundenIdRouteRouteWithChildren =
   AppKundenIdRouteRoute._addFileChildren(AppKundenIdRouteRouteChildren)
 
 interface AppLieferantenIdStrategieLieferantenplanRouteRouteChildren {
+  AppLieferantenIdStrategieLieferantenplanFreigabeRoute: typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
+  AppLieferantenIdStrategieLieferantenplanVersionenRoute: typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   AppLieferantenIdStrategieLieferantenplanIndexRoute: typeof AppLieferantenIdStrategieLieferantenplanIndexRoute
   AppLieferantenIdStrategieLieferantenplanBeitraegeNeuRoute: typeof AppLieferantenIdStrategieLieferantenplanBeitraegeNeuRoute
   AppLieferantenIdStrategieLieferantenplanBeitragContributionIdRoute: typeof AppLieferantenIdStrategieLieferantenplanBeitragContributionIdRoute
@@ -2619,6 +2661,10 @@ interface AppLieferantenIdStrategieLieferantenplanRouteRouteChildren {
 
 const AppLieferantenIdStrategieLieferantenplanRouteRouteChildren: AppLieferantenIdStrategieLieferantenplanRouteRouteChildren =
   {
+    AppLieferantenIdStrategieLieferantenplanFreigabeRoute:
+      AppLieferantenIdStrategieLieferantenplanFreigabeRoute,
+    AppLieferantenIdStrategieLieferantenplanVersionenRoute:
+      AppLieferantenIdStrategieLieferantenplanVersionenRoute,
     AppLieferantenIdStrategieLieferantenplanIndexRoute:
       AppLieferantenIdStrategieLieferantenplanIndexRoute,
     AppLieferantenIdStrategieLieferantenplanBeitraegeNeuRoute:
