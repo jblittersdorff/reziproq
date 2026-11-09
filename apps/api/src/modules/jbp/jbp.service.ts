@@ -230,11 +230,23 @@ export class JbpService {
           .from(schema.meetingAgendaItem)
           .where(eq(schema.meetingAgendaItem.meetingId, meeting.id))
       : [];
-    // JBP-02: Themen sind bereit, sobald beide Seiten mindestens ein offenes Thema haben.
+    // JBP-02: Themen sind bereit, sobald beide Seiten mindestens ein Thema haben, das offen oder
+    // zu einer Initiative zusammengeführt ist (JBP-03).
     const topics = await tx
       .select({ side: schema.jbpTopic.side })
       .from(schema.jbpTopic)
-      .where(and(eq(schema.jbpTopic.jbpId, plan.id), eq(schema.jbpTopic.status, 'proposed')));
+      .where(
+        and(
+          eq(schema.jbpTopic.jbpId, plan.id),
+          inArray(schema.jbpTopic.status, ['proposed', 'merged']),
+        ),
+      );
+    // JBP-03: Initiativen sind bereit, sobald es mindestens eine gibt.
+    const [initiative] = await tx
+      .select({ id: schema.initiative.id })
+      .from(schema.initiative)
+      .where(eq(schema.initiative.jbpId, plan.id))
+      .limit(1);
     const ready = (section: JbpSection | null) => {
       if (section === 'buyer_update') return Boolean(buyerUpdate?.text);
       if (section === 'supplier_update') return Boolean(supplierUpdate?.text);
@@ -244,7 +256,8 @@ export class JbpService {
           topics.some((row) => row.side === 'supplier')
         );
       }
-      // Initiativen, Zusagen und Scorecard melden ihren Stand mit JBP-03 bis JBP-07.
+      if (section === 'initiatives') return Boolean(initiative);
+      // Zusagen und Scorecard melden ihren Stand mit JBP-05 und JBP-07.
       return section ? false : null;
     };
     // Erst die Punkte der Seite, die den Termin angelegt hat, dann die der anderen.

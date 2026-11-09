@@ -1,9 +1,22 @@
-import { Body, Controller, Get, Inject, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import {
   type CreateJbp,
   createJbpSchema,
   type ImportJbpTopics,
+  type InitiativeDetail,
+  type Initiatives,
   importJbpTopicsSchema,
+  initiativeStatusSchema,
   type JbpPreparation,
   type JbpTopicCandidates,
   type JbpTopicOrder,
@@ -12,15 +25,21 @@ import {
   type ParkJbpTopic,
   parkJbpTopicSchema,
   type SaveBusinessUpdate,
+  type SaveInitiative,
   type SaveJbpTopic,
+  type SaveMilestone,
+  type SetInitiativeStatus,
   saveBusinessUpdateSchema,
+  saveInitiativeSchema,
   saveJbpTopicSchema,
+  saveMilestoneSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { type JbpScope, JbpService } from './jbp.service.js';
+import { JbpInitiativesService } from './jbp-initiatives.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
 
 /** Gemeinsamer Plan beim Käufer (JBP-01). */
@@ -187,3 +206,119 @@ export class BuyerJbpTopicsController extends topicRoutes('buyer') {
 /** Themen beim Lieferanten im Kontext des Kunden (JBP-02, LIF-04). */
 @Controller('kunden/:id/jbp/themen')
 export class SupplierJbpTopicsController extends topicRoutes('supplier') {}
+
+/** JBP-03: Initiativen und Roadmap; dieselben Endpunkte je Seite. */
+function initiativeRoutes(side: Side) {
+  class SideInitiativesController {
+    constructor(
+      @Inject(JbpService) readonly jbp: JbpService,
+      @Inject(JbpInitiativesService) readonly initiatives: JbpInitiativesService,
+    ) {}
+
+    run<T>(auth: AuthContext, id: string, work: (scope: JbpScope) => Promise<T>) {
+      return side === 'buyer' ? this.jbp.buyer(auth, id, work) : this.jbp.supplier(auth, id, work);
+    }
+
+    @Get()
+    @Requires('jbp.sehen')
+    list(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<Initiatives> {
+      return this.run(auth, id, (scope) => this.initiatives.list(scope));
+    }
+
+    @Post()
+    @Requires('jbp.bearbeiten')
+    create(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Body(new ZodValidationPipe(saveInitiativeSchema)) body: SaveInitiative,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) => this.initiatives.create(scope, body));
+    }
+
+    @Get(':initiativeId')
+    @Requires('jbp.sehen')
+    get(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) => this.initiatives.get(scope, initiativeId));
+    }
+
+    @Put(':initiativeId')
+    @Requires('jbp.bearbeiten')
+    update(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+      @Body(new ZodValidationPipe(saveInitiativeSchema)) body: SaveInitiative,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) => this.initiatives.update(scope, initiativeId, body));
+    }
+
+    @Put(':initiativeId/status')
+    @Requires('jbp.bearbeiten')
+    status(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+      @Body(new ZodValidationPipe(initiativeStatusSchema)) body: SetInitiativeStatus,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) =>
+        this.initiatives.setStatus(scope, initiativeId, body.status),
+      );
+    }
+
+    @Post(':initiativeId/meilensteine')
+    @Requires('jbp.bearbeiten')
+    addMilestone(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+      @Body(new ZodValidationPipe(saveMilestoneSchema)) body: SaveMilestone,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) =>
+        this.initiatives.addMilestone(scope, initiativeId, body),
+      );
+    }
+
+    @Put(':initiativeId/meilensteine/:milestoneId')
+    @Requires('jbp.bearbeiten')
+    updateMilestone(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+      @Param('milestoneId', ParseUUIDPipe) milestoneId: string,
+      @Body(new ZodValidationPipe(saveMilestoneSchema)) body: SaveMilestone,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) =>
+        this.initiatives.updateMilestone(scope, initiativeId, milestoneId, body),
+      );
+    }
+
+    @Delete(':initiativeId/meilensteine/:milestoneId')
+    @Requires('jbp.bearbeiten')
+    deleteMilestone(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+      @Param('milestoneId', ParseUUIDPipe) milestoneId: string,
+    ): Promise<InitiativeDetail> {
+      return this.run(auth, id, (scope) =>
+        this.initiatives.deleteMilestone(scope, initiativeId, milestoneId),
+      );
+    }
+  }
+  return SideInitiativesController;
+}
+
+/** Initiativen beim Käufer (JBP-03). */
+@Controller('suppliers/:id/jbp/initiativen')
+export class BuyerJbpInitiativesController extends initiativeRoutes('buyer') {}
+
+/** Initiativen beim Lieferanten im Kontext des Kunden (JBP-03). */
+@Controller('kunden/:id/jbp/initiativen')
+export class SupplierJbpInitiativesController extends initiativeRoutes('supplier') {}

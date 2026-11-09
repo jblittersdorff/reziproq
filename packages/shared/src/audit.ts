@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
-// Verlauf (PLT-08): GET /api/audit?object_type=…&object_id=…
+// Verlauf (PLT-08): GET /api/audit?object_type=…&object_id=…[&relationship_id=…]
 
 export const auditActions = ['created', 'updated', 'ended', 'shared', 'approved'] as const;
 
 export const auditQuerySchema = z.object({
   object_type: z.string().min(1).max(100),
   object_id: z.string().min(1).max(100),
+  /** Lieferantenseite (JBP-03): Verlauf im Kontext dieses Kunden lesen */
+  relationship_id: z.uuid().optional(),
 });
 
 export type AuditQuery = z.infer<typeof auditQuerySchema>;

@@ -1,13 +1,17 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, inArray, schema } from '@reziproq/db';
+import { and, desc, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
 import type { AuditEntry, AuditQuery, AuditResponse } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { CustomersService } from '../customers/customers.service.js';
 import { auditedObjectByType } from './audited-objects.js';
 
 @Injectable()
 export class AuditService {
-  constructor(@Inject(TenantDatabase) private readonly tenant: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
+    @Inject(CustomersService) private readonly customers: CustomersService,
+  ) {}
 
   /**
    * Verlauf eines Objekts, neueste zuerst. Welche Einträge sichtbar sind, entscheidet allein
@@ -28,25 +32,28 @@ export class AuditService {
       });
     }
     const { auditEvent, organization } = schema;
-    const rows = await this.tenant.run(
-      { userId: auth.userId, organizationId: auth.organization.id },
-      (tx) =>
-        tx
-          .select({
-            id: auditEvent.id,
-            occurredAt: auditEvent.occurredAt,
-            actorName: auditEvent.actorName,
-            organization: organization.name,
-            action: auditEvent.action,
-            changes: auditEvent.changes,
-          })
-          .from(auditEvent)
-          .innerJoin(organization, eq(organization.id, auditEvent.actorOrgId))
-          .where(
-            and(inArray(auditEvent.objectType, types), eq(auditEvent.objectId, query.object_id)),
-          )
-          .orderBy(desc(auditEvent.occurredAt), desc(auditEvent.id)),
-    );
+    const read = (tx: TenantTransaction) =>
+      tx
+        .select({
+          id: auditEvent.id,
+          occurredAt: auditEvent.occurredAt,
+          actorName: auditEvent.actorName,
+          organization: organization.name,
+          action: auditEvent.action,
+          changes: auditEvent.changes,
+        })
+        .from(auditEvent)
+        .innerJoin(organization, eq(organization.id, auditEvent.actorOrgId))
+        .where(and(inArray(auditEvent.objectType, types), eq(auditEvent.objectId, query.object_id)))
+        .orderBy(desc(auditEvent.occurredAt), desc(auditEvent.id));
+    // Die Lieferantenseite sieht geteilte Einträge nur im Kontext ihres Kunden (PLT-04, JBP-03).
+    const rows =
+      query.relationship_id && !auth.organization.buyer
+        ? await this.customers.inCustomer(auth, query.relationship_id, (tx) => read(tx))
+        : await this.tenant.run(
+            { userId: auth.userId, organizationId: auth.organization.id },
+            read,
+          );
     return {
       entries: rows.map(
         (row): AuditEntry => ({ ...row, occurredAt: row.occurredAt.toISOString() }),

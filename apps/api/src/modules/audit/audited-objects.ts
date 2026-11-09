@@ -102,6 +102,24 @@ export const jbpTopicAudit = auditedObject({
   fields: ['title', 'description', 'status', 'priority'],
 });
 
+/** Gemeinsame Initiative (JBP-03): geteilt, beide Seiten sehen jede Änderung. */
+export const initiativeAudit = auditedObject({
+  type: 'initiative',
+  visibility: 'shared',
+  fields: [
+    'title',
+    'goal',
+    'benefit_buyer',
+    'benefit_supplier',
+    'owner_buyer_name',
+    'owner_supplier_name',
+    'starts_on',
+    'ends_on',
+    'status',
+    'milestones',
+  ],
+});
+
 /** Geschäftsupdate einer Seite im JBP (JBP-01): geteilt. */
 export const jbpBusinessUpdateAudit = auditedObject({
   type: 'jbp_business_update',
@@ -194,6 +212,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   jbpAudit,
   jbpBusinessUpdateAudit,
   jbpTopicAudit,
+  initiativeAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

@@ -30,7 +30,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   plan: [
     { key: 'preparation', segment: 'vorbereitung' },
     { key: 'topics', segment: 'themen' },
-    { key: 'initiatives', coming: 'later' },
+    { key: 'initiatives', segment: 'initiativen' },
     { key: 'commitments', coming: 'later' },
     { key: 'scorecard', coming: 'later' },
   ],
