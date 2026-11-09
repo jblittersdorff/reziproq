@@ -67,11 +67,35 @@ export const jbpCycleStepSource: CycleStepSource = {
   },
 };
 
+/** JBP-07: Scorecard erledigt, sobald beide Seiten die Scorecard des Plans unterschrieben haben. */
+export const scorecardCycleStepSource: CycleStepSource = {
+  key: 'scorecard',
+  async cycleStepStatus(cycle, tx) {
+    const plans = await tx
+      .select({ id: schema.jbpCycleLink.jbpId })
+      .from(schema.jbpCycleLink)
+      .where(eq(schema.jbpCycleLink.cycleId, cycle.id));
+    if (plans.length === 0) return 'open';
+    const cards = await tx
+      .select({ status: schema.scorecard.status })
+      .from(schema.scorecard)
+      .where(
+        inArray(
+          schema.scorecard.jbpId,
+          plans.map((plan) => plan.id),
+        ),
+      );
+    if (cards.some((card) => card.status === 'signed')) return 'completed';
+    return cards.length > 0 ? 'in_progress' : 'open';
+  },
+};
+
 /** Wohin ein Schritt der Zyklus-Leiste führt, sobald sein Modul gebaut ist. */
 const stepPaths: Partial<Record<CycleStepKey, string>> = {
   segment: 'strategie/segmentierung',
   supplierPlan: 'strategie/lieferantenplan',
   jbp: 'plan/freigabe',
+  scorecard: 'plan/scorecard',
 };
 
 export async function readCycleSettings(tx: TenantTransaction) {

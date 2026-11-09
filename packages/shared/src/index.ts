@@ -23,6 +23,7 @@ export * from './prompt.js';
 export * from './ratings.js';
 export * from './rounds.js';
 export * from './rule-sets.js';
+export * from './scorecard.js';
 export * from './segment.js';
 export * from './start.js';
 export * from './supplier-plan.js';

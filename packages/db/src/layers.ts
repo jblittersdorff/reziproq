@@ -231,6 +231,36 @@ export const layerRegister: Record<string, LayerEntry> = {
       content: JSON.stringify({ topics: [], initiatives: [], commitments: [] }),
     }),
   },
+  // JBP-07: Scorecard mit Kennzahlen und Unterschriften.
+  scorecard: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({ jbp_id: buyer && probe('jbp', buyer) }),
+  },
+  scorecard_kpi: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      scorecard_id: buyer && probe('scorecard', buyer),
+      name: 'Probe',
+      unit: '%',
+      direction: 'higher',
+      target: '95',
+      target_date: '2027-12-31',
+      owner_side: 'buyer',
+      owner_name: 'Probe',
+      benefit_for: 'both',
+    }),
+  },
+  scorecard_signature: {
+    kind: 'shared',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      scorecard_id: buyer && probe('scorecard', buyer),
+      version: 1,
+      side: 'buyer',
+      user_id: 'demo-test-oem-1',
+      user_name: 'Probe',
+    }),
+  },
   // JBP-05: Zusagen einer Seite.
   commitment: {
     kind: 'shared',

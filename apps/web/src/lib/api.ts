@@ -92,6 +92,7 @@ import {
   type SaveFormatItem,
   type SaveInitiative,
   type SaveJbpTopic,
+  type SaveKpi,
   type SaveMeetingNote,
   type SaveMilestone,
   type SaveProtocol,
@@ -103,6 +104,7 @@ import {
   type SpendRequest,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  scorecardViewSchema,
   segmentationSchema,
   segmentModelResponseSchema,
   startSchema,
@@ -1451,6 +1453,41 @@ export const deleteMilestone = (
     initiativeDetailSchema,
     accessToken,
   );
+
+/** JBP-07: Scorecard mit Kennzahlen und Unterschriften. */
+export const scorecardQueryOptions = (accessToken: string, base: MeetingBase) =>
+  queryOptions({
+    queryKey: ['jbp', 'scorecard', base],
+    queryFn: () => getJson(`${base}/jbp/scorecard`, scorecardViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createKpi = (accessToken: string, base: MeetingBase, request: SaveKpi) =>
+  sendJson('POST', `${base}/jbp/scorecard/kennzahlen`, request, scorecardViewSchema, accessToken);
+
+export const updateKpi = (accessToken: string, base: MeetingBase, id: string, request: SaveKpi) =>
+  sendJson(
+    'PUT',
+    `${base}/jbp/scorecard/kennzahlen/${id}`,
+    request,
+    scorecardViewSchema,
+    accessToken,
+  );
+
+export const deleteKpi = (accessToken: string, base: MeetingBase, id: string) =>
+  sendJson(
+    'DELETE',
+    `${base}/jbp/scorecard/kennzahlen/${id}`,
+    {},
+    scorecardViewSchema,
+    accessToken,
+  );
+
+export const signScorecard = (accessToken: string, base: MeetingBase) =>
+  sendJson('POST', `${base}/jbp/scorecard/unterschreiben`, {}, scorecardViewSchema, accessToken);
+
+export const startScorecardVersion = (accessToken: string, base: MeetingBase) =>
+  sendJson('POST', `${base}/jbp/scorecard/neue-version`, {}, scorecardViewSchema, accessToken);
 
 /** JBP-06: Freigabe und Versionen des Gemeinsamen Plans. */
 export const jbpApprovalQueryOptions = (accessToken: string, base: MeetingBase) =>

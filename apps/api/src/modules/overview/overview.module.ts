@@ -9,6 +9,7 @@ import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import {
   CYCLE_STEP_SOURCES,
   jbpCycleStepSource,
+  scorecardCycleStepSource,
   segmentCycleStepSource,
   supplierPlanCycleStepSource,
 } from './cycle.js';
@@ -28,7 +29,12 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
     JbpMetricSource,
     {
       provide: CYCLE_STEP_SOURCES,
-      useValue: [segmentCycleStepSource, supplierPlanCycleStepSource, jbpCycleStepSource],
+      useValue: [
+        segmentCycleStepSource,
+        supplierPlanCycleStepSource,
+        jbpCycleStepSource,
+        scorecardCycleStepSource,
+      ],
     },
     {
       provide: OVERVIEW_METRIC_SOURCES,

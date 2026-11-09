@@ -35,15 +35,28 @@ Beide Seiten übersetzen die Initiativen in wenige messbare Kennzahlen mit Zielw
 3. **Unterschreiben** (`/…/plan/scorecard/unterschreiben`): Zusammenfassung und Bestätigung auf der Seite. Die andere Seite bekommt eine Mail.
 4. Nach beiden Unterschriften ist der Zyklus-Schritt Scorecard erledigt. Vor Fristende kommt eine Erinnerung.
 
+## Umsetzung
+
+- Status und Version ändert für beide Seiten `app_scorecard_transition` (Rolle `reziproq_scorecard`,
+  Migration 0049): `signed` nur mit Unterschriften beider Seiten unter dieselbe Version.
+- Jede Seite schlägt nur eigene Kennzahlen vor; Verantwortlich ist eine Person der eigenen Seite.
+  Ändert sich eine Kennzahl nach einer Unterschrift, beginnt eine neue Version und die Unterschrift
+  gilt nicht mehr.
+- Werte stehen als Dezimalzahl (`numeric`), nie als Gleitkomma.
+- **Mail an die andere Seite:** Unterschreibt der Käufer, bekommen die Personen des Lieferanten mit
+  angenommener Einladung eine Mail. Unterschreibt der Lieferant zuerst, sieht der SRO die Aufgabe
+  „Scorecard unterschreiben“ auf Start; die Lieferantenseite kennt keine Adressen des Käufers.
+- Die Erinnerung (ZYK-02) geht beim Schritt Scorecard nur an die Seite, die noch fehlt.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Eine elfte Kennzahl wird abgelehnt.
-- [ ] Die Scorecard gilt erst mit beiden Unterschriften, danach ist die Version gesperrt.
-- [ ] Jede Kennzahl hat Ziel, Termin, Verantwortliche und „Nutzen für“.
-- [ ] Vor Fristende geht eine Erinnerung an die Seite, die noch nicht unterschrieben hat.
-- [ ] Beide Unterschriften erledigen den Zyklus-Schritt Scorecard.
+- [x] Eine elfte Kennzahl wird abgelehnt.
+- [x] Die Scorecard gilt erst mit beiden Unterschriften, danach ist die Version gesperrt.
+- [x] Jede Kennzahl hat Ziel, Termin, Verantwortliche und „Nutzen für“.
+- [x] Vor Fristende geht eine Erinnerung an die Seite, die noch nicht unterschrieben hat.
+- [x] Beide Unterschriften erledigen den Zyklus-Schritt Scorecard.
 
 ## Nicht Teil dieser Funktion
 

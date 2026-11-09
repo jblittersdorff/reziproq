@@ -34,13 +34,16 @@ import {
   type SaveCommitment,
   type SaveInitiative,
   type SaveJbpTopic,
+  type SaveKpi,
   type SaveMilestone,
+  type ScorecardView,
   type SetCommitmentStatus,
   type SetInitiativeStatus,
   saveBusinessUpdateSchema,
   saveCommitmentSchema,
   saveInitiativeSchema,
   saveJbpTopicSchema,
+  saveKpiSchema,
   saveMilestoneSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
@@ -51,6 +54,7 @@ import { type JbpScope, JbpService } from './jbp.service.js';
 import { JbpApprovalService } from './jbp-approval.service.js';
 import { JbpCommitmentsService } from './jbp-commitments.service.js';
 import { JbpInitiativesService } from './jbp-initiatives.service.js';
+import { JbpScorecardService } from './jbp-scorecard.service.js';
 import { JbpTopicsService } from './jbp-topics.service.js';
 
 /** Gemeinsamer Plan beim Käufer (JBP-01). */
@@ -468,3 +472,84 @@ export class SupplierJbpApprovalController extends approvalRoutes('supplier') {
     return this.jbp.supplier(auth, id, (scope) => this.approval.decide(scope, body));
   }
 }
+
+/** JBP-07: Scorecard mit Kennzahlen und Unterschriften; dieselben Endpunkte je Seite. */
+function scorecardRoutes(side: Side) {
+  class SideScorecardController {
+    constructor(
+      @Inject(JbpService) readonly jbp: JbpService,
+      @Inject(JbpScorecardService) readonly scorecard: JbpScorecardService,
+    ) {}
+
+    run<T>(auth: AuthContext, id: string, work: (scope: JbpScope) => Promise<T>) {
+      return side === 'buyer' ? this.jbp.buyer(auth, id, work) : this.jbp.supplier(auth, id, work);
+    }
+
+    @Get()
+    @Requires('jbp.sehen')
+    view(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.view(scope));
+    }
+
+    @Post('kennzahlen')
+    @Requires('jbp.bearbeiten')
+    create(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Body(new ZodValidationPipe(saveKpiSchema)) body: SaveKpi,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.createKpi(scope, body));
+    }
+
+    @Put('kennzahlen/:kpiId')
+    @Requires('jbp.bearbeiten')
+    update(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('kpiId', ParseUUIDPipe) kpiId: string,
+      @Body(new ZodValidationPipe(saveKpiSchema)) body: SaveKpi,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.updateKpi(scope, kpiId, body));
+    }
+
+    @Delete('kennzahlen/:kpiId')
+    @Requires('jbp.bearbeiten')
+    remove(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('kpiId', ParseUUIDPipe) kpiId: string,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.deleteKpi(scope, kpiId));
+    }
+
+    @Post('unterschreiben')
+    @Requires('jbp.bearbeiten')
+    sign(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.sign(scope));
+    }
+
+    @Post('neue-version')
+    @Requires('jbp.bearbeiten')
+    newVersion(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+    ): Promise<ScorecardView> {
+      return this.run(auth, id, (scope) => this.scorecard.newVersion(scope));
+    }
+  }
+  return SideScorecardController;
+}
+
+/** Scorecard beim Käufer (JBP-07). */
+@Controller('suppliers/:id/jbp/scorecard')
+export class BuyerJbpScorecardController extends scorecardRoutes('buyer') {}
+
+/** Scorecard beim Lieferanten im Kontext des Kunden (JBP-07). */
+@Controller('kunden/:id/jbp/scorecard')
+export class SupplierJbpScorecardController extends scorecardRoutes('supplier') {}

@@ -344,6 +344,13 @@
       "when": 1794231373175,
       "tag": "0048_gemeinsamer_plan_freigabe",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794231957731,
+      "tag": "0049_scorecard",
+      "breakpoints": true
     }
   ]
 }
