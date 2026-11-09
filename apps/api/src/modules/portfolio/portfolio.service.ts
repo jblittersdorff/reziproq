@@ -88,6 +88,40 @@ export class PortfolioService {
     });
   }
 
+  /**
+   * Für Start (A2): Zahl der Lieferanten, Fokuslieferanten mit Stand der Spielregeln und offene
+   * Entscheidungen. Liest nur.
+   */
+  async startSummary(auth: AuthContext) {
+    return this.run(auth, async (tx, organization) => {
+      const suppliers = await this.suppliers(tx, lastFullYear());
+      const focus = suppliers.filter((supplier) => supplier.isFocus);
+      const shared = focus.length
+        ? await tx
+            .select({ id: schema.relationshipTarget.relationshipId })
+            .from(schema.relationshipTarget)
+            .where(
+              inArray(
+                schema.relationshipTarget.relationshipId,
+                focus.map((supplier) => supplier.relationshipId),
+              ),
+            )
+        : [];
+      const sharedIds = new Set(shared.map((row) => row.id));
+      const open = await this.openIn(tx, auth, organization.id);
+      return {
+        suppliers: suppliers.length,
+        focusTotal: focus.length,
+        openDecisions: Object.values(open.groups).reduce((sum, group) => sum + group.length, 0),
+        focus: focus.slice(0, 5).map((supplier) => ({
+          id: supplier.relationshipId,
+          name: supplier.name,
+          rulesShared: sharedIds.has(supplier.relationshipId),
+        })),
+      };
+    });
+  }
+
   async matrix(
     auth: AuthContext,
     filter: { businessUnitId?: string | undefined; materialGroupId?: string | undefined },

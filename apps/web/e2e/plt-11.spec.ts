@@ -15,11 +15,11 @@ const barTargets = [
   { name: 'Profil', path: '/profil' },
 ];
 
-const greeting = /^Guten (Morgen|Tag|Abend), Anna$/;
+const greeting = /^Guten (Morgen|Tag|Abend), Anna\.$/;
 
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  { path: '/start', title: greeting, empty: 'Heute ist nichts fällig' },
+  { path: '/start', title: greeting, empty: 'Heute wartet nichts auf dich.' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Portfolio' },
   { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
@@ -82,6 +82,8 @@ async function signIn(page: Page, { admin = false } = {}) {
         due: { items: [], total: 0 },
         relationships: { items: [], total: 0 },
         nextMeeting: null,
+        portfolio: null,
+        openActions: 0,
       },
     }),
   );

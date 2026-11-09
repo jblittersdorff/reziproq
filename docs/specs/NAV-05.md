@@ -1,6 +1,10 @@
 # NAV-05 Start
 
 > Geändert durch UMB-05 (8.11.2026): Start als Aufgabenliste, nur gebaute Kacheln.
+> Geändert am 9.11.2026 (Handschrift Bühne A2): dunkle Bühne mit Lieferanten, im Fokus und offenen
+> Entscheidungen; darunter das Fragefeld ohne Symbol und vier Kacheln: nächste Aufgabe, nächster
+> Termin, Fokuslieferanten mit Stand der Spielregeln, offene Entscheidungen. Ohne Portfolio-Recht
+> und beim Lieferanten: eigene Beziehungen bzw. Kunden und offene Maßnahmen.
 
 Release 0.1 · baut auf PLT-11, NAV-06, SEG-04 · deckt ab NAV-05
 

@@ -58,6 +58,17 @@ async function mock(page: Page) {
           startsAt: '2099-03-15T09:00:00Z',
           location: 'Werk Nord',
         },
+        portfolio: {
+          suppliers: 16,
+          focusTotal: 3,
+          openDecisions: 2,
+          focus: suppliers.slice(0, 3).map((name, index) => ({
+            id: uuid(60 + index),
+            name,
+            rulesShared: index === 0,
+          })),
+        },
+        openActions: 4,
       },
     }),
   );
@@ -87,14 +98,16 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   }
 }
 
-test('NAV-05 zeigt Start als Aufgabenliste (UMB-05) und die volle Liste ohne Überlauf', async ({
+test('NAV-05 zeigt Start mit Bühne und vier Kacheln (A2) und die volle Liste ohne Überlauf', async ({
   page,
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page.getByText('8 Dinge für heute')).toBeVisible();
-  await expect(page.getByRole('heading', { level: 2, name: 'Fällig bei mir' })).toBeVisible();
-  await expect(page.getByRole('heading', { level: 2, name: 'Meine Beziehungen' })).toBeVisible();
+  await expect(page.getByText('Acht Dinge warten heute auf dich.')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Im Fokus' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 2, name: 'Offene Entscheidungen' }),
+  ).toBeVisible();
   await shoot(page, testInfo, 'start');
 
   await page.goto('/start/faellig');

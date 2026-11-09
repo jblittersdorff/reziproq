@@ -34,6 +34,22 @@ const items = (count: number) =>
 
 let due: ReturnType<typeof items>;
 
+const focus = [
+  { id: uuid(60), name: 'Alpha GmbH', rulesShared: true },
+  { id: uuid(61), name: 'Beta AG', rulesShared: false },
+];
+const start = (overrides: Record<string, unknown> = {}) => ({
+  due: { items: due.slice(0, 5), total: 7 },
+  relationships: {
+    items: [{ id: uuid(60), name: 'Alpha GmbH', target: 'Partner' }],
+    total: 1,
+  },
+  nextMeeting: null,
+  portfolio: { suppliers: 16, focusTotal: 2, openDecisions: 3, focus },
+  openActions: 4,
+  ...overrides,
+});
+
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
@@ -41,16 +57,7 @@ beforeEach(() => {
   api.permissions = actionsFor.member;
   due = items(5);
   api.handle = (request) => {
-    if (request.url === '/api/start') {
-      return Response.json({
-        due: { items: due.slice(0, 5), total: 7 },
-        relationships: {
-          items: [{ id: uuid(60), name: 'Alpha GmbH', target: 'Partner' }],
-          total: 1,
-        },
-        nextMeeting: null,
-      });
-    }
+    if (request.url === '/api/start') return Response.json(start());
     if (request.url === '/api/start/due') return Response.json({ items: items(7) });
     return undefined;
   };
@@ -58,62 +65,101 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-describe('NAV-05 Start', () => {
-  it('zeigt die fälligen Aufgaben als Liste mit genau einem Knopf je Zeile (UMB-05)', async () => {
+describe('NAV-05 Start (Handschrift Bühne A2)', () => {
+  it('die Bühne nennt die Lage, führt zu den fälligen Aufgaben und zeigt drei Zahlen', async () => {
     renderAt('/start');
-    // Die Bühne nennt die Lage und führt zur nächsten Aufgabe; darunter die Liste.
-    expect(await screen.findByText('7 Dinge für heute')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Zur nächsten Aufgabe' }).getAttribute('href')).toBe(
-      `/bewertungen/${uuid(0)}`,
+    expect(await screen.findByText('Sieben Dinge warten heute auf dich.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Fällige Aufgaben' }).getAttribute('href')).toBe(
+      '/start/faellig',
     );
-    expect(screen.getByRole('heading', { level: 2, name: 'Fällig bei mir' })).toBeTruthy();
-    const list = document.querySelector('[data-slot="due-list"]') as HTMLElement;
-    const rows = within(list).getAllByRole('listitem');
-    expect(rows).toHaveLength(5);
-    for (const row of rows) expect(within(row).getAllByRole('link')).toHaveLength(1);
-    const first = within(rows[0] as HTMLElement).getByRole('link');
-    expect(first.getAttribute('href')).toBe(`/bewertungen/${uuid(0)}`);
-    expect(first.getAttribute('aria-label')).toBe(
-      'Lieferant 1: Bewertung abgeben · Antrieb öffnen',
-    );
-    // Nur die erste Zeile hat den gefüllten Knopf.
-    expect(first.className).toContain('bg-primary');
-    expect(within(rows[1] as HTMLElement).getByRole('link').className).not.toContain('bg-primary');
-    // Mehr als fünf: Link zur vollen Liste.
+    const metrics = document.querySelector('dl[aria-label="Auf einen Blick"]') as HTMLElement;
     expect(
-      screen.getByRole('link', { name: 'Alle 7 fälligen Aufgaben' }).getAttribute('href'),
-    ).toBe('/start/faellig');
-    expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
-    // Die eigenen Lieferanten als Karten mit Monogramm.
-    const alpha = screen.getByRole('link', { name: /^Alpha GmbH/ });
-    expect(alpha.querySelector('[data-slot="monogram"]')?.textContent).toBe('AL');
-    expect(screen.getByText('Soll: Partner')).toBeTruthy();
+      [...metrics.querySelectorAll('[data-metric]')].map((metric) => metric.textContent),
+    ).toEqual(['Lieferanten16', 'im Fokus2', 'offene Entscheidungen3']);
+    // Das Fragefeld steht ohne Symbol direkt unter der Bühne.
+    const prompt = document.querySelector('[data-slot="prompt"]') as HTMLElement;
+    expect(within(prompt).getByRole('textbox', { name: 'Deine Frage an Reziproq' })).toBeTruthy();
+    expect(prompt.querySelectorAll('svg')).toHaveLength(1);
   });
 
-  it('zeigt den nächsten Termin als Kachel mit Link zur Termin-Seite (QBR-01b)', async () => {
+  it('die erste Kachel zeigt die nächste Aufgabe mit einem Knopf und dem Weg zu allen', async () => {
+    renderAt('/start');
+    const tile = (
+      await screen.findByRole('heading', { level: 2, name: 'Bewertung abgeben' })
+    ).closest('[data-slot="due-tile"]') as HTMLElement;
+    expect(within(tile).getByText('Nur intern')).toBeTruthy();
+    expect(within(tile).getByText('Lieferant 1 · Antrieb')).toBeTruthy();
+    const action = within(tile).getByRole('link', {
+      name: 'Lieferant 1: Bewertung abgeben · Antrieb öffnen',
+    });
+    expect(action.textContent).toBe('Jetzt bewerten');
+    expect(action.getAttribute('href')).toBe(`/bewertungen/${uuid(0)}`);
+    expect(within(tile).getByRole('link', { name: 'Alle Aufgaben' }).getAttribute('href')).toBe(
+      '/start/faellig',
+    );
+  });
+
+  it('Im Fokus nennt die Fokuslieferanten mit Stand der Spielregeln; die Zahl führt zu den Entscheidungen', async () => {
+    renderAt('/start');
+    const list = (await screen.findByRole('heading', { level: 2, name: 'Im Fokus' })).closest(
+      '[data-slot="list-tile"]',
+    ) as HTMLElement;
+    const alpha = within(list).getByRole('link', { name: /^Alpha GmbH/ });
+    expect(alpha.getAttribute('href')).toBe(`/lieferanten/${uuid(60)}`);
+    expect(within(alpha).getByText('Spielregeln geteilt')).toBeTruthy();
+    expect(
+      within(within(list).getByRole('link', { name: /^Beta AG/ })).getByText('intern'),
+    ).toBeTruthy();
+    expect(within(list).getByRole('link', { name: 'Zum Portfolio' }).getAttribute('href')).toBe(
+      '/portfolio',
+    );
+    const count = document.querySelector('[data-slot="count-tile"]') as HTMLElement;
+    expect(within(count).getByText('3')).toBeTruthy();
+    expect(
+      within(count).getByRole('link', { name: 'Entscheidungen ansehen' }).getAttribute('href'),
+    ).toBe('/portfolio/offen');
+  });
+
+  it('ohne Portfolio zeigt Start die eigenen Beziehungen und die offenen Maßnahmen', async () => {
+    api.handle = (request) =>
+      request.url === '/api/start' ? Response.json(start({ portfolio: null })) : undefined;
+    renderAt('/start');
+    expect(
+      await screen.findByRole('heading', { level: 2, name: 'Meine Beziehungen' }),
+    ).toBeTruthy();
+    expect(screen.getByText('Partner')).toBeTruthy();
+    const count = document.querySelector('[data-slot="count-tile"]') as HTMLElement;
+    expect(within(count).getByText('4')).toBeTruthy();
+    expect(
+      within(count).getByRole('link', { name: 'Maßnahmen ansehen' }).getAttribute('href'),
+    ).toBe('/start/massnahmen');
+  });
+
+  it('zeigt den nächsten Termin als dunkle Kachel mit Link zur Agenda (QBR-01b)', async () => {
     api.handle = (request) =>
       request.url === '/api/start'
-        ? Response.json({
-            due: { items: due, total: due.length },
-            relationships: { items: [], total: 0 },
-            nextMeeting: {
-              id: uuid(90),
-              relationshipId: uuid(60),
-              counterpart: 'Alpha GmbH',
-              title: 'Quartalsreview',
-              startsAt: '2099-03-15T09:00:00Z',
-              location: 'Werk Nord',
-            },
-          })
+        ? Response.json(
+            start({
+              nextMeeting: {
+                id: uuid(90),
+                relationshipId: uuid(60),
+                counterpart: 'Alpha GmbH',
+                title: 'Quartalsreview',
+                startsAt: '2099-03-15T09:00:00Z',
+                location: 'Werk Nord',
+              },
+            }),
+          )
         : undefined;
     renderAt('/start');
-    const link = await screen.findByRole('link', { name: 'Vorbereiten: Quartalsreview' });
+    const link = await screen.findByRole('link', { name: 'Agenda öffnen: Quartalsreview' });
     expect(link.getAttribute('href')).toBe(
       `/lieferanten/${uuid(60)}/umsetzung/termine/${uuid(90)}`,
     );
     const tile = link.closest('[data-slot="next-meeting"]') as HTMLElement;
-    expect(within(tile).getByText('Nächster Termin')).toBeDefined();
-    expect(within(tile).getByText(/Alpha GmbH/)).toBeDefined();
+    expect(tile.getAttribute('data-tone')).toBe('stage');
+    expect(within(tile).getByText('Geteilt mit Alpha GmbH')).toBeDefined();
+    expect(within(tile).getByText('Werk Nord')).toBeDefined();
   });
 
   it('zeigt auf /start/faellig die vollständige Liste', async () => {
@@ -123,20 +169,16 @@ describe('NAV-05 Start', () => {
     );
   });
 
-  it('zeigt bei nichts Fälligem einen freundlichen leeren Zustand', async () => {
+  it('bei nichts Fälligem bleibt die Bühne ruhig und die Kacheln erklären sich', async () => {
     due = [];
     api.handle = (request) =>
       request.url === '/api/start'
-        ? Response.json({
-            due: { items: [], total: 0 },
-            relationships: { items: [], total: 0 },
-            nextMeeting: null,
-          })
+        ? Response.json(start({ due: { items: [], total: 0 } }))
         : undefined;
     renderAt('/start');
-    expect(await screen.findByText('Heute ist nichts fällig')).toBeTruthy();
-    // Kein leerer Kasten für die Aufgaben, dafür ein Weg zu den Lieferanten.
-    expect(document.querySelector('[data-slot="due-list"]')).toBeNull();
-    expect(screen.getByRole('link', { name: 'Zu den Lieferanten' })).toBeTruthy();
+    expect(await screen.findByText('Heute wartet nichts auf dich.')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Fällige Aufgaben' })).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: 'Nichts fällig.' })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 2, name: 'Kein Termin geplant' })).toBeTruthy();
   });
 });

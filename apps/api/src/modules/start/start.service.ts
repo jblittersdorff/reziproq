@@ -15,6 +15,7 @@ import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
+import { PortfolioService } from '../portfolio/portfolio.service.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { PlanApprovalsService } from '../supplier-plans/plan-approvals.service.js';
@@ -47,6 +48,7 @@ export class StartService {
     @Inject(CustomersService) private readonly customers: CustomersService,
     @Inject(ActionsService) private readonly actions: ActionsService,
     @Inject(PlanApprovalsService) private readonly approvals: PlanApprovalsService,
+    @Inject(PortfolioService) private readonly portfolio: PortfolioService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -206,6 +208,11 @@ export class StartService {
       due: { items: due.slice(0, limit), total: due.length },
       relationships: await this.relationships(auth),
       nextMeeting: await this.nextMeeting(auth),
+      portfolio:
+        auth.organization?.buyer && can(auth, 'portfolio.sehen')
+          ? await this.portfolio.startSummary(auth)
+          : null,
+      openActions: (await this.actions.mine(auth)).items.length,
     });
   }
 }

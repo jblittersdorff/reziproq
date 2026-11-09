@@ -72,9 +72,9 @@ describe('Nach dem Login landet der Nutzer auf /start', () => {
   });
 
   it.each([
-    [8, 'Guten Morgen, Anna'],
-    [14, 'Guten Tag, Anna'],
-    [20, 'Guten Abend, Anna'],
+    [8, 'Guten Morgen, Anna.'],
+    [14, 'Guten Tag, Anna.'],
+    [20, 'Guten Abend, Anna.'],
   ])('begrüßt um %i Uhr mit „%s“', async (hour, greeting) => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 29, hour, 0));
