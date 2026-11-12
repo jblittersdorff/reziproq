@@ -1,5 +1,7 @@
 import {
   type Kpi,
+  type KpiImportPreview,
+  type KpiTrack,
   kpiBenefits,
   kpiDirections,
   type MeetingSide,
@@ -8,8 +10,18 @@ import {
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { PenLineIcon, PlusIcon } from 'lucide-react';
+import {
+  CircleCheckIcon,
+  CircleXIcon,
+  MinusIcon,
+  PenLineIcon,
+  PlusIcon,
+  TriangleAlertIcon,
+  UploadIcon,
+} from 'lucide-react';
 import { type FormEvent, useState } from 'react';
+import { KpiLineChart } from '@/components/charts/kpi-line-chart';
+import { KpiSparkline } from '@/components/charts/kpi-sparkline';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
@@ -29,16 +41,21 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tile } from '@/components/ui/tile';
+import { AuditHistory } from '@/features/audit/audit-history';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import {
+  ApiError,
   createKpi,
   deleteKpi,
+  enterKpiValue,
+  kpiDetailQueryOptions,
   scorecardQueryOptions,
   signScorecard,
   startScorecardVersion,
   updateKpi,
+  uploadKpiValues,
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
@@ -74,6 +91,44 @@ function useNumber() {
   const { locale } = useLocale();
   const format = new Intl.NumberFormat(locale, { maximumFractionDigits: 4 });
   return (value: string | null) => (value === null ? '–' : format.format(Number(value)));
+}
+
+const trackStyle = {
+  on_track: { variant: 'success', Icon: CircleCheckIcon },
+  close: { variant: 'warning', Icon: TriangleAlertIcon },
+  off: { variant: 'danger', Icon: CircleXIcon },
+  none: { variant: 'neutral', Icon: MinusIcon },
+} as const;
+
+/** Stand „auf Kurs“ immer mit Symbol und Text, nie nur als Farbe (JBP-09). */
+export function TrackBadge({ track }: { track: KpiTrack | null }) {
+  const text = useT().jbp.scorecard;
+  const key = track ?? 'none';
+  const { variant, Icon } = trackStyle[key];
+  return (
+    <Badge variant={variant} data-track={key}>
+      <Icon aria-hidden />
+      {text.tracks[key]}
+    </Badge>
+  );
+}
+
+const days = (from: string, to: string) =>
+  (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000;
+
+/** Punkte für die kleine Linie: Ist-Werte und die Linie von der Basis zum Ziel. */
+function sparkPoints(kpi: Kpi) {
+  const baseline = Number(kpi.baseline ?? kpi.values[0]?.value ?? kpi.target);
+  return {
+    actual: kpi.values.map((entry) => ({
+      x: days(kpi.startDate, entry.period),
+      y: Number(entry.value),
+    })),
+    plan: [
+      { x: 0, y: baseline },
+      { x: days(kpi.startDate, kpi.targetDate), y: Number(kpi.target) },
+    ],
+  };
 }
 
 /** Oben Status und Unterschriften, darunter die Tabelle der Kennzahlen. */
@@ -136,7 +191,23 @@ function ScorecardContent({ place }: { place: MeetingPlace }) {
       {data.kpis.length === 0 ? (
         <EmptyState title={text.empty} description={text.emptyHint} />
       ) : (
-        <KpiTable place={place} data={data} />
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-muted-foreground text-sm">{text.trackHint(data.tolerancePercent)}</p>
+            {data.kpis.some((kpi) => kpi.canEnter) &&
+              routerLink({
+                href: `${scorecardPath(place)}/import`,
+                className: buttonVariants({ variant: 'outline' }),
+                children: (
+                  <>
+                    <UploadIcon />
+                    {text.import}
+                  </>
+                ),
+              })}
+          </div>
+          <KpiTable place={place} data={data} />
+        </>
       )}
     </>
   );
@@ -233,18 +304,13 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
   const text = useT().jbp.scorecard;
   const day = useDay();
   const number = useNumber();
+  // Jede Kennzahl führt zu ihrer Seite mit Verlauf und Werten (JBP-09); Bearbeiten steht dort.
   const name = (kpi: Kpi) =>
-    kpi.own && data.canEdit ? (
-      routerLink({
-        href: `${scorecardPath(place)}/${kpi.id}`,
-        className:
-          'font-semibold hover:underline focus-visible:underline focus-visible:outline-none',
-        'aria-label': `${kpi.name}: ${text.edit}`,
-        children: kpi.name,
-      })
-    ) : (
-      <span className="font-semibold">{kpi.name}</span>
-    );
+    routerLink({
+      href: `${scorecardPath(place)}/${kpi.id}`,
+      className: 'font-semibold hover:underline focus-visible:underline focus-visible:outline-none',
+      children: kpi.name,
+    });
   return (
     <>
       {/* Schmal als Liste, breit als Tabelle: nichts wird abgeschnitten. */}
@@ -264,6 +330,10 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
                 {number(kpi.target)} {kpi.unit}
               </span>{' '}
               · {day(kpi.targetDate)}
+            </span>
+            <span className="flex items-center gap-3">
+              <KpiSparkline {...sparkPoints(kpi)} />
+              <TrackBadge track={kpi.track} />
             </span>
             <span className="flex flex-wrap items-center gap-2 text-sm">
               <span>
@@ -286,6 +356,7 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
               <TableHead>{text.columns.targetDate}</TableHead>
               <TableHead>{text.columns.owner}</TableHead>
               <TableHead>{text.columns.benefitFor}</TableHead>
+              <TableHead>{text.columns2.track}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -320,6 +391,12 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
                   <Badge variant={kpi.benefitFor === 'both' ? 'selected' : 'neutral'}>
                     {text.benefits[kpi.benefitFor]}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="flex items-center gap-3">
+                    <KpiSparkline {...sparkPoints(kpi)} />
+                    <TrackBadge track={kpi.track} />
+                  </span>
                 </TableCell>
               </TableRow>
             ))}
@@ -597,6 +674,360 @@ export function JbpScorecardSignPage({ place }: { place: MeetingPlace }) {
           )}
         </div>
       )}
+    </JbpFrame>
+  );
+}
+
+/** Kennzahl (JBP-09): Stand, Verlauf als Diagramm, Werte als Tabelle und der geteilte Verlauf. */
+export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: string }) {
+  const text = useT().jbp.scorecard;
+  const accessToken = useToken();
+  const day = useDay();
+  const number = useNumber();
+  const format = useFormat();
+  const { locale } = useLocale();
+  const [message, hideMessage] = useFlash();
+  const query = useQuery({
+    ...kpiDetailQueryOptions(accessToken, apiBase(place), kpiId),
+    enabled: accessToken !== '',
+  });
+  const card = useScorecard(place);
+  const kpi = query.data?.kpi;
+  const month = new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' });
+  return (
+    <JbpFrame
+      place={place}
+      trail={[{ label: text.title, href: scorecardPath(place) }]}
+      current={kpi?.name ?? text.title}
+      header={
+        <PageHeader
+          title={kpi?.name ?? text.title}
+          {...(kpi
+            ? { purpose: text.detailPurpose(kpi.unit, text.directions[kpi.direction]) }
+            : {})}
+        />
+      }
+    >
+      {query.isError ? (
+        <ErrorState title={text.notFound} />
+      ) : !query.data || !kpi ? (
+        <LoadingState label={text.loading} />
+      ) : (
+        <div className="flex max-w-4xl flex-col gap-8">
+          {message && <StatusLine message={message} onHidden={hideMessage} />}
+          <div className="flex flex-wrap items-center gap-3">
+            <TrackBadge track={kpi.track} />
+            <span className="text-muted-foreground text-sm">
+              {kpi.baseline === null ? '–' : `${number(kpi.baseline)} ${kpi.unit}`} →{' '}
+              {number(kpi.target)} {kpi.unit} · {day(kpi.targetDate)} · {kpi.ownerName}
+            </span>
+            <span className="grow" />
+            {kpi.canEnter &&
+              routerLink({
+                href: `${scorecardPath(place)}/${kpi.id}/wert`,
+                className: buttonVariants(),
+                children: (
+                  <>
+                    <PlusIcon />
+                    {text.enter}
+                  </>
+                ),
+              })}
+            {kpi.own &&
+              card.data?.canEdit &&
+              routerLink({
+                href: `${scorecardPath(place)}/${kpi.id}/bearbeiten`,
+                className: buttonVariants({ variant: 'outline' }),
+                children: text.edit,
+              })}
+          </div>
+          <KpiLineChart
+            title={text.chartTitle(text.tracks[kpi.track ?? 'none'] ?? '')}
+            description={text.trackHint(query.data.tolerancePercent)}
+            names={{ actual: text.seriesActual, plan: text.seriesPlan }}
+            points={[
+              {
+                time: Date.parse(`${kpi.startDate}T00:00:00Z`),
+                plan: Number(kpi.baseline ?? kpi.values[0]?.value ?? kpi.target),
+              },
+              ...kpi.values.map((entry) => ({
+                time: Date.parse(`${entry.period}T00:00:00Z`),
+                actual: Number(entry.value),
+              })),
+              { time: Date.parse(`${kpi.targetDate}T00:00:00Z`), plan: Number(kpi.target) },
+            ].sort((a, b) => a.time - b.time)}
+            formatValue={(value) => `${number(String(value))} ${kpi.unit}`}
+            formatTime={(time) => month.format(new Date(time))}
+            empty={{ title: text.chartEmpty, description: text.chartEmptyHint }}
+          />
+          {query.data.values.length > 0 && (
+            <section aria-labelledby="kennzahl-werte" className="flex flex-col gap-3">
+              <h2 id="kennzahl-werte" className="font-bold text-xl tracking-title">
+                {text.valuesTitle}
+              </h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{text.valueColumns.month}</TableHead>
+                    <TableHead>{text.valueColumns.value}</TableHead>
+                    <TableHead>{text.valueColumns.source}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{text.valueColumns.by}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {query.data.values.map((row) => (
+                    <TableRow key={row.period} data-period={row.period}>
+                      <TableCell>{month.format(new Date(`${row.period}T00:00:00`))}</TableCell>
+                      <TableCell className="font-semibold tabular-nums">
+                        {number(row.value)} {kpi.unit}
+                      </TableCell>
+                      <TableCell>{text.sources[row.source] ?? row.source}</TableCell>
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">
+                        {row.enteredByName}, {format.dateTime(row.enteredAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
+          )}
+          {!kpi.canEnter && <p className="text-muted-foreground text-sm">{text.onlyOwner}</p>}
+          <section aria-labelledby="kennzahl-verlauf" className="flex flex-col gap-3">
+            <h2 id="kennzahl-verlauf" className="font-bold text-xl tracking-title">
+              {text.historyTitle}
+            </h2>
+            <AuditHistory
+              objectType="kpi_value"
+              objectId={kpi.id}
+              {...(place.side === 'supplier' ? { relationshipId: place.relationshipId } : {})}
+            />
+          </section>
+        </div>
+      )}
+    </JbpFrame>
+  );
+}
+
+/** Wert erfassen auf eigener Seite: Monat und Wert; ein neuer Wert ersetzt den des Monats. */
+export function JbpKpiValuePage({ place, kpiId }: { place: MeetingPlace; kpiId: string }) {
+  const text = useT().jbp.scorecard;
+  const accessToken = useToken();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    ...kpiDetailQueryOptions(accessToken, apiBase(place), kpiId),
+    enabled: accessToken !== '',
+  });
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [value, setValue] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [failed, setFailed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const kpi = query.data?.kpi;
+  const back = `${scorecardPath(place)}/${kpiId}`;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    const next: Record<string, string> = {};
+    if (!/^\d{4}-\d{2}$/.test(month)) next.month = text.required;
+    const number = value.trim().replace(',', '.');
+    if (!number) next.value = text.required;
+    else if (!numberPattern.test(number)) next.value = text.invalidNumber;
+    setErrors(next);
+    if (Object.keys(next).length > 0) return;
+    setSaving(true);
+    setFailed(false);
+    try {
+      await enterKpiValue(accessToken, apiBase(place), kpiId, { month, value: number });
+      await queryClient.invalidateQueries({ queryKey: ['jbp'] });
+      flash.set(text.saved);
+      await navigate({ to: back });
+    } catch {
+      setFailed(true);
+      setSaving(false);
+    }
+  };
+  return (
+    <JbpFrame
+      place={place}
+      trail={[
+        { label: text.title, href: scorecardPath(place) },
+        { label: kpi?.name ?? text.title, href: back },
+      ]}
+      current={text.enterTitle}
+      header={<PageHeader title={text.enterTitle} purpose={text.enterPurpose} />}
+    >
+      {query.isError ? (
+        <ErrorState title={text.notFound} />
+      ) : !kpi ? (
+        <LoadingState label={text.loading} />
+      ) : !kpi.canEnter ? (
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+          {text.onlyOwner}
+        </p>
+      ) : (
+        <form
+          noValidate
+          onSubmit={(event) => void submit(event)}
+          className="flex max-w-md flex-col gap-6"
+        >
+          <FormField label={text.monthLabel} error={errors.month}>
+            {(field) => (
+              <Input
+                {...field}
+                type="month"
+                value={month}
+                onChange={(event) => setMonth(event.target.value)}
+              />
+            )}
+          </FormField>
+          <FormField label={text.valueLabel(kpi.unit)} hint={text.numberHint} error={errors.value}>
+            {(field) => (
+              <Input
+                {...field}
+                inputMode="decimal"
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+              />
+            )}
+          </FormField>
+          {failed && (
+            <p role="alert" className="text-destructive">
+              {text.saveFailed}
+            </p>
+          )}
+          <FormActions>
+            <Button type="button" variant="secondary" onClick={() => void navigate({ to: back })}>
+              {text.cancel}
+            </Button>
+            <Button type="submit" loading={saving}>
+              {text.save}
+            </Button>
+          </FormActions>
+        </form>
+      )}
+    </JbpFrame>
+  );
+}
+
+/** CSV-Import (JBP-09): Datei wählen, Vorschau mit markierten Fehlern, dann übernehmen. */
+export function JbpKpiImportPage({ place }: { place: MeetingPlace }) {
+  const text = useT().jbp.scorecard;
+  const accessToken = useToken();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<KpiImportPreview | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const load = async (apply: boolean) => {
+    if (!file) {
+      setError(text.chooseFile);
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      const result = await uploadKpiValues(accessToken, apiBase(place), file, apply);
+      if (apply) {
+        await queryClient.invalidateQueries({ queryKey: ['jbp'] });
+        flash.set(text.importDone(result.valid));
+        await navigate({ to: scorecardPath(place) });
+        return;
+      }
+      setPreview(result);
+    } catch (failure) {
+      const body =
+        failure instanceof ApiError ? (failure.body as { preview?: KpiImportPreview }) : null;
+      if (body?.preview) setPreview(body.preview);
+      else setError(text.importFailed);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <JbpFrame
+      place={place}
+      trail={[{ label: text.title, href: scorecardPath(place) }]}
+      current={text.importTitle}
+      header={<PageHeader title={text.importTitle} purpose={text.importPurpose} />}
+    >
+      <div className="flex max-w-4xl flex-col gap-6">
+        <FormField label={text.importFile} hint={text.importFileHint} error={error ?? undefined}>
+          {(field) => (
+            <Input
+              {...field}
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={(event) => {
+                setFile(event.target.files?.[0] ?? null);
+                setPreview(null);
+              }}
+            />
+          )}
+        </FormField>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" loading={busy && !preview} onClick={() => void load(false)}>
+            {text.importPreview}
+          </Button>
+          {preview && preview.invalid === 0 && preview.valid > 0 && (
+            <Button loading={busy} onClick={() => void load(true)}>
+              {text.importApply(preview.valid)}
+            </Button>
+          )}
+        </div>
+        {preview && (
+          <section aria-label={text.importPreview} className="flex flex-col gap-3">
+            <p
+              role="status"
+              className={preview.invalid > 0 ? 'text-destructive' : 'text-muted-foreground'}
+            >
+              {text.importCount(preview.valid, preview.invalid)}
+            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{text.importColumns.row}</TableHead>
+                  <TableHead>{text.importColumns.kpi}</TableHead>
+                  <TableHead>{text.importColumns.month}</TableHead>
+                  <TableHead>{text.importColumns.value}</TableHead>
+                  <TableHead>{text.importColumns.state}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {preview.rows.map((row) => (
+                  <TableRow
+                    key={row.row}
+                    data-row={row.row}
+                    data-invalid={row.errors.length > 0 || undefined}
+                  >
+                    <TableCell className="tabular-nums">{row.row}</TableCell>
+                    <TableCell>{row.kpi}</TableCell>
+                    <TableCell>{row.month}</TableCell>
+                    <TableCell className="tabular-nums">{row.value}</TableCell>
+                    <TableCell>
+                      {row.errors.length === 0 ? (
+                        <Badge variant="success">
+                          <CircleCheckIcon aria-hidden />
+                          {text.importOk}
+                        </Badge>
+                      ) : (
+                        <span className="flex flex-wrap gap-1">
+                          {row.errors.map((code) => (
+                            <Badge key={code} variant="danger">
+                              <CircleXIcon aria-hidden />
+                              {text.importErrors[code] ?? code}
+                            </Badge>
+                          ))}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </section>
+        )}
+      </div>
     </JbpFrame>
   );
 }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ActionsLiveSource } from '../actions/action-sources.js';
 import { CustomersModule } from '../customers/customers.module.js';
-import { CommitmentsLiveSource } from '../jbp/jbp-sources.js';
+import { CommitmentsLiveSource, ScorecardLiveSource } from '../jbp/jbp-sources.js';
 import { MEETING_LIVE_SOURCES } from './live-sections.js';
 import { BuyerMeetingsController, SupplierMeetingsController } from './meetings.controller.js';
 import { MeetingsService } from './meetings.service.js';
@@ -14,7 +14,7 @@ import { MeetingsService } from './meetings.service.js';
     MeetingsService,
     {
       provide: MEETING_LIVE_SOURCES,
-      useValue: [new ActionsLiveSource(), new CommitmentsLiveSource()],
+      useValue: [new ActionsLiveSource(), new CommitmentsLiveSource(), new ScorecardLiveSource()],
     },
   ],
   exports: [MeetingsService],

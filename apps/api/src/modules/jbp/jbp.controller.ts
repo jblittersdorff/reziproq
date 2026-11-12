@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,7 +9,10 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   type Commitments,
   type CreateJbp,
@@ -28,6 +32,8 @@ import {
   type JbpTopics,
   type JbpVersions,
   jbpTopicOrderSchema,
+  type KpiDetail,
+  type KpiImportPreview,
   type ParkJbpTopic,
   parkJbpTopicSchema,
   type SaveBusinessUpdate,
@@ -35,6 +41,7 @@ import {
   type SaveInitiative,
   type SaveJbpTopic,
   type SaveKpi,
+  type SaveKpiValue,
   type SaveMilestone,
   type ScorecardView,
   type SetCommitmentStatus,
@@ -44,12 +51,14 @@ import {
   saveInitiativeSchema,
   saveJbpTopicSchema,
   saveKpiSchema,
+  saveKpiValueSchema,
   saveMilestoneSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
+import { parseImportFile } from '../suppliers/import-file.js';
 import { type JbpScope, JbpService } from './jbp.service.js';
 import { JbpApprovalService } from './jbp-approval.service.js';
 import { JbpCommitmentsService } from './jbp-commitments.service.js';
@@ -473,6 +482,20 @@ export class SupplierJbpApprovalController extends approvalRoutes('supplier') {
   }
 }
 
+const maxUploadBytes = 10 * 1024 * 1024;
+type UploadedImportFile = { originalname: string; buffer: Buffer };
+
+/** CSV oder XLSX wie in PLT-07; Spaltennamen werden normalisiert (Kennzahl, Monat, Wert). */
+async function parseUpload(file: UploadedImportFile | undefined) {
+  if (!file) {
+    throw new BadRequestException({
+      code: 'file_required',
+      message: 'Bitte wähle eine Datei aus.',
+    });
+  }
+  return parseImportFile(file.originalname, file.buffer);
+}
+
 /** JBP-07: Scorecard mit Kennzahlen und Unterschriften; dieselben Endpunkte je Seite. */
 function scorecardRoutes(side: Side) {
   class SideScorecardController {
@@ -541,6 +564,51 @@ function scorecardRoutes(side: Side) {
       @Param('id', ParseUUIDPipe) id: string,
     ): Promise<ScorecardView> {
       return this.run(auth, id, (scope) => this.scorecard.newVersion(scope));
+    }
+
+    @Get('kennzahlen/:kpiId')
+    @Requires('jbp.sehen')
+    kpi(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('kpiId', ParseUUIDPipe) kpiId: string,
+    ): Promise<KpiDetail> {
+      return this.run(auth, id, (scope) => this.scorecard.kpiDetail(scope, kpiId));
+    }
+
+    @Post('kennzahlen/:kpiId/werte')
+    @Requires('jbp.bearbeiten')
+    enterValue(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('kpiId', ParseUUIDPipe) kpiId: string,
+      @Body(new ZodValidationPipe(saveKpiValueSchema)) body: SaveKpiValue,
+    ): Promise<KpiDetail> {
+      return this.run(auth, id, (scope) => this.scorecard.enterValue(scope, kpiId, body));
+    }
+
+    @Post('import/vorschau')
+    @Requires('jbp.bearbeiten')
+    @UseInterceptors(FileInterceptor('file', { limits: { fileSize: maxUploadBytes } }))
+    async previewImport(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @UploadedFile() file: UploadedImportFile | undefined,
+    ): Promise<KpiImportPreview> {
+      const parsed = await parseUpload(file);
+      return this.run(auth, id, (scope) => this.scorecard.importPreview(scope, parsed.rows));
+    }
+
+    @Post('import')
+    @Requires('jbp.bearbeiten')
+    @UseInterceptors(FileInterceptor('file', { limits: { fileSize: maxUploadBytes } }))
+    async applyImport(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @UploadedFile() file: UploadedImportFile | undefined,
+    ): Promise<KpiImportPreview> {
+      const parsed = await parseUpload(file);
+      return this.run(auth, id, (scope) => this.scorecard.importApply(scope, parsed.rows));
     }
   }
   return SideScorecardController;

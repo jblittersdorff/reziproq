@@ -126,10 +126,10 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 60 | JBP-03 | Initiativen und Roadmap | JBP-03, JBP-04 | JBP-02 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Änderungen beider Seiten über app_initiative_* (Rolle reziproq_initiativen); Roadmap mit Legende. |
 | 61 | JBP-05 | Zusagen | JBP-05 | JBP-03 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Jede Seite nur eigene Zusagen; Person der eigenen Seite, Aufgaben auf Start auch für Meilensteine; live im Termin. |
 | 62 | JBP-06 | Freigabe und Versionen des Gemeinsamen Plans | JBP-06 | JBP-05, JBP-02, JBP-03 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Status über app_jbp_transition (Rolle reziproq_jbp_freigabe); Mail an angenommene Einladungen; Zyklus-Schritt JBP. |
-| 63 | JBP-07 | Scorecard und Unterschrift | JBP-07, JBP-08 | JBP-06, ZYK-02 | nach 1.0 | Block J | C | PR offen | Testlauf-Pfad. Status über app_scorecard_transition; Erinnerung nur an die fehlende Seite; Mail an den Lieferanten, beim Käufer Aufgabe auf Start. |
-| 64 | JBP-09 | Ist-Werte der Kennzahlen | JBP-09 | JBP-07 | nach 1.0 | Block J | C | offen | – |
-| 65 | PNL-01 | Wirkung einrichten und Hebel-Vorlagen | PNL-01, PNL-02, JBP-10 | JBP-03, QBR-03 | nach 1.0 | Block W | B | offen | – |
-| 66 | PNL-03 | Baseline und Reifegrade | PNL-03, PNL-04 | PNL-01 | nach 1.0 | Block W | B | offen | – |
+| 63 | JBP-07 | Scorecard und Unterschrift | JBP-07, JBP-08 | JBP-06, ZYK-02 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Status über app_scorecard_transition; Erinnerung nur an die fehlende Seite; Mail an den Lieferanten, beim Käufer Aufgabe auf Start. |
+| 64 | JBP-09 | Ist-Werte der Kennzahlen | JBP-09 | JBP-07 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Stand über kpiTrack (shared), Toleranz je Kunde über app_kpi_tolerance; Import wie PLT-07; live im Termin. |
+| 65 | PNL-01 | Wirkung einrichten und Hebel-Vorlagen | PNL-01, PNL-02, JBP-10 | JBP-03, QBR-03 | nach 1.0 | Block W | B | PR offen | Testlauf-Pfad. Wirkung käuferprivat in initiative_impact statt an initiative; Regeln in SQL (app_lever_amount). |
+| 66 | PNL-03 | Baseline und Reifegrade | PNL-03, PNL-04 | PNL-01 | nach 1.0 | Block W | B | PR offen | Testlauf-Pfad. Baseline und Stufen nur anfügbar; R5 erst mit PNL-06. |
 | 67 | PNL-05 | Monatswerte Plan und Ist | PNL-05 | PNL-03 | nach 1.0 | Block W | B | offen | – |
 | 68 | PNL-06 | Freigabe durch Controlling | PNL-06 | PNL-05, PLT-05b | nach 1.0 | Block W | B | offen | – |
 | 69 | PNL-07 | Teilungsregel, Wirkungsarten, Doppelzählung | PNL-07, PNL-08, PNL-09 | PNL-06, LIF-03 | nach 1.0 | Block W | B | offen | – |

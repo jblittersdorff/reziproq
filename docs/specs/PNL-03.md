@@ -44,14 +44,22 @@ Jede Wirkung hat eine eingefrorene Ausgangsbasis und steigt nur mit Nachweis von
    - **Einfrieren** mit Bestätigung auf der Seite
 3. **Reifegrad erhöhen** auf eigener Seite: Die Seite nennt den nötigen Nachweis und lässt nur mit Nachweis speichern.
 
+## Umsetzung
+
+- `initiative_baseline` (käuferprivat) und `maturity_step` (geteilt) sind nur anfügbar; die
+  Datenbank lehnt Änderungen ab. Der Reifegrad ist die letzte Stufe, ohne Stufe R1.
+- R3 gilt mit freigegebenem Gemeinsamem Plan (eine Version aus JBP-06) oder einem Beschluss aus
+  einem Termin der Beziehung. R5 lehnt die API ab, bis PNL-06 die Freigabe bringt.
+- Die Nachweise sind teilbar formuliert; die Werte der Baseline stehen nie darin.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Keine Stufe steigt ohne ihren Nachweis. R5 nur über PNL-06.
-- [ ] Eine eingefrorene Baseline ist unveränderbar, Änderungen erzeugen eine Version mit Begründung.
-- [ ] Der Lieferant sieht keine Baseline (PLT-04).
-- [ ] Der Verlauf zeigt jede Stufe mit Person, Datum und Nachweis.
+- [x] Keine Stufe steigt ohne ihren Nachweis. R5 nur über PNL-06.
+- [x] Eine eingefrorene Baseline ist unveränderbar, Änderungen erzeugen eine Version mit Begründung.
+- [x] Der Lieferant sieht keine Baseline (PLT-04).
+- [x] Der Verlauf zeigt jede Stufe mit Person, Datum und Nachweis.
 
 ## Nicht Teil dieser Funktion
 

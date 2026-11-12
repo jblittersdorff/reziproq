@@ -1,5 +1,6 @@
 import {
   type Initiative,
+  type InitiativeDetail,
   type InitiativeMilestone,
   type InitiativeStatus,
   initiativeStatuses,
@@ -31,6 +32,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { AuditHistory } from '@/features/audit/audit-history';
+import { impactPath, MaturityLadder, MaturitySteps } from '@/features/impact/impact-pages';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -383,6 +385,8 @@ export function JbpInitiativePage({
           initiative={query.data.initiative}
           approved={query.data.approved}
           canEdit={query.data.canEdit}
+          maturity={query.data.maturity}
+          impact={query.data.impact}
         />
       )}
     </JbpFrame>
@@ -395,7 +399,11 @@ function InitiativeContent({
   initiative,
   approved,
   canEdit,
+  maturity,
+  impact,
 }: {
+  maturity: InitiativeDetail['maturity'];
+  impact: InitiativeDetail['impact'];
   place: MeetingPlace;
   accessToken: string;
   initiative: Initiative;
@@ -454,6 +462,8 @@ function InitiativeContent({
           ))}
         </dl>
       </section>
+
+      <ImpactTile place={place} initiativeId={initiative.id} maturity={maturity} impact={impact} />
 
       {canEdit && (
         <section aria-labelledby="initiative-status" className="flex flex-col gap-3">
@@ -1026,5 +1036,63 @@ export function JbpTopicMergePage({ place }: { place: MeetingPlace }) {
         </form>
       )}
     </JbpFrame>
+  );
+}
+
+/**
+ * Kachel Wirkung (PNL-01, PNL-03): beim Käufer Hebel und Wirkungsart als Kennzahl mit Verweis auf
+ * die Wirkungs-Seite, beim Lieferanten nur der geteilte Reifegrad mit seinen Stufen.
+ */
+function ImpactTile({
+  place,
+  initiativeId,
+  maturity,
+  impact,
+}: {
+  place: MeetingPlace;
+  initiativeId: string;
+  maturity: InitiativeDetail['maturity'];
+  impact: InitiativeDetail['impact'];
+}) {
+  const text = useT().impact;
+  const buyer = place.side === 'buyer';
+  const href = `${impactPath(place.relationshipId)}/${initiativeId}`;
+  return (
+    <section
+      aria-labelledby="initiative-wirkung"
+      data-slot="impact-tile"
+      className="flex flex-col gap-4 rounded-xl bg-card p-5"
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 id="initiative-wirkung" className="font-bold text-xl tracking-title">
+          {text.tileTitle}
+        </h2>
+        {impact && (
+          <Badge variant="selected">
+            {text.levers[impact.lever]} · {text.effects[impact.effectType]}
+          </Badge>
+        )}
+      </div>
+      <MaturityLadder level={maturity.level} />
+      {buyer ? (
+        <>
+          <p className="text-muted-foreground text-sm">
+            {impact ? text.tileAmountLater : text.tileEmpty}
+          </p>
+          {routerLink({
+            href: impact ? href : `${href}/einrichten`,
+            className: cn(buttonVariants({ variant: 'link' }), 'self-start px-0 has-[>svg]:px-0'),
+            children: (
+              <>
+                {impact ? text.tileLink : text.setupTitle}
+                <ChevronRightIcon aria-hidden />
+              </>
+            ),
+          })}
+        </>
+      ) : (
+        <MaturitySteps maturity={maturity} />
+      )}
+    </section>
   );
 }

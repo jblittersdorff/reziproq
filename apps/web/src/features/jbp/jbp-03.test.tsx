@@ -48,6 +48,7 @@ const initiative = (n: number, extra: Partial<Initiative> = {}): Initiative => (
   startsOn: '2027-01-01',
   endsOn: '2027-12-31',
   status: 'planned',
+  source: 'jbp',
   milestones: [],
   topics: [],
   ...extra,
@@ -113,7 +114,7 @@ beforeEach(() => {
   api.permissions = actionsFor.admin;
   sent = [];
   current = list();
-  detail = { initiative: one, approved: false, canEdit: true, ownSide: 'buyer', people };
+  detail = { initiative: one, approved: false, canEdit: true, ownSide: 'buyer', people, maturity: { level: 1, steps: [] }, impact: null };
   api.handle = (request) => {
     if (request.url === `/api/suppliers/${rel}`) return Response.json(supplier);
     if (request.url.startsWith(`/api/suppliers/${rel}/overview`)) {
@@ -237,14 +238,14 @@ describe('JBP-03 Initiativen in der Oberfläche', () => {
 
   it('nach der Freigabe gibt es kein Anlegen und Bearbeiten mehr, Status und Meilensteine schon', async () => {
     current = list({ approved: true });
-    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people };
+    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people, maturity: { level: 1, steps: [] }, impact: null };
     renderAt(base);
     expect(await screen.findByText(/Der Plan ist freigegeben/)).toBeDefined();
     expect(screen.queryByRole('link', { name: 'Neue Initiative' })).toBeNull();
   });
 
   it('die Initiative zeigt Status, Meilensteine, Herkunft und Verlauf; Status lässt sich ändern', async () => {
-    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people };
+    detail = { initiative: one, approved: true, canEdit: true, ownSide: 'buyer', people, maturity: { level: 1, steps: [] }, impact: null };
     renderAt(`${base}/${uuid(20)}`);
     expect(await screen.findByRole('heading', { level: 2, name: 'Verlauf' })).toBeDefined();
     expect(screen.queryByRole('link', { name: 'Bearbeiten' })).toBeNull();

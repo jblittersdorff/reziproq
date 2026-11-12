@@ -35,15 +35,28 @@ Die 10 % sind je Kunde einstellbar. Die Richtung (`higher` oder `lower`) entsche
 2. Ein Klick öffnet die Kennzahl-Seite mit Verlauf, Werte-Tabelle und **Wert erfassen** auf eigener Seite.
 3. **CSV-Import** (`/…/scorecard/import`): Spalten Kennzahl, Monat, Wert, mit Vorschau und Fehlermarkierung wie in PLT-07.
 
+## Umsetzung
+
+- Der Stand ist eine reine Funktion (`kpiTrack` in packages/shared), die Server und Oberfläche
+  gleich nutzen. Die Linie beginnt bei der Basis am Tag der Anlage und endet am Ziel zum Termin;
+  ohne Basis gilt der erste Wert. Verglichen wird der Wert des letzten Monats.
+- Die Toleranz stellt der Käufer unter Einstellungen › Zyklus ein (`scorecard_setting`,
+  käuferprivat). Die Lieferantenseite liest nur diese eine Zahl über `app_kpi_tolerance`
+  (Migration 0050), damit beide Seiten denselben Stand sehen.
+- Je Kennzahl und Monat ein Wert; ein neuer ersetzt den alten, der Verlauf hält beide fest.
+  Werte erfasst die Seite, der die Kennzahl gehört; das prüft der Dienst.
+- Import wie PLT-07 (CSV oder XLSX), Spalten Kennzahl, Monat, Wert; übernommen wird nur ohne
+  fehlerhafte Zeilen.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Zwölf Monatswerte lassen sich in einem Schritt importieren, fehlerhafte Zeilen sind markiert.
-- [ ] Der Stand stimmt für beide Richtungen und die Grenzfälle.
-- [ ] Nur die verantwortliche Seite erfasst Werte.
-- [ ] Der Verlauf je Kennzahl ist für beide Seiten sichtbar.
-- [ ] Die Scorecard erscheint mit Ist-Werten live im Termin (QBR-01).
+- [x] Zwölf Monatswerte lassen sich in einem Schritt importieren, fehlerhafte Zeilen sind markiert.
+- [x] Der Stand stimmt für beide Richtungen und die Grenzfälle.
+- [x] Nur die verantwortliche Seite erfasst Werte.
+- [x] Der Verlauf je Kennzahl ist für beide Seiten sichtbar.
+- [x] Die Scorecard erscheint mit Ist-Werten live im Termin (QBR-01).
 
 ## Nicht Teil dieser Funktion
 

@@ -48,6 +48,10 @@ const kpi = (n: number, extra: Partial<Kpi> = {}): Kpi => ({
   ownerUserId: 'sara',
   ownerName: 'Sara Ost',
   benefitFor: 'both',
+  startDate: '2027-01-01',
+  values: [],
+  track: null,
+  canEnter: true,
   ...extra,
 });
 const view = (extra: Partial<ScorecardView> = {}): ScorecardView => ({
@@ -71,6 +75,7 @@ const view = (extra: Partial<ScorecardView> = {}): ScorecardView => ({
   ],
   signatures: [],
   deadline: '2027-01-08',
+  tolerancePercent: 10,
   canEdit: true,
   canSign: true,
   canNewVersion: false,
@@ -122,11 +127,12 @@ describe('JBP-07 Scorecard in der Oberfläche', () => {
     expect(rows[0]?.textContent).toContain('31.12.2027');
     expect(rows[0]?.textContent).toContain('beide');
     expect(rows[1]?.textContent).toContain('Kim Kaiser');
-    // Eigene Kennzahlen lassen sich bearbeiten, die der anderen Seite nicht.
+    // Jede Kennzahl führt zu ihrer Seite; Bearbeiten steht dort (JBP-09).
     expect(
-      within(rows[0] as HTMLElement).getByRole('link', { name: 'Liefertreue: Bearbeiten' }),
-    ).toBeDefined();
-    expect(within(rows[1] as HTMLElement).queryByRole('link')).toBeNull();
+      within(rows[1] as HTMLElement)
+        .getByRole('link', { name: 'Reklamationsquote' })
+        .getAttribute('href'),
+    ).toBe(`${base}/${uuid(21)}`);
     // Oben Status, Frist und die Unterschriften beider Seiten.
     const head = document.querySelector('[data-slot="scorecard-status"]') as HTMLElement;
     expect(head.textContent).toContain('Noch nicht unterschrieben');
@@ -198,7 +204,7 @@ describe('JBP-07 Scorecard in der Oberfläche', () => {
     renderAt(base);
     expect(await screen.findByText('Von beiden unterschrieben')).toBeDefined();
     expect(screen.getByText(/gesperrt/)).toBeDefined();
-    expect(screen.queryByRole('link', { name: /Bearbeiten/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Neue Kennzahl' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Neue Kennzahl' })).toBeNull();
     expect(document.querySelector('[data-signature="supplier"]')?.textContent).toContain(
       'Kim Kaiser',

@@ -58,15 +58,32 @@ Als SRO lege ich für jede Initiative fest, über welchen Hebel und in welcher G
 4. Der Lieferant schlägt unter Gemeinsamer Plan eine Idee vor, die als Initiative mit Quelle `supplier_idea` entsteht.
 5. **Einstellungen › GuV-Zeilen**: Liste, bearbeitet auf eigenen Seiten.
 
+## Umsetzung
+
+- **Abweichung vom Datenmodell:** Hebel, Version der Rechenregel, GuV-Zeile, Wirkungsart und
+  Wirkungsbeginn stehen nicht an der geteilten Tabelle `initiative`, sondern käuferprivat in
+  `initiative_impact` (Migration 0051). So sieht der Lieferant die GuV-Struktur des Käufers nicht,
+  und der Käufer muss keine Zeilen der anderen Seite ändern. `source` steht an `initiative`
+  (geteilt); der Reifegrad kommt aus `maturity_step` (PNL-03).
+- Die Lieferantenidee entsteht, indem der Lieferant unter Gemeinsamer Plan eine Initiative anlegt;
+  sie trägt dann die Quelle `supplier_idea`.
+- Die Rechenregeln stehen versioniert in `packages/shared/src/levers.ts` (Eingaben, erlaubte
+  Wirkungsarten) und gerechnet in SQL (`app_lever_amount`, ganze Cent, halbe Cent von null weg
+  gerundet). `leverVersions` nennt alle Versionen, die SQL weiter rechnen kann.
+- Geldeingaben sind ganze Cent; die Oberfläche nimmt Euro wie „12,34“ entgegen.
+- Neue Rechte `wirkung.sehen` und `wirkung.bearbeiten`, nur für Käufer.
+- Der Betrag an der Initiative folgt mit PNL-05; bis dahin zeigt die Kachel Hebel, Wirkungsart und
+  Reifegrad mit Verweis auf die Wirkungs-Seite.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Jede Initiative mit Wirkung hat Quelle, Hebel, GuV-Zeile und Wirkungsart.
-- [ ] Jede Rechenregel ist mit Beispielwerten getestet, auch für die Rundung auf ganze Cent.
-- [ ] Eine geänderte Rechenregel erhöht die Version, alte Initiativen rechnen mit ihrer Version weiter.
-- [ ] Nicht erlaubte Kombinationen von Hebel und Wirkungsart lehnt die API ab.
-- [ ] Die Initiative zeigt den Betrag nur als Kennzahl mit Verweis.
+- [x] Jede Initiative mit Wirkung hat Quelle, Hebel, GuV-Zeile und Wirkungsart.
+- [x] Jede Rechenregel ist mit Beispielwerten getestet, auch für die Rundung auf ganze Cent.
+- [x] Eine geänderte Rechenregel erhöht die Version, alte Initiativen rechnen mit ihrer Version weiter.
+- [x] Nicht erlaubte Kombinationen von Hebel und Wirkungsart lehnt die API ab.
+- [x] Die Initiative zeigt den Betrag nur als Kennzahl mit Verweis.
 
 ## Nicht Teil dieser Funktion
 

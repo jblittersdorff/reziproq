@@ -32,6 +32,7 @@ import {
   dueListSchema,
   type ExtendRound,
   type ForbiddenCode,
+  type FreezeBaseline,
   focusDetailSchema,
   focusListSchema,
   forbiddenCodes,
@@ -42,6 +43,8 @@ import {
   type ImportType,
   type InitiativeStatus,
   type InviteSupplierRequest,
+  impactDetailSchema,
+  impactListSchema,
   importPreviewSchema,
   importResultSchema,
   initiativeDetailSchema,
@@ -52,6 +55,8 @@ import {
   jbpTopicCandidatesSchema,
   jbpTopicsSchema,
   jbpVersionsSchema,
+  kpiDetailSchema,
+  kpiImportPreviewSchema,
   type MaterialGroupRequest,
   materialGroupsResponseSchema,
   meetingDetailSchema,
@@ -71,11 +76,13 @@ import {
   planVersionsSchema,
   playbookCatalogSchema,
   playbookPreviewSchema,
+  pnlLinesSchema,
   portfolioMatrixSchema,
   portfolioOpenSchema,
   portfolioSchema,
   promptEventSchema,
   publicInvitationSchema,
+  type RaiseMaturity,
   type RequestContributions,
   ratingAssignmentListSchema,
   ratingDetailSchema,
@@ -93,17 +100,22 @@ import {
   type SaveInitiative,
   type SaveJbpTopic,
   type SaveKpi,
+  type SaveKpiValue,
   type SaveMeetingNote,
   type SaveMilestone,
+  type SavePnlLine,
   type SaveProtocol,
   type SaveRating,
   type SaveRuleItem,
   type SaveRuleSet,
+  type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
+  type SetupImpact,
   type SpendRequest,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  scorecardSettingSchema,
   scorecardViewSchema,
   segmentationSchema,
   segmentModelResponseSchema,
@@ -1488,6 +1500,143 @@ export const signScorecard = (accessToken: string, base: MeetingBase) =>
 
 export const startScorecardVersion = (accessToken: string, base: MeetingBase) =>
   sendJson('POST', `${base}/jbp/scorecard/neue-version`, {}, scorecardViewSchema, accessToken);
+
+/** PNL-01, PNL-03: GuV-Wirkung je Lieferant (nur Käufer) und GuV-Zeilen. */
+export const impactListQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['impact', relationshipId],
+    queryFn: () => getJson(`/suppliers/${relationshipId}/wirkung`, impactListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const impactDetailQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+) =>
+  queryOptions({
+    queryKey: ['impact', relationshipId, initiativeId],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}`,
+        impactDetailSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const setupImpact = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: SetupImpact,
+) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/einrichten`,
+    request,
+    impactDetailSchema,
+    accessToken,
+  );
+
+export const freezeBaseline = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: FreezeBaseline,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/baseline`,
+    request,
+    impactDetailSchema,
+    accessToken,
+  );
+
+export const raiseMaturity = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: RaiseMaturity,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/reifegrad`,
+    request,
+    impactDetailSchema,
+    accessToken,
+  );
+
+export const pnlLinesQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['pnl-lines'],
+    queryFn: () => getJson('/pnl-lines', pnlLinesSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const savePnlLine = (accessToken: string, key: string | null, request: SavePnlLine) =>
+  sendJson(
+    key ? 'PUT' : 'POST',
+    key ? `/pnl-lines/${encodeURIComponent(key)}` : '/pnl-lines',
+    request,
+    pnlLinesSchema,
+    accessToken,
+  );
+
+/** JBP-09: Ist-Werte der Kennzahlen, Import und Toleranz „knapp“. */
+export const kpiDetailQueryOptions = (accessToken: string, base: MeetingBase, kpiId: string) =>
+  queryOptions({
+    queryKey: ['jbp', 'scorecard', base, kpiId],
+    queryFn: () =>
+      getJson(`${base}/jbp/scorecard/kennzahlen/${kpiId}`, kpiDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const enterKpiValue = (
+  accessToken: string,
+  base: MeetingBase,
+  kpiId: string,
+  request: SaveKpiValue,
+) =>
+  sendJson(
+    'POST',
+    `${base}/jbp/scorecard/kennzahlen/${kpiId}/werte`,
+    request,
+    kpiDetailSchema,
+    accessToken,
+  );
+
+/** Datei hochladen: Vorschau oder Übernahme; Fehler kommen als ApiError mit Vorschau im Body. */
+export async function uploadKpiValues(
+  accessToken: string,
+  base: MeetingBase,
+  file: File,
+  apply: boolean,
+) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = `${base}/jbp/scorecard/import${apply ? '' : '/vorschau'}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, body);
+  }
+  return kpiImportPreviewSchema.parse(await res.json());
+}
+
+export const scorecardSettingQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['scorecard-setting'],
+    queryFn: () => getJson('/scorecard/settings', scorecardSettingSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveScorecardSetting = (accessToken: string, request: ScorecardSetting) =>
+  sendJson('PUT', '/scorecard/settings', request, scorecardSettingSchema, accessToken);
 
 /** JBP-06: Freigabe und Versionen des Gemeinsamen Plans. */
 export const jbpApprovalQueryOptions = (accessToken: string, base: MeetingBase) =>

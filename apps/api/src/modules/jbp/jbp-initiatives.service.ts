@@ -29,6 +29,7 @@ import {
 import { actorOf } from '../audit/actor.js';
 import { initiativeAudit } from '../audit/audited-objects.js';
 import { can } from '../auth/can.js';
+import { maturityOf } from '../impact/maturity.js';
 import type { JbpScope } from './jbp.service.js';
 import { teamPeople } from './people.js';
 
@@ -114,6 +115,7 @@ export class JbpInitiativesService {
       startsOn: row.startsOn,
       endsOn: row.endsOn,
       status: row.status,
+      source: row.source,
       milestones: milestones
         .filter((milestone) => milestone.initiativeId === row.id)
         .map(({ id, title, dueOn, doneOn }) => ({ id, title, dueOn, doneOn })),
@@ -168,8 +170,19 @@ export class JbpInitiativesService {
   async get(scope: JbpScope, initiativeId: string): Promise<InitiativeDetail> {
     const { row, approved } = await this.row(scope, initiativeId);
     const [initiative] = await this.load(scope.tx, [row]);
+    // Die Wirkung ist käuferprivat; beim Lieferanten liefert Row-Level Security keine Zeile.
+    const [impact] = await scope.tx
+      .select({
+        effectType: schema.initiativeImpact.effectType,
+        lever: schema.initiativeImpact.lever,
+      })
+      .from(schema.initiativeImpact)
+      .where(eq(schema.initiativeImpact.initiativeId, row.id))
+      .limit(1);
     return initiativeDetailSchema.parse({
       initiative,
+      maturity: await maturityOf(scope.tx, row.id),
+      impact: impact ?? null,
       approved,
       canEdit: this.canEdit(scope),
       ownSide: scope.side,
@@ -275,6 +288,8 @@ export class JbpInitiativesService {
         ...names,
         startsOn: input.startsOn,
         endsOn: input.endsOn,
+        // PNL-01: Vom Lieferanten angelegt ist die Initiative eine Lieferantenidee.
+        source: scope.side === 'supplier' ? 'supplier_idea' : 'jbp',
         createdBy: scope.auth.userId,
         createdByName: user?.name ?? '',
       });

@@ -47,6 +47,8 @@ export const initiative = pgTable(
     startsOn: date().notNull(),
     endsOn: date().notNull(),
     status: text({ enum: initiativeStatuses }).notNull().default('planned'),
+    // PNL-01: Woher die Initiative kommt; vom Lieferanten angelegt ist sie eine Lieferantenidee.
+    source: text({ enum: ['jbp', 'action', 'supplier_idea'] }).notNull().default('jbp'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -54,6 +56,7 @@ export const initiative = pgTable(
   },
   (table) => [
     check('initiative_status', sql`${table.status} in ('planned', 'running', 'done', 'stopped')`),
+    check('initiative_source', sql`${table.source} in ('jbp', 'action', 'supplier_idea')`),
     check('initiative_title', sql`length(trim(${table.title})) between 1 and 200`),
     check('initiative_goal', sql`length(trim(${table.goal})) between 1 and 2000`),
     // Nutzen für beide Seiten ist Pflicht (JBP-03).
@@ -259,5 +262,57 @@ export const scorecardSignature = pgTable(
   (table) => [
     check('scorecard_signature_side', sql`${table.side} in ('buyer', 'supplier')`),
     index('scorecard_signature_scorecard').on(table.scorecardId, table.version),
+  ],
+);
+
+/**
+ * JBP-09: Ist-Wert einer Kennzahl je Monat, geteilt. Erfasst nur die verantwortliche Seite der
+ * Kennzahl (owner_org_id wie bei der Kennzahl); je Kennzahl und Monat ein Wert, ein neuer ersetzt.
+ */
+export const kpiValue = pgTable(
+  'kpi_value',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    kpiId: uuid()
+      .notNull()
+      .references(() => scorecardKpi.id, { onDelete: 'cascade' }),
+    /** Erster Tag des Monats */
+    period: date().notNull(),
+    value: numeric({ precision: 18, scale: 4 }).notNull(),
+    source: text({ enum: ['manual', 'csv'] }).notNull(),
+    enteredBy: text().notNull(),
+    enteredByName: text().notNull(),
+    enteredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('kpi_value_source', sql`${table.source} in ('manual', 'csv')`),
+    check('kpi_value_period', sql`extract(day from ${table.period}) = 1`),
+    index('kpi_value_kpi').on(table.kpiId, table.period),
+  ],
+);
+
+/** JBP-09: Einstellung des Kunden, ab wann eine Kennzahl „knapp“ statt „nicht auf Kurs“ ist. */
+export const scorecardSetting = pgTable(
+  'scorecard_setting',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    tolerancePercent: integer().notNull().default(10),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'scorecard_setting_tolerance',
+      sql`${table.tolerancePercent} between 0 and 50`,
+    ),
   ],
 );

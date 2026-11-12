@@ -150,6 +150,48 @@ export const scorecardKpiAudit = auditedObject({
   ],
 });
 
+/** Wirkung einer Initiative (PNL-01): käuferprivat, Verlauf nur intern. */
+export const initiativeImpactAudit = auditedObject({
+  type: 'initiative_impact',
+  visibility: 'internal',
+  fields: ['lever', 'lever_template_version', 'pnl_line_key', 'effect_type', 'effective_from'],
+});
+
+/** Eingefrorene Baseline (PNL-03): käuferprivat, je Version ein Eintrag. */
+export const baselineAudit = auditedObject({
+  type: 'initiative_baseline',
+  visibility: 'internal',
+  fields: ['version', 'inputs', 'change_reason'],
+});
+
+/** Reifegrad (PNL-03): geteilt, beide Seiten sehen Stufe und Nachweis. */
+export const maturityAudit = auditedObject({
+  type: 'maturity',
+  visibility: 'shared',
+  fields: ['level', 'evidence'],
+});
+
+/** GuV-Zeilen der Organisation (PNL-01): Verlauf nur intern. */
+export const pnlLineAudit = auditedObject({
+  type: 'pnl_line',
+  visibility: 'internal',
+  fields: ['key', 'name', 'position', 'active'],
+});
+
+/** Ist-Werte einer Kennzahl (JBP-09): je Monat, geteilt; Objekt ist die Kennzahl. */
+export const kpiValueAudit = auditedObject({
+  type: 'kpi_value',
+  visibility: 'shared',
+  fields: ['period', 'value', 'source'],
+});
+
+/** Toleranz „knapp“ des Kunden (JBP-09): Verlauf nur intern. */
+export const scorecardSettingAudit = auditedObject({
+  type: 'scorecard_setting',
+  visibility: 'internal',
+  fields: ['tolerance_percent'],
+});
+
 /** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */
 export const scorecardSignRequestAudit = auditedObject({
   type: 'scorecard_sign_request',
@@ -262,6 +304,12 @@ export const auditedObjects: readonly AuditedObject[] = [
   scorecardAudit,
   scorecardKpiAudit,
   scorecardSignRequestAudit,
+  kpiValueAudit,
+  initiativeImpactAudit,
+  baselineAudit,
+  maturityAudit,
+  pnlLineAudit,
+  scorecardSettingAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

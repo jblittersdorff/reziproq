@@ -1,8 +1,9 @@
 import { and, asc, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
-import type { LiveSection, OverviewMetric } from '@reziproq/shared';
+import { kpiTrack, type LiveSection, type OverviewMetric } from '@reziproq/shared';
 import type { AuthContext } from '../auth/auth.guard.js';
 import type { MeetingLiveSource } from '../meetings/live-sections.js';
 import type { OverviewMetricSource } from '../overview/overview-metric.js';
+import { kpiTolerance, valuesOf } from './jbp-scorecard.service.js';
 
 /**
  * Kennzahl für den Überblick (NAV-06): Stand des Gemeinsamen Plans mit Termin, offenen oder
@@ -72,6 +73,58 @@ export class CommitmentsLiveSource implements MeetingLiveSource {
         status: row.dueOn < today ? 'overdue' : row.status,
         dueDate: row.dueOn,
       })),
+    };
+  }
+}
+
+/**
+ * Live-Abschnitt im Termin (QBR-01, JBP-09): Kennzahlen der Scorecard mit Stand „auf Kurs“ aus den
+ * Ist-Werten. Status ist on_track, close, off oder none (noch kein Wert).
+ */
+export class ScorecardLiveSource implements MeetingLiveSource {
+  readonly key = 'scorecard';
+  async read(tx: TenantTransaction, relationshipId: string): Promise<LiveSection | null> {
+    const [plan] = await tx
+      .select({ id: schema.jbp.id })
+      .from(schema.jbp)
+      .where(eq(schema.jbp.relationshipId, relationshipId))
+      .orderBy(desc(schema.jbp.version))
+      .limit(1);
+    if (!plan) return null;
+    const kpis = await tx
+      .select({
+        id: schema.scorecardKpi.id,
+        name: schema.scorecardKpi.name,
+        baseline: schema.scorecardKpi.baseline,
+        target: schema.scorecardKpi.target,
+        direction: schema.scorecardKpi.direction,
+        targetDate: schema.scorecardKpi.targetDate,
+        createdAt: schema.scorecardKpi.createdAt,
+      })
+      .from(schema.scorecardKpi)
+      .innerJoin(schema.scorecard, eq(schema.scorecard.id, schema.scorecardKpi.scorecardId))
+      .where(eq(schema.scorecard.jbpId, plan.id))
+      .orderBy(asc(schema.scorecardKpi.createdAt));
+    if (kpis.length === 0) return null;
+    const tolerance = await kpiTolerance(tx, relationshipId);
+    const values = await valuesOf(
+      tx,
+      kpis.map((kpi) => kpi.id),
+    );
+    return {
+      key: this.key,
+      items: kpis.map((kpi) => {
+        const startDate = kpi.createdAt.toISOString().slice(0, 10);
+        const own = values
+          .filter((entry) => entry.kpiId === kpi.id)
+          .map((entry) => ({ period: entry.period, value: entry.value }));
+        return {
+          id: kpi.id,
+          title: kpi.name,
+          status: kpiTrack({ ...kpi, startDate }, own, tolerance) ?? 'none',
+          dueDate: kpi.targetDate,
+        };
+      }),
     };
   }
 }
