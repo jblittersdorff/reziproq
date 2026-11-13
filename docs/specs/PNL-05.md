@@ -31,15 +31,27 @@ Als SRO erfasse ich je Monat Plan- und Ist-Werte wie Preise, Mengen oder Fehlert
 3. **CSV-Import** (`/…/wirkung/<initiative>/import`) mit den Spalten Monat, Art und den Eingaben der Vorlage. Vorschau und Fehlermarkierung wie in PLT-07.
 4. Darüber ein kleines Diagramm: Plan und Ist je Monat sowie die Summe im Jahr.
 
+## Umsetzung
+
+- `initiative_value` heißt im Betrag `value_cents` statt `amount_cents`: Die Prüfung privater
+  Spalten (PLT-08) kennt `amount_cents` als käuferprivat. Die Zeilen sind `shared`, stehen aber
+  bis PNL-07 (Teilungsregel) auf Sichtbarkeit `internal`; der Lieferant sieht also noch nichts.
+- Nur die Funktion `app_initiative_recompute` (SECURITY DEFINER, Rolle `reziproq_wirkung_rechnung`)
+  schreibt `initiative_value`; die App-Rolle darf weder einfügen noch ändern noch löschen. Die
+  Rechnung nimmt je Monat und Art die jüngste Eingabe, die jüngste Wirkung und die jüngste
+  Baseline über `app_lever_amount` und lässt freigegebene Zeiträume unberührt.
+- Die API fügt Eingaben nur an (der Verlauf bleibt); eine neue Eingabe für denselben Monat ersetzt die alte in der
+  Anzeige. Geldfelder im Import in Euro, gespeichert in Cent.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Zwölf Monatswerte lassen sich in einem Schritt importieren.
-- [ ] Jeder Betrag entspricht der Rechenregel mit Baseline und Eingaben (Test je Hebel).
-- [ ] `initiative_value` lässt sich nicht direkt schreiben, nur durch die Rechnung.
-- [ ] Der Lieferant sieht weder Mengen noch Preise (PLT-04).
-- [ ] Gesperrte Monate lassen sich nicht ändern.
+- [x] Zwölf Monatswerte lassen sich in einem Schritt importieren.
+- [x] Jeder Betrag entspricht der Rechenregel mit Baseline und Eingaben (Test je Hebel).
+- [x] `initiative_value` lässt sich nicht direkt schreiben, nur durch die Rechnung.
+- [x] Der Lieferant sieht weder Mengen noch Preise (PLT-04).
+- [x] Gesperrte Monate lassen sich nicht ändern.
 
 ## Nicht Teil dieser Funktion
 

@@ -36,15 +36,26 @@ Als Controlling prüfe ich Rechenweg, Baseline und Ist-Werte einer Wirkung und g
    - Knöpfe **Freigeben** und **Zurückweisen**, Zurückweisen mit Pflichtbegründung
 4. Nach der Freigabe ist die Initiative R5, und der Zeitraum ist gesperrt.
 
+## Umsetzung
+
+- Neues Recht `wirkung.freigeben` mit Kennzeichen `controlling`: `can()` verlangt dafür die
+  Zusatzrolle Controlling, unabhängig von der Rolle in der Organisation (siehe `docs/rechte.md`).
+- Anfordern geht ab R4 und nur mit Ist-Werten im Zeitraum. Controlling bekommt die Mail
+  `approval` und eine Aufgabe auf Start (Art `validation`, sieben Tage).
+- Die Freigabe legt die Stufe R5 mit dem teilbaren Nachweis „Realisiert und durch Controlling
+  bestätigt“ an und rechnet neu; die Monate des Zeitraums sind danach gesperrt (API 409).
+- Zurückweisen schickt dem anfordernden SRO die Mail `escalation` mit dem Titel
+  „Wirkung zurückgewiesen: …“; eine eigene Vorlage folgt bei Bedarf.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Ohne Freigabe gibt es kein R5.
-- [ ] Nur Nutzer mit Zusatzrolle Controlling geben frei, alle anderen bekommen 403.
-- [ ] Die Freigabe sperrt die Monatswerte des Zeitraums.
-- [ ] Zurückweisen verlangt eine Begründung und benachrichtigt den SRO.
-- [ ] Die Prüfseite zeigt den vollständigen Rechenweg.
+- [x] Ohne Freigabe gibt es kein R5.
+- [x] Nur Nutzer mit Zusatzrolle Controlling geben frei, alle anderen bekommen 403.
+- [x] Die Freigabe sperrt die Monatswerte des Zeitraums.
+- [x] Zurückweisen verlangt eine Begründung und benachrichtigt den SRO.
+- [x] Die Prüfseite zeigt den vollständigen Rechenweg.
 
 ## Nicht Teil dieser Funktion
 

@@ -46,6 +46,11 @@ export interface LayerEntry {
   testValues?: Record<string, unknown> | ((row: TestRowContext) => Record<string, unknown>);
   /** Nur anfügen (z. B. Verlauf, PLT-08): Ändern und Löschen scheitern für jeden. */
   appendOnly?: boolean;
+  /**
+   * Nur berechnet (z. B. Beträge der Wirkung, PNL-05): Eine Funktion schreibt die Zeilen; Anlegen,
+   * Ändern und Löschen über die App-Rolle scheitern für jeden, Lesen folgt der Ebene.
+   */
+  computed?: boolean;
 }
 
 let nextSegmentLayerTestVersion = 0;
@@ -299,6 +304,41 @@ export const layerRegister: Record<string, LayerEntry> = {
       evidence: 'Probe',
       decided_by: 'demo-test-oem-1',
       decided_by_name: 'Probe',
+    }),
+  },
+  // PNL-05, PNL-06: Monatswerte (käuferprivat), berechnete Beträge (nur durch die Rechnung) und
+  // Freigaben durch Controlling (käuferprivat).
+  initiative_input_month: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      month: '2027-01-01',
+      kind: 'actual',
+      inputs: JSON.stringify({ price_new: '1200', quantity: '10' }),
+      source: 'manual',
+      entered_by: 'demo-test-oem-1',
+      entered_by_name: 'Probe',
+    }),
+  },
+  initiative_value: {
+    kind: 'shared',
+    computed: true,
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      month: '2027-01-01',
+      kind: 'actual',
+      value_cents: 1000,
+      effect_type: 'ebit',
+    }),
+  },
+  initiative_validation: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      period_from: '2027-01-01',
+      period_to: '2027-03-01',
+      requested_by: 'demo-test-oem-1',
+      requested_by_name: 'Probe',
     }),
   },
   // JBP-09: Ist-Werte je Kennzahl und Monat.

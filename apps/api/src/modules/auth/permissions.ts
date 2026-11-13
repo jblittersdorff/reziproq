@@ -12,6 +12,8 @@ export interface Permission {
   operator?: true;
   /** Mit Teamrolle Leser an dieser Beziehung verboten, auch für Admins (PLT-05b). */
   notForTeamViewer?: true;
+  /** Nur mit der Zusatzrolle Controlling (PNL-06); die Rolle allein genügt nicht. */
+  controlling?: true;
 }
 
 export const permissions: Record<Action, Permission> = {
@@ -187,5 +189,11 @@ export const permissions: Record<Action, Permission> = {
       'Wirkung einrichten, Baseline einfrieren, Reifegrad mit Nachweis erhöhen (nur Käufer, nicht mit Teamrolle Leser)',
     roles: ['admin', 'member'],
     notForTeamViewer: true,
+  },
+  'wirkung.freigeben': {
+    description:
+      'Wirkung freigeben oder mit Begründung zurückweisen (nur Käufer, nur mit Zusatzrolle Controlling)',
+    roles: ['admin', 'member', 'viewer'],
+    controlling: true,
   },
 };

@@ -171,6 +171,20 @@ export const maturityAudit = auditedObject({
   fields: ['level', 'evidence'],
 });
 
+/** Monatswerte einer Wirkung (PNL-05): käuferprivat; Objekt ist die Initiative. */
+export const impactMonthAudit = auditedObject({
+  type: 'initiative_input_month',
+  visibility: 'internal',
+  fields: ['month', 'kind', 'inputs', 'source'],
+});
+
+/** Freigabe durch Controlling (PNL-06): käuferprivat, je Anfrage und Entscheidung. */
+export const validationAudit = auditedObject({
+  type: 'initiative_validation',
+  visibility: 'internal',
+  fields: ['status', 'period', 'comment'],
+});
+
 /** GuV-Zeilen der Organisation (PNL-01): Verlauf nur intern. */
 export const pnlLineAudit = auditedObject({
   type: 'pnl_line',
@@ -309,6 +323,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   baselineAudit,
   maturityAudit,
   pnlLineAudit,
+  impactMonthAudit,
+  validationAudit,
   scorecardSettingAudit,
   planApprovalRequestAudit,
   actionInternalAudit,

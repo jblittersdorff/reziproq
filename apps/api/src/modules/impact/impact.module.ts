@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ImpactController, PnlLinesController } from './impact.controller.js';
+import { EmailModule } from '../email/email.module.js';
+import { ImpactController, PnlLinesController, ValidationController } from './impact.controller.js';
 import { ImpactService } from './impact.service.js';
+import { ValidationService } from './validation.service.js';
 
 /** GuV-Wirkung (PNL-01 ff.). */
 @Module({
-  controllers: [ImpactController, PnlLinesController],
-  providers: [ImpactService],
-  exports: [ImpactService],
+  imports: [EmailModule],
+  controllers: [ImpactController, PnlLinesController, ValidationController],
+  providers: [ImpactService, ValidationService],
+  exports: [ImpactService, ValidationService],
 })
 export class ImpactModule {}

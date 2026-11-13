@@ -21,15 +21,23 @@ import {
   defaultPnlLines,
   type FreezeBaseline,
   type ImpactDetail,
+  type ImpactImportPreview,
   type ImpactList,
   impactDetailSchema,
+  impactImportPreviewSchema,
   impactListSchema,
   invalidLeverInputs,
   type Lever,
   leverTemplates,
+  type MonthKind,
   type PnlLines,
+  parseEuroToCents,
+  parseKpiMonth,
+  parseKpiNumber,
   pnlLinesSchema,
   type RaiseMaturity,
+  type RequestValidation,
+  type SaveImpactMonth,
   type SavePnlLine,
   type SetupImpact,
   type TeamRole,
@@ -38,13 +46,18 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { actorOf } from '../audit/actor.js';
 import {
   baselineAudit,
+  impactMonthAudit,
   initiativeImpactAudit,
   maturityAudit,
   pnlLineAudit,
+  validationAudit,
 } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { EmailService } from '../email/email.service.js';
+import { normalizeHeader } from '../suppliers/import-file.js';
 import { maturityOf } from './maturity.js';
+import { isLocked, lockedPeriods, monthsOf, recompute, validationsOf } from './values.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -68,7 +81,10 @@ type ImpactRow = typeof schema.initiativeImpact.$inferSelect;
  */
 @Injectable()
 export class ImpactService {
-  constructor(@Inject(TenantDatabase) private readonly tenant: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
+    @Inject(EmailService) private readonly email: EmailService,
+  ) {}
 
   /** Eigene Beziehung des Käufers mit Teamrolle der Person. */
   run<T>(auth: AuthContext, relationshipId: string, work: (scope: ImpactScope) => Promise<T>) {
@@ -103,6 +119,11 @@ export class ImpactService {
         teamRole: member?.teamRole ?? null,
       });
     });
+  }
+
+  /** Freigabe anfordern: SRO oder Admin (PNL-06). */
+  private canLead(scope: ImpactScope) {
+    return this.canEdit(scope) && (scope.auth.orgRole === 'admin' || scope.teamRole === 'sro');
   }
 
   /** SRO und Team des Käufers, oder ein Admin; nie mit Teamrolle Leser. */
@@ -228,7 +249,17 @@ export class ImpactService {
           : toLevel === 4
             ? 'implementation'
             : 'validation';
+    const { months, totals } = await monthsOf(tx, row.id);
+    const validations = await validationsOf(tx, { initiativeId: row.id });
     return impactDetailSchema.parse({
+      months,
+      totals,
+      validations,
+      canRequestValidation:
+        this.canLead(scope) &&
+        maturity.level === 4 &&
+        months.some((month) => month.actual) &&
+        !validations.some((entry) => entry.status === 'requested'),
       initiative: { id: row.id, title: row.title, source: row.source, startsOn: row.startsOn },
       impact: await this.setupOf(tx, scope.orgId, impact),
       baselines: baselines.map((entry) => ({
@@ -347,6 +378,7 @@ export class ImpactService {
         result: undefined,
       };
     });
+    await recompute(tx, row.id);
     return this.detail(scope, row.id);
   }
 
@@ -388,6 +420,8 @@ export class ImpactService {
         result: undefined,
       };
     });
+    // Eine neue Baseline ändert die Beträge offener Monate; freigegebene bleiben (PNL-06).
+    await recompute(tx, row.id);
     return this.detail(scope, row.id);
   }
 
@@ -448,6 +482,200 @@ export class ImpactService {
         result: undefined,
       };
     });
+    return this.detail(scope, row.id);
+  }
+
+  /** Eingaben eines Monats speichern (neue Zeile, die jüngste gilt) und neu rechnen. */
+  private async writeMonth(
+    scope: ImpactScope,
+    initiativeId: string,
+    month: string,
+    kind: MonthKind,
+    inputs: Record<string, string>,
+    source: 'manual' | 'csv',
+  ) {
+    const { tx } = scope;
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    await auditedChange(tx, actor, impactMonthAudit, async () => {
+      await tx.insert(schema.initiativeInputMonth).values({
+        relationshipId: scope.relationshipId,
+        initiativeId,
+        month,
+        kind,
+        inputs,
+        source,
+        enteredBy: scope.auth.userId,
+        enteredByName: actor.name,
+      });
+      return {
+        objectId: initiativeId,
+        relationshipId: scope.relationshipId,
+        action: 'updated' as const,
+        after: { month, kind, inputs: JSON.stringify(inputs), source },
+        result: undefined,
+      };
+    });
+  }
+
+  /** Monat erfassen (PNL-05): Felder der Vorlage; gesperrte Monate lehnt die API ab. */
+  async saveMonth(scope: ImpactScope, initiativeId: string, input: SaveImpactMonth) {
+    if (!this.canEdit(scope)) throw forbidden();
+    const { tx } = scope;
+    const row = await this.initiative(scope, initiativeId);
+    const impact = await this.latestImpact(tx, row.id);
+    if (!impact) throw conflict('wirkung_fehlt');
+    const fields = leverTemplates[impact.lever as Lever].month;
+    const wrong = invalidLeverInputs(input.inputs, fields);
+    if (wrong.length > 0) {
+      throw new BadRequestException({ statusCode: 400, code: 'eingaben_ungueltig', fields: wrong });
+    }
+    const month = `${input.month}-01`;
+    if (isLocked(await lockedPeriods(tx, row.id), month)) throw conflict('monat_gesperrt');
+    const inputs = Object.fromEntries(fields.map((field) => [field.key, input.inputs[field.key]]));
+    await this.writeMonth(
+      scope,
+      row.id,
+      month,
+      input.kind,
+      inputs as Record<string, string>,
+      'manual',
+    );
+    await recompute(tx, row.id);
+    return this.detail(scope, row.id);
+  }
+
+  /**
+   * CSV-Import der Monatswerte (PNL-05): Spalten Monat, Art (Plan oder Ist) und die Eingaben der
+   * Vorlage mit ihrem Schlüssel; Geld in Euro. Übernommen wird nur ohne fehlerhafte Zeilen.
+   */
+  async importMonths(
+    scope: ImpactScope,
+    initiativeId: string,
+    rows: { row: number; values: Record<string, string> }[],
+    apply: boolean,
+  ): Promise<ImpactImportPreview> {
+    if (!this.canEdit(scope)) throw forbidden();
+    const { tx } = scope;
+    const row = await this.initiative(scope, initiativeId);
+    const impact = await this.latestImpact(tx, row.id);
+    if (!impact) throw conflict('wirkung_fehlt');
+    const fields = leverTemplates[impact.lever as Lever].month;
+    const periods = await lockedPeriods(tx, row.id);
+    const seen = new Set<string>();
+    const kinds: Record<string, MonthKind> = { plan: 'plan', ist: 'actual', actual: 'actual' };
+    const result = rows.map(({ row: line, values }) => {
+      const normalized = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => [normalizeHeader(key), value.trim()]),
+      );
+      const month = parseKpiMonth(normalized.monat ?? normalized.month ?? '');
+      const kindText = (normalized.art ?? normalized.kind ?? '').toLocaleLowerCase('de');
+      const kind = kinds[kindText];
+      const inputs: Record<string, string> = {};
+      const bad: string[] = [];
+      for (const field of fields) {
+        const raw = normalized[normalizeHeader(field.key)] ?? '';
+        const value =
+          field.kind === 'money' ? parseEuroToCents(raw, 'de')?.toString() : parseKpiNumber(raw);
+        if (value === undefined || value === null) bad.push(field.key);
+        else inputs[field.key] = value;
+      }
+      const errors: ImpactImportPreview['rows'][number]['errors'] = [];
+      if (!month) errors.push('monat_ungueltig');
+      if (!kind) errors.push('art_ungueltig');
+      if (bad.length > 0) errors.push('eingabe_ungueltig');
+      if (month && isLocked(periods, month)) errors.push('monat_gesperrt');
+      const key = `${month}|${kind}`;
+      if (errors.length === 0 && seen.has(key)) errors.push('doppelt');
+      if (errors.length === 0) seen.add(key);
+      return {
+        row: line,
+        month: month ?? normalized.monat ?? normalized.month ?? '',
+        kind: kind ?? kindText,
+        inputs,
+        errors,
+        fields: bad,
+      };
+    });
+    const invalid = result.filter((entry) => entry.errors.length > 0).length;
+    const preview = impactImportPreviewSchema.parse({
+      rows: result,
+      valid: result.length - invalid,
+      invalid,
+    });
+    if (!apply) return preview;
+    if (invalid > 0) {
+      throw new BadRequestException({ statusCode: 400, code: 'import_fehlerhaft', preview });
+    }
+    for (const entry of result) {
+      await this.writeMonth(
+        scope,
+        row.id,
+        entry.month,
+        entry.kind as MonthKind,
+        entry.inputs,
+        'csv',
+      );
+    }
+    await recompute(tx, row.id);
+    return preview;
+  }
+
+  /**
+   * Freigabe anfordern (PNL-06): SRO oder Admin, ab R4, mit Ist-Werten im Zeitraum. Controlling
+   * bekommt eine Mail und die Aufgabe auf Start.
+   */
+  async requestValidation(scope: ImpactScope, initiativeId: string, input: RequestValidation) {
+    if (!this.canLead(scope)) throw forbidden();
+    const { tx } = scope;
+    const row = await this.initiative(scope, initiativeId);
+    const maturity = await maturityOf(tx, row.id);
+    if (maturity.level !== 4) throw conflict('erst_ab_r4');
+    const period = { from: `${input.periodFrom}-01`, to: `${input.periodTo}-01` };
+    const { months } = await monthsOf(tx, row.id, period);
+    if (!months.some((month) => month.actual)) throw conflict('keine_ist_werte');
+    const open = await validationsOf(tx, { initiativeId: row.id, status: 'requested' });
+    if (open.length > 0) throw conflict('freigabe_offen');
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    const [created] = await tx
+      .insert(schema.initiativeValidation)
+      .values({
+        relationshipId: scope.relationshipId,
+        initiativeId: row.id,
+        periodFrom: period.from,
+        periodTo: period.to,
+        requestedBy: scope.auth.userId,
+        requestedByName: actor.name,
+      })
+      .returning({ id: schema.initiativeValidation.id });
+    const controllers = await tx
+      .select({
+        id: schema.appUser.id,
+        email: schema.appUser.email,
+        name: schema.appUser.name,
+        locale: schema.appUser.locale,
+      })
+      .from(schema.appUser)
+      .where(
+        and(eq(schema.appUser.organizationId, scope.orgId), eq(schema.appUser.isControlling, true)),
+      );
+    for (const person of controllers) {
+      if (!person.email) continue;
+      await auditedChange(tx, actor, validationAudit, async () => ({
+        objectId: `${created?.id}:${person.id}`,
+        relationshipId: scope.relationshipId,
+        action: 'created' as const,
+        after: { status: 'requested', period: `${input.periodFrom} – ${input.periodTo}` },
+        result: undefined,
+        email: this.email.prepare({
+          recipient: person.email,
+          template: 'approval',
+          locale: person.locale ?? 'de',
+          firstName: person.name.split(' ')[0] ?? person.name,
+          title: `Wirkung ${row.title}`,
+          link: `/wirkung/freigaben/${created?.id}`,
+        }),
+      }));
+    }
     return this.detail(scope, row.id);
   }
 

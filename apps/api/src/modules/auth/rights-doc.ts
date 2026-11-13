@@ -15,9 +15,16 @@ export function renderRightsDoc(): string {
     return [
       `\`${action}\``,
       permission.description,
-      ...orgRoles.map((role) => cell(permission.roles.includes(role))),
+      ...orgRoles.map((role) =>
+        permission.controlling && permission.roles.includes(role)
+          ? 'mit Controlling'
+          : cell(permission.roles.includes(role)),
+      ),
       // Betreiber haben im Kunden die Rechte eines Lesers, dazu ihre eigenen Aktionen.
-      cell(permission.operator === true || permission.roles.includes('viewer')),
+      cell(
+        !permission.controlling &&
+          (permission.operator === true || permission.roles.includes('viewer')),
+      ),
     ];
   });
   const line = (cells: string[]) => `| ${cells.join(' | ')} |`;

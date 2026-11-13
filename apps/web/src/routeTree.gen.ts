@@ -16,7 +16,6 @@ import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppFragenRouteImport } from './routes/_app/fragen'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
-import { Route as AppWirkungRouteImport } from './routes/_app/wirkung'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as EinladungTokenRouteRouteImport } from './routes/einladung/$token/route'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
@@ -38,6 +37,7 @@ import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprac
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
 import { Route as AppStartMassnahmenRouteImport } from './routes/_app/start/massnahmen'
+import { Route as AppWirkungIndexRouteImport } from './routes/_app/wirkung/index'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
 import { Route as EinladungTokenNameRouteImport } from './routes/einladung/$token/name'
 import { Route as EinladungTokenPasskeyRouteImport } from './routes/einladung/$token/passkey'
@@ -66,6 +66,8 @@ import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfo
 import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio/fokus/$id'
 import { Route as AppPortfolioRundenIndexRouteImport } from './routes/_app/portfolio/runden/index'
 import { Route as AppPortfolioRundenNeuRouteImport } from './routes/_app/portfolio/runden/neu'
+import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
+import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
 import { Route as AppEinstellungenGuvZeilenKeyBearbeitenRouteImport } from './routes/_app/einstellungen/guv-zeilen/$key/bearbeiten'
 import { Route as AppEinstellungenSegmentmodellKriteriumKeyRouteImport } from './routes/_app/einstellungen/segmentmodell/kriterium/$key'
@@ -189,6 +191,9 @@ import { Route as AppLieferantenIdUmsetzungTermineMeetingIdProtokollRouteImport 
 import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdIndexRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/index'
 import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline'
 import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten'
+import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdImportRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdMonatRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
 import { Route as AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRouteImport } from './routes/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad'
 import { Route as AppLieferantenIdStrategieLieferantenplanThemenTopicIdBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/themen/$topicId/bearbeiten'
 import { Route as AppLieferantenIdStrategieLieferantenplanZieleObjectiveIdBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/ziele/$objectiveId/bearbeiten'
@@ -225,11 +230,6 @@ const AppMenuRoute = AppMenuRouteImport.update({
 const AppUebersichtRoute = AppUebersichtRouteImport.update({
   id: '/uebersicht',
   path: '/uebersicht',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppWirkungRoute = AppWirkungRouteImport.update({
-  id: '/wirkung',
-  path: '/wirkung',
   getParentRoute: () => AppRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -337,6 +337,11 @@ const AppStartFaelligRoute = AppStartFaelligRouteImport.update({
 const AppStartMassnahmenRoute = AppStartMassnahmenRouteImport.update({
   id: '/start/massnahmen',
   path: '/start/massnahmen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWirkungIndexRoute = AppWirkungIndexRouteImport.update({
+  id: '/wirkung/',
+  path: '/wirkung/',
   getParentRoute: () => AppRoute,
 } as any)
 const EinladungTokenIndexRoute = EinladungTokenIndexRouteImport.update({
@@ -495,6 +500,18 @@ const AppPortfolioRundenNeuRoute = AppPortfolioRundenNeuRouteImport.update({
   path: '/portfolio/runden/neu',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWirkungFreigabenIndexRoute =
+  AppWirkungFreigabenIndexRouteImport.update({
+    id: '/wirkung/freigaben/',
+    path: '/wirkung/freigaben/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppWirkungFreigabenValidationIdRoute =
+  AppWirkungFreigabenValidationIdRouteImport.update({
+    id: '/wirkung/freigaben/$validationId',
+    path: '/wirkung/freigaben/$validationId',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenBusinessUnitsIdBearbeitenRoute =
   AppEinstellungenBusinessUnitsIdBearbeitenRouteImport.update({
     id: '/einstellungen/business-units/$id/bearbeiten',
@@ -1235,6 +1252,24 @@ const AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute =
     path: '/wirkung/initiativen/$initiativeId/einrichten',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
+const AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute =
+  AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRouteImport.update({
+    id: '/wirkung/initiativen/$initiativeId/freigabe',
+    path: '/wirkung/initiativen/$initiativeId/freigabe',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute =
+  AppLieferantenIdWirkungInitiativenInitiativeIdImportRouteImport.update({
+    id: '/wirkung/initiativen/$initiativeId/import',
+    path: '/wirkung/initiativen/$initiativeId/import',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute =
+  AppLieferantenIdWirkungInitiativenInitiativeIdMonatRouteImport.update({
+    id: '/wirkung/initiativen/$initiativeId/monat',
+    path: '/wirkung/initiativen/$initiativeId/monat',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute =
   AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRouteImport.update({
     id: '/wirkung/initiativen/$initiativeId/reifegrad',
@@ -1266,7 +1301,6 @@ export interface FileRoutesByFullPath {
   '/fragen': typeof AppFragenRoute
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
-  '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
@@ -1289,6 +1323,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/': typeof AppPortfolioIndexRoute
   '/profil/': typeof AppProfilIndexRoute
   '/start/': typeof AppStartIndexRoute
+  '/wirkung/': typeof AppWirkungIndexRoute
   '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
@@ -1303,6 +1338,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/einstellungen/guv-zeilen/': typeof AppEinstellungenGuvZeilenIndexRoute
@@ -1315,6 +1351,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/portfolio/fokus/': typeof AppPortfolioFokusIndexRoute
   '/portfolio/runden/': typeof AppPortfolioRundenIndexRoute
+  '/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
@@ -1430,6 +1467,9 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/termine/$meetingId/protokoll': typeof AppLieferantenIdUmsetzungTermineMeetingIdProtokollRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline': typeof AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten': typeof AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe': typeof AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/import': typeof AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/monat': typeof AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad': typeof AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute
   '/kunden/$id/plan/initiativen/$initiativeId/': typeof AppKundenIdPlanInitiativenInitiativeIdIndexRoute
   '/kunden/$id/plan/scorecard/$kpiId/': typeof AppKundenIdPlanScorecardKpiIdIndexRoute
@@ -1449,7 +1489,6 @@ export interface FileRoutesByTo {
   '/fragen': typeof AppFragenRoute
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
-  '/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
@@ -1470,6 +1509,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof AppPortfolioIndexRoute
   '/profil': typeof AppProfilIndexRoute
   '/start': typeof AppStartIndexRoute
+  '/wirkung': typeof AppWirkungIndexRoute
   '/einladung/$token': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
@@ -1484,6 +1524,7 @@ export interface FileRoutesByTo {
   '/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/einstellungen/guv-zeilen': typeof AppEinstellungenGuvZeilenIndexRoute
@@ -1496,6 +1537,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id': typeof AppLieferantenIdIndexRoute
   '/portfolio/fokus': typeof AppPortfolioFokusIndexRoute
   '/portfolio/runden': typeof AppPortfolioRundenIndexRoute
+  '/wirkung/freigaben': typeof AppWirkungFreigabenIndexRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
@@ -1610,6 +1652,9 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung/termine/$meetingId/protokoll': typeof AppLieferantenIdUmsetzungTermineMeetingIdProtokollRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline': typeof AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten': typeof AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe': typeof AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/import': typeof AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute
+  '/lieferanten/$id/wirkung/initiativen/$initiativeId/monat': typeof AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute
   '/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad': typeof AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute
   '/kunden/$id/plan/initiativen/$initiativeId': typeof AppKundenIdPlanInitiativenInitiativeIdIndexRoute
   '/kunden/$id/plan/scorecard/$kpiId': typeof AppKundenIdPlanScorecardKpiIdIndexRoute
@@ -1632,7 +1677,6 @@ export interface FileRoutesById {
   '/_app/fragen': typeof AppFragenRoute
   '/_app/menu': typeof AppMenuRoute
   '/_app/uebersicht': typeof AppUebersichtRoute
-  '/_app/wirkung': typeof AppWirkungRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
@@ -1655,6 +1699,7 @@ export interface FileRoutesById {
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
   '/_app/start/': typeof AppStartIndexRoute
+  '/_app/wirkung/': typeof AppWirkungIndexRoute
   '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/_app/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/_app/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
@@ -1669,6 +1714,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id/wirkung': typeof AppKundenIdWirkungRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/_app/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/_app/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/_app/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
   '/_app/einstellungen/guv-zeilen/': typeof AppEinstellungenGuvZeilenIndexRoute
@@ -1681,6 +1727,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/_app/portfolio/fokus/': typeof AppPortfolioFokusIndexRoute
   '/_app/portfolio/runden/': typeof AppPortfolioRundenIndexRoute
+  '/_app/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/_app/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
@@ -1796,6 +1843,9 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/termine/$meetingId/protokoll': typeof AppLieferantenIdUmsetzungTermineMeetingIdProtokollRoute
   '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline': typeof AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute
   '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten': typeof AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute
+  '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe': typeof AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute
+  '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/import': typeof AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute
+  '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/monat': typeof AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute
   '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad': typeof AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute
   '/_app/kunden/$id/plan/initiativen/$initiativeId/': typeof AppKundenIdPlanInitiativenInitiativeIdIndexRoute
   '/_app/kunden/$id/plan/scorecard/$kpiId/': typeof AppKundenIdPlanScorecardKpiIdIndexRoute
@@ -1818,7 +1868,6 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/menu'
     | '/uebersicht'
-    | '/wirkung'
     | '/auth/callback'
     | '/kunden/$id'
     | '/lieferanten/$id'
@@ -1841,6 +1890,7 @@ export interface FileRouteTypes {
     | '/portfolio/'
     | '/profil/'
     | '/start/'
+    | '/wirkung/'
     | '/einladung/$token/'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
@@ -1855,6 +1905,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/wirkung'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
+    | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id/'
     | '/einstellungen/business-units/'
     | '/einstellungen/guv-zeilen/'
@@ -1867,6 +1918,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/'
     | '/portfolio/fokus/'
     | '/portfolio/runden/'
+    | '/wirkung/freigaben/'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
@@ -1982,6 +2034,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/termine/$meetingId/protokoll'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad'
     | '/kunden/$id/plan/initiativen/$initiativeId/'
     | '/kunden/$id/plan/scorecard/$kpiId/'
@@ -2001,7 +2056,6 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/menu'
     | '/uebersicht'
-    | '/wirkung'
     | '/auth/callback'
     | '/betreiber/kunden'
     | '/einstellungen/zyklus'
@@ -2022,6 +2076,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/profil'
     | '/start'
+    | '/wirkung'
     | '/einladung/$token'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
@@ -2036,6 +2091,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/wirkung'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
+    | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id'
     | '/einstellungen/business-units'
     | '/einstellungen/guv-zeilen'
@@ -2048,6 +2104,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id'
     | '/portfolio/fokus'
     | '/portfolio/runden'
+    | '/wirkung/freigaben'
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/einstellungen/segmentmodell/kriterium/$key'
@@ -2162,6 +2219,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/termine/$meetingId/protokoll'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+    | '/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
     | '/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad'
     | '/kunden/$id/plan/initiativen/$initiativeId'
     | '/kunden/$id/plan/scorecard/$kpiId'
@@ -2183,7 +2243,6 @@ export interface FileRouteTypes {
     | '/_app/fragen'
     | '/_app/menu'
     | '/_app/uebersicht'
-    | '/_app/wirkung'
     | '/auth/callback'
     | '/_app/kunden/$id'
     | '/_app/lieferanten/$id'
@@ -2206,6 +2265,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/'
     | '/_app/profil/'
     | '/_app/start/'
+    | '/_app/wirkung/'
     | '/einladung/$token/'
     | '/_app/bewertungen/$id/qualitaet'
     | '/_app/bewertungen/$id/zusammenfassung'
@@ -2220,6 +2280,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/wirkung'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
+    | '/_app/wirkung/freigaben/$validationId'
     | '/_app/bewertungen/$id/'
     | '/_app/einstellungen/business-units/'
     | '/_app/einstellungen/guv-zeilen/'
@@ -2232,6 +2293,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/'
     | '/_app/portfolio/fokus/'
     | '/_app/portfolio/runden/'
+    | '/_app/wirkung/freigaben/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan'
     | '/_app/einstellungen/business-units/$id/bearbeiten'
     | '/_app/einstellungen/guv-zeilen/$key/bearbeiten'
@@ -2347,6 +2409,9 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/termine/$meetingId/protokoll'
     | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/baseline'
     | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/einrichten'
+    | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+    | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+    | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
     | '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad'
     | '/_app/kunden/$id/plan/initiativen/$initiativeId/'
     | '/_app/kunden/$id/plan/scorecard/$kpiId/'
@@ -2417,13 +2482,6 @@ declare module '@tanstack/react-router' {
       path: '/uebersicht'
       fullPath: '/uebersicht'
       preLoaderRoute: typeof AppUebersichtRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/wirkung': {
-      id: '/_app/wirkung'
-      path: '/wirkung'
-      fullPath: '/wirkung'
-      preLoaderRoute: typeof AppWirkungRouteImport
       parentRoute: typeof AppRoute
     }
     '/auth/callback': {
@@ -2571,6 +2629,13 @@ declare module '@tanstack/react-router' {
       path: '/start/massnahmen'
       fullPath: '/start/massnahmen'
       preLoaderRoute: typeof AppStartMassnahmenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/wirkung/': {
+      id: '/_app/wirkung/'
+      path: '/wirkung'
+      fullPath: '/wirkung/'
+      preLoaderRoute: typeof AppWirkungIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/einladung/$token/': {
@@ -2767,6 +2832,20 @@ declare module '@tanstack/react-router' {
       path: '/portfolio/runden/neu'
       fullPath: '/portfolio/runden/neu'
       preLoaderRoute: typeof AppPortfolioRundenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/wirkung/freigaben/': {
+      id: '/_app/wirkung/freigaben/'
+      path: '/wirkung/freigaben'
+      fullPath: '/wirkung/freigaben/'
+      preLoaderRoute: typeof AppWirkungFreigabenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/wirkung/freigaben/$validationId': {
+      id: '/_app/wirkung/freigaben/$validationId'
+      path: '/wirkung/freigaben/$validationId'
+      fullPath: '/wirkung/freigaben/$validationId'
+      preLoaderRoute: typeof AppWirkungFreigabenValidationIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/business-units/$id/bearbeiten': {
@@ -3630,6 +3709,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
+    '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe': {
+      id: '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+      path: '/wirkung/initiativen/$initiativeId/freigabe'
+      fullPath: '/lieferanten/$id/wirkung/initiativen/$initiativeId/freigabe'
+      preLoaderRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/import': {
+      id: '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+      path: '/wirkung/initiativen/$initiativeId/import'
+      fullPath: '/lieferanten/$id/wirkung/initiativen/$initiativeId/import'
+      preLoaderRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdImportRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/monat': {
+      id: '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
+      path: '/wirkung/initiativen/$initiativeId/monat'
+      fullPath: '/lieferanten/$id/wirkung/initiativen/$initiativeId/monat'
+      preLoaderRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdMonatRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
     '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad': {
       id: '/_app/lieferanten/$id/wirkung/initiativen/$initiativeId/reifegrad'
       path: '/wirkung/initiativen/$initiativeId/reifegrad'
@@ -3857,6 +3957,9 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdUmsetzungTermineMeetingIdProtokollRoute: typeof AppLieferantenIdUmsetzungTermineMeetingIdProtokollRoute
   AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute
   AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute
+  AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute
+  AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute
+  AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute
   AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute: typeof AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute
   AppLieferantenIdPlanInitiativenInitiativeIdIndexRoute: typeof AppLieferantenIdPlanInitiativenInitiativeIdIndexRoute
   AppLieferantenIdPlanScorecardKpiIdIndexRoute: typeof AppLieferantenIdPlanScorecardKpiIdIndexRoute
@@ -3964,6 +4067,12 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdWirkungInitiativenInitiativeIdBaselineRoute,
   AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute:
     AppLieferantenIdWirkungInitiativenInitiativeIdEinrichtenRoute,
+  AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute:
+    AppLieferantenIdWirkungInitiativenInitiativeIdFreigabeRoute,
+  AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute:
+    AppLieferantenIdWirkungInitiativenInitiativeIdImportRoute,
+  AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute:
+    AppLieferantenIdWirkungInitiativenInitiativeIdMonatRoute,
   AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute:
     AppLieferantenIdWirkungInitiativenInitiativeIdReifegradRoute,
   AppLieferantenIdPlanInitiativenInitiativeIdIndexRoute:
@@ -3988,7 +4097,6 @@ interface AppRouteChildren {
   AppFragenRoute: typeof AppFragenRoute
   AppMenuRoute: typeof AppMenuRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
-  AppWirkungRoute: typeof AppWirkungRoute
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
@@ -4008,6 +4116,7 @@ interface AppRouteChildren {
   AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
   AppStartIndexRoute: typeof AppStartIndexRoute
+  AppWirkungIndexRoute: typeof AppWirkungIndexRoute
   AppBewertungenIdQualitaetRoute: typeof AppBewertungenIdQualitaetRoute
   AppBewertungenIdZusammenfassungRoute: typeof AppBewertungenIdZusammenfassungRoute
   AppEinstellungenBusinessUnitsNeuRoute: typeof AppEinstellungenBusinessUnitsNeuRoute
@@ -4019,6 +4128,7 @@ interface AppRouteChildren {
   AppEinstellungenZielkategorienNeuRoute: typeof AppEinstellungenZielkategorienNeuRoute
   AppPortfolioFokusIdRoute: typeof AppPortfolioFokusIdRoute
   AppPortfolioRundenNeuRoute: typeof AppPortfolioRundenNeuRoute
+  AppWirkungFreigabenValidationIdRoute: typeof AppWirkungFreigabenValidationIdRoute
   AppBewertungenIdIndexRoute: typeof AppBewertungenIdIndexRoute
   AppEinstellungenBusinessUnitsIndexRoute: typeof AppEinstellungenBusinessUnitsIndexRoute
   AppEinstellungenGuvZeilenIndexRoute: typeof AppEinstellungenGuvZeilenIndexRoute
@@ -4029,6 +4139,7 @@ interface AppRouteChildren {
   AppEinstellungenZielkategorienIndexRoute: typeof AppEinstellungenZielkategorienIndexRoute
   AppPortfolioFokusIndexRoute: typeof AppPortfolioFokusIndexRoute
   AppPortfolioRundenIndexRoute: typeof AppPortfolioRundenIndexRoute
+  AppWirkungFreigabenIndexRoute: typeof AppWirkungFreigabenIndexRoute
   AppEinstellungenBusinessUnitsIdBearbeitenRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   AppEinstellungenGuvZeilenKeyBearbeitenRoute: typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   AppEinstellungenSegmentmodellKriteriumKeyRoute: typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
@@ -4055,7 +4166,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppFragenRoute: AppFragenRoute,
   AppMenuRoute: AppMenuRoute,
   AppUebersichtRoute: AppUebersichtRoute,
-  AppWirkungRoute: AppWirkungRoute,
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
@@ -4075,6 +4185,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioIndexRoute: AppPortfolioIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
   AppStartIndexRoute: AppStartIndexRoute,
+  AppWirkungIndexRoute: AppWirkungIndexRoute,
   AppBewertungenIdQualitaetRoute: AppBewertungenIdQualitaetRoute,
   AppBewertungenIdZusammenfassungRoute: AppBewertungenIdZusammenfassungRoute,
   AppEinstellungenBusinessUnitsNeuRoute: AppEinstellungenBusinessUnitsNeuRoute,
@@ -4090,6 +4201,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenZielkategorienNeuRoute,
   AppPortfolioFokusIdRoute: AppPortfolioFokusIdRoute,
   AppPortfolioRundenNeuRoute: AppPortfolioRundenNeuRoute,
+  AppWirkungFreigabenValidationIdRoute: AppWirkungFreigabenValidationIdRoute,
   AppBewertungenIdIndexRoute: AppBewertungenIdIndexRoute,
   AppEinstellungenBusinessUnitsIndexRoute:
     AppEinstellungenBusinessUnitsIndexRoute,
@@ -4105,6 +4217,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenZielkategorienIndexRoute,
   AppPortfolioFokusIndexRoute: AppPortfolioFokusIndexRoute,
   AppPortfolioRundenIndexRoute: AppPortfolioRundenIndexRoute,
+  AppWirkungFreigabenIndexRoute: AppWirkungFreigabenIndexRoute,
   AppEinstellungenBusinessUnitsIdBearbeitenRoute:
     AppEinstellungenBusinessUnitsIdBearbeitenRoute,
   AppEinstellungenGuvZeilenKeyBearbeitenRoute:

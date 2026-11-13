@@ -89,6 +89,12 @@ export const nextMaturitySchema = z.object({
 });
 
 export const impactDetailSchema = z.object({
+  /** PNL-05: Monate mit Eingaben und Betrag, älteste zuerst, und die Summen je Art */
+  months: z.array(z.lazy(() => impactMonthSchema)),
+  totals: z.object({ plan: z.number().int(), actual: z.number().int() }),
+  /** PNL-06: Freigaben dieser Initiative, neueste zuerst */
+  validations: z.array(z.lazy(() => validationSchema)),
+  canRequestValidation: z.boolean(),
   initiative: z.object({
     id: z.uuid(),
     title: z.string(),
@@ -143,3 +149,121 @@ export const defaultPnlLines = [
   { key: 'other_opex', name: 'Sonstige betriebliche Aufwendungen' },
   { key: 'inventory', name: 'Vorräte' },
 ] as const;
+
+// PNL-05: Monatswerte Plan und Ist mit berechnetem Betrag.
+
+export const monthKinds = ['plan', 'actual'] as const;
+export type MonthKind = (typeof monthKinds)[number];
+
+export const impactMonthEntrySchema = z.object({
+  inputs: z.record(z.string(), z.string()),
+  /** Berechnet in SQL; null ohne Baseline */
+  amountCents: z.number().int().nullable(),
+  enteredByName: z.string(),
+  source: z.enum(['manual', 'csv']),
+});
+
+export const impactMonthSchema = z.object({
+  month: z.iso.date(),
+  plan: impactMonthEntrySchema.nullable(),
+  actual: impactMonthEntrySchema.nullable(),
+  /** In einem von Controlling freigegebenen Zeitraum (PNL-06) */
+  locked: z.boolean(),
+});
+export type ImpactMonth = z.infer<typeof impactMonthSchema>;
+
+export const saveImpactMonthSchema = z
+  .object({
+    month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    kind: z.enum(monthKinds),
+    inputs: z.record(z.string(), leverValueSchema),
+  })
+  .strict();
+export type SaveImpactMonth = z.infer<typeof saveImpactMonthSchema>;
+
+export const impactImportErrors = [
+  'monat_ungueltig',
+  'art_ungueltig',
+  'eingabe_ungueltig',
+  'monat_gesperrt',
+  'doppelt',
+] as const;
+
+export const impactImportPreviewSchema = z.object({
+  rows: z.array(
+    z.object({
+      row: z.number().int(),
+      month: z.string(),
+      kind: z.string(),
+      inputs: z.record(z.string(), z.string()),
+      errors: z.array(z.enum(impactImportErrors)),
+      /** Fehlende oder ungültige Eingaben der Vorlage */
+      fields: z.array(z.string()),
+    }),
+  ),
+  valid: z.number().int(),
+  invalid: z.number().int(),
+});
+export type ImpactImportPreview = z.infer<typeof impactImportPreviewSchema>;
+
+// PNL-06: Freigabe durch Controlling.
+
+export const validationStatusList = ['requested', 'approved', 'rejected'] as const;
+
+export const validationSchema = z.object({
+  id: z.uuid(),
+  relationshipId: z.uuid(),
+  supplier: z.string(),
+  initiativeId: z.uuid(),
+  initiative: z.string(),
+  periodFrom: z.iso.date(),
+  periodTo: z.iso.date(),
+  status: z.enum(validationStatusList),
+  requestedByName: z.string(),
+  requestedAt: z.string(),
+  decidedByName: z.string().nullable(),
+  decidedAt: z.string().nullable(),
+  comment: z.string().nullable(),
+});
+export type Validation = z.infer<typeof validationSchema>;
+
+export const validationListSchema = z.object({
+  validations: z.array(validationSchema),
+  canDecide: z.boolean(),
+});
+export type ValidationList = z.infer<typeof validationListSchema>;
+
+export const validationDetailSchema = z.object({
+  validation: validationSchema,
+  impact: impactSetupSchema,
+  baseline: baselineSchema.nullable(),
+  months: z.array(impactMonthSchema),
+  totals: z.object({ plan: z.number().int(), actual: z.number().int() }),
+  maturity: maturitySchema,
+  canDecide: z.boolean(),
+});
+export type ValidationDetail = z.infer<typeof validationDetailSchema>;
+
+export const requestValidationSchema = z
+  .object({
+    periodFrom: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    periodTo: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+  })
+  .strict()
+  .refine((value) => value.periodTo >= value.periodFrom, {
+    path: ['periodTo'],
+    message: 'ende_vor_beginn',
+  });
+export type RequestValidation = z.infer<typeof requestValidationSchema>;
+
+export const decideValidationSchema = z
+  .object({
+    decision: z.enum(['approved', 'rejected']),
+    comment: z.string().trim().max(2000).nullable(),
+  })
+  .strict()
+  .refine((value) => value.decision === 'approved' || (value.comment ?? '').length > 0, {
+    path: ['comment'],
+    message: 'begruendung_fehlt',
+  });
+export type DecideValidation = z.infer<typeof decideValidationSchema>;

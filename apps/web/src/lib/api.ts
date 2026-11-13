@@ -28,6 +28,7 @@ import {
   cycleSchema,
   cycleSettingsResponseSchema,
   type DecideJbp,
+  type DecideValidation,
   decisionHistorySchema,
   dueListSchema,
   type ExtendRound,
@@ -44,6 +45,7 @@ import {
   type InitiativeStatus,
   type InviteSupplierRequest,
   impactDetailSchema,
+  impactImportPreviewSchema,
   impactListSchema,
   importPreviewSchema,
   importResultSchema,
@@ -84,6 +86,7 @@ import {
   publicInvitationSchema,
   type RaiseMaturity,
   type RequestContributions,
+  type RequestValidation,
   ratingAssignmentListSchema,
   ratingDetailSchema,
   roundCandidatesSchema,
@@ -97,6 +100,7 @@ import {
   type SaveAgenda,
   type SaveCommitment,
   type SaveFormatItem,
+  type SaveImpactMonth,
   type SaveInitiative,
   type SaveJbpTopic,
   type SaveKpi,
@@ -140,6 +144,8 @@ import {
   type UpdateSupplierRequest,
   type UpdateTeamRequest,
   type UserLocale,
+  validationDetailSchema,
+  validationListSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -1564,6 +1570,80 @@ export const raiseMaturity = (
     `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/reifegrad`,
     request,
     impactDetailSchema,
+    accessToken,
+  );
+
+/** PNL-05: Monat erfassen, Import; PNL-06: Freigabe anfordern und entscheiden. */
+export const saveImpactMonth = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: SaveImpactMonth,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/monate`,
+    request,
+    impactDetailSchema,
+    accessToken,
+  );
+
+export async function uploadImpactMonths(
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  file: File,
+  apply: boolean,
+) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/import${apply ? '' : '/vorschau'}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, body);
+  }
+  return impactImportPreviewSchema.parse(await res.json());
+}
+
+export const requestValidation = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: RequestValidation,
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/freigabe`,
+    request,
+    impactDetailSchema,
+    accessToken,
+  );
+
+export const validationsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['validations'],
+    queryFn: () => getJson('/wirkung/freigaben', validationListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const validationQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['validations', id],
+    queryFn: () => getJson(`/wirkung/freigaben/${id}`, validationDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const decideValidation = (accessToken: string, id: string, request: DecideValidation) =>
+  sendJson(
+    'POST',
+    `/wirkung/freigaben/${id}/entscheiden`,
+    request,
+    validationDetailSchema,
     accessToken,
   );
 

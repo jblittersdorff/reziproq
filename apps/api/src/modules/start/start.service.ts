@@ -13,6 +13,7 @@ import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import { JbpScorecardService } from '../jbp/jbp-scorecard.service.js';
@@ -55,6 +56,7 @@ export class StartService {
     @Inject(JbpCommitmentsService) private readonly commitments: JbpCommitmentsService,
     @Inject(JbpApprovalService) private readonly jbpApproval: JbpApprovalService,
     @Inject(JbpScorecardService) private readonly scorecards: JbpScorecardService,
+    @Inject(ValidationService) private readonly validations: ValidationService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -83,6 +85,8 @@ export class StartService {
     const reviews = await this.jbpApproval.dueItems(auth);
     // JBP-07: Scorecard, die die eigene Seite noch nicht unterschrieben hat.
     const signatures = await this.scorecards.dueItems(auth);
+    // PNL-06: offene Freigaben der Wirkung für Controlling.
+    const validations = await this.validations.dueItems(auth);
     const items = [
       ...ratings,
       ...cycles,
@@ -92,6 +96,7 @@ export class StartService {
       ...commitments,
       ...reviews,
       ...signatures,
+      ...validations,
     ];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),

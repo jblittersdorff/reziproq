@@ -45,3 +45,4 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `jbp.bearbeiten` | Eigenes Geschäftsupdate schreiben (beide Seiten, nicht mit Teamrolle Leser) | ja | ja | nein | nein |
 | `wirkung.sehen` | GuV-Wirkung der Initiativen, Baseline und Reifegrad sehen (nur Käufer) | ja | ja | ja | ja |
 | `wirkung.bearbeiten` | Wirkung einrichten, Baseline einfrieren, Reifegrad mit Nachweis erhöhen (nur Käufer, nicht mit Teamrolle Leser) | ja | ja | nein | nein |
+| `wirkung.freigeben` | Wirkung freigeben oder mit Begründung zurückweisen (nur Käufer, nur mit Zusatzrolle Controlling) | mit Controlling | mit Controlling | mit Controlling | nein |

@@ -63,6 +63,10 @@ const list: ImpactList = {
   ],
 };
 const detail = (extra: Partial<ImpactDetail> = {}): ImpactDetail => ({
+  months: [],
+  totals: { plan: 0, actual: 0 },
+  validations: [],
+  canRequestValidation: false,
   initiative: {
     id: initiativeId,
     title: 'Preis Leiterplatten',
@@ -114,15 +118,17 @@ describe('PNL-01, PNL-03 Wirkung in der Oberfläche', () => {
   it('die Liste zeigt Quelle, Hebel, GuV-Zeile, Wirkungsart und Reifegrad', async () => {
     renderAt(base);
     const table = (await screen.findByRole('table')) as HTMLElement;
-    const row = within(table).getByRole('link', { name: 'Preis Leiterplatten' }).closest(
-      'tr',
-    ) as HTMLElement;
+    const row = within(table)
+      .getByRole('link', { name: 'Preis Leiterplatten' })
+      .closest('tr') as HTMLElement;
     expect(row.textContent).toContain('Gemeinsamer Plan');
     expect(row.textContent).toContain('Preis');
     expect(row.textContent).toContain('Materialaufwand');
     expect(row.textContent).toContain('EBIT');
     expect(row.textContent).toContain('R2 Bewertet');
-    const idea = within(table).getByRole('link', { name: 'Idee Verpackung' }).closest('tr') as HTMLElement;
+    const idea = within(table)
+      .getByRole('link', { name: 'Idee Verpackung' })
+      .closest('tr') as HTMLElement;
     expect(idea.textContent).toContain('Idee des Lieferanten');
     expect(idea.textContent).toContain('Noch keine Wirkung');
   });
