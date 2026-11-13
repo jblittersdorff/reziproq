@@ -21,6 +21,8 @@ export interface Resource {
  */
 export function can(subject: Subject, action: Action, resource?: Resource): boolean {
   const permission = permissions[action];
+  // Freigaben der Wirkung (PNL-06) nur mit der Zusatzrolle Controlling, auch nicht für Betreiber.
+  if (permission.controlling && !subject.isControlling) return false;
   if (permission.notForTeamViewer && resource?.teamRole === 'viewer') return false;
   if (permission.operator && subject.isOperator) return true;
   return subject.orgRole !== null && permission.roles.includes(subject.orgRole);

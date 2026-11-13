@@ -2,18 +2,28 @@ import {
   type EffectType,
   effectTypes,
   type ImpactDetail,
+  type ImpactImportPreview,
   type Lever,
   type LeverInput,
   levers,
   leverTemplates,
   type Maturity,
+  type MonthKind,
   maturityLevels,
+  monthKinds,
   parseEuroToCents,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronRightIcon, LockIcon, TrendingUpIcon } from 'lucide-react';
+import {
+  ChevronRightIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  LockIcon,
+  TrendingUpIcon,
+} from 'lucide-react';
 import { type FormEvent, useState } from 'react';
+import { ImpactMonthsChart } from '@/components/charts/impact-months-chart';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
@@ -45,7 +55,10 @@ import {
   impactListQueryOptions,
   pnlLinesQueryOptions,
   raiseMaturity,
+  requestValidation,
+  saveImpactMonth,
   setupImpact,
+  uploadImpactMonths,
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
@@ -437,6 +450,8 @@ export function ImpactDetailPage({
               )}
             </section>
           )}
+
+          {data.impact && <MonthsSection relationshipId={relationshipId} data={data} />}
 
           <section aria-labelledby="wirkung-stufen" className="flex flex-col gap-3">
             <h2 id="wirkung-stufen" className="font-bold text-xl tracking-title">
@@ -976,6 +991,571 @@ function MaturityForm({
         <Button type="submit" loading={saving} disabled={blocked}>
           {text.raise(next.toLevel)}
           <ChevronRightIcon aria-hidden />
+        </Button>
+      </FormActions>
+    </form>
+  );
+}
+
+/** Monat als „März 2027“. */
+function useMonth() {
+  const { locale } = useLocale();
+  const format = new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' });
+  return (iso: string) => format.format(new Date(`${iso.slice(0, 7)}-01T00:00:00`));
+}
+
+function useMoney() {
+  const { locale } = useLocale();
+  return (cents: number) => formatMoney({ amountCents: cents, currency: 'EUR' }, locale);
+}
+
+/** PNL-05, PNL-06: Diagramm Plan und Ist, Monate mit Eingaben und Betrag, Freigaben. */
+function MonthsSection({ relationshipId, data }: { relationshipId: string; data: ImpactDetail }) {
+  const text = useT().impact;
+  const format = useFormat();
+  const month = useMonth();
+  const money = useMoney();
+  const input = useInputValue();
+  const base = `${impactPath(relationshipId)}/${data.initiative.id}`;
+  const fields = leverTemplates[data.impact?.lever ?? 'price'].month;
+  const entry = (value: ImpactDetail['months'][number]['plan'], kind: string) =>
+    value && (
+      <div className="flex flex-col gap-0.5">
+        <span className="text-muted-foreground text-sm">{text.kinds[kind]}</span>
+        <span className="font-semibold tabular-nums">
+          {value.amountCents === null ? '–' : money(value.amountCents)}
+        </span>
+        <span className="text-muted-foreground text-sm">
+          {fields
+            .map((field) => `${text.inputs[field.key]}: ${input(field, value.inputs[field.key])}`)
+            .join(' · ')}
+        </span>
+      </div>
+    );
+  return (
+    <section aria-labelledby="wirkung-monate" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="wirkung-monate" className="font-bold text-xl tracking-title">
+          {text.monthsTitle}
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          {data.canRequestValidation &&
+            routerLink({
+              href: `${base}/freigabe`,
+              className: buttonVariants(),
+              children: text.requestValidation,
+            })}
+          {data.canEdit &&
+            routerLink({
+              href: `${base}/monat`,
+              className: buttonVariants({ variant: 'outline' }),
+              children: text.enterMonth,
+            })}
+          {data.canEdit &&
+            routerLink({
+              href: `${base}/import`,
+              className: buttonVariants({ variant: 'outline' }),
+              children: text.importTitle,
+            })}
+        </div>
+      </div>
+      <p className="text-muted-foreground text-sm">
+        {data.baselines.length === 0 ? text.monthsNeedBaseline : text.monthsPurpose}
+      </p>
+      <ImpactMonthsChart
+        title={text.chartTitle(money(data.totals.plan), money(data.totals.actual))}
+        points={data.months.map((entryMonth) => ({
+          month: entryMonth.month,
+          plan: entryMonth.plan?.amountCents ?? null,
+          actual: entryMonth.actual?.amountCents ?? null,
+        }))}
+        names={{ plan: text.kinds.plan ?? 'Plan', actual: text.kinds.actual ?? 'Ist' }}
+        formatMoney={money}
+        formatMonth={month}
+        empty={{ title: text.chartEmpty, description: text.chartEmptyHint }}
+      />
+      {data.months.length === 0 ? (
+        <p className="text-muted-foreground">{text.monthsEmpty}</p>
+      ) : (
+        <ol data-slot="impact-months" className="overflow-hidden rounded-xl bg-card">
+          {[...data.months].reverse().map((row) => (
+            <li
+              key={row.month}
+              data-month={row.month}
+              data-locked={row.locked || undefined}
+              className="grid gap-3 border-border border-b px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)]"
+            >
+              <span className="flex flex-wrap items-center gap-2 font-semibold">
+                {month(row.month)}
+                {row.locked && (
+                  <Badge title={text.lockedHint}>
+                    <LockIcon aria-hidden />
+                    {text.locked}
+                  </Badge>
+                )}
+              </span>
+              {entry(row.plan, 'plan') ?? <span />}
+              {entry(row.actual, 'actual') ?? <span />}
+            </li>
+          ))}
+        </ol>
+      )}
+      {data.validations.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h3 className="font-semibold">{text.validationTitle}</h3>
+          <ul data-slot="validations" className="overflow-hidden rounded-xl bg-card">
+            {data.validations.map((validation) => (
+              <li
+                key={validation.id}
+                className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+              >
+                <span className="flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={
+                      validation.status === 'approved'
+                        ? 'success'
+                        : validation.status === 'rejected'
+                          ? 'warning'
+                          : 'neutral'
+                    }
+                  >
+                    {text.validationStatuses[validation.status]}
+                  </Badge>
+                  <span>
+                    {text.validationPeriod(
+                      month(validation.periodFrom),
+                      month(validation.periodTo),
+                    )}
+                  </span>
+                </span>
+                <span className="text-muted-foreground text-sm">
+                  {text.validationBy(
+                    validation.decidedByName ?? validation.requestedByName,
+                    format.dateTime(validation.decidedAt ?? validation.requestedAt),
+                  )}
+                </span>
+                {validation.comment && <span>{validation.comment}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Monat erfassen (PNL-05): Monat, Plan oder Ist und die Felder der Vorlage. */
+export function ImpactMonthPage({
+  relationshipId,
+  initiativeId,
+}: {
+  relationshipId: string;
+  initiativeId: string;
+}) {
+  const text = useT().impact;
+  return (
+    <SubPage
+      relationshipId={relationshipId}
+      initiativeId={initiativeId}
+      title={text.enterMonth}
+      purpose={text.enterMonthPurpose}
+    >
+      {(data, accessToken) =>
+        data.impact ? (
+          <MonthForm relationshipId={relationshipId} data={data} accessToken={accessToken} />
+        ) : (
+          <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+            {text.setupFirst}
+          </p>
+        )
+      }
+    </SubPage>
+  );
+}
+
+function MonthForm({
+  relationshipId,
+  data,
+  accessToken,
+}: {
+  relationshipId: string;
+  data: ImpactDetail;
+  accessToken: string;
+}) {
+  const text = useT().impact;
+  const { locale } = useLocale();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const fields = leverTemplates[data.impact?.lever ?? 'price'].month;
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [kind, setKind] = useState<MonthKind>('actual');
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [failed, setFailed] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const back = `${impactPath(relationshipId)}/${data.initiative.id}`;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    const next: Record<string, string> = {};
+    const inputs: Record<string, string> = {};
+    if (!/^\d{4}-\d{2}$/.test(month)) next.month = text.required;
+    for (const field of fields) {
+      const stored = toStored(field, values[field.key] ?? '', locale);
+      if (stored === null)
+        next[field.key] = values[field.key]?.trim() ? text.invalidValue : text.required;
+      else inputs[field.key] = stored;
+    }
+    setErrors(next);
+    if (Object.keys(next).length > 0) return;
+    setSaving(true);
+    setFailed(null);
+    try {
+      await saveImpactMonth(accessToken, relationshipId, data.initiative.id, {
+        month,
+        kind,
+        inputs,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['impact'] });
+      flash.set(text.saved);
+      await navigate({ to: back });
+    } catch (error) {
+      setFailed(
+        error instanceof ApiError && error.status === 409 ? text.lockedHint : text.saveFailed,
+      );
+      setSaving(false);
+    }
+  };
+  return (
+    <form
+      noValidate
+      onSubmit={(event) => void submit(event)}
+      className="flex max-w-2xl flex-col gap-6"
+    >
+      <div className="grid gap-6 sm:grid-cols-2">
+        <FormField label={text.monthLabel} error={errors.month}>
+          {(field) => (
+            <Input
+              {...field}
+              type="month"
+              value={month}
+              onChange={(event) => setMonth(event.target.value)}
+            />
+          )}
+        </FormField>
+        <FormField label={text.kindLabel}>
+          {(field) => (
+            <NativeSelect
+              {...field}
+              value={kind}
+              onChange={(event) => setKind(event.target.value as MonthKind)}
+            >
+              {monthKinds.map((value) => (
+                <option key={value} value={value}>
+                  {text.kinds[value]}
+                </option>
+              ))}
+            </NativeSelect>
+          )}
+        </FormField>
+        {fields.map((field) => (
+          <FormField
+            key={field.key}
+            label={text.inputs[field.key] ?? field.key}
+            error={errors[field.key]}
+          >
+            {(props) => (
+              <Input
+                {...props}
+                inputMode="decimal"
+                value={values[field.key] ?? ''}
+                onChange={(event) =>
+                  setValues((current) => ({ ...current, [field.key]: event.target.value }))
+                }
+              />
+            )}
+          </FormField>
+        ))}
+      </div>
+      {failed && (
+        <p role="alert" className="text-destructive">
+          {failed}
+        </p>
+      )}
+      <FormActions>
+        <Button type="button" variant="secondary" onClick={() => void navigate({ to: back })}>
+          {text.cancel}
+        </Button>
+        <Button type="submit" loading={saving}>
+          {text.save}
+        </Button>
+      </FormActions>
+    </form>
+  );
+}
+
+/** CSV-Import der Monatswerte (PNL-05) mit Vorschau und Fehlermarkierung wie PLT-07. */
+export function ImpactImportPage({
+  relationshipId,
+  initiativeId,
+}: {
+  relationshipId: string;
+  initiativeId: string;
+}) {
+  const text = useT().impact;
+  const query = useDetail(relationshipId, initiativeId);
+  const columns = (leverTemplates[query.data?.impact?.lever ?? 'price'].month ?? [])
+    .map((field) => field.key)
+    .join(', ');
+  return (
+    <SubPage
+      relationshipId={relationshipId}
+      initiativeId={initiativeId}
+      title={text.importTitle}
+      purpose={text.importPurpose(columns)}
+    >
+      {(data, accessToken) =>
+        data.impact ? (
+          <ImportForm relationshipId={relationshipId} data={data} accessToken={accessToken} />
+        ) : (
+          <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+            {text.setupFirst}
+          </p>
+        )
+      }
+    </SubPage>
+  );
+}
+
+function ImportForm({
+  relationshipId,
+  data,
+  accessToken,
+}: {
+  relationshipId: string;
+  data: ImpactDetail;
+  accessToken: string;
+}) {
+  const text = useT().impact;
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<ImpactImportPreview | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const back = `${impactPath(relationshipId)}/${data.initiative.id}`;
+  const load = async (apply: boolean) => {
+    if (!file) {
+      setError(text.chooseFile);
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      const result = await uploadImpactMonths(
+        accessToken,
+        relationshipId,
+        data.initiative.id,
+        file,
+        apply,
+      );
+      if (apply) {
+        await queryClient.invalidateQueries({ queryKey: ['impact'] });
+        flash.set(text.importDone(result.valid));
+        await navigate({ to: back });
+        return;
+      }
+      setPreview(result);
+    } catch (failure) {
+      const body =
+        failure instanceof ApiError ? (failure.body as { preview?: ImpactImportPreview }) : null;
+      if (body?.preview) setPreview(body.preview);
+      else setError(text.importFailed);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="flex max-w-4xl flex-col gap-6">
+      <FormField label={text.importFile} error={error ?? undefined}>
+        {(field) => (
+          <Input
+            {...field}
+            type="file"
+            accept=".csv,.xlsx"
+            onChange={(event) => {
+              setFile(event.target.files?.[0] ?? null);
+              setPreview(null);
+            }}
+          />
+        )}
+      </FormField>
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" loading={busy && !preview} onClick={() => void load(false)}>
+          {text.importPreview}
+        </Button>
+        {preview && preview.invalid === 0 && preview.valid > 0 && (
+          <Button loading={busy} onClick={() => void load(true)}>
+            {text.importApply(preview.valid)}
+          </Button>
+        )}
+      </div>
+      {preview && (
+        <section aria-label={text.importPreview} className="flex flex-col gap-3">
+          <p
+            role="status"
+            className={preview.invalid > 0 ? 'text-destructive' : 'text-muted-foreground'}
+          >
+            {text.importCount(preview.valid, preview.invalid)}
+          </p>
+          <ol className="overflow-hidden rounded-xl bg-card">
+            {preview.rows.map((row) => (
+              <li
+                key={row.row}
+                data-row={row.row}
+                data-invalid={row.errors.length > 0 || undefined}
+                className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+              >
+                <span className="w-16 text-muted-foreground text-sm tabular-nums">
+                  {text.importRow} {row.row}
+                </span>
+                <span className="min-w-0 flex-1">
+                  {row.month} · {text.kinds[row.kind] ?? row.kind}
+                </span>
+                {row.errors.length === 0 ? (
+                  <Badge variant="success">
+                    <CircleCheckIcon aria-hidden />
+                    {text.importOk}
+                  </Badge>
+                ) : (
+                  <span className="flex flex-wrap gap-1">
+                    {row.errors.map((code) => (
+                      <Badge key={code} variant="danger">
+                        <CircleXIcon aria-hidden />
+                        {text.importErrors[code] ?? code}
+                        {code === 'eingabe_ungueltig' &&
+                          row.fields.length > 0 &&
+                          `: ${row.fields.join(', ')}`}
+                      </Badge>
+                    ))}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </div>
+  );
+}
+
+/** Freigabe anfordern (PNL-06): Zeitraum wählen; Controlling bekommt Mail und Aufgabe. */
+export function RequestValidationPage({
+  relationshipId,
+  initiativeId,
+}: {
+  relationshipId: string;
+  initiativeId: string;
+}) {
+  const text = useT().impact;
+  return (
+    <SubPage
+      relationshipId={relationshipId}
+      initiativeId={initiativeId}
+      title={text.requestValidation}
+      purpose={text.requestPurpose}
+    >
+      {(data, accessToken) => (
+        <RequestForm relationshipId={relationshipId} data={data} accessToken={accessToken} />
+      )}
+    </SubPage>
+  );
+}
+
+function RequestForm({
+  relationshipId,
+  data,
+  accessToken,
+}: {
+  relationshipId: string;
+  data: ImpactDetail;
+  accessToken: string;
+}) {
+  const text = useT().impact;
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const actual = data.months.filter((month) => month.actual && !month.locked);
+  const [from, setFrom] = useState(actual[0]?.month.slice(0, 7) ?? '');
+  const [to, setTo] = useState(actual.at(-1)?.month.slice(0, 7) ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const back = `${impactPath(relationshipId)}/${data.initiative.id}`;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!from || !to || to < from) {
+      setError(text.required);
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await requestValidation(accessToken, relationshipId, data.initiative.id, {
+        periodFrom: from,
+        periodTo: to,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['impact'] });
+      flash.set(text.requested);
+      await navigate({ to: back });
+    } catch {
+      setError(text.saveFailed);
+      setSaving(false);
+    }
+  };
+  if (!data.canRequestValidation) {
+    return (
+      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+        {text.requirements.validation}
+      </p>
+    );
+  }
+  return (
+    <form
+      noValidate
+      onSubmit={(event) => void submit(event)}
+      className="flex max-w-xl flex-col gap-6"
+    >
+      <div className="grid gap-6 sm:grid-cols-2">
+        <FormField label={text.periodFrom}>
+          {(field) => (
+            <Input
+              {...field}
+              type="month"
+              value={from}
+              onChange={(event) => setFrom(event.target.value)}
+            />
+          )}
+        </FormField>
+        <FormField label={text.periodTo}>
+          {(field) => (
+            <Input
+              {...field}
+              type="month"
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+            />
+          )}
+        </FormField>
+      </div>
+      {error && (
+        <p role="alert" className="text-destructive">
+          {error}
+        </p>
+      )}
+      <FormActions>
+        <Button type="button" variant="secondary" onClick={() => void navigate({ to: back })}>
+          {text.cancel}
+        </Button>
+        <Button type="submit" loading={saving}>
+          {text.requestValidation}
         </Button>
       </FormActions>
     </form>

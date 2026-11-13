@@ -247,6 +247,15 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'wirkung.freigeben': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/wirkung/freigaben/00000000-0000-4000-8000-000000000000/entscheiden',
+        { decision: 'approved', comment: null },
+      );
+      return status === 404 ? 200 : status;
+    },
     'massnahmen.bearbeiten': async (user) => {
       const { status } = await request(
         user,
@@ -340,7 +349,9 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     for (const action of actions) {
       for (const role of orgRoles) {
         it(`${action} als ${role}`, async () => {
-          const allowed = permissions[action].roles.includes(role);
+          // Mit Zusatzrolle Controlling (PNL-06) prüft ein eigener Test; diese Nutzer haben sie nicht.
+          const allowed =
+            permissions[action].roles.includes(role) && !permissions[action].controlling;
           const check = endpoints[action];
           expect((await actionsOf(users[role])).includes(action)).toBe(allowed);
           if (check === 'nur-oberflaeche') return;
@@ -354,6 +365,25 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     it('kunden.wechseln als Betreiber', async () => {
       const status = await request(users.operator, 'GET', '/api/betreiber/kunden');
       expect(status.status).toBe(200);
+    });
+
+    it('wirkung.freigeben nur mit Zusatzrolle Controlling, in jeder Rolle', async () => {
+      for (const role of orgRoles) {
+        await db
+          .update(schema.appUser)
+          .set({ isControlling: true })
+          .where(sql`${schema.appUser.id} = ${users[role]}`);
+        try {
+          expect((await actionsOf(users[role])).includes('wirkung.freigeben')).toBe(true);
+          const probe = endpoints['wirkung.freigeben'];
+          if (typeof probe === 'function') expect(await probe(users[role])).not.toBe(403);
+        } finally {
+          await db
+            .update(schema.appUser)
+            .set({ isControlling: false })
+            .where(sql`${schema.appUser.id} = ${users[role]}`);
+        }
+      }
     });
   });
 

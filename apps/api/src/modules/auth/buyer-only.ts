@@ -30,4 +30,5 @@ export const buyerOnlyActions: readonly Action[] = [
   'spielregeln.festlegen',
   'wirkung.sehen',
   'wirkung.bearbeiten',
+  'wirkung.freigeben',
 ];

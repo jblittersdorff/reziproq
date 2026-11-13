@@ -397,7 +397,7 @@ describe('PLT-04: Drei Datenebenen', () => {
       const entry = register[table] as LayerEntry;
       for (const who of viewers) {
         // Nur anfügen: Ändern und Löschen scheitern für jeden, auch für eigene Zeilen.
-        if (entry.appendOnly) {
+        if (entry.appendOnly || entry.computed) {
           for (const statement of [
             sql`update ${sql.identifier(table)} set id = id`,
             sql`delete from ${sql.identifier(table)}`,
@@ -409,31 +409,32 @@ describe('PLT-04: Drei Datenebenen', () => {
           }
         }
         // Ändern und Löschen treffen nur Zeilen, die der Betrachter auch schreiben darf.
-        const touched = entry.appendOnly
-          ? []
-          : await withTenant(temp.db, session(who), async (tx) => {
-              const updated = await tx.execute<{ id: string }>(
-                sql`update ${sql.identifier(table)} set id = id returning id::text`,
-              );
-              // Zeilen, auf die noch ein Fremdschlüssel zeigt (z. B. eine zugeordnete BU,
-              // PLT-06), lassen sich nicht löschen; dann löscht der Betrachter dort nichts.
-              const deleted = await tx
-                .transaction((inner) =>
-                  inner.execute<{ id: string }>(
-                    sql`delete from ${sql.identifier(table)} returning id::text`,
-                  ),
-                )
-                .catch((error: unknown) => {
-                  if ((error as { cause?: { code?: string } }).cause?.code === '23503') {
-                    return { rows: [] as { id: string }[] };
-                  }
-                  throw error;
-                });
-              throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
-            }).catch((error: unknown) => {
-              if (error instanceof Rollback) return error.ids;
-              throw error;
-            });
+        const touched =
+          entry.appendOnly || entry.computed
+            ? []
+            : await withTenant(temp.db, session(who), async (tx) => {
+                const updated = await tx.execute<{ id: string }>(
+                  sql`update ${sql.identifier(table)} set id = id returning id::text`,
+                );
+                // Zeilen, auf die noch ein Fremdschlüssel zeigt (z. B. eine zugeordnete BU,
+                // PLT-06), lassen sich nicht löschen; dann löscht der Betrachter dort nichts.
+                const deleted = await tx
+                  .transaction((inner) =>
+                    inner.execute<{ id: string }>(
+                      sql`delete from ${sql.identifier(table)} returning id::text`,
+                    ),
+                  )
+                  .catch((error: unknown) => {
+                    if ((error as { cause?: { code?: string } }).cause?.code === '23503') {
+                      return { rows: [] as { id: string }[] };
+                    }
+                    throw error;
+                  });
+                throw new Rollback([...updated.rows, ...deleted.rows].map((row) => row.id));
+              }).catch((error: unknown) => {
+                if (error instanceof Rollback) return error.ids;
+                throw error;
+              });
         for (const meta of metaOf(touched)) {
           expect(mayRead(who, meta), `${who.name} ändert fremde Zeile`).toBe(true);
           if (kind === 'shared')
@@ -457,7 +458,7 @@ describe('PLT-04: Drei Datenebenen', () => {
             throw error;
           });
           expect(await insert, `${who.name} legt ${JSON.stringify(row)} an`).toBe(
-            own ? 'angelegt' : 'abgelehnt',
+            own && !entry.computed ? 'angelegt' : 'abgelehnt',
           );
         }
       }

@@ -62,6 +62,7 @@ export const actions = [
   'jbp.bearbeiten',
   'wirkung.sehen',
   'wirkung.bearbeiten',
+  'wirkung.freigeben',
 ] as const;
 export type Action = (typeof actions)[number];
 

@@ -18,8 +18,9 @@ describe('can', () => {
   it('folgt für jede Aktion und Rolle genau der Matrix in permissions.ts', () => {
     for (const action of actions) {
       for (const role of orgRoles) {
+        // Aktionen mit Zusatzrolle Controlling (PNL-06) gibt die Rolle allein nicht frei.
         expect(can(as(role), action), `${role} ${action}`).toBe(
-          permissions[action].roles.includes(role),
+          permissions[action].roles.includes(role) && !permissions[action].controlling,
         );
       }
     }
@@ -37,10 +38,15 @@ describe('can', () => {
     expect(can(as('viewer', { isOperator: true }), 'kunden.wechseln')).toBe(true);
   });
 
-  it('Controlling gibt bisher keine zusätzlichen Rechte (Freigaben kommen mit PNL-06)', () => {
-    for (const action of actions) {
-      expect(can(as('viewer', { isControlling: true }), action)).toBe(can(as('viewer'), action));
+  it('Controlling gibt genau die Freigabe der Wirkung dazu (PNL-06), in jeder Rolle', () => {
+    for (const role of orgRoles) {
+      const extra = actions.filter(
+        (action) => can(as(role, { isControlling: true }), action) && !can(as(role), action),
+      );
+      expect(extra, role).toEqual(['wirkung.freigeben']);
     }
+    // Betreiber bekommen sie nicht über ihre Leser-Rechte.
+    expect(can(as('viewer', { isOperator: true }), 'wirkung.freigeben')).toBe(false);
   });
 });
 

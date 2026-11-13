@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   boolean,
   check,
   date,
@@ -114,7 +115,9 @@ export const maturityStep = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     initiativeId: uuid()
       .notNull()
       .references(() => initiative.id, { onDelete: 'cascade' }),
@@ -131,5 +134,105 @@ export const maturityStep = pgTable(
     check('maturity_step_range', sql`${table.fromLevel} between 1 and 4`),
     check('maturity_step_evidence', sql`length(trim(${table.evidence})) between 1 and 2000`),
     index('maturity_step_initiative').on(table.initiativeId, table.decidedAt),
+  ],
+);
+
+/** PNL-05: Eingaben je Monat nach der Vorlage des Hebels, Plan oder Ist; käuferprivat. */
+export const initiativeInputMonth = pgTable(
+  'initiative_input_month',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    month: date().notNull(),
+    kind: text({ enum: ['plan', 'actual'] }).notNull(),
+    inputs: jsonb().notNull(),
+    source: text({ enum: ['manual', 'csv'] }).notNull(),
+    enteredBy: text().notNull(),
+    enteredByName: text().notNull(),
+    enteredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('initiative_input_month_kind', sql`${table.kind} in ('plan', 'actual')`),
+    check('initiative_input_month_source', sql`${table.source} in ('manual', 'csv')`),
+    check('initiative_input_month_first', sql`extract(day from ${table.month}) = 1`),
+    index('initiative_input_month_initiative').on(table.initiativeId, table.month),
+  ],
+);
+
+/**
+ * PNL-05: Berechneter Betrag je Monat und Art, nur durch app_initiative_recompute geschrieben.
+ * Geteilte Ebene; bis die Teilungsregel (PNL-07) greift, sind die Zeilen intern (visibility).
+ */
+export const initiativeValue = pgTable(
+  'initiative_value',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('internal'),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    month: date().notNull(),
+    kind: text({ enum: ['plan', 'actual'] }).notNull(),
+    // Nicht amount_cents: Der Name gehört dem käuferprivaten Spend; so bleibt die Prüfung auf
+    // private Felder im geteilten Verlauf (PLT-08) eindeutig.
+    valueCents: bigint({ mode: 'number' }).notNull(),
+    currency: text().notNull().default('EUR'),
+    effectType: text().notNull(),
+    computedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('initiative_value_kind', sql`${table.kind} in ('plan', 'actual')`),
+    index('initiative_value_initiative').on(table.initiativeId, table.month),
+  ],
+);
+
+export const validationStatuses = ['requested', 'approved', 'rejected'] as const;
+
+/** PNL-06: Freigabe einer Wirkung durch Controlling für einen Zeitraum; käuferprivat. */
+export const initiativeValidation = pgTable(
+  'initiative_validation',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    periodFrom: date().notNull(),
+    periodTo: date().notNull(),
+    status: text({ enum: validationStatuses }).notNull().default('requested'),
+    requestedBy: text().notNull(),
+    requestedByName: text().notNull(),
+    requestedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    decidedBy: text(),
+    decidedByName: text(),
+    decidedAt: timestamp({ withTimezone: true }),
+    comment: text(),
+  },
+  (table) => [
+    check(
+      'initiative_validation_status',
+      sql`${table.status} in ('requested', 'approved', 'rejected')`,
+    ),
+    check('initiative_validation_period', sql`${table.periodTo} >= ${table.periodFrom}`),
+    check(
+      'initiative_validation_comment',
+      sql`${table.status} <> 'rejected' or length(trim(coalesce(${table.comment}, ''))) > 0`,
+    ),
+    index('initiative_validation_initiative').on(table.initiativeId, table.status),
   ],
 );

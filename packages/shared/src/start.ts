@@ -13,6 +13,7 @@ export const dueKinds = [
   'milestone',
   'review',
   'signature',
+  'validation',
 ] as const;
 
 export const dueItemSchema = z.object({
