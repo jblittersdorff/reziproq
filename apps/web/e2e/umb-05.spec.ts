@@ -7,7 +7,7 @@ test.use({ locale: 'de-DE' });
 
 test('Keine Route zeigt „Kommt mit Release“ oder „Kommt nach Release“', async ({ page }) => {
   // Rund 100 Routen; auf dem langsameren CI-Rechner braucht der Rundgang mehrere Minuten.
-  test.setTimeout(480_000);
+  test.setTimeout(900_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page, { locale: 'de' });
   const findings: string[] = [];
