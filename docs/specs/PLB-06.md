@@ -34,15 +34,33 @@ Als SRO sehe ich, wer bei uns mit wem beim Lieferanten auf welcher Ebene, in wel
 4. **Kontaktpunkte geprüft** setzt im Zyklus den Schritt Kontaktpunkte auf erledigt (ZYK-01).
 5. **Teilen** setzt einzelne Kontaktpunkte auf geteilt, mit Bestätigung auf der Seite.
 
+## Umsetzung
+
+- `touchpoint` ist geteilt (Standard intern), `touchpoint_review` käuferprivat und nur anfügbar,
+  eindeutig je Zyklus. Personen stehen als ID und Name ohne Fremdschlüssel; der Name ist ein
+  Schnappschuss, damit eine geteilte Zeile ohne die privaten Tabellen lesbar ist.
+- `supplier_contact_id` hat keinen Fremdschlüssel (geteilte Tabelle). Die Prüfung
+  `touchpoint_contact_internal` erlaubt ihn nur auf internen Zeilen; der Dienst prüft, dass der
+  Kontakt zur Beziehung gehört. **Teilen** setzt die Zeile auf geteilt und entfernt den Verweis, der
+  Name bleibt.
+- **Lücke:** ein Format der jüngsten freigegebenen oder geteilten Spielregeln, für das kein
+  Kontaktpunkt mit gleichem Namen (deutsch oder englisch, ohne Groß- und Kleinschreibung) besteht.
+  Das Formular bietet die Formate der Spielregeln an und übernimmt Ebene und Takt als Vorschlag.
+- **Bild:** je Kontaktpunkt eine Zeile; die Ebenen sind Spalten (Geschäftsleitung außen), die
+  Linie trägt Format und Takt. So überdecken sich Beschriftungen auch bei 20 Kontaktpunkten nie;
+  schmal steht die Beschriftung unter der Linie. Bild und Liste haben dieselbe Reihenfolge.
+- Bearbeiten: Recht `kontaktpunkte.bearbeiten` (Käufer, Admin oder Team, nie Teamrolle Leser).
+  Der Lieferant liest unter `/kunden/<beziehung>/beziehung/kontaktpunkte` nur geteilte.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Bild und Liste zeigen dieselben Kontaktpunkte. Das Bild ist mit 20 Kontaktpunkten lesbar.
-- [ ] Ein vereinbartes Format ohne Kontaktpunkt erscheint als Lücke.
-- [ ] Geprüft erledigt den Zyklus-Schritt Kontaktpunkte.
-- [ ] Interne Kontaktpunkte sieht der Lieferant nie, geteilte nach Aktivierung schon (PLT-04).
-- [ ] Eine geteilte Zeile kann nicht auf einen käuferprivaten Kontakt verweisen.
+- [x] Bild und Liste zeigen dieselben Kontaktpunkte. Das Bild ist mit 20 Kontaktpunkten lesbar.
+- [x] Ein vereinbartes Format ohne Kontaktpunkt erscheint als Lücke.
+- [x] Geprüft erledigt den Zyklus-Schritt Kontaktpunkte.
+- [x] Interne Kontaktpunkte sieht der Lieferant nie, geteilte nach Aktivierung schon (PLT-04).
+- [x] Eine geteilte Zeile kann nicht auf einen käuferprivaten Kontakt verweisen.
 
 ## Nicht Teil dieser Funktion
 

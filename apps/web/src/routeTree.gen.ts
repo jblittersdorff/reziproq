@@ -113,6 +113,7 @@ import { Route as AppPortfolioRundenIdNachnominierenRouteImport } from './routes
 import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/portfolio/runden/$id/name'
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
 import { Route as AppKundenIdBeziehungFeedbackIndexRouteImport } from './routes/_app/kunden/$id/beziehung/feedback/index'
+import { Route as AppKundenIdBeziehungKontaktpunkteIndexRouteImport } from './routes/_app/kunden/$id/beziehung/kontaktpunkte/index'
 import { Route as AppKundenIdBeziehungTeamIndexRouteImport } from './routes/_app/kunden/$id/beziehung/team/index'
 import { Route as AppKundenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/kunden/$id/beziehung/team/bearbeiten'
 import { Route as AppKundenIdEigeneSichtZieleObjectiveIdRouteImport } from './routes/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
@@ -139,6 +140,9 @@ import { Route as AppKundenIdUmsetzungTermineIndexRouteImport } from './routes/_
 import { Route as AppKundenIdUmsetzungTermineNeuRouteImport } from './routes/_app/kunden/$id/umsetzung/termine/neu'
 import { Route as AppLieferantenIdBeziehungFeedbackIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/feedback/index'
 import { Route as AppLieferantenIdBeziehungFeedbackNeuRouteImport } from './routes/_app/lieferanten/$id/beziehung/feedback/neu'
+import { Route as AppLieferantenIdBeziehungKontaktpunkteIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/kontaktpunkte/index'
+import { Route as AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRouteImport } from './routes/_app/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+import { Route as AppLieferantenIdBeziehungKontaktpunkteNeuRouteImport } from './routes/_app/lieferanten/$id/beziehung/kontaktpunkte/neu'
 import { Route as AppLieferantenIdBeziehungSpielregelnIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/spielregeln/index'
 import { Route as AppLieferantenIdBeziehungSpielregelnBearbeitenRouteImport } from './routes/_app/lieferanten/$id/beziehung/spielregeln/bearbeiten'
 import { Route as AppLieferantenIdBeziehungSpielregelnTeilenRouteImport } from './routes/_app/lieferanten/$id/beziehung/spielregeln/teilen'
@@ -802,6 +806,12 @@ const AppKundenIdBeziehungFeedbackIndexRoute =
     path: '/beziehung/feedback/',
     getParentRoute: () => AppKundenIdRouteRoute,
   } as any)
+const AppKundenIdBeziehungKontaktpunkteIndexRoute =
+  AppKundenIdBeziehungKontaktpunkteIndexRouteImport.update({
+    id: '/beziehung/kontaktpunkte/',
+    path: '/beziehung/kontaktpunkte/',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
 const AppKundenIdBeziehungTeamIndexRoute =
   AppKundenIdBeziehungTeamIndexRouteImport.update({
     id: '/beziehung/team/',
@@ -956,6 +966,24 @@ const AppLieferantenIdBeziehungFeedbackNeuRoute =
   AppLieferantenIdBeziehungFeedbackNeuRouteImport.update({
     id: '/beziehung/feedback/neu',
     path: '/beziehung/feedback/neu',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdBeziehungKontaktpunkteIndexRoute =
+  AppLieferantenIdBeziehungKontaktpunkteIndexRouteImport.update({
+    id: '/beziehung/kontaktpunkte/',
+    path: '/beziehung/kontaktpunkte/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute =
+  AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRouteImport.update({
+    id: '/beziehung/kontaktpunkte/$touchpointId',
+    path: '/beziehung/kontaktpunkte/$touchpointId',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdBeziehungKontaktpunkteNeuRoute =
+  AppLieferantenIdBeziehungKontaktpunkteNeuRouteImport.update({
+    id: '/beziehung/kontaktpunkte/neu',
+    path: '/beziehung/kontaktpunkte/neu',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdBeziehungSpielregelnIndexRoute =
@@ -1573,6 +1601,8 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
   '/lieferanten/$id/beziehung/feedback/neu': typeof AppLieferantenIdBeziehungFeedbackNeuRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId': typeof AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte/neu': typeof AppLieferantenIdBeziehungKontaktpunkteNeuRoute
   '/lieferanten/$id/beziehung/spielregeln/bearbeiten': typeof AppLieferantenIdBeziehungSpielregelnBearbeitenRoute
   '/lieferanten/$id/beziehung/spielregeln/teilen': typeof AppLieferantenIdBeziehungSpielregelnTeilenRoute
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
@@ -1600,6 +1630,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/kunden/$id/beziehung/feedback/': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/kunden/$id/beziehung/kontaktpunkte/': typeof AppKundenIdBeziehungKontaktpunkteIndexRoute
   '/kunden/$id/beziehung/team/': typeof AppKundenIdBeziehungTeamIndexRoute
   '/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/scorecard/': typeof AppKundenIdPlanScorecardIndexRoute
@@ -1609,6 +1640,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/feedback/': typeof AppLieferantenIdBeziehungFeedbackIndexRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte/': typeof AppLieferantenIdBeziehungKontaktpunkteIndexRoute
   '/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/lieferanten/$id/beziehung/team/': typeof AppLieferantenIdBeziehungTeamIndexRoute
   '/lieferanten/$id/plan/initiativen/': typeof AppLieferantenIdPlanInitiativenIndexRoute
@@ -1781,6 +1813,8 @@ export interface FileRoutesByTo {
   '/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
   '/lieferanten/$id/beziehung/feedback/neu': typeof AppLieferantenIdBeziehungFeedbackNeuRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId': typeof AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte/neu': typeof AppLieferantenIdBeziehungKontaktpunkteNeuRoute
   '/lieferanten/$id/beziehung/spielregeln/bearbeiten': typeof AppLieferantenIdBeziehungSpielregelnBearbeitenRoute
   '/lieferanten/$id/beziehung/spielregeln/teilen': typeof AppLieferantenIdBeziehungSpielregelnTeilenRoute
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
@@ -1808,6 +1842,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/kunden/$id/beziehung/feedback': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/kunden/$id/beziehung/kontaktpunkte': typeof AppKundenIdBeziehungKontaktpunkteIndexRoute
   '/kunden/$id/beziehung/team': typeof AppKundenIdBeziehungTeamIndexRoute
   '/kunden/$id/plan/initiativen': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/scorecard': typeof AppKundenIdPlanScorecardIndexRoute
@@ -1817,6 +1852,7 @@ export interface FileRoutesByTo {
   '/kunden/$id/umsetzung/massnahmen': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/kunden/$id/umsetzung/termine': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/beziehung/feedback': typeof AppLieferantenIdBeziehungFeedbackIndexRoute
+  '/lieferanten/$id/beziehung/kontaktpunkte': typeof AppLieferantenIdBeziehungKontaktpunkteIndexRoute
   '/lieferanten/$id/beziehung/spielregeln': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/lieferanten/$id/beziehung/team': typeof AppLieferantenIdBeziehungTeamIndexRoute
   '/lieferanten/$id/plan/initiativen': typeof AppLieferantenIdPlanInitiativenIndexRoute
@@ -1995,6 +2031,8 @@ export interface FileRoutesById {
   '/_app/kunden/$id/umsetzung/massnahmen/neu': typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   '/_app/kunden/$id/umsetzung/termine/neu': typeof AppKundenIdUmsetzungTermineNeuRoute
   '/_app/lieferanten/$id/beziehung/feedback/neu': typeof AppLieferantenIdBeziehungFeedbackNeuRoute
+  '/_app/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId': typeof AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute
+  '/_app/lieferanten/$id/beziehung/kontaktpunkte/neu': typeof AppLieferantenIdBeziehungKontaktpunkteNeuRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/bearbeiten': typeof AppLieferantenIdBeziehungSpielregelnBearbeitenRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/teilen': typeof AppLieferantenIdBeziehungSpielregelnTeilenRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
@@ -2022,6 +2060,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/_app/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/_app/kunden/$id/beziehung/feedback/': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/_app/kunden/$id/beziehung/kontaktpunkte/': typeof AppKundenIdBeziehungKontaktpunkteIndexRoute
   '/_app/kunden/$id/beziehung/team/': typeof AppKundenIdBeziehungTeamIndexRoute
   '/_app/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/_app/kunden/$id/plan/scorecard/': typeof AppKundenIdPlanScorecardIndexRoute
@@ -2031,6 +2070,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id/umsetzung/massnahmen/': typeof AppKundenIdUmsetzungMassnahmenIndexRoute
   '/_app/kunden/$id/umsetzung/termine/': typeof AppKundenIdUmsetzungTermineIndexRoute
   '/_app/lieferanten/$id/beziehung/feedback/': typeof AppLieferantenIdBeziehungFeedbackIndexRoute
+  '/_app/lieferanten/$id/beziehung/kontaktpunkte/': typeof AppLieferantenIdBeziehungKontaktpunkteIndexRoute
   '/_app/lieferanten/$id/beziehung/spielregeln/': typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   '/_app/lieferanten/$id/beziehung/team/': typeof AppLieferantenIdBeziehungTeamIndexRoute
   '/_app/lieferanten/$id/plan/initiativen/': typeof AppLieferantenIdPlanInitiativenIndexRoute
@@ -2209,6 +2249,8 @@ export interface FileRouteTypes {
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
     | '/lieferanten/$id/beziehung/feedback/neu'
+    | '/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+    | '/lieferanten/$id/beziehung/kontaktpunkte/neu'
     | '/lieferanten/$id/beziehung/spielregeln/bearbeiten'
     | '/lieferanten/$id/beziehung/spielregeln/teilen'
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
@@ -2236,6 +2278,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
     | '/kunden/$id/beziehung/feedback/'
+    | '/kunden/$id/beziehung/kontaktpunkte/'
     | '/kunden/$id/beziehung/team/'
     | '/kunden/$id/plan/initiativen/'
     | '/kunden/$id/plan/scorecard/'
@@ -2245,6 +2288,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/umsetzung/massnahmen/'
     | '/kunden/$id/umsetzung/termine/'
     | '/lieferanten/$id/beziehung/feedback/'
+    | '/lieferanten/$id/beziehung/kontaktpunkte/'
     | '/lieferanten/$id/beziehung/spielregeln/'
     | '/lieferanten/$id/beziehung/team/'
     | '/lieferanten/$id/plan/initiativen/'
@@ -2417,6 +2461,8 @@ export interface FileRouteTypes {
     | '/kunden/$id/umsetzung/massnahmen/neu'
     | '/kunden/$id/umsetzung/termine/neu'
     | '/lieferanten/$id/beziehung/feedback/neu'
+    | '/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+    | '/lieferanten/$id/beziehung/kontaktpunkte/neu'
     | '/lieferanten/$id/beziehung/spielregeln/bearbeiten'
     | '/lieferanten/$id/beziehung/spielregeln/teilen'
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
@@ -2444,6 +2490,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
     | '/kunden/$id/beziehung/feedback'
+    | '/kunden/$id/beziehung/kontaktpunkte'
     | '/kunden/$id/beziehung/team'
     | '/kunden/$id/plan/initiativen'
     | '/kunden/$id/plan/scorecard'
@@ -2453,6 +2500,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/umsetzung/massnahmen'
     | '/kunden/$id/umsetzung/termine'
     | '/lieferanten/$id/beziehung/feedback'
+    | '/lieferanten/$id/beziehung/kontaktpunkte'
     | '/lieferanten/$id/beziehung/spielregeln'
     | '/lieferanten/$id/beziehung/team'
     | '/lieferanten/$id/plan/initiativen'
@@ -2630,6 +2678,8 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/umsetzung/massnahmen/neu'
     | '/_app/kunden/$id/umsetzung/termine/neu'
     | '/_app/lieferanten/$id/beziehung/feedback/neu'
+    | '/_app/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+    | '/_app/lieferanten/$id/beziehung/kontaktpunkte/neu'
     | '/_app/lieferanten/$id/beziehung/spielregeln/bearbeiten'
     | '/_app/lieferanten/$id/beziehung/spielregeln/teilen'
     | '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag'
@@ -2657,6 +2707,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/_app/lieferanten/$id/umsetzung/termine/neu'
     | '/_app/kunden/$id/beziehung/feedback/'
+    | '/_app/kunden/$id/beziehung/kontaktpunkte/'
     | '/_app/kunden/$id/beziehung/team/'
     | '/_app/kunden/$id/plan/initiativen/'
     | '/_app/kunden/$id/plan/scorecard/'
@@ -2666,6 +2717,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/umsetzung/massnahmen/'
     | '/_app/kunden/$id/umsetzung/termine/'
     | '/_app/lieferanten/$id/beziehung/feedback/'
+    | '/_app/lieferanten/$id/beziehung/kontaktpunkte/'
     | '/_app/lieferanten/$id/beziehung/spielregeln/'
     | '/_app/lieferanten/$id/beziehung/team/'
     | '/_app/lieferanten/$id/plan/initiativen/'
@@ -3462,6 +3514,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdBeziehungFeedbackIndexRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
+    '/_app/kunden/$id/beziehung/kontaktpunkte/': {
+      id: '/_app/kunden/$id/beziehung/kontaktpunkte/'
+      path: '/beziehung/kontaktpunkte'
+      fullPath: '/kunden/$id/beziehung/kontaktpunkte/'
+      preLoaderRoute: typeof AppKundenIdBeziehungKontaktpunkteIndexRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/beziehung/team/': {
       id: '/_app/kunden/$id/beziehung/team/'
       path: '/beziehung/team'
@@ -3642,6 +3701,27 @@ declare module '@tanstack/react-router' {
       path: '/beziehung/feedback/neu'
       fullPath: '/lieferanten/$id/beziehung/feedback/neu'
       preLoaderRoute: typeof AppLieferantenIdBeziehungFeedbackNeuRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/beziehung/kontaktpunkte/': {
+      id: '/_app/lieferanten/$id/beziehung/kontaktpunkte/'
+      path: '/beziehung/kontaktpunkte'
+      fullPath: '/lieferanten/$id/beziehung/kontaktpunkte/'
+      preLoaderRoute: typeof AppLieferantenIdBeziehungKontaktpunkteIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId': {
+      id: '/_app/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+      path: '/beziehung/kontaktpunkte/$touchpointId'
+      fullPath: '/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId'
+      preLoaderRoute: typeof AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/beziehung/kontaktpunkte/neu': {
+      id: '/_app/lieferanten/$id/beziehung/kontaktpunkte/neu'
+      path: '/beziehung/kontaktpunkte/neu'
+      fullPath: '/lieferanten/$id/beziehung/kontaktpunkte/neu'
+      preLoaderRoute: typeof AppLieferantenIdBeziehungKontaktpunkteNeuRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/beziehung/spielregeln/': {
@@ -4243,6 +4323,7 @@ interface AppKundenIdRouteRouteChildren {
   AppKundenIdUmsetzungMassnahmenNeuRoute: typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   AppKundenIdUmsetzungTermineNeuRoute: typeof AppKundenIdUmsetzungTermineNeuRoute
   AppKundenIdBeziehungFeedbackIndexRoute: typeof AppKundenIdBeziehungFeedbackIndexRoute
+  AppKundenIdBeziehungKontaktpunkteIndexRoute: typeof AppKundenIdBeziehungKontaktpunkteIndexRoute
   AppKundenIdBeziehungTeamIndexRoute: typeof AppKundenIdBeziehungTeamIndexRoute
   AppKundenIdPlanInitiativenIndexRoute: typeof AppKundenIdPlanInitiativenIndexRoute
   AppKundenIdPlanScorecardIndexRoute: typeof AppKundenIdPlanScorecardIndexRoute
@@ -4304,6 +4385,8 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdUmsetzungTermineNeuRoute: AppKundenIdUmsetzungTermineNeuRoute,
   AppKundenIdBeziehungFeedbackIndexRoute:
     AppKundenIdBeziehungFeedbackIndexRoute,
+  AppKundenIdBeziehungKontaktpunkteIndexRoute:
+    AppKundenIdBeziehungKontaktpunkteIndexRoute,
   AppKundenIdBeziehungTeamIndexRoute: AppKundenIdBeziehungTeamIndexRoute,
   AppKundenIdPlanInitiativenIndexRoute: AppKundenIdPlanInitiativenIndexRoute,
   AppKundenIdPlanScorecardIndexRoute: AppKundenIdPlanScorecardIndexRoute,
@@ -4396,6 +4479,8 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdUmsetzungIndexRoute: typeof AppLieferantenIdUmsetzungIndexRoute
   AppLieferantenIdWirkungIndexRoute: typeof AppLieferantenIdWirkungIndexRoute
   AppLieferantenIdBeziehungFeedbackNeuRoute: typeof AppLieferantenIdBeziehungFeedbackNeuRoute
+  AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute: typeof AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute
+  AppLieferantenIdBeziehungKontaktpunkteNeuRoute: typeof AppLieferantenIdBeziehungKontaktpunkteNeuRoute
   AppLieferantenIdBeziehungSpielregelnBearbeitenRoute: typeof AppLieferantenIdBeziehungSpielregelnBearbeitenRoute
   AppLieferantenIdBeziehungSpielregelnTeilenRoute: typeof AppLieferantenIdBeziehungSpielregelnTeilenRoute
   AppLieferantenIdBeziehungSpielregelnVorschlagRoute: typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
@@ -4421,6 +4506,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdUmsetzungMassnahmenNeuRoute: typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   AppLieferantenIdUmsetzungTermineNeuRoute: typeof AppLieferantenIdUmsetzungTermineNeuRoute
   AppLieferantenIdBeziehungFeedbackIndexRoute: typeof AppLieferantenIdBeziehungFeedbackIndexRoute
+  AppLieferantenIdBeziehungKontaktpunkteIndexRoute: typeof AppLieferantenIdBeziehungKontaktpunkteIndexRoute
   AppLieferantenIdBeziehungSpielregelnIndexRoute: typeof AppLieferantenIdBeziehungSpielregelnIndexRoute
   AppLieferantenIdBeziehungTeamIndexRoute: typeof AppLieferantenIdBeziehungTeamIndexRoute
   AppLieferantenIdPlanInitiativenIndexRoute: typeof AppLieferantenIdPlanInitiativenIndexRoute
@@ -4472,6 +4558,10 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdWirkungIndexRoute: AppLieferantenIdWirkungIndexRoute,
   AppLieferantenIdBeziehungFeedbackNeuRoute:
     AppLieferantenIdBeziehungFeedbackNeuRoute,
+  AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute:
+    AppLieferantenIdBeziehungKontaktpunkteTouchpointIdRoute,
+  AppLieferantenIdBeziehungKontaktpunkteNeuRoute:
+    AppLieferantenIdBeziehungKontaktpunkteNeuRoute,
   AppLieferantenIdBeziehungSpielregelnBearbeitenRoute:
     AppLieferantenIdBeziehungSpielregelnBearbeitenRoute,
   AppLieferantenIdBeziehungSpielregelnTeilenRoute:
@@ -4518,6 +4608,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdUmsetzungTermineNeuRoute,
   AppLieferantenIdBeziehungFeedbackIndexRoute:
     AppLieferantenIdBeziehungFeedbackIndexRoute,
+  AppLieferantenIdBeziehungKontaktpunkteIndexRoute:
+    AppLieferantenIdBeziehungKontaktpunkteIndexRoute,
   AppLieferantenIdBeziehungSpielregelnIndexRoute:
     AppLieferantenIdBeziehungSpielregelnIndexRoute,
   AppLieferantenIdBeziehungTeamIndexRoute:

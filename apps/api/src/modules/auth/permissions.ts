@@ -163,6 +163,16 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'kontaktpunkte.sehen': {
+    description: 'Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'kontaktpunkte.bearbeiten': {
+    description:
+      'Kontaktpunkte anlegen, ändern, teilen und als geprüft markieren (Käufer, Admin oder Team, nicht mit Teamrolle Leser)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'eigene_sicht.bearbeiten': {
     description:
       'Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite)',

@@ -123,6 +123,7 @@ import {
   type SaveRuleItem,
   type SaveRuleSet,
   type SaveSurveyQuestion,
+  type SaveTouchpoint,
   type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
@@ -151,6 +152,8 @@ import {
   surveyWaveDetailSchema,
   surveyWavesSchema,
   teamResponseSchema,
+  touchpointListSchema,
+  touchpointSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
   type UpdateMeeting,
@@ -1972,6 +1975,72 @@ export const scorecardSettingQueryOptions = (accessToken: string) =>
 
 export const saveScorecardSetting = (accessToken: string, request: ScorecardSetting) =>
   sendJson('PUT', '/scorecard/settings', request, scorecardSettingSchema, accessToken);
+
+/** PLB-06: Kontaktpunkte; beim Lieferanten nur lesend unter /kunden. */
+const touchpointsUrl = (side: TeamSide, relationshipId: string) =>
+  side === 'buyer'
+    ? `/suppliers/${relationshipId}/kontaktpunkte`
+    : `/kunden/${relationshipId}/kontaktpunkte`;
+
+export const touchpointsQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  side: TeamSide,
+) =>
+  queryOptions({
+    queryKey: ['kontaktpunkte', side, relationshipId],
+    queryFn: () => getJson(touchpointsUrl(side, relationshipId), touchpointListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveTouchpoint = (
+  accessToken: string,
+  relationshipId: string,
+  touchpointId: string | null,
+  request: SaveTouchpoint,
+) =>
+  sendJson(
+    touchpointId ? 'PUT' : 'POST',
+    `${touchpointsUrl('buyer', relationshipId)}${touchpointId ? `/${touchpointId}` : ''}`,
+    request,
+    touchpointSchema,
+    accessToken,
+  );
+
+export const shareTouchpoint = (
+  accessToken: string,
+  relationshipId: string,
+  touchpointId: string,
+) =>
+  sendJson(
+    'POST',
+    `${touchpointsUrl('buyer', relationshipId)}/${touchpointId}/teilen`,
+    {},
+    touchpointSchema,
+    accessToken,
+  );
+
+export const deleteTouchpoint = (
+  accessToken: string,
+  relationshipId: string,
+  touchpointId: string,
+) =>
+  sendJson(
+    'DELETE',
+    `${touchpointsUrl('buyer', relationshipId)}/${touchpointId}`,
+    {},
+    touchpointListSchema,
+    accessToken,
+  );
+
+export const reviewTouchpoints = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `${touchpointsUrl('buyer', relationshipId)}/geprueft`,
+    {},
+    touchpointListSchema,
+    accessToken,
+  );
 
 /** QBR-04: Erinnerungstage für Maßnahmen, je Organisation (beide Seiten). */
 export const actionReminderSettingQueryOptions = (accessToken: string) =>

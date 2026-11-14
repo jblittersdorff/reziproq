@@ -13,6 +13,7 @@ import {
   scorecardCycleStepSource,
   segmentCycleStepSource,
   supplierPlanCycleStepSource,
+  touchpointCycleStepSource,
 } from './cycle.js';
 import { CycleSettingsController } from './cycle-settings.controller.js';
 import { OverviewController } from './overview.controller.js';
@@ -33,6 +34,7 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
       useValue: [
         segmentCycleStepSource,
         feedbackCycleStepSource,
+        touchpointCycleStepSource,
         supplierPlanCycleStepSource,
         jbpCycleStepSource,
         scorecardCycleStepSource,

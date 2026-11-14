@@ -188,6 +188,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
               status: text.teamHint,
             },
             {
+              key: 'touchpoints',
+              href: `${customerPath(relationshipId, 'relationship')}/kontaktpunkte`,
+              title: t.touchpoints.title,
+              status: text.touchpointsHint,
+            },
+            {
               key: 'rules',
               href: `${customerPath(relationshipId, 'relationship')}/spielregeln`,
               title: text.rulesTitle,

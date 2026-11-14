@@ -173,6 +173,8 @@ describe('PLT-02 in der Datenbank', () => {
       'survey_result',
       'survey_template',
       'survey_wave',
+      'touchpoint',
+      'touchpoint_review',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });
