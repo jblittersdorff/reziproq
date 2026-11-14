@@ -115,7 +115,7 @@ describe('Team einer Beziehung', () => {
 
   it('bearbeitet das Team auf eigener Seite: hinzufügen, Rolle ändern, entfernen, zurück', async () => {
     const router = renderAt(`${teamPath}/bearbeiten`);
-    await screen.findByRole('heading', { level: 1, name: 'Team bearbeiten' });
+    await screen.findByRole('list', { name: 'Team' });
     expect(screen.queryByRole('dialog')).toBeNull();
 
     fireEvent.change(screen.getByLabelText('Person hinzufügen', { exact: false }), {
@@ -145,7 +145,7 @@ describe('Team einer Beziehung', () => {
 
   it('prüft die Grenzen schon auf der Seite: höchstens ein SRO', async () => {
     renderAt(`${teamPath}/bearbeiten`);
-    await screen.findByRole('heading', { level: 1, name: 'Team bearbeiten' });
+    await screen.findByRole('list', { name: 'Team' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Teamrolle: Tom Krüger' }), {
       target: { value: 'sro' },
     });

@@ -188,7 +188,7 @@ describe('PLB-04 Team beider Seiten in der Oberfläche', () => {
       'Lena BergerSROEinkauf',
     ]);
     fireEvent.click(screen.getByRole('link', { name: 'Team bearbeiten' }));
-    await screen.findByRole('heading', { level: 1, name: 'Team bearbeiten' });
+    await screen.findByRole('list', { name: 'Team' });
     fireEvent.change(screen.getByLabelText('Person hinzufügen', { exact: false }), {
       target: { value: 'ole' },
     });
