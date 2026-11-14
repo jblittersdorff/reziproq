@@ -24,11 +24,14 @@ import {
   createSupplierRequestSchema,
   type ImportType,
   importTypes,
+  type RoleDescription,
+  type SaveRoleDescription,
   type SpendRequest,
   type SupplierDetail,
   type SupplierLookupQuery,
   type SupplierLookupResponse,
   type SuppliersResponse,
+  saveRoleDescriptionSchema,
   spendRequestSchema,
   spendYearSchema,
   supplierLookupQuerySchema,
@@ -218,7 +221,7 @@ export class SuppliersController {
     return this.teams.team(auth, id);
   }
 
-  /** Team festlegen, nur Admin (PLT-05b). Grenzen prüft der Dienst und antwortet mit 409. */
+  /** Eigenes Team festlegen: Admin oder SRO (PLB-04). Grenzen prüft der Dienst (409). */
   @Put(':id/team')
   @Requires('team.festlegen')
   setTeam(
@@ -227,5 +230,53 @@ export class SuppliersController {
     @Body() body: UpdateTeamRequest,
   ): Promise<TeamResponse> {
     return this.teams.setTeam(auth, id, body);
+  }
+}
+
+/** PLB-04: Team beim Lieferanten, im Kontext des Kunden; gespiegelte Darstellung. */
+@Controller('kunden/:id/team')
+export class SupplierTeamController {
+  constructor(@Inject(TeamService) private readonly teams: TeamService) {}
+
+  @Get()
+  @Requires('kunden.sehen')
+  team(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<TeamResponse> {
+    return this.teams.team(auth, id, 'supplier');
+  }
+
+  /** Eigenes Team: Admin oder Key Account Manager. */
+  @Put()
+  @Requires('team.festlegen')
+  setTeam(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateTeamRequest,
+  ): Promise<TeamResponse> {
+    return this.teams.setTeam(auth, id, body, 'supplier');
+  }
+}
+
+/** PLB-04: Einstellungen › Rollen, Rollenbeschreibungen der eigenen Organisation. */
+@Controller('rollen')
+export class RolesController {
+  constructor(@Inject(TeamService) private readonly teams: TeamService) {}
+
+  @Get()
+  @Requires('einstellungen.verwalten')
+  list(@CurrentUser() auth: AuthContext): Promise<RoleDescription[]> {
+    return this.teams.roles(auth);
+  }
+
+  @Put(':role')
+  @Requires('einstellungen.verwalten')
+  save(
+    @CurrentUser() auth: AuthContext,
+    @Param('role') role: string,
+    @Body(new ZodValidationPipe(saveRoleDescriptionSchema)) body: SaveRoleDescription,
+  ): Promise<RoleDescription[]> {
+    return this.teams.saveRole(auth, role, body);
   }
 }

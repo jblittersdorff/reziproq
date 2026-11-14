@@ -9,7 +9,6 @@ export const buyerOnlyActions: readonly Action[] = [
   'lieferanten.bearbeiten',
   'lieferanten.einladen',
   'prompt.nutzen',
-  'team.festlegen',
   'stammdaten.verwalten',
   'zuordnung.bearbeiten',
   'segmentmodell.sehen',

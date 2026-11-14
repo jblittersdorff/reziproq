@@ -44,7 +44,11 @@ const detail: SupplierDetail = {
   permissions: { edit: true, editTeam: true },
 };
 const team: TeamResponse = {
-  members: [{ userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing' }],
+  side: 'buyer',
+  counterpart: [],
+  canEdit: true,
+  sroDescription: null,
+  members: [{ userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing', visibility: 'shared' }],
   candidates: [{ userId: 'lena', name: 'Lena Berger', defaultFunction: 'purchasing' }],
 };
 

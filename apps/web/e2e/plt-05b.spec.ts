@@ -22,6 +22,7 @@ async function signIn(page: Page) {
       name: 'Lena Berger',
       teamRole: 'sro',
       function: 'purchasing' as string | null,
+      visibility: 'shared',
     },
   ];
   await page.route('**/api/me', (route) =>
@@ -68,13 +69,29 @@ async function signIn(page: Page) {
       members = route
         .request()
         .postDataJSON()
-        .members.map((member: { userId: string; teamRole: string; function: string | null }) => ({
-          ...member,
-          name: names[member.userId] ?? member.userId,
-        }));
+        .members.map(
+          (member: {
+            userId: string;
+            teamRole: string;
+            function: string | null;
+            visibility: string;
+          }) => ({
+            ...member,
+            name: names[member.userId] ?? member.userId,
+          }),
+        );
     }
     return route.fulfill({
       json: {
+        side: 'buyer',
+        counterpart: [{ name: 'Kim Kaiser', teamRole: 'sro', function: null }],
+        canEdit: true,
+        sroDescription: {
+          role: 'sro',
+          does: ['Strategie'],
+          doesNot: ['Claims'],
+          updatedByName: null,
+        },
         members,
         candidates: Object.entries(names).map(([userId, name]) => ({
           userId,
@@ -93,7 +110,7 @@ test('Team bearbeiten auf eigener Seite; Speichern und Abbrechen führen zum Tea
 }) => {
   await signIn(page);
   await page.goto(`/lieferanten/${id}/beziehung/team`);
-  const table = page.getByRole('table', { name: 'Team' });
+  const table = page.getByRole('table', { name: 'Unser Team' });
   await expect(table.getByRole('row')).toHaveCount(2);
 
   await page.getByRole('link', { name: 'Team bearbeiten' }).click();
@@ -109,7 +126,7 @@ test('Team bearbeiten auf eigener Seite; Speichern und Abbrechen führen zum Tea
   await expect(page).toHaveURL(url(`/lieferanten/${id}/beziehung/team`));
   await expect(page.getByText('Gespeichert.')).toBeVisible();
   await expect(table.getByRole('row')).toHaveCount(3);
-  await expect(table).toContainText('Tom KrügerSponsorQualität');
+  await expect(table).toContainText('Tom KrügerInternSponsorQualität');
 });
 
 for (const width of [1440, 390]) {

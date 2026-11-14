@@ -80,8 +80,13 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     'lieferanten.sehen': async (user) => (await request(user, 'GET', '/api/suppliers')).status,
     'lieferanten.bearbeiten': async (user) =>
       (await request(user, 'GET', '/api/suppliers/lookup?ust=DE123456789')).status,
+    // Der SRO bleibt im Team, damit die Probe für Nutzerin und Admin gleich ausgeht (PLB-04).
     'team.festlegen': async (user) =>
-      (await request(user, 'PUT', `/api/suppliers/${relationshipId}/team`, { members: [] })).status,
+      (
+        await request(user, 'PUT', `/api/suppliers/${relationshipId}/team`, {
+          members: [{ userId: users.member, teamRole: 'sro', function: null }],
+        })
+      ).status,
     'verlauf.sehen': async (user) =>
       (await request(user, 'GET', `/api/audit?object_type=relationship&object_id=${randomUUID()}`))
         .status,
@@ -346,6 +351,13 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         person(users.zweitAdmin, 'admin', orgs.zweit),
         { ...person(users.operator, 'viewer', null), isOperator: true },
       ]);
+    // PLB-04: Das Team pflegt der SRO; die Nutzerin ist SRO der Testbeziehung.
+    await db.insert(schema.relationshipMember).values({
+      relationshipId,
+      orgId: orgs.oem,
+      userId: users.member,
+      teamRole: 'sro',
+    });
   });
 
   afterAll(async () => {

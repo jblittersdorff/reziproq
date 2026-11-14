@@ -38,8 +38,8 @@ const detail: SupplierDetail = {
   spend: [{ year: 2025, amount: { amountCents: 420_000_00, currency: 'EUR' } }],
   permissions: { edit: true, editTeam: true },
 };
-const lena = { userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing' };
-const tom = { userId: 'tom', name: 'Tom Krüger', teamRole: 'sponsor', function: 'quality' };
+const lena = { userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing', visibility: 'shared' };
+const tom = { userId: 'tom', name: 'Tom Krüger', teamRole: 'sponsor', function: 'quality', visibility: 'shared' };
 const sampleCycle = (): SupplierCycle => ({
   id: '0190a0a0-0000-7000-8000-000000000002',
   label: '2026',
@@ -95,6 +95,10 @@ beforeEach(() => {
   canStartCycle = false;
   canSetJbpDate = false;
   team = {
+    side: 'buyer',
+    counterpart: [],
+    canEdit: true,
+    sroDescription: null,
     members: [lena, tom] as TeamResponse['members'],
     candidates: [
       { userId: 'lena', name: 'Lena Berger', defaultFunction: 'purchasing' },

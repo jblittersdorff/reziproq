@@ -33,9 +33,25 @@ const detail: SupplierDetail = {
   permissions: { edit: true, editTeam: true },
 };
 const team: TeamResponse = {
+  side: 'buyer',
+  counterpart: [],
+  canEdit: true,
+  sroDescription: null,
   members: [
-    { userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing' },
-    { userId: 'tom', name: 'Tom Krüger', teamRole: 'sponsor', function: 'quality' },
+    {
+      userId: 'lena',
+      name: 'Lena Berger',
+      teamRole: 'sro',
+      function: 'purchasing',
+      visibility: 'shared',
+    },
+    {
+      userId: 'tom',
+      name: 'Tom Krüger',
+      teamRole: 'sponsor',
+      function: 'quality',
+      visibility: 'shared',
+    },
   ],
   candidates: [
     { userId: 'lena', name: 'Lena Berger', defaultFunction: 'purchasing' },
@@ -76,18 +92,22 @@ describe('Team einer Beziehung', () => {
     const router = renderAt(`/lieferanten/${id}/strategie/profil`);
     fireEvent.click(await screen.findByRole('link', { name: 'Team' }));
     await waitFor(() => expect(router.state.location.pathname).toBe(teamPath));
-    const table = await screen.findByRole('table', { name: 'Team' });
+    const table = await screen.findByRole('table', { name: 'Unser Team' });
     expect(
       within(table)
         .getAllByRole('row')
         .map((row) => row.textContent),
-    ).toEqual(['PersonTeamrolleFunktion', 'Lena BergerSROEinkauf', 'Tom KrügerSponsorQualität']);
+    ).toEqual([
+      'PersonTeamrolleFunktion',
+      'Lena BergerGeteiltSROEinkauf',
+      'Tom KrügerGeteiltSponsorQualität',
+    ]);
     expect(screen.getByRole('link', { name: 'Team bearbeiten' })).toBeDefined();
   });
 
   it('weist auf ein Team ohne SRO hin und zeigt Bearbeiten nur mit Recht', async () => {
     currentTeam = { ...team, members: [team.members[1] as TeamResponse['members'][number]] };
-    currentDetail = { ...detail, permissions: { edit: true, editTeam: false } };
+    currentTeam = { ...currentTeam, canEdit: false };
     renderAt(teamPath);
     expect(await screen.findByText(/Noch kein SRO/)).toBeDefined();
     expect(screen.queryByRole('link', { name: 'Team bearbeiten' })).toBeNull();
@@ -116,8 +136,8 @@ describe('Team einer Beziehung', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe(teamPath));
     expect(requests.find((r) => r.method === 'PUT')?.body).toEqual({
       members: [
-        { userId: 'lena', teamRole: 'sro', function: 'purchasing' },
-        { userId: 'nina', teamRole: 'viewer', function: 'logistics' },
+        { userId: 'lena', teamRole: 'sro', function: 'purchasing', visibility: 'shared' },
+        { userId: 'nina', teamRole: 'viewer', function: 'logistics', visibility: 'internal' },
       ],
     });
     expect(await screen.findByText('Gespeichert.')).toBeDefined();

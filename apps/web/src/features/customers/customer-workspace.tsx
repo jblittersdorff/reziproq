@@ -182,6 +182,12 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
           renderLink={routerLink}
           items={[
             {
+              key: 'team',
+              href: `${customerPath(relationshipId, 'relationship')}/team`,
+              title: t.team.title,
+              status: text.teamHint,
+            },
+            {
               key: 'rules',
               href: `${customerPath(relationshipId, 'relationship')}/spielregeln`,
               title: text.rulesTitle,

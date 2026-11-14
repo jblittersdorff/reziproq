@@ -109,7 +109,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 43 | PUL-02b | Feedback-Welle: beantworten ohne Anmeldung | PUL-02 | PUL-02a | nach 1.0 | Block F | A | PR offen | Teil b von PUL-02. Antwortbogen ohne Person und ohne Zeitstempel; Zwischenstand nur auf dem Gerät. |
 | 44 | PUL-03 | Auswertung und Wahrnehmungslücken | PUL-03, PUL-04, PUL-05 | PUL-02b, LIF-02 | nach 1.0 | Block F | A | PR offen | Aufdeckung in SQL (app_survey_reveal), Ergebnisse nur berechnet; Funktionen nur ab drei Antworten und ohne Einzelfragen. |
 | 45 | LIF-03 | Eigene Sicht des Lieferanten | LIF-03 | LIF-02 | nach 1.0 | Block F | B | PR offen | Erste lieferantenprivate Tabellen; Recht eigene_sicht.bearbeiten. |
-| 46 | PLB-04 | Team beider Seiten | PLB-04, PLB-05 | LIF-02, PLT-05b | nach 1.0 | Block F | B | offen | – |
+| 46 | PLB-04 | Team beider Seiten | PLB-04, PLB-05 | LIF-02, PLT-05b | nach 1.0 | Block F | B | PR offen | relationship_member geteilt mit Sichtbarkeit; role_description; Recht team.festlegen auch für SRO und KAM. |
 | 47 | PUL-06 | Maßnahmen aus Lücken und Verlauf | PUL-06, PUL-07 | PUL-03, QBR-03 | nach 1.0 | Block F | A | PR offen | Quelle ist die Ergebniszeile der Dimension; Verlauf je Art ab zwei Wellen in der Wellen-Liste. |
 | 48 | SPL-04 | Spend-Entwicklung | SPL-04 | PLT-07b, PLT-03b, PLT-06 | nach 1.0 | Block S | A | offen | – |
 | 49 | SPL-05 | Profil und Finanzen | SPL-05 | SPL-04 | nach 1.0 | Block S | A | offen | – |

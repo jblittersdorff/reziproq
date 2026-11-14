@@ -75,7 +75,14 @@ beforeEach(() => {
     requests.push(request);
     if (request.url === `/api/suppliers/${id}`) return Response.json(detail);
     if (request.url === `/api/suppliers/${id}/team`) {
-      return Response.json({ members: [], candidates: [] });
+      return Response.json({
+        side: 'buyer',
+        members: [],
+        counterpart: [],
+        candidates: [],
+        canEdit: true,
+        sroDescription: null,
+      });
     }
     if (request.url === `/api/suppliers/${id}/einladungen`) {
       if (request.method === 'POST') {

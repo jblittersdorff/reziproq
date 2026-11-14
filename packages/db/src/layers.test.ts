@@ -153,6 +153,7 @@ function columnsOf(
       ? entry.testValues({
           buyer: row.relationship === null ? null : relationships[row.relationship].buyer,
           probe,
+          visibility: row.visibility,
         })
       : entry.testValues;
   const values: Record<string, unknown> = { ...testValues, id };

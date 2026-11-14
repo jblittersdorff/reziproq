@@ -1,9 +1,12 @@
 import {
+  defaultTeamVisibility,
   type TeamError,
   type TeamResponse,
   type TeamRole,
+  type TeamVisibility,
   teamErrors,
   teamRoles,
+  teamVisibilities,
   type UserFunction,
   updateTeamRequestSchema,
   userFunctions,
@@ -18,10 +21,10 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { PageHeader } from '@/features/shell/page-header';
 import { useGoBack } from '@/features/shell/page-path';
-import { ApiError, updateTeam } from '@/lib/api';
+import { ApiError, type TeamSide, updateTeam } from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
-import { SupplierFrame } from './supplier-frame';
+import { TeamFrame, teamPath, useRoleLabels } from './team-page';
 import { useTeam } from './use-team';
 
 interface Row {
@@ -29,45 +32,56 @@ interface Row {
   name: string;
   teamRole: TeamRole;
   function: UserFunction | null;
+  visibility: TeamVisibility;
 }
 
-/** Team › Bearbeiten (PLT-05b) als Formularseite, nur für Admins; Speichern führt zurück. */
-export function TeamEditPage({ relationshipId }: { relationshipId: string }) {
+/**
+ * Team › Bearbeiten (PLT-05b, PLB-04) als Formularseite: jede Seite pflegt nur ihr Team, mit
+ * Sichtbarkeit je Person. Speichern führt zurück.
+ */
+export function TeamEditPage({
+  relationshipId,
+  side = 'buyer',
+}: {
+  relationshipId: string;
+  side?: TeamSide;
+}) {
   const t = useT();
-  const team = useTeam(relationshipId);
-  const teamPage = `/lieferanten/${relationshipId}/beziehung/team`;
+  const team = useTeam(relationshipId, side);
+  const teamPage = teamPath(side, relationshipId);
   return (
-    <SupplierFrame
+    <TeamFrame
+      side={side}
       relationshipId={relationshipId}
-      area="relationship"
-      trail={() => [{ label: t.team.title, href: teamPage }]}
+      trail={[{ label: t.team.title, href: teamPage }]}
       current={t.team.edit}
     >
-      {() =>
-        team.isError ? (
-          <ErrorState title={t.team.failed} />
-        ) : !team.data ? (
-          <LoadingState label={t.team.loading} />
-        ) : (
-          <TeamForm
-            team={team.data}
-            relationshipId={relationshipId}
-            accessToken={team.accessToken}
-            teamPage={teamPage}
-          />
-        )
-      }
-    </SupplierFrame>
+      {team.isError ? (
+        <ErrorState title={t.team.failed} />
+      ) : !team.data ? (
+        <LoadingState label={t.team.loading} />
+      ) : (
+        <TeamForm
+          team={team.data}
+          side={side}
+          relationshipId={relationshipId}
+          accessToken={team.accessToken}
+          teamPage={teamPage}
+        />
+      )}
+    </TeamFrame>
   );
 }
 
 function TeamForm({
   team,
+  side,
   relationshipId,
   accessToken,
   teamPage,
 }: {
   team: TeamResponse;
+  side: TeamSide;
   relationshipId: string;
   accessToken: string;
   teamPage: string;
@@ -75,6 +89,8 @@ function TeamForm({
   const t = useT();
   const queryClient = useQueryClient();
   const goBack = useGoBack(teamPage);
+  const roles = useRoleLabels()(side);
+  const errors = side === 'buyer' ? t.team.errors : t.team.supplierErrors;
   const [rows, setRows] = useState<Row[]>(team.members);
   const [adding, setAdding] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -96,21 +112,23 @@ function TeamForm({
         name: person.name,
         teamRole: 'member',
         function: person.defaultFunction,
+        visibility: defaultTeamVisibility('member'),
       },
     ]);
     setAdding('');
   };
 
   const errorText = (code: unknown) =>
-    teamErrors.includes(code as TeamError) ? t.team.errors[code as TeamError] : t.team.saveFailed;
+    teamErrors.includes(code as TeamError) ? errors[code as TeamError] : t.team.saveFailed;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const request = {
-      members: rows.map(({ userId, teamRole, function: fn }) => ({
+      members: rows.map(({ userId, teamRole, function: fn, visibility }) => ({
         userId,
         teamRole,
         function: fn,
+        visibility,
       })),
     };
     const parsed = updateTeamRequestSchema.safeParse(request);
@@ -121,8 +139,10 @@ function TeamForm({
     setError(null);
     setSaving(true);
     try {
-      await updateTeam(accessToken, relationshipId, parsed.data);
-      void queryClient.invalidateQueries({ queryKey: ['suppliers', relationshipId] });
+      await updateTeam(accessToken, relationshipId, parsed.data, side);
+      void queryClient.invalidateQueries({
+        queryKey: [side === 'buyer' ? 'suppliers' : 'kunden', relationshipId],
+      });
       void queryClient.invalidateQueries({ queryKey: ['audit'] });
       flash.set(t.team.saved);
       goBack();
@@ -143,7 +163,7 @@ function TeamForm({
       <form
         noValidate
         onSubmit={(event) => void submit(event)}
-        className="flex max-w-3xl flex-col gap-6"
+        className="flex max-w-4xl flex-col gap-6"
       >
         <ul aria-label={t.team.title} className="flex flex-col gap-4">
           {rows.map((row) => (
@@ -164,7 +184,7 @@ function TeamForm({
                 >
                   {teamRoles.map((role) => (
                     <option key={role} value={role}>
-                      {t.team.roles[role]}
+                      {roles[role]}
                     </option>
                   ))}
                 </NativeSelect>
@@ -189,6 +209,23 @@ function TeamForm({
                   ))}
                 </NativeSelect>
               </div>
+              <div className="flex flex-col gap-1 text-muted-foreground text-sm sm:w-36">
+                <span aria-hidden>{t.team.visibility}</span>
+                <NativeSelect
+                  name={`visibility-${row.userId}`}
+                  aria-label={`${t.team.visibility}: ${row.name}`}
+                  value={row.visibility}
+                  onChange={(event) =>
+                    update(row.userId, { visibility: event.target.value as TeamVisibility })
+                  }
+                >
+                  {teamVisibilities.map((visibility) => (
+                    <option key={visibility} value={visibility}>
+                      {t.team.visibilities[visibility]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </div>
               <Button
                 type="button"
                 variant="ghost"
@@ -201,7 +238,10 @@ function TeamForm({
             </li>
           ))}
         </ul>
-        <p className="-mt-2 text-muted-foreground text-sm">{t.team.rolesHint}</p>
+        <div className="-mt-2 flex flex-col gap-1 text-muted-foreground text-sm">
+          <p>{side === 'buyer' ? t.team.rolesHint : t.team.supplierRolesHint}</p>
+          <p>{t.team.visibilityHint}</p>
+        </div>
 
         {available.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end">

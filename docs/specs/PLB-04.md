@@ -34,16 +34,32 @@ Beide Seiten sehen, wer in der Beziehung welche Rolle hat. Jede Seite pflegt ihr
 4. Beim Lieferanten liegt die Seite unter `/kunden/<beziehung>/beziehung/team`, mit gespiegelter Darstellung.
 5. **Einstellungen › Rollen** (`/einstellungen/rollen`): Rollenbeschreibungen bearbeiten.
 
+## Umsetzung
+
+- `relationship_member` ist geteilt: `owner_org_id` ist die Seite, `visibility` intern oder geteilt.
+  Ein Trigger (`app_team_member_fill`, Rolle `reziproq_team`) füllt fehlende Seite und
+  `member_name` beim Einfügen, auch für Zeilen aus der Annahme einer Einladung (LIF-01).
+  `member_name` ist ein Schnappschuss des Namens, weil die andere Seite `app_user` nicht lesen darf.
+- Der Fremdschlüssel auf `app_user` entfällt (keine Fremdschlüssel von geteilten auf private
+  Tabellen); die Migration überführt alle Zeilen, SRO und Sponsoren werden geteilt.
+- Der Lieferant nutzt dieselben Teamrollen; `sro` heißt dort Key Account Manager. Endpunkte:
+  `/suppliers/<beziehung>/team` beim Käufer, `/kunden/<beziehung>/team` beim Lieferanten. Jede
+  Seite löscht und schreibt nur Zeilen der eigenen Organisation.
+- Recht `team.festlegen` haben Admin und Nutzer; der Dienst lässt nur Admins und den SRO bzw. KAM
+  der Beziehung ändern. Ein Admin darf auch mit Teamrolle Leser.
+- Die Teamseite zeigt das Kennzeichen am Namen, damit die Tabelle auch schmal drei Spalten hat.
+  `role_description` (organisationsprivat) gibt es nur für `sro`; ohne Zeile gilt der Standard.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Interne Mitglieder einer Seite sieht die andere Seite nie (PLT-04).
-- [ ] Jede Seite kann nur ihr eigenes Team ändern. Versuche an der anderen Seite geben 403.
-- [ ] Bis zu zwei Sponsoren je Seite, genau ein SRO auf Käuferseite.
-- [ ] Die Migration überführt alle Teams aus PLT-05 ohne Verlust.
-- [ ] Teamänderungen stehen im Verlauf, mit der Sichtbarkeit des Mitglieds.
-- [ ] Die Rollenbeschreibung ist je Kunde änderbar und erscheint auf der Team-Seite.
+- [x] Interne Mitglieder einer Seite sieht die andere Seite nie (PLT-04).
+- [x] Jede Seite kann nur ihr eigenes Team ändern. Versuche an der anderen Seite geben 403.
+- [x] Bis zu zwei Sponsoren je Seite, genau ein SRO auf Käuferseite.
+- [x] Die Migration überführt alle Teams aus PLT-05 ohne Verlust.
+- [x] Teamänderungen stehen im Verlauf, mit der Sichtbarkeit des Mitglieds.
+- [x] Die Rollenbeschreibung ist je Kunde änderbar und erscheint auf der Team-Seite.
 
 ## Nicht Teil dieser Funktion
 
