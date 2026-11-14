@@ -65,7 +65,7 @@ test.describe('auf Englisch', () => {
     page,
   }) => {
     // Rund 60 Routen; auf dem langsameren CI-Rechner braucht der Rundgang mehrere Minuten.
-    test.setTimeout(480_000);
+    test.setTimeout(900_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page, { locale: 'en' });
     const findings: string[] = [];
