@@ -83,6 +83,29 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   // PNL-01: GuV-Zeilen je Organisation.
   pnl_line: { kind: 'org_private', testValues: { key: 'probe', name: 'Probe', position: 99 } },
+  // PUL-02: Welle geteilt; Teilnehmende geteilt, aber immer intern (Dienst und app_survey_*).
+  survey_wave: {
+    kind: 'shared',
+    testValues: {
+      template_id: '00000000-0000-7000-8000-000000000000',
+      template_version: 1,
+      kind: 'pulse',
+      due_date: '2099-01-01',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    },
+  },
+  survey_participant: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      wave_id: buyer && probe('survey_wave', buyer),
+      side: 'buyer',
+      email: 'probe@example.com',
+      function: 'purchasing',
+      token_hash: 'probe',
+      invited_by: 'demo-test-oem-1',
+    }),
+  },
   // PUL-01: Fragebogen je Organisation; Versionen nur anfügbar.
   survey_template: {
     kind: 'org_private',

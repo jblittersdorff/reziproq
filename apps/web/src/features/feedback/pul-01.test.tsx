@@ -183,7 +183,7 @@ describe('PUL-01 Fragebogen in der Oberfläche', () => {
     expect((within(current).getByRole('radio', { name: '4' }) as HTMLInputElement).checked).toBe(
       true,
     );
-    expect(within(form).getByLabelText('Möchten Sie noch etwas sagen? (optional)')).toBeDefined();
+    expect(within(form).getByLabelText('Möchtest du noch etwas sagen? (optional)')).toBeDefined();
     fireEvent.click(screen.getByRole('radio', { name: 'Englisch' }));
     expect(await screen.findByText('How much do we trust each other?')).toBeDefined();
     expect(screen.getAllByRole('group', { name: 'How is it today?' })).toHaveLength(2);

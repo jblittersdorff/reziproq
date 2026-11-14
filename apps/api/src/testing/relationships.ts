@@ -54,6 +54,8 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
   await db.execute(sql`delete from rule_set_item where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set where relationship_id in ${ids}`);
   await db.execute(sql`delete from invitation where relationship_id in ${ids}`);
+  await db.execute(sql`delete from survey_participant where relationship_id in ${ids}`);
+  await db.execute(sql`delete from survey_wave where relationship_id in ${ids}`);
   await db.execute(sql`delete from segment_decision where relationship_id in ${ids}`);
   await db.execute(sql`delete from rating where relationship_id in ${ids}`);
   await db.execute(sql`delete from rating_assignment where relationship_id in ${ids}`);

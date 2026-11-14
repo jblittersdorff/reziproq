@@ -161,6 +161,16 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'feedback.sehen': {
+    description: 'Feedback-Wellen der Beziehung mit Rücklauf je Seite sehen (beide Seiten)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'feedback.verwalten': {
+    description:
+      'Feedback-Welle starten (Käufer: Admin oder SRO), eigene Teilnehmende einladen, eigene Seite abschließen',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'jbp.sehen': {
     description: 'Gemeinsamen Plan und seine Vorbereitung sehen (beide Seiten)',
     roles: ['admin', 'member', 'viewer'],

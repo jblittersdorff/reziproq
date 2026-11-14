@@ -63,6 +63,8 @@ export const actions = [
   'wirkung.sehen',
   'wirkung.bearbeiten',
   'wirkung.freigeben',
+  'feedback.sehen',
+  'feedback.verwalten',
 ] as const;
 export type Action = (typeof actions)[number];
 

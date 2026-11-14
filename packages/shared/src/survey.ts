@@ -265,3 +265,113 @@ export const saveSurveyQuestionSchema = z
     message: 'beide_sprachen',
   });
 export type SaveSurveyQuestion = z.infer<typeof saveSurveyQuestionSchema>;
+
+// PUL-02a: Feedback-Welle anlegen und einladen.
+
+/** Funktion der teilnehmenden Person; die Auswertung (PUL-03) gruppiert danach. */
+export const surveyFunctions = [
+  'purchasing',
+  'quality',
+  'engineering',
+  'logistics',
+  'programs',
+  'after_sales',
+  'sales',
+  'management',
+  'other',
+] as const;
+export type SurveyFunction = (typeof surveyFunctions)[number];
+
+export const surveySides = ['buyer', 'supplier'] as const;
+export type SurveySide = (typeof surveySides)[number];
+
+const turnoutSchema = z.object({ invited: z.number().int(), completed: z.number().int() });
+
+export const surveyWaveSchema = z.object({
+  id: z.uuid(),
+  kind: z.enum(surveyKinds),
+  templateVersion: z.number().int(),
+  dueDate: z.iso.date(),
+  createdAt: z.string(),
+  createdByName: z.string(),
+  buyerClosedAt: z.string().nullable(),
+  supplierClosedAt: z.string().nullable(),
+  /** open bis zur Frist, solange nicht beide Seiten abgeschlossen haben */
+  status: z.enum(['open', 'closed']),
+  /** Nur Anzahlen je Seite, nie Personen */
+  turnout: z.object({ buyer: turnoutSchema, supplier: turnoutSchema }),
+});
+export type SurveyWave = z.infer<typeof surveyWaveSchema>;
+
+export const surveyWavesSchema = z.object({
+  waves: z.array(surveyWaveSchema),
+  canStart: z.boolean(),
+});
+export type SurveyWaves = z.infer<typeof surveyWavesSchema>;
+
+export const surveyParticipantSchema = z.object({
+  id: z.uuid(),
+  side: z.enum(surveySides),
+  email: z.string(),
+  name: z.string().nullable(),
+  function: z.enum(surveyFunctions),
+  invitedAt: z.string(),
+});
+export type SurveyParticipant = z.infer<typeof surveyParticipantSchema>;
+
+export const surveySuggestionSchema = z.object({
+  side: z.enum(surveySides),
+  name: z.string(),
+  email: z.string(),
+  function: z.enum(surveyFunctions).nullable(),
+  source: z.enum(['team', 'contact', 'colleague']),
+});
+export type SurveySuggestion = z.infer<typeof surveySuggestionSchema>;
+
+export const surveyWaveDetailSchema = z.object({
+  wave: surveyWaveSchema,
+  ownSide: z.enum(surveySides),
+  /** Nur die Einladungen der eigenen Seite, ohne Angabe, wer geantwortet hat */
+  participants: z.array(surveyParticipantSchema),
+  canInvite: z.boolean(),
+  canClose: z.boolean(),
+  canExtend: z.boolean(),
+});
+export type SurveyWaveDetail = z.infer<typeof surveyWaveDetailSchema>;
+
+/** Vorschläge für den Ablauf „Neue Welle“ und „Einladen“: Team, Kontakte, Kolleginnen. */
+export const surveySuggestionsSchema = z.object({
+  suggestions: z.array(surveySuggestionSchema),
+  templates: z.array(
+    z.object({ kind: z.enum(surveyKinds), version: z.number().int(), questions: z.number().int() }),
+  ),
+});
+export type SurveySuggestions = z.infer<typeof surveySuggestionsSchema>;
+
+const participantInput = z
+  .object({
+    email: z.email().trim().toLowerCase().max(254),
+    name: z.string().trim().max(120).nullable(),
+    function: z.enum(surveyFunctions),
+  })
+  .strict();
+
+const sidedParticipant = participantInput.extend({ side: z.enum(surveySides) }).strict();
+
+export const startSurveyWaveSchema = z
+  .object({
+    kind: z.enum(surveyKinds),
+    dueDate: z.iso.date(),
+    participants: z.array(sidedParticipant).min(1).max(200),
+  })
+  .strict();
+export type StartSurveyWave = z.infer<typeof startSurveyWaveSchema>;
+
+/** Weitere Teilnehmende einladen; der Lieferant nur auf seiner Seite. */
+export const inviteSurveyParticipantsSchema = z
+  .object({ participants: z.array(sidedParticipant).min(1).max(200) })
+  .strict();
+export type InviteSurveyParticipants = z.infer<typeof inviteSurveyParticipantsSchema>;
+
+export const extendSurveyWaveSchema = z.object({ dueDate: z.iso.date() }).strict();
+export type ExtendSurveyWave = z.infer<typeof extendSurveyWaveSchema>;

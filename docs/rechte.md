@@ -46,3 +46,5 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `wirkung.sehen` | GuV-Wirkung der Initiativen, Baseline und Reifegrad sehen (nur Käufer) | ja | ja | ja | ja |
 | `wirkung.bearbeiten` | Wirkung einrichten, Baseline einfrieren, Reifegrad mit Nachweis erhöhen (nur Käufer, nicht mit Teamrolle Leser) | ja | ja | nein | nein |
 | `wirkung.freigeben` | Wirkung freigeben oder mit Begründung zurückweisen (nur Käufer, nur mit Zusatzrolle Controlling) | mit Controlling | mit Controlling | mit Controlling | nein |
+| `feedback.sehen` | Feedback-Wellen der Beziehung mit Rücklauf je Seite sehen (beide Seiten) | ja | ja | ja | ja |
+| `feedback.verwalten` | Feedback-Welle starten (Käufer: Admin oder SRO), eigene Teilnehmende einladen, eigene Seite abschließen | ja | ja | nein | nein |

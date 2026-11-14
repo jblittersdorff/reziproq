@@ -6,6 +6,7 @@ export const emailTemplates = [
   'approval',
   'escalation',
   'supplier_invitation',
+  'survey',
 ] as const;
 export const emailTemplateSchema = z.enum(emailTemplates);
 export const emailLocaleSchema = z.enum(['de', 'en']);

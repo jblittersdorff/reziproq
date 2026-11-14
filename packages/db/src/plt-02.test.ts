@@ -162,7 +162,9 @@ describe('PLT-02 in der Datenbank', () => {
       'supplier_contact',
       'supplier_plan',
       'support_access_log',
+      'survey_participant',
       'survey_template',
+      'survey_wave',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });
