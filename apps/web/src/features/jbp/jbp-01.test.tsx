@@ -40,7 +40,7 @@ const empty: JbpPreparation = {
   suggestedDate: '2099-01-15',
   meeting: null,
   agenda: [],
-  live: { rules: null },
+  live: { rules: null, feedback: null },
   updates: { buyer: null, supplier: null },
   ownSide: 'buyer',
   canEditOwnUpdate: false,
@@ -73,7 +73,15 @@ const prepared: JbpPreparation = {
       ready: false,
     },
   ],
-  live: { rules: { typeName: 'Strategischer Partner', sharedAt: '2026-11-01T08:00:00Z' } },
+  live: {
+    rules: { typeName: 'Strategischer Partner', sharedAt: '2026-11-01T08:00:00Z' },
+    feedback: {
+      waveId: '0190a0a0-0000-7000-8000-000000000077',
+      kind: 'annual',
+      revealedAt: '2026-10-31T08:00:00Z',
+      topGap: { dimension: 'transparency', delta: -0.9 },
+    },
+  },
   updates: {
     buyer: { text: 'Volumen plus 8 %.', updatedAt: '2026-11-08T08:00:00Z' },
     supplier: null,
@@ -128,7 +136,7 @@ describe('JBP-01 Vorbereitung in der Oberfläche', () => {
     expect(await screen.findByText('Joint Business Planning 2099')).toBeDefined();
   });
 
-  it('die Agenda zeigt je Punkt bereit oder fehlt, dazu die geteilten Spielregeln', async () => {
+  it('die Agenda zeigt je Punkt bereit oder fehlt, dazu die geteilten Spielregeln und das aufgedeckte Feedback', async () => {
     current = prepared;
     renderAt(base);
     const agenda = (await screen.findByRole('heading', { name: 'Agenda' }))
@@ -139,6 +147,8 @@ describe('JBP-01 Vorbereitung in der Oberfläche', () => {
     expect(
       within(agenda).getByText('Beziehungstyp und Spielregeln: Strategischer Partner'),
     ).toBeDefined();
+    // PUL-03: das aufgedeckte Feedback mit seiner größten Lücke, live aus der Welle.
+    expect(within(agenda).getByText('Größte Lücke: Transparenz 0,9')).toBeDefined();
     // Der Hinweis zum Lieferantenplan steht beim Käufer.
     expect(screen.getByText(/Der Lieferantenplan ist noch nicht freigegeben/)).toBeDefined();
   });

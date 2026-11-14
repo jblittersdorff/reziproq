@@ -300,6 +300,10 @@ export const surveyWaveSchema = z.object({
   status: z.enum(['open', 'closed']),
   /** Nur Anzahlen je Seite, nie Personen */
   turnout: z.object({ buyer: turnoutSchema, supplier: turnoutSchema }),
+  /** PUL-03: gesetzt, sobald die Ergebnisse für beide Seiten sichtbar sind */
+  revealedAt: z.string().nullable(),
+  /** PUL-03: größte Lücke (Ist Käufer − Ist Lieferant), erst nach der Aufdeckung */
+  topGap: z.object({ dimension: z.enum(surveyDimensions), delta: z.number() }).nullable(),
 });
 export type SurveyWave = z.infer<typeof surveyWaveSchema>;
 
@@ -336,6 +340,8 @@ export const surveyWaveDetailSchema = z.object({
   canInvite: z.boolean(),
   canClose: z.boolean(),
   canExtend: z.boolean(),
+  /** PUL-03: null bis zur Aufdeckung, für beide Seiten dieselben Zahlen */
+  results: z.lazy(() => surveyResultsSchema.nullable()),
 });
 export type SurveyWaveDetail = z.infer<typeof surveyWaveDetailSchema>;
 
@@ -406,3 +412,67 @@ export const submitSurveySchema = z
   })
   .strict();
 export type SubmitSurvey = z.infer<typeof submitSurveySchema>;
+
+// PUL-03: Auswertung und Wahrnehmungslücken.
+
+/** Mindestgröße einer Gruppe (Seite, Funktion), damit niemand zugeordnet werden kann. */
+export const surveyMinGroup = 3;
+
+const meanPairSchema = z.object({ ist: z.number().nullable(), soll: z.number().nullable() });
+export type SurveyMeanPair = z.infer<typeof meanPairSchema>;
+
+export const surveyDimensionResultSchema = z.object({
+  dimension: z.enum(surveyDimensions),
+  buyer: meanPairSchema,
+  supplier: meanPairSchema,
+  /** Ist Käufer − Ist Lieferant; null, wenn eine Seite nur „Kann ich nicht beurteilen“ hat */
+  delta: z.number().nullable(),
+});
+export type SurveyDimensionResult = z.infer<typeof surveyDimensionResultSchema>;
+
+export const surveyResultsSchema = z.object({
+  revealedAt: z.string(),
+  responses: z.object({ buyer: z.number().int(), supplier: z.number().int() }),
+  /** Sortiert nach der größten Lücke (Betrag) */
+  dimensions: z.array(surveyDimensionResultSchema),
+  topGaps: z.array(surveyDimensionResultSchema).max(3),
+  /** Nur Gruppen ab drei Antworten; eine Seite fehlt, wenn sie die Funktion nicht hat */
+  functions: z.array(
+    z.object({
+      function: z.enum(surveyFunctions),
+      buyer: z
+        .object({ n: z.number().int(), dimensions: z.array(surveyDimensionResultSchema) })
+        .nullable(),
+      supplier: z
+        .object({ n: z.number().int(), dimensions: z.array(surveyDimensionResultSchema) })
+        .nullable(),
+      dimensions: z.array(surveyDimensionResultSchema),
+    }),
+  ),
+  questions: z.array(
+    z.object({
+      key: z.string(),
+      dimension: z.enum(surveyDimensions),
+      labelDe: z.string(),
+      labelEn: z.string(),
+      buyer: meanPairSchema,
+      supplier: meanPairSchema,
+      delta: z.number().nullable(),
+    }),
+  ),
+  /** Freitexte der jeweils anderen Seite, ohne Funktion, in zufälliger Reihenfolge */
+  freeTexts: z.array(z.string()),
+});
+export type SurveyResults = z.infer<typeof surveyResultsSchema>;
+
+/** Lücke je Dimension: Ist Käufer − Ist Lieferant, auf zwei Stellen. */
+export function surveyGap(buyer: number | null, supplier: number | null): number | null {
+  if (buyer === null || supplier === null) return null;
+  return Math.round((buyer - supplier) * 100) / 100;
+}
+
+/** Nach dem Betrag der Lücke absteigend; Dimensionen ohne Lücke ans Ende. */
+export function sortByGap<T extends { delta: number | null }>(items: T[]): T[] {
+  const size = (delta: number | null) => (delta === null ? -1 : Math.abs(delta));
+  return [...items].sort((a, b) => size(b.delta) - size(a.delta));
+}

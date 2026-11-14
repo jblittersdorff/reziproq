@@ -45,9 +45,29 @@ export const jbpPreparationSchema = z.object({
       ready: z.boolean().nullable(),
     }),
   ),
-  /** Live aus ihrem Ort: Spielregeln nur, wenn geteilt (SEG-10); Feedback folgt mit Block F */
+  /** Live aus ihrem Ort: Spielregeln nur, wenn geteilt (SEG-10); Feedback nur, wenn aufgedeckt (PUL-03) */
   live: z.object({
     rules: z.object({ typeName: z.string(), sharedAt: z.string() }).nullable(),
+    /** PUL-03: jüngste aufgedeckte Feedback-Welle mit ihrer größten Lücke */
+    feedback: z
+      .object({
+        waveId: z.uuid(),
+        kind: z.enum(['pulse', 'annual']),
+        revealedAt: z.string(),
+        topGap: z
+          .object({
+            dimension: z.enum([
+              'trust',
+              'collaboration',
+              'integration',
+              'transparency',
+              'strategy',
+            ]),
+            delta: z.number(),
+          })
+          .nullable(),
+      })
+      .nullable(),
   }),
   updates: z.object({
     buyer: z.object({ text: z.string(), updatedAt: z.string() }).nullable(),

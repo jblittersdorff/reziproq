@@ -90,9 +90,31 @@ export const scorecardCycleStepSource: CycleStepSource = {
   },
 };
 
+/**
+ * PUL-03: Feedback erledigt, sobald eine Welle aus diesem Zyklus aufgedeckt ist; begonnen, sobald
+ * eine Welle läuft. Wellen hängen nicht am Zyklus, deshalb zählt der Start nach Zyklusbeginn.
+ */
+export const feedbackCycleStepSource: CycleStepSource = {
+  key: 'feedback',
+  async cycleStepStatus(cycle, tx) {
+    const waves = await tx
+      .select({ revealedAt: schema.surveyWave.revealedAt })
+      .from(schema.surveyWave)
+      .where(
+        and(
+          eq(schema.surveyWave.relationshipId, cycle.relationshipId),
+          gte(schema.surveyWave.createdAt, cycle.startedAt),
+        ),
+      );
+    if (waves.some((wave) => wave.revealedAt !== null)) return 'completed';
+    return waves.length > 0 ? 'in_progress' : 'open';
+  },
+};
+
 /** Wohin ein Schritt der Zyklus-Leiste führt, sobald sein Modul gebaut ist. */
 const stepPaths: Partial<Record<CycleStepKey, string>> = {
   segment: 'strategie/segmentierung',
+  feedback: 'beziehung/feedback',
   supplierPlan: 'strategie/lieferantenplan',
   jbp: 'plan/freigabe',
   scorecard: 'plan/scorecard',

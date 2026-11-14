@@ -2486,6 +2486,27 @@ export const de = {
     closedAt: (side: string, date: string) => `${side} abgeschlossen am ${date}`,
     cancel: 'Abbrechen',
     save: 'Speichern',
+    revealed: 'Aufgedeckt',
+    target: 'Soll',
+    pairLine: (a: string, av: string, b: string, bv: string) => `${a} ${av} · ${b} ${bv}`,
+    gapLine: (gap: string) => `Lücke ${gap}`,
+    resultsTitle: 'Ergebnis',
+    resultsPurpose: (buyer: number, supplier: number) =>
+      `Ist von 1 bis 5 je Dimension, sortiert nach der größten Lücke. ${buyer} und ${supplier} Antworten.`,
+    topGap: (rank: number) => `Größte Lücke ${rank}`,
+    byFunction: 'Nach Funktion',
+    overall: 'Gesamt',
+    groupNote: (buyer: number, supplier: number) =>
+      `Eure Seite ${buyer || '–'} · Lieferant ${supplier || '–'} Antworten in dieser Funktion`,
+    chartCaption: 'Ist je Dimension: Punkt eure Seite, Ring Lieferant, Striche das Soll.',
+    minGroup: 'Funktionen erscheinen erst ab drei Antworten, damit niemand zugeordnet werden kann.',
+    byQuestion: 'Je Frage',
+    freeTexts: (side: string) => `Was ${side} schreibt`,
+    noFreeTexts: 'Keine Freitexte.',
+    waiting:
+      'Ergebnisse erscheinen, wenn beide Seiten abgeschlossen haben oder die Frist vorbei ist.',
+    tooFew: 'Zu wenige Antworten für eine Auswertung: Jede Seite braucht mindestens drei.',
+    biggestGap: (dimension: string, gap: string) => `Größte Lücke: ${dimension} ${gap}`,
     notFound: 'Diese Welle gibt es nicht.',
   },
   surveyAnswer: {
@@ -2510,7 +2531,8 @@ export const de = {
     back: 'Zurück',
     submit: 'Absenden',
     missing: 'Bitte zu jeder Frage Ist und Soll wählen, oder „Kann ich nicht beurteilen“.',
-    submitFailed: 'Das Absenden hat nicht geklappt. Deine Antworten sind gespeichert; bitte erneut versuchen.',
+    submitFailed:
+      'Das Absenden hat nicht geklappt. Deine Antworten sind gespeichert; bitte erneut versuchen.',
     saved: 'Zwischenstand auf diesem Gerät gespeichert.',
   },
   surveyForm: {

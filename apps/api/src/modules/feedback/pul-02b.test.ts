@@ -145,9 +145,7 @@ describe('PUL-02b Beantworten ohne Anmeldung', () => {
     ]);
     // Keine Zeit, die sich mit completed_at verbinden ließe; die ID ist zufällig (v4).
     expect(columns.rows.filter((row) => row.data_type.startsWith('timestamp'))).toEqual([]);
-    expect(columns.rows.find((row) => row.column_name === 'id')?.default).toBe(
-      'gen_random_uuid()',
-    );
+    expect(columns.rows.find((row) => row.column_name === 'id')?.default).toBe('gen_random_uuid()');
     const references = await db.execute<{ target: string }>(sql`
       select confrelid::regclass::text as target from pg_constraint
       where conrelid = 'survey_response'::regclass and contype = 'f' order by 1

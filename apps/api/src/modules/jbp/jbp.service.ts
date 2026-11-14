@@ -8,6 +8,7 @@ import {
   eq,
   inArray,
   schema,
+  sql,
   type TenantTransaction,
 } from '@reziproq/db';
 import {
@@ -26,6 +27,7 @@ import { jbpAudit, jbpBusinessUpdateAudit, meetingAudit } from '../audit/audited
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { topGapOf } from '../feedback/results.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -176,7 +178,31 @@ export class JbpService {
       })
       .from(schema.relationshipTarget)
       .where(eq(schema.relationshipTarget.relationshipId, scope.relationshipId));
+    // PUL-03: Feedback-Ergebnis nur, wenn eine Welle aufgedeckt ist; für beide Seiten gleich.
+    const [revealed] = await tx
+      .select({
+        id: schema.surveyWave.id,
+        kind: schema.surveyWave.kind,
+        revealedAt: schema.surveyWave.revealedAt,
+      })
+      .from(schema.surveyWave)
+      .where(
+        and(
+          eq(schema.surveyWave.relationshipId, scope.relationshipId),
+          sql`${schema.surveyWave.revealedAt} is not null`,
+        ),
+      )
+      .orderBy(desc(schema.surveyWave.revealedAt))
+      .limit(1);
     const live = {
+      feedback: revealed?.revealedAt
+        ? {
+            waveId: revealed.id,
+            kind: revealed.kind,
+            revealedAt: revealed.revealedAt.toISOString(),
+            topGap: await topGapOf(tx, revealed.id),
+          }
+        : null,
       rules: target ? { typeName: target.typeName, sharedAt: target.sharedAt.toISOString() } : null,
     };
     const buyerHint =

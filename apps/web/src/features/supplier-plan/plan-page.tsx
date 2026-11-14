@@ -22,6 +22,7 @@ import {
   reorderStrategicTopics,
   submitSupplierPlan,
   supplierPlanQueryOptions,
+  surveyWavesQueryOptions,
 } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
 import { useLocale, useT } from '@/lib/i18n';
@@ -395,8 +396,27 @@ function ReferenceTiles({
         currency: latestSpend.amount.currency,
       }).format(latestSpend.amount.amountCents / 100)
     : t.workspace.metrics.noSpend;
+  // PUL-03: größte Lücke der jüngsten aufgedeckten Welle, aus ihrem Ort.
+  const accessToken = useToken();
+  const waves = useQuery({
+    ...surveyWavesQueryOptions(accessToken, 'buyer', relationshipId),
+    enabled: accessToken !== '',
+  });
+  const revealed = waves.data?.waves.find((wave) => wave.revealedAt && wave.topGap);
+  const feedbackValue = revealed?.topGap
+    ? t.feedback.biggestGap(
+        t.settings.survey.dimensions[revealed.topGap.dimension] ?? '',
+        new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(
+          Math.abs(revealed.topGap.delta),
+        ),
+      )
+    : t.supplierPlan.notAvailable;
   const cards = [
-    { title: t.supplierPlan.feedback, value: t.supplierPlan.notAvailable },
+    {
+      title: t.supplierPlan.feedback,
+      value: feedbackValue,
+      href: `/lieferanten/${relationshipId}/beziehung/feedback`,
+    },
     {
       title: t.supplierPlan.spend,
       value: spendValue,
