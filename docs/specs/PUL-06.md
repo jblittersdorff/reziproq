@@ -24,13 +24,28 @@ Aus einer Wahrnehmungslücke wird mit einem Klick eine Maßnahme. Beide Seiten s
 2. **Ihr habt gesagt, wir haben gehandelt:** Ein Abschnitt auf der Ergebnis-Seite listet alle Maßnahmen zu dieser Welle mit Status.
 3. **Verlauf:** Ab zwei aufgedeckten Wellen zeigt die Feedback-Seite je Dimension eine Linie des Ist-Werts beider Seiten über die Wellen. Puls und Jahres-Feedback sind getrennt.
 
+## Umsetzung
+
+- Quelle der Maßnahme ist die Ergebniszeile der Dimension (gesamt, Käuferseite; ohne Käuferzeile die
+  des Lieferanten). Die API prüft, dass sie zur Beziehung gehört und keine Funktions- oder
+  Fragezeile ist. Die Maßnahme trägt dazu `sourceDimension`, damit Listen „Feedback-Lücke:
+  Transparenz“ zeigen.
+- „Maßnahme anlegen“ führt zur Seite für eine neue Maßnahme der eigenen Seite mit
+  `?luecke=<Ergebniszeile>&dimension=<Dimension>`; Titel „Lücke … schließen“ ist vorbefüllt.
+  Angezeigt nur für Personen, die Maßnahmen anlegen dürfen (wie QBR-03), und nur im Gesamtbild,
+  nicht je Funktion.
+- „Ihr habt gesagt, wir haben gehandelt“ liest die Maßnahmen mit dieser Quelle über die normale
+  Mandanten-Session; interne Maßnahmen der anderen Seite filtert RLS heraus.
+- Verlauf: in der Liste der Wellen je Art ab zwei aufgedeckten Wellen, je Dimension ein kleines
+  Diagramm (eure Seite durchgezogen, Lieferant gestrichelt) mit allen Werten als Tabelle darunter.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Eine Maßnahme aus einer Lücke trägt die richtige Quelle und erscheint in der Maßnahmenliste und im Abschnitt der Welle.
-- [ ] Der Verlauf zeigt ab zwei Wellen die richtigen Werte und vermischt Puls und Jahres-Feedback nicht.
-- [ ] Beide Seiten sehen denselben Abschnitt „Ihr habt gesagt, wir haben gehandelt“. Interne Maßnahmen erscheinen dort nur für die eigene Seite.
+- [x] Eine Maßnahme aus einer Lücke trägt die richtige Quelle und erscheint in der Maßnahmenliste und im Abschnitt der Welle.
+- [x] Der Verlauf zeigt ab zwei Wellen die richtigen Werte und vermischt Puls und Jahres-Feedback nicht.
+- [x] Beide Seiten sehen denselben Abschnitt „Ihr habt gesagt, wir haben gehandelt“. Interne Maßnahmen erscheinen dort nur für die eigene Seite.
 
 ## Nicht Teil dieser Funktion
 

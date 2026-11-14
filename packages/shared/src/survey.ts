@@ -307,9 +307,24 @@ export const surveyWaveSchema = z.object({
 });
 export type SurveyWave = z.infer<typeof surveyWaveSchema>;
 
+/** PUL-06: Verlauf je Art ab zwei aufgedeckten Wellen; Ist je Dimension und Seite, älteste zuerst. */
+export const surveyTrendSchema = z.object({
+  kind: z.enum(surveyKinds),
+  waves: z.array(z.object({ id: z.uuid(), revealedAt: z.string() })),
+  dimensions: z.array(
+    z.object({
+      dimension: z.enum(surveyDimensions),
+      buyer: z.array(z.number().nullable()),
+      supplier: z.array(z.number().nullable()),
+    }),
+  ),
+});
+export type SurveyTrend = z.infer<typeof surveyTrendSchema>;
+
 export const surveyWavesSchema = z.object({
   waves: z.array(surveyWaveSchema),
   canStart: z.boolean(),
+  trends: z.array(surveyTrendSchema),
 });
 export type SurveyWaves = z.infer<typeof surveyWavesSchema>;
 
@@ -423,6 +438,8 @@ export type SurveyMeanPair = z.infer<typeof meanPairSchema>;
 
 export const surveyDimensionResultSchema = z.object({
   dimension: z.enum(surveyDimensions),
+  /** PUL-06: Ergebniszeile als Quelle einer Maßnahme (gesamt, Käuferseite sonst Lieferantenseite) */
+  resultId: z.uuid().nullable(),
   buyer: meanPairSchema,
   supplier: meanPairSchema,
   /** Ist Käufer − Ist Lieferant; null, wenn eine Seite nur „Kann ich nicht beurteilen“ hat */
@@ -462,6 +479,21 @@ export const surveyResultsSchema = z.object({
   ),
   /** Freitexte der jeweils anderen Seite, ohne Funktion, in zufälliger Reihenfolge */
   freeTexts: z.array(z.string()),
+  /** PUL-06: „Ihr habt gesagt, wir haben gehandelt“; interne nur für die eigene Seite */
+  actions: z.array(
+    z.object({
+      id: z.uuid(),
+      title: z.string(),
+      dimension: z.enum(surveyDimensions),
+      status: z.enum(['open', 'in_progress', 'done', 'cancelled']),
+      visibility: z.enum(['internal', 'shared']),
+      own: z.boolean(),
+      ownerName: z.string(),
+      dueDate: z.iso.date(),
+    }),
+  ),
+  /** PUL-06: Darf diese Person aus einer Lücke eine Maßnahme anlegen? */
+  canCreateAction: z.boolean(),
 });
 export type SurveyResults = z.infer<typeof surveyResultsSchema>;
 

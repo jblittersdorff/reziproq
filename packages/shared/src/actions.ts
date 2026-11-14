@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { meetingSides } from './meetings.js';
+import { surveyDimensions } from './survey.js';
 
 // QBR-03: Maßnahmen einer Beziehung, geteilt oder intern, mit genau einer Quelle.
 
 export const actionStatuses = ['open', 'in_progress', 'done', 'cancelled'] as const;
 export const actionSourceTypes = ['meeting', 'feedback_gap', 'initiative', 'manual'] as const;
 /** Was die Oberfläche heute anlegen kann; die übrigen Quellen kommen mit ihren Modulen. */
-export const creatableSources = ['manual', 'meeting'] as const;
+export const creatableSources = ['manual', 'meeting', 'feedback_gap'] as const;
 
 export type ActionStatus = (typeof actionStatuses)[number];
 
@@ -28,6 +29,8 @@ export const actionItemSchema = z.object({
   sourceId: z.uuid().nullable(),
   /** z. B. der Titel des Termins */
   sourceTitle: z.string().nullable(),
+  /** PUL-06: Dimension der Lücke, aus der die Maßnahme stammt */
+  sourceDimension: z.enum(surveyDimensions).nullable(),
   /** Inhalt bearbeiten: eigene Seite mit Recht zum Bearbeiten */
   canEdit: z.boolean(),
   /** Status ändern: beide Seiten bei geteilten, die eigene bei internen */

@@ -146,7 +146,11 @@ beforeEach(() => {
     const rest = match[2] ?? '';
     if (request.method !== 'GET') sent.push(request);
     if (rest === '' && request.method === 'GET') {
-      const list: SurveyWaves = { waves: [wave], canStart: match[1] === 'suppliers' && canStart };
+      const list: SurveyWaves = {
+        waves: [wave],
+        canStart: match[1] === 'suppliers' && canStart,
+        trends: [],
+      };
       return Response.json(list);
     }
     if (rest === '/vorschlaege') {

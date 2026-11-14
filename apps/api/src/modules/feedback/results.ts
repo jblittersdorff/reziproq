@@ -1,10 +1,11 @@
-import { and, asc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, asc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type SurveyDimension,
   type SurveyDimensionResult,
   type SurveyFunction,
   type SurveyResults,
   type SurveySide,
+  type SurveyTrend,
   sortByGap,
   surveyDimensions,
   surveyGap,
@@ -40,6 +41,7 @@ function dimensionsOf(rows: ResultRow[]): SurveyDimensionResult[] {
         });
         return {
           dimension,
+          resultId: (buyer ?? supplier)?.id ?? null,
           buyer: pair(buyer),
           supplier: pair(supplier),
           delta: surveyGap(mean(buyer?.istMean ?? null), mean(supplier?.istMean ?? null)),
@@ -69,6 +71,7 @@ export async function resultsOf(
   waveId: string,
   ownSide: SurveySide,
   revealedAt: Date,
+  canCreateAction: boolean,
 ): Promise<SurveyResults> {
   const rows = await tx
     .select()
@@ -118,6 +121,23 @@ export async function resultsOf(
       ),
     )
     .orderBy(asc(schema.surveyFreeText.position));
+  // PUL-06: Maßnahmen aus Lücken dieser Welle; RLS zeigt interne nur der eigenen Seite.
+  const overallIds = overall.map((row) => row.id);
+  const actions =
+    overallIds.length === 0
+      ? []
+      : await tx
+          .select({ action: schema.action, dimension: schema.surveyResult.dimension })
+          .from(schema.action)
+          .innerJoin(schema.surveyResult, eq(schema.surveyResult.id, schema.action.sourceId))
+          .where(
+            and(
+              eq(schema.action.sourceType, 'feedback_gap'),
+              inArray(schema.action.sourceId, overallIds),
+            ),
+          )
+          .orderBy(asc(schema.action.dueDate));
+  const ownOrg = await tx.execute<{ id: string }>(sql`select app_current_organization_id() as id`);
   const count = (side: SurveySide) => overall.find((row) => row.side === side)?.n ?? 0;
   return {
     revealedAt: revealedAt.toISOString(),
@@ -127,5 +147,64 @@ export async function resultsOf(
     functions,
     questions: sortByGap(questions),
     freeTexts: texts.map((row) => row.text),
+    actions: actions.map(({ action, dimension }) => ({
+      id: action.id,
+      title: action.title,
+      dimension: dimension as SurveyDimension,
+      status: action.status,
+      visibility: action.visibility,
+      own: action.ownerOrgId === ownOrg.rows[0]?.id,
+      ownerName: action.ownerName,
+      dueDate: action.dueDate,
+    })),
+    canCreateAction,
   };
+}
+
+/** PUL-06: Verlauf je Art ab zwei aufgedeckten Wellen, älteste zuerst; Puls und Jahr getrennt. */
+export async function trendsOf(
+  tx: TenantTransaction,
+  waves: { id: string; kind: 'pulse' | 'annual'; revealedAt: Date | null }[],
+): Promise<SurveyTrend[]> {
+  const revealed = waves
+    .filter((wave): wave is typeof wave & { revealedAt: Date } => wave.revealedAt !== null)
+    .sort((a, b) => a.revealedAt.getTime() - b.revealedAt.getTime());
+  const trends: SurveyTrend[] = [];
+  for (const kind of ['pulse', 'annual'] as const) {
+    const ofKind = revealed.filter((wave) => wave.kind === kind);
+    if (ofKind.length < 2) continue;
+    const rows = await tx
+      .select()
+      .from(schema.surveyResult)
+      .where(
+        and(
+          inArray(
+            schema.surveyResult.waveId,
+            ofKind.map((wave) => wave.id),
+          ),
+          sql`${schema.surveyResult.function} is null`,
+          sql`${schema.surveyResult.questionKey} is null`,
+        ),
+      );
+    const series = (dimension: SurveyDimension, side: SurveySide) =>
+      ofKind.map((wave) =>
+        mean(
+          rows.find(
+            (row) => row.waveId === wave.id && row.side === side && row.dimension === dimension,
+          )?.istMean ?? null,
+        ),
+      );
+    trends.push({
+      kind,
+      waves: ofKind.map((wave) => ({ id: wave.id, revealedAt: wave.revealedAt.toISOString() })),
+      dimensions: surveyDimensions
+        .filter((dimension) => rows.some((row) => row.dimension === dimension))
+        .map((dimension) => ({
+          dimension,
+          buyer: series(dimension, 'buyer'),
+          supplier: series(dimension, 'supplier'),
+        })),
+    });
+  }
+  return trends;
 }

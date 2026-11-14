@@ -151,6 +151,7 @@ export class ActionsService {
     scope: { buyerOrgId: string; orgId: string; canEdit: boolean },
     row: ActionRow,
     sourceTitle: string | null,
+    sourceDimension: string | null = null,
   ): ActionItem {
     const own = row.ownerOrgId === scope.orgId;
     return {
@@ -169,6 +170,7 @@ export class ActionsService {
       sourceType: row.sourceType,
       sourceId: row.sourceId,
       sourceTitle,
+      sourceDimension: (sourceDimension as ActionItem['sourceDimension']) ?? null,
       canEdit: scope.canEdit && own,
       canChangeStatus: scope.canEdit && (own || row.visibility === 'shared'),
     };
@@ -178,11 +180,22 @@ export class ActionsService {
   private async rows(tx: TenantTransaction, relationshipIds: string[], openOnly = false) {
     if (relationshipIds.length === 0) return [];
     return tx
-      .select({ action: schema.action, meetingTitle: schema.meeting.title })
+      .select({
+        action: schema.action,
+        meetingTitle: schema.meeting.title,
+        gapDimension: schema.surveyResult.dimension,
+      })
       .from(schema.action)
       .leftJoin(
         schema.meeting,
         and(eq(schema.action.sourceType, 'meeting'), eq(schema.meeting.id, schema.action.sourceId)),
+      )
+      .leftJoin(
+        schema.surveyResult,
+        and(
+          eq(schema.action.sourceType, 'feedback_gap'),
+          eq(schema.surveyResult.id, schema.action.sourceId),
+        ),
       )
       .where(
         and(
@@ -196,7 +209,9 @@ export class ActionsService {
   async list(scope: ActionScope): Promise<ActionList> {
     const rows = await this.rows(scope.tx, [scope.relationshipId]);
     return actionListSchema.parse({
-      actions: rows.map((row) => this.toAction(scope, row.action, row.meetingTitle)),
+      actions: rows.map((row) =>
+        this.toAction(scope, row.action, row.meetingTitle, row.gapDimension),
+      ),
       canCreate: scope.canEdit,
       people: scope.canEdit ? await this.people(scope) : [],
     });
@@ -204,7 +219,7 @@ export class ActionsService {
 
   async get(scope: ActionScope, actionId: string): Promise<ActionItem> {
     const row = await this.row(scope, actionId);
-    return this.toAction(scope, row.action, row.meetingTitle);
+    return this.toAction(scope, row.action, row.meetingTitle, row.gapDimension);
   }
 
   private async row(scope: ActionScope, actionId: string) {
@@ -254,6 +269,21 @@ export class ActionsService {
           ),
         );
       if (!meeting) throw new BadRequestException({ statusCode: 400, code: 'quelle_unbekannt' });
+    }
+    if (input.sourceType === 'feedback_gap') {
+      // PUL-06: Die Quelle ist die Ergebniszeile einer Dimension (gesamt) dieser Beziehung.
+      const [result] = await tx
+        .select({ id: schema.surveyResult.id })
+        .from(schema.surveyResult)
+        .where(
+          and(
+            eq(schema.surveyResult.id, input.sourceId as string),
+            eq(schema.surveyResult.relationshipId, scope.relationshipId),
+            sql`${schema.surveyResult.function} is null`,
+            sql`${schema.surveyResult.questionKey} is null`,
+          ),
+        );
+      if (!result) throw new BadRequestException({ statusCode: 400, code: 'quelle_unbekannt' });
     }
     const owner = await this.owner(scope, input.action);
     const actor = await actorOf(tx, scope.auth, scope.orgId);
@@ -375,7 +405,7 @@ export class ActionsService {
       };
       for (const row of await this.rows(tx, [entry.relationshipId], true)) {
         items.push({
-          ...this.toAction(scope, row.action, row.meetingTitle),
+          ...this.toAction(scope, row.action, row.meetingTitle, row.gapDimension),
           relationshipId: entry.relationshipId,
           counterpart: entry.counterpart,
           href: `${entry.base}/umsetzung/massnahmen#${row.action.id}`,

@@ -51,6 +51,7 @@ const item = (n: number, overrides: Partial<ActionItem> = {}): ActionItem => ({
   sourceType: 'manual',
   sourceId: null,
   sourceTitle: null,
+  sourceDimension: null,
   canEdit: true,
   canChangeStatus: true,
   ...overrides,
