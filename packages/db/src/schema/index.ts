@@ -16,3 +16,4 @@ export * from './action.js';
 export * from './impact.js';
 export * from './initiative.js';
 export * from './jbp.js';
+export * from './survey.js';

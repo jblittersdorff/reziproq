@@ -4,9 +4,16 @@
 /** Mindestwerte nach WCAG AA */
 export const minimumContrast = { text: 4.5, large: 3 } as const;
 
-/** Relative Leuchtdichte einer Farbe im Format #rrggbb. */
-export function luminance(hex: string): number {
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) throw new Error(`Farbe im Format #rrggbb erwartet: ${hex}`);
+/**
+ * Relative Leuchtdichte einer Farbe im Format #rrggbb oder kurz #rgb. Die Kurzform entsteht im
+ * gebauten CSS, weil der Minifier sechsstellige Farben mit doppelten Ziffern auf drei kürzt.
+ */
+export function luminance(color: string): number {
+  const short = /^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/.exec(color);
+  const hex = short ? `#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}` : color;
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    throw new Error(`Farbe im Format #rrggbb oder #rgb erwartet: ${color}`);
+  }
   const [r = 0, g = 0, b = 0] = [1, 3, 5]
     .map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255)
     .map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));

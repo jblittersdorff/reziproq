@@ -18,6 +18,7 @@ export function allRoutes(): string[] {
       .replace('$id', id)
       .replace('$jahr', '2025')
       .replace('$nutzer', 'nina')
+      .replace('$kind', 'pulse')
       .replace(/\/\$$/, '/gibt-es-nicht')
       // Weitere Parameter wie $key oder $topicId bekommen die Beispiel-ID.
       .replace(/\$[A-Za-z]+/g, id)
@@ -27,6 +28,11 @@ export function allRoutes(): string[] {
 
 export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
   const zitadel = await fakeZitadel(page);
+  // Alles, was ein Test nicht nachspielt, antwortet sofort mit 404: kein Proxy-Fehler, keine
+  // Wiederholungen. Später registrierte Routen haben Vorrang.
+  await page.route('**/api/**', (route) =>
+    route.fulfill({ status: 404, json: { statusCode: 404, code: 'nicht_gefunden' } }),
+  );
   await page.route('**/api/me', (route) =>
     route.fulfill({
       json: {
@@ -155,6 +161,17 @@ export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
   );
   await page.route('**/api/organisation/mitglieder/*', (route) =>
     route.fulfill({ json: members[1] }),
+  );
+  // Lieferantenseite (LIF-02): ein Kunde mit Arbeitsbereich, damit /kunden/<id>/… Titel zeigt.
+  await page.route('**/api/kunden', (route) =>
+    route.fulfill({
+      json: { customers: [{ relationshipId: id, name: 'Test-OEM (Demo)', nextMeeting: null }] },
+    }),
+  );
+  await page.route(`**/api/kunden/${id}`, (route) =>
+    route.fulfill({
+      json: { relationshipId: id, name: 'Test-OEM (Demo)', relationshipType: null, nextMeeting: null },
+    }),
   );
   await page.route('**/api/betreiber/kunden', (route) =>
     route.fulfill({

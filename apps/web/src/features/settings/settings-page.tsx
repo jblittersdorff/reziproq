@@ -1,4 +1,4 @@
-import { Building2Icon, CalendarRangeIcon, ReceiptEuroIcon } from 'lucide-react';
+import { Building2Icon, CalendarRangeIcon, ClipboardListIcon, ReceiptEuroIcon } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
@@ -49,6 +49,15 @@ export function SettingsPage() {
               label={t.settings.pnlLines.navTitle}
               description={t.settings.pnlLines.navHint}
               icon={<ReceiptEuroIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
+          {permissions.viewBuyerAreas && (
+            <SettingsLinkRow
+              href="/einstellungen/fragebogen"
+              label={t.settings.survey.navTitle}
+              description={t.settings.survey.navHint}
+              icon={<ClipboardListIcon aria-hidden />}
               renderLink={routerLink}
             />
           )}

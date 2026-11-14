@@ -65,13 +65,28 @@ Beide Seiten beantworten denselben kurzen, verständlichen Fragebogen auf Deutsc
 3. Änderungen erzeugen eine neue Version. Laufende Wellen behalten ihre Version.
 4. **Vorschau** zeigt den Fragebogen genau so, wie Teilnehmende ihn sehen.
 
+## Umsetzung
+
+- Eine Tabelle statt zwei: `survey_template` (`org_private`, nur anfügbar) hält je Version alle
+  Fragen als JSON (`key`, `dimension`, `textDe`, `textEn`, `active`, `custom`). Ändern und Löschen
+  lehnt die Datenbank ab; jede Änderung (auch ein Schalter) ist eine neue Version. Der `key` bleibt
+  über Versionen gleich, damit PUL-03 Fragen vergleichen kann. Ein Feld `status` braucht es nicht:
+  gültig ist die jüngste Version, Wellen (PUL-02) zeigen auf ihre.
+- Der Standard von Reziproq steht im Code (`defaultSurveyQuestions` in `packages/shared`), nicht als
+  globale Zeilen. Version 1 je Käuferorganisation entsteht beim ersten Lesen daraus, wie bei den
+  GuV-Zeilen (PNL-01). Die englischen Texte hat Claude Code übersetzt; die Gründer prüfen sie.
+- Standardfragen behalten ihre Dimension, eigene Fragen erscheinen am Ende ihrer Dimension.
+- Nur Admins des Käufers (`einstellungen.verwalten`) sehen und ändern den Fragebogen.
+- Die Vorschau nutzt dieselbe Darstellung, mit der Teilnehmende in PUL-02 antworten, und zeigt
+  wahlweise Deutsch oder Englisch.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Jede neue Käuferorganisation hat beide Standard-Fragebögen auf Deutsch und Englisch.
-- [ ] Jede Frage hat Text in beiden Sprachen, sonst lässt sie sich nicht aktivieren.
-- [ ] Eine Änderung erzeugt eine neue Version, laufende Wellen bleiben unverändert.
+- [x] Jede neue Käuferorganisation hat beide Standard-Fragebögen auf Deutsch und Englisch.
+- [x] Jede Frage hat Text in beiden Sprachen, sonst lässt sie sich nicht aktivieren.
+- [x] Eine Änderung erzeugt eine neue Version, laufende Wellen bleiben unverändert.
 - [ ] Der Puls ist in unter fünf Minuten ausgefüllt (von Hand geprüft, im Pull Request notiert).
 
 ## Nicht Teil dieser Funktion

@@ -13,11 +13,17 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   // Eigener Server mit erfundenen Zitadel-Werten; die Tests spielen Zitadel und API im Browser nach.
   // Gesetzte Umgebungsvariablen haben Vorrang vor der .env.
+  // Gebaut und mit vite preview ausgeliefert: Der Entwicklungsserver übersetzt jede Route beim
+  // ersten Aufruf und lief beim Rundgang über alle Routen auf dem CI-Rechner aus dem Speicher.
   webServer: {
-    command: 'pnpm dev --port 5174 --strictPort',
+    command:
+      'pnpm exec vite build --outDir dist/e2e --emptyOutDir --logLevel warn && pnpm exec vite preview --outDir dist/e2e --port 5174 --strictPort',
+    timeout: 300_000,
     url: 'http://localhost:5174',
     reuseExistingServer: false,
     env: {
+      // Der Bau braucht mehr als den Standard-Speicher von Node.
+      NODE_OPTIONS: '--max-old-space-size=4096',
       ZITADEL_ISSUER: 'https://zitadel.test',
       ZITADEL_CLIENT_ID: 'web-client',
     },

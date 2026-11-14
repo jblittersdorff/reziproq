@@ -112,6 +112,7 @@ import {
   type SaveRating,
   type SaveRuleItem,
   type SaveRuleSet,
+  type SaveSurveyQuestion,
   type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
@@ -119,6 +120,7 @@ import {
   type SpendRequest,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  type SurveyKind,
   scorecardSettingSchema,
   scorecardViewSchema,
   segmentationSchema,
@@ -130,6 +132,8 @@ import {
   supplierPlanResponseSchema,
   suppliersResponseSchema,
   supportHeader,
+  surveyDetailSchema,
+  surveysSchema,
   teamResponseSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
@@ -1660,6 +1664,35 @@ export const savePnlLine = (accessToken: string, key: string | null, request: Sa
     key ? `/pnl-lines/${encodeURIComponent(key)}` : '/pnl-lines',
     request,
     pnlLinesSchema,
+    accessToken,
+  );
+
+/** PUL-01: Fragebogen der Organisation; jede Änderung eine neue Version. */
+export const surveysQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['surveys'],
+    queryFn: () => getJson('/fragebogen', surveysSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const surveyQueryOptions = (accessToken: string, kind: SurveyKind) =>
+  queryOptions({
+    queryKey: ['surveys', kind],
+    queryFn: () => getJson(`/fragebogen/${kind}`, surveyDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveSurveyQuestion = (
+  accessToken: string,
+  kind: SurveyKind,
+  key: string | null,
+  request: SaveSurveyQuestion,
+) =>
+  sendJson(
+    key ? 'PUT' : 'POST',
+    key ? `/fragebogen/${kind}/fragen/${encodeURIComponent(key)}` : `/fragebogen/${kind}/fragen`,
+    request,
+    surveyDetailSchema,
     accessToken,
   );
 
