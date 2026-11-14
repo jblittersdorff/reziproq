@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CustomersModule } from '../customers/customers.module.js';
 import { EmailModule } from '../email/email.module.js';
+import { AnswerService } from './answer.service.js';
 import { SurveyController } from './feedback.controller.js';
 import { SurveyService } from './survey.service.js';
-import { AnswerService } from './answer.service.js';
 import {
   BuyerWavesController,
   PublicSurveyController,

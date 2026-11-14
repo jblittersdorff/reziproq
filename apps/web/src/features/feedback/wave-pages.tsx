@@ -45,6 +45,7 @@ import {
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { ResultsSection } from './results-section';
 
 // PUL-02a: Feedback-Wellen unter Beziehung › Feedback, für beide Seiten mit denselben Seiten.
 // Der Käufer startet (SRO oder Admin) und lädt beide Seiten ein; der Lieferant lädt eigene ein.
@@ -203,8 +204,20 @@ export function WavesPage({ side, relationshipId }: { side: SurveySide; relation
                 })}
                 <TurnoutLine wave={wave} side={side} />
               </span>
-              <Badge variant={wave.status === 'open' ? 'success' : 'neutral'}>
-                {text.statuses[wave.status]}
+              {wave.topGap && (
+                <span className="text-sm">
+                  {text.biggestGap(
+                    t.settings.survey.dimensions[wave.topGap.dimension] ?? '',
+                    format.number(Math.abs(wave.topGap.delta)),
+                  )}
+                </span>
+              )}
+              <Badge
+                variant={
+                  wave.revealedAt ? 'selected' : wave.status === 'open' ? 'success' : 'neutral'
+                }
+              >
+                {wave.revealedAt ? text.revealed : text.statuses[wave.status]}
               </Badge>
             </li>
           ))}
@@ -780,8 +793,8 @@ function WaveBody({
   return (
     <div className="flex max-w-4xl flex-col gap-8">
       <div className="flex flex-wrap items-center gap-3">
-        <Badge variant={wave.status === 'open' ? 'success' : 'neutral'}>
-          {text.statuses[wave.status]}
+        <Badge variant={wave.revealedAt ? 'selected' : wave.status === 'open' ? 'success' : 'neutral'}>
+          {wave.revealedAt ? text.revealed : text.statuses[wave.status]}
         </Badge>
         <span className="text-muted-foreground text-sm">{text.anonymous}</span>
       </div>
@@ -832,6 +845,13 @@ function WaveBody({
             </ConfirmButton>
           )}
         </div>
+      )}
+      {data.results ? (
+        <ResultsSection results={data.results} side={data.ownSide} />
+      ) : (
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+          {wave.status === 'open' ? text.waiting : text.tooFew}
+        </p>
       )}
       <section aria-labelledby="welle-teilnehmende" className="flex flex-col gap-3">
         <h2 id="welle-teilnehmende" className="font-bold text-xl tracking-title">

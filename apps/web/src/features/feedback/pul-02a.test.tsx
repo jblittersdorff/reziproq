@@ -59,6 +59,8 @@ const wave: SurveyWave = {
   supplierClosedAt: null,
   status: 'open',
   turnout: { buyer: { invited: 5, completed: 2 }, supplier: { invited: 5, completed: 0 } },
+  revealedAt: null,
+  topGap: null,
 };
 const suggestions: SurveySuggestions = {
   templates: [
@@ -108,6 +110,7 @@ beforeEach(() => {
     canInvite: true,
     canClose: true,
     canExtend: true,
+    results: null,
   };
   try {
     sessionStorage.clear();

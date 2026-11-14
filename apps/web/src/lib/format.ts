@@ -32,6 +32,8 @@ export function createFormat(locale: Locale) {
     dateTime: (iso: string) => dateTime.format(new Date(iso)),
     /** Betrag in Cent für ein Eingabefeld, ohne Währungszeichen, z. B. „980.000“ oder „980,000“ */
     amountInput: (cents: number) => plain.format(cents / 100),
+    /** Zahl mit bis zu zwei Nachkommastellen, z. B. „0,9“ */
+    number: (value: number) => plain.format(value),
     money: (money: Money, options?: Parameters<typeof formatMoney>[2]) =>
       formatMoney(money, locale, options),
   };

@@ -8,6 +8,7 @@ import { SpendMetricSource, TeamMetricSource } from '../suppliers/overview-metri
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import {
   CYCLE_STEP_SOURCES,
+  feedbackCycleStepSource,
   jbpCycleStepSource,
   scorecardCycleStepSource,
   segmentCycleStepSource,
@@ -31,6 +32,7 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
       provide: CYCLE_STEP_SOURCES,
       useValue: [
         segmentCycleStepSource,
+        feedbackCycleStepSource,
         supplierPlanCycleStepSource,
         jbpCycleStepSource,
         scorecardCycleStepSource,

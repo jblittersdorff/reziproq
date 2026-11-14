@@ -42,6 +42,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { EmailService } from '../email/email.service.js';
+import { resultsOf, revealIfDue, topGapOf } from './results.js';
 import { SurveyService } from './survey.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -189,7 +190,20 @@ export class WavesService {
       supplierClosedAt: row.supplierClosedAt?.toISOString() ?? null,
       status: this.statusOf(row),
       turnout,
+      revealedAt: row.revealedAt?.toISOString() ?? null,
+      topGap: row.revealedAt ? await topGapOf(tx, row.id) : null,
     };
+  }
+
+  /** PUL-03: aufdecken, sobald fällig; danach die Zeile neu lesen. */
+  private async withReveal(tx: TenantTransaction, row: WaveRow): Promise<WaveRow> {
+    if (row.revealedAt || this.statusOf(row) === 'open') return row;
+    if (!(await revealIfDue(tx, row.id))) return row;
+    const [fresh] = await tx
+      .select()
+      .from(schema.surveyWave)
+      .where(eq(schema.surveyWave.id, row.id));
+    return fresh ?? row;
   }
 
   async list(scope: WaveScope): Promise<SurveyWaves> {
@@ -199,7 +213,8 @@ export class WavesService {
       .where(eq(schema.surveyWave.relationshipId, scope.relationshipId))
       .orderBy(desc(schema.surveyWave.createdAt));
     const waves = [];
-    for (const row of rows) waves.push(await this.toWave(scope.tx, row));
+    for (const row of rows)
+      waves.push(await this.toWave(scope.tx, await this.withReveal(scope.tx, row)));
     return surveyWavesSchema.parse({ waves, canStart: this.canLead(scope) });
   }
 
@@ -218,7 +233,7 @@ export class WavesService {
   }
 
   async detail(scope: WaveScope, waveId: string): Promise<SurveyWaveDetail> {
-    const row = await this.row(scope, waveId);
+    const row = await this.withReveal(scope.tx, await this.row(scope, waveId));
     // RLS zeigt nur die eigenen Einladungen (intern); der Filter macht es ausdrücklich.
     const participants = await scope.tx
       .select()
@@ -246,6 +261,10 @@ export class WavesService {
       canInvite: open && ownClosed === null && this.canManage(scope),
       canClose: open && ownClosed === null && this.canManage(scope),
       canExtend: open && this.canLead(scope),
+      // Vor der Aufdeckung keine Ergebnisse, auch nicht der eigenen Seite.
+      results: row.revealedAt
+        ? await resultsOf(scope.tx, row.id, scope.side, row.revealedAt)
+        : null,
     });
   }
 

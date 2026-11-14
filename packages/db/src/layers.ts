@@ -117,6 +117,27 @@ export const layerRegister: Record<string, LayerEntry> = {
       answers: '{}',
     }),
   },
+  // PUL-03: Ergebnis und Freitexte entstehen nur bei der Aufdeckung (app_survey_reveal).
+  survey_result: {
+    kind: 'shared',
+    computed: true,
+    testValues: ({ buyer, probe }) => ({
+      wave_id: buyer && probe('survey_wave', buyer),
+      side: 'buyer',
+      dimension: 'trust',
+      n: 3,
+    }),
+  },
+  survey_free_text: {
+    kind: 'shared',
+    computed: true,
+    testValues: ({ buyer, probe }) => ({
+      wave_id: buyer && probe('survey_wave', buyer),
+      side: 'buyer',
+      text: 'Probe',
+      position: 1,
+    }),
+  },
   // PUL-01: Fragebogen je Organisation; Versionen nur anfügbar.
   survey_template: {
     kind: 'org_private',

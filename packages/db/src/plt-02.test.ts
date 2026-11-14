@@ -162,8 +162,10 @@ describe('PLT-02 in der Datenbank', () => {
       'supplier_contact',
       'supplier_plan',
       'support_access_log',
+      'survey_free_text',
       'survey_participant',
       'survey_response',
+      'survey_result',
       'survey_template',
       'survey_wave',
     ]);

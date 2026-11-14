@@ -218,6 +218,20 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
               )}
             </li>
           ))}
+          {data.live.feedback && (
+            <li className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3">
+              <span className="w-6" />
+              <span className="flex-1">
+                {data.live.feedback.topGap
+                  ? t.feedback.biggestGap(
+                      t.settings.survey.dimensions[data.live.feedback.topGap.dimension] ?? '',
+                      format.number(Math.abs(data.live.feedback.topGap.delta)),
+                    )
+                  : t.feedback.kinds[data.live.feedback.kind]}
+              </span>
+              <Badge variant="selected">{text.live}</Badge>
+            </li>
+          )}
           {data.live.rules && (
             <li className="flex flex-wrap items-center gap-3 px-5 py-3">
               <span className="w-6" />
