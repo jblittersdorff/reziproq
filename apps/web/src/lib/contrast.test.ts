@@ -17,7 +17,9 @@ describe('Kontrastrechnung nach WCAG (PLT-10)', () => {
   });
 
   it('lehnt Farben ab, die es nicht sicher lesen kann', () => {
-    expect(() => contrast('#fff', '#000000')).toThrow();
+    // Kurzform aus dem gebauten CSS (#ffffff → #fff) gilt wie die lange.
+    expect(contrast('#fff', '#000000')).toBeCloseTo(21, 5);
+    expect(() => contrast('#ffff', '#000000')).toThrow();
     expect(() => contrast('rgb(0, 0, 0)', '#000000')).toThrow();
   });
 });
