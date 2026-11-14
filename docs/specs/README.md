@@ -104,7 +104,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 38a | UMB-05 | Einfachere Oberfläche | NAV-05, NAV-06, NAV-10 | PLT-10, NAV-06, NAV-05 | 1.0 | Testlauf | A | PR offen | Entscheidung vom 8.11.2026, Testlauf-Pfad |
 | 39 | QBR-01b | Termine: Live-Abschnitte, Abschließen, Termin-Quelle | QBR-01, QBR-02 | QBR-01a | 1.0 | M15 | A | PR offen | Teil b von QBR-01. Live-Quellen melden sich über MEETING_LIVE_SOURCES an; die erste (Maßnahmen) kommt mit QBR-03, der Test nutzt eine Testquelle. meeting_snapshot nur anfügen (REVOKE, Trigger); einer je Termin, weil der Status nur einmal auf closed gehen kann. Nächster Termin im Kopf, auf Start beider Seiten und beim Kunden. |
 | 40 | QBR-03 | Maßnahmen | QBR-03, QBR-05 | QBR-01b | 1.0 | M15 | A | PR offen | Status geteilter Maßnahmen über app_massnahme_status (Rolle reziproq_massnahmen); Frist Pflicht; Live-Abschnitt im Termin, Kennzahl im Überblick, Aufgabe auf Start beider Seiten. |
-| 41 | PUL-01 | Fragebogen | PUL-01 | PLT-09 | nach 1.0 | Block F | A | offen | – |
+| 41 | PUL-01 | Fragebogen | PUL-01 | PLT-09 | nach 1.0 | Block F | A | PR offen | Versionen nur anfügbar, Fragen als JSON je Version; Standard im Code, Version 1 beim ersten Lesen. Fünf-Minuten-Prüfung von Hand offen. |
 | 42 | PUL-02a | Feedback-Welle: anlegen und einladen | PUL-02 | PUL-01, QS-01, PLT-07b | nach 1.0 | Block F | A | offen | Teil a von PUL-02 |
 | 43 | PUL-02b | Feedback-Welle: beantworten ohne Anmeldung | PUL-02 | PUL-02a | nach 1.0 | Block F | A | offen | Teil b von PUL-02 |
 | 44 | PUL-03 | Auswertung und Wahrnehmungslücken | PUL-03, PUL-04, PUL-05 | PUL-02b, LIF-02 | nach 1.0 | Block F | A | offen | – |
@@ -130,8 +130,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 64 | JBP-09 | Ist-Werte der Kennzahlen | JBP-09 | JBP-07 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Stand über kpiTrack (shared), Toleranz je Kunde über app_kpi_tolerance; Import wie PLT-07; live im Termin. |
 | 65 | PNL-01 | Wirkung einrichten und Hebel-Vorlagen | PNL-01, PNL-02, JBP-10 | JBP-03, QBR-03 | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Wirkung käuferprivat in initiative_impact statt an initiative; Regeln in SQL (app_lever_amount). |
 | 66 | PNL-03 | Baseline und Reifegrade | PNL-03, PNL-04 | PNL-01 | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Baseline und Stufen nur anfügbar; R5 erst mit PNL-06. |
-| 67 | PNL-05 | Monatswerte Plan und Ist | PNL-05 | PNL-03 | nach 1.0 | Block W | B | PR offen | Testlauf-Pfad. Beträge nur über app_initiative_recompute; initiative_value bis PNL-07 intern, Spalte value_cents. |
-| 68 | PNL-06 | Freigabe durch Controlling | PNL-06 | PNL-05, PLT-05b | nach 1.0 | Block W | B | PR offen | Testlauf-Pfad. Recht wirkung.freigeben nur mit Zusatzrolle Controlling; Freigabe gibt R5 und sperrt den Zeitraum. |
+| 67 | PNL-05 | Monatswerte Plan und Ist | PNL-05 | PNL-03 | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Beträge nur über app_initiative_recompute; initiative_value bis PNL-07 intern, Spalte value_cents. |
+| 68 | PNL-06 | Freigabe durch Controlling | PNL-06 | PNL-05, PLT-05b | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Recht wirkung.freigeben nur mit Zusatzrolle Controlling; Freigabe gibt R5 und sperrt den Zeitraum. |
 | 69 | PNL-07 | Teilungsregel, Wirkungsarten, Doppelzählung | PNL-07, PNL-08, PNL-09 | PNL-06, LIF-03 | nach 1.0 | Block W | B | offen | – |
 | 70 | PNL-10 | P&L-Brücke und Wirkung im Portfolio | PNL-10 | PNL-07, SEG-07 | nach 1.0 | Block W | B | offen | – |
 | 71 | PNL-11 | Excel-Export für das Controlling | PNL-11 | PNL-10 | nach 1.0 | Block W | B | offen | – |

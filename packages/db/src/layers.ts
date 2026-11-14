@@ -83,6 +83,12 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   // PNL-01: GuV-Zeilen je Organisation.
   pnl_line: { kind: 'org_private', testValues: { key: 'probe', name: 'Probe', position: 99 } },
+  // PUL-01: Fragebogen je Organisation; Versionen nur anfügbar.
+  survey_template: {
+    kind: 'org_private',
+    appendOnly: true,
+    testValues: { kind: 'pulse', version: 99, questions: '[]' },
+  },
   // JBP-09: Toleranz „knapp“ je Kunde.
   scorecard_setting: { kind: 'org_private', testValues: { tolerance_percent: 10 } },
   cycle_reminder_sent: {

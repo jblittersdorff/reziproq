@@ -29,6 +29,7 @@ export * from './scorecard.js';
 export * from './segment.js';
 export * from './start.js';
 export * from './supplier-plan.js';
+export * from './survey.js';
 export * from './suppliers.js';
 export * from './support.js';
 export * from './workspace.js';

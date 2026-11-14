@@ -46,6 +46,7 @@ import { Route as AppBewertungenIdQualitaetRouteImport } from './routes/_app/bew
 import { Route as AppBewertungenIdZusammenfassungRouteImport } from './routes/_app/bewertungen/$id/zusammenfassung'
 import { Route as AppEinstellungenBusinessUnitsIndexRouteImport } from './routes/_app/einstellungen/business-units/index'
 import { Route as AppEinstellungenBusinessUnitsNeuRouteImport } from './routes/_app/einstellungen/business-units/neu'
+import { Route as AppEinstellungenFragebogenIndexRouteImport } from './routes/_app/einstellungen/fragebogen/index'
 import { Route as AppEinstellungenGuvZeilenIndexRouteImport } from './routes/_app/einstellungen/guv-zeilen/index'
 import { Route as AppEinstellungenGuvZeilenNeuRouteImport } from './routes/_app/einstellungen/guv-zeilen/neu'
 import { Route as AppEinstellungenOrganisationIndexRouteImport } from './routes/_app/einstellungen/organisation/index'
@@ -69,6 +70,10 @@ import { Route as AppPortfolioRundenNeuRouteImport } from './routes/_app/portfol
 import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
 import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
+import { Route as AppEinstellungenFragebogenKindIndexRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/index'
+import { Route as AppEinstellungenFragebogenKindQuestionKeyRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/$questionKey'
+import { Route as AppEinstellungenFragebogenKindNeuRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/neu'
+import { Route as AppEinstellungenFragebogenKindVorschauRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/vorschau'
 import { Route as AppEinstellungenGuvZeilenKeyBearbeitenRouteImport } from './routes/_app/einstellungen/guv-zeilen/$key/bearbeiten'
 import { Route as AppEinstellungenSegmentmodellKriteriumKeyRouteImport } from './routes/_app/einstellungen/segmentmodell/kriterium/$key'
 import { Route as AppEinstellungenSegmentmodellTypPairRouteImport } from './routes/_app/einstellungen/segmentmodell/typ/$pair'
@@ -388,6 +393,12 @@ const AppEinstellungenBusinessUnitsNeuRoute =
     path: '/einstellungen/business-units/neu',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenFragebogenIndexRoute =
+  AppEinstellungenFragebogenIndexRouteImport.update({
+    id: '/einstellungen/fragebogen/',
+    path: '/einstellungen/fragebogen/',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenGuvZeilenIndexRoute =
   AppEinstellungenGuvZeilenIndexRouteImport.update({
     id: '/einstellungen/guv-zeilen/',
@@ -516,6 +527,30 @@ const AppEinstellungenBusinessUnitsIdBearbeitenRoute =
   AppEinstellungenBusinessUnitsIdBearbeitenRouteImport.update({
     id: '/einstellungen/business-units/$id/bearbeiten',
     path: '/einstellungen/business-units/$id/bearbeiten',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenFragebogenKindIndexRoute =
+  AppEinstellungenFragebogenKindIndexRouteImport.update({
+    id: '/einstellungen/fragebogen/$kind/',
+    path: '/einstellungen/fragebogen/$kind/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenFragebogenKindQuestionKeyRoute =
+  AppEinstellungenFragebogenKindQuestionKeyRouteImport.update({
+    id: '/einstellungen/fragebogen/$kind/$questionKey',
+    path: '/einstellungen/fragebogen/$kind/$questionKey',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenFragebogenKindNeuRoute =
+  AppEinstellungenFragebogenKindNeuRouteImport.update({
+    id: '/einstellungen/fragebogen/$kind/neu',
+    path: '/einstellungen/fragebogen/$kind/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenFragebogenKindVorschauRoute =
+  AppEinstellungenFragebogenKindVorschauRouteImport.update({
+    id: '/einstellungen/fragebogen/$kind/vorschau',
+    path: '/einstellungen/fragebogen/$kind/vorschau',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenGuvZeilenKeyBearbeitenRoute =
@@ -1341,6 +1376,7 @@ export interface FileRoutesByFullPath {
   '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
+  '/einstellungen/fragebogen/': typeof AppEinstellungenFragebogenIndexRoute
   '/einstellungen/guv-zeilen/': typeof AppEinstellungenGuvZeilenIndexRoute
   '/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/einstellungen/segmentmodell/': typeof AppEinstellungenSegmentmodellIndexRoute
@@ -1354,6 +1390,9 @@ export interface FileRoutesByFullPath {
   '/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
+  '/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
+  '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
@@ -1375,6 +1414,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/kunden/$id/beziehung/': typeof AppKundenIdBeziehungIndexRoute
@@ -1527,6 +1567,7 @@ export interface FileRoutesByTo {
   '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units': typeof AppEinstellungenBusinessUnitsIndexRoute
+  '/einstellungen/fragebogen': typeof AppEinstellungenFragebogenIndexRoute
   '/einstellungen/guv-zeilen': typeof AppEinstellungenGuvZeilenIndexRoute
   '/einstellungen/organisation': typeof AppEinstellungenOrganisationIndexRoute
   '/einstellungen/segmentmodell': typeof AppEinstellungenSegmentmodellIndexRoute
@@ -1539,6 +1580,9 @@ export interface FileRoutesByTo {
   '/portfolio/runden': typeof AppPortfolioRundenIndexRoute
   '/wirkung/freigaben': typeof AppWirkungFreigabenIndexRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
+  '/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
+  '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
@@ -1560,6 +1604,7 @@ export interface FileRoutesByTo {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/einstellungen/fragebogen/$kind': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/spielregeln/formate': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/kunden/$id/beziehung': typeof AppKundenIdBeziehungIndexRoute
@@ -1717,6 +1762,7 @@ export interface FileRoutesById {
   '/_app/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/_app/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/_app/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
+  '/_app/einstellungen/fragebogen/': typeof AppEinstellungenFragebogenIndexRoute
   '/_app/einstellungen/guv-zeilen/': typeof AppEinstellungenGuvZeilenIndexRoute
   '/_app/einstellungen/organisation/': typeof AppEinstellungenOrganisationIndexRoute
   '/_app/einstellungen/segmentmodell/': typeof AppEinstellungenSegmentmodellIndexRoute
@@ -1730,6 +1776,9 @@ export interface FileRoutesById {
   '/_app/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/_app/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
+  '/_app/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
+  '/_app/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/_app/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/_app/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/_app/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
@@ -1751,6 +1800,7 @@ export interface FileRoutesById {
   '/_app/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/_app/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/_app/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/_app/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/_app/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/_app/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
   '/_app/kunden/$id/beziehung/': typeof AppKundenIdBeziehungIndexRoute
@@ -1908,6 +1958,7 @@ export interface FileRouteTypes {
     | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id/'
     | '/einstellungen/business-units/'
+    | '/einstellungen/fragebogen/'
     | '/einstellungen/guv-zeilen/'
     | '/einstellungen/organisation/'
     | '/einstellungen/segmentmodell/'
@@ -1921,6 +1972,9 @@ export interface FileRouteTypes {
     | '/wirkung/freigaben/'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/einstellungen/business-units/$id/bearbeiten'
+    | '/einstellungen/fragebogen/$kind/$questionKey'
+    | '/einstellungen/fragebogen/$kind/neu'
+    | '/einstellungen/fragebogen/$kind/vorschau'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
@@ -1942,6 +1996,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/einstellungen/fragebogen/$kind/'
     | '/einstellungen/spielregeln/formate/'
     | '/einstellungen/spielregeln/rechte/'
     | '/kunden/$id/beziehung/'
@@ -2094,6 +2149,7 @@ export interface FileRouteTypes {
     | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id'
     | '/einstellungen/business-units'
+    | '/einstellungen/fragebogen'
     | '/einstellungen/guv-zeilen'
     | '/einstellungen/organisation'
     | '/einstellungen/segmentmodell'
@@ -2106,6 +2162,9 @@ export interface FileRouteTypes {
     | '/portfolio/runden'
     | '/wirkung/freigaben'
     | '/einstellungen/business-units/$id/bearbeiten'
+    | '/einstellungen/fragebogen/$kind/$questionKey'
+    | '/einstellungen/fragebogen/$kind/neu'
+    | '/einstellungen/fragebogen/$kind/vorschau'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
@@ -2127,6 +2186,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/einstellungen/fragebogen/$kind'
     | '/einstellungen/spielregeln/formate'
     | '/einstellungen/spielregeln/rechte'
     | '/kunden/$id/beziehung'
@@ -2283,6 +2343,7 @@ export interface FileRouteTypes {
     | '/_app/wirkung/freigaben/$validationId'
     | '/_app/bewertungen/$id/'
     | '/_app/einstellungen/business-units/'
+    | '/_app/einstellungen/fragebogen/'
     | '/_app/einstellungen/guv-zeilen/'
     | '/_app/einstellungen/organisation/'
     | '/_app/einstellungen/segmentmodell/'
@@ -2296,6 +2357,9 @@ export interface FileRouteTypes {
     | '/_app/wirkung/freigaben/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan'
     | '/_app/einstellungen/business-units/$id/bearbeiten'
+    | '/_app/einstellungen/fragebogen/$kind/$questionKey'
+    | '/_app/einstellungen/fragebogen/$kind/neu'
+    | '/_app/einstellungen/fragebogen/$kind/vorschau'
     | '/_app/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/_app/einstellungen/segmentmodell/kriterium/$key'
     | '/_app/einstellungen/segmentmodell/typ/$pair'
@@ -2317,6 +2381,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/runden/$id/nachnominieren'
     | '/_app/portfolio/runden/$id/name'
     | '/_app/portfolio/runden/$id/pruefen'
+    | '/_app/einstellungen/fragebogen/$kind/'
     | '/_app/einstellungen/spielregeln/formate/'
     | '/_app/einstellungen/spielregeln/rechte/'
     | '/_app/kunden/$id/beziehung/'
@@ -2694,6 +2759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenBusinessUnitsNeuRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/einstellungen/fragebogen/': {
+      id: '/_app/einstellungen/fragebogen/'
+      path: '/einstellungen/fragebogen'
+      fullPath: '/einstellungen/fragebogen/'
+      preLoaderRoute: typeof AppEinstellungenFragebogenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/einstellungen/guv-zeilen/': {
       id: '/_app/einstellungen/guv-zeilen/'
       path: '/einstellungen/guv-zeilen'
@@ -2853,6 +2925,34 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/business-units/$id/bearbeiten'
       fullPath: '/einstellungen/business-units/$id/bearbeiten'
       preLoaderRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/fragebogen/$kind/': {
+      id: '/_app/einstellungen/fragebogen/$kind/'
+      path: '/einstellungen/fragebogen/$kind'
+      fullPath: '/einstellungen/fragebogen/$kind/'
+      preLoaderRoute: typeof AppEinstellungenFragebogenKindIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/fragebogen/$kind/$questionKey': {
+      id: '/_app/einstellungen/fragebogen/$kind/$questionKey'
+      path: '/einstellungen/fragebogen/$kind/$questionKey'
+      fullPath: '/einstellungen/fragebogen/$kind/$questionKey'
+      preLoaderRoute: typeof AppEinstellungenFragebogenKindQuestionKeyRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/fragebogen/$kind/neu': {
+      id: '/_app/einstellungen/fragebogen/$kind/neu'
+      path: '/einstellungen/fragebogen/$kind/neu'
+      fullPath: '/einstellungen/fragebogen/$kind/neu'
+      preLoaderRoute: typeof AppEinstellungenFragebogenKindNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/fragebogen/$kind/vorschau': {
+      id: '/_app/einstellungen/fragebogen/$kind/vorschau'
+      path: '/einstellungen/fragebogen/$kind/vorschau'
+      fullPath: '/einstellungen/fragebogen/$kind/vorschau'
+      preLoaderRoute: typeof AppEinstellungenFragebogenKindVorschauRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/guv-zeilen/$key/bearbeiten': {
@@ -4131,6 +4231,7 @@ interface AppRouteChildren {
   AppWirkungFreigabenValidationIdRoute: typeof AppWirkungFreigabenValidationIdRoute
   AppBewertungenIdIndexRoute: typeof AppBewertungenIdIndexRoute
   AppEinstellungenBusinessUnitsIndexRoute: typeof AppEinstellungenBusinessUnitsIndexRoute
+  AppEinstellungenFragebogenIndexRoute: typeof AppEinstellungenFragebogenIndexRoute
   AppEinstellungenGuvZeilenIndexRoute: typeof AppEinstellungenGuvZeilenIndexRoute
   AppEinstellungenOrganisationIndexRoute: typeof AppEinstellungenOrganisationIndexRoute
   AppEinstellungenSegmentmodellIndexRoute: typeof AppEinstellungenSegmentmodellIndexRoute
@@ -4141,6 +4242,9 @@ interface AppRouteChildren {
   AppPortfolioRundenIndexRoute: typeof AppPortfolioRundenIndexRoute
   AppWirkungFreigabenIndexRoute: typeof AppWirkungFreigabenIndexRoute
   AppEinstellungenBusinessUnitsIdBearbeitenRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  AppEinstellungenFragebogenKindQuestionKeyRoute: typeof AppEinstellungenFragebogenKindQuestionKeyRoute
+  AppEinstellungenFragebogenKindNeuRoute: typeof AppEinstellungenFragebogenKindNeuRoute
+  AppEinstellungenFragebogenKindVorschauRoute: typeof AppEinstellungenFragebogenKindVorschauRoute
   AppEinstellungenGuvZeilenKeyBearbeitenRoute: typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   AppEinstellungenSegmentmodellKriteriumKeyRoute: typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   AppEinstellungenSegmentmodellTypPairRoute: typeof AppEinstellungenSegmentmodellTypPairRoute
@@ -4156,6 +4260,7 @@ interface AppRouteChildren {
   AppPortfolioRundenIdNachnominierenRoute: typeof AppPortfolioRundenIdNachnominierenRoute
   AppPortfolioRundenIdNameRoute: typeof AppPortfolioRundenIdNameRoute
   AppPortfolioRundenIdPruefenRoute: typeof AppPortfolioRundenIdPruefenRoute
+  AppEinstellungenFragebogenKindIndexRoute: typeof AppEinstellungenFragebogenKindIndexRoute
   AppEinstellungenSpielregelnFormateIndexRoute: typeof AppEinstellungenSpielregelnFormateIndexRoute
   AppEinstellungenSpielregelnRechteIndexRoute: typeof AppEinstellungenSpielregelnRechteIndexRoute
   AppPortfolioRundenIdIndexRoute: typeof AppPortfolioRundenIdIndexRoute
@@ -4205,6 +4310,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBewertungenIdIndexRoute: AppBewertungenIdIndexRoute,
   AppEinstellungenBusinessUnitsIndexRoute:
     AppEinstellungenBusinessUnitsIndexRoute,
+  AppEinstellungenFragebogenIndexRoute: AppEinstellungenFragebogenIndexRoute,
   AppEinstellungenGuvZeilenIndexRoute: AppEinstellungenGuvZeilenIndexRoute,
   AppEinstellungenOrganisationIndexRoute:
     AppEinstellungenOrganisationIndexRoute,
@@ -4220,6 +4326,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppWirkungFreigabenIndexRoute: AppWirkungFreigabenIndexRoute,
   AppEinstellungenBusinessUnitsIdBearbeitenRoute:
     AppEinstellungenBusinessUnitsIdBearbeitenRoute,
+  AppEinstellungenFragebogenKindQuestionKeyRoute:
+    AppEinstellungenFragebogenKindQuestionKeyRoute,
+  AppEinstellungenFragebogenKindNeuRoute:
+    AppEinstellungenFragebogenKindNeuRoute,
+  AppEinstellungenFragebogenKindVorschauRoute:
+    AppEinstellungenFragebogenKindVorschauRoute,
   AppEinstellungenGuvZeilenKeyBearbeitenRoute:
     AppEinstellungenGuvZeilenKeyBearbeitenRoute,
   AppEinstellungenSegmentmodellKriteriumKeyRoute:
@@ -4246,6 +4358,8 @@ const AppRouteChildren: AppRouteChildren = {
     AppPortfolioRundenIdNachnominierenRoute,
   AppPortfolioRundenIdNameRoute: AppPortfolioRundenIdNameRoute,
   AppPortfolioRundenIdPruefenRoute: AppPortfolioRundenIdPruefenRoute,
+  AppEinstellungenFragebogenKindIndexRoute:
+    AppEinstellungenFragebogenKindIndexRoute,
   AppEinstellungenSpielregelnFormateIndexRoute:
     AppEinstellungenSpielregelnFormateIndexRoute,
   AppEinstellungenSpielregelnRechteIndexRoute:

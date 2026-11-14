@@ -192,6 +192,13 @@ export const pnlLineAudit = auditedObject({
   fields: ['key', 'name', 'position', 'active'],
 });
 
+/** Fragebogen der Organisation (PUL-01): jede Änderung eine Version; Verlauf nur intern. */
+export const surveyAudit = auditedObject({
+  type: 'survey_template',
+  visibility: 'internal',
+  fields: ['kind', 'version', 'question', 'text_de', 'text_en', 'active'],
+});
+
 /** Ist-Werte einer Kennzahl (JBP-09): je Monat, geteilt; Objekt ist die Kennzahl. */
 export const kpiValueAudit = auditedObject({
   type: 'kpi_value',
@@ -323,6 +330,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   baselineAudit,
   maturityAudit,
   pnlLineAudit,
+  surveyAudit,
   impactMonthAudit,
   validationAudit,
   scorecardSettingAudit,
