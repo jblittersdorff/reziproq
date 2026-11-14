@@ -24,7 +24,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   relationship: [
     { key: 'team', segment: 'team' },
     { key: 'rules', segment: 'spielregeln' },
-    { key: 'feedback', coming: 'later' },
+    { key: 'feedback', segment: 'feedback' },
     { key: 'touchpoints', coming: 'later' },
   ],
   plan: [

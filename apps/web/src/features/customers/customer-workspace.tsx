@@ -11,6 +11,7 @@ import {
   InboxIcon,
   ListChecksIcon,
   ListOrderedIcon,
+  MessagesSquareIcon,
   ScaleIcon,
   SearchXIcon,
   TargetIcon,
@@ -382,6 +383,15 @@ export function CustomerAreaPage({
               </TileIcon>
               <TileTitle>{text.rulesTitle}</TileTitle>
               <TileText>{text.rulesHint}</TileText>
+            </Link>
+          </Tile>
+          <Tile asChild interactive className="flex flex-col gap-3">
+            <Link to="/kunden/$id/beziehung/feedback" params={{ id: relationshipId }}>
+              <TileIcon>
+                <MessagesSquareIcon aria-hidden />
+              </TileIcon>
+              <TileTitle>{t.feedback.title}</TileTitle>
+              <TileText>{t.feedback.emptyHint}</TileText>
             </Link>
           </Tile>
         </div>

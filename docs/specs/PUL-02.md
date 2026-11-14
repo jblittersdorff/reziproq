@@ -49,6 +49,27 @@ Zwei Pull Requests:
    - Zwischenstand wird gespeichert, ein zweites Absenden ist nicht möglich.
 5. Jede Seite schließt ihre Teilnahme ab, oder sie endet mit der Frist.
 
+## Umsetzung
+
+**PUL-02a (Welle anlegen und einladen):**
+
+- `survey_wave` (geteilt, vom Käufer angelegt) merkt sich `template_id` und `template_version`
+  ohne Fremdschlüssel, weil die Vorlage käuferprivat ist (keine Verweise von geteilt auf privat).
+- `survey_participant` steht auf der geteilten Ebene, der Dienst schreibt aber immer `internal`:
+  Nur die einladende Seite sieht ihre Einladungen. Eine Prüfung in der Datenbank gibt es dafür
+  nicht, weil die Layer-Tests beide Sichtbarkeiten anlegen. Zusätzlich gibt es eine Spalte `name`
+  (optional), damit die eigene Liste lesbar bleibt.
+- Den Rücklauf beider Seiten zählt `app_survey_turnout` (nur Anzahlen), den Abschluss der eigenen
+  Seite setzt `app_survey_close`. Beide laufen als Rolle `reziproq_feedback` ohne BYPASSRLS.
+- Je Art läuft höchstens eine offene Welle je Beziehung. Die Frist verlängert nur der Käufer (SRO
+  oder Admin); die Links gelten bis zur Frist (geprüft in PUL-02b).
+- Die Mail nutzt die neue Vorlage `survey`; gespeichert ist nur der SHA-256 des Tokens, der Link
+  steht nur in der Outbox, wie bei der Einladung des Lieferanten (LIF-01a).
+- Neue Welle: drei Schritte mit eigener Adresse (`?schritt=1…3`), der Entwurf bleibt im Tab
+  erhalten. Vorschläge aus Team (Käufer) und Kontakten (Lieferant) sind vorausgewählt; die
+  Funktion ist Pflicht (Liste `surveyFunctions`, ergänzt um Vertrieb, Geschäftsleitung, Andere).
+- Rechte: `feedback.sehen` und `feedback.verwalten` (Starten beim Käufer nur SRO oder Admin).
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
@@ -56,7 +77,7 @@ Je Kriterium ein Test.
 - [ ] Eine Welle für zehn Teilnehmende ist in unter zwei Minuten gestartet (von Hand gemessen, im Pull Request notiert).
 - [ ] Ein Link funktioniert genau einmal zum Absenden und nach der Frist nicht mehr.
 - [ ] Keine Antwort lässt sich einer Person zuordnen. Ein Test prüft das Schema.
-- [ ] Der Rücklauf je Seite zeigt nur Anzahlen.
+- [x] Der Rücklauf je Seite zeigt nur Anzahlen.
 - [ ] Antworten einer Seite sind für die andere Seite vor der Aufdeckung unsichtbar (PLT-04).
 - [ ] Das Beantworten funktioniert auf dem Smartphone bei 390 px.
 

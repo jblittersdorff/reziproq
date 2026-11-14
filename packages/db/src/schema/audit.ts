@@ -54,7 +54,7 @@ export const outboxEvent = pgTable(
     // Leer: noch nicht verarbeitet.
     processedAt: timestamp({ withTimezone: true }),
     emailTemplate: text({
-      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'],
+      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation', 'survey'],
     }),
     emailLocale: text({ enum: ['de', 'en'] }),
     emailRecipient: text(),
@@ -78,7 +78,7 @@ export const outboxEvent = pgTable(
         OR
         (${table.emailTemplate} IS NOT NULL
           AND ${table.emailTemplate} IN (
-            'invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'
+            'invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation', 'survey'
           )
           AND ${table.emailLocale} IS NOT NULL
           AND ${table.emailLocale} IN ('de', 'en')
@@ -106,7 +106,7 @@ export const emailLog = pgTable(
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     sentAt: timestamp({ withTimezone: true }),
     template: text({
-      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation'],
+      enum: ['invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation', 'survey'],
     }).notNull(),
     status: text({ enum: ['sending', 'sent', 'failed'] }).notNull(),
     recipientHash: text().notNull(),

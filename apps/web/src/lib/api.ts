@@ -44,6 +44,7 @@ import {
   type ImportType,
   type InitiativeStatus,
   type InviteSupplierRequest,
+  type InviteSurveyParticipants,
   impactDetailSchema,
   impactImportPreviewSchema,
   impactListSchema,
@@ -118,9 +119,11 @@ import {
   type SetRoundSuppliers,
   type SetupImpact,
   type SpendRequest,
+  type StartSurveyWave,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
   type SurveyKind,
+  type SurveySide,
   scorecardSettingSchema,
   scorecardViewSchema,
   segmentationSchema,
@@ -133,7 +136,10 @@ import {
   suppliersResponseSchema,
   supportHeader,
   surveyDetailSchema,
+  surveySuggestionsSchema,
   surveysSchema,
+  surveyWaveDetailSchema,
+  surveyWavesSchema,
   teamResponseSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
@@ -1693,6 +1699,110 @@ export const saveSurveyQuestion = (
     key ? `/fragebogen/${kind}/fragen/${encodeURIComponent(key)}` : `/fragebogen/${kind}/fragen`,
     request,
     surveyDetailSchema,
+    accessToken,
+  );
+
+/** PUL-02a: Feedback-Wellen; Käufer unter /suppliers, Lieferant unter /kunden. */
+export const feedbackBase = (side: SurveySide, relationshipId: string) =>
+  `/${side === 'buyer' ? 'suppliers' : 'kunden'}/${relationshipId}/feedback`;
+
+export const surveyWavesQueryOptions = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+) =>
+  queryOptions({
+    queryKey: ['feedback', side, relationshipId],
+    queryFn: () => getJson(feedbackBase(side, relationshipId), surveyWavesSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const surveyWaveQueryOptions = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+) =>
+  queryOptions({
+    queryKey: ['feedback', side, relationshipId, waveId],
+    queryFn: () =>
+      getJson(
+        `${feedbackBase(side, relationshipId)}/${waveId}`,
+        surveyWaveDetailSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const surveySuggestionsQueryOptions = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+) =>
+  queryOptions({
+    queryKey: ['feedback', side, relationshipId, 'vorschlaege'],
+    queryFn: () =>
+      getJson(
+        `${feedbackBase(side, relationshipId)}/vorschlaege`,
+        surveySuggestionsSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const startSurveyWave = (
+  accessToken: string,
+  relationshipId: string,
+  request: StartSurveyWave,
+) =>
+  sendJson(
+    'POST',
+    feedbackBase('buyer', relationshipId),
+    request,
+    surveyWaveDetailSchema,
+    accessToken,
+  );
+
+export const inviteSurveyParticipants = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+  request: InviteSurveyParticipants,
+) =>
+  sendJson(
+    'POST',
+    `${feedbackBase(side, relationshipId)}/${waveId}/teilnehmende`,
+    request,
+    surveyWaveDetailSchema,
+    accessToken,
+  );
+
+export const extendSurveyWave = (
+  accessToken: string,
+  relationshipId: string,
+  waveId: string,
+  dueDate: string,
+) =>
+  sendJson(
+    'PUT',
+    `${feedbackBase('buyer', relationshipId)}/${waveId}/frist`,
+    { dueDate },
+    surveyWaveDetailSchema,
+    accessToken,
+  );
+
+export const closeSurveyWave = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+) =>
+  sendJson(
+    'POST',
+    `${feedbackBase(side, relationshipId)}/${waveId}/abschliessen`,
+    {},
+    surveyWaveDetailSchema,
     accessToken,
   );
 

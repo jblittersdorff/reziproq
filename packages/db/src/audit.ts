@@ -32,7 +32,13 @@ export interface AuditActor {
 }
 
 export interface OutboxEmailPayload {
-  template: 'invitation' | 'reminder' | 'approval' | 'escalation' | 'supplier_invitation';
+  template:
+    | 'invitation'
+    | 'reminder'
+    | 'approval'
+    | 'escalation'
+    | 'supplier_invitation'
+    | 'survey';
   locale: 'de' | 'en';
   recipient: string;
   firstName?: string;

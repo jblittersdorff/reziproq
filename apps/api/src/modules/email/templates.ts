@@ -26,6 +26,12 @@ const copy = {
       deadline: 'Der Link gilt bis',
       link: 'Einladung annehmen',
     },
+    survey: {
+      subject: 'Deine Einschätzung zur Zusammenarbeit',
+      body: 'Wie läuft die Zusammenarbeit, und wie sollte sie sein? Die Fragen dauern nur wenige Minuten. Deine Antworten bleiben anonym: Niemand sieht, wer was geantwortet hat. Du brauchst kein Konto.',
+      deadline: 'Bitte antworten bis',
+      link: 'Fragen beantworten',
+    },
     escalation: {
       subject: 'Eskalation',
       body: 'Der folgende Vorgang benötigt deine Aufmerksamkeit.',
@@ -57,6 +63,12 @@ const copy = {
       body: 'In Reziproq you work together on your relationship. All you need is your name and a passkey, no password.',
       deadline: 'The link is valid until',
       link: 'Accept invitation',
+    },
+    survey: {
+      subject: 'Your view on our collaboration',
+      body: 'How is the collaboration going, and how should it be? The questions take only a few minutes. Your answers stay anonymous: nobody sees who answered what. You do not need an account.',
+      deadline: 'Please answer by',
+      link: 'Answer the questions',
     },
     escalation: {
       subject: 'Escalation',

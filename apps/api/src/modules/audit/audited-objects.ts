@@ -199,6 +199,20 @@ export const surveyAudit = auditedObject({
   fields: ['kind', 'version', 'question', 'text_de', 'text_en', 'active'],
 });
 
+/** Feedback-Welle (PUL-02): Start, Frist und Abschluss je Seite, für beide Seiten sichtbar. */
+export const surveyWaveAudit = auditedObject({
+  type: 'survey_wave',
+  visibility: 'shared',
+  fields: ['kind', 'due_date', 'buyer_closed', 'supplier_closed'],
+});
+
+/** Einladung zu einer Welle (PUL-02): nur die einladende Seite; ohne Antworten. */
+export const surveyParticipantAudit = auditedObject({
+  type: 'survey_participant',
+  visibility: 'internal',
+  fields: ['side', 'function'],
+});
+
 /** Ist-Werte einer Kennzahl (JBP-09): je Monat, geteilt; Objekt ist die Kennzahl. */
 export const kpiValueAudit = auditedObject({
   type: 'kpi_value',
@@ -331,6 +345,8 @@ export const auditedObjects: readonly AuditedObject[] = [
   maturityAudit,
   pnlLineAudit,
   surveyAudit,
+  surveyWaveAudit,
+  surveyParticipantAudit,
   impactMonthAudit,
   validationAudit,
   scorecardSettingAudit,
