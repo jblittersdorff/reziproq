@@ -503,7 +503,10 @@ async function readDetail(
     ...row,
     permissions: {
       edit: can(auth, 'lieferanten.bearbeiten', { teamRole }),
-      editTeam: can(auth, 'team.festlegen'),
+      // PLB-04: Admin immer (auch um sich als Leser wieder freizuschalten), sonst der SRO.
+      editTeam:
+        auth.orgRole === 'admin' ||
+        (can(auth, 'team.festlegen', { teamRole }) && teamRole === 'sro'),
     },
     createdAt: row.createdAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,

@@ -99,10 +99,27 @@ describe('PLT-05b: Team je Beziehung über die API', () => {
       (await call(users.member, 'GET', `/suppliers/${relationships.oem}/team`)).body,
     );
     expect(team.members).toEqual([
-      { userId: users.admin, name: 'Ada Admin', teamRole: 'sro', function: 'purchasing' },
-      { userId: users.member, name: 'Max Mitglied', teamRole: 'member', function: 'logistics' },
+      {
+        userId: users.admin,
+        name: 'Ada Admin',
+        teamRole: 'sro',
+        function: 'purchasing',
+        visibility: 'shared',
+      },
+      {
+        userId: users.member,
+        name: 'Max Mitglied',
+        teamRole: 'member',
+        function: 'logistics',
+        visibility: 'internal',
+      },
     ]);
-    expect(team.candidates.map((person) => person.name)).toEqual([
+    // Kandidaten bekommt nur, wer das Team pflegt (PLB-04).
+    expect(team.candidates).toEqual([]);
+    const forAdmin = teamResponseSchema.parse(
+      (await call(users.admin, 'GET', `/suppliers/${relationships.oem}/team`)).body,
+    );
+    expect(forAdmin.candidates.map((person) => person.name)).toEqual([
       'Ada Admin',
       'Max Mitglied',
       'Otto Andere',
@@ -187,11 +204,13 @@ describe('PLT-05b: Team je Beziehung über die API', () => {
     );
     expect(history.entries[0]?.changes).toEqual({
       team: {
-        from: [{ name: 'Ada Admin', team_role: 'sro', function: 'purchasing' }],
+        from: [
+          { name: 'Ada Admin', team_role: 'sro', function: 'purchasing', visibility: 'shared' },
+        ],
         // Sortiert nach Nutzer-ID: p5b-admin vor p5b-member.
         to: [
-          { name: 'Ada Admin', team_role: 'sponsor', function: 'purchasing' },
-          { name: 'Max Mitglied', team_role: 'sro', function: null },
+          { name: 'Ada Admin', team_role: 'sponsor', function: 'purchasing', visibility: 'shared' },
+          { name: 'Max Mitglied', team_role: 'sro', function: null, visibility: 'shared' },
         ],
       },
     });

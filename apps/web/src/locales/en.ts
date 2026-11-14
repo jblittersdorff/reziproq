@@ -504,6 +504,23 @@ export const en: Messages = {
     adminOnly: 'Only an admin can change the settings. You can still view your organization.',
     organization: 'Organization',
     organizationHint: 'Name, country and members',
+    roleDescriptions: {
+      navTitle: 'Roles',
+      navHint: 'What the SRO does and what not',
+      title: 'Roles',
+      purpose:
+        'Describes what the SRO owns in your relationships. The description appears on every team page.',
+      loading: 'Loading roles …',
+      failed: 'The roles could not be loaded.',
+      does: 'Does',
+      doesNot: 'Does not',
+      linesHint: 'One task per line.',
+      isDefault: 'Still the Reziproq default.',
+      save: 'Save',
+      saving: 'Saving …',
+      saved: 'Saved.',
+      saveFailed: 'Saving did not work. Please try again.',
+    },
     survey: {
       navTitle: 'Questionnaire',
       navHint: 'Questions for pulse and annual feedback',
@@ -799,6 +816,7 @@ export const en: Messages = {
     rulesPurpose:
       'What you agreed with this customer: relationship type, rights, obligations and formats.',
     rulesHint: 'Relationship type, rights, obligations and formats',
+    teamHint: 'Who owns the relationship on both sides',
     rulesLoading: 'Loading rules of engagement …',
     rulesFailed: 'The rules of engagement could not be loaded.',
     rulesEmptyTitle: 'No rules of engagement shared yet',
@@ -1519,15 +1537,16 @@ export const en: Messages = {
   team: {
     title: 'Team',
     purpose:
-      'Who on your side owns and works on this relationship. Only your organization sees it.',
+      'Who owns this relationship on both sides. Only your organization sees internal people.',
     link: 'Team',
     edit: 'Edit team',
     editTitle: 'Edit team',
-    editPurpose: 'SRO, sponsors, members and viewers with their function.',
+    editPurpose:
+      'Your team with team role, function and visibility. The other side maintains its own team.',
     loading: 'Loading team …',
     failed: 'The team could not be loaded.',
     emptyTitle: 'No team yet',
-    emptyDescription: 'An admin decides who owns and works on the relationship.',
+    emptyDescription: 'An admin or the SRO decides who owns and works on the relationship.',
     noSro: 'No SRO yet. An admin decides who owns the relationship.',
     person: 'Person',
     role: 'Team role',
@@ -1552,6 +1571,37 @@ export const en: Messages = {
     saving: 'Saving …',
     saved: 'Saved.',
     saveFailed: 'Saving did not work. Please try again.',
+    // PLB-04: team of both sides
+    ours: 'Our team',
+    theirs: { buyer: 'Supplier team', supplier: 'Customer team' } as Record<string, string>,
+    supplierPurpose:
+      'Who owns the customer relationship on both sides. Only your organization sees internal people.',
+    theirsEmpty: 'The other side does not share anyone with you yet.',
+    visibility: 'Visibility',
+    visibilities: { internal: 'Internal', shared: 'Shared' } as Record<string, string>,
+    visibilityHint:
+      'The other side sees shared people; only your organization sees internal ones. SRO, key account manager and sponsors start as shared.',
+    supplierRoles: {
+      sro: 'Key account manager',
+      sponsor: 'Sponsor',
+      member: 'Member',
+      viewer: 'Viewer',
+    },
+    supplierRolesHint:
+      'The key account manager owns the relationship (at most one), sponsors support it (at most two), viewers only read it.',
+    noKam: 'No key account manager yet. An admin decides who owns the relationship.',
+    supplierErrors: {
+      duplicate_person: 'Each person appears only once in the team.',
+      too_many_sro: 'A team has at most one key account manager.',
+      too_many_sponsors: 'A team has at most two sponsors.',
+    },
+    roleLink: 'What does the SRO do?',
+    roleTitle: 'Role of the SRO',
+    rolePurpose: 'What the SRO owns in a relationship and what not.',
+    does: 'Does',
+    doesNot: 'Does not',
+    roleDefault: 'Reziproq default. An admin adjusts it in the settings.',
+    roleChangedBy: (name: string) => `Adjusted by ${name}.`,
   },
 
   // Supplier workspace (NAV-06)

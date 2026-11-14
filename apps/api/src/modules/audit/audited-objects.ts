@@ -199,6 +199,13 @@ export const surveyAudit = auditedObject({
   fields: ['kind', 'version', 'question', 'text_de', 'text_en', 'active'],
 });
 
+/** Rollenbeschreibung der Organisation (PLB-04): Verlauf nur intern. */
+export const roleDescriptionAudit = auditedObject({
+  type: 'role_description',
+  visibility: 'internal',
+  fields: ['role', 'does', 'does_not'],
+});
+
 /** Eigene Sicht des Lieferanten (LIF-03): nur intern, der Käufer sieht keinen Verlauf. */
 export const accountPlanAudit = auditedObject({
   type: 'supplier_account_plan',
@@ -353,6 +360,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   pnlLineAudit,
   surveyAudit,
   accountPlanAudit,
+  roleDescriptionAudit,
   surveyWaveAudit,
   surveyParticipantAudit,
   impactMonthAudit,

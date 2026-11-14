@@ -29,6 +29,8 @@ export interface TestRowContext {
   /** Käufer der Beziehung der Zeile; null ohne Beziehung */
   buyer: string | null;
   probe: (table: string, org: string) => string;
+  /** Sichtbarkeit der Zeile bei geteilten Tabellen (PLB-04: eine Person je Zeile und Seite) */
+  visibility?: 'internal' | 'shared' | undefined;
 }
 
 export interface LayerEntry {
@@ -168,7 +170,24 @@ export const layerRegister: Record<string, LayerEntry> = {
     testValues: { key: 'probe', name: 'Probe', position: 99 },
   },
   relationship_spend: { kind: 'buyer_private', testValues: { year: 2025, amount_cents: 100 } },
-  relationship_member: { kind: 'org_private', testValues: { user_id: 'demo-test-oem-1' } },
+  // PLB-04: Rollenbeschreibung je Organisation (Standard im Code).
+  role_description: {
+    kind: 'org_private',
+    testValues: {
+      role: 'sro',
+      does: '[]',
+      does_not: '[]',
+      updated_by: 'probe',
+      updated_by_name: 'Probe',
+    },
+  },
+  // PLB-04: geteilt mit Sichtbarkeit je Person; je Seite eine Person je Zeile (eindeutig).
+  relationship_member: {
+    kind: 'shared',
+    testValues: ({ visibility }) => ({
+      user_id: visibility === 'shared' ? 'demo-test-oem-2' : 'demo-test-oem-1',
+    }),
+  },
   // QBR-01a: Termine sind geteilt; jede Seite ändert nur ihre Zeilen. Notizen gehören einer Seite.
   meeting: {
     kind: 'shared',

@@ -518,6 +518,23 @@ export const de = {
       'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
     organization: 'Organisation',
     organizationHint: 'Name, Land und Mitglieder',
+    roleDescriptions: {
+      navTitle: 'Rollen',
+      navHint: 'Was der SRO macht und was nicht',
+      title: 'Rollen',
+      purpose:
+        'Beschreibt, was der SRO in euren Beziehungen verantwortet. Die Beschreibung steht auf jeder Team-Seite.',
+      loading: 'Rollen werden geladen …',
+      failed: 'Die Rollen konnten nicht geladen werden.',
+      does: 'Macht',
+      doesNot: 'Macht nicht',
+      linesHint: 'Eine Aufgabe je Zeile.',
+      isDefault: 'Noch der Standard von Reziproq.',
+      save: 'Speichern',
+      saving: 'Wird gespeichert …',
+      saved: 'Gespeichert.',
+      saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
+    },
     survey: {
       navTitle: 'Fragebogen',
       navHint: 'Fragen für Puls und Jahres-Feedback',
@@ -816,6 +833,7 @@ export const de = {
     rulesPurpose:
       'Was ihr mit diesem Kunden vereinbart habt: Beziehungstyp, Rechte, Pflichten und Formate.',
     rulesHint: 'Beziehungstyp, Rechte, Pflichten und Formate',
+    teamHint: 'Wer auf beiden Seiten die Beziehung verantwortet',
     rulesLoading: 'Spielregeln werden geladen …',
     rulesFailed: 'Die Spielregeln konnten nicht geladen werden.',
     rulesEmptyTitle: 'Noch keine Spielregeln geteilt',
@@ -1565,15 +1583,17 @@ export const de = {
   team: {
     title: 'Team',
     purpose:
-      'Wer bei euch diese Beziehung verantwortet und mitarbeitet. Nur deine Organisation sieht es.',
+      'Wer auf beiden Seiten diese Beziehung verantwortet. Interne Personen sieht nur deine Organisation.',
     link: 'Team',
     edit: 'Team bearbeiten',
     editTitle: 'Team bearbeiten',
-    editPurpose: 'SRO, Sponsoren, Mitglieder und Leser mit ihrer Funktion.',
+    editPurpose:
+      'Euer Team mit Teamrolle, Funktion und Sichtbarkeit. Das Team der anderen Seite pflegt sie selbst.',
     loading: 'Team wird geladen …',
     failed: 'Das Team konnte nicht geladen werden.',
     emptyTitle: 'Noch kein Team',
-    emptyDescription: 'Ein Admin legt fest, wer die Beziehung verantwortet und mitarbeitet.',
+    emptyDescription:
+      'Ein Admin oder der SRO legt fest, wer die Beziehung verantwortet und mitarbeitet.',
     noSro: 'Noch kein SRO. Ein Admin legt fest, wer die Beziehung verantwortet.',
     person: 'Person',
     role: 'Teamrolle',
@@ -1598,6 +1618,40 @@ export const de = {
     saving: 'Wird gespeichert …',
     saved: 'Gespeichert.',
     saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
+    // PLB-04: Team beider Seiten
+    ours: 'Unser Team',
+    theirs: { buyer: 'Team des Lieferanten', supplier: 'Team des Kunden' } as Record<
+      string,
+      string
+    >,
+    supplierPurpose:
+      'Wer auf beiden Seiten die Kundenbeziehung verantwortet. Interne Personen sieht nur deine Organisation.',
+    theirsEmpty: 'Die andere Seite teilt noch niemanden mit euch.',
+    visibility: 'Sichtbarkeit',
+    visibilities: { internal: 'Intern', shared: 'Geteilt' } as Record<string, string>,
+    visibilityHint:
+      'Geteilt sieht die andere Seite, intern nur deine Organisation. SRO, Key Account Manager und Sponsoren sind zunächst geteilt.',
+    supplierRoles: {
+      sro: 'Key Account Manager',
+      sponsor: 'Sponsor',
+      member: 'Mitglied',
+      viewer: 'Leser',
+    },
+    supplierRolesHint:
+      'Der Key Account Manager verantwortet die Beziehung (höchstens einer), Sponsoren unterstützen (höchstens zwei), Leser sehen die Beziehung nur.',
+    noKam: 'Noch kein Key Account Manager. Ein Admin legt fest, wer die Beziehung verantwortet.',
+    supplierErrors: {
+      duplicate_person: 'Jede Person steht nur einmal im Team.',
+      too_many_sro: 'Ein Team hat höchstens einen Key Account Manager.',
+      too_many_sponsors: 'Ein Team hat höchstens zwei Sponsoren.',
+    },
+    roleLink: 'Was macht der SRO?',
+    roleTitle: 'Rolle des SRO',
+    rolePurpose: 'Was der SRO in einer Beziehung verantwortet und was nicht.',
+    does: 'Macht',
+    doesNot: 'Macht nicht',
+    roleDefault: 'Standard von Reziproq. Ein Admin passt ihn in den Einstellungen an.',
+    roleChangedBy: (name: string) => `Angepasst von ${name}.`,
   },
 
   // Arbeitsbereich eines Lieferanten (NAV-06)

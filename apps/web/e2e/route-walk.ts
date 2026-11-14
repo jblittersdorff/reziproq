@@ -128,9 +128,30 @@ export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
     route.fulfill({
       json: {
         members: [
-          { userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing' },
-          { userId: 'nina', name: 'Nina Roth', teamRole: 'viewer', function: null },
+          {
+            userId: 'lena',
+            name: 'Lena Berger',
+            teamRole: 'sro',
+            function: 'purchasing',
+            visibility: 'shared',
+          },
+          {
+            userId: 'nina',
+            name: 'Nina Roth',
+            teamRole: 'viewer',
+            function: null,
+            visibility: 'internal',
+          },
         ],
+        side: 'buyer',
+        counterpart: [{ name: 'Kim Kaiser', teamRole: 'sro', function: null }],
+        canEdit: true,
+        sroDescription: {
+          role: 'sro',
+          does: ['Strategie'],
+          doesNot: ['Claims'],
+          updatedByName: null,
+        },
         candidates: [
           { userId: 'lena', name: 'Lena Berger', defaultFunction: 'purchasing' },
           { userId: 'nina', name: 'Nina Roth', defaultFunction: null },
@@ -170,7 +191,12 @@ export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
   );
   await page.route(`**/api/kunden/${id}`, (route) =>
     route.fulfill({
-      json: { relationshipId: id, name: 'Test-OEM (Demo)', relationshipType: null, nextMeeting: null },
+      json: {
+        relationshipId: id,
+        name: 'Test-OEM (Demo)',
+        relationshipType: null,
+        nextMeeting: null,
+      },
     }),
   );
   await page.route('**/api/betreiber/kunden', (route) =>

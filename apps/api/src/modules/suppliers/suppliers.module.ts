@@ -1,14 +1,19 @@
 import { Module } from '@nestjs/common';
+import { CustomersModule } from '../customers/customers.module.js';
 import { OrganizationsModule } from '../organizations/organizations.module.js';
 import { SpendMetricSource, TeamMetricSource } from './overview-metrics.js';
 import { SupplierImportService } from './supplier-import.service.js';
-import { SuppliersController } from './suppliers.controller.js';
+import {
+  RolesController,
+  SuppliersController,
+  SupplierTeamController,
+} from './suppliers.controller.js';
 import { SuppliersService } from './suppliers.service.js';
 import { TeamService } from './team.service.js';
 
 @Module({
-  imports: [OrganizationsModule],
-  controllers: [SuppliersController],
+  imports: [OrganizationsModule, CustomersModule],
+  controllers: [SuppliersController, SupplierTeamController, RolesController],
   providers: [
     SuppliersService,
     SupplierImportService,

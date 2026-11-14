@@ -43,8 +43,10 @@ export const permissions: Record<Action, Permission> = {
     notForTeamViewer: true,
   },
   'team.festlegen': {
-    description: 'Team einer Beziehung festlegen',
-    roles: ['admin'],
+    description:
+      'Eigenes Team einer Beziehung festlegen (Käufer: Admin oder SRO; Lieferant: Admin oder Key Account Manager)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
   },
   'verlauf.sehen': {
     description: 'Verlauf sehen',
@@ -162,7 +164,8 @@ export const permissions: Record<Action, Permission> = {
     notForTeamViewer: true,
   },
   'eigene_sicht.bearbeiten': {
-    description: 'Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite)',
+    description:
+      'Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite)',
     roles: ['admin', 'member'],
   },
   'feedback.sehen': {

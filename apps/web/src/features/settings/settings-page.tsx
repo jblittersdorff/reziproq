@@ -1,4 +1,10 @@
-import { Building2Icon, CalendarRangeIcon, ClipboardListIcon, ReceiptEuroIcon } from 'lucide-react';
+import {
+  Building2Icon,
+  CalendarRangeIcon,
+  ClipboardListIcon,
+  ReceiptEuroIcon,
+  UserCogIcon,
+} from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
@@ -58,6 +64,15 @@ export function SettingsPage() {
               label={t.settings.survey.navTitle}
               description={t.settings.survey.navHint}
               icon={<ClipboardListIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
+          {permissions.viewBuyerAreas && (
+            <SettingsLinkRow
+              href="/einstellungen/rollen"
+              label={t.settings.roleDescriptions.navTitle}
+              description={t.settings.roleDescriptions.navHint}
+              icon={<UserCogIcon aria-hidden />}
               renderLink={routerLink}
             />
           )}

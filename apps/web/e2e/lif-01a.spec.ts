@@ -58,7 +58,24 @@ async function mockBuyer(page: Page) {
   await page.route(`**/api/suppliers/${id}/team`, (route) =>
     route.fulfill({
       json: {
-        members: [{ userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing' }],
+        side: 'buyer',
+        counterpart: [{ name: 'Kim Kaiser', teamRole: 'sro', function: null }],
+        canEdit: true,
+        sroDescription: {
+          role: 'sro',
+          does: ['Strategie'],
+          doesNot: ['Claims'],
+          updatedByName: null,
+        },
+        members: [
+          {
+            userId: 'lena',
+            name: 'Lena Berger',
+            teamRole: 'sro',
+            function: 'purchasing',
+            visibility: 'shared',
+          },
+        ],
         candidates: [],
       },
     }),

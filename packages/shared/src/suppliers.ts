@@ -222,18 +222,46 @@ export function parseEuroToCents(text: string, locale: 'de' | 'en' = 'de'): numb
   return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
 }
 
-// PLT-05b: Team je Beziehung, intern je Organisation.
+// PLT-05b, PLB-04: Team je Beziehung. Jede Seite pflegt ihr Team und legt je Person fest, ob die
+// andere Seite sie sieht (geteilt) oder nicht (intern).
+
+export const teamVisibilities = ['internal', 'shared'] as const;
+export type TeamVisibility = (typeof teamVisibilities)[number];
+
+/** Standard: SRO bzw. Key Account Manager und Sponsoren geteilt, alle anderen intern. */
+export const defaultTeamVisibility = (teamRole: (typeof teamRoles)[number]): TeamVisibility =>
+  teamRole === 'sro' || teamRole === 'sponsor' ? 'shared' : 'internal';
 
 export const teamMemberSchema = z.object({
   userId: z.string(),
   name: z.string(),
   teamRole: z.enum(teamRoles),
   function: z.enum(userFunctions).nullable(),
+  visibility: z.enum(teamVisibilities),
 });
 export type TeamMember = z.infer<typeof teamMemberSchema>;
 
+export const roleDescriptionSchema = z.object({
+  role: z.string(),
+  does: z.array(z.string()),
+  doesNot: z.array(z.string()),
+  /** null = Standard von Reziproq */
+  updatedByName: z.string().nullable(),
+});
+export type RoleDescription = z.infer<typeof roleDescriptionSchema>;
+
 export const teamResponseSchema = z.object({
+  /** Seite der lesenden Person; auf der Lieferantenseite heißt „sro“ Key Account Manager */
+  side: z.enum(['buyer', 'supplier']),
   members: z.array(teamMemberSchema),
+  /** Geteilte Mitglieder der anderen Seite (ohne interne) */
+  counterpart: z.array(
+    z.object({
+      name: z.string(),
+      teamRole: z.enum(teamRoles),
+      function: z.enum(userFunctions).nullable(),
+    }),
+  ),
   /** Personen der eigenen Organisation, die ins Team kommen können, mit Standardfunktion */
   candidates: z.array(
     z.object({
@@ -242,6 +270,9 @@ export const teamResponseSchema = z.object({
       defaultFunction: z.enum(userFunctions).nullable(),
     }),
   ),
+  canEdit: z.boolean(),
+  /** Nur beim Käufer: Rollenbeschreibung des SRO (PLB-04) */
+  sroDescription: roleDescriptionSchema.nullable(),
 });
 export type TeamResponse = z.infer<typeof teamResponseSchema>;
 
@@ -249,7 +280,7 @@ export type TeamResponse = z.infer<typeof teamResponseSchema>;
 export const teamErrors = ['duplicate_person', 'too_many_sro', 'too_many_sponsors'] as const;
 export type TeamError = (typeof teamErrors)[number];
 
-/** PUT /api/suppliers/:id/team: das ganze Team auf einmal (nur Admin). */
+/** PUT …/team: das eigene Team auf einmal (Käufer: Admin oder SRO; Lieferant: Admin oder KAM). */
 export const updateTeamRequestSchema = z
   .object({
     members: z.array(
@@ -257,6 +288,8 @@ export const updateTeamRequestSchema = z
         userId: z.string().min(1),
         teamRole: z.enum(teamRoles),
         function: z.enum(userFunctions).nullable(),
+        /** Ohne Angabe gilt der Standard der Rolle */
+        visibility: z.enum(teamVisibilities).optional(),
       }),
     ),
   })
@@ -273,3 +306,22 @@ export const updateTeamRequestSchema = z
     }
   });
 export type UpdateTeamRequest = z.infer<typeof updateTeamRequestSchema>;
+
+/** Standardbeschreibung des SRO (PLB-04). */
+export const defaultSroDescription = {
+  does: [
+    'Strategie',
+    'Interne Abstimmung',
+    'Gesamtblick',
+    'Langfristige Begleitung von Eskalationen',
+  ],
+  doesNot: ['Verhandlungen', 'Engpässe', 'Claims'],
+};
+
+export const saveRoleDescriptionSchema = z
+  .object({
+    does: z.array(z.string().trim().min(1).max(200)).max(20),
+    doesNot: z.array(z.string().trim().min(1).max(200)).max(20),
+  })
+  .strict();
+export type SaveRoleDescription = z.infer<typeof saveRoleDescriptionSchema>;

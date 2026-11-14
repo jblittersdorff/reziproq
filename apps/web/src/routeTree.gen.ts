@@ -22,6 +22,7 @@ import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
+import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
 import { Route as AppKundenIdRouteRouteImport } from './routes/_app/kunden/$id/route'
@@ -111,6 +112,8 @@ import { Route as AppPortfolioRundenIdNachnominierenRouteImport } from './routes
 import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/portfolio/runden/$id/name'
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
 import { Route as AppKundenIdBeziehungFeedbackIndexRouteImport } from './routes/_app/kunden/$id/beziehung/feedback/index'
+import { Route as AppKundenIdBeziehungTeamIndexRouteImport } from './routes/_app/kunden/$id/beziehung/team/index'
+import { Route as AppKundenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/kunden/$id/beziehung/team/bearbeiten'
 import { Route as AppKundenIdEigeneSichtZieleObjectiveIdRouteImport } from './routes/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
 import { Route as AppKundenIdEigeneSichtZieleNeuRouteImport } from './routes/_app/kunden/$id/eigene-sicht/ziele/neu'
 import { Route as AppKundenIdPlanInitiativenIndexRouteImport } from './routes/_app/kunden/$id/plan/initiativen/index'
@@ -142,6 +145,7 @@ import { Route as AppLieferantenIdBeziehungSpielregelnVorschlagRouteImport } fro
 import { Route as AppLieferantenIdBeziehungTeamIndexRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/index'
 import { Route as AppLieferantenIdBeziehungTeamBearbeitenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/bearbeiten'
 import { Route as AppLieferantenIdBeziehungTeamEinladenRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/einladen'
+import { Route as AppLieferantenIdBeziehungTeamSroRouteImport } from './routes/_app/lieferanten/$id/beziehung/team/sro'
 import { Route as AppLieferantenIdPlanInitiativenIndexRouteImport } from './routes/_app/lieferanten/$id/plan/initiativen/index'
 import { Route as AppLieferantenIdPlanInitiativenNeuRouteImport } from './routes/_app/lieferanten/$id/plan/initiativen/neu'
 import { Route as AppLieferantenIdPlanScorecardIndexRouteImport } from './routes/_app/lieferanten/$id/plan/scorecard/index'
@@ -278,6 +282,11 @@ const AppBewertungenIndexRoute = AppBewertungenIndexRouteImport.update({
 const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
   id: '/einstellungen/',
   path: '/einstellungen/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
+  id: '/einstellungen/rollen',
+  path: '/einstellungen/rollen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEinstellungenZyklusRoute = AppEinstellungenZyklusRouteImport.update({
@@ -786,6 +795,18 @@ const AppKundenIdBeziehungFeedbackIndexRoute =
     path: '/beziehung/feedback/',
     getParentRoute: () => AppKundenIdRouteRoute,
   } as any)
+const AppKundenIdBeziehungTeamIndexRoute =
+  AppKundenIdBeziehungTeamIndexRouteImport.update({
+    id: '/beziehung/team/',
+    path: '/beziehung/team/',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
+const AppKundenIdBeziehungTeamBearbeitenRoute =
+  AppKundenIdBeziehungTeamBearbeitenRouteImport.update({
+    id: '/beziehung/team/bearbeiten',
+    path: '/beziehung/team/bearbeiten',
+    getParentRoute: () => AppKundenIdRouteRoute,
+  } as any)
 const AppKundenIdEigeneSichtZieleObjectiveIdRoute =
   AppKundenIdEigeneSichtZieleObjectiveIdRouteImport.update({
     id: '/eigene-sicht/ziele/$objectiveId',
@@ -970,6 +991,12 @@ const AppLieferantenIdBeziehungTeamEinladenRoute =
   AppLieferantenIdBeziehungTeamEinladenRouteImport.update({
     id: '/beziehung/team/einladen',
     path: '/beziehung/team/einladen',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdBeziehungTeamSroRoute =
+  AppLieferantenIdBeziehungTeamSroRouteImport.update({
+    id: '/beziehung/team/sro',
+    path: '/beziehung/team/sro',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdPlanInitiativenIndexRoute =
@@ -1432,6 +1459,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -1520,6 +1548,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
   '/kunden/$id/plan/initiativen/neu': typeof AppKundenIdPlanInitiativenNeuRoute
@@ -1541,6 +1570,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/beziehung/team/sro': typeof AppLieferantenIdBeziehungTeamSroRoute
   '/lieferanten/$id/plan/initiativen/neu': typeof AppLieferantenIdPlanInitiativenNeuRoute
   '/lieferanten/$id/plan/scorecard/import': typeof AppLieferantenIdPlanScorecardImportRoute
   '/lieferanten/$id/plan/scorecard/neu': typeof AppLieferantenIdPlanScorecardNeuRoute
@@ -1562,6 +1592,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/kunden/$id/beziehung/feedback/': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/kunden/$id/beziehung/team/': typeof AppKundenIdBeziehungTeamIndexRoute
   '/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/scorecard/': typeof AppKundenIdPlanScorecardIndexRoute
   '/kunden/$id/plan/themen/': typeof AppKundenIdPlanThemenIndexRoute
@@ -1636,6 +1667,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -1723,6 +1755,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id': typeof AppPortfolioRundenIdIndexRoute
+  '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
   '/kunden/$id/plan/initiativen/neu': typeof AppKundenIdPlanInitiativenNeuRoute
@@ -1744,6 +1777,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/lieferanten/$id/beziehung/team/sro': typeof AppLieferantenIdBeziehungTeamSroRoute
   '/lieferanten/$id/plan/initiativen/neu': typeof AppLieferantenIdPlanInitiativenNeuRoute
   '/lieferanten/$id/plan/scorecard/import': typeof AppLieferantenIdPlanScorecardImportRoute
   '/lieferanten/$id/plan/scorecard/neu': typeof AppLieferantenIdPlanScorecardNeuRoute
@@ -1765,6 +1799,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/kunden/$id/beziehung/feedback': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/kunden/$id/beziehung/team': typeof AppKundenIdBeziehungTeamIndexRoute
   '/kunden/$id/plan/initiativen': typeof AppKundenIdPlanInitiativenIndexRoute
   '/kunden/$id/plan/scorecard': typeof AppKundenIdPlanScorecardIndexRoute
   '/kunden/$id/plan/themen': typeof AppKundenIdPlanThemenIndexRoute
@@ -1844,6 +1879,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -1932,6 +1968,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/_app/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/_app/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/_app/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/_app/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
   '/_app/kunden/$id/plan/initiativen/neu': typeof AppKundenIdPlanInitiativenNeuRoute
@@ -1953,6 +1990,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag': typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   '/_app/lieferanten/$id/beziehung/team/bearbeiten': typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   '/_app/lieferanten/$id/beziehung/team/einladen': typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  '/_app/lieferanten/$id/beziehung/team/sro': typeof AppLieferantenIdBeziehungTeamSroRoute
   '/_app/lieferanten/$id/plan/initiativen/neu': typeof AppLieferantenIdPlanInitiativenNeuRoute
   '/_app/lieferanten/$id/plan/scorecard/import': typeof AppLieferantenIdPlanScorecardImportRoute
   '/_app/lieferanten/$id/plan/scorecard/neu': typeof AppLieferantenIdPlanScorecardNeuRoute
@@ -1974,6 +2012,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
   '/_app/lieferanten/$id/umsetzung/termine/neu': typeof AppLieferantenIdUmsetzungTermineNeuRoute
   '/_app/kunden/$id/beziehung/feedback/': typeof AppKundenIdBeziehungFeedbackIndexRoute
+  '/_app/kunden/$id/beziehung/team/': typeof AppKundenIdBeziehungTeamIndexRoute
   '/_app/kunden/$id/plan/initiativen/': typeof AppKundenIdPlanInitiativenIndexRoute
   '/_app/kunden/$id/plan/scorecard/': typeof AppKundenIdPlanScorecardIndexRoute
   '/_app/kunden/$id/plan/themen/': typeof AppKundenIdPlanThemenIndexRoute
@@ -2053,6 +2092,7 @@ export interface FileRouteTypes {
     | '/kunden/$id'
     | '/lieferanten/$id'
     | '/betreiber/kunden'
+    | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
@@ -2141,6 +2181,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/'
     | '/lieferanten/$id/wirkung/'
     | '/portfolio/runden/$id/'
+    | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/kunden/$id/eigene-sicht/ziele/neu'
     | '/kunden/$id/plan/initiativen/neu'
@@ -2162,6 +2203,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/beziehung/team/sro'
     | '/lieferanten/$id/plan/initiativen/neu'
     | '/lieferanten/$id/plan/scorecard/import'
     | '/lieferanten/$id/plan/scorecard/neu'
@@ -2183,6 +2225,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
     | '/kunden/$id/beziehung/feedback/'
+    | '/kunden/$id/beziehung/team/'
     | '/kunden/$id/plan/initiativen/'
     | '/kunden/$id/plan/scorecard/'
     | '/kunden/$id/plan/themen/'
@@ -2257,6 +2300,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/umfrage/$token'
     | '/betreiber/kunden'
+    | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
@@ -2344,6 +2388,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung'
     | '/lieferanten/$id/wirkung'
     | '/portfolio/runden/$id'
+    | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/kunden/$id/eigene-sicht/ziele/neu'
     | '/kunden/$id/plan/initiativen/neu'
@@ -2365,6 +2410,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/lieferanten/$id/beziehung/team/bearbeiten'
     | '/lieferanten/$id/beziehung/team/einladen'
+    | '/lieferanten/$id/beziehung/team/sro'
     | '/lieferanten/$id/plan/initiativen/neu'
     | '/lieferanten/$id/plan/scorecard/import'
     | '/lieferanten/$id/plan/scorecard/neu'
@@ -2386,6 +2432,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/lieferanten/$id/umsetzung/termine/neu'
     | '/kunden/$id/beziehung/feedback'
+    | '/kunden/$id/beziehung/team'
     | '/kunden/$id/plan/initiativen'
     | '/kunden/$id/plan/scorecard'
     | '/kunden/$id/plan/themen'
@@ -2464,6 +2511,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id'
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
+    | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
@@ -2552,6 +2600,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/'
     | '/_app/lieferanten/$id/wirkung/'
     | '/_app/portfolio/runden/$id/'
+    | '/_app/kunden/$id/beziehung/team/bearbeiten'
     | '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/_app/kunden/$id/eigene-sicht/ziele/neu'
     | '/_app/kunden/$id/plan/initiativen/neu'
@@ -2573,6 +2622,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/beziehung/spielregeln/vorschlag'
     | '/_app/lieferanten/$id/beziehung/team/bearbeiten'
     | '/_app/lieferanten/$id/beziehung/team/einladen'
+    | '/_app/lieferanten/$id/beziehung/team/sro'
     | '/_app/lieferanten/$id/plan/initiativen/neu'
     | '/_app/lieferanten/$id/plan/scorecard/import'
     | '/_app/lieferanten/$id/plan/scorecard/neu'
@@ -2594,6 +2644,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/massnahmen/neu'
     | '/_app/lieferanten/$id/umsetzung/termine/neu'
     | '/_app/kunden/$id/beziehung/feedback/'
+    | '/_app/kunden/$id/beziehung/team/'
     | '/_app/kunden/$id/plan/initiativen/'
     | '/_app/kunden/$id/plan/scorecard/'
     | '/_app/kunden/$id/plan/themen/'
@@ -2759,6 +2810,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen'
       fullPath: '/einstellungen/'
       preLoaderRoute: typeof AppEinstellungenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/rollen': {
+      id: '/_app/einstellungen/rollen'
+      path: '/einstellungen/rollen'
+      fullPath: '/einstellungen/rollen'
+      preLoaderRoute: typeof AppEinstellungenRollenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/zyklus': {
@@ -3384,6 +3442,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppKundenIdBeziehungFeedbackIndexRouteImport
       parentRoute: typeof AppKundenIdRouteRoute
     }
+    '/_app/kunden/$id/beziehung/team/': {
+      id: '/_app/kunden/$id/beziehung/team/'
+      path: '/beziehung/team'
+      fullPath: '/kunden/$id/beziehung/team/'
+      preLoaderRoute: typeof AppKundenIdBeziehungTeamIndexRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
+    '/_app/kunden/$id/beziehung/team/bearbeiten': {
+      id: '/_app/kunden/$id/beziehung/team/bearbeiten'
+      path: '/beziehung/team/bearbeiten'
+      fullPath: '/kunden/$id/beziehung/team/bearbeiten'
+      preLoaderRoute: typeof AppKundenIdBeziehungTeamBearbeitenRouteImport
+      parentRoute: typeof AppKundenIdRouteRoute
+    }
     '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId': {
       id: '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
       path: '/eigene-sicht/ziele/$objectiveId'
@@ -3599,6 +3671,13 @@ declare module '@tanstack/react-router' {
       path: '/beziehung/team/einladen'
       fullPath: '/lieferanten/$id/beziehung/team/einladen'
       preLoaderRoute: typeof AppLieferantenIdBeziehungTeamEinladenRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/beziehung/team/sro': {
+      id: '/_app/lieferanten/$id/beziehung/team/sro'
+      path: '/beziehung/team/sro'
+      fullPath: '/lieferanten/$id/beziehung/team/sro'
+      preLoaderRoute: typeof AppLieferantenIdBeziehungTeamSroRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/plan/initiativen/': {
@@ -4127,6 +4206,7 @@ interface AppKundenIdRouteRouteChildren {
   AppKundenIdEigeneSichtIndexRoute: typeof AppKundenIdEigeneSichtIndexRoute
   AppKundenIdPlanIndexRoute: typeof AppKundenIdPlanIndexRoute
   AppKundenIdUmsetzungIndexRoute: typeof AppKundenIdUmsetzungIndexRoute
+  AppKundenIdBeziehungTeamBearbeitenRoute: typeof AppKundenIdBeziehungTeamBearbeitenRoute
   AppKundenIdEigeneSichtZieleObjectiveIdRoute: typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   AppKundenIdEigeneSichtZieleNeuRoute: typeof AppKundenIdEigeneSichtZieleNeuRoute
   AppKundenIdPlanInitiativenNeuRoute: typeof AppKundenIdPlanInitiativenNeuRoute
@@ -4143,6 +4223,7 @@ interface AppKundenIdRouteRouteChildren {
   AppKundenIdUmsetzungMassnahmenNeuRoute: typeof AppKundenIdUmsetzungMassnahmenNeuRoute
   AppKundenIdUmsetzungTermineNeuRoute: typeof AppKundenIdUmsetzungTermineNeuRoute
   AppKundenIdBeziehungFeedbackIndexRoute: typeof AppKundenIdBeziehungFeedbackIndexRoute
+  AppKundenIdBeziehungTeamIndexRoute: typeof AppKundenIdBeziehungTeamIndexRoute
   AppKundenIdPlanInitiativenIndexRoute: typeof AppKundenIdPlanInitiativenIndexRoute
   AppKundenIdPlanScorecardIndexRoute: typeof AppKundenIdPlanScorecardIndexRoute
   AppKundenIdPlanThemenIndexRoute: typeof AppKundenIdPlanThemenIndexRoute
@@ -4177,6 +4258,8 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdEigeneSichtIndexRoute: AppKundenIdEigeneSichtIndexRoute,
   AppKundenIdPlanIndexRoute: AppKundenIdPlanIndexRoute,
   AppKundenIdUmsetzungIndexRoute: AppKundenIdUmsetzungIndexRoute,
+  AppKundenIdBeziehungTeamBearbeitenRoute:
+    AppKundenIdBeziehungTeamBearbeitenRoute,
   AppKundenIdEigeneSichtZieleObjectiveIdRoute:
     AppKundenIdEigeneSichtZieleObjectiveIdRoute,
   AppKundenIdEigeneSichtZieleNeuRoute: AppKundenIdEigeneSichtZieleNeuRoute,
@@ -4201,6 +4284,7 @@ const AppKundenIdRouteRouteChildren: AppKundenIdRouteRouteChildren = {
   AppKundenIdUmsetzungTermineNeuRoute: AppKundenIdUmsetzungTermineNeuRoute,
   AppKundenIdBeziehungFeedbackIndexRoute:
     AppKundenIdBeziehungFeedbackIndexRoute,
+  AppKundenIdBeziehungTeamIndexRoute: AppKundenIdBeziehungTeamIndexRoute,
   AppKundenIdPlanInitiativenIndexRoute: AppKundenIdPlanInitiativenIndexRoute,
   AppKundenIdPlanScorecardIndexRoute: AppKundenIdPlanScorecardIndexRoute,
   AppKundenIdPlanThemenIndexRoute: AppKundenIdPlanThemenIndexRoute,
@@ -4297,6 +4381,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdBeziehungSpielregelnVorschlagRoute: typeof AppLieferantenIdBeziehungSpielregelnVorschlagRoute
   AppLieferantenIdBeziehungTeamBearbeitenRoute: typeof AppLieferantenIdBeziehungTeamBearbeitenRoute
   AppLieferantenIdBeziehungTeamEinladenRoute: typeof AppLieferantenIdBeziehungTeamEinladenRoute
+  AppLieferantenIdBeziehungTeamSroRoute: typeof AppLieferantenIdBeziehungTeamSroRoute
   AppLieferantenIdPlanInitiativenNeuRoute: typeof AppLieferantenIdPlanInitiativenNeuRoute
   AppLieferantenIdPlanScorecardImportRoute: typeof AppLieferantenIdPlanScorecardImportRoute
   AppLieferantenIdPlanScorecardNeuRoute: typeof AppLieferantenIdPlanScorecardNeuRoute
@@ -4377,6 +4462,7 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdBeziehungTeamBearbeitenRoute,
   AppLieferantenIdBeziehungTeamEinladenRoute:
     AppLieferantenIdBeziehungTeamEinladenRoute,
+  AppLieferantenIdBeziehungTeamSroRoute: AppLieferantenIdBeziehungTeamSroRoute,
   AppLieferantenIdPlanInitiativenNeuRoute:
     AppLieferantenIdPlanInitiativenNeuRoute,
   AppLieferantenIdPlanScorecardImportRoute:
@@ -4495,6 +4581,7 @@ interface AppRouteChildren {
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
+  AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
@@ -4569,6 +4656,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
+  AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,

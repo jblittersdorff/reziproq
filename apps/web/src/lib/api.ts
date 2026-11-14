@@ -92,6 +92,7 @@ import {
   type RequestValidation,
   ratingAssignmentListSchema,
   ratingDetailSchema,
+  roleDescriptionSchema,
   roundCandidatesSchema,
   roundDetailSchema,
   roundListSchema,
@@ -116,6 +117,7 @@ import {
   type SavePnlLine,
   type SaveProtocol,
   type SaveRating,
+  type SaveRoleDescription,
   type SaveRuleItem,
   type SaveRuleSet,
   type SaveSurveyQuestion,
@@ -794,10 +796,19 @@ export const updateObjectiveCategory = (
     accessToken,
   );
 
-export const teamQueryOptions = (accessToken: string, relationshipId: string) =>
+/** Team einer Beziehung (PLT-05b, PLB-04); der Lieferant liest es unter /kunden. */
+export type TeamSide = 'buyer' | 'supplier';
+const teamUrl = (side: TeamSide, relationshipId: string) =>
+  side === 'buyer' ? `/suppliers/${relationshipId}/team` : `/kunden/${relationshipId}/team`;
+
+export const teamQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  side: TeamSide = 'buyer',
+) =>
   queryOptions({
-    queryKey: ['suppliers', relationshipId, 'team'],
-    queryFn: () => getJson(`/suppliers/${relationshipId}/team`, teamResponseSchema, accessToken),
+    queryKey: [side === 'buyer' ? 'suppliers' : 'kunden', relationshipId, 'team'],
+    queryFn: () => getJson(teamUrl(side, relationshipId), teamResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
 
@@ -805,7 +816,29 @@ export const updateTeam = (
   accessToken: string,
   relationshipId: string,
   request: UpdateTeamRequest,
-) => sendJson('PUT', `/suppliers/${relationshipId}/team`, request, teamResponseSchema, accessToken);
+  side: TeamSide = 'buyer',
+) => sendJson('PUT', teamUrl(side, relationshipId), request, teamResponseSchema, accessToken);
+
+/** PLB-04: Einstellungen › Rollen. */
+export const roleDescriptionsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['rollen'],
+    queryFn: () => getJson('/rollen', z.array(roleDescriptionSchema), accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveRoleDescription = (
+  accessToken: string,
+  role: string,
+  request: SaveRoleDescription,
+) =>
+  sendJson(
+    'PUT',
+    `/rollen/${encodeURIComponent(role)}`,
+    request,
+    z.array(roleDescriptionSchema),
+    accessToken,
+  );
 
 export const suppliersQueryOptions = (accessToken: string) =>
   queryOptions({

@@ -6,6 +6,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -98,7 +99,13 @@ export const cycle = pgTable(
   ],
 );
 
-export const cycleSettingSteps = ['feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard'] as const;
+export const cycleSettingSteps = [
+  'feedback',
+  'touchpoints',
+  'supplierPlan',
+  'jbp',
+  'scorecard',
+] as const;
 
 /** Organisationsweite Abstände zum JBP-Termin (ZYK-02), nur für den Käufer sichtbar. */
 export const cycleSetting = pgTable(
@@ -114,7 +121,10 @@ export const cycleSetting = pgTable(
   },
   (table) => [
     unique('cycle_setting_je_schritt').on(table.orgId, table.step),
-    check('cycle_setting_step', sql`${table.step} in ('feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard')`),
+    check(
+      'cycle_setting_step',
+      sql`${table.step} in ('feedback', 'touchpoints', 'supplierPlan', 'jbp', 'scorecard')`,
+    ),
     check('cycle_setting_wochen', sql`${table.weeksRelativeToJbp} between -104 and 104`),
     check('cycle_setting_erinnerung', sql`${table.reminderDaysBefore} between 0 and 365`),
   ],
@@ -185,15 +195,26 @@ export const relationshipMember = pgTable(
     orgId: uuid()
       .notNull()
       .references(() => organization.id),
-    userId: text()
-      .notNull()
-      .references(() => appUser.id, { onDelete: 'cascade' }),
+    // PLB-04: ohne Fremdschlüssel auf app_user (privat), wie andere geteilte Tabellen.
+    userId: text().notNull(),
     teamRole: text({ enum: teamRoles }).notNull().default('member'),
     function: text({ enum: userFunctions }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    /** PLB-04: Seite der Person (geteilte Ebene); gleich org_id, ein Trigger füllt es */
+    ownerOrgId: uuid().references(() => organization.id),
+    /** PLB-04: geteilt sieht die andere Seite; Standard intern, SRO und Sponsoren geteilt */
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('internal'),
+    /** PLB-04: Name der Person, damit die andere Seite geteilte Mitglieder lesen kann */
+    memberName: text(),
   },
   (table) => [
     unique('relationship_member_je_person').on(table.relationshipId, table.orgId, table.userId),
+    check(
+      'relationship_member_owner',
+      sql`${table.ownerOrgId} is not null and ${table.ownerOrgId} = ${table.orgId}`,
+    ),
     uniqueIndex('relationship_member_ein_sro')
       .on(table.relationshipId, table.orgId)
       .where(sql`${table.teamRole} = 'sro'`),
@@ -204,6 +225,33 @@ export const relationshipMember = pgTable(
     check(
       'relationship_member_function',
       sql`${table.function} in ('purchasing', 'quality', 'engineering', 'logistics', 'programs', 'after_sales')`,
+    ),
+  ],
+);
+
+/**
+ * PLB-04: Beschreibung einer Teamrolle je Organisation (org_private), z. B. was der SRO macht und
+ * was nicht. Ohne Zeile gilt der Standard aus packages/shared.
+ */
+export const roleDescription = pgTable(
+  'role_description',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    role: text().notNull(),
+    does: jsonb().notNull(),
+    doesNot: jsonb().notNull(),
+    updatedBy: text().notNull(),
+    updatedByName: text().notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('role_description_role').on(table.orgId, table.role),
+    check(
+      'role_description_lists',
+      sql`jsonb_typeof(${table.does}) = 'array' and jsonb_typeof(${table.doesNot}) = 'array'`,
     ),
   ],
 );
