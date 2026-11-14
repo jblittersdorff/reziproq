@@ -13,6 +13,7 @@ import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { formatDate } from '@/features/start/start-page';
+import { useSupplierProfile } from '@/features/suppliers/profile-finance';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { workspacePath } from '@/features/workspace/areas';
@@ -419,6 +420,18 @@ function ReferenceTiles({
       : latestSpend
         ? String(latestSpend.year)
         : null;
+  // SPL-05: Unser Anteil am Umsatz des Lieferanten, aus Profil und Finanzen.
+  const profile = useSupplierProfile(relationshipId);
+  const share = profile.data?.share;
+  const shareValue =
+    share?.status === 'ok'
+      ? t.supplierPlan.ourShare(
+          new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(
+            share.basisPoints / 100,
+          ),
+          share.year,
+        )
+      : t.supplierPlan.notAvailable;
   // PUL-03: größte Lücke der jüngsten aufgedeckten Welle, aus ihrem Ort.
   const accessToken = useToken();
   const waves = useQuery({
@@ -447,7 +460,7 @@ function ReferenceTiles({
     },
     {
       title: t.supplierPlan.profile,
-      value: supplier.organizationName,
+      value: shareValue,
       href: `/lieferanten/${relationshipId}/strategie/profil`,
     },
     { title: t.supplierPlan.approval, value: t.supplierPlan.notAvailable },

@@ -257,6 +257,26 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     testValues: { key: 'action_reminder_days', value: '3', updated_by: 'probe' },
   },
+  // SPL-05: Profil und Finanzen, nur für den Käufer.
+  supplier_profile: {
+    kind: 'buyer_private',
+    testValues: { updated_by: 'probe', updated_by_name: 'Probe' },
+  },
+  supplier_executive: {
+    kind: 'buyer_private',
+    testValues: { name: 'Probe', role: 'CEO', position: 1 },
+  },
+  supplier_financial: {
+    kind: 'buyer_private',
+    testValues: {
+      year: 2025,
+      metric: 'ebit_margin',
+      value: 850,
+      unit: 'basis_points',
+      source: 'Geschäftsbericht',
+      updated_by: 'probe',
+    },
+  },
   // PLB-06: Kontaktpunkte geteilt, Standard intern; „geprüft“ je Zyklus käuferprivat.
   touchpoint: {
     kind: 'shared',

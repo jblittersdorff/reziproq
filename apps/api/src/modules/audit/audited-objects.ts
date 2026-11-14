@@ -241,6 +241,23 @@ export const scorecardSettingAudit = auditedObject({
   fields: ['tolerance_percent'],
 });
 
+/** Profil und Finanzen eines Lieferanten (SPL-05), käuferprivat. */
+export const supplierProfileAudit = auditedObject({
+  type: 'supplier_profile',
+  visibility: 'internal',
+  fields: ['headquarters', 'founded_year', 'employees', 'business_segments', 'implications'],
+});
+export const supplierExecutivesAudit = auditedObject({
+  type: 'supplier_executive',
+  visibility: 'internal',
+  fields: ['executives'],
+});
+export const supplierFinancialAudit = auditedObject({
+  type: 'supplier_financial',
+  visibility: 'internal',
+  fields: ['year', 'metric', 'value', 'imported'],
+});
+
 /** Erinnerungstage für Maßnahmen (QBR-04), je Organisation, intern. */
 export const orgSettingAudit = auditedObject({
   type: 'org_setting',
@@ -401,6 +418,9 @@ export const auditedObjects: readonly AuditedObject[] = [
   validationAudit,
   scorecardSettingAudit,
   orgSettingAudit,
+  supplierProfileAudit,
+  supplierExecutivesAudit,
+  supplierFinancialAudit,
   touchpointAudit,
   touchpointInternalAudit,
   touchpointReviewAudit,

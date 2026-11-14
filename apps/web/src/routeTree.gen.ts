@@ -172,6 +172,9 @@ import { Route as AppLieferantenIdStrategieLieferantenplanFreigabeRouteImport } 
 import { Route as AppLieferantenIdStrategieLieferantenplanVersionenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
 import { Route as AppLieferantenIdStrategieProfilIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/index'
 import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/bearbeiten'
+import { Route as AppLieferantenIdStrategieProfilEinschaetzungRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/einschaetzung'
+import { Route as AppLieferantenIdStrategieProfilGeschaeftsleitungRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/geschaeftsleitung'
+import { Route as AppLieferantenIdStrategieProfilUnternehmenRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/unternehmen'
 import { Route as AppLieferantenIdStrategieProfilZuordnungRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/zuordnung'
 import { Route as AppLieferantenIdStrategieSegmentierungIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/segmentierung/index'
 import { Route as AppLieferantenIdStrategieSpendIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/index'
@@ -208,6 +211,9 @@ import { Route as AppLieferantenIdStrategieLieferantenplanBeitragContributionIdR
 import { Route as AppLieferantenIdStrategieLieferantenplanThemenNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/themen/neu'
 import { Route as AppLieferantenIdStrategieLieferantenplanZieleNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/ziele/neu'
 import { Route as AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten'
+import { Route as AppLieferantenIdStrategieProfilKennzahlenKennzahlRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+import { Route as AppLieferantenIdStrategieProfilKennzahlenImportRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/kennzahlen/import'
+import { Route as AppLieferantenIdStrategieProfilKennzahlenNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/kennzahlen/neu'
 import { Route as AppLieferantenIdStrategieSegmentierungKonsolidierenIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/segmentierung/konsolidieren/index'
 import { Route as AppLieferantenIdStrategieSegmentierungKriteriumKeyRouteImport } from './routes/_app/lieferanten/$id/strategie/segmentierung/kriterium/$key'
 import { Route as AppLieferantenIdUmsetzungTermineMeetingIdIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/termine/$meetingId/index'
@@ -1160,6 +1166,24 @@ const AppLieferantenIdStrategieProfilBearbeitenRoute =
     path: '/strategie/profil/bearbeiten',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
+const AppLieferantenIdStrategieProfilEinschaetzungRoute =
+  AppLieferantenIdStrategieProfilEinschaetzungRouteImport.update({
+    id: '/strategie/profil/einschaetzung',
+    path: '/strategie/profil/einschaetzung',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdStrategieProfilGeschaeftsleitungRoute =
+  AppLieferantenIdStrategieProfilGeschaeftsleitungRouteImport.update({
+    id: '/strategie/profil/geschaeftsleitung',
+    path: '/strategie/profil/geschaeftsleitung',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdStrategieProfilUnternehmenRoute =
+  AppLieferantenIdStrategieProfilUnternehmenRouteImport.update({
+    id: '/strategie/profil/unternehmen',
+    path: '/strategie/profil/unternehmen',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppLieferantenIdStrategieProfilZuordnungRoute =
   AppLieferantenIdStrategieProfilZuordnungRouteImport.update({
     id: '/strategie/profil/zuordnung',
@@ -1380,6 +1404,24 @@ const AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRoute =
       getParentRoute: () => AppLieferantenIdStrategieLieferantenplanRouteRoute,
     } as any,
   )
+const AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute =
+  AppLieferantenIdStrategieProfilKennzahlenKennzahlRouteImport.update({
+    id: '/strategie/profil/kennzahlen/$kennzahl',
+    path: '/strategie/profil/kennzahlen/$kennzahl',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdStrategieProfilKennzahlenImportRoute =
+  AppLieferantenIdStrategieProfilKennzahlenImportRouteImport.update({
+    id: '/strategie/profil/kennzahlen/import',
+    path: '/strategie/profil/kennzahlen/import',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdStrategieProfilKennzahlenNeuRoute =
+  AppLieferantenIdStrategieProfilKennzahlenNeuRouteImport.update({
+    id: '/strategie/profil/kennzahlen/neu',
+    path: '/strategie/profil/kennzahlen/neu',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppLieferantenIdStrategieSegmentierungKonsolidierenIndexRoute =
   AppLieferantenIdStrategieSegmentierungKonsolidierenIndexRouteImport.update({
     id: '/strategie/segmentierung/konsolidieren/',
@@ -1623,6 +1665,9 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/lieferanten/$id/strategie/profil/einschaetzung': typeof AppLieferantenIdStrategieProfilEinschaetzungRoute
+  '/lieferanten/$id/strategie/profil/geschaeftsleitung': typeof AppLieferantenIdStrategieProfilGeschaeftsleitungRoute
+  '/lieferanten/$id/strategie/profil/unternehmen': typeof AppLieferantenIdStrategieProfilUnternehmenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
@@ -1673,6 +1718,9 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/strategie/lieferantenplan/themen/neu': typeof AppLieferantenIdStrategieLieferantenplanThemenNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/ziele/neu': typeof AppLieferantenIdStrategieLieferantenplanZieleNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten': typeof AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl': typeof AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/import': typeof AppLieferantenIdStrategieProfilKennzahlenImportRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/neu': typeof AppLieferantenIdStrategieProfilKennzahlenNeuRoute
   '/lieferanten/$id/strategie/segmentierung/kriterium/$key': typeof AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute
   '/lieferanten/$id/umsetzung/termine/$meetingId/agenda': typeof AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute
   '/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten': typeof AppLieferantenIdUmsetzungTermineMeetingIdBearbeitenRoute
@@ -1835,6 +1883,9 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/lieferanten/$id/strategie/profil/einschaetzung': typeof AppLieferantenIdStrategieProfilEinschaetzungRoute
+  '/lieferanten/$id/strategie/profil/geschaeftsleitung': typeof AppLieferantenIdStrategieProfilGeschaeftsleitungRoute
+  '/lieferanten/$id/strategie/profil/unternehmen': typeof AppLieferantenIdStrategieProfilUnternehmenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
@@ -1885,6 +1936,9 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/strategie/lieferantenplan/themen/neu': typeof AppLieferantenIdStrategieLieferantenplanThemenNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/ziele/neu': typeof AppLieferantenIdStrategieLieferantenplanZieleNeuRoute
   '/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten': typeof AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl': typeof AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/import': typeof AppLieferantenIdStrategieProfilKennzahlenImportRoute
+  '/lieferanten/$id/strategie/profil/kennzahlen/neu': typeof AppLieferantenIdStrategieProfilKennzahlenNeuRoute
   '/lieferanten/$id/strategie/segmentierung/kriterium/$key': typeof AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute
   '/lieferanten/$id/umsetzung/termine/$meetingId/agenda': typeof AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute
   '/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten': typeof AppLieferantenIdUmsetzungTermineMeetingIdBearbeitenRoute
@@ -2053,6 +2107,9 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe': typeof AppLieferantenIdStrategieLieferantenplanFreigabeRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  '/_app/lieferanten/$id/strategie/profil/einschaetzung': typeof AppLieferantenIdStrategieProfilEinschaetzungRoute
+  '/_app/lieferanten/$id/strategie/profil/geschaeftsleitung': typeof AppLieferantenIdStrategieProfilGeschaeftsleitungRoute
+  '/_app/lieferanten/$id/strategie/profil/unternehmen': typeof AppLieferantenIdStrategieProfilUnternehmenRoute
   '/_app/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
   '/_app/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/_app/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
@@ -2103,6 +2160,9 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/strategie/lieferantenplan/themen/neu': typeof AppLieferantenIdStrategieLieferantenplanThemenNeuRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/ziele/neu': typeof AppLieferantenIdStrategieLieferantenplanZieleNeuRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten': typeof AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRoute
+  '/_app/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl': typeof AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute
+  '/_app/lieferanten/$id/strategie/profil/kennzahlen/import': typeof AppLieferantenIdStrategieProfilKennzahlenImportRoute
+  '/_app/lieferanten/$id/strategie/profil/kennzahlen/neu': typeof AppLieferantenIdStrategieProfilKennzahlenNeuRoute
   '/_app/lieferanten/$id/strategie/segmentierung/kriterium/$key': typeof AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute
   '/_app/lieferanten/$id/umsetzung/termine/$meetingId/agenda': typeof AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute
   '/_app/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten': typeof AppLieferantenIdUmsetzungTermineMeetingIdBearbeitenRoute
@@ -2271,6 +2331,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/lieferanten/$id/strategie/profil/einschaetzung'
+    | '/lieferanten/$id/strategie/profil/geschaeftsleitung'
+    | '/lieferanten/$id/strategie/profil/unternehmen'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$eintrag'
     | '/lieferanten/$id/strategie/spend/neu'
@@ -2321,6 +2384,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/themen/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/ziele/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/import'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/neu'
     | '/lieferanten/$id/strategie/segmentierung/kriterium/$key'
     | '/lieferanten/$id/umsetzung/termine/$meetingId/agenda'
     | '/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten'
@@ -2483,6 +2549,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/lieferanten/$id/strategie/profil/einschaetzung'
+    | '/lieferanten/$id/strategie/profil/geschaeftsleitung'
+    | '/lieferanten/$id/strategie/profil/unternehmen'
     | '/lieferanten/$id/strategie/profil/zuordnung'
     | '/lieferanten/$id/strategie/spend/$eintrag'
     | '/lieferanten/$id/strategie/spend/neu'
@@ -2533,6 +2602,9 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/themen/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/ziele/neu'
     | '/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/import'
+    | '/lieferanten/$id/strategie/profil/kennzahlen/neu'
     | '/lieferanten/$id/strategie/segmentierung/kriterium/$key'
     | '/lieferanten/$id/umsetzung/termine/$meetingId/agenda'
     | '/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten'
@@ -2700,6 +2772,9 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/strategie/lieferantenplan/freigabe'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
+    | '/_app/lieferanten/$id/strategie/profil/einschaetzung'
+    | '/_app/lieferanten/$id/strategie/profil/geschaeftsleitung'
+    | '/_app/lieferanten/$id/strategie/profil/unternehmen'
     | '/_app/lieferanten/$id/strategie/profil/zuordnung'
     | '/_app/lieferanten/$id/strategie/spend/$eintrag'
     | '/_app/lieferanten/$id/strategie/spend/neu'
@@ -2750,6 +2825,9 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/strategie/lieferantenplan/themen/neu'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/ziele/neu'
     | '/_app/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten'
+    | '/_app/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+    | '/_app/lieferanten/$id/strategie/profil/kennzahlen/import'
+    | '/_app/lieferanten/$id/strategie/profil/kennzahlen/neu'
     | '/_app/lieferanten/$id/strategie/segmentierung/kriterium/$key'
     | '/_app/lieferanten/$id/umsetzung/termine/$meetingId/agenda'
     | '/_app/lieferanten/$id/umsetzung/termine/$meetingId/bearbeiten'
@@ -3927,6 +4005,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
+    '/_app/lieferanten/$id/strategie/profil/einschaetzung': {
+      id: '/_app/lieferanten/$id/strategie/profil/einschaetzung'
+      path: '/strategie/profil/einschaetzung'
+      fullPath: '/lieferanten/$id/strategie/profil/einschaetzung'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilEinschaetzungRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/geschaeftsleitung': {
+      id: '/_app/lieferanten/$id/strategie/profil/geschaeftsleitung'
+      path: '/strategie/profil/geschaeftsleitung'
+      fullPath: '/lieferanten/$id/strategie/profil/geschaeftsleitung'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilGeschaeftsleitungRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/unternehmen': {
+      id: '/_app/lieferanten/$id/strategie/profil/unternehmen'
+      path: '/strategie/profil/unternehmen'
+      fullPath: '/lieferanten/$id/strategie/profil/unternehmen'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilUnternehmenRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
     '/_app/lieferanten/$id/strategie/profil/zuordnung': {
       id: '/_app/lieferanten/$id/strategie/profil/zuordnung'
       path: '/strategie/profil/zuordnung'
@@ -4178,6 +4277,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten'
       preLoaderRoute: typeof AppLieferantenIdStrategieLieferantenplanZusammenfassungBearbeitenRouteImport
       parentRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl': {
+      id: '/_app/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+      path: '/strategie/profil/kennzahlen/$kennzahl'
+      fullPath: '/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilKennzahlenKennzahlRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/kennzahlen/import': {
+      id: '/_app/lieferanten/$id/strategie/profil/kennzahlen/import'
+      path: '/strategie/profil/kennzahlen/import'
+      fullPath: '/lieferanten/$id/strategie/profil/kennzahlen/import'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilKennzahlenImportRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/strategie/profil/kennzahlen/neu': {
+      id: '/_app/lieferanten/$id/strategie/profil/kennzahlen/neu'
+      path: '/strategie/profil/kennzahlen/neu'
+      fullPath: '/lieferanten/$id/strategie/profil/kennzahlen/neu'
+      preLoaderRoute: typeof AppLieferantenIdStrategieProfilKennzahlenNeuRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/strategie/segmentierung/konsolidieren/': {
       id: '/_app/lieferanten/$id/strategie/segmentierung/konsolidieren/'
@@ -4499,6 +4619,9 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanZusagenCommitmentIdRoute: typeof AppLieferantenIdPlanZusagenCommitmentIdRoute
   AppLieferantenIdPlanZusagenNeuRoute: typeof AppLieferantenIdPlanZusagenNeuRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
+  AppLieferantenIdStrategieProfilEinschaetzungRoute: typeof AppLieferantenIdStrategieProfilEinschaetzungRoute
+  AppLieferantenIdStrategieProfilGeschaeftsleitungRoute: typeof AppLieferantenIdStrategieProfilGeschaeftsleitungRoute
+  AppLieferantenIdStrategieProfilUnternehmenRoute: typeof AppLieferantenIdStrategieProfilUnternehmenRoute
   AppLieferantenIdStrategieProfilZuordnungRoute: typeof AppLieferantenIdStrategieProfilZuordnungRoute
   AppLieferantenIdStrategieSpendEintragRoute: typeof AppLieferantenIdStrategieSpendEintragRoute
   AppLieferantenIdStrategieSpendNeuRoute: typeof AppLieferantenIdStrategieSpendNeuRoute
@@ -4525,6 +4648,9 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanInitiativenInitiativeIdBearbeitenRoute: typeof AppLieferantenIdPlanInitiativenInitiativeIdBearbeitenRoute
   AppLieferantenIdPlanScorecardKpiIdBearbeitenRoute: typeof AppLieferantenIdPlanScorecardKpiIdBearbeitenRoute
   AppLieferantenIdPlanScorecardKpiIdWertRoute: typeof AppLieferantenIdPlanScorecardKpiIdWertRoute
+  AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute: typeof AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute
+  AppLieferantenIdStrategieProfilKennzahlenImportRoute: typeof AppLieferantenIdStrategieProfilKennzahlenImportRoute
+  AppLieferantenIdStrategieProfilKennzahlenNeuRoute: typeof AppLieferantenIdStrategieProfilKennzahlenNeuRoute
   AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute: typeof AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute
   AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute: typeof AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute
   AppLieferantenIdUmsetzungTermineMeetingIdBearbeitenRoute: typeof AppLieferantenIdUmsetzungTermineMeetingIdBearbeitenRoute
@@ -4594,6 +4720,12 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdPlanZusagenNeuRoute: AppLieferantenIdPlanZusagenNeuRoute,
   AppLieferantenIdStrategieProfilBearbeitenRoute:
     AppLieferantenIdStrategieProfilBearbeitenRoute,
+  AppLieferantenIdStrategieProfilEinschaetzungRoute:
+    AppLieferantenIdStrategieProfilEinschaetzungRoute,
+  AppLieferantenIdStrategieProfilGeschaeftsleitungRoute:
+    AppLieferantenIdStrategieProfilGeschaeftsleitungRoute,
+  AppLieferantenIdStrategieProfilUnternehmenRoute:
+    AppLieferantenIdStrategieProfilUnternehmenRoute,
   AppLieferantenIdStrategieProfilZuordnungRoute:
     AppLieferantenIdStrategieProfilZuordnungRoute,
   AppLieferantenIdStrategieSpendEintragRoute:
@@ -4644,6 +4776,12 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdPlanScorecardKpiIdBearbeitenRoute,
   AppLieferantenIdPlanScorecardKpiIdWertRoute:
     AppLieferantenIdPlanScorecardKpiIdWertRoute,
+  AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute:
+    AppLieferantenIdStrategieProfilKennzahlenKennzahlRoute,
+  AppLieferantenIdStrategieProfilKennzahlenImportRoute:
+    AppLieferantenIdStrategieProfilKennzahlenImportRoute,
+  AppLieferantenIdStrategieProfilKennzahlenNeuRoute:
+    AppLieferantenIdStrategieProfilKennzahlenNeuRoute,
   AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute:
     AppLieferantenIdStrategieSegmentierungKriteriumKeyRoute,
   AppLieferantenIdUmsetzungTermineMeetingIdAgendaRoute:

@@ -463,6 +463,13 @@
       "when": 1794693527508,
       "tag": "0065_spend_entwicklung",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1794694325888,
+      "tag": "0066_profil_finanzen",
+      "breakpoints": true
     }
   ]
 }

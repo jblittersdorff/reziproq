@@ -37,15 +37,32 @@ Als SRO kenne ich den Lieferanten als Unternehmen: wer ihn führt, wie er finanz
 3. Kennzahlen lassen sich als CSV importieren (Jahr, Kennzahl, Wert, Einheit, Quelle).
 4. Die Kachel Profil und Finanzen im Lieferantenplan zeigt „Unser Anteil“.
 
+## Umsetzung
+
+- Drei käuferprivate Tabellen. `supplier_financial` ist eindeutig je Jahr und Kennzahl; die Einheit
+  folgt aus der Kennzahl (Quoten in Basispunkten ohne Währung, sonst Cent mit Währung), geprüft in
+  der Datenbank. Die Quelle ist Pflicht, auch in der Datenbank.
+- Unser Anteil: jüngstes Jahr mit Umsatz und eigenem Ist-Spend (Sicht `relationship_spend_total`).
+  Weicht die Währung ab oder hat der Spend des Jahres mehrere Währungen, steht ein Hinweis.
+- Import: CSV oder Excel mit Jahr, Kennzahl, Wert, Einheit, Quelle (deutsche oder englische Namen;
+  Einheit ist die Währung oder %). Ganz oder gar nicht: Hat eine Zeile einen Fehler, wird nichts
+  übernommen und jede fehlerhafte Zeile mit ihren Gründen genannt. Negative Beträge (z. B.
+  Nettoliquidität) sind erlaubt.
+- Bearbeiten auf eigenen Seiten je Abschnitt unter `/…/strategie/profil/`: `unternehmen`,
+  `geschaeftsleitung`, `einschaetzung`, `kennzahlen/neu`, `kennzahlen/<id>`, `kennzahlen/import`.
+  Der Verlauf ist intern.
+- Je Kennzahl ein kleines Liniendiagramm mit allen Werten und Quellen als Liste darunter. Die Kachel
+  Profil und Finanzen im Lieferantenplan zeigt „Unser Anteil“.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Jede Kennzahl hat Jahr, Einheit und Quelle. Ohne Quelle lässt sie sich nicht speichern.
-- [ ] Unser Anteil stimmt mit Testdaten und erscheint nicht bei unterschiedlichen Währungen.
-- [ ] Ein CSV-Import mit zwölf Zeilen gelingt in einem Schritt. Fehlerhafte Zeilen sind markiert.
-- [ ] Beträge liegen als Ganzzahl in Cent, Quoten in Basispunkten.
-- [ ] Der Test-Lieferant sieht nichts davon (PLT-04).
+- [x] Jede Kennzahl hat Jahr, Einheit und Quelle. Ohne Quelle lässt sie sich nicht speichern.
+- [x] Unser Anteil stimmt mit Testdaten und erscheint nicht bei unterschiedlichen Währungen.
+- [x] Ein CSV-Import mit zwölf Zeilen gelingt in einem Schritt. Fehlerhafte Zeilen sind markiert.
+- [x] Beträge liegen als Ganzzahl in Cent, Quoten in Basispunkten.
+- [x] Der Test-Lieferant sieht nichts davon (PLT-04).
 
 ## Nicht Teil dieser Funktion
 

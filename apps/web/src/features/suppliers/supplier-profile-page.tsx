@@ -16,6 +16,7 @@ import { endSupplier } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { ProfileFinanceSections } from './profile-finance';
 import { SupplierFrame } from './supplier-frame';
 import { useRefreshSupplier, useSupplier } from './use-supplier';
 
@@ -158,12 +159,14 @@ export function SupplierProfilePage({ relationshipId }: { relationshipId: string
               </div>
             )}
 
+            <ProfileFinanceSections relationshipId={relationshipId} />
+
             <section aria-labelledby="lieferant-verlauf" className="flex flex-col gap-4">
               <h2 id="lieferant-verlauf" className="font-semibold text-lg">
                 {t.suppliers.history}
               </h2>
               <AuditHistory
-                objectType="relationship,relationship_side,relationship_spend,relationship_assignment"
+                objectType="relationship,relationship_side,relationship_spend,relationship_assignment,supplier_profile,supplier_executive,supplier_financial"
                 objectId={relationshipId}
               />
             </section>
