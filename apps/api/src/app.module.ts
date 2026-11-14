@@ -29,6 +29,7 @@ import { StartModule } from './modules/start/start.module.js';
 import { SupplierPlansModule } from './modules/supplier-plans/supplier-plans.module.js';
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 import { SupportModule } from './modules/support/support.module.js';
+import { TouchpointsModule } from './modules/touchpoints/touchpoints.module.js';
 
 // Im Betrieb liefert die API auch die fertig gebaute Web-App aus.
 // Im Entwicklungsmodus übernimmt das der Vite-Server.
@@ -60,6 +61,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     PlaybookModule,
     MeetingsModule,
     ActionsModule,
+    TouchpointsModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

@@ -283,6 +283,33 @@ export const actionInternalAudit = auditedObject({
   fields: ['title', 'owner_name', 'due_date', 'status'],
 });
 
+/** Kontaktpunkte (PLB-06): Verlauf folgt der Sichtbarkeit der Zeile. */
+const touchpointFields = [
+  'buyer_name',
+  'buyer_level',
+  'supplier_name',
+  'supplier_level',
+  'format',
+  'cadence',
+  'visibility',
+];
+export const touchpointAudit = auditedObject({
+  type: 'touchpoint',
+  visibility: 'shared',
+  fields: touchpointFields,
+});
+export const touchpointInternalAudit = auditedObject({
+  type: 'touchpoint_internal',
+  visibility: 'internal',
+  fields: touchpointFields,
+});
+/** Kontaktpunkte geprüft (PLB-06), je Zyklus, käuferprivat. */
+export const touchpointReviewAudit = auditedObject({
+  type: 'touchpoint_review',
+  visibility: 'internal',
+  fields: ['cycle_id'],
+});
+
 /** Kataloge für Spielregeln und Formate (PLB-01): intern beim Käufer. */
 export const ruleCatalogAudit = auditedObject({
   type: 'rule_catalog_item',
@@ -374,6 +401,9 @@ export const auditedObjects: readonly AuditedObject[] = [
   validationAudit,
   scorecardSettingAudit,
   orgSettingAudit,
+  touchpointAudit,
+  touchpointInternalAudit,
+  touchpointReviewAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

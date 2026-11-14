@@ -257,6 +257,28 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     testValues: { key: 'action_reminder_days', value: '3', updated_by: 'probe' },
   },
+  // PLB-06: Kontaktpunkte geteilt, Standard intern; „geprüft“ je Zyklus käuferprivat.
+  touchpoint: {
+    kind: 'shared',
+    testValues: {
+      buyer_name: 'Probe',
+      buyer_level: 'executive',
+      supplier_name: 'Probe',
+      supplier_level: 'executive',
+      format: 'Probe',
+      cadence: 'quarterly',
+      created_by: 'probe',
+    },
+  },
+  touchpoint_review: {
+    kind: 'buyer_private',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      cycle_id: buyer && probe('cycle', buyer),
+      reviewed_by: 'probe',
+      reviewed_by_name: 'Probe',
+    }),
+  },
   action_private_source: {
     kind: 'org_private',
     testValues: ({ buyer, probe }) => ({

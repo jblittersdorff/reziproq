@@ -30,4 +30,5 @@ export const buyerOnlyActions: readonly Action[] = [
   'wirkung.sehen',
   'wirkung.bearbeiten',
   'wirkung.freigeben',
+  'kontaktpunkte.bearbeiten',
 ];

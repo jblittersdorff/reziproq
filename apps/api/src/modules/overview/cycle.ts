@@ -111,10 +111,32 @@ export const feedbackCycleStepSource: CycleStepSource = {
   },
 };
 
+/**
+ * PLB-06: Kontaktpunkte erledigt, sobald sie in diesem Zyklus als geprüft markiert sind; begonnen,
+ * sobald es Kontaktpunkte gibt.
+ */
+export const touchpointCycleStepSource: CycleStepSource = {
+  key: 'touchpoints',
+  async cycleStepStatus(cycle, tx) {
+    const [review] = await tx
+      .select({ id: schema.touchpointReview.id })
+      .from(schema.touchpointReview)
+      .where(eq(schema.touchpointReview.cycleId, cycle.id));
+    if (review) return 'completed';
+    const [any] = await tx
+      .select({ id: schema.touchpoint.id })
+      .from(schema.touchpoint)
+      .where(eq(schema.touchpoint.relationshipId, cycle.relationshipId))
+      .limit(1);
+    return any ? 'in_progress' : 'open';
+  },
+};
+
 /** Wohin ein Schritt der Zyklus-Leiste führt, sobald sein Modul gebaut ist. */
 const stepPaths: Partial<Record<CycleStepKey, string>> = {
   segment: 'strategie/segmentierung',
   feedback: 'beziehung/feedback',
+  touchpoints: 'beziehung/kontaktpunkte',
   supplierPlan: 'strategie/lieferantenplan',
   jbp: 'plan/freigabe',
   scorecard: 'plan/scorecard',

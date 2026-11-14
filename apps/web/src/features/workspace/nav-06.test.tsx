@@ -178,7 +178,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     renderAt(base);
     const expected: Record<string, string[]> = {
       Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
-      Beziehung: ['Team', 'Spielregeln', 'Feedback'],
+      Beziehung: ['Team', 'Spielregeln', 'Feedback', 'Kontaktpunkte'],
       'Gemeinsamer Plan': [
         'Vorbereitung',
         'Themen',

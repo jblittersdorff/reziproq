@@ -235,7 +235,8 @@ describe('SEG-02 Fokuslieferanten über die API', () => {
     expect(workspace.cycle?.steps).toMatchObject([
       { key: 'segment', status: 'completed' },
       { key: 'feedback', status: 'open' },
-      { key: 'touchpoints', status: 'unavailable' },
+      // PLB-06: Kontaktpunkte gebaut; ohne Kontaktpunkte offen.
+      { key: 'touchpoints', status: 'open' },
       { key: 'supplierPlan', status: 'open' },
       // JBP-06: Der Schritt Gemeinsamer Plan ist gebaut; ohne Plan ist er offen.
       { key: 'jbp', status: 'open' },
