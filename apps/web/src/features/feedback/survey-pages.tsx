@@ -118,6 +118,7 @@ export function SurveyPage({ kind }: { kind: string }) {
     return (
       <>
         <PagePath trail={trail} current={text.notFound} />
+        <PageHeader title={text.notFound} />
         <EmptyState size="lg" title={text.notFound} description={t.notFound.description} />
       </>
     );
@@ -301,6 +302,7 @@ export function SurveyQuestionPage({ kind, questionKey }: { kind: string; questi
     return (
       <>
         <PagePath trail={trail} current={text.notFound} />
+        <PageHeader title={text.notFound} />
         <EmptyState size="lg" title={text.notFound} description={t.notFound.description} />
       </>
     );
@@ -469,6 +471,7 @@ export function SurveyPreviewPage({ kind }: { kind: string }) {
     return (
       <>
         <PagePath trail={trail} current={text.notFound} />
+        <PageHeader title={text.notFound} />
         <EmptyState size="lg" title={text.notFound} description={t.notFound.description} />
       </>
     );
