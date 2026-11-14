@@ -18,6 +18,7 @@ export function allRoutes(): string[] {
       .replace('$id', id)
       .replace('$jahr', '2025')
       .replace('$nutzer', 'nina')
+      .replace('$kind', 'pulse')
       .replace(/\/\$$/, '/gibt-es-nicht')
       // Weitere Parameter wie $key oder $topicId bekommen die Beispiel-ID.
       .replace(/\$[A-Za-z]+/g, id)
