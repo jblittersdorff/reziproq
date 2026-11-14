@@ -18,6 +18,8 @@ export default defineConfig({
     url: 'http://localhost:5174',
     reuseExistingServer: false,
     env: {
+      // Der Rundgang lädt alle Routen; auf dem CI-Rechner reicht der Standard-Speicher von Node nicht.
+      NODE_OPTIONS: '--max-old-space-size=4096',
       ZITADEL_ISSUER: 'https://zitadel.test',
       ZITADEL_CLIENT_ID: 'web-client',
     },
