@@ -64,6 +64,7 @@ export const actions = [
   'wirkung.bearbeiten',
   'wirkung.freigeben',
   'feedback.sehen',
+  'eigene_sicht.bearbeiten',
   'feedback.verwalten',
 ] as const;
 export type Action = (typeof actions)[number];

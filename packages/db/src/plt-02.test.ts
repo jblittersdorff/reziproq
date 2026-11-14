@@ -159,6 +159,8 @@ describe('PLT-02 in der Datenbank', () => {
       'segmentation_round',
       'strategic_topic',
       'strategic_topic_objective',
+      'supplier_account_objective',
+      'supplier_account_plan',
       'supplier_contact',
       'supplier_plan',
       'support_access_log',

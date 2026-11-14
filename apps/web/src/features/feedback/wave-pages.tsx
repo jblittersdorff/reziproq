@@ -25,12 +25,10 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { StepActions, StepProgress } from '@/components/ui/step-progress';
 import { Tile, TileMetric, TileTitle } from '@/components/ui/tile';
-import { customerPath } from '@/features/customers/customer-areas';
-import { useCustomerWorkspace } from '@/features/customers/customer-workspace';
+import { CustomerFrame } from '@/features/customers/customer-frame';
 import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
-import { PagePath } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
   ApiError,
@@ -91,40 +89,6 @@ function WaveFrame({
     >
       {() => children}
     </SupplierFrame>
-  );
-}
-
-function CustomerFrame({
-  relationshipId,
-  trail,
-  current,
-  children,
-}: {
-  relationshipId: string;
-  trail: Trail;
-  current: string;
-  children: ReactNode;
-}) {
-  const t = useT();
-  const workspace = useCustomerWorkspace(relationshipId);
-  return (
-    <>
-      <PagePath
-        trail={[
-          { label: t.customers.title, href: '/kunden' },
-          ...(workspace.data
-            ? [{ label: workspace.data.name, href: customerPath(relationshipId) }]
-            : []),
-          {
-            label: t.customers.areas.relationship,
-            href: customerPath(relationshipId, 'relationship'),
-          },
-          ...trail,
-        ]}
-        current={current}
-      />
-      {children}
-    </>
   );
 }
 

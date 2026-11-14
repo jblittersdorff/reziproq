@@ -29,13 +29,26 @@ Als Key Account Manager halte ich für jeden Kunden fest, wie ich die Beziehung 
    - Abschnitte Zusammenfassung, Sicht auf den Kunden, eigene Ziele
 2. Bearbeiten auf eigenen Seiten je Abschnitt.
 
+## Umsetzung
+
+- `supplier_account_plan` und `supplier_account_objective` sind die ersten Tabellen der Ebene
+  `supplier_private`. Der Plan hat keine Eindeutigkeit je Beziehung (die Layer-Tests legen mehrere
+  Zeilen an); der Dienst liest und ändert die jüngste.
+- Endpunkte nur unter `/kunden/<beziehung>/eigene-sicht`, im Kontext des Kunden; Käufer bekommen
+  403, und ihre Mandanten-Session sieht weder Zeilen noch Anzahlen. Der Verlauf ist intern.
+- Lesen mit `kunden.sehen`, Bearbeiten mit dem neuen Recht `eigene_sicht.bearbeiten` (Admin und
+  Nutzer). Die Rechte-Matrix prüft es nicht mit Käufern; `lif-03.test.ts` prüft es mit
+  Lieferanten-Nutzern.
+- Ziele lassen sich ändern und löschen; verantwortlich ist optional eine Person der eigenen
+  Organisation.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Der Käufer bekommt auf allen Endpunkten der eigenen Sicht keine Zeile und keine Anzahl (PLT-04).
-- [ ] Zwei Lieferanten-Nutzer derselben Organisation sehen dieselbe eigene Sicht.
-- [ ] Jede Seite trägt das Kennzeichen „Nur für Sie sichtbar“.
+- [x] Der Käufer bekommt auf allen Endpunkten der eigenen Sicht keine Zeile und keine Anzahl (PLT-04).
+- [x] Zwei Lieferanten-Nutzer derselben Organisation sehen dieselbe eigene Sicht.
+- [x] Jede Seite trägt das Kennzeichen „Nur für Sie sichtbar“.
 
 ## Nicht Teil dieser Funktion
 

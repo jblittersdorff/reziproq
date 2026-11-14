@@ -161,6 +161,10 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'eigene_sicht.bearbeiten': {
+    description: 'Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite)',
+    roles: ['admin', 'member'],
+  },
   'feedback.sehen': {
     description: 'Feedback-Wellen der Beziehung mit Rücklauf je Seite sehen (beide Seiten)',
     roles: ['admin', 'member', 'viewer'],

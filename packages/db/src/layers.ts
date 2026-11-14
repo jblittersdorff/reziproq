@@ -117,6 +117,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       answers: '{}',
     }),
   },
+  // LIF-03: Eigene Sicht des Lieferanten; der Käufer sieht nichts davon.
+  supplier_account_plan: {
+    kind: 'supplier_private',
+    testValues: { updated_by: 'probe', updated_by_name: 'Probe' },
+  },
+  supplier_account_objective: {
+    kind: 'supplier_private',
+    testValues: { text: 'Probe', target_year: 2027 },
+  },
   // PUL-03: Ergebnis und Freitexte entstehen nur bei der Aufdeckung (app_survey_reveal).
   survey_result: {
     kind: 'shared',
