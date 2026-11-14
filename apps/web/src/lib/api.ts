@@ -4,6 +4,7 @@ import {
   type AddAssignment,
   type AssignmentRequest,
   acceptInvitationResponseSchema,
+  accountPlanSchema,
   actionItemSchema,
   actionListSchema,
   assignmentResponseSchema,
@@ -85,6 +86,7 @@ import {
   portfolioSchema,
   promptEventSchema,
   publicInvitationSchema,
+  publicSurveySchema,
   type RaiseMaturity,
   type RequestContributions,
   type RequestValidation,
@@ -97,6 +99,9 @@ import {
   ruleSetProposalSchema,
   ruleSetResponseSchema,
   ruleSetSharePreviewSchema,
+  type SaveAccountObjective,
+  type SaveAccountSummary,
+  type SaveAccountView,
   type SaveAction,
   type SaveAgenda,
   type SaveCommitment,
@@ -114,8 +119,6 @@ import {
   type SaveRuleItem,
   type SaveRuleSet,
   type SaveSurveyQuestion,
-  type SubmitSurvey,
-  publicSurveySchema,
   type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
@@ -124,6 +127,7 @@ import {
   type StartSurveyWave,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  type SubmitSurvey,
   type SurveyKind,
   type SurveySide,
   scorecardSettingSchema,
@@ -1701,6 +1705,55 @@ export const saveSurveyQuestion = (
     key ? `/fragebogen/${kind}/fragen/${encodeURIComponent(key)}` : `/fragebogen/${kind}/fragen`,
     request,
     surveyDetailSchema,
+    accessToken,
+  );
+
+/** LIF-03: Eigene Sicht des Lieferanten, nur unter /kunden. */
+export const accountPlanQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['eigene-sicht', relationshipId],
+    queryFn: () =>
+      getJson(`/kunden/${relationshipId}/eigene-sicht`, accountPlanSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAccountSummary = (
+  accessToken: string,
+  relationshipId: string,
+  request: SaveAccountSummary,
+) =>
+  sendJson(
+    'PUT',
+    `/kunden/${relationshipId}/eigene-sicht/zusammenfassung`,
+    request,
+    accountPlanSchema,
+    accessToken,
+  );
+
+export const saveAccountView = (
+  accessToken: string,
+  relationshipId: string,
+  request: SaveAccountView,
+) =>
+  sendJson(
+    'PUT',
+    `/kunden/${relationshipId}/eigene-sicht/sicht`,
+    request,
+    accountPlanSchema,
+    accessToken,
+  );
+
+export const saveAccountObjective = (
+  accessToken: string,
+  relationshipId: string,
+  objectiveId: string | null,
+  request: SaveAccountObjective | null,
+) =>
+  sendJson(
+    request === null ? 'DELETE' : objectiveId ? 'PUT' : 'POST',
+    `/kunden/${relationshipId}/eigene-sicht/ziele${objectiveId ? `/${objectiveId}` : ''}`,
+    request ?? {},
+    accountPlanSchema,
     accessToken,
   );
 

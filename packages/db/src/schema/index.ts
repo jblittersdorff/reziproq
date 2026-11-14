@@ -17,3 +17,4 @@ export * from './supplier-contact.js';
 export * from './supplier-plan.js';
 export * from './support-access-log.js';
 export * from './survey.js';
+export * from './supplier-account.js';

@@ -1,4 +1,5 @@
 export * from './actions.js';
+export * from './account-plan.js';
 export * from './areas.js';
 export * from './audit.js';
 export * from './commitments.js';

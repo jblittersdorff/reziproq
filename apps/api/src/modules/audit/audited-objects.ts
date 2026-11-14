@@ -199,6 +199,13 @@ export const surveyAudit = auditedObject({
   fields: ['kind', 'version', 'question', 'text_de', 'text_en', 'active'],
 });
 
+/** Eigene Sicht des Lieferanten (LIF-03): nur intern, der Käufer sieht keinen Verlauf. */
+export const accountPlanAudit = auditedObject({
+  type: 'supplier_account_plan',
+  visibility: 'internal',
+  fields: ['summary', 'own_view', 'importance', 'objective', 'target_year'],
+});
+
 /** Feedback-Welle (PUL-02): Start, Frist und Abschluss je Seite, für beide Seiten sichtbar. */
 export const surveyWaveAudit = auditedObject({
   type: 'survey_wave',
@@ -345,6 +352,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   maturityAudit,
   pnlLineAudit,
   surveyAudit,
+  accountPlanAudit,
   surveyWaveAudit,
   surveyParticipantAudit,
   impactMonthAudit,
