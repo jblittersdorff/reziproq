@@ -178,6 +178,40 @@ export class InvitationStore {
   }
 }
 
+/** PUL-02b: Zeile aus app_umfrage_lesen. */
+export interface SurveyLinkRow {
+  status: 'open' | 'used' | 'expired';
+  kind: 'pulse' | 'annual';
+  due_date: string;
+  side: 'buyer' | 'supplier';
+  buyer: string;
+  supplier: string;
+  questions: unknown;
+}
+
+/**
+ * Beantworten ohne Anmeldung (PUL-02b): genau zwei Funktionen als reziproq_umfrage. Sie kennen nur
+ * den Hash des Tokens und schreiben einen Antwortbogen ohne Bezug zur Person.
+ */
+@Injectable()
+export class SurveyLinkStore {
+  constructor(@Inject(DATABASE) private readonly db: Database) {}
+
+  async read(tokenHash: string): Promise<SurveyLinkRow | null> {
+    const result = await this.db.execute<SurveyLinkRow & Record<string, unknown>>(
+      sql`select status, kind, due_date::text as due_date, side, buyer, supplier, questions
+          from app_umfrage_lesen(${tokenHash})`,
+    );
+    return result.rows[0] ?? null;
+  }
+
+  async submit(tokenHash: string, answers: unknown, comment: string | null): Promise<void> {
+    await this.db.execute(
+      sql`select app_umfrage_absenden(${tokenHash}, ${JSON.stringify(answers)}::jsonb, ${comment})`,
+    );
+  }
+}
+
 @Global()
 @Module({
   providers: [
@@ -190,7 +224,8 @@ export class InvitationStore {
     TenantDatabase,
     AccountStore,
     InvitationStore,
+    SurveyLinkStore,
   ],
-  exports: [TenantDatabase, AccountStore, InvitationStore],
+  exports: [TenantDatabase, AccountStore, InvitationStore, SurveyLinkStore],
 })
 export class DatabaseModule {}

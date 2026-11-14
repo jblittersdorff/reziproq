@@ -163,6 +163,7 @@ describe('PLT-02 in der Datenbank', () => {
       'supplier_plan',
       'support_access_log',
       'survey_participant',
+      'survey_response',
       'survey_template',
       'survey_wave',
     ]);

@@ -106,7 +106,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 40 | QBR-03 | Maßnahmen | QBR-03, QBR-05 | QBR-01b | 1.0 | M15 | A | PR offen | Status geteilter Maßnahmen über app_massnahme_status (Rolle reziproq_massnahmen); Frist Pflicht; Live-Abschnitt im Termin, Kennzahl im Überblick, Aufgabe auf Start beider Seiten. |
 | 41 | PUL-01 | Fragebogen | PUL-01 | PLT-09 | nach 1.0 | Block F | A | PR offen | Versionen nur anfügbar, Fragen als JSON je Version; Standard im Code, Version 1 beim ersten Lesen. Fünf-Minuten-Prüfung von Hand offen. |
 | 42 | PUL-02a | Feedback-Welle: anlegen und einladen | PUL-02 | PUL-01, QS-01, PLT-07b | nach 1.0 | Block F | A | PR offen | Teil a von PUL-02. Einladungen geteilt, aber immer intern; Rücklauf und Abschluss über app_survey_turnout und app_survey_close. Zwei-Minuten-Prüfung von Hand offen. |
-| 43 | PUL-02b | Feedback-Welle: beantworten ohne Anmeldung | PUL-02 | PUL-02a | nach 1.0 | Block F | A | offen | Teil b von PUL-02 |
+| 43 | PUL-02b | Feedback-Welle: beantworten ohne Anmeldung | PUL-02 | PUL-02a | nach 1.0 | Block F | A | PR offen | Teil b von PUL-02. Antwortbogen ohne Person und ohne Zeitstempel; Zwischenstand nur auf dem Gerät. |
 | 44 | PUL-03 | Auswertung und Wahrnehmungslücken | PUL-03, PUL-04, PUL-05 | PUL-02b, LIF-02 | nach 1.0 | Block F | A | offen | – |
 | 45 | LIF-03 | Eigene Sicht des Lieferanten | LIF-03 | LIF-02 | nach 1.0 | Block F | B | offen | – |
 | 46 | PLB-04 | Team beider Seiten | PLB-04, PLB-05 | LIF-02, PLT-05b | nach 1.0 | Block F | B | offen | – |

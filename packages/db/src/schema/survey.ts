@@ -115,3 +115,36 @@ export const surveyParticipant = pgTable(
     index('survey_participant_token').on(table.tokenHash),
   ],
 );
+
+/**
+ * PUL-02b: Ein Antwortbogen, privat bei der antwortenden Seite (org_private). Anonym durch Bauart:
+ * kein Verweis auf die teilnehmende Person, keine Zeitstempel und eine zufällige ID (uuid v4 statt
+ * v7), damit sich der Bogen nicht über die Zeit mit completed_at verbinden lässt. Schreiben nur
+ * über app_umfrage_absenden; nur anfügbar.
+ */
+export const surveyResponse = pgTable(
+  'survey_response',
+  {
+    id: uuid().primaryKey().default(sql`gen_random_uuid()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    waveId: uuid()
+      .notNull()
+      .references(() => surveyWave.id, { onDelete: 'cascade' }),
+    side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    function: text().notNull(),
+    /** { <Frage>: { current: 1–5 | null, target: 1–5 | null } }; null heißt „Kann ich nicht beurteilen“ */
+    answers: jsonb().notNull(),
+    comment: text(),
+  },
+  (table) => [
+    check('survey_response_side', sql`${table.side} in ('buyer', 'supplier')`),
+    check('survey_response_answers_object', sql`jsonb_typeof(${table.answers}) = 'object'`),
+    check('survey_response_comment', sql`${table.comment} is null or length(${table.comment}) <= 2000`),
+    index('survey_response_wave').on(table.waveId),
+  ],
+);

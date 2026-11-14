@@ -114,6 +114,8 @@ import {
   type SaveRuleItem,
   type SaveRuleSet,
   type SaveSurveyQuestion,
+  type SubmitSurvey,
+  publicSurveySchema,
   type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
@@ -1701,6 +1703,28 @@ export const saveSurveyQuestion = (
     surveyDetailSchema,
     accessToken,
   );
+
+/** PUL-02b: Beantworten ohne Anmeldung; der Token im Link ist der einzige Schlüssel. */
+export const publicSurveyQueryOptions = (token: string) =>
+  queryOptions({
+    queryKey: ['umfrage', token],
+    queryFn: () => getJson(`/umfrage/${encodeURIComponent(token)}`, publicSurveySchema),
+    retry: retryUnlessDenied,
+  });
+
+export async function submitSurvey(token: string, request: SubmitSurvey) {
+  const path = `/umfrage/${encodeURIComponent(token)}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, body);
+  }
+  return publicSurveySchema.parse(await res.json());
+}
 
 /** PUL-02a: Feedback-Wellen; Käufer unter /suppliers, Lieferant unter /kunden. */
 export const feedbackBase = (side: SurveySide, relationshipId: string) =>

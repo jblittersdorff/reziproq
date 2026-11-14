@@ -78,6 +78,9 @@ export function SurveyQuestionnaire({
   comment,
   onComment,
   groupByDimension,
+  numbering,
+  showComment = true,
+  missing = [],
 }: {
   questions: SurveyQuestion[];
   language: SurveyLanguage;
@@ -86,6 +89,11 @@ export function SurveyQuestionnaire({
   comment: string;
   onComment: (value: string) => void;
   groupByDimension: boolean;
+  /** Fragen über mehrere Seiten durchzählen (PUL-02b): Versatz und Gesamtzahl */
+  numbering?: { offset: number; total: number };
+  showComment?: boolean;
+  /** Fragen ohne vollständige Antwort, hervorgehoben */
+  missing?: string[];
 }) {
   const t = messages[language];
   const active = questions.filter((question) => question.active);
@@ -96,7 +104,8 @@ export function SurveyQuestionnaire({
           questions: active.filter((question) => question.dimension === dimension),
         }))
       : [{ dimension: null, questions: active }];
-  let index = 0;
+  let index = numbering?.offset ?? 0;
+  const total = numbering?.total ?? active.length;
   return (
     <div lang={language} data-slot="survey-form" className="flex max-w-3xl flex-col gap-8">
       {groups.map((group) => (
@@ -118,11 +127,12 @@ export function SurveyQuestionnaire({
               <article
                 key={question.key}
                 data-question={question.key}
-                className="flex flex-col gap-5 rounded-xl bg-card p-5"
+                data-missing={missing.includes(question.key) || undefined}
+                className="flex flex-col gap-5 rounded-xl bg-card p-5 data-missing:outline-2 data-missing:outline-destructive"
               >
                 <div className="flex flex-col gap-1">
                   <span className="text-muted-foreground text-sm">
-                    {t.surveyForm.question(index, active.length)}
+                    {t.surveyForm.question(index, total)}
                   </span>
                   <h3 className="font-semibold text-lg">{text}</h3>
                 </div>
@@ -145,17 +155,19 @@ export function SurveyQuestionnaire({
           })}
         </section>
       ))}
-      <FormField label={t.surveyForm.comment}>
-        {(field) => (
-          <Textarea
-            {...field}
-            rows={4}
-            maxLength={2000}
-            value={comment}
-            onChange={(event) => onComment(event.target.value)}
-          />
-        )}
-      </FormField>
+      {showComment && (
+        <FormField label={t.surveyForm.comment}>
+          {(field) => (
+            <Textarea
+              {...field}
+              rows={4}
+              maxLength={2000}
+              value={comment}
+              onChange={(event) => onComment(event.target.value)}
+            />
+          )}
+        </FormField>
+      )}
     </div>
   );
 }
