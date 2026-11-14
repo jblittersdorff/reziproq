@@ -237,7 +237,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
 
     // Neuer SRO im Team: Der Kopf liest ihn dort, ohne eigene Kopie.
     const router = renderAgain(`${base}/beziehung/team/bearbeiten`);
-    await screen.findByRole('heading', { level: 1, name: 'Team bearbeiten' });
+    await screen.findByRole('list', { name: 'Team' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Teamrolle: Lena Berger' }), {
       target: { value: 'member' },
     });
