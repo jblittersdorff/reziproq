@@ -6,7 +6,7 @@ export const minimumContrast = { text: 4.5, large: 3 } as const;
 
 /**
  * Relative Leuchtdichte einer Farbe im Format #rrggbb oder kurz #rgb. Die Kurzform entsteht im
- * gebauten CSS, weil der Minifier #ffffff zu #fff kürzt.
+ * gebauten CSS, weil der Minifier sechsstellige Farben mit doppelten Ziffern auf drei kürzt.
  */
 export function luminance(color: string): number {
   const short = /^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/.exec(color);
