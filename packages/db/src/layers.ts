@@ -106,6 +106,17 @@ export const layerRegister: Record<string, LayerEntry> = {
       invited_by: 'demo-test-oem-1',
     }),
   },
+  // PUL-02b: Antworten privat bei der antwortenden Seite; nur anfügbar, ohne Bezug zur Person.
+  survey_response: {
+    kind: 'org_private',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      wave_id: buyer && probe('survey_wave', buyer),
+      side: 'buyer',
+      function: 'purchasing',
+      answers: '{}',
+    }),
+  },
   // PUL-01: Fragebogen je Organisation; Versionen nur anfügbar.
   survey_template: {
     kind: 'org_private',

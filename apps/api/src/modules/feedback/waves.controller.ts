@@ -1,8 +1,21 @@
-import { Body, Controller, Get, Inject, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import {
   type ExtendSurveyWave,
   extendSurveyWaveSchema,
   type InviteSurveyParticipants,
+  type PublicSurvey,
+  type SubmitSurvey,
+  submitSurveySchema,
   inviteSurveyParticipantsSchema,
   type StartSurveyWave,
   type SurveySuggestions,
@@ -13,7 +26,9 @@ import {
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { Public } from '../auth/public.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
+import { AnswerService } from './answer.service.js';
 import { type WaveScope, WavesService } from './waves.service.js';
 
 type Side = 'buyer' | 'supplier';
@@ -107,3 +122,24 @@ export class BuyerWavesController extends waveRoutes('buyer') {
 
 @Controller('kunden/:id/feedback')
 export class SupplierWavesController extends waveRoutes('supplier') {}
+
+/** PUL-02b: Ohne Login beantworten. Der Token im Link ist der einzige Schlüssel. */
+@Controller('umfrage')
+@Public()
+export class PublicSurveyController {
+  constructor(@Inject(AnswerService) private readonly answers: AnswerService) {}
+
+  @Get(':token')
+  read(@Param('token') token: string): Promise<PublicSurvey> {
+    return this.answers.read(token);
+  }
+
+  @Post(':token')
+  @HttpCode(200)
+  submit(
+    @Param('token') token: string,
+    @Body(new ZodValidationPipe(submitSurveySchema)) body: SubmitSurvey,
+  ): Promise<PublicSurvey> {
+    return this.answers.submit(token, body);
+  }
+}

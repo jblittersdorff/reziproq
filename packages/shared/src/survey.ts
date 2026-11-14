@@ -375,3 +375,34 @@ export type InviteSurveyParticipants = z.infer<typeof inviteSurveyParticipantsSc
 
 export const extendSurveyWaveSchema = z.object({ dueDate: z.iso.date() }).strict();
 export type ExtendSurveyWave = z.infer<typeof extendSurveyWaveSchema>;
+
+// PUL-02b: Beantworten über den persönlichen Link, ohne Anmeldung.
+
+export const surveyTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{20,100}$/);
+
+export const publicSurveySchema = z.object({
+  /** open: beantwortbar; used: schon abgesendet; expired: Frist vorbei oder Seite abgeschlossen */
+  status: z.enum(['open', 'used', 'expired']),
+  kind: z.enum(surveyKinds),
+  dueDate: z.iso.date(),
+  side: z.enum(surveySides),
+  buyer: z.string(),
+  supplier: z.string(),
+  /** Nur aktive Fragen der Version der Welle; leer, wenn nicht offen */
+  questions: z.array(surveyQuestionSchema),
+});
+export type PublicSurvey = z.infer<typeof publicSurveySchema>;
+
+const scaleValue = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
+
+export const surveyAnswerSchema = z
+  .object({ current: scaleValue.nullable(), target: scaleValue.nullable() })
+  .strict();
+
+export const submitSurveySchema = z
+  .object({
+    answers: z.record(z.string().max(60), surveyAnswerSchema),
+    comment: z.string().trim().max(2000).nullable(),
+  })
+  .strict();
+export type SubmitSurvey = z.infer<typeof submitSurveySchema>;

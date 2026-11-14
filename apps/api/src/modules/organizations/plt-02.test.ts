@@ -80,6 +80,9 @@ describe('PLT-02 über die API', () => {
       // Der Einladungslink ist öffentlich (LIF-01a); der Token allein entscheidet.
       'GET /api/einladungen/00000000-0000-7000-8000-000000000000',
       'POST /api/einladungen/00000000-0000-7000-8000-000000000000/annahme',
+      // Der Link zur Umfrage ebenso (PUL-02b).
+      'GET /api/umfrage/00000000-0000-7000-8000-000000000000',
+      'POST /api/umfrage/00000000-0000-7000-8000-000000000000',
     ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>

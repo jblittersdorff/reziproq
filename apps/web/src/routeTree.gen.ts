@@ -18,6 +18,7 @@ import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as EinladungTokenRouteRouteImport } from './routes/einladung/$token/route'
+import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
@@ -253,6 +254,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 const EinladungTokenRouteRoute = EinladungTokenRouteRouteImport.update({
   id: '/einladung/$token',
   path: '/einladung/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UmfrageTokenRoute = UmfrageTokenRouteImport.update({
+  id: '/umfrage/$token',
+  path: '/umfrage/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppBetreiberKundenRoute = AppBetreiberKundenRouteImport.update({
@@ -1393,6 +1399,7 @@ export interface FileRoutesByFullPath {
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/umfrage/$token': typeof UmfrageTokenRoute
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
@@ -1594,6 +1601,7 @@ export interface FileRoutesByTo {
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -1795,6 +1803,7 @@ export interface FileRoutesById {
   '/_app/menu': typeof AppMenuRoute
   '/_app/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/umfrage/$token': typeof UmfrageTokenRoute
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
@@ -1999,6 +2008,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/uebersicht'
     | '/auth/callback'
+    | '/umfrage/$token'
     | '/kunden/$id'
     | '/lieferanten/$id'
     | '/betreiber/kunden'
@@ -2200,6 +2210,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/uebersicht'
     | '/auth/callback'
+    | '/umfrage/$token'
     | '/betreiber/kunden'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
@@ -2400,6 +2411,7 @@ export interface FileRouteTypes {
     | '/_app/menu'
     | '/_app/uebersicht'
     | '/auth/callback'
+    | '/umfrage/$token'
     | '/_app/kunden/$id'
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
@@ -2600,6 +2612,7 @@ export interface RootRouteChildren {
   StyleguideRoute: typeof StyleguideRoute
   EinladungTokenRouteRoute: typeof EinladungTokenRouteRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
+  UmfrageTokenRoute: typeof UmfrageTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2665,6 +2678,13 @@ declare module '@tanstack/react-router' {
       path: '/einladung/$token'
       fullPath: '/einladung/$token'
       preLoaderRoute: typeof EinladungTokenRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/umfrage/$token': {
+      id: '/umfrage/$token'
+      path: '/umfrage/$token'
+      fullPath: '/umfrage/$token'
+      preLoaderRoute: typeof UmfrageTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/betreiber/kunden': {
@@ -4574,6 +4594,7 @@ const rootRouteChildren: RootRouteChildren = {
   StyleguideRoute: StyleguideRoute,
   EinladungTokenRouteRoute: EinladungTokenRouteRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
+  UmfrageTokenRoute: UmfrageTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

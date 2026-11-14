@@ -220,7 +220,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   api.requests.push({ url, customer: headers.get('x-reziproq-support-org') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   // Der Einladungslink ist öffentlich (LIF-01a): ohne Token, nur über eigene Antworten des Tests.
-  if (!authorized && !url.startsWith('/api/einladungen/')) {
+  if (!authorized && !url.startsWith('/api/einladungen/') && !url.startsWith('/api/umfrage/')) {
     return Response.json({ statusCode: 401 }, { status: 401 });
   }
   const own = api.handle?.({

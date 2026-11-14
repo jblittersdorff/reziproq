@@ -386,6 +386,20 @@
       "when": 1794646715746,
       "tag": "0054_feedback_wellen",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794647678069,
+      "tag": "0055_umfrage_antworten",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1794647803131,
+      "tag": "0056_umfrage_spalten",
+      "breakpoints": true
     }
   ]
 }

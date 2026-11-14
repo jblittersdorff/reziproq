@@ -70,16 +70,34 @@ Zwei Pull Requests:
   Funktion ist Pflicht (Liste `surveyFunctions`, ergänzt um Vertrieb, Geschäftsleitung, Andere).
 - Rechte: `feedback.sehen` und `feedback.verwalten` (Starten beim Käufer nur SRO oder Admin).
 
+**PUL-02b (Beantworten ohne Anmeldung):**
+
+- `survey_response` ist `org_private` der antwortenden Seite und nur anfügbar. Eine Zeile je
+  Antwortbogen statt je Frage: `answers` (JSON je Frage mit Ist und Soll, `null` für „Kann ich
+  nicht beurteilen“) und `comment`. Kein Verweis auf die Person, **keine Zeitstempel** und eine
+  zufällige ID (uuid v4), damit sich der Bogen nicht über die Zeit mit `completed_at` verbinden
+  lässt. Ein Test prüft Spalten, Typen und Fremdschlüssel.
+- Lesen und Absenden laufen über `app_umfrage_lesen` und `app_umfrage_absenden` als Rolle
+  `reziproq_umfrage` (ausführbar nur für `reziproq_api`), wie die Annahme der Einladung. Die
+  Funktion verlangt für jede aktive Frage Ist und Soll und setzt `completed_at` in derselben
+  Transaktion; ein zweites Absenden scheitert.
+- Der Link gilt bis einschließlich Frist und nur, solange die eigene Seite nicht abgeschlossen hat.
+- **Zwischenstand nur auf dem Gerät** (localStorage), nicht auf dem Server: Ein gespeicherter
+  Zwischenstand müsste mit dem Link und damit mit der Person verbunden sein. Wer das Gerät
+  wechselt, beginnt neu.
+- Je Dimension eine Seite mit Fortschritt (Puls: eine Seite). Die Sprache folgt dem Browser und
+  lässt sich umschalten; alle Texte der Seite wechseln mit.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
 - [ ] Eine Welle für zehn Teilnehmende ist in unter zwei Minuten gestartet (von Hand gemessen, im Pull Request notiert).
-- [ ] Ein Link funktioniert genau einmal zum Absenden und nach der Frist nicht mehr.
-- [ ] Keine Antwort lässt sich einer Person zuordnen. Ein Test prüft das Schema.
+- [x] Ein Link funktioniert genau einmal zum Absenden und nach der Frist nicht mehr.
+- [x] Keine Antwort lässt sich einer Person zuordnen. Ein Test prüft das Schema.
 - [x] Der Rücklauf je Seite zeigt nur Anzahlen.
-- [ ] Antworten einer Seite sind für die andere Seite vor der Aufdeckung unsichtbar (PLT-04).
-- [ ] Das Beantworten funktioniert auf dem Smartphone bei 390 px.
+- [x] Antworten einer Seite sind für die andere Seite vor der Aufdeckung unsichtbar (PLT-04).
+- [x] Das Beantworten funktioniert auf dem Smartphone bei 390 px.
 
 ## Nicht Teil dieser Funktion
 
