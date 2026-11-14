@@ -1077,6 +1077,8 @@ export const de = {
     noPermission: 'Maßnahmen legen Mitglieder des Teams an.',
     fromMeeting: 'Maßnahme aus Termin',
     sourceMeeting: (title: string) => `Aus dem Termin „${title}“`,
+    gapTitle: (dimension: string) => `Lücke ${dimension} schließen`,
+    sourceGap: (dimension: string) => `Aus der Feedback-Lücke „${dimension}“`,
     metric: (open: number, overdue: number) =>
       overdue > 0 ? `${open} offen · ${overdue} überfällig` : `${open} offen`,
     mine: {
@@ -2507,6 +2509,15 @@ export const de = {
       'Ergebnisse erscheinen, wenn beide Seiten abgeschlossen haben oder die Frist vorbei ist.',
     tooFew: 'Zu wenige Antworten für eine Auswertung: Jede Seite braucht mindestens drei.',
     biggestGap: (dimension: string, gap: string) => `Größte Lücke: ${dimension} ${gap}`,
+    createAction: 'Maßnahme anlegen',
+    createActionFor: (dimension: string) => `Maßnahme zur Lücke ${dimension} anlegen`,
+    actedTitle: 'Ihr habt gesagt, wir haben gehandelt',
+    actedEmpty: 'Noch keine Maßnahme aus dieser Welle.',
+    internal: 'Intern',
+    trendTitle: (kind: string) => `Verlauf ${kind}`,
+    trendPurpose: 'Ist je Dimension über die aufgedeckten Wellen, älteste links.',
+    trendAria: (dimension: string, buyer: string, supplier: string) =>
+      `${dimension}: eure Seite ${buyer}, Lieferant ${supplier}`,
     notFound: 'Diese Welle gibt es nicht.',
   },
   surveyAnswer: {

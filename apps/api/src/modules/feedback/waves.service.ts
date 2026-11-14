@@ -42,7 +42,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { EmailService } from '../email/email.service.js';
-import { resultsOf, revealIfDue, topGapOf } from './results.js';
+import { resultsOf, revealIfDue, topGapOf, trendsOf } from './results.js';
 import { SurveyService } from './survey.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -159,6 +159,15 @@ export class WavesService {
     );
   }
 
+  /** PUL-06: aus einer Lücke eine Maßnahme anlegen, wie QBR-03 (Team oder Admin, kein Leser). */
+  private canAct(scope: WaveScope) {
+    if (scope.side === 'supplier') return can(scope.auth, 'massnahmen.bearbeiten');
+    return (
+      can(scope.auth, 'massnahmen.bearbeiten', { teamRole: scope.teamRole }) &&
+      (scope.auth.orgRole === 'admin' || scope.teamRole !== null)
+    );
+  }
+
   /** Einladen und die eigene Seite abschließen. */
   private canManage(scope: WaveScope) {
     return scope.side === 'buyer'
@@ -212,10 +221,15 @@ export class WavesService {
       .from(schema.surveyWave)
       .where(eq(schema.surveyWave.relationshipId, scope.relationshipId))
       .orderBy(desc(schema.surveyWave.createdAt));
+    const fresh = [];
+    for (const row of rows) fresh.push(await this.withReveal(scope.tx, row));
     const waves = [];
-    for (const row of rows)
-      waves.push(await this.toWave(scope.tx, await this.withReveal(scope.tx, row)));
-    return surveyWavesSchema.parse({ waves, canStart: this.canLead(scope) });
+    for (const row of fresh) waves.push(await this.toWave(scope.tx, row));
+    return surveyWavesSchema.parse({
+      waves,
+      canStart: this.canLead(scope),
+      trends: await trendsOf(scope.tx, fresh),
+    });
   }
 
   private async row(scope: WaveScope, waveId: string) {
@@ -263,7 +277,7 @@ export class WavesService {
       canExtend: open && this.canLead(scope),
       // Vor der Aufdeckung keine Ergebnisse, auch nicht der eigenen Seite.
       results: row.revealedAt
-        ? await resultsOf(scope.tx, row.id, scope.side, row.revealedAt)
+        ? await resultsOf(scope.tx, row.id, scope.side, row.revealedAt, this.canAct(scope))
         : null,
     });
   }

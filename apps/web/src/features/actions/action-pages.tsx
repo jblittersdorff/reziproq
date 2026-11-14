@@ -1,4 +1,10 @@
-import type { ActionItem, ActionList, ActionStatus, MeetingSide } from '@reziproq/shared';
+import type {
+  ActionItem,
+  ActionList,
+  ActionStatus,
+  MeetingSide,
+  SurveyDimension,
+} from '@reziproq/shared';
 import { actionStatuses } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -245,6 +251,9 @@ function ActionRow({ place, action }: { place: MeetingPlace; action: ActionItem 
           </span>{' '}
           · {text.sources[action.sourceType]}
           {action.sourceTitle ? `: ${action.sourceTitle}` : ''}
+          {action.sourceDimension
+            ? `: ${t.settings.survey.dimensions[action.sourceDimension] ?? ''}`
+            : ''}
         </span>
         {failed && <span className="text-destructive text-sm">{text.saveFailed}</span>}
       </div>
@@ -279,7 +288,21 @@ function ActionRow({ place, action }: { place: MeetingPlace; action: ActionItem 
 }
 
 /** Neue Maßnahme, auf Wunsch aus einem Termin (Quelle Termin). */
-export function NewActionPage({ place, meetingId }: { place: MeetingPlace; meetingId?: string }) {
+/** PUL-06: Maßnahme aus einer Feedback-Lücke, vorbefüllt mit der Dimension. */
+export interface FeedbackGapSource {
+  resultId: string;
+  dimension: SurveyDimension;
+}
+
+export function NewActionPage({
+  place,
+  meetingId,
+  gap,
+}: {
+  place: MeetingPlace;
+  meetingId?: string;
+  gap?: FeedbackGapSource;
+}) {
   const text = useT().actions;
   return (
     <MeetingFrame
@@ -288,7 +311,7 @@ export function NewActionPage({ place, meetingId }: { place: MeetingPlace; meeti
       current={text.new}
       header={<PageHeader title={text.new} purpose={text.purpose} />}
     >
-      <ActionFormLoader place={place} meetingId={meetingId} />
+      <ActionFormLoader place={place} meetingId={meetingId} gap={gap} />
     </MeetingFrame>
   );
 }
@@ -312,10 +335,12 @@ function ActionFormLoader({
   place,
   meetingId,
   actionId,
+  gap,
 }: {
   place: MeetingPlace;
   meetingId?: string | undefined;
   actionId?: string;
+  gap?: FeedbackGapSource | undefined;
 }) {
   const text = useT().actions;
   const query = useActions(place);
@@ -342,6 +367,7 @@ function ActionFormLoader({
       list={query.data}
       accessToken={query.accessToken}
       existing={existing}
+      gap={gap}
       meeting={
         meeting.data
           ? { id: meeting.data.meeting.id, title: meeting.data.meeting.title }
@@ -357,19 +383,22 @@ function ActionForm({
   accessToken,
   existing,
   meeting,
+  gap,
 }: {
   place: MeetingPlace;
   list: ActionList;
   accessToken: string;
   existing?: ActionItem | undefined;
   meeting?: { id: string; title: string } | undefined;
+  gap?: FeedbackGapSource | undefined;
 }) {
   const t = useT();
   const text = t.actions;
   const navigate = useNavigate();
   const refresh = useRefreshActions();
   const sides = place.side === 'buyer' ? t.meetings.sidesBuyerView : t.meetings.sidesSupplierView;
-  const [title, setTitle] = useState(existing?.title ?? '');
+  const gapLabel = gap ? (t.settings.survey.dimensions[gap.dimension] ?? '') : '';
+  const [title, setTitle] = useState(existing?.title ?? (gap ? text.gapTitle(gapLabel) : ''));
   const [description, setDescription] = useState(existing?.description ?? '');
   const [visibility, setVisibility] = useState(existing?.visibility ?? 'shared');
   const [ownerSide, setOwnerSide] = useState<MeetingSide>(existing?.ownerSide ?? place.side);
@@ -411,8 +440,8 @@ function ActionForm({
       } else {
         await createAction(accessToken, apiBase(place), {
           action,
-          sourceType: meeting ? 'meeting' : 'manual',
-          sourceId: meeting?.id ?? null,
+          sourceType: gap ? 'feedback_gap' : meeting ? 'meeting' : 'manual',
+          sourceId: gap?.resultId ?? meeting?.id ?? null,
         });
       }
       await refresh();
@@ -433,6 +462,16 @@ function ActionForm({
       {(meeting || existing?.sourceTitle) && (
         <p className="text-muted-foreground">
           {text.sourceMeeting(meeting?.title ?? existing?.sourceTitle ?? '')}
+        </p>
+      )}
+      {(gap || existing?.sourceDimension) && (
+        <p className="text-muted-foreground">
+          {text.sourceGap(
+            gapLabel ||
+              (existing?.sourceDimension
+                ? (t.settings.survey.dimensions[existing.sourceDimension] ?? '')
+                : ''),
+          )}
         </p>
       )}
       <FormField label={text.titleLabel} error={errors.title}>

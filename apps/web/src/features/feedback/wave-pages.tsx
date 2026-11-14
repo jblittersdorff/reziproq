@@ -46,6 +46,7 @@ import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { ResultsSection } from './results-section';
+import { TrendSection } from './trend-section';
 
 // PUL-02a: Feedback-Wellen unter Beziehung › Feedback, für beide Seiten mit denselben Seiten.
 // Der Käufer startet (SRO oder Admin) und lädt beide Seiten ein; der Lieferant lädt eigene ein.
@@ -223,6 +224,9 @@ export function WavesPage({ side, relationshipId }: { side: SurveySide; relation
           ))}
         </ul>
       )}
+      {query.data?.trends.map((trend) => (
+        <TrendSection key={trend.kind} trend={trend} side={side} />
+      ))}
     </WaveFrame>
   );
 }
@@ -790,10 +794,13 @@ function WaveBody({
   const format = useFormat();
   const { wave } = data;
   const closedAt = { buyer: wave.buyerClosedAt, supplier: wave.supplierClosedAt };
+  const newActionPath = base.replace('/beziehung/feedback', '/umsetzung/massnahmen/neu');
   return (
     <div className="flex max-w-4xl flex-col gap-8">
       <div className="flex flex-wrap items-center gap-3">
-        <Badge variant={wave.revealedAt ? 'selected' : wave.status === 'open' ? 'success' : 'neutral'}>
+        <Badge
+          variant={wave.revealedAt ? 'selected' : wave.status === 'open' ? 'success' : 'neutral'}
+        >
           {wave.revealedAt ? text.revealed : text.statuses[wave.status]}
         </Badge>
         <span className="text-muted-foreground text-sm">{text.anonymous}</span>
@@ -847,7 +854,7 @@ function WaveBody({
         </div>
       )}
       {data.results ? (
-        <ResultsSection results={data.results} side={data.ownSide} />
+        <ResultsSection results={data.results} side={data.ownSide} newActionPath={newActionPath} />
       ) : (
         <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {wave.status === 'open' ? text.waiting : text.tooFew}

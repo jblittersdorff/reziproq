@@ -42,6 +42,7 @@ const dim = (
   supplierIst: number,
 ) => ({
   dimension,
+  resultId: `0190a0a0-0000-7000-8000-0000000001${String(dimension.length).padStart(2, '0')}`,
   buyer: { ist: buyer, soll: 4.6 },
   supplier: { ist: supplierIst, soll: 4.4 },
   delta: Math.round((buyer - supplierIst) * 100) / 100,
@@ -77,6 +78,8 @@ const results: SurveyResults = {
     },
   ],
   freeTexts: ['Prognosen kommen zu spät.', 'Gute Zusammenarbeit im Werk.'],
+  actions: [],
+  canCreateAction: true,
 };
 const wave: SurveyWave = {
   id: waveId,
@@ -119,7 +122,7 @@ beforeEach(() => {
       });
     }
     if (request.url === `/api/suppliers/${rel}/feedback`) {
-      return Response.json({ waves: [wave], canStart: true });
+      return Response.json({ waves: [wave], canStart: true, trends: [] });
     }
     if (request.url === `/api/suppliers/${rel}/feedback/${waveId}`) return Response.json(detail);
     return undefined;

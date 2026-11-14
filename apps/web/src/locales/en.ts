@@ -1057,6 +1057,8 @@ export const en: Messages = {
     noPermission: 'Team members create actions.',
     fromMeeting: 'Action from meeting',
     sourceMeeting: (title: string) => `From the meeting “${title}”`,
+    gapTitle: (dimension: string) => `Close the ${dimension} gap`,
+    sourceGap: (dimension: string) => `From the feedback gap “${dimension}”`,
     metric: (open: number, overdue: number) =>
       overdue > 0 ? `${open} open · ${overdue} overdue` : `${open} open`,
     mine: {
@@ -2437,6 +2439,15 @@ export const en: Messages = {
     waiting: 'Results appear once both sides have closed or the due date has passed.',
     tooFew: 'Too few answers for results: each side needs at least three.',
     biggestGap: (dimension: string, gap: string) => `Largest gap: ${dimension} ${gap}`,
+    createAction: 'Create action',
+    createActionFor: (dimension: string) => `Create action for the ${dimension} gap`,
+    actedTitle: 'You said, we acted',
+    actedEmpty: 'No action from this wave yet.',
+    internal: 'Internal',
+    trendTitle: (kind: string) => `Trend ${kind}`,
+    trendPurpose: 'Current per dimension across revealed waves, oldest on the left.',
+    trendAria: (dimension: string, buyer: string, supplier: string) =>
+      `${dimension}: your side ${buyer}, supplier ${supplier}`,
     notFound: 'This wave does not exist.',
   },
   surveyAnswer: {

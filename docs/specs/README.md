@@ -110,7 +110,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 44 | PUL-03 | Auswertung und Wahrnehmungslücken | PUL-03, PUL-04, PUL-05 | PUL-02b, LIF-02 | nach 1.0 | Block F | A | PR offen | Aufdeckung in SQL (app_survey_reveal), Ergebnisse nur berechnet; Funktionen nur ab drei Antworten und ohne Einzelfragen. |
 | 45 | LIF-03 | Eigene Sicht des Lieferanten | LIF-03 | LIF-02 | nach 1.0 | Block F | B | offen | – |
 | 46 | PLB-04 | Team beider Seiten | PLB-04, PLB-05 | LIF-02, PLT-05b | nach 1.0 | Block F | B | offen | – |
-| 47 | PUL-06 | Maßnahmen aus Lücken und Verlauf | PUL-06, PUL-07 | PUL-03, QBR-03 | nach 1.0 | Block F | A | offen | – |
+| 47 | PUL-06 | Maßnahmen aus Lücken und Verlauf | PUL-06, PUL-07 | PUL-03, QBR-03 | nach 1.0 | Block F | A | PR offen | Quelle ist die Ergebniszeile der Dimension; Verlauf je Art ab zwei Wellen in der Wellen-Liste. |
 | 48 | SPL-04 | Spend-Entwicklung | SPL-04 | PLT-07b, PLT-03b, PLT-06 | nach 1.0 | Block S | A | offen | – |
 | 49 | SPL-05 | Profil und Finanzen | SPL-05 | SPL-04 | nach 1.0 | Block S | A | offen | – |
 | 50 | ZYK-01 | Zyklus und Zyklus-Leiste | ZYK-01, ZYK-03 | SEG-02, NAV-06 | nach 1.0 | Block P | B | fertig | Käuferprivater Zyklus startet automatisch mit dem Fokus; Segmentstatus aus Konsolidierungen, weitere Schritte bis zum Modul als „noch nicht verfügbar“. |

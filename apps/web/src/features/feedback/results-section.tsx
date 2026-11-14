@@ -5,7 +5,10 @@ import type {
   SurveySide,
 } from '@reziproq/shared';
 import { useState } from 'react';
-import { Tile, TileMetric, TileText, TileTitle } from '@/components/ui/tile';
+import { Badge } from '@/components/ui/badge';
+import { Tile, TileActions, TileMetric, TileText, TileTitle } from '@/components/ui/tile';
+import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { routerLink } from '@/features/shell/navigation';
 import { useLocale, useT } from '@/lib/i18n';
 
 // PUL-03: Auswertung einer aufgedeckten Welle. Beide Seiten sehen dieselben Zahlen; Formen und
@@ -26,10 +29,13 @@ function Dumbbell({
   rows,
   labels,
   caption,
+  actionHref,
 }: {
   rows: SurveyDimensionResult[];
   labels: Record<string, string>;
   caption: string;
+  /** PUL-06: Link „Maßnahme anlegen“ je Dimension, nur im Gesamtbild */
+  actionHref?: ((row: SurveyDimensionResult) => string | null) | undefined;
 }) {
   const text = useT();
   const number = useNumber();
@@ -122,6 +128,13 @@ function Dumbbell({
                     {text.feedback.gapLine(number(Math.abs(row.delta)))}
                   </span>
                 )}
+                {actionHref?.(row) &&
+                  routerLink({
+                    href: actionHref(row) as string,
+                    className: 'font-semibold text-sm',
+                    'aria-label': text.feedback.createActionFor(dimensions[row.dimension] ?? ''),
+                    children: text.feedback.createAction,
+                  })}
               </span>
             </li>
           );
@@ -131,7 +144,16 @@ function Dumbbell({
   );
 }
 
-export function ResultsSection({ results, side }: { results: SurveyResults; side: SurveySide }) {
+export function ResultsSection({
+  results,
+  side,
+  newActionPath,
+}: {
+  results: SurveyResults;
+  side: SurveySide;
+  /** Seite für eine neue Maßnahme der eigenen Seite (PUL-06) */
+  newActionPath: string;
+}) {
   const t = useT();
   const text = t.feedback;
   const { locale } = useLocale();
@@ -142,6 +164,10 @@ export function ResultsSection({ results, side }: { results: SurveyResults; side
   const group = results.functions.find((entry) => entry.function === selected);
   const rows = selected === 'all' || !group ? results.dimensions : group.dimensions;
   const dimensions = t.settings.survey.dimensions;
+  const actionHref = (row: SurveyDimensionResult) =>
+    results.canCreateAction && row.resultId
+      ? `${newActionPath}?luecke=${row.resultId}&dimension=${row.dimension}`
+      : null;
   return (
     <section aria-labelledby="ergebnis" className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
@@ -168,6 +194,16 @@ export function ResultsSection({ results, side }: { results: SurveyResults; side
                   number(delta.supplier.ist),
                 )}
               />
+              {actionHref(delta) && (
+                <TileActions>
+                  {routerLink({
+                    href: actionHref(delta) as string,
+                    className: 'font-semibold text-sm',
+                    'aria-label': text.createActionFor(dimensions[delta.dimension] ?? ''),
+                    children: text.createAction,
+                  })}
+                </TileActions>
+              )}
             </Tile>
           ))}
         </div>
@@ -199,7 +235,12 @@ export function ResultsSection({ results, side }: { results: SurveyResults; side
             {text.groupNote(group.buyer ? group.buyer.n : 0, group.supplier ? group.supplier.n : 0)}
           </p>
         )}
-        <Dumbbell rows={rows} labels={labels} caption={text.chartCaption} />
+        <Dumbbell
+          rows={rows}
+          labels={labels}
+          caption={text.chartCaption}
+          actionHref={selected === 'all' ? actionHref : undefined}
+        />
         <p className="text-muted-foreground text-sm">{text.minGroup}</p>
       </div>
 
@@ -226,6 +267,38 @@ export function ResultsSection({ results, side }: { results: SurveyResults; side
           ))}
         </ul>
       </details>
+
+      <section aria-labelledby="gehandelt" className="flex flex-col gap-3">
+        <h3 id="gehandelt" className="font-semibold text-lg">
+          {text.actedTitle}
+        </h3>
+        {results.actions.length === 0 ? (
+          <p className="text-muted-foreground">{text.actedEmpty}</p>
+        ) : (
+          <ul data-slot="acted" className="overflow-hidden rounded-xl bg-card">
+            {results.actions.map((action) => (
+              <li
+                key={action.id}
+                data-action={action.id}
+                className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+              >
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="font-medium">{action.title}</span>
+                  <span className="text-muted-foreground text-sm">
+                    {dimensions[action.dimension]} · {action.ownerName}
+                  </span>
+                </span>
+                {action.visibility === 'internal' && (
+                  <VisibilityBadge visibility="internal" label={text.internal} />
+                )}
+                <Badge variant={action.status === 'done' ? 'success' : 'neutral'}>
+                  {t.actions.statuses[action.status]}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section aria-labelledby="freitexte" className="flex flex-col gap-3">
         <h3 id="freitexte" className="font-semibold text-lg">
