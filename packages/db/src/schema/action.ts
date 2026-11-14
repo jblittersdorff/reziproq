@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, date, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  date,
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -20,7 +30,9 @@ export const action = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     title: text().notNull(),
     description: text(),
     ownerSide: text({ enum: ['buyer', 'supplier'] }).notNull(),
@@ -44,10 +56,7 @@ export const action = pgTable(
       'action_source_type',
       sql`${table.sourceType} in ('meeting', 'feedback_gap', 'initiative', 'manual')`,
     ),
-    check(
-      'action_one_source',
-      sql`(${table.sourceType} = 'manual') = (${table.sourceId} is null)`,
-    ),
+    check('action_one_source', sql`(${table.sourceType} = 'manual') = (${table.sourceId} is null)`),
     check('action_title', sql`length(trim(${table.title})) between 1 and 200`),
     index('action_relationship').on(table.relationshipId, table.dueDate),
     index('action_owner_user').on(table.ownerUserId),
@@ -72,4 +81,53 @@ export const actionPrivateSource = pgTable(
     sourceId: uuid().notNull(),
   },
   (table) => [index('action_private_source_action').on(table.actionId)],
+);
+
+// QBR-04: Erinnerung und Eskalation. Jede Organisation merkt sich, was sie zu welcher Frist schon
+// verschickt hat; eine verschobene Frist löst wieder aus. Nur die eigene Seite sieht es.
+export const actionNotificationKinds = ['reminder', 'escalation'] as const;
+
+export const actionNotification = pgTable(
+  'action_notification',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    actionId: uuid()
+      .notNull()
+      .references(() => action.id, { onDelete: 'cascade' }),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    kind: text({ enum: actionNotificationKinds }).notNull(),
+    dueDate: date().notNull(),
+    sentAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('action_notification_kind', sql`${table.kind} in ('reminder', 'escalation')`),
+    unique('action_notification_einmal').on(table.orgId, table.actionId, table.kind, table.dueDate),
+  ],
+);
+
+// QBR-04: Einstellungen je Organisation, für Käufer und Lieferanten. Erster Schlüssel:
+// action_reminder_days (Standard 3, im Code).
+export const orgSettingKeys = ['action_reminder_days'] as const;
+
+export const orgSetting = pgTable(
+  'org_setting',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    key: text({ enum: orgSettingKeys }).notNull(),
+    value: jsonb().notNull(),
+    updatedBy: text().notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('org_setting_key', sql`${table.key} in ('action_reminder_days')`),
+    unique('org_setting_je_schluessel').on(table.orgId, table.key),
+  ],
 );

@@ -119,7 +119,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 53 | SPL-03 | Beiträge der Funktionen | SPL-03 | SPL-01, NAV-05, QS-01 | nach 1.0 | Block P | C | fertig | – |
 | 54 | SPL-06 | Strategische Themen | SPL-06 | SPL-01 | nach 1.0 | Block P | C | fertig | Themen nur im Entwurf änderbar; Ordnen speichert die ganze Reihenfolge; ohne Löschen. |
 | 55 | SPL-07 | Freigabe und Versionen des Lieferantenplans | SPL-07, SPL-09 | SPL-03, SPL-06, SPL-01, PLT-05b | nach 1.0 | Block P | C | PR offen | Testlauf-Pfad. Runden mit plan_approval; Sperre per Trigger; neue Version kopiert Ziele und Themen; Zyklus-Schritt erledigt. |
-| 56 | QBR-04 | Erinnerung und Eskalation | QBR-04 | QBR-03, QS-01 | nach 1.0 | Block P | A | offen | – |
+| 56 | QBR-04 | Erinnerung und Eskalation | QBR-04 | QBR-03, QS-01 | nach 1.0 | Block P | A | PR offen | Täglicher Job je Seite in eigener Mandanten-Session; org_setting, action_notification. |
 | 57 | PLB-06 | Kontaktpunkte | PLB-06 | PLB-03, PLT-07b | nach 1.0 | Block P | C | offen | – |
 | 58 | JBP-01 | Vorbereitung des Joint Business Planning | JBP-01 | QBR-01b, SPL-07, SEG-10, ZYK-02 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad (umsetzungsplan.md, Abschnitt 8). PUL-03 nur weich: Der Feedback-Abschnitt erscheint, sobald Block F gebaut ist. |
 | 59 | JBP-02 | Themen beider Seiten | JBP-02, LIF-04 | JBP-01, SPL-06 | nach 1.0 | Block J | C | fertig | Testlauf-Pfad. Zusammenführen zu Initiativen mit JBP-03. |

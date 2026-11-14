@@ -243,6 +243,20 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by_name: 'Probe',
     },
   },
+  // QBR-04: was jede Seite zu einer Frist schon verschickt hat, und Einstellungen je Organisation.
+  action_notification: {
+    kind: 'org_private',
+    appendOnly: true,
+    testValues: ({ buyer, probe }) => ({
+      action_id: buyer && probe('action', buyer),
+      kind: 'reminder',
+      due_date: '2099-01-01',
+    }),
+  },
+  org_setting: {
+    kind: 'org_private',
+    testValues: { key: 'action_reminder_days', value: '3', updated_by: 'probe' },
+  },
   action_private_source: {
     kind: 'org_private',
     testValues: ({ buyer, probe }) => ({

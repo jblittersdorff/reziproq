@@ -22,6 +22,7 @@ import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
+import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/einstellungen/erinnerungen'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
@@ -284,6 +285,12 @@ const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
   path: '/einstellungen/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEinstellungenErinnerungenRoute =
+  AppEinstellungenErinnerungenRouteImport.update({
+    id: '/einstellungen/erinnerungen',
+    path: '/einstellungen/erinnerungen',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
   id: '/einstellungen/rollen',
   path: '/einstellungen/rollen',
@@ -1459,6 +1466,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -1667,6 +1675,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -1879,6 +1888,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -2092,6 +2102,7 @@ export interface FileRouteTypes {
     | '/kunden/$id'
     | '/lieferanten/$id'
     | '/betreiber/kunden'
+    | '/einstellungen/erinnerungen'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
@@ -2300,6 +2311,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/umfrage/$token'
     | '/betreiber/kunden'
+    | '/einstellungen/erinnerungen'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
@@ -2511,6 +2523,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id'
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
+    | '/_app/einstellungen/erinnerungen'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
     | '/_app/lieferanten/importieren'
@@ -2810,6 +2823,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen'
       fullPath: '/einstellungen/'
       preLoaderRoute: typeof AppEinstellungenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/erinnerungen': {
+      id: '/_app/einstellungen/erinnerungen'
+      path: '/einstellungen/erinnerungen'
+      fullPath: '/einstellungen/erinnerungen'
+      preLoaderRoute: typeof AppEinstellungenErinnerungenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/rollen': {
@@ -4581,6 +4601,7 @@ interface AppRouteChildren {
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
+  AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
@@ -4656,6 +4677,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
+  AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,

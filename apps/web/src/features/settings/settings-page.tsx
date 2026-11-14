@@ -1,4 +1,5 @@
 import {
+  BellIcon,
   Building2Icon,
   CalendarRangeIcon,
   ClipboardListIcon,
@@ -47,6 +48,13 @@ export function SettingsPage() {
             label={t.settings.cycleSettings.navTitle}
             description={t.settings.cycleSettings.navHint}
             icon={<CalendarRangeIcon aria-hidden />}
+            renderLink={routerLink}
+          />
+          <SettingsLinkRow
+            href="/einstellungen/erinnerungen"
+            label={t.settings.actionReminders.navTitle}
+            description={t.settings.actionReminders.navHint}
+            icon={<BellIcon aria-hidden />}
             renderLink={routerLink}
           />
           {permissions.viewBuyerAreas && (

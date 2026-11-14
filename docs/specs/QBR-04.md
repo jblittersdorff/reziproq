@@ -28,15 +28,30 @@ Niemand muss Fristen hinterherlaufen. Verantwortliche werden vor der Frist erinn
    - der verantwortlichen Person in Kopie
 4. Jede Mail enthält nur Titel, Frist und Link (QS-01).
 
+## Umsetzung
+
+- Der Job (`reziproq-action-reminders`, täglich 7:15) fragt `app_action_due_orgs` (Rolle
+  `reziproq_action_jobs`, nur Organisations-IDs) und öffnet dann je Seite eine Mandanten-Session,
+  der Lieferant im Kontext seines Kunden. Er schreibt nur an Personen der eigenen Organisation;
+  interne Maßnahmen der anderen Seite sieht RLS gar nicht.
+- Maßgeblich ist die verantwortliche Seite (`owner_side`): Eine geteilte Maßnahme des Käufers für
+  den Lieferanten erinnert und eskaliert beim Lieferanten.
+- `action_notification` trägt zusätzlich die Frist: Wird sie verschoben, gibt es für die neue Frist
+  wieder eine Erinnerung und Eskalation. Die Tabelle ist nur anfügbar.
+- Die Kopie an die verantwortliche Person ist eine eigene Mail; ist sie selbst SRO bzw. Key Account
+  Manager, kommt nur eine. Jede Mail steht im Verlauf (intern) und geht über die Outbox (QS-01).
+- Einstellung unter Einstellungen › Erinnerungen (`/massnahmen/einstellungen`), 1 bis 30 Tage, mit
+  Verlauf.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Die Eskalation kommt genau am Tag nach der Frist, einmal.
-- [ ] Die Erinnerung kommt genau einmal, an den eingestellten Tagen vorher.
-- [ ] Erledigte und abgebrochene Maßnahmen lösen nichts aus.
-- [ ] Interne Maßnahmen lösen nur Mails an die eigene Seite aus.
-- [ ] Ein Test läuft mit vorgegebenem Datum und ohne echte Wartezeit.
+- [x] Die Eskalation kommt genau am Tag nach der Frist, einmal.
+- [x] Die Erinnerung kommt genau einmal, an den eingestellten Tagen vorher.
+- [x] Erledigte und abgebrochene Maßnahmen lösen nichts aus.
+- [x] Interne Maßnahmen lösen nur Mails an die eigene Seite aus.
+- [x] Ein Test läuft mit vorgegebenem Datum und ohne echte Wartezeit.
 
 ## Nicht Teil dieser Funktion
 
