@@ -14,6 +14,7 @@ import {
   signedIn,
   tearDownApp,
 } from '@/testing/app-harness';
+import { spendOverviewOf } from '@/testing/spend';
 
 // Oberflächentests zu docs/specs/PLT-09.md: Sprache wählen, Formate je Sprache, Fehler der API.
 
@@ -48,7 +49,15 @@ const team: TeamResponse = {
   counterpart: [],
   canEdit: true,
   sroDescription: null,
-  members: [{ userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing', visibility: 'shared' }],
+  members: [
+    {
+      userId: 'lena',
+      name: 'Lena Berger',
+      teamRole: 'sro',
+      function: 'purchasing',
+      visibility: 'shared',
+    },
+  ],
   candidates: [{ userId: 'lena', name: 'Lena Berger', defaultFunction: 'purchasing' }],
 };
 
@@ -166,11 +175,13 @@ describe('Formate je Sprache', () => {
     api.handle = (request) =>
       request.url === `/api/suppliers/${id}`
         ? Response.json(detail)
-        : request.url.startsWith('/api/audit')
-          ? Response.json({ entries: [] })
-          : undefined;
+        : request.url === `/api/suppliers/${id}/spend`
+          ? Response.json(spendOverviewOf(detail))
+          : request.url.startsWith('/api/audit')
+            ? Response.json({ entries: [] })
+            : undefined;
     renderAt(`/lieferanten/${id}/strategie/spend`);
-    const table = await screen.findByRole('table', { name: 'Spend' });
+    const table = await screen.findByRole('table', { name: 'Entries' });
     expect(table.textContent).toContain('€1,234,567.00');
   });
 
@@ -179,7 +190,9 @@ describe('Formate je Sprache', () => {
     api.handle = (request) => {
       requests.push(request);
       if (request.url === `/api/suppliers/${id}`) return Response.json(detail);
-      if (request.url === `/api/suppliers/${id}/spend/2024`) return Response.json(detail);
+      if (request.url.startsWith(`/api/suppliers/${id}/spend`)) {
+        return Response.json(spendOverviewOf(detail));
+      }
       if (request.url.startsWith('/api/audit')) return Response.json({ entries: [] });
       return undefined;
     };
@@ -189,7 +202,8 @@ describe('Formate je Sprache', () => {
     fireEvent.change(screen.getByLabelText(/Spend in euros/i), { target: { value: '980,000.50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() =>
-      expect(requests.find((request) => request.method === 'PUT')?.body).toEqual({
+      expect(requests.find((request) => request.method === 'POST')?.body).toMatchObject({
+        year: 2024,
         amountCents: 980_000_50,
       }),
     );

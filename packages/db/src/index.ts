@@ -1,4 +1,4 @@
-export { and, asc, desc, eq, gte, inArray, ne, or, sql } from 'drizzle-orm';
+export { and, asc, desc, eq, gte, inArray, isNull, ne, or, sql } from 'drizzle-orm';
 export {
   type AuditActor,
   type AuditedChangeResult,
@@ -10,7 +10,6 @@ export {
 } from './audit.js';
 export { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
 export { createDatabase, type Database } from './client.js';
-export { ensureTestDatabase, testDatabaseUrl } from './test-database.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {
   checkLayers,
@@ -23,3 +22,4 @@ export {
 export { ensureApiRole } from './roles.js';
 export * as schema from './schema/index.js';
 export { type TenantSession, type TenantTransaction, withTenant } from './tenant.js';
+export { ensureTestDatabase, testDatabaseUrl } from './test-database.js';

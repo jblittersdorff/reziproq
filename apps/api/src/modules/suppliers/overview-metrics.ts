@@ -12,8 +12,8 @@ export class SpendMetricSource implements OverviewMetricSource {
     _user: AuthContext,
     tx: TenantTransaction,
   ): Promise<OverviewMetric | null> {
-    const { relationshipSpend } = schema;
-    // Je Jahr gibt es höchstens eine Zeile je Beziehung; die eigene liefert Row-Level Security.
+    // Summe je Jahr aus der Sicht (SPL-04); die eigene Beziehung liefert Row-Level Security.
+    const relationshipSpend = schema.relationshipSpendTotal;
     const [row] = await tx
       .select({
         year: relationshipSpend.year,

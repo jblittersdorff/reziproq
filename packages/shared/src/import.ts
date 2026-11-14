@@ -15,6 +15,7 @@ export const importIssueCodes = [
   'invalid_year',
   'invalid_amount',
   'invalid_currency',
+  'invalid_kind',
   'unknown_supplier',
   'duplicate_key',
   'identity_conflict',

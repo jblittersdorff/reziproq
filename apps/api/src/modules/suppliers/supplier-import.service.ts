@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, auditedChange, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, auditedChange, eq, isNull, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   amountCentsSchema,
   createSupplierRequestSchema,
@@ -16,6 +16,7 @@ import {
   type ImportSummary,
   type ImportType,
   parseImportAmount,
+  spendEntryYearOk,
   spendYearSchema,
 } from '@reziproq/shared';
 import { z } from 'zod';
@@ -44,7 +45,17 @@ type SupplierRecord = {
   externalRef: string | null;
   businessUnits: { id: string; name: string; active: boolean }[];
   materialGroups: { id: string; name: string; active: boolean; primary: boolean }[];
-  spend: { year: number; amountCents: number; currency: string }[];
+  spend: SpendEntry[];
+};
+
+/** Eine Spend-Zeile (SPL-04): Ist oder Plan, optional je Business Unit und Warengruppe. */
+type SpendEntry = {
+  year: number;
+  amountCents: number;
+  currency: string;
+  kind: 'actual' | 'plan';
+  businessUnitId: string | null;
+  materialGroupId: string | null;
 };
 
 type CatalogEntry = { id: string; name: string; active: boolean };
@@ -73,7 +84,7 @@ type RowPlan = {
     businessUnits?: CatalogEntry[];
     materialGroups?: CatalogEntry[];
   };
-  spend?: { externalRef: string; year: number; amountCents: number; currency: string };
+  spend?: { externalRef: string } & SpendEntry;
   businessUnit?: { name: string; code: string; target?: BusinessUnitRecord };
   contact?: {
     name: string;
@@ -109,6 +120,10 @@ const spendColumns = {
   year: ['jahr', 'year'],
   amount: ['betrag', 'amount'],
   currency: ['waehrung', 'wahrung', 'currency'],
+  // SPL-04, optional: Ist oder Plan, Aufteilung nach Business Unit und Warengruppe.
+  kind: ['art', 'kind', 'type'],
+  businessUnit: ['businessunit'],
+  materialGroup: ['warengruppe', 'materialgroup'],
 } as const;
 
 const businessUnitColumns = {
@@ -404,6 +419,8 @@ export class SupplierImportService {
           row.values,
           headers,
           records,
+          units,
+          groups,
           keys,
           issues,
           changes,
@@ -775,11 +792,40 @@ export class SupplierImportService {
     values: Record<string, string>,
     headers: Record<string, string | undefined>,
     records: SupplierRecord[],
+    units: CatalogEntry[],
+    groups: CatalogEntry[],
     keys: Set<string>,
     issues: ImportPreviewRow['issues'],
     changes: ImportPreviewRow['changes'],
   ): ImportPlan {
     const externalRef = readValue(values, headers.externalRef);
+    // SPL-04: Art leer = Ist; Business Unit und Warengruppe leer = ganzer Lieferant.
+    const kindText = readValue(values, headers.kind).toLocaleLowerCase('de');
+    const kind = ['', 'ist', 'actual'].includes(kindText)
+      ? 'actual'
+      : kindText === 'plan'
+        ? 'plan'
+        : null;
+    if (!kind) issues.push(issue(headers.kind ?? 'Art', 'invalid_kind', kindText));
+    const catalogEntry = (
+      header: string | undefined,
+      catalog: CatalogEntry[],
+      code: 'unknown_business_unit' | 'unknown_material_group',
+    ) => {
+      const name = readValue(values, header);
+      if (!name) return null;
+      const match = catalog.filter(
+        (entry) =>
+          entry.active && entry.name.toLocaleLowerCase('de') === name.toLocaleLowerCase('de'),
+      );
+      if (match.length !== 1) {
+        issues.push(issue(header ?? name, code, name));
+        return null;
+      }
+      return match[0]?.id ?? null;
+    };
+    const businessUnitId = catalogEntry(headers.businessUnit, units, 'unknown_business_unit');
+    const materialGroupId = catalogEntry(headers.materialGroup, groups, 'unknown_material_group');
     const yearText = readValue(values, headers.year);
     const amountText = readValue(values, headers.amount);
     const currencyText = readValue(values, headers.currency).toUpperCase() || 'EUR';
@@ -787,7 +833,9 @@ export class SupplierImportService {
     const amountCents = parseImportAmount(amountText);
     if (!externalRef)
       issues.push(issue(headers.externalRef ?? 'Eigene Lieferantennummer', 'required'));
-    if (!spendYearSchema.safeParse(year).success) {
+    if (
+      kind === 'plan' ? !spendEntryYearOk(year, 'plan') : !spendYearSchema.safeParse(year).success
+    ) {
       issues.push(issue(headers.year ?? 'Jahr', 'invalid_year', yearText));
     }
     if (amountCents === null || !amountCentsSchema.safeParse(amountCents).success) {
@@ -796,7 +844,9 @@ export class SupplierImportService {
     if (!/^[A-Z]{3}$/.test(currencyText)) {
       issues.push(issue(headers.currency ?? 'Währung', 'invalid_currency', currencyText));
     }
-    const key = externalRef ? `spend:${externalRef}:${yearText}` : undefined;
+    const key = externalRef
+      ? `spend:${externalRef}:${yearText}:${kind}:${businessUnitId}:${materialGroupId}`
+      : undefined;
     if (key && keys.has(key))
       issues.push(issue(headers.externalRef ?? 'Eigene Lieferantennummer', 'duplicate_key'));
     if (key) keys.add(key);
@@ -813,7 +863,13 @@ export class SupplierImportService {
       );
     }
     const target = matches[0];
-    const before = target?.spend.find((entry) => entry.year === year);
+    const before = target?.spend.find(
+      (entry) =>
+        entry.year === year &&
+        entry.kind === (kind ?? 'actual') &&
+        entry.businessUnitId === businessUnitId &&
+        entry.materialGroupId === materialGroupId,
+    );
     if (before && amountCents !== null) {
       addChange(changes, 'Betrag', String(before.amountCents), String(amountCents));
       addChange(changes, 'Währung', before.currency, currencyText);
@@ -827,7 +883,15 @@ export class SupplierImportService {
         headers,
         existing: Boolean(before),
         ...(target ? { target } : {}),
-        spend: { externalRef, year, amountCents: amountCents ?? 0, currency: currencyText },
+        spend: {
+          externalRef,
+          year,
+          amountCents: amountCents ?? 0,
+          currency: currencyText,
+          kind: kind ?? 'actual',
+          businessUnitId,
+          materialGroupId,
+        },
       },
       issues,
       changes,
@@ -1129,6 +1193,13 @@ export class SupplierImportService {
         and(
           eq(schema.relationshipSpend.relationshipId, target.relationshipId),
           eq(schema.relationshipSpend.year, spend.year),
+          eq(schema.relationshipSpend.kind, spend.kind),
+          spend.businessUnitId
+            ? eq(schema.relationshipSpend.businessUnitId, spend.businessUnitId)
+            : isNull(schema.relationshipSpend.businessUnitId),
+          spend.materialGroupId
+            ? eq(schema.relationshipSpend.materialGroupId, spend.materialGroupId)
+            : isNull(schema.relationshipSpend.materialGroupId),
         ),
       );
     if (before?.amountCents === spend.amountCents && before.currency === spend.currency) return;
@@ -1141,9 +1212,18 @@ export class SupplierImportService {
           amountCents: spend.amountCents,
           currency: spend.currency,
           source: 'import',
+          kind: spend.kind,
+          businessUnitId: spend.businessUnitId,
+          materialGroupId: spend.materialGroupId,
         })
         .onConflictDoUpdate({
-          target: [schema.relationshipSpend.relationshipId, schema.relationshipSpend.year],
+          target: [
+            schema.relationshipSpend.relationshipId,
+            schema.relationshipSpend.year,
+            schema.relationshipSpend.kind,
+            schema.relationshipSpend.businessUnitId,
+            schema.relationshipSpend.materialGroupId,
+          ],
           set: {
             amountCents: spend.amountCents,
             currency: spend.currency,
@@ -1289,6 +1369,9 @@ async function readSupplierRecords(
       year: schema.relationshipSpend.year,
       amountCents: schema.relationshipSpend.amountCents,
       currency: schema.relationshipSpend.currency,
+      kind: schema.relationshipSpend.kind,
+      businessUnitId: schema.relationshipSpend.businessUnitId,
+      materialGroupId: schema.relationshipSpend.materialGroupId,
     })
     .from(schema.relationshipSpend)
     .where(sql`${schema.relationshipSpend.relationshipId} in ${ids}`);

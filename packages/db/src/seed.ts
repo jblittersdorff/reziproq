@@ -451,7 +451,13 @@ export async function seed(
         ),
       )
       .onConflictDoUpdate({
-        target: [relationshipSpend.relationshipId, relationshipSpend.year],
+        target: [
+          relationshipSpend.relationshipId,
+          relationshipSpend.year,
+          relationshipSpend.kind,
+          relationshipSpend.businessUnitId,
+          relationshipSpend.materialGroupId,
+        ],
         set: { amountCents: sql`excluded.amount_cents`, source: sql`excluded.source` },
       });
 

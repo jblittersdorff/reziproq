@@ -8,6 +8,7 @@ import type {
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { spendOverviewOf } from '@/testing/spend';
 
 // Oberflächentests zu docs/specs/NAV-06.md: Arbeitsbereich eines Lieferanten.
 
@@ -38,8 +39,20 @@ const detail: SupplierDetail = {
   spend: [{ year: 2025, amount: { amountCents: 420_000_00, currency: 'EUR' } }],
   permissions: { edit: true, editTeam: true },
 };
-const lena = { userId: 'lena', name: 'Lena Berger', teamRole: 'sro', function: 'purchasing', visibility: 'shared' };
-const tom = { userId: 'tom', name: 'Tom Krüger', teamRole: 'sponsor', function: 'quality', visibility: 'shared' };
+const lena = {
+  userId: 'lena',
+  name: 'Lena Berger',
+  teamRole: 'sro',
+  function: 'purchasing',
+  visibility: 'shared',
+};
+const tom = {
+  userId: 'tom',
+  name: 'Tom Krüger',
+  teamRole: 'sponsor',
+  function: 'quality',
+  visibility: 'shared',
+};
 const sampleCycle = (): SupplierCycle => ({
   id: '0190a0a0-0000-7000-8000-000000000002',
   label: '2026',
@@ -108,6 +121,7 @@ beforeEach(() => {
   api.handle = (request) => {
     requests.push(request);
     if (request.url === `/api/suppliers/${id}`) return Response.json(detail);
+    if (request.url === `/api/suppliers/${id}/spend`) return Response.json(spendOverviewOf(detail));
     if (request.url === `/api/suppliers/${id}/overview`) {
       // Der Kopf liest den SRO aus dem Team, wie die API.
       const sro = team.members.find((member) => member.teamRole === 'sro');
@@ -299,8 +313,8 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       ['strategie/profil', 'Profil'],
       ['strategie/profil/bearbeiten', 'Deine Werte bearbeiten'],
       ['strategie/spend', 'Spend'],
-      ['strategie/spend/neu', 'Jahr hinzufügen'],
-      ['strategie/spend/2025', 'Spend 2025'],
+      ['strategie/spend/neu', 'Eintrag hinzufügen'],
+      ['strategie/spend/0190a0a0-0000-7000-8000-000000002025', 'Eintrag ändern'],
     ];
     for (const [path, title] of strategyPages) {
       renderAgain(`${base}/${path}`);

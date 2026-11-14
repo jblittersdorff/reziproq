@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CustomersModule } from '../customers/customers.module.js';
 import { OrganizationsModule } from '../organizations/organizations.module.js';
 import { SpendMetricSource, TeamMetricSource } from './overview-metrics.js';
+import { SpendService } from './spend.service.js';
 import { SupplierImportService } from './supplier-import.service.js';
 import {
   RolesController,
@@ -17,6 +18,7 @@ import { TeamService } from './team.service.js';
   providers: [
     SuppliersService,
     SupplierImportService,
+    SpendService,
     TeamService,
     SpendMetricSource,
     TeamMetricSource,

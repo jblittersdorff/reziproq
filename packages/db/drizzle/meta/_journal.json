@@ -456,6 +456,13 @@
       "when": 1794689971815,
       "tag": "0064_kontaktpunkte",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1794693527508,
+      "tag": "0065_spend_entwicklung",
+      "breakpoints": true
     }
   ]
 }

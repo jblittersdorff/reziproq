@@ -281,6 +281,27 @@ export function templateHeaders(
             : 'Optional: ISO-4217-Code, Standard EUR.',
           'EUR',
         ],
+        [
+          english ? 'Type' : 'Art',
+          english
+            ? 'Optional: Actual or Plan, defaults to Actual.'
+            : 'Optional: Ist oder Plan, Standard Ist.',
+          english ? 'Actual' : 'Ist',
+        ],
+        [
+          'Business Unit',
+          english
+            ? 'Optional: one Business Unit; empty applies to the whole supplier.'
+            : 'Optional: eine Business Unit; leer gilt für den ganzen Lieferanten.',
+          'Pkw',
+        ],
+        [
+          english ? 'Material group' : 'Warengruppe',
+          english
+            ? 'Optional: one material group; empty applies to the whole supplier.'
+            : 'Optional: eine Warengruppe; leer gilt für den ganzen Lieferanten.',
+          'Elektronik',
+        ],
       ];
     case 'business-units':
       return [
