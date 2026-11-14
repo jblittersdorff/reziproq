@@ -518,6 +518,20 @@ export const de = {
       'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
     organization: 'Organisation',
     organizationHint: 'Name, Land und Mitglieder',
+    actionReminders: {
+      navTitle: 'Erinnerungen',
+      navHint: 'Wann an Fristen von Maßnahmen erinnert wird',
+      title: 'Erinnerungen',
+      purpose:
+        'Vor der Frist einer Maßnahme bekommt die verantwortliche Person eine Mail. Am Tag nach der Frist erfährt der SRO bzw. der Key Account Manager davon.',
+      loading: 'Einstellung wird geladen …',
+      failed: 'Die Einstellung konnte nicht geladen werden.',
+      days: 'Tage vor der Frist',
+      daysHint: 'Zwischen 1 und 30 Tagen. Gilt für alle Maßnahmen eurer Seite.',
+      save: 'Speichern',
+      saved: 'Gespeichert.',
+      saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
+    },
     roleDescriptions: {
       navTitle: 'Rollen',
       navHint: 'Was der SRO macht und was nicht',

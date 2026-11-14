@@ -94,3 +94,10 @@ export type SaveAction = z.infer<typeof saveActionSchema>;
 export type CreateAction = z.infer<typeof createActionSchema>;
 export type ActionStatusChange = z.infer<typeof actionStatusSchema>;
 export type MyActions = z.infer<typeof myActionsSchema>;
+
+/** QBR-04: Erinnerungstage je Organisation, für Käufer und Lieferanten. */
+export const defaultActionReminderDays = 3;
+export const actionReminderSettingSchema = z
+  .object({ reminderDays: z.number().int().min(1).max(30) })
+  .strict();
+export type ActionReminderSetting = z.infer<typeof actionReminderSettingSchema>;

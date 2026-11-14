@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import nodemailer from 'nodemailer';
 import { env } from '../../config/env.js';
+import { OverviewModule } from '../overview/overview.module.js';
+import { ActionReminderService } from './action-reminder.service.js';
+import { CycleReminderService } from './cycle-reminder.service.js';
 import { EmailService } from './email.service.js';
 import type { EmailTransport } from './email.types.js';
 import { EMAIL_OUTBOX_STORE, EMAIL_TRANSPORT } from './email.types.js';
 import { EmailWorker } from './email.worker.js';
 import { PostgresEmailOutboxStore } from './email-outbox.store.js';
 import { EmailProcessor } from './email-processor.js';
-import { CycleReminderService } from './cycle-reminder.service.js';
-import { OverviewModule } from '../overview/overview.module.js';
 
 @Module({
   imports: [OverviewModule],
@@ -16,6 +17,7 @@ import { OverviewModule } from '../overview/overview.module.js';
     EmailService,
     EmailProcessor,
     CycleReminderService,
+    ActionReminderService,
     EmailWorker,
     PostgresEmailOutboxStore,
     { provide: EMAIL_OUTBOX_STORE, useExisting: PostgresEmailOutboxStore },

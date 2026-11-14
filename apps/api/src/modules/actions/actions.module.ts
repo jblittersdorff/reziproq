@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CustomersModule } from '../customers/customers.module.js';
+import { ActionSettingsController } from './action-settings.controller.js';
 import {
   BuyerActionsController,
   MyActionsController,
@@ -10,7 +11,12 @@ import { ActionsService } from './actions.service.js';
 /** Maßnahmen (QBR-03). Kennzahl und Live-Abschnitt tragen overview.module und meetings.module ein. */
 @Module({
   imports: [CustomersModule],
-  controllers: [BuyerActionsController, SupplierActionsController, MyActionsController],
+  controllers: [
+    BuyerActionsController,
+    SupplierActionsController,
+    MyActionsController,
+    ActionSettingsController,
+  ],
   providers: [ActionsService],
   exports: [ActionsService],
 })

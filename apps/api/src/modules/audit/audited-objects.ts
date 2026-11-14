@@ -241,6 +241,13 @@ export const scorecardSettingAudit = auditedObject({
   fields: ['tolerance_percent'],
 });
 
+/** Erinnerungstage für Maßnahmen (QBR-04), je Organisation, intern. */
+export const orgSettingAudit = auditedObject({
+  type: 'org_setting',
+  visibility: 'internal',
+  fields: ['action_reminder_days'],
+});
+
 /** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */
 export const scorecardSignRequestAudit = auditedObject({
   type: 'scorecard_sign_request',
@@ -366,6 +373,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   impactMonthAudit,
   validationAudit,
   scorecardSettingAudit,
+  orgSettingAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
   ruleCatalogAudit,

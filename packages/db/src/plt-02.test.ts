@@ -91,6 +91,7 @@ describe('PLT-02 in der Datenbank', () => {
     `);
     expect(tables.rows.map((row) => row.relname)).toEqual([
       'action',
+      'action_notification',
       'action_private_source',
       'app_user',
       'audit_event',
@@ -128,6 +129,7 @@ describe('PLT-02 in der Datenbank', () => {
       'meeting_participant',
       'meeting_snapshot',
       'objective_category',
+      'org_setting',
       'organization',
       'organization_feature',
       'outbox_event',

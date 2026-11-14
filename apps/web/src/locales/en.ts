@@ -504,6 +504,20 @@ export const en: Messages = {
     adminOnly: 'Only an admin can change the settings. You can still view your organization.',
     organization: 'Organization',
     organizationHint: 'Name, country and members',
+    actionReminders: {
+      navTitle: 'Reminders',
+      navHint: 'When to remind about action due dates',
+      title: 'Reminders',
+      purpose:
+        'Before an action is due, the person responsible gets an email. The day after the due date, the SRO or key account manager is told.',
+      loading: 'Loading setting …',
+      failed: 'The setting could not be loaded.',
+      days: 'Days before the due date',
+      daysHint: 'Between 1 and 30 days. Applies to all actions on your side.',
+      save: 'Save',
+      saved: 'Saved.',
+      saveFailed: 'Saving did not work. Please try again.',
+    },
     roleDescriptions: {
       navTitle: 'Roles',
       navHint: 'What the SRO does and what not',

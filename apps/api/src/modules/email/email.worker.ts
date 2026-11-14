@@ -8,11 +8,13 @@ import {
 import { jobsDatabaseUrl } from '@reziproq/db';
 import { PgBoss } from 'pg-boss';
 import { env } from '../../config/env.js';
-import { EmailProcessor } from './email-processor.js';
+import { ActionReminderService } from './action-reminder.service.js';
 import { CycleReminderService } from './cycle-reminder.service.js';
+import { EmailProcessor } from './email-processor.js';
 
 const queue = 'reziproq-email-outbox';
 const reminderQueue = 'reziproq-cycle-reminders';
+const actionQueue = 'reziproq-action-reminders';
 
 @Injectable()
 export class EmailWorker implements OnModuleInit, OnApplicationShutdown {
@@ -22,6 +24,7 @@ export class EmailWorker implements OnModuleInit, OnApplicationShutdown {
   constructor(
     @Inject(EmailProcessor) private readonly processor: EmailProcessor,
     @Inject(CycleReminderService) private readonly reminders: CycleReminderService,
+    @Inject(ActionReminderService) private readonly actions: ActionReminderService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -53,8 +56,17 @@ export class EmailWorker implements OnModuleInit, OnApplicationShutdown {
     });
     await boss.work(reminderQueue, { batchSize: 1 }, () => this.reminders.runDaily());
     await boss.schedule(reminderQueue, '0 7 * * *', {});
+    // QBR-04: Erinnerung und Eskalation von Maßnahmen, täglich.
+    await boss.createQueue(actionQueue, {
+      expireInSeconds: 600,
+      retryLimit: 3,
+      retryDelay: 60,
+      retryBackoff: true,
+    });
+    await boss.work(actionQueue, { batchSize: 1 }, () => this.actions.runDaily());
+    await boss.schedule(actionQueue, '15 7 * * *', {});
     this.boss = boss;
-    this.logger.log('E-Mail-Outbox- und Zykluserinnerungs-Jobs sind gestartet.');
+    this.logger.log('E-Mail-Outbox-, Zyklus- und Maßnahmen-Erinnerungsjobs sind gestartet.');
   }
 
   async onApplicationShutdown(): Promise<void> {

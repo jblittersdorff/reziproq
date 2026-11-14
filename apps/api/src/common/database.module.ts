@@ -212,6 +212,25 @@ export class SurveyLinkStore {
   }
 }
 
+/**
+ * QBR-04: Für welche Organisationen der tägliche Maßnahmen-Job eine Mandanten-Session öffnet.
+ * app_action_due_orgs liefert nur IDs (Lieferant mit Kunde), keine Inhalte.
+ */
+@Injectable()
+export class ActionDueStore {
+  constructor(@Inject(DATABASE) private readonly db: Database) {}
+
+  async organizations(
+    from: string,
+    to: string,
+  ): Promise<{ orgId: string; customerOrgId: string | null }[]> {
+    const result = await this.db.execute<{ org_id: string; customer_org_id: string | null }>(
+      sql`select org_id::text, customer_org_id::text from app_action_due_orgs(${from}::date, ${to}::date)`,
+    );
+    return result.rows.map((row) => ({ orgId: row.org_id, customerOrgId: row.customer_org_id }));
+  }
+}
+
 @Global()
 @Module({
   providers: [
@@ -225,7 +244,8 @@ export class SurveyLinkStore {
     AccountStore,
     InvitationStore,
     SurveyLinkStore,
+    ActionDueStore,
   ],
-  exports: [TenantDatabase, AccountStore, InvitationStore, SurveyLinkStore],
+  exports: [TenantDatabase, AccountStore, InvitationStore, SurveyLinkStore, ActionDueStore],
 })
 export class DatabaseModule {}

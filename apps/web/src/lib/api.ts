@@ -1,5 +1,6 @@
 import {
   type AcceptInvitationRequest,
+  type ActionReminderSetting,
   type ActionStatus,
   type AddAssignment,
   type AssignmentRequest,
@@ -7,6 +8,7 @@ import {
   accountPlanSchema,
   actionItemSchema,
   actionListSchema,
+  actionReminderSettingSchema,
   assignmentResponseSchema,
   auditResponseSchema,
   businessUnitsResponseSchema,
@@ -1970,6 +1972,17 @@ export const scorecardSettingQueryOptions = (accessToken: string) =>
 
 export const saveScorecardSetting = (accessToken: string, request: ScorecardSetting) =>
   sendJson('PUT', '/scorecard/settings', request, scorecardSettingSchema, accessToken);
+
+/** QBR-04: Erinnerungstage für Maßnahmen, je Organisation (beide Seiten). */
+export const actionReminderSettingQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['action-reminder-setting'],
+    queryFn: () => getJson('/massnahmen/einstellungen', actionReminderSettingSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveActionReminderSetting = (accessToken: string, request: ActionReminderSetting) =>
+  sendJson('PUT', '/massnahmen/einstellungen', request, actionReminderSettingSchema, accessToken);
 
 /** JBP-06: Freigabe und Versionen des Gemeinsamen Plans. */
 export const jbpApprovalQueryOptions = (accessToken: string, base: MeetingBase) =>
