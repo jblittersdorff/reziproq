@@ -549,3 +549,46 @@ Dafür gilt diese Reihenfolge vor den übrigen Blöcken:
 
 - **JBP-01 ohne PUL-03:** Das Feedback-Ergebnis ist in JBP-01 ohnehin nur sichtbar, wenn es aufgedeckt ist. Bis Block F gebaut ist, entfällt der Abschnitt. Die Abhängigkeit ist damit weich.
 - **Danach:** F (Feedback), dann der Rest von P (QBR-04, PLB-06), S, PNL-07 bis PNL-11, R und K.
+
+## 9. Lieferantenmanagement vor Warengruppenmanagement (Entscheidung vom 15.11.2026)
+
+Das Warengruppenmanagement (Specs `WG-01` bis `WG-23` und `WG-startdaten.md`, abgelegt unter
+`docs/reziproq-specs-warengruppen/`) wird erst nach dem Lieferantenmanagement umgesetzt.
+
+1. **Zuerst** werden alle Specs des Lieferantenmanagements bis einschließlich Release 1.0 fertig:
+   umgesetzt, alle Kriterien unter „Fertig, wenn“ durch Tests belegt, alles lokal grün
+   (`pnpm check`). Offen sind am 15.11.2026 Block R (QS-02, QBR-06, QS-03, ZYK-04, ZYK-05, FS-01)
+   und Block K (SEG-11, PUL-08, SPL-10, QBR-07, QS-05).
+2. **Erst danach** beginnt Release 1.1 Warengruppenmanagement, in der Reihenfolge der sieben Pakete
+   unten. Bis dahin entsteht nichts dafür: keine Tabellen, keine Routen, keine Platzhalter. Die
+   bestehenden Tabellen, die die WG-Specs später erweitern (Warengruppe `material_group`,
+   Bewertungsrunde `segmentation_round`, Segmententscheidung `segment_decision`), bleiben unverändert.
+   Ausnahme nur auf ausdrückliche Anweisung des Gründers.
+
+### 9.1 Pakete des Warengruppenmanagements (aus `ergaenzung-umsetzungsplan.md`)
+
+Die Reihenfolge ist verbindlich, weil spätere Specs auf früheren aufbauen. Jedes Paket ist für sich
+lauffähig und testbar.
+
+| Paket | Specs | Inhalt | Voraussetzung |
+|---|---|---|---|
+| 1 | WG-01 | Warengruppen, Produktgruppen, Team, Bezeichnung, Import, Startdaten | Release 1.0 |
+| 2 | WG-04, WG-06 | Strategie, Ablauf-Leiste, Seite Warengruppen, Aufsetzen, Ziele | Paket 1 |
+| 3 | WG-18 | Bewertungsrunde je Warengruppe, Portfolio-Filter | Paket 1, Modul SEG |
+| 4 | WG-07, WG-09, WG-10 | Analysen, Marktanalyse, Bewertung und Hebel, zunächst ohne KI | Pakete 2 und 3 |
+| 5 | WG-12, WG-14, WG-15, WG-16 | Scorecard, Review, Vergabeplan, Supplier Map, Freigabe | Paket 4 |
+| 6 | WG-20 | Zusammenführung, Widersprüche, Übergaben in den Lieferantenplan | Paket 5 |
+| 7 | WG-23 | KI-Entwürfe Stufe 1, danach Stufe 2 | Paket 6 |
+
+Vor Paket 1:
+
+- Die Tabellennamen der Warengruppe und des Moduls SEG im Schema nachsehen und in WG-01 und WG-18
+  eintragen.
+- Prüfen, ob die Kennungen WG-01 bis WG-24 und die Release-Nummer 1.1 frei sind.
+- Die Zuordnung der Hebel zu Zieldimensionen in `WG-startdaten.md` nachtragen.
+
+Vorlagen für die Oberfläche liegen in `docs/design`: Canvas-Seite „Warengruppenstrategie (Basis)“
+und „Warengruppen zusammengeführt“.
+
+Offen zur Klärung: Entscheidung 1 in Abschnitt 6 sieht die Blöcke F bis K als Releases 1.1, 1.2
+usw. vor; die WG-Specs belegen 1.1 für das Warengruppenmanagement.

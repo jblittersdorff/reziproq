@@ -56,3 +56,6 @@ Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Mi
   Freigabe durch Controlling
 - EBIT-Wirkung nie mit Kostenvermeidung, Cash oder strategischem Wert addieren
 - Geldbeträge als Ganzzahl in Cent mit Währung, nie als Gleitkommazahl
+- Keine `WG`-Spec (Warengruppenmanagement, Release 1.1) anfangen, solange eine Spec des
+  Lieferantenmanagements offen ist; auch nichts dafür vorbauen. Ausnahme nur auf ausdrückliche
+  Anweisung des Gründers (docs/umsetzungsplan.md, Abschnitt 9)
