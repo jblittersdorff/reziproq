@@ -613,7 +613,6 @@ export const de = {
     failed: 'Die Sprache konnte nicht gespeichert werden. Versuch es noch einmal.',
   },
 
-
   settings: {
     title: 'Einstellungen',
     purpose: 'Reziproq für deine Organisation einrichten.',
@@ -1862,6 +1861,7 @@ export const de = {
   // Arbeitsbereich eines Lieferanten (NAV-06)
   workspace: {
     label: 'Bereiche des Lieferanten',
+    pagesLabel: 'Seiten im Bereich',
     overview: 'Überblick',
     overviewPurpose: 'Wo die Beziehung steht und was zu ihr gehört.',
     areas: {
@@ -1953,6 +1953,8 @@ export const de = {
       dateNoCycleHint:
         'Starte den Zyklus auf dem Lieferanten-Überblick, bevor du den Termin setzt.',
       dateNoPermission: 'Nur der SRO oder ein Admin kann den Termin festlegen.',
+      position: (current: number, total: number, step: string) =>
+        `Schritt ${current} von ${total} · ${step}`,
       nextStep: (step: string) => `Nächster Schritt: ${step}`,
       steps: {
         segment: 'Segment',

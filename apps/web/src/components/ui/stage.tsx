@@ -37,10 +37,10 @@ function Stage({
       data-tone={tone}
       className={cn(tone === 'dark' ? 'stage-scope' : 'bg-background', className)}
     >
-      {path && <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-8">{path}</div>}
+      {path && <div className="mx-auto w-full max-w-300 px-4 pt-6 sm:px-12">{path}</div>}
       <div
         className={cn(
-          'mx-auto grid w-full max-w-6xl items-end gap-10 px-4 py-12 sm:px-8 sidebar:grid-cols-5 sidebar:py-16',
+          'mx-auto grid w-full max-w-300 items-end gap-10 px-4 py-12 sm:px-12 sidebar:grid-cols-5 sidebar:py-16',
           path && 'pt-6 sidebar:pt-8',
         )}
       >

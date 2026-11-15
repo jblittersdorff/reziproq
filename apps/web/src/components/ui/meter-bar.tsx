@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils';
-
 /**
  * Balken der Designsprache: 10 px hoch, voll gerundet, Spur line-soft, Füllung Petrol. Der Wert
  * steht als Text daneben oder in label; der Balken allein trägt keine Bedeutung.

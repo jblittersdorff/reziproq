@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
  * groß in der Bühne (PLT-10), sonst als schmale Zeile. Der Name steht nur in der lokalen Leiste. Fehlt
  * Segment oder SRO, steht „noch offen“; ohne Termin entfällt die Angabe.
  */
-export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' }) {
+export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' | 'bar' }) {
   const t = useT();
   const format = useFormat();
   const entries = [
@@ -36,7 +36,10 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
       aria-label={t.workspace.head.label}
       className={cn(
         'flex flex-wrap',
-        size === 'lg' ? 'gap-x-10 gap-y-6' : '-mt-4 gap-x-6 gap-y-1 text-sm',
+        size === 'lg' && 'gap-x-10 gap-y-6',
+        size === 'line' && '-mt-4 gap-x-6 gap-y-1 text-sm',
+        // In der Leiste des Lieferanten unter dem Namen
+        size === 'bar' && 'gap-x-4 gap-y-0.5 text-sm',
       )}
     >
       {head.isFocus && (

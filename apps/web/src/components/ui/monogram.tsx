@@ -45,7 +45,7 @@ function Monogram({
         size === 'sm' && 'size-7 text-chip',
         size === 'md' && 'size-9.5 text-chip',
         size === 'lg' && 'size-13 text-base',
-        ring ? 'bg-card text-petrol-dark ring-2 ring-petrol ring-inset' : tones[resolved],
+        ring ? 'bg-mint-soft text-petrol-dark ring-2 ring-petrol ring-inset' : tones[resolved],
         className,
       )}
     >

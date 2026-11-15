@@ -9,10 +9,13 @@ import type { StepState } from './step-ring';
 function Chain({
   steps,
   label,
+  surface = 'card',
   className,
 }: {
   steps: StepState[];
   label: string;
+  /** Grund unter der Kette, für den Außenrand: weiß oder paper */
+  surface?: 'card' | 'paper';
   className?: string;
 }) {
   return (
@@ -24,7 +27,8 @@ function Chain({
           key={index}
           data-state={state}
           className={cn(
-            '-ml-1 size-3.5 shrink-0 rounded-full border-2 shadow-ring-gap',
+            '-ml-1 size-3.5 shrink-0 rounded-full border-2',
+            surface === 'paper' ? 'shadow-ring-gap-paper' : 'shadow-ring-gap',
             state === 'done' && 'border-petrol bg-petrol',
             state === 'current' && 'border-ink bg-mint',
             state === 'open' && 'border-ring-open bg-card',

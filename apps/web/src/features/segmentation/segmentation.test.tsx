@@ -6,7 +6,7 @@ import {
   type Segmentation,
   type SupplierDetail,
 } from '@reziproq/shared';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   actionsFor,
@@ -155,7 +155,9 @@ describe('SEG-05 Segmentierung je Lieferant', () => {
   it('jedes Kriterium führt zur Detailseite mit Wert und Kommentar', async () => {
     renderAt(base);
     const name = defaultSegmentCriteria[0]?.name ?? '';
-    const link = await screen.findByRole('link', { name });
+    // Im Inhalt; die Leiste des Lieferanten hat eine Unterseite gleichen Namens (Spend).
+    await screen.findByText('Antrieb · Stahl');
+    const link = within(screen.getByRole('main')).getByRole('link', { name });
     expect(link.getAttribute('href')).toBe(`${base}/kriterium/${key}`);
     renderAt(`${base}/kriterium/${key}`);
     expect(await screen.findByText('Liefert verlässlich')).toBeTruthy();

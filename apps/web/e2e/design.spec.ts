@@ -29,6 +29,9 @@ async function openDesign(page: Page) {
 }
 
 const blocks = [
+  'Kopfleiste',
+  'Lieferanten-Leiste',
+  'Ablauf-Leiste',
   'Logo',
   'Knöpfe',
   'Chip',
@@ -80,6 +83,31 @@ test('/design zeigt jeden Baustein mit Vorlage und Datei', async ({ page }) => {
   );
   await expect(page.locator('[data-layer="private"]')).toHaveCSS('border-top-style', 'dashed');
   await expect(page.getByRole('table', { name: 'Initiativen 2027' })).toContainText('läuft');
+  // Kopfleiste: aktiver Punkt markiert, Profil als Kreis mit Initialen und Namen
+  const header = page.getByRole('navigation', { name: 'Hauptnavigation (Beispiel)' });
+  await expect(header.getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await expect(header.getByRole('link', { name: 'Profil' })).toHaveText('AS');
+  // Lieferanten-Leiste: Bereich und Unterseite markiert, Kette mit Text
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Bereiche des Lieferanten (Beispiel)' })
+      .getByRole('link', { name: 'Gemeinsamer Plan' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Seiten im Bereich (Beispiel)' })
+      .getByRole('link', { name: 'Initiativen' }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('img', { name: 'Schritt 4 von 6 · Gemeinsamer Plan' })).toBeVisible();
+  // Ablauf-Leiste: Schritt n von m und „Fertig, wenn“
+  const flow = page.getByRole('region', { name: 'Ablauf-Leiste', exact: true });
+  await expect(flow.getByText('Fertig, wenn', { exact: true })).toBeVisible();
+  await expect(
+    flow.getByRole('list', { name: 'Schritt 2 von 6' }).getByRole('listitem'),
+  ).toHaveCount(6);
 });
 
 test('/design nutzt die Schriften der Designsprache', async ({ page }) => {
@@ -109,6 +137,8 @@ for (const width of [1440, 390]) {
           'a[href], button, label:has(> input[type="radio"])',
         ),
       ]
+        // Unsichtbare Ziele, z. B. der Menüknopf auf breiten Bildschirmen, zählen nicht.
+        .filter((element) => element.getBoundingClientRect().width > 1)
         .map((element) => {
           const box = element.getBoundingClientRect();
           const after = getComputedStyle(element, '::after');

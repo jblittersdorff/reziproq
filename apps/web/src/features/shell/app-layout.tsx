@@ -23,6 +23,8 @@ function Shell() {
   const t = useT();
   const { main, actions } = useNavTargets();
   const activeKey = useActiveNavKey();
+  const me = useMe();
+  const initials = me.data ? personInitials(me.data.name) : undefined;
   const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
   const [stageSlot, setStageSlot] = useState<HTMLDivElement | null>(null);
   useQuestionsShortcut();
@@ -49,7 +51,12 @@ function Shell() {
             items={main}
             actions={actions.map((action) => {
               const Icon = action.icon;
-              return { ...action, icon: <Icon aria-hidden /> };
+              // Profil als Tinte-Kreis mit Mint-Initialen (Designsprache „Kopfleiste“).
+              return {
+                ...action,
+                icon: <Icon aria-hidden />,
+                ...(action.key === 'profile' && initials ? { initials } : {}),
+              };
             })}
             activeKey={activeKey}
             menuHref="/menu"
@@ -62,7 +69,7 @@ function Shell() {
           <main id="inhalt" tabIndex={-1} className="flex w-full flex-col outline-none">
             {/* Bühne über die ganze Breite (PLT-10); leer auf Seiten ohne Bühne. */}
             <div ref={setStageSlot} className="contents" />
-            <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-8 sidebar:py-12">
+            <div className="mx-auto flex w-full max-w-300 flex-col gap-8 px-4 py-8 sm:px-12 sidebar:py-12">
               <ContentGate />
             </div>
           </main>
@@ -70,6 +77,15 @@ function Shell() {
       </StageSlotProvider>
     </LocalBarSlotProvider>
   );
+}
+
+/** Initialen einer Person aus Vor- und Nachname, z. B. „Anna Schmidt“ → „AS“. */
+export function personInitials(name: string): string | undefined {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = [parts[0], parts.length > 1 ? parts[parts.length - 1] : undefined]
+    .map((part) => part?.charAt(0).toLocaleUpperCase('de') ?? '')
+    .join('');
+  return letters || undefined;
 }
 
 /**

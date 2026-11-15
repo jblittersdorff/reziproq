@@ -1,16 +1,18 @@
+import type { SupplierCycle } from '@reziproq/shared';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { SearchXIcon } from 'lucide-react';
+import { Chain } from '@/components/ui/chain';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
-import { LocalBar } from '@/components/ui/local-bar';
+import { LocalBar, LocalBarProgress } from '@/components/ui/local-bar';
 import { Monogram } from '@/components/ui/monogram';
 import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
 import { PagePath } from '@/features/shell/page-path';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useT } from '@/lib/i18n';
-import { areaOf, builtAreas, sectionHref, workspacePath } from './areas';
+import { areaOf, builtAreas, builtPages, sectionHref, workspacePath } from './areas';
 import { CycleAction } from './cycle-action';
 import { useOverview } from './use-overview';
 import { WorkspaceHead } from './workspace-head';
@@ -25,7 +27,8 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   const t = useT();
   const supplier = useSupplier(relationshipId);
   const overview = useOverview(relationshipId);
-  const area = useRouterState({ select: (state) => areaOf(state.location.pathname) });
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const area = areaOf(pathname);
   const root = { label: t.suppliers.title, href: '/lieferanten' };
 
   if (supplier.notFound) {
@@ -56,6 +59,14 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
     label: t.workspace.areas[key],
     href: sectionHref(relationshipId, key),
   }));
+  // Unterseiten des aktiven Bereichs als Pillen (Designsprache „Lieferanten-Leiste“).
+  const subItems = area
+    ? builtPages(area).map((page) => ({
+        key: page.segment,
+        label: t.workspace.pages[page.key].title,
+        href: `${workspacePath(relationshipId, area)}/${page.segment}`,
+      }))
+    : [];
 
   return (
     <>
@@ -63,16 +74,15 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
         <LocalBar
           label={t.workspace.label}
           name={supplier.data.name}
-          nameIcon={
-            <Monogram
-              name={supplier.data.name}
-              size="sm"
-              emphasis={Boolean(overview.data?.head.isFocus)}
-            />
-          }
+          nameIcon={<Monogram name={supplier.data.name} size="lg" ring />}
           nameHref={workspacePath(relationshipId)}
+          subtitle={area && overview.data && <WorkspaceHead head={overview.data.head} size="bar" />}
+          progress={overview.data?.cycle && <CycleProgress cycle={overview.data.cycle} />}
           items={items}
           activeKey={area}
+          subItems={subItems}
+          subLabel={t.workspace.pagesLabel}
+          activeSubKey={pathname.split('/')[4]}
           action={
             overview.data && (
               <CycleAction relationshipId={relationshipId} overview={overview.data} />
@@ -81,15 +91,35 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
           renderLink={routerLink}
         />
       </InLocalBarSlot>
-      {area && <HeadLine relationshipId={relationshipId} />}
       <Outlet />
     </>
   );
 }
 
-/** Schmale Kopfzeile; lädt still nach und entfällt, wenn sie nicht lädt. */
-function HeadLine({ relationshipId }: { relationshipId: string }) {
-  const overview = useOverview(relationshipId);
-  if (!overview.data) return null;
-  return <WorkspaceHead head={overview.data.head} size="line" />;
+/** Kette des Jahreszyklus mit Schritt n von m, rechts in der Leiste. */
+function CycleProgress({ cycle }: { cycle: SupplierCycle }) {
+  const t = useT();
+  const currentIndex = cycle.steps.findIndex((step) =>
+    ['open', 'in_progress', 'overdue'].includes(step.status),
+  );
+  const current = cycle.steps[currentIndex];
+  const text = current
+    ? t.workspace.cycle.position(
+        currentIndex + 1,
+        cycle.steps.length,
+        t.workspace.cycle.steps[current.key],
+      )
+    : t.workspace.cycle.title(cycle.label);
+  return (
+    <LocalBarProgress>
+      <Chain
+        surface="paper"
+        label={text}
+        steps={cycle.steps.map((step, index) =>
+          step.status === 'completed' ? 'done' : index === currentIndex ? 'current' : 'open',
+        )}
+      />
+      <span aria-hidden>{text}</span>
+    </LocalBarProgress>
+  );
 }

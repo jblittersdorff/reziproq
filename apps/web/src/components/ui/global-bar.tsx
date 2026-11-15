@@ -5,12 +5,10 @@ import { cn } from '@/lib/utils';
 import { BrandMark } from './brand-mark';
 import { defaultRenderLink, type NavItem, type RenderLink } from './nav-link';
 
+// Kopfleiste der Designsprache (Header.dc.html): Grund paper, 68 px, Navigation als Schalter auf
+// line-soft, der aktive Punkt weiß mit Schatten.
 const linkClass =
-  'relative flex min-h-11 items-center rounded-md px-3 text-base text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:font-semibold aria-[current=page]:text-foreground';
-
-// Die aktive Seite trägt eine Akzentlinie unten (Handschrift Bühne).
-const activeLine =
-  'after:absolute after:inset-x-3 after:-bottom-1 after:h-0.5 after:rounded-full after:bg-primary after:opacity-0 aria-[current=page]:after:opacity-100';
+  'relative flex min-h-11 items-center rounded-full px-4.5 font-medium text-muted-strong text-sm transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-[current=page]:bg-card aria-[current=page]:font-semibold aria-[current=page]:text-ink aria-[current=page]:shadow-toggle';
 
 /**
  * Globale Leiste oben (PLT-11, NAV-01): links Bildmarke und Name, in der Mitte die
@@ -36,8 +34,9 @@ function GlobalBar({
   brandHref: string;
   items: NavItem[];
   activeKey?: string | undefined;
-  /** Symbole rechts, z. B. Fragen und Profil, jeweils mit aria-label */
-  actions?: (NavItem & { icon: React.ReactNode })[];
+  /** Symbole rechts, z. B. Fragen und Profil, jeweils mit aria-label. Mit initials wird das
+   *  Ziel ein Tinte-Kreis mit Mint-Initialen (Profil). */
+  actions?: (NavItem & { icon: React.ReactNode; initials?: string })[];
   menuHref: string;
   menuLabel: string;
   /** Im Styleguide aus, damit die Beispielleiste nicht über der Seite klebt */
@@ -49,47 +48,63 @@ function GlobalBar({
     <header
       data-slot="global-bar"
       className={cn(
-        // Fest 13 Stufen hoch inklusive Linie: Die lokale Leiste klebt genau darunter (top-13).
-        'z-20 h-13 border-border border-b bg-card/90 backdrop-blur',
+        // Fest 17 Stufen (68 px) hoch inklusive Linie: Die Leiste des Lieferanten klebt genau
+        // darunter (top-17).
+        'z-20 h-17 border-line border-b bg-paper',
         sticky && 'sticky top-0',
         className,
       )}
     >
       <nav
         aria-label={label}
-        className="mx-auto flex h-full w-full max-w-6xl items-center gap-2 px-4"
+        className="mx-auto flex h-full w-full max-w-300 items-center gap-6 px-4 sm:px-12"
       >
         {renderLink({
           href: brandHref,
-          className: cn(linkClass, 'gap-2.5 font-bold text-foreground text-lg tracking-title'),
+          className:
+            'flex min-h-11 items-center gap-2.5 rounded-full font-display font-semibold text-ink text-lg tracking-section focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
           children: (
             <>
-              <BrandMark />
+              <BrandMark className="h-6 w-8.5" />
               {brand}
             </>
           ),
         })}
-        <ul className="hidden flex-1 items-center justify-center gap-1 sidebar:flex">
+        <ul className="mx-auto hidden flex-wrap items-center gap-0.5 rounded-full bg-line-soft p-1 sidebar:flex">
           {items.map((item) => (
             <li key={item.key}>
               {renderLink({
                 href: item.href,
-                className: cn(linkClass, activeLine),
+                className: linkClass,
                 'aria-current': item.key === activeKey ? 'page' : undefined,
                 children: item.label,
               })}
             </li>
           ))}
         </ul>
-        <ul className="ml-auto hidden items-center gap-1 sidebar:ml-0 sidebar:flex">
+        <ul className="ml-auto hidden items-center gap-2 sidebar:ml-0 sidebar:flex">
           {actions?.map((action) => (
             <li key={action.key}>
               {renderLink({
                 href: action.href,
-                className: cn(linkClass, 'size-11 justify-center px-0 [&_svg]:size-5'),
+                className: action.initials
+                  ? cn(iconClass, 'p-0.5')
+                  : cn(
+                      iconClass,
+                      'text-muted-strong hover:bg-line-soft hover:text-ink aria-[current=page]:bg-card aria-[current=page]:text-ink aria-[current=page]:shadow-toggle',
+                    ),
                 'aria-current': action.key === activeKey ? 'page' : undefined,
                 'aria-label': action.label,
-                children: action.icon,
+                children: action.initials ? (
+                  <span
+                    aria-hidden
+                    className="flex size-10 items-center justify-center rounded-full bg-ink font-display font-semibold text-mint text-sm tracking-wide"
+                  >
+                    {action.initials}
+                  </span>
+                ) : (
+                  action.icon
+                ),
               })}
             </li>
           ))}
@@ -97,7 +112,7 @@ function GlobalBar({
         <div className="ml-auto sidebar:hidden">
           {renderLink({
             href: menuHref,
-            className: cn(linkClass, 'size-11 justify-center px-0 [&_svg]:size-5'),
+            className: cn(iconClass, 'text-muted-strong hover:bg-line-soft hover:text-ink'),
             'aria-label': menuLabel,
             children: <MenuIcon aria-hidden />,
           })}
@@ -106,5 +121,8 @@ function GlobalBar({
     </header>
   );
 }
+
+const iconClass =
+  'flex size-11 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-5';
 
 export { GlobalBar };

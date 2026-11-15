@@ -1,3 +1,4 @@
+import { ArrowRightIcon, MessageCircleQuestionIcon } from 'lucide-react';
 import type * as React from 'react';
 import { useEffect } from 'react';
 
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardTitle, Figure } from '@/components/ui/card';
 import { Chain } from '@/components/ui/chain';
 import { DateCircle } from '@/components/ui/date-circle';
+import { GlobalBar } from '@/components/ui/global-bar';
 import { GuideQuestions } from '@/components/ui/guide-questions';
 import { LayerItem, LayerPanel } from '@/components/ui/layer-panel';
 import {
@@ -17,6 +19,7 @@ import {
   ListRowText,
   ListSection,
 } from '@/components/ui/list-card';
+import { LocalBar, LocalBarProgress } from '@/components/ui/local-bar';
 import { MeterBar } from '@/components/ui/meter-bar';
 import { Monogram } from '@/components/ui/monogram';
 import { NextStep, NextStepArrow } from '@/components/ui/next-step';
@@ -41,6 +44,9 @@ type SectionId = keyof (typeof designMessages)['de']['sections'];
 
 /** Die Vorlage in docs/design/referenz/ und die Datei im UI-Paket je Baustein */
 const blocks: { id: SectionId; reference: string | null; files: string[] }[] = [
+  { id: 'header', reference: 'Header.dc.html', files: ['global-bar.tsx'] },
+  { id: 'supplierBar', reference: 'SupplierBar.dc.html', files: ['local-bar.tsx'] },
+  { id: 'flow', reference: 'Flow.dc.html', files: ['step-progress.tsx'] },
   { id: 'logo', reference: 'Header.dc.html', files: ['brand-mark.tsx'] },
   { id: 'buttons', reference: 'Lieferanten.dc.html', files: ['button.tsx'] },
   { id: 'chips', reference: null, files: ['badge.tsx', 'visibility-badge.tsx'] },
@@ -78,6 +84,9 @@ export function DesignPage() {
   }, [t]);
 
   const examples: Record<SectionId, React.ReactNode> = {
+    header: <HeaderExample />,
+    supplierBar: <SupplierBarExample />,
+    flow: <FlowExample />,
     logo: (
       <div className="flex flex-wrap items-center gap-8">
         <Logo name={app.app.name} />
@@ -545,6 +554,98 @@ function CardExample() {
         <Figure label={s.figureLabel} value={s.figureValue} note={s.figureNote} />
         <Figure label={s.figureLabelB} value="–" note={s.figureNoteB} />
       </div>
+    </div>
+  );
+}
+
+function HeaderExample() {
+  const s = useMessages(designMessages).samples;
+  const app = useT();
+  return (
+    // Schmal zeigt die Kopfleiste nur den Menüknopf; das Beispiel steht in einem Rahmen.
+    <div className="overflow-hidden rounded-lg shadow-card">
+      <GlobalBar
+        sticky={false}
+        label={s.navLabel}
+        brand={app.app.name}
+        brandHref="#header"
+        items={s.navItems.map((label, index) => ({ key: `n${index}`, label, href: '#header' }))}
+        activeKey="n1"
+        actions={[
+          {
+            key: 'q',
+            label: s.questionsLink,
+            href: '#header',
+            icon: <MessageCircleQuestionIcon aria-hidden />,
+          },
+          { key: 'p', label: s.profile, href: '#header', icon: null, initials: 'AS' },
+        ]}
+        menuHref="#header"
+        menuLabel={s.menu}
+      />
+    </div>
+  );
+}
+
+function SupplierBarExample() {
+  const s = useMessages(designMessages).samples;
+  return (
+    <div className="overflow-hidden rounded-lg shadow-card">
+      <LocalBar
+        sticky={false}
+        label={s.areasLabel}
+        name={s.supplierA}
+        nameIcon={<Monogram name={s.supplierA} size="lg" ring />}
+        nameHref="#supplierBar"
+        subtitle={s.supplierLine}
+        progress={
+          <LocalBarProgress>
+            <Chain
+              surface="paper"
+              label={s.position}
+              steps={['done', 'done', 'done', 'current', 'open', 'open']}
+            />
+            <span aria-hidden>{s.position}</span>
+          </LocalBarProgress>
+        }
+        items={s.areas.map((label, index) => ({ key: `a${index}`, label, href: '#supplierBar' }))}
+        activeKey="a3"
+        subItems={s.pages.map((label, index) => ({
+          key: `p${index}`,
+          label,
+          href: '#supplierBar',
+        }))}
+        subLabel={s.pagesLabel}
+        activeSubKey="p2"
+      />
+    </div>
+  );
+}
+
+function FlowExample() {
+  const s = useMessages(designMessages).samples;
+  return (
+    <div className="rounded-lg bg-paper p-4 sm:p-6">
+      <StepProgress
+        chip={s.flowChip}
+        title={s.flowTitle}
+        current={2}
+        total={6}
+        label={s.progress}
+        steps={s.pages}
+        stepTitle={s.pages[1] ?? ''}
+        doneLabel={s.done}
+        doneWhen={{ label: s.doneLabel, text: s.doneText }}
+        actions={
+          <>
+            <Button variant="ghost">{s.back}</Button>
+            <Button variant="secondary">
+              {s.next}
+              <ArrowRightIcon aria-hidden />
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

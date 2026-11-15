@@ -64,6 +64,7 @@ function StepFrame({
           total={totalSteps}
           label={t.rounds.stepLabel}
           stepTitle={stepTitles[current - 1] ?? ''}
+          steps={stepTitles}
         />
         {children}
       </div>

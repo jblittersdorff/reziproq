@@ -73,6 +73,7 @@ export function RatingPage({ id, step }: { id: string; step: RatingStep }) {
               total={3}
               label={t.ratings.step}
               stepTitle={t.ratings.stepTitles[step - 1] as string}
+              steps={[...t.ratings.stepTitles]}
             />
             {!detail.editable && (
               <StatusLine

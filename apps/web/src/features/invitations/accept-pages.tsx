@@ -149,6 +149,7 @@ function Progress({ step }: { step: 1 | 2 | 3 }) {
       total={totalSteps}
       label={text.step}
       stepTitle={text.stepTitles[step - 1] as string}
+      steps={[...text.stepTitles]}
     />
   );
 }

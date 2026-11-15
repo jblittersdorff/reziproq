@@ -10,6 +10,9 @@ export const designMessages = defineMessages({
     source: 'Aus',
     everywhere: 'überall',
     sections: {
+      header: 'Kopfleiste',
+      supplierBar: 'Lieferanten-Leiste',
+      flow: 'Ablauf-Leiste',
       logo: 'Logo',
       buttons: 'Knöpfe',
       chips: 'Chip',
@@ -29,6 +32,11 @@ export const designMessages = defineMessages({
       card: 'Karte und Kennzahl',
     },
     descriptions: {
+      header:
+        'Grund paper, 68 px. Navigation als Schalter, der aktive Punkt weiß; Profil als Tinte-Kreis mit Initialen.',
+      supplierBar:
+        'Weiß; Monogramm mit Petrol-Innenrand, Name in Outfit, rechts die Kette. Bereiche als Reiter, Unterseiten als Pillen.',
+      flow: 'Weiße Karte mit Schritt n von m, Zurück und Weiter, Ringen und der Zeile „Fertig, wenn …“.',
       logo: 'Zwei Ringe, links Tinte, rechts Petrol, die Überlappung Mint gefüllt.',
       buttons:
         'Haupt Petrol, Zweit weiß mit Innenrand, auf Tinte Mint. 44 px hoch, Hauptaktion 50 bis 54 px.',
@@ -52,6 +60,23 @@ export const designMessages = defineMessages({
       card: 'Weiße Karte mit 24 px Ecken; große Zahlen in Outfit mit Tabellenziffern.',
     },
     samples: {
+      navLabel: 'Hauptnavigation (Beispiel)',
+      navItems: ['Start', 'Lieferanten', 'Portfolio', 'Wirkung'],
+      questionsLink: 'Fragen',
+      profile: 'Profil',
+      menu: 'Menü öffnen',
+      areasLabel: 'Bereiche des Lieferanten (Beispiel)',
+      areas: ['Überblick', 'Strategie', 'Beziehung', 'Gemeinsamer Plan', 'Umsetzung', 'Wirkung'],
+      pagesLabel: 'Seiten im Bereich (Beispiel)',
+      pages: ['Vorbereitung', 'Themen', 'Initiativen', 'Zusagen', 'Freigabe', 'Scorecard'],
+      supplierLine: 'Strategisch · Leiterplatten',
+      position: 'Schritt 4 von 6 · Gemeinsamer Plan',
+      flowChip: 'Ablauf',
+      flowTitle: 'JBP abschließen',
+      back: 'Zurück',
+      next: 'Weiter',
+      doneLabel: 'Fertig, wenn',
+      doneText: 'beide Seiten ihre Themen eingebracht und gereiht haben.',
       primary: 'Speichern',
       secondary: 'Abbrechen',
       ghost: 'Mehr',
@@ -177,6 +202,9 @@ export const designMessages = defineMessages({
     source: 'From',
     everywhere: 'everywhere',
     sections: {
+      header: 'Header',
+      supplierBar: 'Supplier bar',
+      flow: 'Flow bar',
       logo: 'Logo',
       buttons: 'Buttons',
       chips: 'Chip',
@@ -196,6 +224,11 @@ export const designMessages = defineMessages({
       card: 'Card and figure',
     },
     descriptions: {
+      header:
+        'Paper background, 68 px. Navigation as a toggle, the active item white; profile as an ink circle with initials.',
+      supplierBar:
+        'White; monogram with a petrol inner ring, name in Outfit, the chain on the right. Areas as tabs, pages as pills.',
+      flow: 'White card with step n of m, back and next, rings and the line “Done when …”.',
       logo: 'Two rings, ink on the left, petrol on the right, the overlap filled with mint.',
       buttons:
         'Primary petrol, secondary white with an inner border, mint on ink. 44 px high, main action 50 to 54 px.',
@@ -219,6 +252,23 @@ export const designMessages = defineMessages({
       card: 'White card with 24 px corners; large figures in Outfit with tabular figures.',
     },
     samples: {
+      navLabel: 'Main navigation (example)',
+      navItems: ['Start', 'Suppliers', 'Portfolio', 'Impact'],
+      questionsLink: 'Questions',
+      profile: 'Profile',
+      menu: 'Open menu',
+      areasLabel: 'Supplier areas (example)',
+      areas: ['Overview', 'Strategy', 'Relationship', 'Joint plan', 'Execution', 'Impact'],
+      pagesLabel: 'Pages in this area (example)',
+      pages: ['Preparation', 'Topics', 'Initiatives', 'Commitments', 'Approval', 'Scorecard'],
+      supplierLine: 'Strategic · Circuit boards',
+      position: 'Step 4 of 6 · Joint plan',
+      flowChip: 'Flow',
+      flowTitle: 'Complete the JBP',
+      back: 'Back',
+      next: 'Next',
+      doneLabel: 'Done when',
+      doneText: 'both sides have contributed and ranked their topics.',
       primary: 'Save',
       secondary: 'Cancel',
       ghost: 'More',

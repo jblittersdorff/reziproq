@@ -598,7 +598,6 @@ export const en: Messages = {
     failed: 'The language could not be saved. Please try again.',
   },
 
-
   settings: {
     title: 'Settings',
     purpose: 'Set up Reziproq for your organization.',
@@ -1810,6 +1809,7 @@ export const en: Messages = {
   // Supplier workspace (NAV-06)
   workspace: {
     label: 'Supplier sections',
+    pagesLabel: 'Pages in this area',
     overview: 'Overview',
     overviewPurpose: 'Where the relationship stands and what belongs to it.',
     areas: {
@@ -1898,6 +1898,8 @@ export const en: Messages = {
       dateNoCycle: 'No active cycle yet',
       dateNoCycleHint: 'Start the cycle on the supplier overview before setting its date.',
       dateNoPermission: 'Only the SRO or an admin can set the date.',
+      position: (current: number, total: number, step: string) =>
+        `Step ${current} of ${total} · ${step}`,
       nextStep: (step: string) => `Next step: ${step}`,
       steps: {
         segment: 'Segment',

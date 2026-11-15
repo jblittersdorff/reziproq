@@ -563,6 +563,7 @@ export function NewWavePage({ relationshipId, step }: { relationshipId: string; 
           total={3}
           label={text.stepLabel}
           stepTitle={stepTitles[current - 1] ?? ''}
+          steps={stepTitles}
         />
         {error && (
           <p role="alert" className="text-destructive">
