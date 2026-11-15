@@ -39,15 +39,37 @@ Als SRO sehe ich je Beziehung, wie die Initiativen zur GuV-Wirkung beitragen. Al
 3. Umschalter Jahreswirkung bzw. Geschäftsjahr und Auswahl des Geschäftsjahrs, beides in der Adresse.
 4. Jeder Balken und jede Zeile führt zur Beziehung bzw. Initiative.
 
+## Umsetzung
+
+- **Wirkung einer Initiative:** je Monat das Ist, wo es eines gibt, sonst der Plan
+  (`amountInRange` in `packages/shared`). Initiativen mit Savings-Verweis zählen nirgends.
+- **Jahreswirkung:** zwölf Monate ab dem eingestellten Wirkungsbeginn, sonst ab Start der
+  Initiative. **Geschäftsjahr:** Beginn je Kunde in `org_setting`
+  (`fiscal_year_start_month`, Standard Januar), unter Einstellungen › Geschäftsjahr.
+- **Realisiert** (Top-Beziehungen) ist nur Ist in Zeiträumen, die Controlling freigegeben hat
+  (PNL-06).
+- **Brücke:** eigene Unterseite `Wirkung › P&L-Brücke` (`/lieferanten/<id>/wirkung/bruecke`), nur
+  EBIT, je Initiative ein Balken in der Farbe ihres Reifegrads (Skala hell → dunkel, Stufe in der
+  Beschriftung), am Ende die Summe. Andere Wirkungsarten stehen als eigene Kacheln daneben. Die
+  Werte stehen als Tabelle darunter, jede Zeile führt zur Initiative. Schmal liegt der Wasserfall
+  waagerecht.
+- **Lieferant:** dieselbe Brücke oben auf `/kunden/<beziehung>/wirkung`, nur mit geteilten Werten
+  (RLS); das Geschäftsjahr des Kunden ist für ihn privat, er rechnet ab Januar.
+- **Portfolio** (`/wirkung`): alle aktiven Fokuslieferanten. Pipeline je Wirkungsart nach R1 bis R5;
+  EBIT je Business Unit über drei Geschäftsjahre (in der Jahreswirkung im Geschäftsjahr des
+  Wirkungsbeginns; Lieferanten mit mehreren BUs zählen in jeder); Top 5 nach realisierter
+  EBIT-Wirkung; Weg zu den Freigaben.
+- Sicht (`?sicht=jahreswirkung|geschaeftsjahr`) und Geschäftsjahr (`&gj=2026`) stehen in der Adresse.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Der CPO sieht die Wirkung aller Fokuslieferanten auf einer Seite.
-- [ ] Brücke und Summen stimmen mit `initiative_value` überein, ohne Initiativen mit Savings-Referenz.
-- [ ] Keine Summe über Wirkungsarten, auch nicht in Diagrammen.
-- [ ] Jahreswirkung und Wirkung im Geschäftsjahr stimmen mit Testdaten für ein Geschäftsjahr ab April.
-- [ ] Der Lieferant sieht in seiner Brücke nur geteilte Werte.
+- [x] Der CPO sieht die Wirkung aller Fokuslieferanten auf einer Seite.
+- [x] Brücke und Summen stimmen mit `initiative_value` überein, ohne Initiativen mit Savings-Referenz.
+- [x] Keine Summe über Wirkungsarten, auch nicht in Diagrammen.
+- [x] Jahreswirkung und Wirkung im Geschäftsjahr stimmen mit Testdaten für ein Geschäftsjahr ab April.
+- [x] Der Lieferant sieht in seiner Brücke nur geteilte Werte.
 
 ## Nicht Teil dieser Funktion
 

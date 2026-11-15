@@ -132,8 +132,8 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 66 | PNL-03 | Baseline und Reifegrade | PNL-03, PNL-04 | PNL-01 | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Baseline und Stufen nur anfügbar; R5 erst mit PNL-06. |
 | 67 | PNL-05 | Monatswerte Plan und Ist | PNL-05 | PNL-03 | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Beträge nur über app_initiative_recompute; initiative_value bis PNL-07 intern, Spalte value_cents. |
 | 68 | PNL-06 | Freigabe durch Controlling | PNL-06 | PNL-05, PLT-05b | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Recht wirkung.freigeben nur mit Zusatzrolle Controlling; Freigabe gibt R5 und sperrt den Zeitraum. |
-| 69 | PNL-07 | Teilungsregel, Wirkungsarten, Doppelzählung | PNL-07, PNL-08, PNL-09 | PNL-06, LIF-03 | nach 1.0 | Block W | B | PR offen | Teilung mit Bestätigung, Wirkung erst danach geteilt; Summen nur je Wirkungsart; Savings-Verweis zählt nicht; eigener Nutzen lieferantenprivat. |
-| 70 | PNL-10 | P&L-Brücke und Wirkung im Portfolio | PNL-10 | PNL-07, SEG-07 | nach 1.0 | Block W | B | offen | – |
+| 69 | PNL-07 | Teilungsregel, Wirkungsarten, Doppelzählung | PNL-07, PNL-08, PNL-09 | PNL-06, LIF-03 | nach 1.0 | Block W | B | fertig | Teilung mit Bestätigung, Wirkung erst danach geteilt; Summen nur je Wirkungsart; Savings-Verweis zählt nicht; eigener Nutzen lieferantenprivat. |
+| 70 | PNL-10 | P&L-Brücke und Wirkung im Portfolio | PNL-10 | PNL-07, SEG-07 | nach 1.0 | Block W | B | PR offen | Brücke nur EBIT nach Reifegrad, Portfolio der Fokuslieferanten, Jahreswirkung und Geschäftsjahr je Kunde. |
 | 71 | PNL-11 | Excel-Export für das Controlling | PNL-11 | PNL-10 | nach 1.0 | Block W | B | offen | – |
 | 72 | QS-02 | Kommentare | QS-02 | JBP-03, QBR-03, QS-01 | nach 1.0 | Block R | A | offen | – |
 | 73 | QBR-06 | Pre-Read als PDF | QBR-06 | QBR-03, JBP-09 | nach 1.0 | Block R | A | offen | – |

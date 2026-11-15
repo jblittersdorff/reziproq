@@ -71,6 +71,7 @@ export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
           'verlauf.sehen',
           'prompt.nutzen',
           'kunden.wechseln',
+          'wirkung.sehen',
         ],
       },
     }),

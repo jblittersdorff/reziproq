@@ -236,6 +236,56 @@ export const en: Messages = {
   },
 
   impact: {
+    // PNL-10: P&L bridge and portfolio impact
+    portfolio: {
+      views: { jahreswirkung: 'Annual impact', geschaeftsjahr: 'Fiscal year' } as Record<
+        string,
+        string
+      >,
+      view: 'View',
+      viewHints: {
+        jahreswirkung: 'Twelve months from each initiative’s start of impact.',
+        geschaeftsjahr: 'Only the months of the selected fiscal year.',
+      } as Record<string, string>,
+      fiscalYear: 'Fiscal year',
+      fiscalYearLabel: (year: number, startMonth: number) =>
+        startMonth === 1 ? `FY ${year}` : `FY ${year}/${String((year + 1) % 100).padStart(2, '0')}`,
+      basis: 'Per month the actual where there is one, otherwise the plan.',
+      bridgeTitle: (amount: string) => `${amount} EBIT impact from the initiatives`,
+      bridgeEmpty: 'No EBIT impact in this period yet',
+      bridgeEmptyText: 'Once initiatives have monthly values, the bridge appears here.',
+      total: 'EBIT total',
+      maturity: (level: number) => `R${level}`,
+      others: 'Other effect types, not in the bridge',
+      excluded: 'Already in savings tracking, in no total',
+      stepsTable: 'Initiatives in the bridge',
+      initiative: 'Initiative',
+      amount: 'EBIT impact',
+      level: 'Maturity',
+      pageTitle: 'P&L bridge',
+      pagePurpose:
+        'How the initiatives contribute to EBIT impact, bars by maturity. Other effect types stand next to it.',
+      loading: 'Loading impact …',
+      failed: 'The impact could not be loaded.',
+      title: 'Impact',
+      purpose: 'P&L impact of all focus suppliers: by maturity, business unit and fiscal year.',
+      focusCount: (count: number) => `${count} focus suppliers`,
+      pipeline: 'Pipeline by maturity',
+      pipelineHint: 'One row per effect type; effect types are never added up.',
+      pipelineEmpty: 'No impact at focus suppliers yet.',
+      businessUnits: 'EBIT impact per business unit',
+      businessUnitsHint: 'Suppliers with several business units count in each.',
+      noUnit: 'No business unit',
+      top: 'Top relationships by realized EBIT impact',
+      topHint: 'Realized means actuals in periods approved by controlling.',
+      topEmpty: 'No realized impact yet.',
+      settingTitle: 'Fiscal year',
+      settingHint: 'The month your fiscal year starts',
+      settingPurpose: 'Applies to fiscal-year impact, the portfolio and every bridge.',
+      startMonth: 'Starts in month',
+      saved: 'Saved.',
+      saveFailed: 'Saving did not work. Please try again.',
+    },
     // PNL-07: sharing, effect types, double counting
     sharing: {
       totalsTitle: 'Impact per effect type',

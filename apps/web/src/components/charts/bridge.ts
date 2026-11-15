@@ -9,6 +9,8 @@ export interface BridgeLever {
 export interface BridgeStep {
   label: string;
   kind: 'total' | 'increase' | 'decrease';
+  /** PNL-10: Reifegrad R1 bis R5 der Initiative; bestimmt Farbe und Beschriftung */
+  maturity?: number;
   startCents: number;
   endCents: number;
   deltaCents: number;
@@ -54,4 +56,38 @@ export function buildBridge(
     deltaCents: running,
   });
   return { steps, total: { amountCents: running, currency: baseline.currency } };
+}
+
+/**
+ * PNL-10: Brücke der EBIT-Wirkung einer Beziehung: je Initiative ein Schritt ab null, am Ende die
+ * Summe. Andere Wirkungsarten gehören nie hierher.
+ */
+export function buildInitiativeBridge(
+  items: { label: string; amountCents: number; maturity: number }[],
+  totalLabel: string,
+): BridgeStep[] {
+  let running = 0;
+  const steps: BridgeStep[] = items.map((item) => {
+    if (!Number.isInteger(item.amountCents)) throw new Error('Geldbeträge müssen ganze Cent sein');
+    const step: BridgeStep = {
+      label: item.label,
+      kind: item.amountCents >= 0 ? 'increase' : 'decrease',
+      maturity: item.maturity,
+      startCents: running,
+      endCents: running + item.amountCents,
+      deltaCents: item.amountCents,
+    };
+    running += item.amountCents;
+    return step;
+  });
+  if (steps.length > 0) {
+    steps.push({
+      label: totalLabel,
+      kind: 'total',
+      startCents: 0,
+      endCents: running,
+      deltaCents: running,
+    });
+  }
+  return steps;
 }

@@ -112,7 +112,8 @@ export const actionNotification = pgTable(
 
 // QBR-04: Einstellungen je Organisation, für Käufer und Lieferanten. Erster Schlüssel:
 // action_reminder_days (Standard 3, im Code).
-export const orgSettingKeys = ['action_reminder_days'] as const;
+// PNL-10: fiscal_year_start_month (1 bis 12, Standard 1 = Januar).
+export const orgSettingKeys = ['action_reminder_days', 'fiscal_year_start_month'] as const;
 
 export const orgSetting = pgTable(
   'org_setting',
@@ -127,7 +128,10 @@ export const orgSetting = pgTable(
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check('org_setting_key', sql`${table.key} in ('action_reminder_days')`),
+    check(
+      'org_setting_key',
+      sql`${table.key} in ('action_reminder_days', 'fiscal_year_start_month')`,
+    ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],
 );

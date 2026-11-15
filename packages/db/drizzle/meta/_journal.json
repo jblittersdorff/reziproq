@@ -484,6 +484,13 @@
       "when": 1794695025767,
       "tag": "0068_teilung_ohne_eindeutigkeit",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794757461207,
+      "tag": "0069_geschaeftsjahr",
+      "breakpoints": true
     }
   ]
 }

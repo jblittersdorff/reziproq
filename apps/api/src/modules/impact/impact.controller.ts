@@ -10,20 +10,27 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  type Bridge,
   type CustomerImpact,
   type DecideValidation,
   decideValidationSchema,
+  type FiscalYearSetting,
   type FreezeBaseline,
+  fiscalYearSettingSchema,
   freezeBaselineSchema,
   type ImpactDetail,
   type ImpactImportPreview,
   type ImpactList,
+  type ImpactView,
+  impactViews,
   type PnlLines,
+  type PortfolioImpact,
   type RaiseMaturity,
   type RequestValidation,
   raiseMaturitySchema,
@@ -43,12 +50,14 @@ import {
   type ValidationDetail,
   type ValidationList,
 } from '@reziproq/shared';
+import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { parseImportFile } from '../suppliers/import-file.js';
 import { ImpactService } from './impact.service.js';
+import { PortfolioService } from './portfolio.service.js';
 import { SharingService } from './sharing.service.js';
 import { ValidationService } from './validation.service.js';
 
@@ -334,5 +343,75 @@ export class CustomerImpactController {
     @Param('benefitId', ParseUUIDPipe) benefitId: string,
   ): Promise<CustomerImpact> {
     return this.sharing.saveBenefit(auth, id, initiativeId, benefitId, null);
+  }
+}
+
+const viewQuery = new ZodValidationPipe(z.enum(impactViews).optional().default('jahreswirkung'));
+const fiscalYearQuery = new ZodValidationPipe(
+  z.coerce.number().int().min(2000).max(2100).optional(),
+);
+
+/** PNL-10: P&L-Brücke beim Käufer. */
+@Controller('suppliers/:id/wirkung/bruecke')
+export class BridgeController {
+  constructor(@Inject(PortfolioService) private readonly portfolio: PortfolioService) {}
+
+  @Get()
+  @Requires('wirkung.sehen')
+  get(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('sicht', viewQuery) view: ImpactView,
+    @Query('gj', fiscalYearQuery) fiscalYear: number | undefined,
+  ): Promise<Bridge> {
+    return this.portfolio.bridge(auth, id, view, fiscalYear);
+  }
+}
+
+/** PNL-10: P&L-Brücke beim Lieferanten, nur geteilte Werte. */
+@Controller('kunden/:id/wirkung/bruecke')
+export class CustomerBridgeController {
+  constructor(@Inject(PortfolioService) private readonly portfolio: PortfolioService) {}
+
+  @Get()
+  @Requires('kunden.sehen')
+  get(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('sicht', viewQuery) view: ImpactView,
+    @Query('gj', fiscalYearQuery) fiscalYear: number | undefined,
+  ): Promise<Bridge> {
+    return this.portfolio.customerBridge(auth, id, view, fiscalYear);
+  }
+}
+
+/** PNL-10: Wirkung im Portfolio der Fokuslieferanten und Geschäftsjahr je Kunde. */
+@Controller('wirkung')
+export class PortfolioImpactController {
+  constructor(@Inject(PortfolioService) private readonly portfolio: PortfolioService) {}
+
+  @Get('portfolio')
+  @Requires('wirkung.sehen')
+  get(
+    @CurrentUser() auth: AuthContext,
+    @Query('sicht', viewQuery) view: ImpactView,
+    @Query('gj', fiscalYearQuery) fiscalYear: number | undefined,
+  ): Promise<PortfolioImpact> {
+    return this.portfolio.portfolio(auth, view, fiscalYear);
+  }
+
+  @Get('geschaeftsjahr')
+  @Requires('wirkung.sehen')
+  fiscalYear(@CurrentUser() auth: AuthContext): Promise<FiscalYearSetting> {
+    return this.portfolio.fiscalYearSetting(auth);
+  }
+
+  @Put('geschaeftsjahr')
+  @Requires('einstellungen.verwalten')
+  saveFiscalYear(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(fiscalYearSettingSchema)) body: FiscalYearSetting,
+  ): Promise<FiscalYearSetting> {
+    return this.portfolio.saveFiscalYearSetting(auth, body);
   }
 }
