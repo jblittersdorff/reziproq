@@ -6,11 +6,27 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 ## Befehle
 
 - pnpm dev: alles lokal starten
-- pnpm typecheck, pnpm lint, pnpm test: vor jedem Commit, alle müssen grün sein
+- pnpm check: vor jedem Commit alles, was die CI prüft (Typprüfung, Lint, Migration, Rollen, Unit-,
+  RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
+  pnpm test, pnpm test:e2e
 - pnpm --filter @reziproq/db db:generate / db:migrate: Migrationen
 - pnpm db:seed: Beispieldaten; richtet sie danach mit pnpm demo:setup auf die echten Konten ein
   (Käufer OEM 1 mit allen Rechten, Lieferant Lieferant 1), ohne erfundene Personen
 - Automatische Tests schreiben nie in die Entwicklungsdatenbank, sondern in reziproq_test
+
+## Lokaler Betrieb
+
+Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Minuten aufgebraucht).
+
+- Kein `git push`, in keiner Schreibweise (auch nicht `git -C … push`).
+- Kein `gh`, keine Pull Requests, keine Issues, keine Releases, keine Aufrufe der GitHub-API.
+- Kein `git pull` und kein `git fetch`, außer der Gründer bittet darum.
+- Remotes nicht ändern und nicht entfernen.
+- Commits nur lokal, klein und mit klarer Nachricht, auf dem aktuellen Branch.
+- Alles, was bisher die CI geprüft hat, läuft lokal vor jedem Commit: `pnpm check` (Typprüfung,
+  Lint, Unit-Tests, RLS- und Cross-Tenant-Tests, E2E-Tests). Ein Commit entsteht nur, wenn alles
+  grün ist.
+- Wenn ein Schritt GitHub bräuchte: anhalten und den Gründer fragen.
 
 ## Aufbau
 
