@@ -35,7 +35,7 @@ import { maturityOf } from './maturity.js';
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 
 /** Eine Initiative mit allem, was Brücke und Portfolio brauchen. */
-interface InitiativeFacts {
+export interface InitiativeFacts {
   id: string;
   title: string;
   relationshipId: string;
@@ -50,7 +50,7 @@ interface InitiativeFacts {
 }
 
 /** Was die Session sieht; RLS entscheidet, beim Lieferanten nur Geteiltes. */
-async function factsOf(
+export async function factsOf(
   tx: TenantTransaction,
   relationshipIds: string[],
   buyer: boolean,
@@ -137,13 +137,58 @@ async function factsOf(
   return facts;
 }
 
-function rangeOf(fact: InitiativeFacts, view: ImpactView, fiscalYear: number, startMonth: number) {
+export function rangeOf(
+  fact: InitiativeFacts,
+  view: ImpactView,
+  fiscalYear: number,
+  startMonth: number,
+) {
   return view === 'jahreswirkung'
     ? annualRange(fact.effectiveFrom)
     : fiscalYearRange(fiscalYear, startMonth);
 }
 
-function fiscalYearsOf(facts: InitiativeFacts[], startMonth: number, current: number) {
+/** Je Wirkungsart die Wirkung nach Reifegrad R1 bis R5; Seite und Export rechnen gleich. */
+export function pipelineOf(facts: InitiativeFacts[], amount: (fact: InitiativeFacts) => number) {
+  return effectTypes
+    .map((effectType) => ({
+      effectType,
+      levels: [1, 2, 3, 4, 5].map((level) => ({
+        level,
+        amountCents: facts
+          .filter((fact) => fact.effectType === effectType && fact.maturity === level)
+          .reduce((sum, fact) => sum + amount(fact), 0),
+      })),
+    }))
+    .filter((entry) => entry.levels.some((level) => level.amountCents !== 0));
+}
+
+/** Aktive Fokuslieferanten des Käufers (SEG-02) mit Namen. */
+export async function focusRelationships(tx: TenantTransaction, orgId: string) {
+  return tx
+    .select({
+      id: schema.relationship.id,
+      name: sql<string>`coalesce(${schema.relationshipSide.displayName}, ${schema.organization.name})`,
+    })
+    .from(schema.relationship)
+    .innerJoin(schema.organization, eq(schema.organization.id, schema.relationship.supplierOrgId))
+    .innerJoin(
+      schema.relationshipSide,
+      and(
+        eq(schema.relationshipSide.relationshipId, schema.relationship.id),
+        eq(schema.relationshipSide.orgId, orgId),
+      ),
+    )
+    .where(
+      and(
+        eq(schema.relationship.buyerOrgId, orgId),
+        eq(schema.relationship.status, 'active'),
+        eq(schema.relationshipSide.isFocus, true),
+      ),
+    );
+}
+
+export function fiscalYearsOf(facts: InitiativeFacts[], startMonth: number, current: number) {
   const years = new Set<number>([current]);
   for (const fact of facts) {
     for (const value of fact.values) years.add(fiscalYearOf(value.month, startMonth));
@@ -164,7 +209,7 @@ export class PortfolioService {
     @Inject(CustomersService) private readonly customers: CustomersService,
   ) {}
 
-  private async startMonth(tx: TenantTransaction, orgId: string) {
+  async startMonth(tx: TenantTransaction, orgId: string) {
     const [row] = await tx
       .select({ value: schema.orgSetting.value })
       .from(schema.orgSetting)
@@ -244,30 +289,7 @@ export class PortfolioService {
       const today = new Date().toISOString().slice(0, 10);
       const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
       // Fokuslieferanten des Käufers (SEG-02), aktive Beziehungen.
-      const focus = await tx
-        .select({
-          id: schema.relationship.id,
-          name: sql<string>`coalesce(${schema.relationshipSide.displayName}, ${schema.organization.name})`,
-        })
-        .from(schema.relationship)
-        .innerJoin(
-          schema.organization,
-          eq(schema.organization.id, schema.relationship.supplierOrgId),
-        )
-        .innerJoin(
-          schema.relationshipSide,
-          and(
-            eq(schema.relationshipSide.relationshipId, schema.relationship.id),
-            eq(schema.relationshipSide.orgId, organization.id),
-          ),
-        )
-        .where(
-          and(
-            eq(schema.relationship.buyerOrgId, organization.id),
-            eq(schema.relationship.status, 'active'),
-            eq(schema.relationshipSide.isFocus, true),
-          ),
-        );
+      const focus = await focusRelationships(tx, organization.id);
       const ids = focus.map((entry) => entry.id);
       const facts = (await factsOf(tx, ids, true)).filter(
         (fact) => !fact.excluded && fact.effectType,
@@ -275,17 +297,7 @@ export class PortfolioService {
       const amount = (fact: InitiativeFacts, year = fiscalYear) =>
         amountInRange(fact.values, ...rangeOf(fact, view, year, startMonth));
 
-      const pipeline = effectTypes
-        .map((effectType) => ({
-          effectType,
-          levels: [1, 2, 3, 4, 5].map((level) => ({
-            level,
-            amountCents: facts
-              .filter((fact) => fact.effectType === effectType && fact.maturity === level)
-              .reduce((sum, fact) => sum + amount(fact), 0),
-          })),
-        }))
-        .filter((entry) => entry.levels.some((level) => level.amountCents !== 0));
+      const pipeline = pipelineOf(facts, (fact) => amount(fact));
 
       // EBIT je BU über drei Geschäftsjahre; in der Jahreswirkung zählt jede Initiative einmal.
       const years = [fiscalYear - 1, fiscalYear, fiscalYear + 1];

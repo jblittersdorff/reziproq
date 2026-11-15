@@ -293,6 +293,10 @@ export const de = {
       startMonth: 'Beginn im Monat',
       saved: 'Gespeichert.',
       saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
+      export: 'Excel herunterladen',
+      exporting: 'Wird erstellt …',
+      exportFailed:
+        'Der Export hat nicht geklappt. Den Export bekommen Controlling, Admins und der SRO für seine Beziehungen.',
     },
     // PNL-07: Teilung, Wirkungsarten, Doppelzählung
     sharing: {
