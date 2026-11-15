@@ -68,6 +68,7 @@ export const de = {
     dueCommitment: (detail: string | null) => (detail ? `Zusage · ${detail}` : 'Zusage'),
     dueValidation: (detail: string | null) =>
       detail ? `Wirkung freigeben · ${detail}` : 'Wirkung freigeben',
+    dueMention: (name: string | null) => (name ? `Erwähnung von ${name}` : 'Erwähnung'),
     dueSignature: (supplier: string) => `Scorecard unterschreiben · ${supplier}`,
     dueReview: (supplier: string) => `Gemeinsamen Plan prüfen · ${supplier}`,
     dueMilestone: (detail: string | null) => (detail ? `Meilenstein · ${detail}` : 'Meilenstein'),
@@ -120,6 +121,7 @@ export const de = {
       review: 'Gemeinsamen Plan prüfen',
       signature: 'Scorecard unterschreiben',
       validation: 'Wirkung freigeben',
+      mention: 'Erwähnung',
     },
     rateNow: 'Jetzt bewerten',
     internal: 'Nur intern',
@@ -1225,6 +1227,33 @@ export const de = {
   },
 
   // JBP-01 Vorbereitung des Joint Business Planning
+  // QS-02 Kommentare
+  comments: {
+    title: 'Kommentare',
+    loading: 'Kommentare werden geladen …',
+    failed: 'Die Kommentare konnten nicht geladen werden.',
+    empty: 'Noch keine Kommentare.',
+    field: 'Kommentar',
+    placeholder: 'Kommentar schreiben. Mit @ erwähnst du jemanden.',
+    send: 'Senden',
+    visibility: 'Sichtbar für',
+    internal: 'Intern',
+    shared: 'Geteilt',
+    internalOnly: 'Das Objekt ist intern, darum sind auch seine Kommentare intern.',
+    mention: 'Erwähnen',
+    noPeople: 'Niemand passt, oder die Person darf diesen Kommentar nicht sehen.',
+    removed: 'Kommentar entfernt',
+    edited: 'bearbeitet',
+    edit: 'Bearbeiten',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    remove: 'Entfernen',
+    removeQuestion: 'Kommentar entfernen?',
+    removeConfirm: 'Ja, entfernen',
+    failedSave: 'Der Kommentar konnte nicht gespeichert werden.',
+    readOnly: 'Hier kannst du Kommentare nur lesen.',
+    sides: { buyer: 'Käufer', supplier: 'Lieferant' },
+  },
   jbp: {
     // JBP-02 Themen beider Seiten
     topics: {

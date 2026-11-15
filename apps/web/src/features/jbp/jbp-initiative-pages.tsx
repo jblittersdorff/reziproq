@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { AuditHistory } from '@/features/audit/audit-history';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { impactPath, MaturityLadder, MaturitySteps } from '@/features/impact/impact-pages';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
@@ -388,6 +389,9 @@ export function JbpInitiativePage({
           maturity={query.data.maturity}
           impact={query.data.impact}
         />
+      )}
+      {query.data && (
+        <CommentsSection place={place} objectType="initiative" objectId={initiativeId} />
       )}
     </JbpFrame>
   );

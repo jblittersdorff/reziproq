@@ -78,6 +78,8 @@ export const ruleSetSharePreviewSchema = z.object({
 export const customerRuleSetSchema = z.object({
   target: sharedTargetSchema.nullable(),
   items: z.array(sharedRuleSetItemSchema),
+  /** Geteilte Version, z. B. für Kommentare (QS-02); null vor dem ersten Teilen */
+  ruleSetId: z.uuid().nullable().optional(),
 });
 
 export const ruleSetResponseSchema = z.object({

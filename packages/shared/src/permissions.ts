@@ -59,6 +59,7 @@ export const actions = [
   'massnahmen.bearbeiten',
   'kontaktpunkte.sehen',
   'kontaktpunkte.bearbeiten',
+  'kommentare.schreiben',
   'teilung.vereinbaren',
   'jbp.sehen',
   'jbp.anlegen',

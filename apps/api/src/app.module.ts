@@ -6,6 +6,7 @@ import { env } from './config/env.js';
 import { ActionsModule } from './modules/actions/actions.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
@@ -62,6 +63,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     MeetingsModule,
     ActionsModule,
     TouchpointsModule,
+    CommentsModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

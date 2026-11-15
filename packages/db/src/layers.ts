@@ -299,6 +299,26 @@ export const layerRegister: Record<string, LayerEntry> = {
       reviewed_by_name: 'Probe',
     }),
   },
+  // QS-02: Kommentare, geteilt oder intern; Erwähnungen gehören der Organisation der erwähnten
+  // Person und entstehen nur über app_kommentar_erwaehnen.
+  comment: {
+    kind: 'shared',
+    testValues: {
+      object_type: 'action',
+      object_id: '0190a0a0-0000-7000-8000-000000000001',
+      author_id: 'demo-test-oem-1',
+      author_name: 'Probe',
+      body: 'Probe',
+    },
+  },
+  comment_mention: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      comment_id: buyer && probe('comment', buyer),
+      // Eine Erwähnung je Person und Kommentar: jede Probe-Zeile mit eigener Person
+      user_id: `probe-${randomUUID()}`,
+    }),
+  },
   action_private_source: {
     kind: 'org_private',
     testValues: ({ buyer, probe }) => ({

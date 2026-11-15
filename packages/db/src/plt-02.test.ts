@@ -97,6 +97,8 @@ describe('PLT-02 in der Datenbank', () => {
       'audit_event',
       'business_unit',
       'catalog_setup',
+      'comment',
+      'comment_mention',
       'commitment',
       'cycle',
       'cycle_reminder_sent',

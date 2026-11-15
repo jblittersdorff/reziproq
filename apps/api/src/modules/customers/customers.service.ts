@@ -148,6 +148,7 @@ export class CustomersService {
         .where(eq(schema.ruleSetItem.ruleSetId, target.ruleSetId))
         .orderBy(asc(schema.ruleSetItem.position));
       return customerRuleSetSchema.parse({
+        ruleSetId: target.ruleSetId,
         target: {
           version: target.ruleSetVersion,
           typeName: target.typeName,

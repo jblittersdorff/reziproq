@@ -14,6 +14,8 @@ export const dueKinds = [
   'review',
   'signature',
   'validation',
+  // QS-02: Erwähnung in einem Kommentar, bis sie geöffnet wurde
+  'mention',
 ] as const;
 
 export const dueItemSchema = z.object({

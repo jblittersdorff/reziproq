@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -267,6 +268,7 @@ export function JbpTopicFormPage({ place, topicId }: { place: MeetingPlace; topi
       header={<PageHeader title={title} purpose={text.purpose} />}
     >
       <TopicFormLoader place={place} topicId={topicId} />
+      {topicId && <CommentsSection place={place} objectType="topic" objectId={topicId} />}
     </JbpFrame>
   );
 }

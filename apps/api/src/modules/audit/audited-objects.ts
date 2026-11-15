@@ -461,3 +461,17 @@ export const auditedObjects: readonly AuditedObject[] = [
 export function auditedObjectByType(type: string): AuditedObject | undefined {
   return auditedObjects.find((object) => object.type === type);
 }
+
+/** Geteilte Kommentare (QS-02): Anlegen, Bearbeiten und Entfernen ohne den Text im Verlauf. */
+export const commentAudit = auditedObject({
+  type: 'comment',
+  visibility: 'shared',
+  fields: ['visibility', 'edited_at', 'deleted_at'],
+});
+
+/** Interne Kommentare (QS-02): Verlauf nur für die eigene Seite. */
+export const commentInternalAudit = auditedObject({
+  type: 'comment_internal',
+  visibility: 'internal',
+  fields: ['visibility', 'edited_at', 'deleted_at'],
+});

@@ -32,6 +32,12 @@ const copy = {
       deadline: 'Bitte antworten bis',
       link: 'Fragen beantworten',
     },
+    mention: {
+      subject: 'Du wurdest erwähnt',
+      body: 'Jemand hat dich in einem Kommentar erwähnt. Den Kommentar siehst du in Reziproq.',
+      deadline: 'Frist',
+      link: 'Kommentar öffnen',
+    },
     escalation: {
       subject: 'Eskalation',
       body: 'Der folgende Vorgang benötigt deine Aufmerksamkeit.',
@@ -69,6 +75,12 @@ const copy = {
       body: 'How is the collaboration going, and how should it be? The questions take only a few minutes. Your answers stay anonymous: nobody sees who answered what. You do not need an account.',
       deadline: 'Please answer by',
       link: 'Answer the questions',
+    },
+    mention: {
+      subject: 'You were mentioned',
+      body: 'Someone mentioned you in a comment. You can read the comment in Reziproq.',
+      deadline: 'Due date',
+      link: 'Open comment',
     },
     escalation: {
       subject: 'Escalation',

@@ -167,6 +167,11 @@ export const permissions: Record<Action, Permission> = {
     description: 'Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte)',
     roles: ['admin', 'member', 'viewer'],
   },
+  'kommentare.schreiben': {
+    description:
+      'Objekte kommentieren, die man sieht, intern oder geteilt; eigene Kommentare 24 Stunden bearbeiten (beide Seiten)',
+    roles: ['admin', 'member', 'viewer'],
+  },
   'kontaktpunkte.bearbeiten': {
     description:
       'Kontaktpunkte anlegen, ändern, teilen und als geprüft markieren (Käufer, Admin oder Team, nicht mit Teamrolle Leser)',

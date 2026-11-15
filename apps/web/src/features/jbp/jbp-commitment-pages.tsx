@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -273,6 +274,9 @@ export function JbpCommitmentFormPage({
           data={query.data}
           existing={existing}
         />
+      )}
+      {commitmentId && query.data && (
+        <CommentsSection place={place} objectType="commitment" objectId={commitmentId} />
       )}
     </JbpFrame>
   );

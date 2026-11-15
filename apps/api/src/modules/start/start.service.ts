@@ -12,6 +12,7 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { CommentsService } from '../comments/comments.service.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
@@ -57,6 +58,7 @@ export class StartService {
     @Inject(JbpApprovalService) private readonly jbpApproval: JbpApprovalService,
     @Inject(JbpScorecardService) private readonly scorecards: JbpScorecardService,
     @Inject(ValidationService) private readonly validations: ValidationService,
+    @Inject(CommentsService) private readonly comments: CommentsService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -87,6 +89,8 @@ export class StartService {
     const signatures = await this.scorecards.dueItems(auth);
     // PNL-06: offene Freigaben der Wirkung für Controlling.
     const validations = await this.validations.dueItems(auth);
+    // QS-02: Erwähnungen, bis sie geöffnet wurden.
+    const mentions = await this.comments.dueItems(auth);
     const items = [
       ...ratings,
       ...cycles,
@@ -97,6 +101,7 @@ export class StartService {
       ...reviews,
       ...signatures,
       ...validations,
+      ...mentions,
     ];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),

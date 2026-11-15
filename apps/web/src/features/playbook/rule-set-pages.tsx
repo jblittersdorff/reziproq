@@ -25,6 +25,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { PageHeader } from '@/features/shell/page-header';
 import { useGoBack } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
@@ -377,6 +378,11 @@ function RuleSetContent({ relationshipId }: { relationshipId: string }) {
           </ul>
         </section>
       )}
+      <CommentsSection
+        place={{ side: 'buyer', relationshipId }}
+        objectType="rule_set"
+        objectId={current.id}
+      />
     </>
   );
 }

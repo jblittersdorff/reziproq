@@ -38,7 +38,8 @@ export interface OutboxEmailPayload {
     | 'approval'
     | 'escalation'
     | 'supplier_invitation'
-    | 'survey';
+    | 'survey'
+    | 'mention';
   locale: 'de' | 'en';
   recipient: string;
   firstName?: string;

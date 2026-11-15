@@ -16,6 +16,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { useCustomerWorkspace } from '@/features/customers/customer-workspace';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -487,6 +488,7 @@ export function MeetingPage({ place, meetingId }: { place: MeetingPlace; meeting
       header={null}
     >
       <MeetingContent place={place} meetingId={meetingId} />
+      {query.data && <CommentsSection place={place} objectType="meeting" objectId={meetingId} />}
     </MeetingFrame>
   );
 }

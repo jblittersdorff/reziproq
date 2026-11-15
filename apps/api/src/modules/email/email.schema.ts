@@ -7,6 +7,8 @@ export const emailTemplates = [
   'escalation',
   'supplier_invitation',
   'survey',
+  // QS-02: Erwähnung in einem Kommentar; Titel des Objekts und Link, nie der Kommentartext
+  'mention',
 ] as const;
 export const emailTemplateSchema = z.enum(emailTemplates);
 export const emailLocaleSchema = z.enum(['de', 'en']);

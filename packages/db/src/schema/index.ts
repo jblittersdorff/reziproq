@@ -1,6 +1,7 @@
 export * from './action.js';
 export * from './app-user.js';
 export * from './audit.js';
+export * from './comment.js';
 export * from './impact.js';
 export * from './initiative.js';
 export * from './invitation.js';

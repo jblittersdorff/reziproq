@@ -13,6 +13,7 @@ import {
   auditResponseSchema,
   bridgeSchema,
   businessUnitsResponseSchema,
+  type CommentObjectType,
   type CommitmentStatus,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
@@ -21,6 +22,7 @@ import {
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
+  commentListSchema,
   commitmentsSchema,
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
@@ -36,6 +38,7 @@ import {
   type DecideValidation,
   decisionHistorySchema,
   dueListSchema,
+  type EditComment,
   type ExtendRound,
   type FiscalYearSetting,
   type ForbiddenCode,
@@ -115,6 +118,7 @@ import {
   type SaveAction,
   type SaveAgenda,
   type SaveBenefit,
+  type SaveComment,
   type SaveCommitment,
   type SaveFinancial,
   type SaveFormatItem,
@@ -2387,3 +2391,79 @@ export const saveMeetingNote = (
   request: SaveMeetingNote,
 ) =>
   sendJson('PUT', `${base}/termine/${meetingId}/notiz`, request, meetingDetailSchema, accessToken);
+
+/** QS-02: Kommentare an einem Objekt; beim Lieferanten unter /kunden. */
+const commentsUrl = (
+  side: TeamSide,
+  relationshipId: string,
+  objectType: CommentObjectType,
+  objectId: string,
+) =>
+  `${side === 'buyer' ? '/suppliers' : '/kunden'}/${relationshipId}/kommentare/${objectType}/${objectId}`;
+
+export const commentsQueryOptions = (
+  accessToken: string,
+  side: TeamSide,
+  relationshipId: string,
+  objectType: CommentObjectType,
+  objectId: string,
+) =>
+  queryOptions({
+    queryKey: ['kommentare', side, relationshipId, objectType, objectId],
+    queryFn: () =>
+      getJson(
+        commentsUrl(side, relationshipId, objectType, objectId),
+        commentListSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const createComment = (
+  accessToken: string,
+  side: TeamSide,
+  relationshipId: string,
+  objectType: CommentObjectType,
+  objectId: string,
+  request: SaveComment,
+) =>
+  sendJson(
+    'POST',
+    commentsUrl(side, relationshipId, objectType, objectId),
+    request,
+    commentListSchema,
+    accessToken,
+  );
+
+export const editComment = (
+  accessToken: string,
+  side: TeamSide,
+  relationshipId: string,
+  objectType: CommentObjectType,
+  objectId: string,
+  commentId: string,
+  request: EditComment,
+) =>
+  sendJson(
+    'PUT',
+    `${commentsUrl(side, relationshipId, objectType, objectId)}/${commentId}`,
+    request,
+    commentListSchema,
+    accessToken,
+  );
+
+export const removeComment = (
+  accessToken: string,
+  side: TeamSide,
+  relationshipId: string,
+  objectType: CommentObjectType,
+  objectId: string,
+  commentId: string,
+) =>
+  sendJson(
+    'DELETE',
+    `${commentsUrl(side, relationshipId, objectType, objectId)}/${commentId}`,
+    undefined,
+    commentListSchema,
+    accessToken,
+  );

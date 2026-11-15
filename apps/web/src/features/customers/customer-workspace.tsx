@@ -25,6 +25,7 @@ import { LocalBar } from '@/components/ui/local-bar';
 import { Stage, StageFacts } from '@/components/ui/stage';
 import { Tile, TileIcon, TileText, TileTitle } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { CommentsSection } from '@/features/comments/comments-section';
 import { SharedView } from '@/features/playbook/rule-set-pages';
 import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
@@ -478,11 +479,20 @@ export function CustomerRulesPage({ relationshipId }: { relationshipId: string }
           description={text.rulesEmpty(name)}
         />
       ) : (
-        <SharedView
-          typeName={target.typeName}
-          typeDescription={target.typeDescription}
-          items={query.data.items}
-        />
+        <>
+          <SharedView
+            typeName={target.typeName}
+            typeDescription={target.typeDescription}
+            items={query.data.items}
+          />
+          {query.data.ruleSetId && (
+            <CommentsSection
+              place={{ side: 'supplier', relationshipId }}
+              objectType="rule_set"
+              objectId={query.data.ruleSetId}
+            />
+          )}
+        </>
       )}
     </>
   );

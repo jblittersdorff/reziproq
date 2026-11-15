@@ -23,6 +23,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { CommentsSection } from '@/features/comments/comments-section';
 import {
   apiBase,
   MeetingFrame,
@@ -327,6 +328,7 @@ export function EditActionPage({ place, actionId }: { place: MeetingPlace; actio
       header={<PageHeader title={text.editTitle} purpose={text.purpose} />}
     >
       <ActionFormLoader place={place} actionId={actionId} />
+      <CommentsSection place={place} objectType="action" objectId={actionId} />
     </MeetingFrame>
   );
 }
