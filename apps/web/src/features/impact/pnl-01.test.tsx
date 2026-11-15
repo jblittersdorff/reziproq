@@ -45,6 +45,8 @@ const lines: PnlLines = {
 };
 const list: ImpactList = {
   canEdit: true,
+  canLead: true,
+  totals: [],
   initiatives: [
     {
       id: initiativeId,
@@ -58,8 +60,18 @@ const list: ImpactList = {
         effectType: 'ebit',
         effectiveFrom: null,
       },
+      share: null,
+      savingsReference: null,
     },
-    { id: uuid(21), title: 'Idee Verpackung', source: 'supplier_idea', maturity: 1, impact: null },
+    {
+      id: uuid(21),
+      title: 'Idee Verpackung',
+      source: 'supplier_idea',
+      maturity: 1,
+      impact: null,
+      share: null,
+      savingsReference: null,
+    },
   ],
 };
 const detail = (extra: Partial<ImpactDetail> = {}): ImpactDetail => ({

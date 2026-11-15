@@ -300,6 +300,15 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'teilung.vereinbaren': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/suppliers/00000000-0000-4000-8000-000000000000/wirkung/initiativen/00000000-0000-4000-8000-000000000000/teilung',
+        { buyerSharePct: 50, supplierSharePct: 50, ruleText: null },
+      );
+      return status === 404 ? 200 : status;
+    },
     'massnahmen.bearbeiten': async (user) => {
       const { status } = await request(
         user,

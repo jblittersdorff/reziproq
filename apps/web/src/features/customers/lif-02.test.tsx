@@ -107,6 +107,8 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
       'Beziehung',
       'Gemeinsamer Plan',
       'Umsetzung',
+      // PNL-07: Wirkung ist für den Lieferanten gebaut.
+      'Wirkung',
     ]);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Gemeinsamer Plan' }),

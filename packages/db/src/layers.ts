@@ -465,6 +465,35 @@ export const layerRegister: Record<string, LayerEntry> = {
       entered_by_name: 'Probe',
     }),
   },
+  // PNL-07: Teilung geteilt, eigener Nutzen nur beim Lieferanten, Savings-Verweis nur beim Käufer.
+  initiative_share: {
+    kind: 'shared',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      buyer_share_pct: 60,
+      supplier_share_pct: 40,
+      proposed_by: 'probe',
+      proposed_by_name: 'Probe',
+    }),
+  },
+  supplier_benefit: {
+    kind: 'supplier_private',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      month: '2027-01-01',
+      amount_cents: 100,
+      created_by: 'probe',
+    }),
+  },
+  savings_reference: {
+    kind: 'buyer_private',
+    testValues: ({ buyer, probe }) => ({
+      initiative_id: buyer && probe('initiative', buyer),
+      system: 'Coupa',
+      reference: 'S-1',
+      created_by: 'probe',
+    }),
+  },
   initiative_value: {
     kind: 'shared',
     computed: true,

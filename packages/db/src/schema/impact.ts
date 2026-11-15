@@ -8,6 +8,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  smallint,
   text,
   timestamp,
   unique,
@@ -234,5 +235,103 @@ export const initiativeValidation = pgTable(
       sql`${table.status} <> 'rejected' or length(trim(coalesce(${table.comment}, ''))) > 0`,
     ),
     index('initiative_validation_initiative').on(table.initiativeId, table.status),
+  ],
+);
+
+/**
+ * PNL-07: Teilungsregel je Initiative, geteilt und immer sichtbar für beide Seiten. Der Käufer
+ * schlägt vor (damit bestätigt er), der Lieferant bestätigt über app_initiative_share_confirm.
+ * Jede Änderung durch den Käufer setzt die Bestätigung zurück. Erst vereinbart (agreed_at) wird
+ * die berechnete Wirkung (initiative_value) für beide Seiten sichtbar.
+ */
+export const initiativeShare = pgTable(
+  'initiative_share',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ownerOrgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    buyerSharePct: smallint().notNull(),
+    supplierSharePct: smallint().notNull(),
+    ruleText: text(),
+    proposedBy: text().notNull(),
+    proposedByName: text().notNull(),
+    proposedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    supplierConfirmedByName: text(),
+    agreedAt: timestamp({ withTimezone: true }),
+  },
+  (table) => [
+    // Je Initiative eine Regel; der Dienst ändert die vorhandene statt eine zweite anzulegen.
+    index('initiative_share_initiative').on(table.initiativeId),
+    check(
+      'initiative_share_summe',
+      sql`${table.buyerSharePct} between 0 and 100 and ${table.supplierSharePct} between 0 and 100 and ${table.buyerSharePct} + ${table.supplierSharePct} = 100`,
+    ),
+    check(
+      'initiative_share_vereinbart',
+      sql`(${table.agreedAt} is null) = (${table.supplierConfirmedByName} is null)`,
+    ),
+  ],
+);
+
+/** PNL-07: Eigener Nutzen des Lieferanten je Monat; nur der Lieferant sieht ihn. */
+export const supplierBenefit = pgTable(
+  'supplier_benefit',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    month: date().notNull(),
+    amountCents: bigint({ mode: 'number' }).notNull(),
+    currency: text().notNull().default('EUR'),
+    note: text(),
+    createdBy: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('supplier_benefit_je_monat').on(table.initiativeId, table.month),
+    check('supplier_benefit_monat', sql`extract(day from ${table.month}) = 1`),
+    check('supplier_benefit_waehrung', sql`${table.currency} ~ '^[A-Z]{3}$'`),
+  ],
+);
+
+/**
+ * PNL-07: Verweis auf das Savings-Tracking des Käufers (z. B. Coupa, Sievo). Initiativen mit
+ * Verweis sind markiert und zählen in keiner Summe (keine Doppelzählung). Käuferprivat.
+ */
+export const savingsReference = pgTable(
+  'savings_reference',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => initiative.id, { onDelete: 'cascade' }),
+    system: text().notNull(),
+    reference: text().notNull(),
+    createdBy: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('savings_reference_je_initiative').on(table.initiativeId),
+    check(
+      'savings_reference_texte',
+      sql`length(trim(${table.system})) between 1 and 80 and length(trim(${table.reference})) between 1 and 200`,
+    ),
   ],
 );

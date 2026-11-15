@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Inject,
   Param,
   ParseUUIDPipe,
@@ -13,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  type CustomerImpact,
   type DecideValidation,
   decideValidationSchema,
   type FreezeBaseline,
@@ -25,11 +28,17 @@ import {
   type RequestValidation,
   raiseMaturitySchema,
   requestValidationSchema,
+  type SaveBenefit,
   type SaveImpactMonth,
   type SavePnlLine,
+  type SaveShare,
+  type SavingsReference,
   type SetupImpact,
+  saveBenefitSchema,
   saveImpactMonthSchema,
   savePnlLineSchema,
+  saveSavingsReferenceSchema,
+  saveShareSchema,
   setupImpactSchema,
   type ValidationDetail,
   type ValidationList,
@@ -40,6 +49,7 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { parseImportFile } from '../suppliers/import-file.js';
 import { ImpactService } from './impact.service.js';
+import { SharingService } from './sharing.service.js';
 import { ValidationService } from './validation.service.js';
 
 const maxUploadBytes = 10 * 1024 * 1024;
@@ -226,5 +236,103 @@ export class PnlLinesController {
     @Body(new ZodValidationPipe(savePnlLineSchema)) body: SavePnlLine,
   ): Promise<PnlLines> {
     return this.impact.saveLine(auth, key, body);
+  }
+}
+
+/** PNL-07: Teilung und Savings-Verweis beim Käufer. */
+@Controller('suppliers/:id/wirkung/initiativen/:initiativeId')
+export class ImpactSharingController {
+  constructor(@Inject(SharingService) private readonly sharing: SharingService) {}
+
+  @Put('teilung')
+  @Requires('teilung.vereinbaren')
+  share(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    @Body(new ZodValidationPipe(saveShareSchema)) body: SaveShare,
+  ): Promise<ImpactList> {
+    return this.sharing.saveShare(auth, id, initiativeId, body);
+  }
+
+  @Put('savings')
+  @Requires('wirkung.bearbeiten')
+  setReference(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    @Body(new ZodValidationPipe(saveSavingsReferenceSchema)) body: SavingsReference,
+  ): Promise<ImpactList> {
+    return this.sharing.setReference(auth, id, initiativeId, body);
+  }
+
+  @Delete('savings')
+  @Requires('wirkung.bearbeiten')
+  removeReference(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+  ): Promise<ImpactList> {
+    return this.sharing.setReference(auth, id, initiativeId, null);
+  }
+}
+
+/** PNL-07: Wirkung beim Lieferanten im Kontext des Kunden. */
+@Controller('kunden/:id/wirkung')
+export class CustomerImpactController {
+  constructor(@Inject(SharingService) private readonly sharing: SharingService) {}
+
+  @Get()
+  @Requires('kunden.sehen')
+  get(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CustomerImpact> {
+    return this.sharing.customer(auth, id);
+  }
+
+  @Post('initiativen/:initiativeId/teilung/bestaetigen')
+  @HttpCode(200)
+  @Requires('teilung.vereinbaren')
+  confirm(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+  ): Promise<CustomerImpact> {
+    return this.sharing.confirm(auth, id, initiativeId);
+  }
+
+  @Post('initiativen/:initiativeId/nutzen')
+  @Requires('eigene_sicht.bearbeiten')
+  createBenefit(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    @Body(new ZodValidationPipe(saveBenefitSchema)) body: SaveBenefit,
+  ): Promise<CustomerImpact> {
+    return this.sharing.saveBenefit(auth, id, initiativeId, null, body);
+  }
+
+  @Put('initiativen/:initiativeId/nutzen/:benefitId')
+  @Requires('eigene_sicht.bearbeiten')
+  updateBenefit(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    @Param('benefitId', ParseUUIDPipe) benefitId: string,
+    @Body(new ZodValidationPipe(saveBenefitSchema)) body: SaveBenefit,
+  ): Promise<CustomerImpact> {
+    return this.sharing.saveBenefit(auth, id, initiativeId, benefitId, body);
+  }
+
+  @Delete('initiativen/:initiativeId/nutzen/:benefitId')
+  @Requires('eigene_sicht.bearbeiten')
+  removeBenefit(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('initiativeId', ParseUUIDPipe) initiativeId: string,
+    @Param('benefitId', ParseUUIDPipe) benefitId: string,
+  ): Promise<CustomerImpact> {
+    return this.sharing.saveBenefit(auth, id, initiativeId, benefitId, null);
   }
 }

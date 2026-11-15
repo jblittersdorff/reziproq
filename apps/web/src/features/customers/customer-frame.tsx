@@ -1,3 +1,4 @@
+import type { CustomerArea } from '@reziproq/shared';
 import type { ReactNode } from 'react';
 import { PagePath } from '@/features/shell/page-path';
 import { useT } from '@/lib/i18n';
@@ -15,7 +16,7 @@ export function CustomerFrame({
   children,
 }: {
   relationshipId: string;
-  area?: 'relationship' | 'own';
+  area?: CustomerArea;
   trail?: Trail;
   current: string;
   children: ReactNode;

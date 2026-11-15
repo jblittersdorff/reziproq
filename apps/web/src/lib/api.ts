@@ -24,6 +24,7 @@ import {
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
   createSupplierResponseSchema,
+  customerImpactSchema,
   customerListSchema,
   customerRuleSetSchema,
   customersResponseSchema,
@@ -108,6 +109,7 @@ import {
   type SaveAccountView,
   type SaveAction,
   type SaveAgenda,
+  type SaveBenefit,
   type SaveCommitment,
   type SaveFinancial,
   type SaveFormatItem,
@@ -124,9 +126,11 @@ import {
   type SaveRoleDescription,
   type SaveRuleItem,
   type SaveRuleSet,
+  type SaveShare,
   type SaveSpendEntry,
   type SaveSurveyQuestion,
   type SaveTouchpoint,
+  type SavingsReference,
   type ScorecardSetting,
   type SetFocusRequest,
   type SetRoundSuppliers,
@@ -1664,6 +1668,70 @@ export const impactDetailQueryOptions = (
       ),
     retry: retryUnlessDenied,
   });
+
+/** PNL-07: Teilung und Savings-Verweis beim Käufer; Wirkung beim Lieferanten. */
+export const saveImpactShare = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: SaveShare,
+) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/teilung`,
+    request,
+    impactListSchema,
+    accessToken,
+  );
+
+export const saveSavingsReference = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  request: SavingsReference | null,
+) =>
+  sendJson(
+    request ? 'PUT' : 'DELETE',
+    `/suppliers/${relationshipId}/wirkung/initiativen/${initiativeId}/savings`,
+    request ?? {},
+    impactListSchema,
+    accessToken,
+  );
+
+export const customerImpactQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['kunden', relationshipId, 'wirkung'],
+    queryFn: () => getJson(`/kunden/${relationshipId}/wirkung`, customerImpactSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const confirmImpactShare = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+) =>
+  sendJson(
+    'POST',
+    `/kunden/${relationshipId}/wirkung/initiativen/${initiativeId}/teilung/bestaetigen`,
+    {},
+    customerImpactSchema,
+    accessToken,
+  );
+
+export const saveSupplierBenefit = (
+  accessToken: string,
+  relationshipId: string,
+  initiativeId: string,
+  benefitId: string | null,
+  request: SaveBenefit | null,
+) =>
+  sendJson(
+    request === null ? 'DELETE' : benefitId ? 'PUT' : 'POST',
+    `/kunden/${relationshipId}/wirkung/initiativen/${initiativeId}/nutzen${benefitId ? `/${benefitId}` : ''}`,
+    request ?? {},
+    customerImpactSchema,
+    accessToken,
+  );
 
 export const setupImpact = (
   accessToken: string,

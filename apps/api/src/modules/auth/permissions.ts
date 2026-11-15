@@ -173,6 +173,12 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member'],
     notForTeamViewer: true,
   },
+  'teilung.vereinbaren': {
+    description:
+      'Teilungsregel einer Initiative vorschlagen (Käufer: SRO oder Admin) oder bestätigen (Lieferant: Key Account Manager oder Admin)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
   'eigene_sicht.bearbeiten': {
     description:
       'Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite)',

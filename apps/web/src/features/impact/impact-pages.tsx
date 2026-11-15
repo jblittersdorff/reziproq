@@ -65,6 +65,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { cn } from '@/lib/utils';
+import { EffectTotals, SharingFlags, SharingSection } from './sharing-pages';
 
 // PNL-01, PNL-03: Wirkung je Lieferant unter Wirkung › Initiativen, nur beim Käufer.
 
@@ -206,6 +207,7 @@ export function ImpactListPage({ relationshipId }: { relationshipId: string }) {
         />
       ) : (
         <>
+          <EffectTotals totals={query.data.totals} />
           {/* Schmal als Liste, breit als Tabelle: nichts wird abgeschnitten. */}
           <ul data-slot="impact-list" className="overflow-hidden rounded-xl bg-card sm:hidden">
             {query.data.initiatives.map((entry) => (
@@ -220,6 +222,7 @@ export function ImpactListPage({ relationshipId }: { relationshipId: string }) {
                   children: entry.title,
                 })}
                 <span className="text-muted-foreground text-sm">{text.sources[entry.source]}</span>
+                <SharingFlags entry={entry} />
                 <span className="text-sm">
                   {entry.impact
                     ? `${text.levers[entry.impact.lever]} · ${entry.impact.pnlLine.name} · ${text.effects[entry.impact.effectType]}`
@@ -256,6 +259,7 @@ export function ImpactListPage({ relationshipId }: { relationshipId: string }) {
                         <span className="text-muted-foreground text-sm">
                           {text.sources[entry.source]}
                         </span>
+                        <SharingFlags entry={entry} />
                       </span>
                     </TableCell>
                     {entry.impact ? (
@@ -452,6 +456,8 @@ export function ImpactDetailPage({
           )}
 
           {data.impact && <MonthsSection relationshipId={relationshipId} data={data} />}
+
+          <SharingSection relationshipId={relationshipId} initiativeId={initiativeId} />
 
           <section aria-labelledby="wirkung-stufen" className="flex flex-col gap-3">
             <h2 id="wirkung-stufen" className="font-bold text-xl tracking-title">
