@@ -1719,6 +1719,38 @@ export const fiscalYearQueryOptions = (accessToken: string) =>
 export const saveFiscalYear = (accessToken: string, request: FiscalYearSetting) =>
   sendJson('PUT', '/wirkung/geschaeftsjahr', request, fiscalYearSettingSchema, accessToken);
 
+/** PNL-11: Excel-Export der Wirkung; der Dateiname kommt vom Server. */
+export async function downloadImpactExport(
+  accessToken: string,
+  view: ImpactView,
+  fiscalYear: number | undefined,
+  relationshipId?: string,
+) {
+  const query = new URLSearchParams({
+    sicht: view,
+    ...(fiscalYear ? { gj: String(fiscalYear) } : {}),
+  });
+  const path = `${relationshipId ? `/suppliers/${relationshipId}` : ''}/wirkung/export?${query}`;
+  const res = await fetch(`/api${path}`, {
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    const body: unknown = await res
+      .clone()
+      .json()
+      .catch(() => null);
+    throw new ApiError(path, res.status, await forbiddenCode(res), body);
+  }
+  const disposition = res.headers.get('content-disposition') ?? '';
+  const encoded = /filename\*=UTF-8''([^;]+)/.exec(disposition)?.[1];
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = encoded ? decodeURIComponent(encoded) : 'Wirkung.xlsx';
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 /** PNL-07: Teilung und Savings-Verweis beim Käufer; Wirkung beim Lieferanten. */
 export const saveImpactShare = (
   accessToken: string,

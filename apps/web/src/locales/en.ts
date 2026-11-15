@@ -285,6 +285,10 @@ export const en: Messages = {
       startMonth: 'Starts in month',
       saved: 'Saved.',
       saveFailed: 'Saving did not work. Please try again.',
+      export: 'Download Excel',
+      exporting: 'Creating …',
+      exportFailed:
+        'The export did not work. Controlling, admins and the SRO for their relationships get the export.',
     },
     // PNL-07: sharing, effect types, double counting
     sharing: {

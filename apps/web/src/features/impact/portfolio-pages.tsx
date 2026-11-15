@@ -1,7 +1,7 @@
 import type { Bridge, ImpactView, PortfolioImpact } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ReceiptEuroIcon } from 'lucide-react';
+import { DownloadIcon, ReceiptEuroIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { buildInitiativeBridge } from '@/components/charts/bridge';
@@ -30,6 +30,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
   bridgeQueryOptions,
+  downloadImpactExport,
   fiscalYearQueryOptions,
   portfolioImpactQueryOptions,
   saveFiscalYear,
@@ -108,6 +109,47 @@ function ViewControls({
             </NativeSelect>
           )}
         </FormField>
+      )}
+    </div>
+  );
+}
+
+/** PNL-11: Excel-Export der aktuellen Auswahl. */
+function ExportButton({
+  view,
+  fiscalYear,
+  relationshipId,
+}: {
+  view: ImpactView;
+  fiscalYear: number | undefined;
+  relationshipId?: string;
+}) {
+  const text = useT().impact.portfolio;
+  const accessToken = useToken();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  return (
+    <div className="flex flex-col gap-2">
+      <div>
+        <Button
+          variant="outline"
+          disabled={busy}
+          onClick={() => {
+            setBusy(true);
+            setFailed(false);
+            downloadImpactExport(accessToken, view, fiscalYear, relationshipId)
+              .catch(() => setFailed(true))
+              .finally(() => setBusy(false));
+          }}
+        >
+          <DownloadIcon />
+          {busy ? text.exporting : text.export}
+        </Button>
+      </div>
+      {failed && (
+        <p role="alert" className="text-destructive text-sm">
+          {text.exportFailed}
+        </p>
       )}
     </div>
   );
@@ -264,13 +306,20 @@ export function BridgePage({
       header={<PageHeader title={text.pageTitle} purpose={text.pagePurpose} />}
     >
       {() => (
-        <BridgeSection
-          relationshipId={relationshipId}
-          side="buyer"
-          path={`/lieferanten/${relationshipId}/wirkung/bruecke`}
-          search={search}
-          initiativeHref={(id) => `/lieferanten/${relationshipId}/wirkung/initiativen/${id}`}
-        />
+        <>
+          <ExportButton
+            view={search.sicht ?? 'jahreswirkung'}
+            fiscalYear={search.gj}
+            relationshipId={relationshipId}
+          />
+          <BridgeSection
+            relationshipId={relationshipId}
+            side="buyer"
+            path={`/lieferanten/${relationshipId}/wirkung/bruecke`}
+            search={search}
+            initiativeHref={(id) => `/lieferanten/${relationshipId}/wirkung/initiativen/${id}`}
+          />
+        </>
       )}
     </SupplierFrame>
   );
@@ -333,6 +382,10 @@ function PortfolioContent({
   return (
     <>
       <ViewControls path="/wirkung" view={view} data={data} />
+      <ExportButton
+        view={view}
+        fiscalYear={view === 'geschaeftsjahr' ? data.fiscalYear : undefined}
+      />
       <p className="text-muted-foreground text-sm">
         {text.focusCount(data.focusSuppliers)} · {text.viewHints[view]} {text.basis}
       </p>

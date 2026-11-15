@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -50,12 +51,14 @@ import {
   type ValidationDetail,
   type ValidationList,
 } from '@reziproq/shared';
+import type { Response } from 'express';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { parseImportFile } from '../suppliers/import-file.js';
+import { ExportService } from './export.service.js';
 import { ImpactService } from './impact.service.js';
 import { PortfolioService } from './portfolio.service.js';
 import { SharingService } from './sharing.service.js';
@@ -413,5 +416,53 @@ export class PortfolioImpactController {
     @Body(new ZodValidationPipe(fiscalYearSettingSchema)) body: FiscalYearSetting,
   ): Promise<FiscalYearSetting> {
     return this.portfolio.saveFiscalYearSetting(auth, body);
+  }
+}
+
+const unitQuery = new ZodValidationPipe(z.uuid().optional());
+
+/** PNL-11: Excel-Export für das Controlling; die Datei für die aktuelle Auswahl. */
+@Controller()
+export class ImpactExportController {
+  constructor(@Inject(ExportService) private readonly exports: ExportService) {}
+
+  private async send(response: Response, file: { fileName: string; buffer: Buffer }) {
+    response
+      .type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      .setHeader(
+        'Content-Disposition',
+        `attachment; filename="${file.fileName.replace(/[^\x20-\x7e]/g, '_')}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+      )
+      .send(file.buffer);
+  }
+
+  @Get('wirkung/export')
+  @Requires('wirkung.sehen')
+  async portfolio(
+    @CurrentUser() auth: AuthContext,
+    @Query('sicht', viewQuery) view: ImpactView,
+    @Query('gj', fiscalYearQuery) fiscalYear: number | undefined,
+    @Query('bu', unitQuery) businessUnitId: string | undefined,
+    @Res() response: Response,
+  ): Promise<void> {
+    await this.send(
+      response,
+      await this.exports.export(auth, { view, fiscalYear, businessUnitId }),
+    );
+  }
+
+  @Get('suppliers/:id/wirkung/export')
+  @Requires('wirkung.sehen')
+  async relationship(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('sicht', viewQuery) view: ImpactView,
+    @Query('gj', fiscalYearQuery) fiscalYear: number | undefined,
+    @Res() response: Response,
+  ): Promise<void> {
+    await this.send(
+      response,
+      await this.exports.export(auth, { view, fiscalYear, relationshipId: id }),
+    );
   }
 }

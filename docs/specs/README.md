@@ -134,7 +134,7 @@ Erlaubte Werte für Status: offen, in Arbeit, PR offen, fertig. „Teilweise umg
 | 68 | PNL-06 | Freigabe durch Controlling | PNL-06 | PNL-05, PLT-05b | nach 1.0 | Block W | B | fertig | Testlauf-Pfad. Recht wirkung.freigeben nur mit Zusatzrolle Controlling; Freigabe gibt R5 und sperrt den Zeitraum. |
 | 69 | PNL-07 | Teilungsregel, Wirkungsarten, Doppelzählung | PNL-07, PNL-08, PNL-09 | PNL-06, LIF-03 | nach 1.0 | Block W | B | fertig | Teilung mit Bestätigung, Wirkung erst danach geteilt; Summen nur je Wirkungsart; Savings-Verweis zählt nicht; eigener Nutzen lieferantenprivat. |
 | 70 | PNL-10 | P&L-Brücke und Wirkung im Portfolio | PNL-10 | PNL-07, SEG-07 | nach 1.0 | Block W | B | PR offen | Brücke nur EBIT nach Reifegrad, Portfolio der Fokuslieferanten, Jahreswirkung und Geschäftsjahr je Kunde. |
-| 71 | PNL-11 | Excel-Export für das Controlling | PNL-11 | PNL-10 | nach 1.0 | Block W | B | offen | – |
+| 71 | PNL-11 | Excel-Export für das Controlling | PNL-11 | PNL-10 | nach 1.0 | Block W | B | PR offen | Sechs Blätter mit Rechenweg, Baseline, Freigaben; Übersicht wie die Seite; SRO nur eigene Beziehungen. |
 | 72 | QS-02 | Kommentare | QS-02 | JBP-03, QBR-03, QS-01 | nach 1.0 | Block R | A | offen | – |
 | 73 | QBR-06 | Pre-Read als PDF | QBR-06 | QBR-03, JBP-09 | nach 1.0 | Block R | A | offen | – |
 | 74 | QS-03 | Exporte | QS-03, SPL-08, LIF-06 | QBR-06, JBP-06, SPL-07, PUL-03, LIF-02 | nach 1.0 | Block R | A | offen | – |

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CustomersModule } from '../customers/customers.module.js';
 import { EmailModule } from '../email/email.module.js';
+import { ExportService } from './export.service.js';
 import {
   BridgeController,
   CustomerBridgeController,
   CustomerImpactController,
   ImpactController,
+  ImpactExportController,
   ImpactSharingController,
   PnlLinesController,
   PortfolioImpactController,
@@ -26,10 +28,11 @@ import { ValidationService } from './validation.service.js';
     BridgeController,
     CustomerBridgeController,
     PortfolioImpactController,
+    ImpactExportController,
     PnlLinesController,
     ValidationController,
   ],
-  providers: [ImpactService, ValidationService, SharingService, PortfolioService],
+  providers: [ImpactService, ValidationService, SharingService, PortfolioService, ExportService],
   exports: [ImpactService, ValidationService],
 })
 export class ImpactModule {}
