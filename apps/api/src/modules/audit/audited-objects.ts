@@ -281,7 +281,7 @@ export const supplierFinancialAudit = auditedObject({
 export const orgSettingAudit = auditedObject({
   type: 'org_setting',
   visibility: 'internal',
-  fields: ['action_reminder_days'],
+  fields: ['action_reminder_days', 'fiscal_year_start_month'],
 });
 
 /** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */

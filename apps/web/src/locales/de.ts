@@ -243,6 +243,57 @@ export const de = {
   },
 
   impact: {
+    // PNL-10: P&L-Brücke und Wirkung im Portfolio
+    portfolio: {
+      views: { jahreswirkung: 'Jahreswirkung', geschaeftsjahr: 'Geschäftsjahr' } as Record<
+        string,
+        string
+      >,
+      view: 'Sicht',
+      viewHints: {
+        jahreswirkung: 'Zwölf Monate ab Wirkungsbeginn je Initiative.',
+        geschaeftsjahr: 'Nur die Monate des gewählten Geschäftsjahrs.',
+      } as Record<string, string>,
+      fiscalYear: 'Geschäftsjahr',
+      fiscalYearLabel: (year: number, startMonth: number) =>
+        startMonth === 1 ? `GJ ${year}` : `GJ ${year}/${String((year + 1) % 100).padStart(2, '0')}`,
+      basis: 'Je Monat das Ist, wo es eines gibt, sonst der Plan.',
+      bridgeTitle: (amount: string) => `${amount} EBIT-Wirkung aus den Initiativen`,
+      bridgeEmpty: 'Noch keine EBIT-Wirkung in diesem Zeitraum',
+      bridgeEmptyText: 'Sobald Initiativen Monatswerte haben, erscheint hier die Brücke.',
+      total: 'Summe EBIT',
+      maturity: (level: number) => `R${level}`,
+      others: 'Andere Wirkungsarten, nicht in der Brücke',
+      excluded: 'Bereits im Savings-Tracking, in keiner Summe',
+      stepsTable: 'Initiativen in der Brücke',
+      initiative: 'Initiative',
+      amount: 'EBIT-Wirkung',
+      level: 'Reifegrad',
+      pageTitle: 'P&L-Brücke',
+      pagePurpose:
+        'Wie die Initiativen zur EBIT-Wirkung beitragen, Balken nach Reifegrad. Andere Wirkungsarten stehen daneben.',
+      loading: 'Wirkung wird geladen …',
+      failed: 'Die Wirkung konnte nicht geladen werden.',
+      title: 'Wirkung',
+      purpose:
+        'Die GuV-Wirkung aller Fokuslieferanten: nach Reifegrad, Business Unit und Geschäftsjahr.',
+      focusCount: (count: number) => `${count} Fokuslieferanten`,
+      pipeline: 'Pipeline nach Reifegrad',
+      pipelineHint: 'Je Wirkungsart eine eigene Zeile; Wirkungsarten werden nie addiert.',
+      pipelineEmpty: 'Noch keine Wirkung bei Fokuslieferanten.',
+      businessUnits: 'EBIT-Wirkung je Business Unit',
+      businessUnitsHint: 'Lieferanten mit mehreren Business Units zählen in jeder.',
+      noUnit: 'Ohne Business Unit',
+      top: 'Top-Beziehungen nach realisierter EBIT-Wirkung',
+      topHint: 'Realisiert ist Ist in Zeiträumen, die Controlling freigegeben hat.',
+      topEmpty: 'Noch keine realisierte Wirkung.',
+      settingTitle: 'Geschäftsjahr',
+      settingHint: 'In welchem Monat euer Geschäftsjahr beginnt',
+      settingPurpose: 'Gilt für die Wirkung im Geschäftsjahr, im Portfolio und in jeder Brücke.',
+      startMonth: 'Beginn im Monat',
+      saved: 'Gespeichert.',
+      saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
+    },
     // PNL-07: Teilung, Wirkungsarten, Doppelzählung
     sharing: {
       totalsTitle: 'Wirkung je Wirkungsart',

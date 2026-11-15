@@ -358,3 +358,111 @@ export const saveBenefitSchema = z
   })
   .strict();
 export type SaveBenefit = z.infer<typeof saveBenefitSchema>;
+
+// PNL-10: P&L-Brücke und Wirkung im Portfolio. Zwei Sichten: Jahreswirkung (zwölf Monate ab
+// Wirkungsbeginn) und Wirkung im Geschäftsjahr (Beginn je Kunde einstellbar, Standard Januar).
+
+export const impactViews = ['jahreswirkung', 'geschaeftsjahr'] as const;
+export type ImpactView = (typeof impactViews)[number];
+
+export const fiscalYearSettingSchema = z
+  .object({ startMonth: z.number().int().min(1).max(12) })
+  .strict();
+export type FiscalYearSetting = z.infer<typeof fiscalYearSettingSchema>;
+
+/** Erster Monat (inklusive) und Monat nach dem Ende (exklusive) eines Geschäftsjahrs, YYYY-MM-01. */
+export function fiscalYearRange(startYear: number, startMonth: number): [string, string] {
+  const month = (year: number, m: number) => `${year}-${String(m).padStart(2, '0')}-01`;
+  return [month(startYear, startMonth), month(startYear + 1, startMonth)];
+}
+
+/** Geschäftsjahr eines Datums: das Startjahr des Geschäftsjahrs, in dem es liegt. */
+export function fiscalYearOf(date: string, startMonth: number): number {
+  const [year = 0, month = 1] = date.split('-').map(Number);
+  return month >= startMonth ? year : year - 1;
+}
+
+/** Zwölf Monate ab dem Wirkungsbeginn (Monat des Datums), YYYY-MM-01. */
+export function annualRange(effectiveFrom: string): [string, string] {
+  const [year = 0, month = 1] = effectiveFrom.split('-').map(Number);
+  return fiscalYearRange(year, month);
+}
+
+export interface MonthValue {
+  month: string;
+  kind: 'plan' | 'actual';
+  valueCents: number;
+}
+
+/**
+ * Wirkung in einem Zeitraum: je Monat das Ist, wo es eines gibt, sonst der Plan. Monate sind
+ * YYYY-MM-01; das Ende ist exklusiv.
+ */
+export function amountInRange(values: MonthValue[], from: string, to: string): number {
+  const months = new Map<string, { plan?: number; actual?: number }>();
+  for (const value of values) {
+    if (value.month < from || value.month >= to) continue;
+    const entry = months.get(value.month) ?? {};
+    entry[value.kind] = (entry[value.kind] ?? 0) + value.valueCents;
+    months.set(value.month, entry);
+  }
+  let total = 0;
+  for (const entry of months.values()) total += entry.actual ?? entry.plan ?? 0;
+  return total;
+}
+
+const viewSchema = {
+  view: z.enum(impactViews),
+  /** Startjahr des gewählten Geschäftsjahrs */
+  fiscalYear: z.number().int(),
+  fiscalYearStartMonth: z.number().int(),
+  /** Geschäftsjahre mit Werten, zum Auswählen */
+  fiscalYears: z.array(z.number().int()),
+};
+
+export const bridgeSchema = z.object({
+  ...viewSchema,
+  /** Nur EBIT; je Initiative ein Balken in der Farbe ihres Reifegrads */
+  steps: z.array(
+    z.object({
+      initiativeId: z.uuid(),
+      title: z.string(),
+      maturity: z.number().int(),
+      amountCents: z.number().int(),
+    }),
+  ),
+  ebitTotal: z.number().int(),
+  /** Andere Wirkungsarten je eigene Kachel, nie im Wasserfall */
+  others: z.array(z.object({ effectType: z.enum(effectTypes), amountCents: z.number().int() })),
+  /** Bereits im Savings-Tracking: in keiner Summe (nur beim Käufer) */
+  excluded: z.array(z.object({ initiativeId: z.uuid(), title: z.string() })),
+});
+export type Bridge = z.infer<typeof bridgeSchema>;
+
+export const portfolioImpactSchema = z.object({
+  ...viewSchema,
+  focusSuppliers: z.number().int(),
+  /** Je Wirkungsart die Wirkung nach Reifegrad R1 bis R5 */
+  pipeline: z.array(
+    z.object({
+      effectType: z.enum(effectTypes),
+      levels: z.array(z.object({ level: z.number().int(), amountCents: z.number().int() })),
+    }),
+  ),
+  /** EBIT-Wirkung je Business Unit und Geschäftsjahr; Lieferanten mit mehreren BUs zählen in jeder */
+  businessUnits: z.object({
+    years: z.array(z.number().int()),
+    rows: z.array(
+      z.object({
+        id: z.uuid().nullable(),
+        name: z.string().nullable(),
+        amounts: z.array(z.number().int()),
+      }),
+    ),
+  }),
+  /** Nach realisierter EBIT-Wirkung (Ist in von Controlling freigegebenen Zeiträumen) */
+  top: z.array(
+    z.object({ relationshipId: z.uuid(), name: z.string(), realizedCents: z.number().int() }),
+  ),
+});
+export type PortfolioImpact = z.infer<typeof portfolioImpactSchema>;

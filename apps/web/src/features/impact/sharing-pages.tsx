@@ -34,6 +34,7 @@ import {
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { BridgeSection, type ImpactSearch } from './portfolio-pages';
 
 // PNL-07: Teilung, Summen je Wirkungsart und Savings-Verweis beim Käufer; Wirkung und eigener
 // Nutzen beim Lieferanten.
@@ -513,7 +514,13 @@ function useCustomerImpact(relationshipId: string) {
   return { ...query, accessToken };
 }
 
-export function CustomerImpactPage({ relationshipId }: { relationshipId: string }) {
+export function CustomerImpactPage({
+  relationshipId,
+  search = {},
+}: {
+  relationshipId: string;
+  search?: ImpactSearch;
+}) {
   const t = useT();
   const text = t.impact.sharing;
   const query = useCustomerImpact(relationshipId);
@@ -522,6 +529,13 @@ export function CustomerImpactPage({ relationshipId }: { relationshipId: string 
     <CustomerFrame relationshipId={relationshipId} area="impact" current={text.customerTitle}>
       <PageHeader title={text.customerTitle} purpose={text.customerPurpose} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
+      {/* PNL-10: Brücke mit den geteilten Werten. */}
+      <BridgeSection
+        relationshipId={relationshipId}
+        side="supplier"
+        path={customerBase(relationshipId)}
+        search={search}
+      />
       {query.isError ? (
         <ErrorState title={text.customerFailed} />
       ) : !query.data ? (

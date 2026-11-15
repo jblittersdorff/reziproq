@@ -1,6 +1,7 @@
 import {
   BellIcon,
   Building2Icon,
+  CalendarIcon,
   CalendarRangeIcon,
   ClipboardListIcon,
   ReceiptEuroIcon,
@@ -72,6 +73,15 @@ export function SettingsPage() {
               label={t.settings.survey.navTitle}
               description={t.settings.survey.navHint}
               icon={<ClipboardListIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
+          {permissions.viewBuyerAreas && (
+            <SettingsLinkRow
+              href="/einstellungen/geschaeftsjahr"
+              label={t.impact.portfolio.settingTitle}
+              description={t.impact.portfolio.settingHint}
+              icon={<CalendarIcon aria-hidden />}
               renderLink={routerLink}
             />
           )}

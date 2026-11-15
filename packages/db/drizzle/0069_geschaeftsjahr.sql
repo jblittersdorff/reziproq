@@ -1,0 +1,2 @@
+ALTER TABLE "org_setting" DROP CONSTRAINT "org_setting_key";--> statement-breakpoint
+ALTER TABLE "org_setting" ADD CONSTRAINT "org_setting_key" CHECK ("org_setting"."key" in ('action_reminder_days', 'fiscal_year_start_month'));

@@ -11,6 +11,7 @@ import {
   actionReminderSettingSchema,
   assignmentResponseSchema,
   auditResponseSchema,
+  bridgeSchema,
   businessUnitsResponseSchema,
   type CommitmentStatus,
   type ConsolidateRequest,
@@ -36,13 +37,16 @@ import {
   decisionHistorySchema,
   dueListSchema,
   type ExtendRound,
+  type FiscalYearSetting,
   type ForbiddenCode,
   type FreezeBaseline,
   financialImportResultSchema,
+  fiscalYearSettingSchema,
   focusDetailSchema,
   focusListSchema,
   forbiddenCodes,
   healthResponseSchema,
+  type ImpactView,
   type ImportJbpTopics,
   type ImportPreview,
   type ImportResult,
@@ -85,6 +89,7 @@ import {
   playbookCatalogSchema,
   playbookPreviewSchema,
   pnlLinesSchema,
+  portfolioImpactSchema,
   portfolioMatrixSchema,
   portfolioOpenSchema,
   portfolioSchema,
@@ -1668,6 +1673,51 @@ export const impactDetailQueryOptions = (
       ),
     retry: retryUnlessDenied,
   });
+
+/** PNL-10: Brücke je Beziehung, Wirkung im Portfolio, Geschäftsjahr. */
+export const bridgeQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  side: TeamSide,
+  view: ImpactView,
+  fiscalYear: number | undefined,
+) =>
+  queryOptions({
+    queryKey: ['bruecke', side, relationshipId, view, fiscalYear ?? null],
+    queryFn: () =>
+      getJson(
+        `/${side === 'buyer' ? 'suppliers' : 'kunden'}/${relationshipId}/wirkung/bruecke?sicht=${view}${fiscalYear ? `&gj=${fiscalYear}` : ''}`,
+        bridgeSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const portfolioImpactQueryOptions = (
+  accessToken: string,
+  view: ImpactView,
+  fiscalYear: number | undefined,
+) =>
+  queryOptions({
+    queryKey: ['wirkung-portfolio', view, fiscalYear ?? null],
+    queryFn: () =>
+      getJson(
+        `/wirkung/portfolio?sicht=${view}${fiscalYear ? `&gj=${fiscalYear}` : ''}`,
+        portfolioImpactSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const fiscalYearQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['geschaeftsjahr'],
+    queryFn: () => getJson('/wirkung/geschaeftsjahr', fiscalYearSettingSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveFiscalYear = (accessToken: string, request: FiscalYearSetting) =>
+  sendJson('PUT', '/wirkung/geschaeftsjahr', request, fiscalYearSettingSchema, accessToken);
 
 /** PNL-07: Teilung und Savings-Verweis beim Käufer; Wirkung beim Lieferanten. */
 export const saveImpactShare = (

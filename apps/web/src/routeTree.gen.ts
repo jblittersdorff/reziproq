@@ -23,6 +23,7 @@ import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
 import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/einstellungen/erinnerungen'
+import { Route as AppEinstellungenGeschaeftsjahrRouteImport } from './routes/_app/einstellungen/geschaeftsjahr'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
@@ -105,6 +106,7 @@ import { Route as AppLieferantenIdStrategieIndexRouteImport } from './routes/_ap
 import { Route as AppLieferantenIdStrategieLieferantenplanRouteRouteImport } from './routes/_app/lieferanten/$id/strategie/lieferantenplan/route'
 import { Route as AppLieferantenIdUmsetzungIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/index'
 import { Route as AppLieferantenIdWirkungIndexRouteImport } from './routes/_app/lieferanten/$id/wirkung/index'
+import { Route as AppLieferantenIdWirkungBrueckeRouteImport } from './routes/_app/lieferanten/$id/wirkung/bruecke'
 import { Route as AppLieferantenIdZyklusTerminRouteImport } from './routes/_app/lieferanten/$id/zyklus/termin'
 import { Route as AppPortfolioRundenIdIndexRouteImport } from './routes/_app/portfolio/runden/$id/index'
 import { Route as AppPortfolioRundenIdBewertendeRouteImport } from './routes/_app/portfolio/runden/$id/bewertende'
@@ -302,6 +304,12 @@ const AppEinstellungenErinnerungenRoute =
   AppEinstellungenErinnerungenRouteImport.update({
     id: '/einstellungen/erinnerungen',
     path: '/einstellungen/erinnerungen',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenGeschaeftsjahrRoute =
+  AppEinstellungenGeschaeftsjahrRouteImport.update({
+    id: '/einstellungen/geschaeftsjahr',
+    path: '/einstellungen/geschaeftsjahr',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
@@ -765,6 +773,12 @@ const AppLieferantenIdWirkungIndexRoute =
   AppLieferantenIdWirkungIndexRouteImport.update({
     id: '/wirkung/',
     path: '/wirkung/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdWirkungBrueckeRoute =
+  AppLieferantenIdWirkungBrueckeRouteImport.update({
+    id: '/wirkung/bruecke',
+    path: '/wirkung/bruecke',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdZyklusTerminRoute =
@@ -1558,6 +1572,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -1627,6 +1642,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
   '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
+  '/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -1780,6 +1796,7 @@ export interface FileRoutesByTo {
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -1848,6 +1865,7 @@ export interface FileRoutesByTo {
   '/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
   '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
+  '/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -2006,6 +2024,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/_app/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
@@ -2075,6 +2094,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id/plan/versionen': typeof AppKundenIdPlanVersionenRoute
   '/_app/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/_app/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
+  '/_app/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
   '/_app/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/_app/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/_app/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -2233,6 +2253,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id'
     | '/betreiber/kunden'
     | '/einstellungen/erinnerungen'
+    | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
@@ -2302,6 +2323,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/versionen'
     | '/lieferanten/$id/plan/freigabe'
     | '/lieferanten/$id/plan/versionen'
+    | '/lieferanten/$id/wirkung/bruecke'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -2455,6 +2477,7 @@ export interface FileRouteTypes {
     | '/umfrage/$token'
     | '/betreiber/kunden'
     | '/einstellungen/erinnerungen'
+    | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/lieferanten/importieren'
@@ -2523,6 +2546,7 @@ export interface FileRouteTypes {
     | '/kunden/$id/plan/versionen'
     | '/lieferanten/$id/plan/freigabe'
     | '/lieferanten/$id/plan/versionen'
+    | '/lieferanten/$id/wirkung/bruecke'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -2680,6 +2704,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
     | '/_app/einstellungen/erinnerungen'
+    | '/_app/einstellungen/geschaeftsjahr'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
     | '/_app/lieferanten/importieren'
@@ -2749,6 +2774,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id/plan/versionen'
     | '/_app/lieferanten/$id/plan/freigabe'
     | '/_app/lieferanten/$id/plan/versionen'
+    | '/_app/lieferanten/$id/wirkung/bruecke'
     | '/_app/lieferanten/$id/zyklus/termin'
     | '/_app/portfolio/runden/$id/bewertende'
     | '/_app/portfolio/runden/$id/lieferanten'
@@ -2999,6 +3025,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/erinnerungen'
       fullPath: '/einstellungen/erinnerungen'
       preLoaderRoute: typeof AppEinstellungenErinnerungenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/geschaeftsjahr': {
+      id: '/_app/einstellungen/geschaeftsjahr'
+      path: '/einstellungen/geschaeftsjahr'
+      fullPath: '/einstellungen/geschaeftsjahr'
+      preLoaderRoute: typeof AppEinstellungenGeschaeftsjahrRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/rollen': {
@@ -3573,6 +3606,13 @@ declare module '@tanstack/react-router' {
       path: '/wirkung'
       fullPath: '/lieferanten/$id/wirkung/'
       preLoaderRoute: typeof AppLieferantenIdWirkungIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/wirkung/bruecke': {
+      id: '/_app/lieferanten/$id/wirkung/bruecke'
+      path: '/wirkung/bruecke'
+      fullPath: '/lieferanten/$id/wirkung/bruecke'
+      preLoaderRoute: typeof AppLieferantenIdWirkungBrueckeRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/zyklus/termin': {
@@ -4655,6 +4695,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdStrategieLieferantenplanRouteRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   AppLieferantenIdPlanFreigabeRoute: typeof AppLieferantenIdPlanFreigabeRoute
   AppLieferantenIdPlanVersionenRoute: typeof AppLieferantenIdPlanVersionenRoute
+  AppLieferantenIdWirkungBrueckeRoute: typeof AppLieferantenIdWirkungBrueckeRoute
   AppLieferantenIdZyklusTerminRoute: typeof AppLieferantenIdZyklusTerminRoute
   AppLieferantenIdBeziehungIndexRoute: typeof AppLieferantenIdBeziehungIndexRoute
   AppLieferantenIdPlanIndexRoute: typeof AppLieferantenIdPlanIndexRoute
@@ -4741,6 +4782,7 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren,
   AppLieferantenIdPlanFreigabeRoute: AppLieferantenIdPlanFreigabeRoute,
   AppLieferantenIdPlanVersionenRoute: AppLieferantenIdPlanVersionenRoute,
+  AppLieferantenIdWirkungBrueckeRoute: AppLieferantenIdWirkungBrueckeRoute,
   AppLieferantenIdZyklusTerminRoute: AppLieferantenIdZyklusTerminRoute,
   AppLieferantenIdBeziehungIndexRoute: AppLieferantenIdBeziehungIndexRoute,
   AppLieferantenIdPlanIndexRoute: AppLieferantenIdPlanIndexRoute,
@@ -4901,6 +4943,7 @@ interface AppRouteChildren {
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
   AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
+  AppEinstellungenGeschaeftsjahrRoute: typeof AppEinstellungenGeschaeftsjahrRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
@@ -4977,6 +5020,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
   AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
+  AppEinstellungenGeschaeftsjahrRoute: AppEinstellungenGeschaeftsjahrRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
