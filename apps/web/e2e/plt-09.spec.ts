@@ -76,7 +76,12 @@ test.describe('auf Englisch', () => {
         .soft(page.locator('#inhalt h1, main h1, h1').first(), path)
         .toBeVisible({ timeout: 15_000 });
       await page.waitForLoadState('networkidle');
-      const text = (await page.locator('body').textContent()) ?? '';
+      // Dateinamen in <code> (z. B. auf /design „Lieferanten.dc.html“) sind keine Übersetzungen.
+      const text = await page.evaluate(() => {
+        const body = document.body.cloneNode(true) as HTMLElement;
+        for (const code of body.querySelectorAll('code')) code.remove();
+        return body.textContent ?? '';
+      });
       for (const german of germanIn(text)) findings.push(`${path}: „${german}“`);
       for (const key of keyPaths.filter((key) => text.includes(key))) {
         findings.push(`${path}: Schlüssel ${key}`);

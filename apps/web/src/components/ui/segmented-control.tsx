@@ -2,7 +2,10 @@ import { useId } from 'react';
 
 import { cn } from '@/lib/utils';
 
-/** Umschalter aus echten Radio-Knöpfen: Tab springt hinein, Pfeiltasten wählen. */
+/**
+ * Schalter der Designsprache aus echten Radio-Knöpfen: Pillen auf line-soft, die aktive weiß mit
+ * Schatten. Tab springt hinein, Pfeiltasten wählen.
+ */
 function SegmentedControl<T extends string>({
   label,
   value,
@@ -18,12 +21,12 @@ function SegmentedControl<T extends string>({
 }) {
   const name = useId();
   return (
-    <fieldset className={cn('inline-flex rounded-md bg-secondary p-0.5', className)}>
+    <fieldset className={cn('inline-flex flex-wrap rounded-full bg-line-soft p-1', className)}>
       <legend className="sr-only">{label}</legend>
       {options.map((option) => (
         <label
           key={option.value}
-          className="relative flex min-h-11 cursor-pointer items-center rounded-sm px-4 font-medium text-sm text-muted-foreground transition-colors has-checked:bg-background has-checked:text-foreground has-checked:shadow-xs has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+          className="relative flex min-h-11 cursor-pointer items-center rounded-full px-4 font-semibold text-muted-strong text-sm transition-colors has-checked:bg-card has-checked:text-ink has-checked:shadow-toggle has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
         >
           <input
             type="radio"
