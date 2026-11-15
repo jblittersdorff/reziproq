@@ -143,7 +143,7 @@ export function SupplierImportPage() {
   const [error, setError] = useState<string | null>(null);
   const copy = t.suppliers.importPage;
 
-  const pageHead = <PageHeader title={copy.title} purpose={copy.purpose} />;
+  const pageHead = <PageHeader size="list" title={copy.title} purpose={copy.purpose} />;
   const pagePath = (
     <PagePath trail={[{ label: t.suppliers.title, href: '/lieferanten' }]} current={copy.title} />
   );
@@ -256,7 +256,7 @@ export function SupplierImportPage() {
         {pagePath}
         {pageHead}
         <section className="flex flex-col gap-5">
-          <div className="rounded-xl bg-success-soft px-5 py-5 text-success-soft-foreground">
+          <div className="rounded-lg bg-success-soft px-5 py-5 text-success-soft-foreground">
             <h2 className="font-semibold text-lg">{copy.completed}</h2>
             <p className="mt-1">{summaryText(finished, t)}</p>
           </div>
@@ -346,7 +346,7 @@ export function SupplierImportPage() {
             <h2 className="font-semibold text-lg">{copy.selectFile}</h2>
             <label
               htmlFor="supplier-import-file"
-              className="flex flex-col gap-3 rounded-xl bg-card p-5 sm:p-7"
+              className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5 sm:p-7"
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => {
                 event.preventDefault();
@@ -362,7 +362,7 @@ export function SupplierImportPage() {
                 className="peer sr-only !h-px !w-px !p-0 !border-0"
                 onChange={(event) => chooseFile(event.currentTarget.files?.[0])}
               />
-              <span className="inline-flex min-h-10 w-fit items-center rounded-md border border-input bg-background px-3 text-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2">
+              <span className="inline-flex min-h-10 w-fit items-center rounded-full bg-card shadow-inset-line px-3 text-sm peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2">
                 {copy.selectFile}
               </span>
               <p className="text-muted-foreground text-sm">{copy.fileLimit}</p>

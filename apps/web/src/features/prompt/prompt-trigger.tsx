@@ -24,7 +24,7 @@ export function PromptTrigger() {
       ref={form}
       onSubmit={submit}
       data-slot="prompt"
-      className="flex items-end gap-3 rounded-xl border border-border bg-card p-2 pl-4 transition-colors focus-within:border-ring"
+      className="flex max-w-190 items-end gap-3 rounded-lg bg-card py-3.5 pr-3.5 pl-5.5 shadow-ask transition-shadow focus-within:ring-3 focus-within:ring-ring/50"
     >
       <Textarea
         value={question}
@@ -43,7 +43,7 @@ export function PromptTrigger() {
       <Button
         type="submit"
         size="icon"
-        className="shrink-0 rounded-full"
+        className="shrink-0 bg-ink text-mint hover:bg-ink/90"
         aria-label={t.prompt.send}
         disabled={!question.trim()}
       >

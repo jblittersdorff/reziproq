@@ -173,7 +173,7 @@ function SupplierSection({ supplier }: { supplier: RoundSupplier }) {
           {t.rounds.progress(supplier.submitted, supplier.total)}
         </span>
       </h3>
-      <ul className="flex flex-col divide-y divide-border rounded-md border">
+      <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
         {supplier.assignments.map((assignment) => (
           <li
             key={assignment.id}

@@ -87,9 +87,9 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-xl bg-card p-5">
+    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id={id} className="font-bold text-xl tracking-title">
+        <h2 id={id} className="font-display font-semibold text-xl tracking-title">
           {title}
         </h2>
         {edit}
@@ -170,7 +170,7 @@ export function OwnViewPage({ relationshipId }: { relationshipId: string }) {
                 {data.objectives.map((objective) => (
                   <li
                     key={objective.id}
-                    className="flex flex-wrap items-center justify-between gap-3 border-border border-t py-3"
+                    className="flex flex-wrap items-center justify-between gap-3 border-line-soft border-t py-3"
                   >
                     <span className="flex min-w-0 flex-1 flex-col">
                       {data.canEdit ? (
@@ -530,7 +530,7 @@ function ObjectiveForm({
         </Button>
       </FormActions>
       {existing && (
-        <div className="border-border border-t pt-4">
+        <div className="border-line-soft border-t pt-4">
           <ConfirmButton
             question={text.removeQuestion}
             confirmLabel={text.removeConfirm}

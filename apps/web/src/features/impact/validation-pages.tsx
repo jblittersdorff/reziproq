@@ -70,12 +70,12 @@ export function ValidationsPage() {
           description={text.validationsPurpose}
         />
       ) : (
-        <ul data-slot="validation-list" className="overflow-hidden rounded-xl bg-card">
+        <ul data-slot="validation-list" className="overflow-hidden rounded-lg bg-card shadow-card">
           {rows.map((entry) => (
             <li
               key={entry.id}
               data-validation={entry.id}
-              className="flex flex-wrap items-center gap-x-4 gap-y-1 border-border border-b px-5 py-4 last:border-b-0"
+              className="flex flex-wrap items-center gap-x-4 gap-y-1 border-line-soft border-b px-5 py-4 last:border-b-0"
             >
               <span className="flex min-w-0 flex-1 flex-col">
                 {routerLink({
@@ -179,7 +179,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </div>
 
           <section aria-labelledby="pruefung-regel" className="flex flex-col gap-2">
-            <h2 id="pruefung-regel" className="font-bold text-xl tracking-title">
+            <h2 id="pruefung-regel" className="font-display font-semibold text-xl tracking-title">
               {text.reviewRule}
             </h2>
             <p>
@@ -196,7 +196,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-baseline" className="flex flex-col gap-2">
-            <h2 id="pruefung-baseline" className="font-bold text-xl tracking-title">
+            <h2 id="pruefung-baseline" className="font-display font-semibold text-xl tracking-title">
               {text.reviewBaseline}
             </h2>
             {data.baseline ? (
@@ -208,7 +208,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
                     format.dateTime(data.baseline.frozenAt),
                   )}
                 </p>
-                <dl className="flex flex-wrap gap-x-8 gap-y-2 rounded-xl bg-card p-5">
+                <dl className="flex flex-wrap gap-x-8 gap-y-2 rounded-lg bg-card shadow-card p-5">
                   {template.baseline.map((field) => (
                     <div key={field.key} className="flex flex-col">
                       <dt className="text-muted-foreground text-sm">{text.inputs[field.key]}</dt>
@@ -225,7 +225,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-monate" className="flex flex-col gap-2">
-            <h2 id="pruefung-monate" className="font-bold text-xl tracking-title">
+            <h2 id="pruefung-monate" className="font-display font-semibold text-xl tracking-title">
               {text.reviewMonths}
             </h2>
             <Table>
@@ -271,19 +271,19 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-nachweise" className="flex flex-col gap-2">
-            <h2 id="pruefung-nachweise" className="font-bold text-xl tracking-title">
+            <h2 id="pruefung-nachweise" className="font-display font-semibold text-xl tracking-title">
               {text.reviewEvidence}
             </h2>
             <MaturitySteps maturity={data.maturity} />
           </section>
 
           {data.canDecide ? (
-            <section data-slot="decision" className="flex flex-col gap-4 rounded-xl bg-card p-5">
+            <section data-slot="decision" className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5">
               <Button className="self-start" loading={busy} onClick={() => void decide('approved')}>
                 <CheckIcon aria-hidden />
                 {text.approve}
               </Button>
-              <div className="flex flex-col gap-3 border-border border-t pt-4">
+              <div className="flex flex-col gap-3 border-line-soft border-t pt-4">
                 <FormField
                   label={text.rejectReason}
                   hint={text.rejectHint}

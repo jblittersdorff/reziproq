@@ -273,11 +273,11 @@ export function Roadmap({
     <section
       aria-label={text.roadmapLabel}
       data-slot="roadmap"
-      className="overflow-hidden rounded-xl bg-card"
+      className="overflow-hidden rounded-lg bg-card shadow-card"
     >
       <div className="grid sm:grid-cols-4">
-        <span className="hidden border-border border-b sm:block" />
-        <div className="flex border-border border-b sm:col-span-3">
+        <span className="hidden border-line-soft border-b sm:block" />
+        <div className="flex border-line-soft border-b sm:col-span-3">
           {years.map((year) => (
             <span
               key={year}
@@ -299,7 +299,7 @@ export function Roadmap({
                 href: `${initiativesPath(place)}/${initiative.id}`,
                 'aria-label': `${initiative.title}, ${text.period(date(initiative.startsOn), date(initiative.endsOn))}, ${text.statuses[initiative.status]}`,
                 className:
-                  'grid border-border border-b transition-colors last:border-b-0 hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset sm:grid-cols-4',
+                  'grid border-line-soft border-b transition-colors last:border-b-0 hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset sm:grid-cols-4',
                 children: (
                   <>
                     <span className="truncate px-4 pt-3 font-semibold text-sm sm:py-3">
@@ -335,7 +335,7 @@ export function Roadmap({
       {/* Status nie nur als Farbe: Legende unter der Zeitachse. */}
       <ul
         aria-label={text.columns.status}
-        className="flex flex-wrap gap-x-5 gap-y-2 border-border border-t px-4 py-3 text-muted-foreground text-sm"
+        className="flex flex-wrap gap-x-5 gap-y-2 border-line-soft border-t px-4 py-3 text-muted-foreground text-sm"
       >
         {initiativeStatuses.map((status) => (
           <li key={status} className="flex items-center gap-2">
@@ -453,7 +453,7 @@ function InitiativeContent({
               children: text.edit,
             })}
         </div>
-        <dl className="grid gap-x-8 gap-y-4 rounded-xl bg-card p-5 sm:grid-cols-2">
+        <dl className="grid gap-x-8 gap-y-4 rounded-lg bg-card shadow-card p-5 sm:grid-cols-2">
           {facts.map(([label, value]) => (
             <div key={label} className="flex flex-col gap-1">
               <dt className="text-muted-foreground text-sm">{label}</dt>
@@ -467,7 +467,7 @@ function InitiativeContent({
 
       {canEdit && (
         <section aria-labelledby="initiative-status" className="flex flex-col gap-3">
-          <h2 id="initiative-status" className="font-bold text-xl tracking-title">
+          <h2 id="initiative-status" className="font-display font-semibold text-xl tracking-title">
             {text.statusLabel}
           </h2>
           <div className="flex flex-wrap items-end gap-3">
@@ -506,7 +506,7 @@ function InitiativeContent({
 
       {initiative.topics.length > 0 && (
         <section aria-labelledby="initiative-themen" className="flex flex-col gap-3">
-          <h2 id="initiative-themen" className="font-bold text-xl tracking-title">
+          <h2 id="initiative-themen" className="font-display font-semibold text-xl tracking-title">
             {text.topics}
           </h2>
           <ul className="flex flex-col gap-2">
@@ -521,7 +521,7 @@ function InitiativeContent({
       )}
 
       <section aria-labelledby="initiative-verlauf" className="flex flex-col gap-3">
-        <h2 id="initiative-verlauf" className="font-bold text-xl tracking-title">
+        <h2 id="initiative-verlauf" className="font-display font-semibold text-xl tracking-title">
           {text.history}
         </h2>
         <AuditHistory
@@ -583,17 +583,17 @@ function Milestones({
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section aria-labelledby="initiative-meilensteine" className="flex flex-col gap-3">
-      <h2 id="initiative-meilensteine" className="font-bold text-xl tracking-title">
+      <h2 id="initiative-meilensteine" className="font-display font-semibold text-xl tracking-title">
         {text.milestones}
       </h2>
       {milestones.length === 0 ? (
         <p className="text-muted-foreground">{text.milestonesEmpty}</p>
       ) : (
-        <ul className="overflow-hidden rounded-xl bg-card">
+        <ul className="overflow-hidden rounded-lg bg-card shadow-card">
           {milestones.map((milestone) => (
             <li
               key={milestone.id}
-              className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+              className="flex flex-wrap items-center gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
             >
               {canEdit && (
                 <Checkbox
@@ -642,7 +642,7 @@ function Milestones({
         <form
           noValidate
           onSubmit={(event) => void add(event)}
-          className="grid items-start gap-3 rounded-xl bg-card p-5 sm:grid-cols-[1fr_auto_auto]"
+          className="grid items-start gap-3 rounded-lg bg-card shadow-card p-5 sm:grid-cols-[1fr_auto_auto]"
         >
           <FormField label={text.milestoneTitle} error={errors.title}>
             {(field) => (
@@ -863,7 +863,7 @@ function InitiativeForm({
       className="flex max-w-2xl flex-col gap-6"
     >
       {merged.length > 0 && !existing && (
-        <section aria-label={text.topics} className="flex flex-col gap-2 rounded-xl bg-card p-5">
+        <section aria-label={text.topics} className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5">
           <p className="font-semibold">{text.topics}</p>
           <ul className="flex flex-wrap gap-2">
             {merged.map((topic) => (
@@ -988,9 +988,9 @@ export function JbpTopicMergePage({ place }: { place: MeetingPlace }) {
         </p>
       ) : (
         <form noValidate onSubmit={submit} className="flex max-w-3xl flex-col gap-4">
-          <ul className="overflow-hidden rounded-xl bg-card">
+          <ul className="overflow-hidden rounded-lg bg-card shadow-card">
             {open.map((topic) => (
-              <li key={topic.id} className="border-border border-b px-5 py-3 last:border-b-0">
+              <li key={topic.id} className="border-line-soft border-b px-5 py-3 last:border-b-0">
                 <label
                   htmlFor={`zusammen-${topic.id}`}
                   className="flex min-h-11 items-center gap-3"
@@ -1061,10 +1061,10 @@ function ImpactTile({
     <section
       aria-labelledby="initiative-wirkung"
       data-slot="impact-tile"
-      className="flex flex-col gap-4 rounded-xl bg-card p-5"
+      className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
     >
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="initiative-wirkung" className="font-bold text-xl tracking-title">
+        <h2 id="initiative-wirkung" className="font-display font-semibold text-xl tracking-title">
           {text.tileTitle}
         </h2>
         {impact && (

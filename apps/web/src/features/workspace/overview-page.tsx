@@ -133,7 +133,7 @@ function OverviewHead({ head, spend }: { head: WorkspaceHead; spend: OverviewMet
           <dt className="text-muted-foreground">{entry.label}</dt>
           <dd
             className={cn(
-              'font-bold text-xl tabular-nums tracking-title',
+              'font-display font-semibold text-xl tabular-nums tracking-title',
               entry.value === null && 'font-normal text-muted-foreground',
             )}
           >
@@ -149,7 +149,7 @@ function OverviewHead({ head, spend }: { head: WorkspaceHead; spend: OverviewMet
 function TypeFigure({ segment }: { segment: WorkspaceHead['segment'] }) {
   const text = useT().workspace.typeFigure;
   return (
-    <figure data-slot="type-figure" className="flex flex-col gap-5 rounded-xl bg-card p-6 sm:p-7">
+    <figure data-slot="type-figure" className="flex flex-col gap-5 rounded-lg bg-card shadow-card p-6 sm:p-7">
       <figcaption className="font-semibold text-muted-foreground text-sm">{text.title}</figcaption>
       <div aria-hidden className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
         <span className="size-3.5 rounded-full border-2 border-muted-foreground" />
@@ -218,13 +218,13 @@ function AreaTile({
             label={t.workspace.sharedWith(supplierName.split(' ')[0] ?? supplierName)}
           />
         )}
-        <h2 id={headingId} className="mt-2 font-bold text-xl tracking-title sm:text-2xl">
+        <h2 id={headingId} className="mt-2 font-display font-semibold text-xl tracking-title sm:text-2xl">
           {t.workspace.areas[area]}
         </h2>
         <p
           data-slot="statement"
           className={cn(
-            big ? 'font-bold text-primary text-xl tracking-title sm:text-2xl' : 'text-lg',
+            big ? 'font-display font-semibold text-primary text-xl tracking-title sm:text-2xl' : 'text-lg',
           )}
         >
           {statement}

@@ -239,7 +239,7 @@ function SignatureHead({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="font-semibold text-primary text-sm">{text.version(data.version)}</p>
-          <p className="font-bold text-2xl tracking-title">
+          <p className="font-display font-semibold text-2xl tracking-title">
             {data.status === 'draft' && data.signatures.length === 1 && data.signatures[0]
               ? text.partly(text.sides[data.signatures[0].side])
               : text.statuses[data.status]}
@@ -314,11 +314,11 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
   return (
     <>
       {/* Schmal als Liste, breit als Tabelle: nichts wird abgeschnitten. */}
-      <ul data-slot="kpi-list" className="overflow-hidden rounded-xl bg-card sm:hidden">
+      <ul data-slot="kpi-list" className="overflow-hidden rounded-lg bg-card shadow-card sm:hidden">
         {data.kpis.map((kpi) => (
           <li
             key={kpi.id}
-            className="flex flex-col gap-1 border-border border-b px-5 py-4 last:border-b-0"
+            className="flex flex-col gap-1 border-line-soft border-b px-5 py-4 last:border-b-0"
           >
             {name(kpi)}
             <span className="text-muted-foreground text-sm">
@@ -655,7 +655,7 @@ export function JbpScorecardSignPage({ place }: { place: MeetingPlace }) {
             <KpiTable place={place} data={{ ...query.data, canEdit: false }} />
           )}
           {query.data.canSign ? (
-            <section className="flex max-w-2xl flex-col gap-3 rounded-xl bg-card p-5">
+            <section className="flex max-w-2xl flex-col gap-3 rounded-lg bg-card shadow-card p-5">
               <p className="text-muted-foreground">{text.signHint}</p>
               <Button className="self-start" loading={saving} onClick={() => void sign()}>
                 <PenLineIcon />
@@ -762,7 +762,7 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           />
           {query.data.values.length > 0 && (
             <section aria-labelledby="kennzahl-werte" className="flex flex-col gap-3">
-              <h2 id="kennzahl-werte" className="font-bold text-xl tracking-title">
+              <h2 id="kennzahl-werte" className="font-display font-semibold text-xl tracking-title">
                 {text.valuesTitle}
               </h2>
               <Table>
@@ -793,7 +793,7 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           )}
           {!kpi.canEnter && <p className="text-muted-foreground text-sm">{text.onlyOwner}</p>}
           <section aria-labelledby="kennzahl-verlauf" className="flex flex-col gap-3">
-            <h2 id="kennzahl-verlauf" className="font-bold text-xl tracking-title">
+            <h2 id="kennzahl-verlauf" className="font-display font-semibold text-xl tracking-title">
               {text.historyTitle}
             </h2>
             <AuditHistory

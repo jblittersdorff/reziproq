@@ -89,7 +89,7 @@ function ApprovalContent({ place }: { place: MeetingPlace }) {
         className="gap-2"
       >
         <p className="font-semibold text-primary text-sm">{text.version(data.version)}</p>
-        <p className="font-bold text-2xl tracking-title">{text.statuses[data.status]}</p>
+        <p className="font-display font-semibold text-2xl tracking-title">{text.statuses[data.status]}</p>
         {data.approvedAt && (
           <p className="text-muted-foreground">{text.approvedBoth(format.date(data.approvedAt))}</p>
         )}
@@ -105,14 +105,14 @@ function ApprovalContent({ place }: { place: MeetingPlace }) {
 
       {data.decisions.length > 0 && (
         <section aria-labelledby="freigabe-entscheidungen" className="flex flex-col gap-3">
-          <h2 id="freigabe-entscheidungen" className="font-bold text-xl tracking-title">
+          <h2 id="freigabe-entscheidungen" className="font-display font-semibold text-xl tracking-title">
             {text.history}
           </h2>
-          <ol className="overflow-hidden rounded-xl bg-card">
+          <ol className="overflow-hidden rounded-lg bg-card shadow-card">
             {data.decisions.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-col gap-1 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="flex flex-wrap items-center gap-2">
                   <Badge variant={entry.decision === 'approved' ? 'success' : 'warning'}>
@@ -222,7 +222,7 @@ function NextAction({
         >
           {text.approve}
         </Button>
-        <div className="flex flex-col gap-3 border-border border-t pt-4">
+        <div className="flex flex-col gap-3 border-line-soft border-t pt-4">
           <FormField
             label={text.returnReason}
             hint={text.returnHint}
@@ -282,7 +282,7 @@ function NextAction({
     return null;
   }
   return (
-    <section data-slot="next-action" className="flex flex-col gap-3 rounded-xl bg-card p-5">
+    <section data-slot="next-action" className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
       {content}
       {failed && (
         <p role="alert" className="text-destructive">
@@ -368,12 +368,12 @@ export function JbpVersionsPage({
         </p>
       ) : (
         <div className="flex max-w-4xl flex-col gap-8">
-          <ol aria-label={text.versions} className="overflow-hidden rounded-xl bg-card">
+          <ol aria-label={text.versions} className="overflow-hidden rounded-lg bg-card shadow-card">
             {versions.map((entry) => (
               <li
                 key={entry.version}
                 data-version={entry.version}
-                className="flex flex-wrap items-baseline gap-x-3 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-wrap items-baseline gap-x-3 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="font-semibold">{text.version(entry.version)}</span>
                 <span className="text-muted-foreground text-sm">
@@ -387,7 +387,7 @@ export function JbpVersionsPage({
           {older && newer && (
             <section aria-labelledby="versionen-vergleich" className="flex flex-col gap-4">
               <div className="flex flex-wrap items-end gap-4">
-                <h2 id="versionen-vergleich" className="grow font-bold text-xl tracking-title">
+                <h2 id="versionen-vergleich" className="grow font-display font-semibold text-xl tracking-title">
                   {text.compareTitle(older.version, newer.version)}
                 </h2>
                 <div className="w-40">
@@ -423,11 +423,11 @@ export function JbpVersionsPage({
                   {added.length + removed.length + changed.length === 0 ? (
                     <p className="text-muted-foreground text-sm">{text.unchanged}</p>
                   ) : (
-                    <ul className="overflow-hidden rounded-xl bg-card">
+                    <ul className="overflow-hidden rounded-lg bg-card shadow-card">
                       {added.map((entry) => (
                         <li
                           key={`+${entry.title}`}
-                          className="flex gap-3 border-border border-b px-5 py-3 last:border-b-0"
+                          className="flex gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
                         >
                           <Badge variant="success">{text.added}</Badge>
                           <span>{entry.title}</span>
@@ -436,7 +436,7 @@ export function JbpVersionsPage({
                       {removed.map((entry) => (
                         <li
                           key={`-${entry.title}`}
-                          className="flex gap-3 border-border border-b px-5 py-3 last:border-b-0"
+                          className="flex gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
                         >
                           <Badge variant="warning">{text.removed}</Badge>
                           <span className="text-muted-foreground line-through">{entry.title}</span>
@@ -445,7 +445,7 @@ export function JbpVersionsPage({
                       {changed.map((entry) => (
                         <li
                           key={`~${entry.title}`}
-                          className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+                          className="flex flex-col gap-1 border-line-soft border-b px-5 py-3 last:border-b-0"
                         >
                           <span className="flex gap-3">
                             <Badge variant="selected">{text.changed}</Badge>

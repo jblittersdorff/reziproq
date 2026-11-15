@@ -13,12 +13,12 @@ export function NotFoundPage() {
   }, [t]);
 
   return (
-    <section className="flex flex-col items-center gap-4 rounded-xl bg-card px-6 py-16 text-center">
-      <div className="flex size-20 items-center justify-center rounded-full bg-background text-muted-foreground">
+    <section className="flex flex-col items-center gap-4 rounded-lg bg-card shadow-card px-6 py-16 text-center">
+      <div className="flex size-20 items-center justify-center rounded-full bg-paper text-muted-foreground">
         <CompassIcon className="size-10" aria-hidden />
       </div>
       <div className="flex max-w-sm flex-col gap-1">
-        <h1 className="font-semibold text-xl">{t.notFound.title}</h1>
+        <h1 className="text-section tracking-section">{t.notFound.title}</h1>
         <p className="text-muted-foreground">{t.notFound.description}</p>
       </div>
       <Button asChild>

@@ -115,7 +115,7 @@ export function SurveyQuestionnaire({
           className="flex flex-col gap-4"
         >
           {group.dimension && (
-            <h2 className="font-bold text-xl tracking-title">
+            <h2 className="font-display font-semibold text-xl tracking-title">
               {t.settings.survey.dimensions[group.dimension]}
             </h2>
           )}
@@ -128,7 +128,7 @@ export function SurveyQuestionnaire({
                 key={question.key}
                 data-question={question.key}
                 data-missing={missing.includes(question.key) || undefined}
-                className="flex flex-col gap-5 rounded-xl bg-card p-5 data-missing:outline-2 data-missing:outline-destructive"
+                className="flex flex-col gap-5 rounded-lg bg-card shadow-card p-5 data-missing:outline-2 data-missing:outline-destructive"
               >
                 <div className="flex flex-col gap-1">
                   <span className="text-muted-foreground text-sm">

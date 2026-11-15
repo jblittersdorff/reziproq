@@ -91,7 +91,7 @@ function Steps({
             <strong
               className={cn(
                 'text-sm',
-                item.state === 'current' ? 'font-bold' : 'font-semibold',
+                item.state === 'current' ? 'font-semibold' : 'font-semibold',
                 item.state === 'open' && 'text-muted-foreground',
               )}
             >

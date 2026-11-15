@@ -20,7 +20,7 @@ function ErrorState({
       role="alert"
       data-slot="error-state"
       className={cn(
-        'flex flex-col items-center justify-center gap-3 rounded-xl bg-card px-6 py-12 text-center',
+        'flex flex-col items-center justify-center gap-3 rounded-lg bg-card shadow-card px-6 py-12 text-center',
         className,
       )}
     >

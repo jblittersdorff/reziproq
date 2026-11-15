@@ -24,14 +24,14 @@ function LinkList({
     <ul
       aria-label={label}
       data-slot="link-list"
-      className={cn('overflow-hidden rounded-xl bg-card', className)}
+      className={cn('overflow-hidden rounded-lg bg-card shadow-card', className)}
     >
       {items.map((item) => (
-        <li key={item.key} className="border-border border-b last:border-b-0">
+        <li key={item.key} className="border-line-soft border-b last:border-b-0">
           {renderLink({
             href: item.href,
             className:
-              'flex min-h-14 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset',
+              'flex min-h-14 items-center gap-4 px-5 py-3 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset',
             children: (
               <>
                 <span className="flex-1 font-medium">{item.title}</span>

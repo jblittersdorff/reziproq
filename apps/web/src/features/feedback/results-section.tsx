@@ -69,7 +69,7 @@ function Dumbbell({
             <li
               key={row.dimension}
               data-dimension={row.dimension}
-              className="grid grid-cols-1 items-center gap-x-4 gap-y-1 border-border border-t py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,5fr)_minmax(0,2.5fr)]"
+              className="grid grid-cols-1 items-center gap-x-4 gap-y-1 border-line-soft border-t py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,5fr)_minmax(0,2.5fr)]"
             >
               <span className="font-medium">{dimensions[row.dimension]}</span>
               <span className="relative block h-10" aria-hidden>
@@ -171,7 +171,7 @@ export function ResultsSection({
   return (
     <section aria-labelledby="ergebnis" className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h2 id="ergebnis" className="font-bold text-xl tracking-title">
+        <h2 id="ergebnis" className="font-display font-semibold text-xl tracking-title">
           {text.resultsTitle}
         </h2>
         <p className="text-muted-foreground text-sm">
@@ -209,7 +209,7 @@ export function ResultsSection({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 rounded-xl bg-card p-5">
+      <div className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
         <fieldset className="m-0 flex flex-wrap gap-2 border-0 p-0">
           <legend className="sr-only">{text.byFunction}</legend>
           {[
@@ -244,13 +244,13 @@ export function ResultsSection({
         <p className="text-muted-foreground text-sm">{text.minGroup}</p>
       </div>
 
-      <details className="rounded-xl bg-card p-5">
+      <details className="rounded-lg bg-card shadow-card p-5">
         <summary className="min-h-11 cursor-pointer font-semibold">{text.byQuestion}</summary>
         <ul className="mt-2 flex flex-col">
           {results.questions.map((question) => (
             <li
               key={question.key}
-              className="flex flex-wrap justify-between gap-3 border-border border-t py-3 text-sm"
+              className="flex flex-wrap justify-between gap-3 border-line-soft border-t py-3 text-sm"
             >
               <span className="min-w-0 flex-1">
                 {locale === 'en' ? question.labelEn : question.labelDe}
@@ -275,12 +275,12 @@ export function ResultsSection({
         {results.actions.length === 0 ? (
           <p className="text-muted-foreground">{text.actedEmpty}</p>
         ) : (
-          <ul data-slot="acted" className="overflow-hidden rounded-xl bg-card">
+          <ul data-slot="acted" className="overflow-hidden rounded-lg bg-card shadow-card">
             {results.actions.map((action) => (
               <li
                 key={action.id}
                 data-action={action.id}
-                className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-wrap items-center gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">{action.title}</span>
@@ -309,7 +309,7 @@ export function ResultsSection({
         ) : (
           <ul className="flex flex-col gap-2">
             {results.freeTexts.map((entry) => (
-              <li key={entry} className="rounded-xl bg-card px-5 py-4">
+              <li key={entry} className="rounded-lg bg-card shadow-card px-5 py-4">
                 {entry}
               </li>
             ))}

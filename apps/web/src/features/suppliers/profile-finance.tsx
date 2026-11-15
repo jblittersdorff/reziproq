@@ -253,7 +253,7 @@ function ProfileFinanceContent({
                     {values.map((entry) => (
                       <li
                         key={entry.id}
-                        className="flex min-h-11 flex-wrap items-center gap-x-3 border-border border-t"
+                        className="flex min-h-11 flex-wrap items-center gap-x-3 border-line-soft border-t"
                       >
                         <span className="tabular-nums">{entry.year}</span>
                         <span className="font-medium tabular-nums">

@@ -154,12 +154,12 @@ export function WavesPage({ side, relationshipId }: { side: SurveySide; relation
           description={text.emptyHint}
         />
       ) : (
-        <ul data-slot="wave-list" className="overflow-hidden rounded-xl bg-card">
+        <ul data-slot="wave-list" className="overflow-hidden rounded-lg bg-card shadow-card">
           {query.data.waves.map((wave) => (
             <li
               key={wave.id}
               data-wave={wave.id}
-              className="flex flex-wrap items-center gap-x-4 gap-y-1 border-border border-b px-5 py-4 last:border-b-0"
+              className="flex flex-wrap items-center gap-x-4 gap-y-1 border-line-soft border-b px-5 py-4 last:border-b-0"
             >
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 {routerLink({
@@ -293,14 +293,14 @@ function ParticipantPicker({
               {labels[side]} · {text.selected(value.filter((entry) => entry.side === side).length)}
             </h3>
             {offered.length + extra.length > 0 && (
-              <ul className="overflow-hidden rounded-xl bg-card">
+              <ul className="overflow-hidden rounded-lg bg-card shadow-card">
                 {offered.map((suggestion) => {
                   const chosen = value.find((entry) => sameAs(entry, suggestion));
                   const id = `vorschlag-${side}-${suggestion.email}`;
                   return (
                     <li
                       key={suggestion.email}
-                      className="flex flex-wrap items-center gap-3 border-border border-b px-4 py-2 last:border-b-0"
+                      className="flex flex-wrap items-center gap-3 border-line-soft border-b px-4 py-2 last:border-b-0"
                     >
                       <Checkbox
                         id={id}
@@ -321,7 +321,7 @@ function ParticipantPicker({
                 {extra.map((entry) => (
                   <li
                     key={entry.email}
-                    className="flex flex-wrap items-center gap-3 border-border border-b px-4 py-2 last:border-b-0"
+                    className="flex flex-wrap items-center gap-3 border-line-soft border-b px-4 py-2 last:border-b-0"
                   >
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="font-medium">{entry.name || entry.email}</span>
@@ -347,7 +347,7 @@ function ParticipantPicker({
           </section>
         );
       })}
-      <fieldset className="flex flex-col gap-3 rounded-xl bg-card p-4">
+      <fieldset className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-4">
         <legend className="sr-only">{text.addPerson}</legend>
         <h3 className="font-semibold">{text.addPerson}</h3>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -590,7 +590,7 @@ export function NewWavePage({ relationshipId, step }: { relationshipId: string; 
                 return (
                   <label
                     key={kind}
-                    className="flex cursor-pointer flex-col gap-1 rounded-xl bg-card p-5 outline-primary has-checked:outline-2 has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+                    className="flex cursor-pointer flex-col gap-1 rounded-lg bg-card shadow-card p-5 outline-primary has-checked:outline-2 has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
                   >
                     <input
                       type="radio"
@@ -651,7 +651,7 @@ export function NewWavePage({ relationshipId, step }: { relationshipId: string; 
           </>
         ) : (
           <>
-            <dl className="flex flex-col gap-2 rounded-xl bg-card p-5">
+            <dl className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5">
               <dt className="sr-only">{text.kindLabel}</dt>
               <dd className="font-semibold text-lg">
                 {text.reviewText(text.kinds[draft.kind] ?? '', format.date(draft.dueDate))}
@@ -826,17 +826,17 @@ function WaveBody({
         </p>
       )}
       <section aria-labelledby="welle-teilnehmende" className="flex flex-col gap-3">
-        <h2 id="welle-teilnehmende" className="font-bold text-xl tracking-title">
+        <h2 id="welle-teilnehmende" className="font-display font-semibold text-xl tracking-title">
           {text.participants}
         </h2>
         {data.participants.length === 0 ? (
           <p className="text-muted-foreground">{text.noParticipants}</p>
         ) : (
-          <ul data-slot="participants" className="overflow-hidden rounded-xl bg-card">
+          <ul data-slot="participants" className="overflow-hidden rounded-lg bg-card shadow-card">
             {data.participants.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-wrap items-center gap-x-4 gap-y-1 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-wrap items-center gap-x-4 gap-y-1 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">{entry.name ?? entry.email}</span>

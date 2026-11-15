@@ -54,7 +54,7 @@ export function TrendSection({ trend, side }: { trend: SurveyTrend; side: Survey
   const id = `verlauf-${trend.kind}`;
   return (
     <section aria-labelledby={id} data-trend={trend.kind} className="flex flex-col gap-3">
-      <h2 id={id} className="font-bold text-xl tracking-title">
+      <h2 id={id} className="font-display font-semibold text-xl tracking-title">
         {text.trendTitle(text.kinds[trend.kind] ?? '')}
       </h2>
       <p className="text-muted-foreground text-sm">{text.trendPurpose}</p>
@@ -76,7 +76,7 @@ export function TrendSection({ trend, side }: { trend: SurveyTrend; side: Survey
           <li
             key={entry.dimension}
             data-dimension={entry.dimension}
-            className="flex flex-col gap-2 rounded-xl bg-card p-4"
+            className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-4"
           >
             <span className="font-semibold">{t.settings.survey.dimensions[entry.dimension]}</span>
             <svg

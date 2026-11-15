@@ -97,7 +97,7 @@ export function PlaybookPage() {
                     <Link
                       to="/einstellungen/spielregeln/typ/$typ"
                       params={{ typ: `${impact}-${quality}` }}
-                      className="flex h-full min-h-11 flex-col justify-center rounded-lg bg-secondary px-4 py-3 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                      className="flex h-full min-h-11 flex-col justify-center rounded-lg bg-secondary px-4 py-3 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
                     >
                       {(() => {
                         const label = text.typeLabel(

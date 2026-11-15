@@ -215,10 +215,10 @@ function SurveyQuestions({
               aria-labelledby={`dimension-${dimension}`}
               className="flex flex-col gap-3"
             >
-              <h2 id={`dimension-${dimension}`} className="font-bold text-xl tracking-title">
+              <h2 id={`dimension-${dimension}`} className="font-display font-semibold text-xl tracking-title">
                 {text.dimensions[dimension]}
               </h2>
-              <ul className="overflow-hidden rounded-xl bg-card">
+              <ul className="overflow-hidden rounded-lg bg-card shadow-card">
                 {data.template.questions
                   .filter((question) => question.dimension === dimension)
                   .map((question) => {
@@ -228,7 +228,7 @@ function SurveyQuestions({
                       <li
                         key={question.key}
                         data-question={question.key}
-                        className="flex items-center gap-4 border-border border-b px-5 py-3 last:border-b-0"
+                        className="flex items-center gap-4 border-line-soft border-b px-5 py-3 last:border-b-0"
                       >
                         <span className="flex min-w-0 flex-1 flex-col gap-1">
                           {routerLink({
@@ -257,7 +257,7 @@ function SurveyQuestions({
             </section>
           ))}
           <section aria-labelledby="fragebogen-versionen" className="flex flex-col gap-3">
-            <h2 id="fragebogen-versionen" className="font-bold text-xl tracking-title">
+            <h2 id="fragebogen-versionen" className="font-display font-semibold text-xl tracking-title">
               {text.versions}
             </h2>
             <ol className="flex flex-col gap-1 text-muted-foreground text-sm">

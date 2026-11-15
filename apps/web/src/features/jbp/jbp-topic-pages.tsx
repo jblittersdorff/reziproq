@@ -155,13 +155,13 @@ function TopicColumn({
   const own = side === data.ownSide && data.canEditOwn;
   return (
     <section aria-labelledby={`themen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`themen-${side}`} className="font-bold text-xl tracking-title">
+      <h2 id={`themen-${side}`} className="font-display font-semibold text-xl tracking-title">
         {text.column[side]}
       </h2>
       {topics.length === 0 ? (
         <p className="text-muted-foreground">{text.empty}</p>
       ) : (
-        <ol className="overflow-hidden rounded-xl bg-card">
+        <ol className="overflow-hidden rounded-lg bg-card shadow-card">
           {topics.map((topic, index) => (
             <TopicRow
               key={topic.id}
@@ -200,7 +200,7 @@ function TopicRow({
     <li
       data-topic={topic.id}
       className={cn(
-        'flex flex-col gap-2 border-border border-b px-5 py-4 last:border-b-0',
+        'flex flex-col gap-2 border-line-soft border-b px-5 py-4 last:border-b-0',
         parked && 'bg-muted',
       )}
     >
@@ -392,7 +392,7 @@ function TopicForm({
         </FormActions>
       </form>
       {existing && existing.status !== 'parked' && (
-        <section aria-label={text.park} className="flex flex-col gap-3 rounded-xl bg-card p-5">
+        <section aria-label={text.park} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
           <FormField label={text.parkReason} error={errors.reason}>
             {(field) => (
               <Input
@@ -504,7 +504,7 @@ function ImportContent({ place }: { place: MeetingPlace }) {
         {candidates.map((candidate) => {
           const selected = candidate.id in chosen;
           return (
-            <li key={candidate.id} className="flex flex-col gap-3 rounded-xl bg-card p-5">
+            <li key={candidate.id} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
               <label
                 htmlFor={`thema-${candidate.id}`}
                 className="flex min-h-11 items-center gap-3 font-semibold"

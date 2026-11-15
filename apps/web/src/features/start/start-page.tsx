@@ -4,24 +4,24 @@ import { ChevronRightIcon } from 'lucide-react';
 import type * as React from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { DateCircle } from '@/components/ui/date-circle';
 import { ErrorState } from '@/components/ui/error-state';
+import { ListCard, ListCardHeader, ListRow } from '@/components/ui/list-card';
 import { LoadingState } from '@/components/ui/loading-state';
-import { Stage, StageMetrics } from '@/components/ui/stage';
+import { Monogram } from '@/components/ui/monogram';
+import { NextStep, NextStepArrow } from '@/components/ui/next-step';
+import { StageMetrics } from '@/components/ui/stage';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
-import { InStageSlot } from '@/features/shell/stage-slot';
 import { startQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { dayTime } from './greeting';
-
-export const itemLinkClass =
-  'flex min-h-11 flex-col justify-center rounded-md px-2 py-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50';
 
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'cycle') {
@@ -50,10 +50,10 @@ export function formatDate(locale: string, date: string) {
 }
 
 /**
- * Start nach dem Login (PLT-11, NAV-05, Handschrift Bühne A2): dunkle Bühne mit Datum, Begrüßung,
- * einem Satz zur Lage, einem Knopf zu den fälligen Aufgaben und drei Zahlen. Darunter das
- * Fragefeld und vier Kacheln: nächste Aufgabe, nächster Termin, Fokuslieferanten bzw. Kunden und
- * offene Entscheidungen bzw. Maßnahmen. Speichert nichts; jede Kachel führt zum Ort der Sache.
+ * Start nach dem Login (PLT-11, NAV-05; Designsprache, Vorlage Main.dc.html): Datum, Begrüßung,
+ * ein Satz zur Lage mit dem Knopf zu den fälligen Aufgaben, das Fragefeld; darunter die nächste
+ * Aufgabe als Tinte-Karte, der nächste Termin, offene Entscheidungen bzw. Maßnahmen und rechts
+ * Fokuslieferanten bzw. Kunden mit drei Zahlen. Speichert nichts; alles führt zum Ort der Sache.
  */
 export function StartPage() {
   const t = useT();
@@ -82,92 +82,91 @@ export function StartPage() {
   }).format(new Date());
   const portfolio = data?.portfolio ?? null;
 
-  return (
-    <>
-      <InStageSlot>
-        <Stage
-          eyebrow={today}
-          title={me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName}
-          text={data && t.start.todayTitle(data.due.total)}
-          actions={
-            data &&
-            data.due.total > 0 &&
-            routerLink({
-              href: '/start/faellig',
-              className: buttonVariants({ size: 'lg' }),
-              children: t.start.toDue,
-            })
-          }
-          aside={
-            data && (
-              <StageMetrics
-                label={t.start.metricsLabel}
-                items={
-                  portfolio
-                    ? [
-                        {
-                          key: 'suppliers',
-                          value: portfolio.suppliers,
-                          label: t.start.metricSuppliers,
-                        },
-                        { key: 'focus', value: portfolio.focusTotal, label: t.start.metricFocus },
-                        {
-                          key: 'decisions',
-                          value: portfolio.openDecisions,
-                          label: t.start.metricDecisions,
-                          accent: portfolio.openDecisions > 0,
-                        },
-                      ]
-                    : [
-                        {
-                          key: 'due',
-                          value: data.due.total,
-                          label: t.start.metricDue,
-                          accent: data.due.total > 0,
-                        },
-                        {
-                          key: 'relationships',
-                          value: data.relationships.total,
-                          label: supplierSide
-                            ? t.start.metricCustomers
-                            : t.start.metricRelationships,
-                        },
-                        {
-                          key: 'actions',
-                          value: data.openActions,
-                          label: t.start.metricActions,
-                        },
-                      ]
-                }
-              />
-            )
-          }
-        />
-      </InStageSlot>
+  const metrics = data && (
+    <StageMetrics
+      label={t.start.metricsLabel}
+      items={
+        portfolio
+          ? [
+              { key: 'suppliers', value: portfolio.suppliers, label: t.start.metricSuppliers },
+              { key: 'focus', value: portfolio.focusTotal, label: t.start.metricFocus },
+              {
+                key: 'decisions',
+                value: portfolio.openDecisions,
+                label: t.start.metricDecisions,
+                accent: portfolio.openDecisions > 0,
+              },
+            ]
+          : [
+              {
+                key: 'due',
+                value: data.due.total,
+                label: t.start.metricDue,
+                accent: data.due.total > 0,
+              },
+              {
+                key: 'relationships',
+                value: data.relationships.total,
+                label: supplierSide ? t.start.metricCustomers : t.start.metricRelationships,
+              },
+              { key: 'actions', value: data.openActions, label: t.start.metricActions },
+            ]
+      }
+    />
+  );
 
-      <div className="flex flex-col gap-4">
-        {/* Zuerst im Inhalt: Der Sprung-Link führt direkt zum Fragefeld (PLT-11, PLT-12). */}
-        {!supplierSide && <PromptTrigger />}
-        {query.isError ? (
-          <ErrorState title={t.start.failed} />
-        ) : !data ? (
-          <LoadingState label={t.start.loading} />
-        ) : (
-          <div data-slot="start-tiles" className="grid gap-4 md:grid-cols-2">
-            <DueTile item={data.due.items[0]} />
-            <MeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
-            <ListTile data={data} supplierSide={supplierSide} />
-            <CountTile data={data} />
+  // Aufbau nach Vorlage Main.dc.html: Begrüßung groß, darunter das Fragefeld; links der nächste
+  // Schritt als Tinte-Karte, der Termin und die Zahl; rechts „Im Blick“ mit Liste und Zahlen.
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <p className="font-semibold text-muted-foreground text-sm">{today}</p>
+          <h1 className="text-balance text-title-work tracking-title-lg sm:text-title-hero">
+            {me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName}
+          </h1>
+        </div>
+        {data && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-base text-muted-foreground">{t.start.todayTitle(data.due.total)}</p>
+            {data.due.total > 0 &&
+              routerLink({
+                href: '/start/faellig',
+                className: buttonVariants({ variant: 'secondary' }),
+                children: t.start.toDue,
+              })}
           </div>
         )}
+        {/* Zuerst im Inhalt: Der Sprung-Link führt direkt zum Fragefeld (PLT-11, PLT-12). */}
+        {!supplierSide && <PromptTrigger />}
       </div>
-    </>
+      {query.isError ? (
+        <ErrorState title={t.start.failed} />
+      ) : !data ? (
+        <LoadingState label={t.start.loading} />
+      ) : (
+        <div data-slot="start-tiles" className="flex flex-wrap items-start gap-7">
+          <div className="flex min-w-0 shrink grow-999 basis-140 flex-col gap-7">
+            <DueTile item={data.due.items[0]} />
+            <MeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
+            <CountTile data={data} />
+          </div>
+          <aside
+            aria-label={t.start.metricsLabel}
+            className="flex min-w-0 shrink grow basis-75 flex-col gap-5"
+          >
+            <ListTile data={data} supplierSide={supplierSide} />
+            {metrics}
+          </aside>
+        </div>
+      )}
+    </div>
   );
 }
 
-const tileClass = 'min-h-72 gap-2 p-6 sm:p-10';
+const tileClass = 'gap-2 p-6 sm:p-7';
 const linkClass = cn(buttonVariants({ variant: 'link' }), 'self-start px-0 has-[>svg]:px-0');
-const titleClass = 'font-bold text-xl tracking-title sm:text-2xl';
+const titleClass = 'font-display font-semibold text-section tracking-section';
 
 /** Link mit Pfeil am Fuß einer Kachel */
 function TileLink({
@@ -192,18 +191,36 @@ function TileLink({
   });
 }
 
-/** Die nächste fällige Aufgabe, groß, mit einem Knopf; sonst ein ruhiger Hinweis. */
+/**
+ * Die nächste fällige Aufgabe als „Nächster Schritt“ (Tinte-Karte, die eine Hauptaktion der
+ * Seite); sonst ein ruhiger Hinweis mit dem Weg zu den eigenen Maßnahmen.
+ */
 function DueTile({ item }: { item: DueItem | undefined }) {
   const t = useT();
   const { locale } = useLocale();
   if (!item) {
     return (
-      <Tile data-slot="due-tile" className={tileClass}>
-        <h2 className={titleClass}>{t.start.dueEmpty}</h2>
-        <p className="text-muted-foreground">{t.start.dueEmptyHint}</p>
-        <span className="grow" />
-        <TileLink href="/start/massnahmen">{t.actions.mine.link}</TileLink>
-      </Tile>
+      <div data-slot="due-tile">
+        <NextStep
+          eyebrow={t.start.allTasks}
+          title={t.start.dueEmpty}
+          text={t.start.dueEmptyHint}
+          action={
+            <Button variant="mint" size="hero" asChild>
+              {routerLink({
+                href: '/start/massnahmen',
+                className: '',
+                children: (
+                  <>
+                    {t.actions.mine.link}
+                    <NextStepArrow />
+                  </>
+                ),
+              })}
+            </Button>
+          }
+        />
+      </div>
     );
   }
   const internal = item.kind === 'rating' || item.kind === 'cycle' || item.kind === 'approval';
@@ -213,31 +230,47 @@ function DueTile({ item }: { item: DueItem | undefined }) {
     month: 'long',
   }).format(new Date(`${item.dueDate}T00:00:00`));
   return (
-    <Tile data-slot="due-tile" className={tileClass}>
-      {internal && <VisibilityBadge visibility="internal" label={t.start.internal} />}
-      <h2 className={cn(titleClass, 'mt-2')}>{t.start.kind[item.kind]}</h2>
-      <p className="text-lg">
-        {item.detail && item.kind !== 'approval'
-          ? `${item.supplier} · ${item.detail}`
-          : item.supplier}
-      </p>
-      <p className="text-muted-foreground">{t.start.dueBy(date)}</p>
-      <span className="grow" />
-      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-        {routerLink({
-          href: item.href,
-          className: buttonVariants(),
-          'aria-label': t.start.openItem(item.supplier, dueTitle(t, item)),
-          children: item.kind === 'rating' ? t.start.rateNow : t.start.open,
-        })}
-        <TileLink href="/start/faellig">{t.start.allTasks}</TileLink>
-      </div>
-    </Tile>
+    <div data-slot="due-tile">
+      <NextStep
+        eyebrow={
+          <span className="flex flex-wrap items-center gap-2">
+            {internal && <VisibilityBadge visibility="internal" label={t.start.internal} />}
+            {t.start.dueBy(date)}
+          </span>
+        }
+        title={t.start.kind[item.kind]}
+        text={
+          item.detail && item.kind !== 'approval'
+            ? `${item.supplier} · ${item.detail}`
+            : item.supplier
+        }
+        secondary={
+          <Button variant="dark" asChild>
+            {routerLink({ href: '/start/faellig', className: '', children: t.start.allTasks })}
+          </Button>
+        }
+        action={
+          <Button variant="mint" size="hero" asChild>
+            {routerLink({
+              href: item.href,
+              className: '',
+              'aria-label': t.start.openItem(item.supplier, dueTitle(t, item)),
+              children: (
+                <>
+                  {item.kind === 'rating' ? t.start.rateNow : t.start.open}
+                  <NextStepArrow />
+                </>
+              ),
+            })}
+          </Button>
+        }
+      />
+    </div>
   );
 }
 
 /**
- * Nächster Termin aus der Termin-Quelle (QBR-01b), als dunkle Kachel: Datum groß links, rechts
+ * Nächster Termin aus der Termin-Quelle (QBR-01b) als Tinte-Kachel: Datumskreis links, rechts
  * Titel, die andere Seite und der Link zur Agenda.
  */
 function MeetingTile({
@@ -252,37 +285,32 @@ function MeetingTile({
   if (!meeting) {
     return (
       <Tile tone="stage" data-slot="next-meeting" className={tileClass}>
-        <p className="font-semibold text-primary text-sm">{t.meetings.next}</p>
-        <h2 className={cn(titleClass, 'mt-2')}>{t.start.noMeeting}</h2>
+        <p className="font-semibold text-mint text-sm">{t.meetings.next}</p>
+        <h2 className={titleClass}>{t.start.noMeeting}</h2>
         <p className="text-muted-foreground">{t.start.noMeetingHint}</p>
       </Tile>
     );
   }
   const start = new Date(meeting.startsAt);
-  const month = new Intl.DateTimeFormat(locale, { month: 'long' }).format(start);
-  const day = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(start);
   const time = new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(start);
   const href = `${supplierSide ? '/kunden' : '/lieferanten'}/${meeting.relationshipId}/umsetzung/termine/${meeting.id}`;
   return (
     <Tile
       tone="stage"
       data-slot="next-meeting"
-      className={cn(tileClass, 'grid grid-cols-[auto_1fr] items-start gap-6 sm:gap-8')}
+      className={cn(tileClass, 'flex-row flex-wrap items-start gap-5')}
     >
-      <p className="flex flex-col items-center rounded-xl border border-border px-4 py-3 sm:px-5">
-        <span className="sr-only">{t.meetings.next}</span>
-        <span className="font-semibold text-primary text-sm uppercase">{month}</span>
-        <span className="font-bold text-2xl tabular-nums tracking-title sm:text-display sm:leading-none">
-          {day}
-        </span>
-        <span className="text-muted-foreground text-sm">{time}</span>
-      </p>
-      <div className="flex h-full min-w-0 flex-col gap-2">
-        <Badge variant="selected">{t.start.sharedWith(meeting.counterpart)}</Badge>
-        <h2 className={cn(titleClass, 'mt-2')}>{meeting.title}</h2>
-        <p className="text-lg">{meeting.counterpart}</p>
+      <span className="sr-only">{t.meetings.next}</span>
+      <DateCircle date={start} locale={locale} tone="onInk" />
+      <div className="flex min-w-0 flex-1 basis-60 flex-col gap-2">
+        <Badge variant="shared" className="self-start">
+          {t.start.sharedWith(meeting.counterpart)}
+        </Badge>
+        <h2 className={titleClass}>{meeting.title}</h2>
+        <p className="text-base">
+          {meeting.counterpart} · <span className="tabular-nums">{time}</span>
+        </p>
         {meeting.location && <p className="text-muted-foreground">{meeting.location}</p>}
-        <span className="grow" />
         <TileLink href={href} label={`${t.start.agenda}: ${meeting.title}`}>
           {t.start.agenda}
         </TileLink>
@@ -293,7 +321,7 @@ function MeetingTile({
 
 /**
  * Käufer: Fokuslieferanten mit Stand der Spielregeln. Lieferant (oder Käufer ohne Portfolio): die
- * eigenen Kunden bzw. Beziehungen.
+ * eigenen Kunden bzw. Beziehungen. Als Listenkarte (Vorlage: „Im Blick“).
  */
 function ListTile({ data, supplierSide }: { data: StartData; supplierSide: boolean }) {
   const t = useT();
@@ -303,7 +331,7 @@ function ListTile({ data, supplierSide }: { data: StartData; supplierSide: boole
         id: item.id,
         name: item.name,
         badge: item.rulesShared ? (
-          <Badge variant="selected">{t.start.rulesShared}</Badge>
+          <Badge variant="shared">{t.start.rulesShared}</Badge>
         ) : (
           <Badge>{t.start.internalShort}</Badge>
         ),
@@ -325,38 +353,39 @@ function ListTile({ data, supplierSide }: { data: StartData; supplierSide: boole
       : t.start.relationshipsEmpty;
   const base = supplierSide ? '/kunden' : '/lieferanten';
   return (
-    <Tile data-slot="list-tile" className={tileClass}>
-      <h2 id="start-liste" className="font-bold text-xl tracking-title">
-        {title}
-      </h2>
+    <ListCard data-slot="list-tile" aria-labelledby="start-liste">
+      <ListCardHeader id="start-liste" title={title} />
       {rows.length === 0 ? (
-        <p className="text-muted-foreground">{empty}</p>
+        <p className="px-5.5 pb-5.5 text-muted-foreground">{empty}</p>
       ) : (
-        <ul aria-labelledby="start-liste" className="mt-2">
+        <ul aria-labelledby="start-liste">
           {rows.map((row) => (
-            <li key={row.id} className="border-border border-t">
-              {routerLink({
-                href: `${base}/${row.id}`,
-                className:
-                  'flex min-h-12 items-center gap-3 py-2 hover:text-primary focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-                children: (
-                  <>
-                    <span className="min-w-0 flex-1 truncate">{row.name}</span>
-                    {row.badge}
-                  </>
-                ),
-              })}
+            <li key={row.id}>
+              <ListRow asChild>
+                {routerLink({
+                  href: `${base}/${row.id}`,
+                  className: '',
+                  children: (
+                    <>
+                      <Monogram name={row.name} />
+                      <span className="min-w-0 flex-1 truncate font-semibold">{row.name}</span>
+                      {row.badge}
+                    </>
+                  ),
+                })}
+              </ListRow>
             </li>
           ))}
         </ul>
       )}
-      <span className="grow" />
-      {focus ? (
-        <TileLink href="/portfolio">{t.start.toPortfolio}</TileLink>
-      ) : (
-        data.relationships.total > 0 && <TileLink href={base}>{t.start.all}</TileLink>
-      )}
-    </Tile>
+      <div className="border-line-soft border-t px-5.5 py-2">
+        {focus ? (
+          <TileLink href="/portfolio">{t.start.toPortfolio}</TileLink>
+        ) : (
+          data.relationships.total > 0 && <TileLink href={base}>{t.start.all}</TileLink>
+        )}
+      </div>
+    </ListCard>
   );
 }
 
@@ -366,22 +395,25 @@ function CountTile({ data }: { data: StartData }) {
   const decisions = data.portfolio;
   const value = decisions ? decisions.openDecisions : data.openActions;
   return (
-    <Tile tone="shared" data-slot="count-tile" className={tileClass}>
-      <p className="font-bold text-display text-primary tabular-nums leading-none tracking-title">
+    <Tile
+      tone="shared"
+      data-slot="count-tile"
+      className={cn(tileClass, 'flex-row flex-wrap items-center gap-5')}
+    >
+      <p className="font-display font-semibold text-petrol-dark text-title-hero tabular-nums leading-none tracking-title-lg">
         {value}
       </p>
-      <h2 className="mt-2 font-bold text-xl tracking-title">
-        {decisions ? t.start.decisionsTitle : t.start.actionsTitle}
-      </h2>
-      <p className="text-muted-foreground">
-        {decisions ? t.start.decisionsText : t.start.actionsText}
-      </p>
-      <span className="grow" />
-      {decisions ? (
-        <TileLink href="/portfolio/offen">{t.start.decisionsLink}</TileLink>
-      ) : (
-        <TileLink href="/start/massnahmen">{t.start.actionsLink}</TileLink>
-      )}
+      <div className="flex min-w-0 flex-1 basis-60 flex-col gap-1">
+        <h2 className={titleClass}>{decisions ? t.start.decisionsTitle : t.start.actionsTitle}</h2>
+        <p className="text-muted-foreground">
+          {decisions ? t.start.decisionsText : t.start.actionsText}
+        </p>
+        {decisions ? (
+          <TileLink href="/portfolio/offen">{t.start.decisionsLink}</TileLink>
+        ) : (
+          <TileLink href="/start/massnahmen">{t.start.actionsLink}</TileLink>
+        )}
+      </div>
     </Tile>
   );
 }

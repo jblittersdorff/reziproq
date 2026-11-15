@@ -33,21 +33,36 @@ export function SupplierCard({
     { key: 'group', label: t.masterData.assignment.primary, value: supplier.primaryMaterialGroup },
     { key: 'country', label: t.suppliers.country, value: supplier.country ? country : null },
   ].filter((fact) => fact.value);
+  // Aufbau nach Vorlage Lieferanten.dc.html: Monogramm und Name, darunter die Angaben, Kennzeichen
+  // und unten durch eine feine Linie getrennt der Spend.
   return (
     <li className={className}>
-      <Tile asChild size="sm" interactive className="h-full gap-3 p-6">
+      <Tile asChild size="sm" interactive className="h-full gap-4 p-5.5">
         <Link to="/lieferanten/$id" params={{ id: supplier.relationshipId }}>
+          <div className="flex items-center gap-3">
+            <Monogram name={supplier.name} tone={supplier.isFocus ? 'shared' : 'neutral'} />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Heading className="text-balance font-display font-semibold text-lg leading-snug tracking-section-sm">
+                {supplier.name}
+              </Heading>
+              {facts.length > 0 && (
+                <dl className="flex flex-wrap gap-x-1 text-muted-foreground text-sm">
+                  {facts.map((fact, index) => (
+                    <div key={fact.key} className="flex">
+                      <dt className="sr-only">{fact.label}</dt>
+                      <dd>
+                        {index > 0 && <span aria-hidden>· </span>}
+                        {fact.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Monogram name={supplier.name} emphasis={Boolean(supplier.isFocus)} />
-            <span className="grow" />
-            {supplier.externalRef && (
-              <dl className="whitespace-nowrap text-muted-foreground text-sm">
-                <dt className="sr-only">{t.suppliers.externalRef}</dt>
-                <dd>{supplier.externalRef}</dd>
-              </dl>
-            )}
             {supplier.isFocus && (
-              <Badge variant="selected">
+              <Badge variant="shared">
                 <StarIcon aria-hidden />
                 {t.portfolio.focusPage.badge}
               </Badge>
@@ -64,31 +79,18 @@ export function SupplierCard({
                 {t.suppliers.statusEnded}
               </Badge>
             )}
-          </div>
-          <div className="flex flex-col gap-1">
-            {facts.length > 0 && (
-              <dl className="flex flex-wrap gap-x-1 font-semibold text-primary text-sm">
-                {facts.map((fact, index) => (
-                  <div key={fact.key} className="flex">
-                    <dt className="sr-only">{fact.label}</dt>
-                    <dd>
-                      {index > 0 && <span aria-hidden>· </span>}
-                      {fact.value}
-                    </dd>
-                  </div>
-                ))}
+            <span className="grow" />
+            {supplier.externalRef && (
+              <dl className="whitespace-nowrap text-muted-foreground text-sm">
+                <dt className="sr-only">{t.suppliers.externalRef}</dt>
+                <dd>{supplier.externalRef}</dd>
               </dl>
             )}
-            <Heading className="text-balance font-bold text-lg leading-snug tracking-title">
-              {supplier.name}
-            </Heading>
           </div>
           <span className="grow" />
-          <p className="flex flex-col-reverse">
-            <span className="text-muted-foreground text-sm">
-              {t.suppliers.annualSpend(spendYear)}
-            </span>
-            <span className="font-bold text-xl tabular-nums tracking-title">
+          <p className="flex items-center justify-between gap-3 border-line-soft border-t pt-3.5 text-sm">
+            <span className="text-muted-foreground">{t.suppliers.annualSpend(spendYear)}</span>
+            <span className="font-semibold tabular-nums">
               {supplier.spend ? format.money(supplier.spend, { wholeUnits: true }) : '–'}
             </span>
           </p>

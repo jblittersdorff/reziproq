@@ -118,11 +118,11 @@ export function MaturitySteps({ maturity }: { maturity: Maturity }) {
     return <p className="text-muted-foreground">{text.stepsEmpty}</p>;
   }
   return (
-    <ol data-slot="maturity-steps" className="overflow-hidden rounded-xl bg-card">
+    <ol data-slot="maturity-steps" className="overflow-hidden rounded-lg bg-card shadow-card">
       {[...maturity.steps].reverse().map((step) => (
         <li
           key={`${step.toLevel}-${step.decidedAt}`}
-          className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+          className="flex flex-col gap-1 border-line-soft border-b px-5 py-3 last:border-b-0"
         >
           <span className="flex flex-wrap items-center gap-2">
             <Badge variant="selected">
@@ -209,11 +209,11 @@ export function ImpactListPage({ relationshipId }: { relationshipId: string }) {
         <>
           <EffectTotals totals={query.data.totals} />
           {/* Schmal als Liste, breit als Tabelle: nichts wird abgeschnitten. */}
-          <ul data-slot="impact-list" className="overflow-hidden rounded-xl bg-card sm:hidden">
+          <ul data-slot="impact-list" className="overflow-hidden rounded-lg bg-card shadow-card sm:hidden">
             {query.data.initiatives.map((entry) => (
               <li
                 key={entry.id}
-                className="flex flex-col gap-1 border-border border-b px-5 py-4 last:border-b-0"
+                className="flex flex-col gap-1 border-line-soft border-b px-5 py-4 last:border-b-0"
               >
                 {routerLink({
                   href: `${impactPath(relationshipId)}/${entry.id}`,
@@ -336,7 +336,7 @@ export function ImpactDetailPage({
           {message && <StatusLine message={message} onHidden={hideMessage} />}
           <section aria-labelledby="wirkung-reifegrad" className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="wirkung-reifegrad" className="font-bold text-xl tracking-title">
+              <h2 id="wirkung-reifegrad" className="font-display font-semibold text-xl tracking-title">
                 {text.maturityTitle}
               </h2>
               {data.canEdit &&
@@ -358,7 +358,7 @@ export function ImpactDetailPage({
 
           <section aria-labelledby="wirkung-einrichtung" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="wirkung-einrichtung" className="font-bold text-xl tracking-title">
+              <h2 id="wirkung-einrichtung" className="font-display font-semibold text-xl tracking-title">
                 {text.setupSummary}
               </h2>
               {data.canEdit &&
@@ -369,7 +369,7 @@ export function ImpactDetailPage({
                 })}
             </div>
             {data.impact ? (
-              <dl className="grid gap-x-8 gap-y-4 rounded-xl bg-card p-5 sm:grid-cols-2">
+              <dl className="grid gap-x-8 gap-y-4 rounded-lg bg-card shadow-card p-5 sm:grid-cols-2">
                 {(
                   [
                     [text.leverLabel, text.levers[data.impact.lever]],
@@ -399,7 +399,7 @@ export function ImpactDetailPage({
             <section aria-labelledby="wirkung-baseline" className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="flex flex-wrap items-center gap-3">
-                  <h2 id="wirkung-baseline" className="font-bold text-xl tracking-title">
+                  <h2 id="wirkung-baseline" className="font-display font-semibold text-xl tracking-title">
                     {text.baselineTitle}
                   </h2>
                   <VisibilityBadge visibility="internal" label={text.internal} />
@@ -414,12 +414,12 @@ export function ImpactDetailPage({
               {data.baselines.length === 0 ? (
                 <p className="text-muted-foreground">{text.baselineEmpty}</p>
               ) : (
-                <ol data-slot="baselines" className="overflow-hidden rounded-xl bg-card">
+                <ol data-slot="baselines" className="overflow-hidden rounded-lg bg-card shadow-card">
                   {data.baselines.map((baseline, index) => (
                     <li
                       key={baseline.version}
                       className={cn(
-                        'flex flex-col gap-2 border-border border-b px-5 py-4 last:border-b-0',
+                        'flex flex-col gap-2 border-line-soft border-b px-5 py-4 last:border-b-0',
                         index > 0 && 'text-muted-foreground',
                       )}
                     >
@@ -460,7 +460,7 @@ export function ImpactDetailPage({
           <SharingSection relationshipId={relationshipId} initiativeId={initiativeId} />
 
           <section aria-labelledby="wirkung-stufen" className="flex flex-col gap-3">
-            <h2 id="wirkung-stufen" className="font-bold text-xl tracking-title">
+            <h2 id="wirkung-stufen" className="font-display font-semibold text-xl tracking-title">
               {text.stepsTitle}
             </h2>
             <MaturitySteps maturity={data.maturity} />
@@ -1041,7 +1041,7 @@ function MonthsSection({ relationshipId, data }: { relationshipId: string; data:
   return (
     <section aria-labelledby="wirkung-monate" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="wirkung-monate" className="font-bold text-xl tracking-title">
+        <h2 id="wirkung-monate" className="font-display font-semibold text-xl tracking-title">
           {text.monthsTitle}
         </h2>
         <div className="flex flex-wrap gap-3">
@@ -1083,13 +1083,13 @@ function MonthsSection({ relationshipId, data }: { relationshipId: string; data:
       {data.months.length === 0 ? (
         <p className="text-muted-foreground">{text.monthsEmpty}</p>
       ) : (
-        <ol data-slot="impact-months" className="overflow-hidden rounded-xl bg-card">
+        <ol data-slot="impact-months" className="overflow-hidden rounded-lg bg-card shadow-card">
           {[...data.months].reverse().map((row) => (
             <li
               key={row.month}
               data-month={row.month}
               data-locked={row.locked || undefined}
-              className="grid gap-3 border-border border-b px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)]"
+              className="grid gap-3 border-line-soft border-b px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)]"
             >
               <span className="flex flex-wrap items-center gap-2 font-semibold">
                 {month(row.month)}
@@ -1109,11 +1109,11 @@ function MonthsSection({ relationshipId, data }: { relationshipId: string; data:
       {data.validations.length > 0 && (
         <div className="flex flex-col gap-2">
           <h3 className="font-semibold">{text.validationTitle}</h3>
-          <ul data-slot="validations" className="overflow-hidden rounded-xl bg-card">
+          <ul data-slot="validations" className="overflow-hidden rounded-lg bg-card shadow-card">
             {data.validations.map((validation) => (
               <li
                 key={validation.id}
-                className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-col gap-1 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="flex flex-wrap items-center gap-2">
                   <Badge
@@ -1413,13 +1413,13 @@ function ImportForm({
           >
             {text.importCount(preview.valid, preview.invalid)}
           </p>
-          <ol className="overflow-hidden rounded-xl bg-card">
+          <ol className="overflow-hidden rounded-lg bg-card shadow-card">
             {preview.rows.map((row) => (
               <li
                 key={row.row}
                 data-row={row.row}
                 data-invalid={row.errors.length > 0 || undefined}
-                className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-wrap items-center gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span className="w-16 text-muted-foreground text-sm tabular-nums">
                   {text.importRow} {row.row}

@@ -78,22 +78,26 @@ function NextStepArrow() {
   );
 }
 
-/** Zwei Ringe als Hintergrund rechts, wie das Logo. */
+/**
+ * Zwei Ringe als Hintergrund rechts, wie das Logo. Bewusste Abweichung: Die Vorlage schiebt sie
+ * 60 px über den Rand der Karte; hier enden sie am Rand, damit nichts über die Seite hinausragt
+ * (Prüfung auf Überlauf bei 390 px).
+ */
 function Rings() {
   return (
     <svg
       aria-hidden
-      viewBox="0 0 420 300"
+      viewBox="0 0 360 300"
       fill="none"
       strokeWidth={2}
-      className="pointer-events-none absolute top-1/2 -right-15 h-75 w-105 -translate-y-1/2"
+      className="pointer-events-none absolute top-1/2 right-0 h-75 w-90 -translate-y-1/2"
     >
       <path
-        d="M210 34.67A130 130 0 0 1 210 265.33A130 130 0 0 1 210 34.67Z"
+        d="M170 34.67A130 130 0 0 1 170 265.33A130 130 0 0 1 170 34.67Z"
         className="fill-mint/12"
       />
-      <circle cx={150} cy={150} r={130} className="stroke-on-dark/14" />
-      <circle cx={270} cy={150} r={130} className="stroke-mint/35" />
+      <circle cx={110} cy={150} r={130} className="stroke-on-dark/14" />
+      <circle cx={230} cy={150} r={130} className="stroke-mint/35" />
     </svg>
   );
 }

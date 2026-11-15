@@ -42,14 +42,14 @@ export function SuppliersPage() {
   const title = t.suppliers.title;
 
   // Ohne Organisation steht der Hinweis schon über jeder Seite (App-Rahmen).
-  if (me.data && !me.data.organization) return <PageHeader title={title} purpose="" />;
+  if (me.data && !me.data.organization) return <PageHeader size="list" title={title} purpose="" />;
 
   const denied =
     (me.data && !allowed) || (error instanceof ApiError && error.code === 'keine_berechtigung');
   if (denied) {
     return (
       <>
-        <PageHeader title={title} purpose={t.suppliers.purpose} />
+        <PageHeader size="list" title={title} purpose={t.suppliers.purpose} />
         <EmptyState
           size="lg"
           icon={<LockIcon aria-hidden />}
@@ -64,7 +64,7 @@ export function SuppliersPage() {
   if (isError || me.isError) {
     return (
       <>
-        <PageHeader title={title} purpose={t.suppliers.purpose} />
+        <PageHeader size="list" title={title} purpose={t.suppliers.purpose} />
         <ErrorState title={t.suppliers.failed} />
       </>
     );
@@ -73,7 +73,7 @@ export function SuppliersPage() {
   if (isPending || !data) {
     return (
       <>
-        <PageHeader title={title} purpose={t.suppliers.purpose} />
+        <PageHeader size="list" title={title} purpose={t.suppliers.purpose} />
         <LoadingState label={t.suppliers.loading} />
       </>
     );
@@ -89,7 +89,7 @@ export function SuppliersPage() {
     </Button>
   );
   const importButton = (
-    <Button asChild variant={canEdit ? 'outline' : 'default'}>
+    <Button asChild variant={canEdit ? 'secondary' : 'default'}>
       <Link to="/lieferanten/importieren">
         <FileUpIcon />
         {t.suppliers.importPage.title}
@@ -98,7 +98,7 @@ export function SuppliersPage() {
   );
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-4">
-      <PageHeader title={title} purpose={supplierSummary(data, t, format)} />
+      <PageHeader size="list" title={title} purpose={supplierSummary(data, t, format)} />
       <div className="flex flex-wrap gap-3">
         {importButton}
         {addButton}
@@ -147,7 +147,7 @@ export function SuppliersPage() {
               const value = event.target.value as SortKey;
               update({ sortierung: value === 'spend' ? undefined : value });
             }}
-            className="h-12 rounded-lg"
+            className="h-11 rounded-full pl-4"
           >
             <option value="spend">{t.suppliers.sortSpend}</option>
             <option value="name">{t.suppliers.sortName}</option>
@@ -196,7 +196,7 @@ export function SuppliersPage() {
                 id={id}
                 value={search[key] ?? ''}
                 onChange={(event) => update({ [key]: event.target.value || undefined })}
-                className="h-12 rounded-lg"
+                className="h-11 rounded-full pl-4"
               >
                 <option value="">{t.suppliers.filters.all}</option>
                 {options.map((option) => (

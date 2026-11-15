@@ -214,7 +214,7 @@ function PlanContent({
         {plan.contributions.total === 0 ? (
           <p className="text-muted-foreground">{t.supplierPlan.contributionsNone}</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-line-soft">
             {plan.contributions.items
               .filter((item) => item.status === 'open')
               .map((item) => (
@@ -242,7 +242,7 @@ function PlanContent({
           [...byCategory].map(([category, objectives]) => (
             <div key={category} className="space-y-3">
               <h3 className="font-medium">{category}</h3>
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-line-soft">
                 {objectives.map((objective) => (
                   <li
                     key={objective.id}
@@ -326,7 +326,7 @@ function TopicsSection({ relationshipId, plan }: { relationshipId: string; plan:
       {topics.length === 0 ? (
         <p className="text-muted-foreground">{t.supplierPlan.topicsNone}</p>
       ) : (
-        <ol className="divide-y divide-border">
+        <ol className="divide-y divide-line-soft">
           {topics.map((topic, index) => (
             <li
               key={topic.id}
@@ -518,7 +518,7 @@ function PlanApprovalBar({ relationshipId, plan }: { relationshipId: string; pla
     <section
       aria-label={t.supplierPlan.approval}
       data-slot="plan-approval"
-      className="flex flex-col gap-3 rounded-xl bg-card px-5 py-4"
+      className="flex flex-col gap-3 rounded-lg bg-card shadow-card px-5 py-4"
     >
       {plan.status === 'draft' && approval.canSubmit && (
         <>

@@ -9,7 +9,7 @@ export function MenuPage() {
   const { main, actions } = useNavTargets();
   return (
     <>
-      <PageHeader title={t.menu.title} purpose={t.menu.purpose} />
+      <PageHeader size="list" title={t.menu.title} purpose={t.menu.purpose} />
       <nav aria-label={t.menu.title}>
         <SettingsGroup>
           {[...main, ...actions].map((target) => {

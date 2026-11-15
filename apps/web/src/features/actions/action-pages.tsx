@@ -206,7 +206,7 @@ function ActionsContent({ place, filter }: { place: MeetingPlace; filter: Action
       {shown.length === 0 ? (
         <p className="text-muted-foreground">{text.emptyFiltered}</p>
       ) : (
-        <ul aria-label={text.title} className="overflow-hidden rounded-xl bg-card">
+        <ul aria-label={text.title} className="overflow-hidden rounded-lg bg-card shadow-card">
           {shown.map((action) => (
             <ActionRow key={action.id} place={place} action={action} />
           ))}
@@ -233,7 +233,7 @@ function ActionRow({ place, action }: { place: MeetingPlace; action: ActionItem 
     <li
       id={action.id}
       data-action={action.id}
-      className="flex scroll-mt-32 flex-col gap-3 border-border border-b px-5 py-4 last:border-b-0 sm:flex-row sm:items-center"
+      className="flex scroll-mt-32 flex-col gap-3 border-line-soft border-b px-5 py-4 last:border-b-0 sm:flex-row sm:items-center"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex flex-wrap items-center gap-2">
@@ -590,7 +590,7 @@ export function MyActionsPage() {
   return (
     <>
       <PagePath trail={[{ label: t.start.title, href: '/start' }]} current={text.title} />
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={t.actions.failed} />
       ) : !query.data ? (
@@ -602,13 +602,13 @@ export function MyActionsPage() {
           description={t.actions.emptyText}
         />
       ) : (
-        <ul aria-label={text.title} className="overflow-hidden rounded-xl bg-card">
+        <ul aria-label={text.title} className="overflow-hidden rounded-lg bg-card shadow-card">
           {query.data.items.map((item) => (
-            <li key={item.id} className="border-border border-b last:border-b-0">
+            <li key={item.id} className="border-line-soft border-b last:border-b-0">
               {routerLink({
                 href: item.href,
                 className:
-                  'flex min-h-14 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset',
+                  'flex min-h-14 items-center gap-4 px-5 py-3 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset',
                 children: (
                   <>
                     <Monogram name={item.counterpart} />

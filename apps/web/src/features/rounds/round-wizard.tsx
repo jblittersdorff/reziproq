@@ -302,7 +302,7 @@ function SuppliersStep({ id }: { id: string }) {
           {visible.length === 0 ? (
             <p className="text-muted-foreground">{t.rounds.noCandidates}</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-border rounded-md border">
+            <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
               {visible.map((candidate) => (
                 <CandidateRow
                   key={candidate.relationshipId}
@@ -401,7 +401,7 @@ function RatersStep({ round }: { round: RoundDetail }) {
       {round.suppliers.map((supplier) => (
         <section key={supplier.relationshipId} className="flex flex-col gap-2">
           <h4 className="font-semibold">{supplier.name}</h4>
-          <ul className="flex flex-col divide-y divide-border rounded-md border">
+          <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
             {supplier.assignments.map((assignment) => (
               <li key={assignment.id} className="grid gap-2 p-3 sm:grid-cols-2 sm:items-center">
                 <span className="text-sm">
@@ -489,7 +489,7 @@ function ReviewStep({ round }: { round: RoundDetail }) {
       <p className="font-medium text-lg">
         {t.rounds.reviewSummary(round.suppliers.length, raterCount)}
       </p>
-      <ul className="flex flex-col divide-y divide-border rounded-md border">
+      <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
         {round.suppliers.map((supplier) => (
           <li key={supplier.relationshipId} className="flex justify-between gap-4 p-3">
             <span>{supplier.name}</span>

@@ -127,13 +127,13 @@ function CommitmentColumn({
   const commitments = data[side];
   return (
     <section aria-labelledby={`zusagen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`zusagen-${side}`} className="font-bold text-xl tracking-title">
+      <h2 id={`zusagen-${side}`} className="font-display font-semibold text-xl tracking-title">
         {text.column[side]}
       </h2>
       {commitments.length === 0 ? (
         <p className="text-muted-foreground">{text.empty}</p>
       ) : (
-        <ol className="overflow-hidden rounded-xl bg-card">
+        <ol className="overflow-hidden rounded-lg bg-card shadow-card">
           {commitments.map((commitment) => (
             <CommitmentRow
               key={commitment.id}
@@ -179,7 +179,7 @@ function CommitmentRow({
       data-commitment={commitment.id}
       data-overdue={commitment.overdue || undefined}
       className={cn(
-        'flex scroll-mt-32 flex-col gap-2 border-border border-b px-5 py-4 last:border-b-0',
+        'flex scroll-mt-32 flex-col gap-2 border-line-soft border-b px-5 py-4 last:border-b-0',
         commitment.overdue && 'border-l-4 border-l-destructive',
       )}
     >

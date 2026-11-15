@@ -186,7 +186,7 @@ function RequestForm({
         </p>
       )}
       <form className="flex max-w-3xl flex-col gap-6" onSubmit={(event) => void submit(event)}>
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-line-soft">
           {rows.map((row, index) => {
             const name = (row.businessUnit ?? row.materialGroup)?.name ?? '';
             const entry = entries[index];
@@ -433,7 +433,7 @@ function ContributionView({
           [...byCategory].map(([category, objectives]) => (
             <div key={category} className="space-y-2">
               <h3 className="font-medium">{category}</h3>
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-line-soft">
                 {objectives.map((objective) => (
                   <li key={objective.id} className="py-3">
                     <p className="font-medium">{objective.text}</p>

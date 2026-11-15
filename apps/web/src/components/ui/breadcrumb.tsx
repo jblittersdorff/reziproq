@@ -35,7 +35,7 @@ function Breadcrumb({
         renderLink({
           href: back.href,
           className:
-            'flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-5',
+            'flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-paper hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-5',
           'aria-label': backLabel,
           children: <ChevronLeftIcon aria-hidden />,
         })}

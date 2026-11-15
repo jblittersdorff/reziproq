@@ -86,7 +86,7 @@ function StepProgress({
                 <span
                   className={cn(
                     'sr-only pr-2 text-sm sm:not-sr-only',
-                    state === 'current' ? 'font-bold' : 'font-semibold',
+                    state === 'current' ? 'font-semibold' : 'font-semibold',
                     state === 'open' && 'text-muted-foreground',
                   )}
                 >

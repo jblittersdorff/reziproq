@@ -233,7 +233,7 @@ function MeetingsContent({ place }: { place: MeetingPlace }) {
       {meetings.length === 0 ? (
         <p className="text-muted-foreground">{empty}</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-border">
+        <ul className="flex flex-col divide-y divide-line-soft">
           {meetings.map((meeting) => (
             <li key={meeting.id}>
               {routerLink({
@@ -581,11 +581,11 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           {live.sections.map((section) => (
             <div key={section.key} data-live={section.key} className="flex flex-col gap-2">
               <h3 className="font-medium">{text.liveSections[section.key] ?? section.key}</h3>
-              <ul className="overflow-hidden rounded-xl bg-card">
+              <ul className="overflow-hidden rounded-lg bg-card shadow-card">
                 {section.items.map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center gap-4 border-border border-b px-5 py-3 last:border-b-0"
+                    className="flex items-center gap-4 border-line-soft border-b px-5 py-3 last:border-b-0"
                   >
                     <span className="flex-1">{item.title}</span>
                     <span className="text-muted-foreground text-sm">
@@ -678,7 +678,7 @@ function CloseMeeting({
   const refresh = useRefreshMeetings(place);
   const [failed, setFailed] = useState(false);
   return (
-    <div className="flex flex-col gap-2 border-border border-t pt-6">
+    <div className="flex flex-col gap-2 border-line-soft border-t pt-6">
       <ConfirmButton
         question={text.closeQuestion}
         confirmLabel={text.closeConfirm}

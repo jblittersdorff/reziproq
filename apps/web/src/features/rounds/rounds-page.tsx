@@ -59,7 +59,7 @@ export function RoundsPage() {
               description={canManage ? t.rounds.emptyDescription : t.rounds.emptyReadOnly}
             />
           ) : (
-            <ul className="flex flex-col divide-y divide-border rounded-md border">
+            <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
               {rounds.map((round) => (
                 <RoundRow key={round.id} round={round} locale={locale} />
               ))}

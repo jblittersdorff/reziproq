@@ -62,7 +62,7 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
           <dt className="text-muted-foreground">{entry.label}</dt>
           <dd
             className={cn(
-              size === 'lg' && 'font-bold text-xl tracking-title',
+              size === 'lg' && 'font-display font-semibold text-xl tracking-title',
               entry.value === null && 'text-muted-foreground',
             )}
           >

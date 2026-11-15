@@ -7,19 +7,19 @@ import { cn } from '@/lib/utils';
 // Kacheln sind Flächen statt Rahmen (PLT-10). lg: Bereichskacheln der Startseite (PLT-11),
 // sm: Einträge in Listen wie die Lieferantenkarten (PLT-03).
 // Töne (Handschrift Bühne): card hell, stage dunkel, shared für Inhalte, die die andere Seite sieht.
-const tileVariants = cva('group/tile flex flex-col gap-4 rounded-xl text-left', {
+const tileVariants = cva('group/tile flex flex-col gap-4 rounded-lg text-left', {
   variants: {
     size: {
       lg: 'h-full p-6 sm:p-8',
       sm: 'p-5',
     },
     tone: {
-      card: 'bg-card text-card-foreground',
+      card: 'bg-card text-card-foreground shadow-card',
       stage: 'stage-scope',
       shared: 'bg-primary-soft text-foreground',
     },
     interactive: {
-      true: 'transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+      true: 'transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
       false: '',
     },
   },
@@ -49,7 +49,7 @@ function Tile({
 /** Runder Platz für das Symbol oben in einer großen Kachel. */
 function TileIcon({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex size-11 items-center justify-center rounded-full bg-background text-primary [&_svg]:size-6">
+    <span className="flex size-11 items-center justify-center rounded-full bg-mint-soft text-petrol-dark [&_svg]:size-6">
       {children}
     </span>
   );
@@ -63,7 +63,7 @@ function TileTitle({ className, ...props }: React.ComponentProps<'h3'>) {
   return (
     <h3
       className={cn(
-        'font-bold text-lg tracking-title group-data-[size=lg]/tile:text-xl',
+        'font-display font-semibold text-lg tracking-title group-data-[size=lg]/tile:text-xl',
         className,
       )}
       {...props}
@@ -79,7 +79,7 @@ function TileText({ className, ...props }: React.ComponentProps<'p'>) {
 function TileMetric({ value, label }: { value: React.ReactNode; label?: React.ReactNode }) {
   return (
     <p className="flex flex-col gap-1">
-      <span className="font-bold text-xl tabular-nums tracking-title group-data-[size=lg]/tile:text-2xl">
+      <span className="font-display font-semibold text-xl tabular-nums tracking-title group-data-[size=lg]/tile:text-2xl">
         {value}
       </span>
       {label && <span className="text-muted-foreground text-sm">{label}</span>}

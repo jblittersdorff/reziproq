@@ -10,9 +10,13 @@ function SearchInput({ className, ...props }: Omit<React.ComponentProps<'input'>
     <div data-slot="search-input" className={cn('relative flex-1', className)}>
       <SearchIcon
         aria-hidden
-        className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute top-1/2 left-4 size-4.5 -translate-y-1/2 text-muted-foreground"
       />
-      <Input type="search" className="h-12 rounded-lg pl-12 text-lg" {...props} />
+      <Input
+        type="search"
+        className="h-11 rounded-full border-0 bg-card pl-11 text-base shadow-inset-line"
+        {...props}
+      />
     </div>
   );
 }

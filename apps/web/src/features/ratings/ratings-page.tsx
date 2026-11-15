@@ -39,7 +39,7 @@ export function RatingsPage() {
           description={t.ratings.emptyDescription}
         />
       ) : (
-        <ul className="flex flex-col divide-y divide-border rounded-md border">
+        <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
           {assignments.map((assignment) => (
             <AssignmentRow key={assignment.id} assignment={assignment} locale={locale} />
           ))}

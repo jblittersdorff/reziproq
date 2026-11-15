@@ -51,7 +51,7 @@ function Stage({
           )}
         >
           {eyebrow && <p className="font-semibold text-primary text-sm">{eyebrow}</p>}
-          <Title className="text-balance font-bold text-2xl tracking-title sm:text-display">
+          <Title className="text-balance font-display font-semibold text-2xl tracking-title sm:text-display">
             {title}
           </Title>
           {text && <p className="text-lg text-muted-foreground">{text}</p>}
@@ -73,19 +73,19 @@ function StageMetrics({
   items: { key: string; value: React.ReactNode; label: React.ReactNode; accent?: boolean }[];
 }) {
   return (
-    <dl aria-label={label} className="flex divide-x divide-border border-border border-l">
+    <dl aria-label={label} className="flex flex-wrap gap-3">
       {items.slice(0, 3).map((item) => (
         <div
           key={item.key}
           data-metric={item.key}
-          className="grid min-w-0 flex-1 content-start gap-2 px-4 sm:px-6"
+          className="grid min-w-0 flex-1 basis-24 content-start gap-1 rounded-lg bg-card p-4 shadow-card"
         >
           {/* dt vor dd für Screenreader; sichtbar steht die Zahl oben, alle auf einer Höhe. */}
-          <dt className="row-start-2 text-muted-foreground text-sm">{item.label}</dt>
+          <dt className="row-start-2 hyphens-auto break-words text-muted-foreground text-sm">{item.label}</dt>
           <dd
             className={cn(
-              'row-start-1 truncate font-bold text-xl tabular-nums tracking-title sm:text-2xl',
-              item.accent && 'text-primary',
+              'row-start-1 truncate font-display font-semibold text-figure tabular-nums tracking-section',
+              item.accent && 'text-petrol',
             )}
           >
             {item.value}
@@ -115,7 +115,7 @@ function StageFacts({
           <dt className="text-muted-foreground">{item.label}</dt>
           <dd
             className={cn(
-              'font-bold text-xl tracking-title',
+              'font-display font-semibold text-xl tracking-title',
               item.muted && 'font-normal text-muted-foreground',
             )}
           >

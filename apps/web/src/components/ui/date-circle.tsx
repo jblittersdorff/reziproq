@@ -8,12 +8,15 @@ function DateCircle({
   date,
   locale,
   next = false,
+  tone,
   className,
 }: {
   /** Datum als „JJJJ-MM-TT“ oder Date */
   date: string | Date;
   locale: string;
   next?: boolean;
+  /** onInk: auf einer Tinte-Fläche, Mint mit Tinte-Text */
+  tone?: 'onInk';
   className?: string;
 }) {
   const value = typeof date === 'string' ? new Date(`${date.slice(0, 10)}T12:00:00`) : date;
@@ -29,7 +32,11 @@ function DateCircle({
       data-next={next || undefined}
       className={cn(
         'flex size-14 shrink-0 flex-col items-center justify-center rounded-full font-display font-semibold leading-none',
-        next ? 'bg-ink text-mint' : 'bg-line-soft text-text',
+        tone === 'onInk'
+          ? 'bg-mint text-ink'
+          : next
+            ? 'bg-ink text-mint'
+            : 'bg-line-soft text-text',
         className,
       )}
     >

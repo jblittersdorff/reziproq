@@ -173,10 +173,10 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
 
       {data.meeting && (
         <section aria-labelledby="jbp-termin" className="flex flex-col gap-3">
-          <h2 id="jbp-termin" className="font-bold text-xl tracking-title">
+          <h2 id="jbp-termin" className="font-display font-semibold text-xl tracking-title">
             {text.meeting}
           </h2>
-          <div className="flex flex-wrap items-center gap-4 rounded-xl bg-card px-5 py-4">
+          <div className="flex flex-wrap items-center gap-4 rounded-lg bg-card shadow-card px-5 py-4">
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="font-semibold">{data.meeting.title}</span>
               <span className="text-muted-foreground text-sm">
@@ -199,14 +199,14 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
       )}
 
       <section aria-labelledby="jbp-agenda" className="flex flex-col gap-3">
-        <h2 id="jbp-agenda" className="font-bold text-xl tracking-title">
+        <h2 id="jbp-agenda" className="font-display font-semibold text-xl tracking-title">
           {text.agenda}
         </h2>
-        <ol className="overflow-hidden rounded-xl bg-card">
+        <ol className="overflow-hidden rounded-lg bg-card shadow-card">
           {data.agenda.map((item, index) => (
             <li
               key={item.id}
-              className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3 last:border-b-0"
+              className="flex flex-wrap items-center gap-3 border-line-soft border-b px-5 py-3 last:border-b-0"
             >
               <span className="w-6 text-muted-foreground tabular-nums">{index + 1}</span>
               <span className="flex-1">{item.title}</span>
@@ -219,7 +219,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
             </li>
           ))}
           {data.live.feedback && (
-            <li className="flex flex-wrap items-center gap-3 border-border border-b px-5 py-3">
+            <li className="flex flex-wrap items-center gap-3 border-line-soft border-b px-5 py-3">
               <span className="w-6" />
               <span className="flex-1">
                 {data.live.feedback.topGap
@@ -244,7 +244,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
 
       <section aria-labelledby="jbp-updates" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="jbp-updates" className="font-bold text-xl tracking-title">
+          <h2 id="jbp-updates" className="font-display font-semibold text-xl tracking-title">
             {text.updates}
           </h2>
           {data.canEditOwnUpdate &&
@@ -261,7 +261,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
               <article
                 key={side}
                 aria-label={text.updateOf[side]}
-                className="flex flex-col gap-2 rounded-xl bg-card p-5"
+                className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5"
               >
                 <h3 className="font-semibold">{text.updateOf[side]}</h3>
                 {update?.text ? (
@@ -326,7 +326,7 @@ function CreateJbpForm({
     <form
       noValidate
       onSubmit={(event) => void submit(event)}
-      className="flex max-w-2xl flex-col gap-6 rounded-xl bg-card p-6"
+      className="flex max-w-2xl flex-col gap-6 rounded-lg bg-card shadow-card p-6"
     >
       <p className="text-muted-foreground">{text.emptyBuyer}</p>
       <div className="grid gap-4 sm:grid-cols-2">

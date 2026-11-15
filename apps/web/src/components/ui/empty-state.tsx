@@ -23,15 +23,15 @@ function EmptyState({
     <div
       data-slot="empty-state"
       className={cn(
-        'flex flex-col items-center justify-center gap-3 rounded-xl bg-card px-6 py-12 text-center',
-        size === 'lg' && 'gap-4 rounded-xl py-16',
+        'flex flex-col items-center justify-center gap-3 rounded-lg bg-card shadow-card px-6 py-12 text-center',
+        size === 'lg' && 'gap-4 py-16',
         className,
       )}
     >
       {icon && (
         <div
           className={cn(
-            'flex items-center justify-center rounded-full bg-background text-muted-foreground',
+            'flex items-center justify-center rounded-full bg-paper text-muted-foreground',
             size === 'lg' ? 'size-20 [&_svg]:size-10' : 'size-10 [&_svg]:size-5',
           )}
         >

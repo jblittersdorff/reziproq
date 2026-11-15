@@ -151,14 +151,14 @@ function ApprovalContent({ relationshipId }: { relationshipId: string }) {
 
       {plan.approval.decisions.length > 0 && (
         <section aria-labelledby="plan-entscheidungen" className="flex flex-col gap-3">
-          <h2 id="plan-entscheidungen" className="font-bold text-xl tracking-title">
+          <h2 id="plan-entscheidungen" className="font-display font-semibold text-xl tracking-title">
             {text.decisions}
           </h2>
-          <ul className="overflow-hidden rounded-xl bg-card">
+          <ul className="overflow-hidden rounded-lg bg-card shadow-card">
             {plan.approval.decisions.map((entry) => (
               <li
                 key={`${entry.round}-${entry.userName}`}
-                className="flex flex-col gap-1 border-border border-b px-5 py-3 last:border-b-0"
+                className="flex flex-col gap-1 border-line-soft border-b px-5 py-3 last:border-b-0"
               >
                 <span>
                   <span className="font-semibold">{entry.userName}</span> ({text.roles[entry.role]}){' '}
@@ -181,16 +181,16 @@ function PlanReadView({ plan }: { plan: SupplierPlan }) {
   return (
     <section
       aria-label={t.supplierPlan.title}
-      className="flex flex-col gap-4 rounded-xl bg-card p-5"
+      className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
     >
       <div className="flex flex-col gap-1">
-        <h2 className="font-bold text-lg tracking-title">{t.supplierPlan.summary}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.summary}</h2>
         <p className="whitespace-pre-wrap text-muted-foreground">
           {plan.summary || t.supplierPlan.summaryEmpty}
         </p>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="font-bold text-lg tracking-title">{t.supplierPlan.versions.topics}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.versions.topics}</h2>
         <ol className="list-decimal pl-5">
           {plan.topics.map((topic) => (
             <li key={topic.id}>
@@ -201,7 +201,7 @@ function PlanReadView({ plan }: { plan: SupplierPlan }) {
         </ol>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="font-bold text-lg tracking-title">{t.supplierPlan.versions.objectives}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.versions.objectives}</h2>
         <ul className="flex flex-col gap-1">
           {plan.objectives.map((objective) => (
             <li key={objective.id}>
@@ -286,16 +286,16 @@ function VersionsContent({ relationshipId }: { relationshipId: string }) {
 
   return (
     <>
-      <ul aria-label={text.title} className="overflow-hidden rounded-xl bg-card">
+      <ul aria-label={text.title} className="overflow-hidden rounded-lg bg-card shadow-card">
         {versions.map((version) => (
-          <li key={version.id} className="border-border border-b px-5 py-3 last:border-b-0">
+          <li key={version.id} className="border-line-soft border-b px-5 py-3 last:border-b-0">
             {label(version)}
           </li>
         ))}
       </ul>
       {versions.length > 1 && from && to && diff && (
         <section aria-labelledby="plan-vergleich" className="flex flex-col gap-4">
-          <h2 id="plan-vergleich" className="font-bold text-xl tracking-title">
+          <h2 id="plan-vergleich" className="font-display font-semibold text-xl tracking-title">
             {text.compare}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -381,9 +381,9 @@ function DiffSection({
     <section
       aria-label={title}
       data-changed={!empty}
-      className="flex flex-col gap-2 rounded-xl bg-card p-5"
+      className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5"
     >
-      <h3 className="font-bold text-lg tracking-title">{title}</h3>
+      <h3 className="font-display font-semibold text-lg tracking-title">{title}</h3>
       {empty ? <p className="text-muted-foreground">{text.unchanged}</p> : children}
     </section>
   );
