@@ -295,7 +295,7 @@ function Summary({ id, detail }: { id: string; detail: RatingDetail }) {
 function OutcomeCard({ title, outcome }: { title: string; outcome: RatingOutcome | null }) {
   const t = useT();
   return (
-    <section className="flex flex-col gap-2 rounded-md border p-4">
+    <section className="flex flex-col gap-2 rounded-lg bg-card p-5 shadow-card">
       <h4 className="text-muted-foreground text-sm">{title}</h4>
       {outcome ? (
         <>
@@ -336,7 +336,7 @@ function Matrix({ detail }: { detail: RatingDetail }) {
                 key={`${impact}-${quality}`}
                 aria-label={t.ratings.cell(type?.name ?? '', marks.join(', '))}
                 className={cn(
-                  'flex min-h-20 flex-col gap-1 rounded-md border p-2 text-sm',
+                  'flex min-h-20 flex-col gap-1 rounded-md border border-line p-2 text-sm',
                   marks.length > 0 && 'border-primary bg-secondary',
                 )}
               >

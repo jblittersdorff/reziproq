@@ -48,7 +48,7 @@ export function FocusPage() {
   return (
     <>
       <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />
       ) : !data ? (
@@ -69,7 +69,7 @@ export function FocusPage() {
             {data.focus.length === 0 ? (
               <p className="text-sm">{text.noFocus}</p>
             ) : (
-              <ul className="divide-y rounded-md border">
+              <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
                 {data.focus.map((item) => row(item, item.reason))}
               </ul>
             )}
@@ -84,7 +84,7 @@ export function FocusPage() {
             {data.suggestions.length === 0 ? (
               <p className="text-sm">{text.noSuggestions}</p>
             ) : (
-              <ul className="divide-y rounded-md border">
+              <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
                 {data.suggestions.map((item) =>
                   row(
                     item,

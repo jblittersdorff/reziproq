@@ -27,7 +27,7 @@ export function CustomersPage({ area: segment }: { area?: string | undefined }) 
 
   return (
     <>
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {area && (
         <p className="text-muted-foreground" role="status">
           {text.switchHint(text.areas[area])}

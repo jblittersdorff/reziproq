@@ -1,6 +1,6 @@
 import { calculateCycleDueDate, type SupplierCycle } from '@reziproq/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState, type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -8,12 +8,12 @@ import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
+import { useToken } from '@/features/ratings/use-rating';
+import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { routerLink } from '@/features/shell/navigation';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { setSupplierJbpDate } from '@/lib/api';
-import { useToken } from '@/features/ratings/use-rating';
 import { useLocale, useT } from '@/lib/i18n';
 import { useOverview } from './use-overview';
 
@@ -34,10 +34,7 @@ export function CycleDatePage({ relationshipId }: { relationshipId: string }) {
         ]}
         current={t.workspace.cycle.dateTitle}
       />
-      <PageHeader
-        title={t.workspace.cycle.dateTitle}
-        purpose={t.workspace.cycle.datePurpose}
-      />
+      <PageHeader title={t.workspace.cycle.dateTitle} purpose={t.workspace.cycle.datePurpose} />
       {overview.isError ? (
         <ErrorState title={t.workspace.cycle.dateFailed} />
       ) : !overview.data ? (
@@ -104,14 +101,10 @@ function CycleDateForm({
 
   const deadlines = cycle.schedule.map((setting) => ({
     ...setting,
-    dueDate: jbpDate
-      ? calculateCycleDueDate(jbpDate, setting.weeksRelativeToJbp)
-      : null,
+    dueDate: jbpDate ? calculateCycleDueDate(jbpDate, setting.weeksRelativeToJbp) : null,
   }));
   const displayDate = (date: string) =>
-    new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(
-      new Date(`${date}T00:00:00`),
-    );
+    new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(`${date}T00:00:00`));
 
   return (
     <form className="flex max-w-3xl flex-col gap-6" onSubmit={(event) => void save(event)}>

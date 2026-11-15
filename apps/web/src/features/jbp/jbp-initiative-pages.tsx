@@ -265,7 +265,7 @@ export function Roadmap({
   const grid = (
     <div aria-hidden className="pointer-events-none absolute inset-0 flex">
       {years.map((year) => (
-        <span key={year} className="flex-1 border-border border-l first:border-l-0" />
+        <span key={year} className="flex-1 border-line border-l first:border-l-0" />
       ))}
     </div>
   );
@@ -282,7 +282,7 @@ export function Roadmap({
             <span
               key={year}
               data-year={year}
-              className="flex-1 border-border border-l px-2 py-2 font-semibold text-muted-foreground text-sm tabular-nums first:border-l-0"
+              className="flex-1 border-line border-l px-2 py-2 font-semibold text-muted-foreground text-sm tabular-nums first:border-l-0"
             >
               {year}
             </span>
@@ -467,7 +467,10 @@ function InitiativeContent({
 
       {canEdit && (
         <section aria-labelledby="initiative-status" className="flex flex-col gap-3">
-          <h2 id="initiative-status" className="font-display font-semibold text-section tracking-section">
+          <h2
+            id="initiative-status"
+            className="font-display font-semibold text-section tracking-section"
+          >
             {text.statusLabel}
           </h2>
           <div className="flex flex-wrap items-end gap-3">
@@ -506,7 +509,10 @@ function InitiativeContent({
 
       {initiative.topics.length > 0 && (
         <section aria-labelledby="initiative-themen" className="flex flex-col gap-3">
-          <h2 id="initiative-themen" className="font-display font-semibold text-section tracking-section">
+          <h2
+            id="initiative-themen"
+            className="font-display font-semibold text-section tracking-section"
+          >
             {text.topics}
           </h2>
           <ul className="flex flex-col gap-2">
@@ -521,7 +527,10 @@ function InitiativeContent({
       )}
 
       <section aria-labelledby="initiative-verlauf" className="flex flex-col gap-3">
-        <h2 id="initiative-verlauf" className="font-display font-semibold text-section tracking-section">
+        <h2
+          id="initiative-verlauf"
+          className="font-display font-semibold text-section tracking-section"
+        >
           {text.history}
         </h2>
         <AuditHistory
@@ -583,7 +592,10 @@ function Milestones({
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section aria-labelledby="initiative-meilensteine" className="flex flex-col gap-3">
-      <h2 id="initiative-meilensteine" className="font-display font-semibold text-section tracking-section">
+      <h2
+        id="initiative-meilensteine"
+        className="font-display font-semibold text-section tracking-section"
+      >
         {text.milestones}
       </h2>
       {milestones.length === 0 ? (
@@ -863,7 +875,10 @@ function InitiativeForm({
       className="flex max-w-2xl flex-col gap-6"
     >
       {merged.length > 0 && !existing && (
-        <section aria-label={text.topics} className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5">
+        <section
+          aria-label={text.topics}
+          className="flex flex-col gap-2 rounded-lg bg-card shadow-card p-5"
+        >
           <p className="font-semibold">{text.topics}</p>
           <ul className="flex flex-wrap gap-2">
             {merged.map((topic) => (
@@ -1064,7 +1079,10 @@ function ImpactTile({
       className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
     >
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="initiative-wirkung" className="font-display font-semibold text-section tracking-section">
+        <h2
+          id="initiative-wirkung"
+          className="font-display font-semibold text-section tracking-section"
+        >
           {text.tileTitle}
         </h2>
         {impact && (

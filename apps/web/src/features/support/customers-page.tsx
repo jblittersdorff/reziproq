@@ -36,7 +36,7 @@ export function CustomersPage() {
   return (
     <>
       <PagePath trail={[{ label: t.profile.title, href: '/profil' }]} current={t.support.title} />
-      <PageHeader title={t.support.title} purpose={t.support.purpose} />
+      <PageHeader size="list" title={t.support.title} purpose={t.support.purpose} />
       {denied ? (
         <EmptyState
           size="lg"

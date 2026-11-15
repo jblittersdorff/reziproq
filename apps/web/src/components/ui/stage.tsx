@@ -35,7 +35,7 @@ function Stage({
     <header
       data-slot="stage"
       data-tone={tone}
-      className={cn(tone === 'dark' ? 'stage-scope' : 'bg-background', className)}
+      className={cn(tone === 'dark' ? 'stage-scope' : '', className)}
     >
       {path && <div className="mx-auto w-full max-w-300 px-4 pt-6 sm:px-12">{path}</div>}
       <div
@@ -81,7 +81,9 @@ function StageMetrics({
           className="grid min-w-0 flex-1 basis-24 content-start gap-1 rounded-lg bg-card p-4 shadow-card"
         >
           {/* dt vor dd für Screenreader; sichtbar steht die Zahl oben, alle auf einer Höhe. */}
-          <dt className="row-start-2 hyphens-auto break-words text-muted-foreground text-sm">{item.label}</dt>
+          <dt className="row-start-2 hyphens-auto break-words text-muted-foreground text-sm">
+            {item.label}
+          </dt>
           <dd
             className={cn(
               'row-start-1 truncate font-display font-semibold text-figure tabular-nums tracking-section',
@@ -110,7 +112,7 @@ function StageFacts({
         <div
           key={item.key}
           data-fact={item.key}
-          className="flex flex-col-reverse gap-1 border-border border-l pl-5"
+          className="flex flex-col-reverse gap-1 border-line border-l pl-5"
         >
           <dt className="text-muted-foreground">{item.label}</dt>
           <dd

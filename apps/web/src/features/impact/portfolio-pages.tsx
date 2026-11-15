@@ -338,7 +338,7 @@ export function PortfolioImpactPage({ search }: { search: ImpactSearch }) {
   });
   return (
     <>
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {!canSee ? (
         <EmptyState
           size="lg"
@@ -410,7 +410,7 @@ function PortfolioContent({
                   className="grid grid-cols-2 gap-2 sm:grid-cols-5"
                 >
                   {entry.levels.map((level) => (
-                    <li key={level.level} className="flex flex-col rounded-md bg-muted px-3 py-2">
+                    <li key={level.level} className="flex flex-col rounded-md bg-paper px-3 py-2">
                       <span className="text-muted-foreground text-sm">
                         {text.maturity(level.level)} {t.impact.levels[level.level]}
                       </span>

@@ -2,6 +2,7 @@ import type { PublicSurvey, SubmitSurvey, SurveyDimension, SurveyQuestion } from
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CalendarXIcon, CircleCheckIcon, LinkIcon } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
+import { Logo } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -43,7 +44,7 @@ function readDraft(token: string): Draft {
 function Frame({ children }: { children: ReactNode }) {
   return (
     <main id="inhalt" className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:py-16">
-      <p className="font-semibold">{de.app.name}</p>
+      <Logo name={de.app.name} />
       {children}
     </main>
   );

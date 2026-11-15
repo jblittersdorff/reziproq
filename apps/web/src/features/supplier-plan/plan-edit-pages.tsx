@@ -1,7 +1,4 @@
-import {
-  planObjectiveRequestSchema,
-  type PlanObjective,
-} from '@reziproq/shared';
+import { type PlanObjective, planObjectiveRequestSchema } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,11 +10,11 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
-import { useSupplier } from '@/features/suppliers/use-supplier';
-import { PageHeader } from '@/features/shell/page-header';
-import { SupplierFrame } from '@/features/suppliers/supplier-frame';
-import { useGoBack } from '@/features/shell/page-path';
 import { useToken } from '@/features/ratings/use-rating';
+import { PageHeader } from '@/features/shell/page-header';
+import { useGoBack } from '@/features/shell/page-path';
+import { SupplierFrame } from '@/features/suppliers/supplier-frame';
+import { useSupplier } from '@/features/suppliers/use-supplier';
 import {
   ApiError,
   assignmentQueryOptions,
@@ -26,8 +23,8 @@ import {
   updatePlanObjective,
   updateSupplierPlanSummary,
 } from '@/lib/api';
-import { useT } from '@/lib/i18n';
 import { flash, useFlash } from '@/lib/flash';
+import { useT } from '@/lib/i18n';
 
 const planPath = (relationshipId: string) =>
   `/lieferanten/${relationshipId}/strategie/lieferantenplan`;
@@ -81,11 +78,7 @@ export function PlanSummaryPage({ relationshipId }: { relationshipId: string }) 
           );
         }
         return (
-          <SummaryForm
-            relationshipId={relationshipId}
-            planId={plan.id}
-            summary={plan.summary}
-          />
+          <SummaryForm relationshipId={relationshipId} planId={plan.id} summary={plan.summary} />
         );
       }}
     </SupplierFrame>
@@ -208,11 +201,7 @@ export function PlanObjectivePage({
           : undefined;
         if (objectiveId && !objective) {
           return (
-            <EmptyState
-              size="lg"
-              title={t.notFound.title}
-              description={t.notFound.description}
-            />
+            <EmptyState size="lg" title={t.notFound.title} description={t.notFound.description} />
           );
         }
         const canEdit = objective ? objective.canEdit : plan.canManage;
@@ -261,7 +250,8 @@ function ObjectiveForm({
   const queryClient = useQueryClient();
   const goBack = useGoBack(planPath(relationshipId));
   const [form, setForm] = useState({
-    categoryKey: objective?.categoryKey ?? categories.find((category) => category.active)?.key ?? '',
+    categoryKey:
+      objective?.categoryKey ?? categories.find((category) => category.active)?.key ?? '',
     businessUnitId: objective?.businessUnit?.id ?? '',
     materialGroupId: objective?.materialGroup?.id ?? '',
     text: objective?.text ?? '',
@@ -285,7 +275,8 @@ function ObjectiveForm({
     } else {
       setForm((current) => ({
         ...current,
-        categoryKey: current.categoryKey || categories.find((category) => category.active)?.key || '',
+        categoryKey:
+          current.categoryKey || categories.find((category) => category.active)?.key || '',
         ownerUserId: current.ownerUserId || teamCandidates[0]?.userId || '',
       }));
     }
@@ -311,13 +302,7 @@ function ObjectiveForm({
     setSaving(true);
     try {
       if (objective) {
-        await updatePlanObjective(
-          accessToken,
-          relationshipId,
-          planId,
-          objective.id,
-          request.data,
-        );
+        await updatePlanObjective(accessToken, relationshipId, planId, objective.id, request.data);
       } else {
         await createPlanObjective(accessToken, relationshipId, planId, request.data);
       }
@@ -328,9 +313,7 @@ function ObjectiveForm({
       goBack();
     } catch (error) {
       const code =
-        error instanceof ApiError
-          ? (error.body as { code?: string } | null)?.code
-          : undefined;
+        error instanceof ApiError ? (error.body as { code?: string } | null)?.code : undefined;
       setFieldError(
         code && code in t.supplierPlan.errors
           ? t.supplierPlan.errors[code as keyof typeof t.supplierPlan.errors]
@@ -351,7 +334,11 @@ function ObjectiveForm({
   return (
     <>
       {failure && <StatusLine message={t.supplierPlan.saveFailed} tone="warning" />}
-      {fieldError && <p role="alert" className="text-destructive">{fieldError}</p>}
+      {fieldError && (
+        <p role="alert" className="text-destructive">
+          {fieldError}
+        </p>
+      )}
       <form className="flex max-w-3xl flex-col gap-6" onSubmit={(event) => void save(event)}>
         <FormField label={t.supplierPlan.category}>
           {(field) => (

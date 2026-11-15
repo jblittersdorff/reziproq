@@ -26,7 +26,7 @@ export function ProfilePage() {
 
   return (
     <>
-      <PageHeader title={t.profile.title} purpose={t.profile.purpose} />
+      <PageHeader size="list" title={t.profile.title} purpose={t.profile.purpose} />
 
       {me.isError ? (
         <ErrorState title={t.user.failed} />

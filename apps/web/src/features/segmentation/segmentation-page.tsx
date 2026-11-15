@@ -115,7 +115,7 @@ export function SegmentationPage({ relationshipId }: { relationshipId: string })
                   <h2 id="seg-groups" className="font-semibold text-lg">
                     {text.groups}
                   </h2>
-                  <ul className="divide-y rounded-md border">
+                  <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
                     {data.groups.map((group) => (
                       <li
                         key={`${group.businessUnit.id}:${group.materialGroup?.id ?? ''}`}
@@ -162,7 +162,7 @@ export function SegmentationPage({ relationshipId }: { relationshipId: string })
                   <h2 id="seg-criteria" className="font-semibold text-lg">
                     {text.criteria}
                   </h2>
-                  <ul className="divide-y rounded-md border">
+                  <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
                     {data.model.criteria.map((criterion) => {
                       const stat = data.stats.find((s) => s.criterionKey === criterion.key);
                       return (

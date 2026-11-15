@@ -174,7 +174,10 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
       </InStageSlot>
       {/* Nur Gebautes (UMB-05): je Bereich die geteilten Seiten als Zeilen. */}
       <section aria-labelledby="kunde-beziehung" className="flex flex-col gap-3">
-        <h2 id="kunde-beziehung" className="font-display font-semibold text-section tracking-section">
+        <h2
+          id="kunde-beziehung"
+          className="font-display font-semibold text-section tracking-section"
+        >
           {text.areas.relationship}
         </h2>
         <LinkList
@@ -250,7 +253,10 @@ export function CustomerOverviewPage({ relationshipId }: { relationshipId: strin
         />
       </section>
       <section aria-labelledby="kunde-umsetzung" className="flex flex-col gap-3">
-        <h2 id="kunde-umsetzung" className="font-display font-semibold text-section tracking-section">
+        <h2
+          id="kunde-umsetzung"
+          className="font-display font-semibold text-section tracking-section"
+        >
           {text.areas.execution}
         </h2>
         <LinkList

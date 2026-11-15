@@ -87,7 +87,10 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
+    <section
+      aria-labelledby={id}
+      className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id={id} className="font-display font-semibold text-section tracking-section">
           {title}

@@ -155,7 +155,10 @@ function TopicColumn({
   const own = side === data.ownSide && data.canEditOwn;
   return (
     <section aria-labelledby={`themen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`themen-${side}`} className="font-display font-semibold text-section tracking-section">
+      <h2
+        id={`themen-${side}`}
+        className="font-display font-semibold text-section tracking-section"
+      >
         {text.column[side]}
       </h2>
       {topics.length === 0 ? (
@@ -201,7 +204,7 @@ function TopicRow({
       data-topic={topic.id}
       className={cn(
         'flex flex-col gap-2 border-line-soft border-b px-5 py-4 last:border-b-0',
-        parked && 'bg-muted',
+        parked && 'bg-paper',
       )}
     >
       <div className="flex flex-wrap items-start gap-3">
@@ -392,7 +395,10 @@ function TopicForm({
         </FormActions>
       </form>
       {existing && existing.status !== 'parked' && (
-        <section aria-label={text.park} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
+        <section
+          aria-label={text.park}
+          className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5"
+        >
           <FormField label={text.parkReason} error={errors.reason}>
             {(field) => (
               <Input
@@ -504,7 +510,10 @@ function ImportContent({ place }: { place: MeetingPlace }) {
         {candidates.map((candidate) => {
           const selected = candidate.id in chosen;
           return (
-            <li key={candidate.id} className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5">
+            <li
+              key={candidate.id}
+              className="flex flex-col gap-3 rounded-lg bg-card shadow-card p-5"
+            >
               <label
                 htmlFor={`thema-${candidate.id}`}
                 className="flex min-h-11 items-center gap-3 font-semibold"

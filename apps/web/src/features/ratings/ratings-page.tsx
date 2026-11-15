@@ -26,7 +26,7 @@ export function RatingsPage() {
 
   return (
     <>
-      <PageHeader title={t.ratings.title} purpose={t.ratings.purpose} />
+      <PageHeader size="list" title={t.ratings.title} purpose={t.ratings.purpose} />
       {flashMessage && <StatusLine message={flashMessage} onHidden={hideFlash} />}
       {query.isError ? (
         <ErrorState title={t.ratings.failed} />
@@ -39,7 +39,7 @@ export function RatingsPage() {
           description={t.ratings.emptyDescription}
         />
       ) : (
-        <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
+        <ul className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
           {assignments.map((assignment) => (
             <AssignmentRow key={assignment.id} assignment={assignment} locale={locale} />
           ))}

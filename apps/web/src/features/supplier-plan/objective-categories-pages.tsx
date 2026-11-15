@@ -20,19 +20,18 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useCan } from '@/features/auth/use-permissions';
+import { useToken } from '@/features/ratings/use-rating';
+import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
-import { routerLink } from '@/features/shell/navigation';
 import {
   ApiError,
   createObjectiveCategory,
   objectiveCategoriesQueryOptions,
   updateObjectiveCategory,
 } from '@/lib/api';
-import { flash } from '@/lib/flash';
-import { useToken } from '@/features/ratings/use-rating';
+import { flash, useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
-import { useFlash } from '@/lib/flash';
 
 const categoriesPath = '/einstellungen/zielkategorien';
 
@@ -56,10 +55,7 @@ export function ObjectiveCategoriesPage() {
         ]}
         current={title}
       />
-      <PageHeader
-        title={title}
-        purpose={t.settings.objectiveCategories.purpose}
-      />
+      <PageHeader title={title} purpose={t.settings.objectiveCategories.purpose} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {canManage && (
         <div className="flex justify-end">
@@ -163,11 +159,7 @@ export function ObjectiveCategoryFormPage({ categoryKey }: { categoryKey?: strin
     return (
       <>
         <PagePath trail={trail} current={t.masterData.notFound} />
-        <EmptyState
-          size="lg"
-          title={t.masterData.notFound}
-          description={t.notFound.description}
-        />
+        <EmptyState size="lg" title={t.masterData.notFound} description={t.notFound.description} />
       </>
     );
   }
@@ -177,9 +169,7 @@ export function ObjectiveCategoryFormPage({ categoryKey }: { categoryKey?: strin
       <PagePath trail={trail} current={title} />
       <PageHeader
         title={title}
-        purpose={
-          category ? t.settings.objectiveCategories.editPurpose : t.masterData.newPurpose
-        }
+        purpose={category ? t.settings.objectiveCategories.editPurpose : t.masterData.newPurpose}
       />
       {canManage ? (
         <ObjectiveCategoryForm category={category} />
@@ -225,9 +215,7 @@ function ObjectiveCategoryForm({ category }: { category: ObjectiveCategory | und
       goBack();
     } catch (error) {
       const code =
-        error instanceof ApiError
-          ? (error.body as { code?: string } | null)?.code
-          : undefined;
+        error instanceof ApiError ? (error.body as { code?: string } | null)?.code : undefined;
       setFailure(
         code === 'category_taken'
           ? t.supplierPlan.errors.category_taken

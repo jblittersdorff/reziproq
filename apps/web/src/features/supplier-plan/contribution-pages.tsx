@@ -1,7 +1,7 @@
 import {
+  type ContributionDetail,
   contributionObjectiveRequestSchema,
   requestContributionsSchema,
-  type ContributionDetail,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
@@ -15,9 +15,9 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { useToken } from '@/features/ratings/use-rating';
+import { PageHeader } from '@/features/shell/page-header';
 import { useGoBack } from '@/features/shell/page-path';
 import { formatDate } from '@/features/start/start-page';
-import { PageHeader } from '@/features/shell/page-header';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import {
@@ -277,7 +277,9 @@ export function ContributionPage({
       current={t.supplierPlan.contributionTitle}
       trail={() => [{ label: t.supplierPlan.title, href: planPath(relationshipId) }]}
     >
-      {() => <ContributionContent relationshipId={relationshipId} contributionId={contributionId} />}
+      {() => (
+        <ContributionContent relationshipId={relationshipId} contributionId={contributionId} />
+      )}
     </SupplierFrame>
   );
 }
@@ -496,9 +498,7 @@ function ContributionView({
                   step={1}
                   required
                   value={form.targetYear}
-                  onChange={(event) =>
-                    setForm({ ...form, targetYear: Number(event.target.value) })
-                  }
+                  onChange={(event) => setForm({ ...form, targetYear: Number(event.target.value) })}
                 />
               )}
             </FormField>

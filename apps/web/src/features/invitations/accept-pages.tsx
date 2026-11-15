@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useNavigate } from '@tanstack/react-router';
 import { CircleCheckIcon, KeyRoundIcon, LinkIcon, TimerOffIcon } from 'lucide-react';
 import { createContext, type FormEvent, type ReactNode, useContext, useState } from 'react';
+import { Logo } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -45,7 +46,7 @@ function AcceptFrame({ children }: { children: ReactNode }) {
   const t = useT();
   return (
     <main id="inhalt" className="mx-auto flex w-full max-w-xl flex-col gap-8 px-4 py-12 sm:py-16">
-      <p className="font-semibold">{t.app.name}</p>
+      <Logo name={t.app.name} />
       {children}
     </main>
   );

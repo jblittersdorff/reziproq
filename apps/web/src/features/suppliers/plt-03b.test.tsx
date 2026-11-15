@@ -80,7 +80,8 @@ beforeEach(() => {
     }
     if (url === `/api/suppliers/${detail.relationshipId}`) return Response.json(detail);
     // SPL-04: die Spend-Seite liest Einträge und Summen.
-    if (url.startsWith(`/api/suppliers/${detail.relationshipId}/spend`)) return Response.json(spend);
+    if (url.startsWith(`/api/suppliers/${detail.relationshipId}/spend`))
+      return Response.json(spend);
     if (url.startsWith('/api/suppliers/') && method !== 'GET') return Response.json(detail);
     if (url.startsWith('/api/audit')) return Response.json({ entries: [] });
     return undefined;

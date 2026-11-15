@@ -1,4 +1,4 @@
-import { strategicTopicRequestSchema, type StrategicTopic } from '@reziproq/shared';
+import { type StrategicTopic, strategicTopicRequestSchema } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,8 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { useToken } from '@/features/ratings/use-rating';
-import { useGoBack } from '@/features/shell/page-path';
 import { PageHeader } from '@/features/shell/page-header';
+import { useGoBack } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import {
@@ -151,9 +151,7 @@ function TopicForm({
       goBack();
     } catch (failure) {
       const code =
-        failure instanceof ApiError
-          ? (failure.body as { code?: string } | null)?.code
-          : undefined;
+        failure instanceof ApiError ? (failure.body as { code?: string } | null)?.code : undefined;
       setError(
         code && code in t.supplierPlan.errors
           ? t.supplierPlan.errors[code as keyof typeof t.supplierPlan.errors]

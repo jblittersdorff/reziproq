@@ -34,7 +34,7 @@ export function OpenPage() {
   return (
     <>
       <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />
       ) : !query.data ? (
@@ -62,7 +62,7 @@ export function OpenPage() {
               {items.length === 0 ? (
                 <p className="text-sm">{text.none}</p>
               ) : (
-                <ul className="divide-y rounded-md border">
+                <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
                   {items.map((item) => (
                     <li
                       key={item.relationshipId}

@@ -49,7 +49,7 @@ export function CriterionPage({
           ) : !data || !criterion ? (
             <ErrorState title={text.criterionMissing} />
           ) : (
-            <ul className="divide-y rounded-md border">
+            <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
               {data.rows.map((row, index) => {
                 const value = row.values.find((entry) => entry.criterionKey === criterionKey);
                 const label = rowLabels(data.rows, (fn) => t.roles.functions[fn as 'quality'])[

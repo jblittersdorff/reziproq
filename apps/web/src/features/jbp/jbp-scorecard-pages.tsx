@@ -762,7 +762,10 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           />
           {query.data.values.length > 0 && (
             <section aria-labelledby="kennzahl-werte" className="flex flex-col gap-3">
-              <h2 id="kennzahl-werte" className="font-display font-semibold text-section tracking-section">
+              <h2
+                id="kennzahl-werte"
+                className="font-display font-semibold text-section tracking-section"
+              >
                 {text.valuesTitle}
               </h2>
               <Table>
@@ -793,7 +796,10 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           )}
           {!kpi.canEnter && <p className="text-muted-foreground text-sm">{text.onlyOwner}</p>}
           <section aria-labelledby="kennzahl-verlauf" className="flex flex-col gap-3">
-            <h2 id="kennzahl-verlauf" className="font-display font-semibold text-section tracking-section">
+            <h2
+              id="kennzahl-verlauf"
+              className="font-display font-semibold text-section tracking-section"
+            >
               {text.historyTitle}
             </h2>
             <AuditHistory

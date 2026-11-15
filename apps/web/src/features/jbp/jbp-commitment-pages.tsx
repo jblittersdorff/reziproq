@@ -127,7 +127,10 @@ function CommitmentColumn({
   const commitments = data[side];
   return (
     <section aria-labelledby={`zusagen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`zusagen-${side}`} className="font-display font-semibold text-section tracking-section">
+      <h2
+        id={`zusagen-${side}`}
+        className="font-display font-semibold text-section tracking-section"
+      >
         {text.column[side]}
       </h2>
       {commitments.length === 0 ? (

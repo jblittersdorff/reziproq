@@ -238,7 +238,9 @@ function AreaTile({
         <p
           data-slot="statement"
           className={cn(
-            big ? 'font-display font-semibold text-figure text-petrol-dark tracking-section' : 'text-base font-semibold',
+            big
+              ? 'font-display font-semibold text-figure text-petrol-dark tracking-section'
+              : 'text-base font-semibold',
           )}
         >
           {statement}

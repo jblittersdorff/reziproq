@@ -78,7 +78,7 @@ export function MatrixPage() {
   return (
     <>
       <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label htmlFor={unitId} className="text-muted-foreground text-sm">
@@ -158,7 +158,7 @@ export function MatrixPage() {
             <h2 id="pf-list" className="font-semibold text-lg">
               {text.list}
             </h2>
-            <ul className="divide-y rounded-md border">
+            <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
               {points.map((point) => (
                 <li
                   key={`${point.relationshipId}:${point.businessUnit?.id ?? ''}:${point.materialGroup?.id ?? ''}`}

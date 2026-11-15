@@ -200,7 +200,7 @@ function Steps({ relationshipId, data }: { relationshipId: string; data: Data })
         {deviations.length > 0 && (
           <>
             <h4 className="text-muted-foreground text-sm">{text.deviations}</h4>
-            <ul className="divide-y rounded-md border">
+            <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
               {deviations.map((row) => (
                 <li key={row.assignmentId} className="flex justify-between gap-4 p-3 text-sm">
                   <span className="min-w-0 break-words">

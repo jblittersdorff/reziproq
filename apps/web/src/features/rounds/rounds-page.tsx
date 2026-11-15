@@ -38,7 +38,7 @@ export function RoundsPage() {
         trail={[{ label: t.portfolio.title, href: '/portfolio' }]}
         current={t.rounds.title}
       />
-      <PageHeader title={t.rounds.title} purpose={t.rounds.purpose} />
+      <PageHeader size="list" title={t.rounds.title} purpose={t.rounds.purpose} />
       {flashMessage && <StatusLine message={flashMessage} onHidden={hideFlash} />}
       {query.isError ? (
         <ErrorState title={t.rounds.failed} />
@@ -59,7 +59,7 @@ export function RoundsPage() {
               description={canManage ? t.rounds.emptyDescription : t.rounds.emptyReadOnly}
             />
           ) : (
-            <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
+            <ul className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
               {rounds.map((round) => (
                 <RoundRow key={round.id} round={round} locale={locale} />
               ))}

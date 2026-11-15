@@ -16,7 +16,7 @@ export function PortfolioPage() {
 
   return (
     <>
-      <PageHeader title={text.title} purpose={text.purpose} />
+      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />
       ) : !query.data ? (

@@ -56,7 +56,7 @@ export function ValidationsPage() {
   return (
     <>
       <PagePath trail={[{ label: text.title, href: '/wirkung' }]} current={text.validationsTitle} />
-      <PageHeader title={text.validationsTitle} purpose={text.validationsPurpose} />
+      <PageHeader size="list" title={text.validationsTitle} purpose={text.validationsPurpose} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {query.isError ? (
         <ErrorState title={text.validationsFailed} />
@@ -179,7 +179,10 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </div>
 
           <section aria-labelledby="pruefung-regel" className="flex flex-col gap-2">
-            <h2 id="pruefung-regel" className="font-display font-semibold text-section tracking-section">
+            <h2
+              id="pruefung-regel"
+              className="font-display font-semibold text-section tracking-section"
+            >
               {text.reviewRule}
             </h2>
             <p>
@@ -196,7 +199,10 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-baseline" className="flex flex-col gap-2">
-            <h2 id="pruefung-baseline" className="font-display font-semibold text-section tracking-section">
+            <h2
+              id="pruefung-baseline"
+              className="font-display font-semibold text-section tracking-section"
+            >
               {text.reviewBaseline}
             </h2>
             {data.baseline ? (
@@ -225,7 +231,10 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-monate" className="flex flex-col gap-2">
-            <h2 id="pruefung-monate" className="font-display font-semibold text-section tracking-section">
+            <h2
+              id="pruefung-monate"
+              className="font-display font-semibold text-section tracking-section"
+            >
               {text.reviewMonths}
             </h2>
             <Table>
@@ -271,14 +280,20 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-nachweise" className="flex flex-col gap-2">
-            <h2 id="pruefung-nachweise" className="font-display font-semibold text-section tracking-section">
+            <h2
+              id="pruefung-nachweise"
+              className="font-display font-semibold text-section tracking-section"
+            >
               {text.reviewEvidence}
             </h2>
             <MaturitySteps maturity={data.maturity} />
           </section>
 
           {data.canDecide ? (
-            <section data-slot="decision" className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5">
+            <section
+              data-slot="decision"
+              className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
+            >
               <Button className="self-start" loading={busy} onClick={() => void decide('approved')}>
                 <CheckIcon aria-hidden />
                 {text.approve}

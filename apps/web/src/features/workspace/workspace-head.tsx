@@ -56,7 +56,7 @@ export function WorkspaceHead({ head, size }: { head: Head; size: 'lg' | 'line' 
           data-head={entry.key}
           className={cn(
             'flex',
-            size === 'lg' ? 'flex-col-reverse gap-1 border-border border-l pl-5' : 'gap-2',
+            size === 'lg' ? 'flex-col-reverse gap-1 border-line border-l pl-5' : 'gap-2',
           )}
         >
           <dt className="text-muted-foreground">{entry.label}</dt>

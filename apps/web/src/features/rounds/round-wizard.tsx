@@ -302,7 +302,7 @@ function SuppliersStep({ id }: { id: string }) {
           {visible.length === 0 ? (
             <p className="text-muted-foreground">{t.rounds.noCandidates}</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
+            <ul className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
               {visible.map((candidate) => (
                 <CandidateRow
                   key={candidate.relationshipId}
@@ -401,7 +401,7 @@ function RatersStep({ round }: { round: RoundDetail }) {
       {round.suppliers.map((supplier) => (
         <section key={supplier.relationshipId} className="flex flex-col gap-2">
           <h4 className="font-semibold">{supplier.name}</h4>
-          <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
+          <ul className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
             {supplier.assignments.map((assignment) => (
               <li key={assignment.id} className="grid gap-2 p-3 sm:grid-cols-2 sm:items-center">
                 <span className="text-sm">
@@ -434,7 +434,7 @@ function RatersStep({ round }: { round: RoundDetail }) {
         next={routerLink({
           href: `${roundsPath}/${round.id}/pruefen`,
           className:
-            'inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-medium text-primary-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+            'inline-flex min-h-11 items-center rounded-full bg-primary px-5 font-semibold text-primary-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
           children: t.rounds.next,
         })}
       />
@@ -489,7 +489,7 @@ function ReviewStep({ round }: { round: RoundDetail }) {
       <p className="font-medium text-lg">
         {t.rounds.reviewSummary(round.suppliers.length, raterCount)}
       </p>
-      <ul className="flex flex-col divide-y divide-line-soft rounded-md border">
+      <ul className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
         {round.suppliers.map((supplier) => (
           <li key={supplier.relationshipId} className="flex justify-between gap-4 p-3">
             <span>{supplier.name}</span>

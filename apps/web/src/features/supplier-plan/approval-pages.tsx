@@ -151,7 +151,10 @@ function ApprovalContent({ relationshipId }: { relationshipId: string }) {
 
       {plan.approval.decisions.length > 0 && (
         <section aria-labelledby="plan-entscheidungen" className="flex flex-col gap-3">
-          <h2 id="plan-entscheidungen" className="font-display font-semibold text-section tracking-section">
+          <h2
+            id="plan-entscheidungen"
+            className="font-display font-semibold text-section tracking-section"
+          >
             {text.decisions}
           </h2>
           <ul className="overflow-hidden rounded-lg bg-card shadow-card">
@@ -184,13 +187,17 @@ function PlanReadView({ plan }: { plan: SupplierPlan }) {
       className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
     >
       <div className="flex flex-col gap-1">
-        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.summary}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">
+          {t.supplierPlan.summary}
+        </h2>
         <p className="whitespace-pre-wrap text-muted-foreground">
           {plan.summary || t.supplierPlan.summaryEmpty}
         </p>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.versions.topics}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">
+          {t.supplierPlan.versions.topics}
+        </h2>
         <ol className="list-decimal pl-5">
           {plan.topics.map((topic) => (
             <li key={topic.id}>
@@ -201,7 +208,9 @@ function PlanReadView({ plan }: { plan: SupplierPlan }) {
         </ol>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="font-display font-semibold text-lg tracking-title">{t.supplierPlan.versions.objectives}</h2>
+        <h2 className="font-display font-semibold text-lg tracking-title">
+          {t.supplierPlan.versions.objectives}
+        </h2>
         <ul className="flex flex-col gap-1">
           {plan.objectives.map((objective) => (
             <li key={objective.id}>
@@ -295,7 +304,10 @@ function VersionsContent({ relationshipId }: { relationshipId: string }) {
       </ul>
       {versions.length > 1 && from && to && diff && (
         <section aria-labelledby="plan-vergleich" className="flex flex-col gap-4">
-          <h2 id="plan-vergleich" className="font-display font-semibold text-section tracking-section">
+          <h2
+            id="plan-vergleich"
+            className="font-display font-semibold text-section tracking-section"
+          >
             {text.compare}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">

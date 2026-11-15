@@ -1,5 +1,6 @@
 import { LogInIcon, TriangleAlertIcon, UnplugIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Logo } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -10,7 +11,9 @@ export function AuthPage({ children }: { children: ReactNode }) {
   const t = useT();
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-16">
-      <h1 className="font-display font-semibold text-section tracking-section">{t.app.name}</h1>
+      <h1>
+        <Logo name={t.app.name} />
+      </h1>
       {children}
     </main>
   );

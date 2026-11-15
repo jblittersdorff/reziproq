@@ -29,7 +29,7 @@ export function SettingsPage() {
   return (
     <>
       <PagePath trail={[{ label: t.profile.title, href: '/profil' }]} current={t.settings.title} />
-      <PageHeader title={t.settings.title} purpose={t.settings.purpose} />
+      <PageHeader size="list" title={t.settings.title} purpose={t.settings.purpose} />
       {permissions && !manageSettings && (
         <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {t.settings.adminOnly}
