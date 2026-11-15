@@ -6,13 +6,11 @@ import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
-import { Stage } from '@/components/ui/stage';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { InStageSlot } from '@/features/shell/stage-slot';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -23,10 +21,11 @@ import { CycleBar } from './cycle-bar';
 import { useOverview } from './use-overview';
 
 /**
- * Ein Lieferant auf einer Seite (NAV-06, Handschrift Bühne A2): helle Bühne mit Warengruppe, Name,
- * Spend und SRO, rechts der Beziehungstyp Ist → Soll. Darunter die Zyklus-Leiste (ZYK-01) und je
- * gebautem Bereich eine Kachel mit einer Aussage und den Unterseiten. Strategie ist intern und
- * dunkel, die geteilten Bereiche tragen „Geteilt mit …“. Speichert nichts selbst.
+ * Ein Lieferant auf einer Seite (NAV-06; Designsprache, Vorlage L-Ueberblick.dc.html): Warengruppe
+ * und Land, Spend und SRO als Kennzahlen, der Beziehungstyp Ist → Soll. Darunter der Zyklus als
+ * Schrittfolge (ZYK-01) und je gebautem Bereich eine Fläche mit einer Aussage und den Unterseiten.
+ * Interne Bereiche sind privat (grau, gestrichelt), die geteilten tragen „Geteilt mit …“ auf Mint.
+ * Speichert nichts selbst.
  */
 export function OverviewPage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
@@ -53,30 +52,31 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
   ].filter(Boolean);
   const metrics = overview.data?.metrics ?? [];
 
+  // Aufbau nach Vorlage L-Ueberblick.dc.html: Der Name steht groß in der Leiste des Lieferanten;
+  // hier Kennzahlen, der Zyklus als Schrittfolge und die Bereiche als private bzw. geteilte Fläche.
   return (
     <>
-      <InStageSlot>
-        <Stage
-          tone="light"
-          path={
-            <PagePath
-              trail={[{ label: t.suppliers.title, href: '/lieferanten' }]}
-              current={detail.name}
-            />
-          }
-          eyebrow={eyebrow.length > 0 ? eyebrow.join(' · ') : t.workspace.overview}
-          title={detail.name}
-          actions={
-            overview.data && (
-              <OverviewHead
-                head={overview.data.head}
-                spend={metrics.find((metric) => metric.kind === 'spend')}
-              />
-            )
-          }
-          aside={overview.data && <TypeFigure segment={overview.data.head.segment} />}
-        />
-      </InStageSlot>
+      <PagePath
+        trail={[{ label: t.suppliers.title, href: '/lieferanten' }]}
+        current={detail.name}
+      />
+      <header className="-mt-4 flex flex-col gap-1">
+        {/* Der Name steht sichtbar in der Leiste darüber; der Titel der Seite bleibt für
+            Screenreader. */}
+        <h1 className="sr-only">{detail.name}</h1>
+        <p className="font-semibold text-muted-foreground text-sm">
+          {eyebrow.length > 0 ? eyebrow.join(' · ') : t.workspace.overview}
+        </p>
+      </header>
+      {overview.data && (
+        <div className="flex flex-wrap items-stretch gap-3">
+          <OverviewHead
+            head={overview.data.head}
+            spend={metrics.find((metric) => metric.kind === 'spend')}
+          />
+          <TypeFigure segment={overview.data.head.segment} />
+        </div>
+      )}
       {overview.isError && <ErrorState title={t.workspace.failed} />}
       {overview.isPending && <LoadingState label={t.workspace.loading} />}
       {overview.data?.cycle && (
@@ -86,8 +86,8 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
           canSetJbpDate={overview.data.canSetJbpDate}
         />
       )}
-      {/* Die Kacheln mit ihren Unterseiten stehen auch, wenn die Kennzahlen nicht laden. */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Die Bereiche mit ihren Unterseiten stehen auch, wenn die Kennzahlen nicht laden. */}
+      <div className="grid gap-5 md:grid-cols-2">
         {builtAreas.map((area) => (
           <AreaTile
             key={area}
@@ -119,22 +119,26 @@ function OverviewHead({ head, spend }: { head: WorkspaceHead; spend: OverviewMet
     { key: 'sro', label: t.workspace.head.sro, value: head.sro?.name ?? null },
   ];
   return (
-    <dl aria-label={t.workspace.head.label} className="flex flex-wrap items-end gap-x-10 gap-y-4">
+    <dl aria-label={t.workspace.head.label} className="flex flex-2 basis-110 flex-wrap gap-3">
       {head.isFocus && (
-        <div data-head="focus" className="flex items-center self-center">
-          <Badge variant="selected">
+        <div data-head="focus" className="flex items-center">
+          <Badge variant="shared">
             <StarIcon aria-hidden />
             {t.portfolio.focusPage.badge}
           </Badge>
         </div>
       )}
       {entries.map((entry) => (
-        <div key={entry.key} data-head={entry.key} className="flex flex-col-reverse gap-1">
-          <dt className="text-muted-foreground">{entry.label}</dt>
+        <div
+          key={entry.key}
+          data-head={entry.key}
+          className="flex min-w-0 flex-1 basis-40 flex-col-reverse justify-end gap-1 rounded-lg bg-card p-5 shadow-card"
+        >
+          <dt className="text-muted-foreground text-sm">{entry.label}</dt>
           <dd
             className={cn(
-              'font-display font-semibold text-xl tabular-nums tracking-title',
-              entry.value === null && 'font-normal text-muted-foreground',
+              'font-display font-semibold text-figure tabular-nums tracking-section',
+              entry.value === null && 'font-normal font-sans text-base text-muted-foreground',
             )}
           >
             {entry.value ?? t.workspace.head.open}
@@ -149,12 +153,20 @@ function OverviewHead({ head, spend }: { head: WorkspaceHead; spend: OverviewMet
 function TypeFigure({ segment }: { segment: WorkspaceHead['segment'] }) {
   const text = useT().workspace.typeFigure;
   return (
-    <figure data-slot="type-figure" className="flex flex-col gap-5 rounded-lg bg-card shadow-card p-6 sm:p-7">
+    <figure
+      data-slot="type-figure"
+      className="flex min-w-0 flex-1 basis-60 flex-col gap-4 rounded-lg bg-card p-5 shadow-card"
+    >
       <figcaption className="font-semibold text-muted-foreground text-sm">{text.title}</figcaption>
       <div aria-hidden className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
-        <span className="size-3.5 rounded-full border-2 border-muted-foreground" />
-        <span className="h-0.5 bg-gradient-to-r from-border to-primary" />
-        <span className={cn('size-3.5 rounded-full', segment ? 'bg-primary' : 'bg-border')} />
+        <span className="size-3.5 rounded-full border-2 border-ring-open bg-card" />
+        <span className="h-0.5 rounded-full bg-line" />
+        <span
+          className={cn(
+            'size-3.5 rounded-full border-2',
+            segment ? 'border-petrol bg-petrol' : 'border-ring-open bg-card',
+          )}
+        />
       </div>
       <dl className="flex justify-between gap-4">
         <div className="flex flex-col-reverse">
@@ -163,7 +175,7 @@ function TypeFigure({ segment }: { segment: WorkspaceHead['segment'] }) {
         </div>
         <div className="flex flex-col-reverse text-right">
           <dt className="text-muted-foreground text-sm">{text.target}</dt>
-          <dd className={cn('font-semibold', segment && 'text-primary')}>
+          <dd className={cn('font-semibold', segment && 'text-petrol')}>
             {segment?.target ?? text.open}
           </dd>
         </div>
@@ -171,13 +183,6 @@ function TypeFigure({ segment }: { segment: WorkspaceHead['segment'] }) {
     </figure>
   );
 }
-
-const tileTone: Partial<Record<WorkspaceArea, 'stage' | 'shared' | 'card'>> = {
-  strategy: 'stage',
-  relationship: 'shared',
-  plan: 'card',
-  execution: 'card',
-};
 
 /**
  * Kachel eines Bereichs: Kennzeichen, Titel, eine Aussage aus der Kennzahl des Moduls, ein Satz
@@ -200,16 +205,25 @@ function AreaTile({
   const segment = workspaceAreas.find((entry) => entry.key === area)?.segment ?? area;
   const headingId = `abschnitt-${segment}`;
   const { statement, detail, big } = useAreaStatement(area, head, metrics);
+  // Interne Bereiche als private Fläche (grau, gestrichelt), die übrigen als geteilte (Mint).
+  const internal = area === 'strategy' || area === 'impact';
   return (
-    <Tile asChild size="lg" tone={tileTone[area] ?? 'card'}>
+    <Tile
+      asChild
+      size="lg"
+      className={cn(
+        'border-2 shadow-none',
+        internal ? 'border-ring-open border-dashed bg-line-soft' : 'border-mint-line bg-mint-soft',
+      )}
+    >
       <section
         id={segment}
         aria-labelledby={headingId}
         data-area={area}
         // Die klebenden Leisten verdecken sonst den Titel, wenn die Seite zum Abschnitt springt.
-        className="min-h-72 scroll-mt-32 gap-2"
+        className="scroll-mt-32 gap-2 p-6"
       >
-        {area === 'strategy' || area === 'impact' ? (
+        {internal ? (
           <VisibilityBadge visibility="internal" label={t.workspace.internal} />
         ) : (
           // Kurz wie im Entwurf A2: „Geteilt mit Rheintal“.
@@ -218,26 +232,28 @@ function AreaTile({
             label={t.workspace.sharedWith(supplierName.split(' ')[0] ?? supplierName)}
           />
         )}
-        <h2 id={headingId} className="mt-2 font-display font-semibold text-xl tracking-title sm:text-2xl">
+        <h2 id={headingId} className="mt-1 text-section tracking-section">
           {t.workspace.areas[area]}
         </h2>
         <p
           data-slot="statement"
           className={cn(
-            big ? 'font-display font-semibold text-primary text-xl tracking-title sm:text-2xl' : 'text-lg',
+            big ? 'font-display font-semibold text-figure text-petrol-dark tracking-section' : 'text-base font-semibold',
           )}
         >
           {statement}
         </p>
-        {detail && <p className="text-muted-foreground">{detail}</p>}
+        {detail && (
+          <p className={internal ? 'text-muted-foreground' : 'text-petrol-dark'}>{detail}</p>
+        )}
         <span className="grow" />
-        <ul aria-label={t.workspace.areas[area]} className="mt-4 flex flex-wrap gap-x-6">
+        <ul aria-label={t.workspace.areas[area]} className="mt-3 flex flex-wrap gap-2">
           {builtPages(area).map((page) => (
             <li key={page.key}>
               {routerLink({
                 href: `${workspacePath(relationshipId, area)}/${page.segment}`,
                 className:
-                  'inline-flex min-h-11 items-center gap-0.5 font-medium text-primary hover:underline focus-visible:underline focus-visible:outline-none [&_svg]:size-4',
+                  'inline-flex min-h-11 items-center gap-0.5 rounded-full bg-card px-4 font-semibold text-sm text-text shadow-inset-line hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4',
                 children: (
                   <>
                     <span>{t.workspace.pages[page.key].title}</span>

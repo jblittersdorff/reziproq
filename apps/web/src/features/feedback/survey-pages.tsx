@@ -215,7 +215,7 @@ function SurveyQuestions({
               aria-labelledby={`dimension-${dimension}`}
               className="flex flex-col gap-3"
             >
-              <h2 id={`dimension-${dimension}`} className="font-display font-semibold text-xl tracking-title">
+              <h2 id={`dimension-${dimension}`} className="font-display font-semibold text-section tracking-section">
                 {text.dimensions[dimension]}
               </h2>
               <ul className="overflow-hidden rounded-lg bg-card shadow-card">
@@ -257,7 +257,7 @@ function SurveyQuestions({
             </section>
           ))}
           <section aria-labelledby="fragebogen-versionen" className="flex flex-col gap-3">
-            <h2 id="fragebogen-versionen" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="fragebogen-versionen" className="font-display font-semibold text-section tracking-section">
               {text.versions}
             </h2>
             <ol className="flex flex-col gap-1 text-muted-foreground text-sm">

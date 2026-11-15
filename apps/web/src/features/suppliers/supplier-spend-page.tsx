@@ -116,13 +116,13 @@ function SpendContent({
           <dl className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1 rounded-lg bg-card p-4">
               <dt className="text-muted-foreground text-sm">{text.lastYear(data.kpis.year)}</dt>
-              <dd className="font-semibold text-2xl tabular-nums">
+              <dd className="font-display font-semibold text-figure tabular-nums tracking-section">
                 {format.money(data.kpis.amount)}
               </dd>
             </div>
             <div className="flex flex-col gap-1 rounded-lg bg-card p-4">
               <dt className="text-muted-foreground text-sm">{text.change}</dt>
-              <dd className="font-semibold text-2xl tabular-nums">
+              <dd className="font-display font-semibold text-figure tabular-nums tracking-section">
                 {data.kpis.changeBasisPoints === null
                   ? text.noPrevious
                   : `${data.kpis.changeBasisPoints > 0 ? '+' : ''}${percent(data.kpis.changeBasisPoints)}`}
@@ -130,7 +130,7 @@ function SpendContent({
             </div>
             <div className="flex flex-col gap-1 rounded-lg bg-card p-4">
               <dt className="text-muted-foreground text-sm">{text.share}</dt>
-              <dd className="font-semibold text-2xl tabular-nums">
+              <dd className="font-display font-semibold text-figure tabular-nums tracking-section">
                 {data.kpis.shareBasisPoints === null
                   ? text.shareUnknown
                   : percent(data.kpis.shareBasisPoints)}

@@ -79,7 +79,7 @@ export function EffectTotals({
             <span className="text-muted-foreground text-sm">
               {t.impact.effects[total.effectType]}
             </span>
-            <span className="break-words font-semibold text-xl tabular-nums">
+            <span className="break-words font-display font-semibold text-figure tabular-nums tracking-section">
               {money(total.actual)}
             </span>
             <span className="text-muted-foreground text-sm tabular-nums">
@@ -715,7 +715,7 @@ function CustomerImpactContent({
             {data.benefitTotals.map((total) => (
               <li
                 key={total.currency}
-                className="rounded-lg bg-card p-4 font-semibold text-2xl tabular-nums"
+                className="rounded-lg bg-card p-4 font-display font-semibold text-figure tabular-nums tracking-section"
               >
                 {format.money(total)}
               </li>

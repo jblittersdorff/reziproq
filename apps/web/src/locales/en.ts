@@ -1205,6 +1205,8 @@ export const en: Messages = {
   jbp: {
     topics: {
       title: 'Topics',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Collect and rank topics',
       purpose: 'The most important topics of both sides side by side, by priority.',
       loading: 'Loading topics …',
       failed: 'The topics could not be loaded.',
@@ -1252,6 +1254,8 @@ export const en: Messages = {
     },
     initiatives: {
       title: 'Initiatives',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Define initiatives',
       purpose: 'Joint initiatives with goal, benefit for both sides, owners and milestones.',
       loading: 'Loading initiatives …',
       failed: 'The initiatives could not be loaded.',
@@ -1307,6 +1311,8 @@ export const en: Messages = {
     },
     commitments: {
       title: 'Commitments',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Give and obtain commitments',
       purpose: 'What both sides commit to each other, with due date and owner.',
       loading: 'Loading commitments …',
       failed: 'The commitments could not be loaded.',
@@ -1339,6 +1345,8 @@ export const en: Messages = {
     },
     approval: {
       title: 'Approval',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Approve the plan',
       purpose:
         'The plan applies once both sides have approved it. Every approval is kept as a version.',
       loading: 'Loading approval …',
@@ -1402,6 +1410,8 @@ export const en: Messages = {
     },
     scorecard: {
       title: 'Scorecard',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Agree on the scorecard',
       purpose:
         'A few measurable KPIs with target, date and owner. It applies once both sides have signed.',
       loading: 'Loading scorecard …',
@@ -1523,6 +1533,8 @@ export const en: Messages = {
         'You cannot sign right now: KPIs are missing, your side has already signed or the scorecard is locked.',
     },
     title: 'Preparation',
+    // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+    pageTitle: 'Prepare the JBP',
     purpose:
       'Meeting, agenda and the business updates of both sides for the Joint Business Planning.',
     loading: 'Loading preparation …',

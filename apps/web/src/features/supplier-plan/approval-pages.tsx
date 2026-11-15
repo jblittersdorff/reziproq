@@ -151,7 +151,7 @@ function ApprovalContent({ relationshipId }: { relationshipId: string }) {
 
       {plan.approval.decisions.length > 0 && (
         <section aria-labelledby="plan-entscheidungen" className="flex flex-col gap-3">
-          <h2 id="plan-entscheidungen" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="plan-entscheidungen" className="font-display font-semibold text-section tracking-section">
             {text.decisions}
           </h2>
           <ul className="overflow-hidden rounded-lg bg-card shadow-card">
@@ -295,7 +295,7 @@ function VersionsContent({ relationshipId }: { relationshipId: string }) {
       </ul>
       {versions.length > 1 && from && to && diff && (
         <section aria-labelledby="plan-vergleich" className="flex flex-col gap-4">
-          <h2 id="plan-vergleich" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="plan-vergleich" className="font-display font-semibold text-section tracking-section">
             {text.compare}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">

@@ -826,7 +826,7 @@ function WaveBody({
         </p>
       )}
       <section aria-labelledby="welle-teilnehmende" className="flex flex-col gap-3">
-        <h2 id="welle-teilnehmende" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="welle-teilnehmende" className="font-display font-semibold text-section tracking-section">
           {text.participants}
         </h2>
         {data.participants.length === 0 ? (

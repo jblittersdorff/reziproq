@@ -54,7 +54,7 @@ export function TrendSection({ trend, side }: { trend: SurveyTrend; side: Survey
   const id = `verlauf-${trend.kind}`;
   return (
     <section aria-labelledby={id} data-trend={trend.kind} className="flex flex-col gap-3">
-      <h2 id={id} className="font-display font-semibold text-xl tracking-title">
+      <h2 id={id} className="font-display font-semibold text-section tracking-section">
         {text.trendTitle(text.kinds[trend.kind] ?? '')}
       </h2>
       <p className="text-muted-foreground text-sm">{text.trendPurpose}</p>

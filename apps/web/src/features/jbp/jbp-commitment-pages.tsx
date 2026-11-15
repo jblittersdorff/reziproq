@@ -62,7 +62,7 @@ export function JbpCommitmentsPage({ place }: { place: MeetingPlace }) {
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <CommitmentsContent place={place} />
     </JbpFrame>
@@ -127,7 +127,7 @@ function CommitmentColumn({
   const commitments = data[side];
   return (
     <section aria-labelledby={`zusagen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`zusagen-${side}`} className="font-display font-semibold text-xl tracking-title">
+      <h2 id={`zusagen-${side}`} className="font-display font-semibold text-section tracking-section">
         {text.column[side]}
       </h2>
       {commitments.length === 0 ? (

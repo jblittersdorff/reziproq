@@ -67,7 +67,7 @@ function ListRow({
     <Comp
       data-slot="list-row"
       className={cn(
-        'flex flex-wrap items-center gap-3.5 border-line-soft border-t px-5.5 py-3.5 text-text no-underline outline-none transition-colors first:border-t-0 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset [[data-slot=list-section]+&]:border-t-0',
+        'flex flex-wrap items-center gap-3.5 border-line-soft border-t px-5.5 py-3.5 text-text no-underline outline-none transition-colors first:border-t-0 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset [li:not(:first-child)>&]:border-t [[data-slot=list-section]+&]:border-t-0',
         asChild && 'hover:bg-paper',
         className,
       )}

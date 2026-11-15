@@ -1229,6 +1229,8 @@ export const de = {
     // JBP-02 Themen beider Seiten
     topics: {
       title: 'Themen',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Themen sammeln und reihen',
       purpose: 'Die wichtigsten Themen beider Seiten nebeneinander, je nach Priorität.',
       loading: 'Themen werden geladen …',
       failed: 'Die Themen konnten nicht geladen werden.',
@@ -1278,6 +1280,8 @@ export const de = {
     // JBP-03: Initiativen und Roadmap
     initiatives: {
       title: 'Initiativen',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Initiativen festlegen',
       purpose:
         'Gemeinsame Initiativen mit Ziel, Nutzen für beide Seiten, Verantwortlichen und Meilensteinen.',
       loading: 'Initiativen werden geladen …',
@@ -1340,6 +1344,8 @@ export const de = {
     // JBP-05: Zusagen beider Seiten
     commitments: {
       title: 'Zusagen',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Zusagen geben und einholen',
       purpose: 'Was beide Seiten einander zusagen, mit Frist und Verantwortlichen.',
       loading: 'Zusagen werden geladen …',
       failed: 'Die Zusagen konnten nicht geladen werden.',
@@ -1375,6 +1381,8 @@ export const de = {
     // JBP-06: Freigabe und Versionen
     approval: {
       title: 'Freigabe',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Den Plan freigeben',
       purpose:
         'Der Plan gilt, sobald beide Seiten ihn freigegeben haben. Jede Freigabe bleibt als Version erhalten.',
       loading: 'Freigabe wird geladen …',
@@ -1440,6 +1448,8 @@ export const de = {
     // JBP-07: Scorecard und Unterschrift
     scorecard: {
       title: 'Scorecard',
+      // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+      pageTitle: 'Die Scorecard vereinbaren',
       purpose:
         'Wenige messbare Kennzahlen mit Ziel, Termin und Verantwortlichen. Sie gilt, sobald beide Seiten unterschrieben haben.',
       loading: 'Scorecard wird geladen …',
@@ -1570,6 +1580,8 @@ export const de = {
         'Ihr könnt gerade nicht unterschreiben: Es fehlen Kennzahlen, eure Seite hat schon unterschrieben oder die Scorecard ist gesperrt.',
     },
     title: 'Vorbereitung',
+    // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
+    pageTitle: 'Das JBP vorbereiten',
     purpose:
       'Termin, Agenda und die Geschäftsupdates beider Seiten für das Joint Business Planning.',
     loading: 'Vorbereitung wird geladen …',

@@ -124,7 +124,7 @@ export function JbpPreparationPage({ place }: { place: MeetingPlace }) {
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <PreparationContent place={place} />
     </JbpFrame>
@@ -173,7 +173,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
 
       {data.meeting && (
         <section aria-labelledby="jbp-termin" className="flex flex-col gap-3">
-          <h2 id="jbp-termin" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="jbp-termin" className="font-display font-semibold text-section tracking-section">
             {text.meeting}
           </h2>
           <div className="flex flex-wrap items-center gap-4 rounded-lg bg-card shadow-card px-5 py-4">
@@ -199,7 +199,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
       )}
 
       <section aria-labelledby="jbp-agenda" className="flex flex-col gap-3">
-        <h2 id="jbp-agenda" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="jbp-agenda" className="font-display font-semibold text-section tracking-section">
           {text.agenda}
         </h2>
         <ol className="overflow-hidden rounded-lg bg-card shadow-card">
@@ -244,7 +244,7 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
 
       <section aria-labelledby="jbp-updates" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="jbp-updates" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="jbp-updates" className="font-display font-semibold text-section tracking-section">
             {text.updates}
           </h2>
           {data.canEditOwnUpdate &&

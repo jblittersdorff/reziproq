@@ -179,7 +179,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </div>
 
           <section aria-labelledby="pruefung-regel" className="flex flex-col gap-2">
-            <h2 id="pruefung-regel" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="pruefung-regel" className="font-display font-semibold text-section tracking-section">
               {text.reviewRule}
             </h2>
             <p>
@@ -196,7 +196,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-baseline" className="flex flex-col gap-2">
-            <h2 id="pruefung-baseline" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="pruefung-baseline" className="font-display font-semibold text-section tracking-section">
               {text.reviewBaseline}
             </h2>
             {data.baseline ? (
@@ -225,7 +225,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-monate" className="flex flex-col gap-2">
-            <h2 id="pruefung-monate" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="pruefung-monate" className="font-display font-semibold text-section tracking-section">
               {text.reviewMonths}
             </h2>
             <Table>
@@ -271,7 +271,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
           </section>
 
           <section aria-labelledby="pruefung-nachweise" className="flex flex-col gap-2">
-            <h2 id="pruefung-nachweise" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="pruefung-nachweise" className="font-display font-semibold text-section tracking-section">
               {text.reviewEvidence}
             </h2>
             <MaturitySteps maturity={data.maturity} />

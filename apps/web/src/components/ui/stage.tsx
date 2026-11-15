@@ -40,7 +40,7 @@ function Stage({
       {path && <div className="mx-auto w-full max-w-300 px-4 pt-6 sm:px-12">{path}</div>}
       <div
         className={cn(
-          'mx-auto grid w-full max-w-300 items-end gap-10 px-4 py-12 sm:px-12 sidebar:grid-cols-5 sidebar:py-16',
+          'mx-auto grid w-full max-w-300 items-end gap-8 px-4 py-10 sm:px-12 sidebar:grid-cols-5 sidebar:py-12',
           path && 'pt-6 sidebar:pt-8',
         )}
       >
@@ -50,11 +50,11 @@ function Stage({
             aside ? 'sidebar:col-span-3' : 'sidebar:col-span-5',
           )}
         >
-          {eyebrow && <p className="font-semibold text-primary text-sm">{eyebrow}</p>}
-          <Title className="text-balance font-display font-semibold text-2xl tracking-title sm:text-display">
+          {eyebrow && <p className="font-semibold text-muted-foreground text-sm">{eyebrow}</p>}
+          <Title className="text-balance font-display font-semibold text-title-work tracking-title-work sm:text-title sm:tracking-title-lg">
             {title}
           </Title>
-          {text && <p className="text-lg text-muted-foreground">{text}</p>}
+          {text && <p className="text-base text-muted-foreground">{text}</p>}
           {actions && <div className="mt-3 flex flex-wrap items-center gap-3">{actions}</div>}
         </div>
         {aside && <div className="min-w-0 sidebar:col-span-2">{aside}</div>}
@@ -115,7 +115,7 @@ function StageFacts({
           <dt className="text-muted-foreground">{item.label}</dt>
           <dd
             className={cn(
-              'font-display font-semibold text-xl tracking-title',
+              'font-display font-semibold text-section tracking-section',
               item.muted && 'font-normal text-muted-foreground',
             )}
           >

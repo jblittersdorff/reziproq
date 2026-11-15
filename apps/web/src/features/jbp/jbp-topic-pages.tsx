@@ -60,7 +60,7 @@ export function JbpTopicsPage({ place }: { place: MeetingPlace }) {
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <TopicsContent place={place} />
     </JbpFrame>
@@ -155,7 +155,7 @@ function TopicColumn({
   const own = side === data.ownSide && data.canEditOwn;
   return (
     <section aria-labelledby={`themen-${side}`} className="flex flex-col gap-3">
-      <h2 id={`themen-${side}`} className="font-display font-semibold text-xl tracking-title">
+      <h2 id={`themen-${side}`} className="font-display font-semibold text-section tracking-section">
         {text.column[side]}
       </h2>
       {topics.length === 0 ? (

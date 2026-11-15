@@ -45,7 +45,7 @@ export function JbpApprovalPage({ place }: { place: MeetingPlace }) {
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <ApprovalContent place={place} />
     </JbpFrame>
@@ -89,7 +89,7 @@ function ApprovalContent({ place }: { place: MeetingPlace }) {
         className="gap-2"
       >
         <p className="font-semibold text-primary text-sm">{text.version(data.version)}</p>
-        <p className="font-display font-semibold text-2xl tracking-title">{text.statuses[data.status]}</p>
+        <p className="font-display font-semibold text-figure tracking-section">{text.statuses[data.status]}</p>
         {data.approvedAt && (
           <p className="text-muted-foreground">{text.approvedBoth(format.date(data.approvedAt))}</p>
         )}
@@ -105,7 +105,7 @@ function ApprovalContent({ place }: { place: MeetingPlace }) {
 
       {data.decisions.length > 0 && (
         <section aria-labelledby="freigabe-entscheidungen" className="flex flex-col gap-3">
-          <h2 id="freigabe-entscheidungen" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="freigabe-entscheidungen" className="font-display font-semibold text-section tracking-section">
             {text.history}
           </h2>
           <ol className="overflow-hidden rounded-lg bg-card shadow-card">
@@ -387,7 +387,7 @@ export function JbpVersionsPage({
           {older && newer && (
             <section aria-labelledby="versionen-vergleich" className="flex flex-col gap-4">
               <div className="flex flex-wrap items-end gap-4">
-                <h2 id="versionen-vergleich" className="grow font-display font-semibold text-xl tracking-title">
+                <h2 id="versionen-vergleich" className="grow font-display font-semibold text-section tracking-section">
                   {text.compareTitle(older.version, newer.version)}
                 </h2>
                 <div className="w-40">

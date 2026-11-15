@@ -115,7 +115,7 @@ export function SurveyQuestionnaire({
           className="flex flex-col gap-4"
         >
           {group.dimension && (
-            <h2 className="font-display font-semibold text-xl tracking-title">
+            <h2 className="font-display font-semibold text-section tracking-section">
               {t.settings.survey.dimensions[group.dimension]}
             </h2>
           )}

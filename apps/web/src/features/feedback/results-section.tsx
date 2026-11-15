@@ -171,7 +171,7 @@ export function ResultsSection({
   return (
     <section aria-labelledby="ergebnis" className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h2 id="ergebnis" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="ergebnis" className="font-display font-semibold text-section tracking-section">
           {text.resultsTitle}
         </h2>
         <p className="text-muted-foreground text-sm">

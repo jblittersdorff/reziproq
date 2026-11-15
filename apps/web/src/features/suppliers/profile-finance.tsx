@@ -180,7 +180,7 @@ function ProfileFinanceContent({
         <div className="flex flex-col gap-1 rounded-lg bg-card p-4">
           {data.share?.status === 'ok' ? (
             <>
-              <span className="font-semibold text-display tabular-nums">
+              <span className="font-display font-semibold text-title-hero tabular-nums tracking-title-lg">
                 {format.number(data.share.basisPoints / 100)} %
               </span>
               <span className="text-muted-foreground text-sm">

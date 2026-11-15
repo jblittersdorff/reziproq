@@ -272,7 +272,7 @@ function BridgeContent({
                 <span className="text-muted-foreground text-sm">
                   {t.impact.effects[other.effectType]}
                 </span>
-                <span className="font-semibold text-xl tabular-nums">
+                <span className="font-display font-semibold text-figure tabular-nums tracking-section">
                   {money.full(other.amountCents)}
                 </span>
               </li>

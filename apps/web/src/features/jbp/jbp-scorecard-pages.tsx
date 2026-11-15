@@ -139,7 +139,7 @@ export function JbpScorecardPage({ place }: { place: MeetingPlace }) {
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <ScorecardContent place={place} />
     </JbpFrame>
@@ -239,7 +239,7 @@ function SignatureHead({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="font-semibold text-primary text-sm">{text.version(data.version)}</p>
-          <p className="font-display font-semibold text-2xl tracking-title">
+          <p className="font-display font-semibold text-figure tracking-section">
             {data.status === 'draft' && data.signatures.length === 1 && data.signatures[0]
               ? text.partly(text.sides[data.signatures[0].side])
               : text.statuses[data.status]}
@@ -762,7 +762,7 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           />
           {query.data.values.length > 0 && (
             <section aria-labelledby="kennzahl-werte" className="flex flex-col gap-3">
-              <h2 id="kennzahl-werte" className="font-display font-semibold text-xl tracking-title">
+              <h2 id="kennzahl-werte" className="font-display font-semibold text-section tracking-section">
                 {text.valuesTitle}
               </h2>
               <Table>
@@ -793,7 +793,7 @@ export function JbpKpiPage({ place, kpiId }: { place: MeetingPlace; kpiId: strin
           )}
           {!kpi.canEnter && <p className="text-muted-foreground text-sm">{text.onlyOwner}</p>}
           <section aria-labelledby="kennzahl-verlauf" className="flex flex-col gap-3">
-            <h2 id="kennzahl-verlauf" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="kennzahl-verlauf" className="font-display font-semibold text-section tracking-section">
               {text.historyTitle}
             </h2>
             <AuditHistory

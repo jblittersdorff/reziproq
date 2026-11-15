@@ -97,7 +97,7 @@ export function JbpInitiativesPage({ place, view }: { place: MeetingPlace; view:
       place={place}
       trail={[]}
       current={text.title}
-      header={<PageHeader title={text.title} purpose={text.purpose} />}
+      header={<PageHeader title={text.pageTitle} purpose={text.purpose} />}
     >
       <InitiativesContent place={place} view={view} />
     </JbpFrame>
@@ -467,7 +467,7 @@ function InitiativeContent({
 
       {canEdit && (
         <section aria-labelledby="initiative-status" className="flex flex-col gap-3">
-          <h2 id="initiative-status" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="initiative-status" className="font-display font-semibold text-section tracking-section">
             {text.statusLabel}
           </h2>
           <div className="flex flex-wrap items-end gap-3">
@@ -506,7 +506,7 @@ function InitiativeContent({
 
       {initiative.topics.length > 0 && (
         <section aria-labelledby="initiative-themen" className="flex flex-col gap-3">
-          <h2 id="initiative-themen" className="font-display font-semibold text-xl tracking-title">
+          <h2 id="initiative-themen" className="font-display font-semibold text-section tracking-section">
             {text.topics}
           </h2>
           <ul className="flex flex-col gap-2">
@@ -521,7 +521,7 @@ function InitiativeContent({
       )}
 
       <section aria-labelledby="initiative-verlauf" className="flex flex-col gap-3">
-        <h2 id="initiative-verlauf" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="initiative-verlauf" className="font-display font-semibold text-section tracking-section">
           {text.history}
         </h2>
         <AuditHistory
@@ -583,7 +583,7 @@ function Milestones({
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section aria-labelledby="initiative-meilensteine" className="flex flex-col gap-3">
-      <h2 id="initiative-meilensteine" className="font-display font-semibold text-xl tracking-title">
+      <h2 id="initiative-meilensteine" className="font-display font-semibold text-section tracking-section">
         {text.milestones}
       </h2>
       {milestones.length === 0 ? (
@@ -1064,7 +1064,7 @@ function ImpactTile({
       className="flex flex-col gap-4 rounded-lg bg-card shadow-card p-5"
     >
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="initiative-wirkung" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="initiative-wirkung" className="font-display font-semibold text-section tracking-section">
           {text.tileTitle}
         </h2>
         {impact && (

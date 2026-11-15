@@ -63,7 +63,7 @@ function TileTitle({ className, ...props }: React.ComponentProps<'h3'>) {
   return (
     <h3
       className={cn(
-        'font-display font-semibold text-lg tracking-title group-data-[size=lg]/tile:text-xl',
+        'font-display font-semibold text-lg tracking-section-sm group-data-[size=lg]/tile:text-section',
         className,
       )}
       {...props}
@@ -79,7 +79,7 @@ function TileText({ className, ...props }: React.ComponentProps<'p'>) {
 function TileMetric({ value, label }: { value: React.ReactNode; label?: React.ReactNode }) {
   return (
     <p className="flex flex-col gap-1">
-      <span className="font-display font-semibold text-xl tabular-nums tracking-title group-data-[size=lg]/tile:text-2xl">
+      <span className="font-display font-display font-semibold text-figure tabular-nums tracking-section tracking-title group-data-[size=lg]/tile:text-2xl">
         {value}
       </span>
       {label && <span className="text-muted-foreground text-sm">{label}</span>}

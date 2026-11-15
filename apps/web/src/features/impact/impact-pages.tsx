@@ -336,7 +336,7 @@ export function ImpactDetailPage({
           {message && <StatusLine message={message} onHidden={hideMessage} />}
           <section aria-labelledby="wirkung-reifegrad" className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="wirkung-reifegrad" className="font-display font-semibold text-xl tracking-title">
+              <h2 id="wirkung-reifegrad" className="font-display font-semibold text-section tracking-section">
                 {text.maturityTitle}
               </h2>
               {data.canEdit &&
@@ -358,7 +358,7 @@ export function ImpactDetailPage({
 
           <section aria-labelledby="wirkung-einrichtung" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 id="wirkung-einrichtung" className="font-display font-semibold text-xl tracking-title">
+              <h2 id="wirkung-einrichtung" className="font-display font-semibold text-section tracking-section">
                 {text.setupSummary}
               </h2>
               {data.canEdit &&
@@ -399,7 +399,7 @@ export function ImpactDetailPage({
             <section aria-labelledby="wirkung-baseline" className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="flex flex-wrap items-center gap-3">
-                  <h2 id="wirkung-baseline" className="font-display font-semibold text-xl tracking-title">
+                  <h2 id="wirkung-baseline" className="font-display font-semibold text-section tracking-section">
                     {text.baselineTitle}
                   </h2>
                   <VisibilityBadge visibility="internal" label={text.internal} />
@@ -460,7 +460,7 @@ export function ImpactDetailPage({
           <SharingSection relationshipId={relationshipId} initiativeId={initiativeId} />
 
           <section aria-labelledby="wirkung-stufen" className="flex flex-col gap-3">
-            <h2 id="wirkung-stufen" className="font-display font-semibold text-xl tracking-title">
+            <h2 id="wirkung-stufen" className="font-display font-semibold text-section tracking-section">
               {text.stepsTitle}
             </h2>
             <MaturitySteps maturity={data.maturity} />
@@ -1041,7 +1041,7 @@ function MonthsSection({ relationshipId, data }: { relationshipId: string; data:
   return (
     <section aria-labelledby="wirkung-monate" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="wirkung-monate" className="font-display font-semibold text-xl tracking-title">
+        <h2 id="wirkung-monate" className="font-display font-semibold text-section tracking-section">
           {text.monthsTitle}
         </h2>
         <div className="flex flex-wrap gap-3">
