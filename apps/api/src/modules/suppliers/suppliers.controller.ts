@@ -26,12 +26,15 @@ import {
   importTypes,
   type RoleDescription,
   type SaveRoleDescription,
+  type SaveSpendEntry,
+  type SpendOverview,
   type SpendRequest,
   type SupplierDetail,
   type SupplierLookupQuery,
   type SupplierLookupResponse,
   type SuppliersResponse,
   saveRoleDescriptionSchema,
+  saveSpendEntrySchema,
   spendRequestSchema,
   spendYearSchema,
   supplierLookupQuerySchema,
@@ -47,6 +50,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { createImportTemplate } from './import-file.js';
+import { SpendService } from './spend.service.js';
 import { SupplierImportService } from './supplier-import.service.js';
 import { SuppliersService } from './suppliers.service.js';
 import { TeamService } from './team.service.js';
@@ -64,6 +68,7 @@ export class SuppliersController {
     @Inject(SuppliersService) private readonly suppliers: SuppliersService,
     @Inject(TeamService) private readonly teams: TeamService,
     @Inject(SupplierImportService) private readonly imports: SupplierImportService,
+    @Inject(SpendService) private readonly spend: SpendService,
   ) {}
 
   @Get()
@@ -209,6 +214,47 @@ export class SuppliersController {
     @Body(new ZodValidationPipe(spendRequestSchema)) body: SpendRequest,
   ): Promise<SupplierDetail> {
     return this.suppliers.putSpend(auth, id, year, body);
+  }
+
+  /** SPL-04: Spend-Entwicklung mit Kennzahlen, Summen je Jahr, BU und Warengruppe und Zeilen. */
+  @Get(':id/spend')
+  @Requires('lieferanten.sehen')
+  spendOverview(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SpendOverview> {
+    return this.spend.overview(auth, id);
+  }
+
+  @Post(':id/spend/eintraege')
+  @Requires('lieferanten.bearbeiten')
+  createSpendEntry(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(saveSpendEntrySchema)) body: SaveSpendEntry,
+  ): Promise<SpendOverview> {
+    return this.spend.save(auth, id, null, body);
+  }
+
+  @Put(':id/spend/eintraege/:entryId')
+  @Requires('lieferanten.bearbeiten')
+  updateSpendEntry(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('entryId', ParseUUIDPipe) entryId: string,
+    @Body(new ZodValidationPipe(saveSpendEntrySchema)) body: SaveSpendEntry,
+  ): Promise<SpendOverview> {
+    return this.spend.save(auth, id, entryId, body);
+  }
+
+  @Delete(':id/spend/eintraege/:entryId')
+  @Requires('lieferanten.bearbeiten')
+  removeSpendEntry(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('entryId', ParseUUIDPipe) entryId: string,
+  ): Promise<SpendOverview> {
+    return this.spend.remove(auth, id, entryId);
   }
 
   /** Internes Team einer Beziehung (PLT-05b). */

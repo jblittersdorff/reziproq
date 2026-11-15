@@ -52,7 +52,7 @@ test.describe('auf Englisch', () => {
   test('Der Test kennt jede Route der App', () => {
     const routes = allRoutes();
     expect(routes.length).toBeGreaterThan(30);
-    expect(routes).toContain(`/lieferanten/${id}/strategie/spend/2025`);
+    expect(routes).toContain(`/lieferanten/${id}/strategie/spend/${id}`);
     expect(routes).toContain('/profil/sprache');
     // Die Prüfung findet deutsche Texte und rohe Schlüssel.
     expect(germanIn('Your profile: Lieferanten')).toEqual(['Lieferanten']);

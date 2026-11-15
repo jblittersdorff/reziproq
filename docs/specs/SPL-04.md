@@ -35,15 +35,35 @@ Als SRO sehe ich, wie sich der Spend bei einem Lieferanten über die Jahre entwi
    - **Tabelle** der Einträge darunter, Erfassen und Ändern auf eigenen Seiten
 2. Die Kachel Spend im Lieferantenplan (SPL-01) zeigt den Spend des letzten Jahres und die Veränderung.
 
+## Umsetzung
+
+- `relationship_spend` ist eindeutig je Beziehung, Jahr, Art, Business Unit und Warengruppe
+  (`NULLS NOT DISTINCT`). Jede Zeile ist ein eigener Betrag; die Summe eines Jahres ist die Summe
+  aller Zeilen dieser Art. Zeilen ohne Business Unit bzw. Warengruppe erscheinen im Diagramm als
+  „Ohne Zuordnung“.
+- Die Sicht `relationship_spend_total` (`security_invoker`, damit RLS gilt) liefert den Ist-Spend je
+  Jahr und Währung. Liste, Detail, Kachel im Überblick und die Frage-Funktion lesen sie; nur die
+  Spend-Seite liest die einzelnen Zeilen (`GET /suppliers/<id>/spend`).
+- Ist bis zum nächsten Jahr, Plan bis zehn Jahre voraus. Hat ein Jahr Ist, zeigt das Diagramm das
+  Ist, sonst den Plan.
+- Diagramm: höchstens vier benannte Anteile in fester Reihenfolge nach Summe über alle Jahre, der
+  Rest als „Weitere“. Plan-Säulen sind hell, gestrichelt umrandet und unter dem Jahr mit „Plan“
+  beschriftet; darunter stehen die Summen je Jahr als Tabelle.
+- Kennzahlen und Diagramm in der Währung des jüngsten Ist-Jahres; Zeilen in anderen Währungen
+  nennt ein Hinweis. Der Anteil am gesamten Spend entfällt, wenn der Käufer im Jahr mehrere
+  Währungen hat.
+- Die Importvorlage Spend hat die optionalen Spalten Art (Ist oder Plan), Business Unit und
+  Warengruppe; alte Dateien gelten als Ist für den ganzen Lieferanten.
+
 ## Fertig, wenn
 
 Je Kriterium ein Test.
 
-- [ ] Summen je Jahr, BU und Warengruppe stimmen mit der Datenbank überein.
-- [ ] Ist und Plan sind im Diagramm klar unterscheidbar, nicht nur durch Farbe.
-- [ ] Der Import mit den neuen Spalten funktioniert. Alte Dateien ohne diese Spalten funktionieren weiter.
-- [ ] Der Anteil am gesamten Spend stimmt mit Testdaten.
-- [ ] Das Diagramm nutzt Diagramm-Tokens und ist bei 390 px lesbar.
+- [x] Summen je Jahr, BU und Warengruppe stimmen mit der Datenbank überein.
+- [x] Ist und Plan sind im Diagramm klar unterscheidbar, nicht nur durch Farbe.
+- [x] Der Import mit den neuen Spalten funktioniert. Alte Dateien ohne diese Spalten funktionieren weiter.
+- [x] Der Anteil am gesamten Spend stimmt mit Testdaten.
+- [x] Das Diagramm nutzt Diagramm-Tokens und ist bei 390 px lesbar.
 
 ## Nicht Teil dieser Funktion
 

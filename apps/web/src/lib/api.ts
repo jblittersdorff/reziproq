@@ -122,6 +122,7 @@ import {
   type SaveRoleDescription,
   type SaveRuleItem,
   type SaveRuleSet,
+  type SaveSpendEntry,
   type SaveSurveyQuestion,
   type SaveTouchpoint,
   type ScorecardSetting,
@@ -139,6 +140,7 @@ import {
   scorecardViewSchema,
   segmentationSchema,
   segmentModelResponseSchema,
+  spendOverviewSchema,
   startSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
@@ -495,6 +497,28 @@ export const updateSupplier = (
 
 export const endSupplier = (accessToken: string, relationshipId: string) =>
   sendJson('POST', `/suppliers/${relationshipId}/beenden`, {}, supplierDetailSchema, accessToken);
+
+/** SPL-04: Spend-Entwicklung mit Kennzahlen, Summen und Zeilen; nur Käufer. */
+export const spendOverviewQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'spend'],
+    queryFn: () => getJson(`/suppliers/${relationshipId}/spend`, spendOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveSpendEntry = (
+  accessToken: string,
+  relationshipId: string,
+  entryId: string | null,
+  request: SaveSpendEntry | null,
+) =>
+  sendJson(
+    request === null ? 'DELETE' : entryId ? 'PUT' : 'POST',
+    `/suppliers/${relationshipId}/spend/eintraege${entryId ? `/${entryId}` : ''}`,
+    request ?? {},
+    spendOverviewSchema,
+    accessToken,
+  );
 
 export const putSpend = (
   accessToken: string,

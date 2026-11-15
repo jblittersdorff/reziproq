@@ -5,7 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, auditedChange, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  auditedChange,
+  desc,
+  eq,
+  isNull,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type CreateSupplierRequest,
   type CreateSupplierResponse,
@@ -374,6 +383,9 @@ export class SuppliersService {
           and(
             eq(relationshipSpend.relationshipId, relationshipId),
             eq(relationshipSpend.year, year),
+            eq(relationshipSpend.kind, 'actual'),
+            isNull(relationshipSpend.businessUnitId),
+            isNull(relationshipSpend.materialGroupId),
           ),
         );
       await auditedChange(tx, actor, relationshipSpendAudit, async () => {
@@ -381,7 +393,13 @@ export class SuppliersService {
           .insert(relationshipSpend)
           .values({ relationshipId, year, amountCents: request.amountCents, source: 'manual' })
           .onConflictDoUpdate({
-            target: [relationshipSpend.relationshipId, relationshipSpend.year],
+            target: [
+              relationshipSpend.relationshipId,
+              relationshipSpend.year,
+              relationshipSpend.kind,
+              relationshipSpend.businessUnitId,
+              relationshipSpend.materialGroupId,
+            ],
             set: { amountCents: request.amountCents, source: 'manual' },
           });
         return {
@@ -399,7 +417,7 @@ export class SuppliersService {
 }
 
 /** Die Beziehung als Käufer, sonst 404: Fremde Beziehungen gibt es aus Sicht dieser Session nicht. */
-async function ownRelationship(
+export async function ownRelationship(
   tx: TenantTransaction,
   organization: AccountOrganization,
   relationshipId: string,
@@ -439,7 +457,7 @@ export async function teamRoleOf(
 }
 
 /** Mit Teamrolle Leser ist die Beziehung für diese Person schreibgeschützt (PLT-05b). */
-async function assertWritable(
+export async function assertWritable(
   tx: TenantTransaction,
   auth: AuthContext,
   organization: AccountOrganization,
@@ -456,7 +474,8 @@ async function readDetail(
   relationshipId: string,
   auth: AuthContext,
 ): Promise<SupplierDetail> {
-  const { organization, relationship, relationshipSide, relationshipSpend } = schema;
+  const { organization, relationship, relationshipSide } = schema;
+  const relationshipSpend = schema.relationshipSpendTotal;
   const [row] = await tx
     .select({
       relationshipId: relationship.id,
@@ -541,7 +560,8 @@ export async function listSuppliers(
   spendYear: number,
   userId?: string,
 ): Promise<Supplier[]> {
-  const { organization, relationship, relationshipSide, relationshipSpend } = schema;
+  const { organization, relationship, relationshipSide } = schema;
+  const relationshipSpend = schema.relationshipSpendTotal;
   const rows = await tx
     .select({
       relationshipId: relationship.id,

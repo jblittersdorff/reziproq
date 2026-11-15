@@ -38,6 +38,30 @@ const profile = `/lieferanten/${detail.relationshipId}/strategie/profil`;
 
 let requests: { method: string; url: string; body: unknown }[] = [];
 
+const entryId = (year: number) => `0190a0a0-0000-7000-8000-00000000${year}`;
+const spend = {
+  currency: 'EUR',
+  otherCurrencies: [],
+  years: [2024, 2025].map((year) => ({
+    year,
+    kind: 'actual',
+    amountCents: year === 2025 ? 482_000_000 : 430_000_000,
+    byBusinessUnit: [],
+    byMaterialGroup: [],
+  })),
+  kpis: null,
+  entries: [2025, 2024].map((year) => ({
+    id: entryId(year),
+    year,
+    kind: 'actual',
+    businessUnit: null,
+    materialGroup: null,
+    amount: { amountCents: year === 2025 ? 482_000_000 : 430_000_000, currency: 'EUR' },
+  })),
+  options: { businessUnits: [], materialGroups: [] },
+  canEdit: true,
+};
+
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
@@ -55,6 +79,8 @@ beforeEach(() => {
       );
     }
     if (url === `/api/suppliers/${detail.relationshipId}`) return Response.json(detail);
+    // SPL-04: die Spend-Seite liest Einträge und Summen.
+    if (url.startsWith(`/api/suppliers/${detail.relationshipId}/spend`)) return Response.json(spend);
     if (url.startsWith('/api/suppliers/') && method !== 'GET') return Response.json(detail);
     if (url.startsWith('/api/audit')) return Response.json({ entries: [] });
     return undefined;
@@ -113,18 +139,18 @@ describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Sp
     });
 
     fireEvent.click(await screen.findByRole('link', { name: /Spend je Jahr/ }));
-    const table = await screen.findByRole('table', { name: 'Spend' });
+    const table = await screen.findByRole('table', { name: 'Einträge' });
     expect(
       within(table)
         .getAllByRole('row')
         .map((row) => row.textContent?.replaceAll('\u00a0', ' ')),
     ).toEqual([
-      'JahrSpendBearbeiten',
-      '20254.820.000,00 €Bearbeiten',
-      '20244.300.000,00 €Bearbeiten',
+      'JahrArtBusiness UnitWarengruppeBetragÄndern',
+      '2025IstGanzer LieferantGanzer Lieferant4.820.000,00 €Ändern',
+      '2024IstGanzer LieferantGanzer Lieferant4.300.000,00 €Ändern',
     ]);
-    fireEvent.click(screen.getByRole('link', { name: 'Spend 2025 ändern' }));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Spend 2025' })).toBeDefined();
+    fireEvent.click(screen.getByRole('link', { name: 'Eintrag 2025 ändern' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Eintrag ändern' })).toBeDefined();
     expect(field('Spend in Euro')).toHaveProperty('value', '4.820.000');
     fireEvent.change(field('Spend in Euro'), { target: { value: '5.000.000' } });
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
@@ -134,8 +160,15 @@ describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Sp
       ),
     );
     expect(requests.find((r) => r.method === 'PUT')).toMatchObject({
-      url: `/api/suppliers/${detail.relationshipId}/spend/2025`,
-      body: { amountCents: 500_000_000 },
+      url: `/api/suppliers/${detail.relationshipId}/spend/eintraege/${entryId(2025)}`,
+      body: {
+        year: 2025,
+        kind: 'actual',
+        businessUnitId: null,
+        materialGroupId: null,
+        amountCents: 500_000_000,
+        currency: 'EUR',
+      },
     });
   });
 });

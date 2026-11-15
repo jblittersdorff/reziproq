@@ -119,6 +119,10 @@ describe('Migrationen', () => {
       'amount_cents',
       'currency',
       'source',
+      // SPL-04: Ist oder Plan, optional je Business Unit und Warengruppe.
+      'kind',
+      'business_unit_id',
+      'material_group_id',
     ]);
     expect(await columns('beziehung')).toEqual([]);
     expect(await columns('beziehung_kaeufer')).toEqual([]);

@@ -175,7 +175,7 @@ import { Route as AppLieferantenIdStrategieProfilBearbeitenRouteImport } from '.
 import { Route as AppLieferantenIdStrategieProfilZuordnungRouteImport } from './routes/_app/lieferanten/$id/strategie/profil/zuordnung'
 import { Route as AppLieferantenIdStrategieSegmentierungIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/segmentierung/index'
 import { Route as AppLieferantenIdStrategieSpendIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/index'
-import { Route as AppLieferantenIdStrategieSpendJahrRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/$jahr'
+import { Route as AppLieferantenIdStrategieSpendEintragRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/$eintrag'
 import { Route as AppLieferantenIdStrategieSpendNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/neu'
 import { Route as AppLieferantenIdUmsetzungMassnahmenIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/massnahmen/index'
 import { Route as AppLieferantenIdUmsetzungMassnahmenActionIdRouteImport } from './routes/_app/lieferanten/$id/umsetzung/massnahmen/$actionId'
@@ -1178,10 +1178,10 @@ const AppLieferantenIdStrategieSpendIndexRoute =
     path: '/strategie/spend/',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
-const AppLieferantenIdStrategieSpendJahrRoute =
-  AppLieferantenIdStrategieSpendJahrRouteImport.update({
-    id: '/strategie/spend/$jahr',
-    path: '/strategie/spend/$jahr',
+const AppLieferantenIdStrategieSpendEintragRoute =
+  AppLieferantenIdStrategieSpendEintragRouteImport.update({
+    id: '/strategie/spend/$eintrag',
+    path: '/strategie/spend/$eintrag',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdStrategieSpendNeuRoute =
@@ -1624,7 +1624,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
-  '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
   '/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
@@ -1836,7 +1836,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
-  '/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
   '/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
@@ -2054,7 +2054,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/strategie/lieferantenplan/versionen': typeof AppLieferantenIdStrategieLieferantenplanVersionenRoute
   '/_app/lieferanten/$id/strategie/profil/bearbeiten': typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   '/_app/lieferanten/$id/strategie/profil/zuordnung': typeof AppLieferantenIdStrategieProfilZuordnungRoute
-  '/_app/lieferanten/$id/strategie/spend/$jahr': typeof AppLieferantenIdStrategieSpendJahrRoute
+  '/_app/lieferanten/$id/strategie/spend/$eintrag': typeof AppLieferantenIdStrategieSpendEintragRoute
   '/_app/lieferanten/$id/strategie/spend/neu': typeof AppLieferantenIdStrategieSpendNeuRoute
   '/_app/lieferanten/$id/umsetzung/massnahmen/$actionId': typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   '/_app/lieferanten/$id/umsetzung/massnahmen/neu': typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
@@ -2272,7 +2272,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
-    | '/lieferanten/$id/strategie/spend/$jahr'
+    | '/lieferanten/$id/strategie/spend/$eintrag'
     | '/lieferanten/$id/strategie/spend/neu'
     | '/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
@@ -2484,7 +2484,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/lieferanten/$id/strategie/profil/bearbeiten'
     | '/lieferanten/$id/strategie/profil/zuordnung'
-    | '/lieferanten/$id/strategie/spend/$jahr'
+    | '/lieferanten/$id/strategie/spend/$eintrag'
     | '/lieferanten/$id/strategie/spend/neu'
     | '/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/lieferanten/$id/umsetzung/massnahmen/neu'
@@ -2701,7 +2701,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/strategie/lieferantenplan/versionen'
     | '/_app/lieferanten/$id/strategie/profil/bearbeiten'
     | '/_app/lieferanten/$id/strategie/profil/zuordnung'
-    | '/_app/lieferanten/$id/strategie/spend/$jahr'
+    | '/_app/lieferanten/$id/strategie/spend/$eintrag'
     | '/_app/lieferanten/$id/strategie/spend/neu'
     | '/_app/lieferanten/$id/umsetzung/massnahmen/$actionId'
     | '/_app/lieferanten/$id/umsetzung/massnahmen/neu'
@@ -3948,11 +3948,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdStrategieSpendIndexRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
-    '/_app/lieferanten/$id/strategie/spend/$jahr': {
-      id: '/_app/lieferanten/$id/strategie/spend/$jahr'
-      path: '/strategie/spend/$jahr'
-      fullPath: '/lieferanten/$id/strategie/spend/$jahr'
-      preLoaderRoute: typeof AppLieferantenIdStrategieSpendJahrRouteImport
+    '/_app/lieferanten/$id/strategie/spend/$eintrag': {
+      id: '/_app/lieferanten/$id/strategie/spend/$eintrag'
+      path: '/strategie/spend/$eintrag'
+      fullPath: '/lieferanten/$id/strategie/spend/$eintrag'
+      preLoaderRoute: typeof AppLieferantenIdStrategieSpendEintragRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/strategie/spend/neu': {
@@ -4500,7 +4500,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanZusagenNeuRoute: typeof AppLieferantenIdPlanZusagenNeuRoute
   AppLieferantenIdStrategieProfilBearbeitenRoute: typeof AppLieferantenIdStrategieProfilBearbeitenRoute
   AppLieferantenIdStrategieProfilZuordnungRoute: typeof AppLieferantenIdStrategieProfilZuordnungRoute
-  AppLieferantenIdStrategieSpendJahrRoute: typeof AppLieferantenIdStrategieSpendJahrRoute
+  AppLieferantenIdStrategieSpendEintragRoute: typeof AppLieferantenIdStrategieSpendEintragRoute
   AppLieferantenIdStrategieSpendNeuRoute: typeof AppLieferantenIdStrategieSpendNeuRoute
   AppLieferantenIdUmsetzungMassnahmenActionIdRoute: typeof AppLieferantenIdUmsetzungMassnahmenActionIdRoute
   AppLieferantenIdUmsetzungMassnahmenNeuRoute: typeof AppLieferantenIdUmsetzungMassnahmenNeuRoute
@@ -4596,8 +4596,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdStrategieProfilBearbeitenRoute,
   AppLieferantenIdStrategieProfilZuordnungRoute:
     AppLieferantenIdStrategieProfilZuordnungRoute,
-  AppLieferantenIdStrategieSpendJahrRoute:
-    AppLieferantenIdStrategieSpendJahrRoute,
+  AppLieferantenIdStrategieSpendEintragRoute:
+    AppLieferantenIdStrategieSpendEintragRoute,
   AppLieferantenIdStrategieSpendNeuRoute:
     AppLieferantenIdStrategieSpendNeuRoute,
   AppLieferantenIdUmsetzungMassnahmenActionIdRoute:

@@ -8,6 +8,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  pgView,
   text,
   timestamp,
   unique,
@@ -15,6 +16,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { appUser, userFunctions } from './app-user.js';
+import { businessUnit, materialGroup } from './master-data.js';
 import { organization } from './organization.js';
 
 // PLT-03: Beziehung zwischen einem Käufer und einem Lieferanten. Ein Lieferant existiert in
@@ -75,6 +77,8 @@ export const relationshipSide = pgTable(
 );
 
 export const spendSources = ['manual', 'import', 'seed'] as const;
+/** SPL-04: Ist oder Plan. */
+export const spendKinds = ['actual', 'plan'] as const;
 
 export const cycleStatuses = ['active', 'closed'] as const;
 
@@ -167,14 +171,30 @@ export const relationshipSpend = pgTable(
     amountCents: bigint({ mode: 'number' }).notNull(),
     currency: text().notNull().default('EUR'),
     source: text({ enum: spendSources }).notNull().default('manual'),
+    // SPL-04: Ist oder Plan, optional aufgeteilt nach Business Unit und Warengruppe. Ohne Aufteilung
+    // gilt die Zeile für den ganzen Lieferanten; die Summe eines Jahres liefert relationship_spend_total.
+    kind: text({ enum: spendKinds }).notNull().default('actual'),
+    businessUnitId: uuid().references(() => businessUnit.id),
+    materialGroupId: uuid().references(() => materialGroup.id),
   },
   (table) => [
-    unique('relationship_spend_je_jahr').on(table.relationshipId, table.year),
+    unique('relationship_spend_je_eintrag')
+      .on(table.relationshipId, table.year, table.kind, table.businessUnitId, table.materialGroupId)
+      .nullsNotDistinct(),
+    check('relationship_spend_art', sql`${table.kind} in ('actual', 'plan')`),
     check('relationship_spend_positiv', sql`${table.amountCents} >= 0`),
     check('relationship_spend_waehrung_iso', sql`${table.currency} ~ '^[A-Z]{3}$'`),
     check('relationship_spend_quelle', sql`${table.source} in ('manual', 'import', 'seed')`),
   ],
 );
+
+/** SPL-04: Ist-Spend je Lieferant, Jahr und Währung (Summe aller Zeilen); Sicht mit RLS. */
+export const relationshipSpendTotal = pgView('relationship_spend_total', {
+  relationshipId: uuid('relationship_id').notNull(),
+  year: integer().notNull(),
+  currency: text().notNull(),
+  amountCents: bigint('amount_cents', { mode: 'number' }).notNull(),
+}).existing();
 
 /** Rolle im Team einer Beziehung (PLT-05). */
 export const teamRoles = ['sro', 'sponsor', 'member', 'viewer'] as const;

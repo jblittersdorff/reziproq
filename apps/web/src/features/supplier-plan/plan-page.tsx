@@ -396,6 +396,29 @@ function ReferenceTiles({
         currency: latestSpend.amount.currency,
       }).format(latestSpend.amount.amountCents / 100)
     : t.workspace.metrics.noSpend;
+  // SPL-04: mit Veränderung zum Vorjahr, wenn es erfasst ist und dieselbe Währung hat.
+  const previousSpend = supplier.spend.find(
+    (entry) =>
+      latestSpend &&
+      entry.year === latestSpend.year - 1 &&
+      entry.amount.currency === latestSpend.amount.currency,
+  );
+  const spendChange =
+    latestSpend && previousSpend && previousSpend.amount.amountCents > 0
+      ? t.supplierPlan.spendChange(
+          latestSpend.year,
+          new Intl.NumberFormat(locale, {
+            style: 'percent',
+            maximumFractionDigits: 1,
+            signDisplay: 'exceptZero',
+          }).format(
+            (latestSpend.amount.amountCents - previousSpend.amount.amountCents) /
+              previousSpend.amount.amountCents,
+          ),
+        )
+      : latestSpend
+        ? String(latestSpend.year)
+        : null;
   // PUL-03: größte Lücke der jüngsten aufgedeckten Welle, aus ihrem Ort.
   const accessToken = useToken();
   const waves = useQuery({
@@ -419,7 +442,7 @@ function ReferenceTiles({
     },
     {
       title: t.supplierPlan.spend,
-      value: spendValue,
+      value: spendChange ? `${spendValue} · ${spendChange}` : spendValue,
       href: `/lieferanten/${relationshipId}/strategie/spend`,
     },
     {
