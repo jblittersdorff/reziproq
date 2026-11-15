@@ -37,6 +37,7 @@ import {
   type ExtendRound,
   type ForbiddenCode,
   type FreezeBaseline,
+  financialImportResultSchema,
   focusDetailSchema,
   focusListSchema,
   forbiddenCodes,
@@ -108,6 +109,7 @@ import {
   type SaveAction,
   type SaveAgenda,
   type SaveCommitment,
+  type SaveFinancial,
   type SaveFormatItem,
   type SaveImpactMonth,
   type SaveInitiative,
@@ -146,6 +148,7 @@ import {
   supplierLookupResponseSchema,
   supplierOverviewSchema,
   supplierPlanResponseSchema,
+  supplierProfileSchema,
   suppliersResponseSchema,
   supportHeader,
   surveyDetailSchema,
@@ -519,6 +522,59 @@ export const saveSpendEntry = (
     spendOverviewSchema,
     accessToken,
   );
+
+/** SPL-05: Profil und Finanzen; nur Käufer. */
+export const supplierProfileQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'profil'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/profil`, supplierProfileSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveProfileSection = (
+  accessToken: string,
+  relationshipId: string,
+  section: 'unternehmen' | 'einschaetzung' | 'geschaeftsleitung',
+  request: unknown,
+) =>
+  sendJson(
+    'PUT',
+    `/suppliers/${relationshipId}/profil/${section}`,
+    request,
+    supplierProfileSchema,
+    accessToken,
+  );
+
+export const saveFinancial = (
+  accessToken: string,
+  relationshipId: string,
+  financialId: string | null,
+  request: SaveFinancial | null,
+) =>
+  sendJson(
+    request === null ? 'DELETE' : financialId ? 'PUT' : 'POST',
+    `/suppliers/${relationshipId}/profil/kennzahlen${financialId ? `/${financialId}` : ''}`,
+    request ?? {},
+    supplierProfileSchema,
+    accessToken,
+  );
+
+export async function importFinancials(accessToken: string, relationshipId: string, file: File) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = `/suppliers/${relationshipId}/profil/kennzahlen/import`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+  return financialImportResultSchema.parse(await res.json());
+}
 
 export const putSpend = (
   accessToken: string,

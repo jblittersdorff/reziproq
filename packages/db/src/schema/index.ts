@@ -19,3 +19,4 @@ export * from './supplier-plan.js';
 export * from './support-access-log.js';
 export * from './survey.js';
 export * from './touchpoint.js';
+export * from './supplier-profile.js';

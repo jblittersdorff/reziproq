@@ -47,16 +47,19 @@ export function KpiLineChart({
   const ticks = first === last ? [first] : [first, Math.round((first + last) / 2), last];
   return (
     <ChartFrame title={title} description={description} isEmpty={!hasActual} empty={empty}>
-      <ul aria-hidden className="flex flex-wrap gap-x-5 gap-y-1 text-muted-foreground text-sm">
-        <li className="flex items-center gap-2">
-          <span className="h-0.5 w-5 rounded-full bg-[var(--chart-accent)]" />
-          {names.actual}
-        </li>
-        <li className="flex items-center gap-2">
-          <span className="w-5 border-[var(--chart-context)] border-t-2 border-dashed" />
-          {names.plan}
-        </li>
-      </ul>
+      {/* Eine Reihe allein braucht keine Legende; der Titel nennt sie (SPL-05). */}
+      {points.some((point) => point.plan !== undefined) && (
+        <ul aria-hidden className="flex flex-wrap gap-x-5 gap-y-1 text-muted-foreground text-sm">
+          <li className="flex items-center gap-2">
+            <span className="h-0.5 w-5 rounded-full bg-[var(--chart-accent)]" />
+            {names.actual}
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="w-5 border-[var(--chart-context)] border-t-2 border-dashed" />
+            {names.plan}
+          </li>
+        </ul>
+      )}
       <div data-slot="kpi-chart" className="h-64 w-full">
         {theme && (
           <ResponsiveContainer width="100%" height="100%">
@@ -75,7 +78,7 @@ export function KpiLineChart({
               />
               {/* Achse um die Werte, nicht ab null: Abweichungen von der Linie sollen sichtbar sein. */}
               <YAxis
-                width={64}
+                width={80}
                 domain={['auto', 'auto']}
                 tickFormatter={formatValue}
                 {...rechartsAxis(theme)}

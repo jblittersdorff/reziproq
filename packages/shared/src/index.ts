@@ -33,6 +33,7 @@ export * from './supplier-plan.js';
 export * from './suppliers.js';
 export * from './support.js';
 export * from './spend.js';
+export * from './supplier-profile.js';
 export * from './survey.js';
 export * from './touchpoints.js';
 export * from './workspace.js';
