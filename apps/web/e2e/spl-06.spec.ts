@@ -1,4 +1,4 @@
-import { expect, type Page, test, type TestInfo } from '@playwright/test';
+import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
 const relationshipId = '550e8400-e29b-41d4-a716-446655440291';
@@ -73,17 +73,19 @@ const planId = '550e8400-e29b-41d4-a716-446655440292';
 const cycleId = '550e8400-e29b-41d4-a716-446655440295';
 const planPath = `${supplierPath}/strategie/lieferantenplan`;
 
-const objectives = ['Kosten senken', 'Qualität sichern', 'Liefertreue erhöhen'].map((text, index) => ({
-  id: `550e8400-e29b-41d4-a716-44665544030${index}`,
-  categoryKey: 'cost',
-  categoryName: 'Kosten',
-  businessUnit: { id: 'bu-1', name: 'Werk Nord' },
-  materialGroup: null,
-  text,
-  owner: { userId: 'anna', name: 'Anna Schmidt' },
-  targetYear: 2027,
-  canEdit: true,
-}));
+const objectives = ['Kosten senken', 'Qualität sichern', 'Liefertreue erhöhen'].map(
+  (text, index) => ({
+    id: `550e8400-e29b-41d4-a716-44665544030${index}`,
+    categoryKey: 'cost',
+    categoryName: 'Kosten',
+    businessUnit: { id: 'bu-1', name: 'Werk Nord' },
+    materialGroup: null,
+    text,
+    owner: { userId: 'anna', name: 'Anna Schmidt' },
+    targetYear: 2027,
+    canEdit: true,
+  }),
+);
 
 const makeTopics = (titles: string[]) =>
   titles.map((title, index) => ({
@@ -136,7 +138,8 @@ async function mockPlan(page: Page, getTopics: () => ReturnType<typeof makeTopic
 async function capture(page: Page, testInfo: TestInfo, name: string) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       await page.waitForTimeout(300);
       const overflowing = await page.evaluate(() =>
@@ -195,7 +198,9 @@ test('SPL-06 Reihenfolge per Tastatur ändern und nach Neuladen behalten', async
   await expect(page.getByRole('button', { name: 'Qualität nach oben' })).toBeDisabled();
 });
 
-test('SPL-06 Thema braucht ein Ziel und wird mit Zielen gespeichert', async ({ page }, testInfo) => {
+test('SPL-06 Thema braucht ein Ziel und wird mit Zielen gespeichert', async ({
+  page,
+}, testInfo) => {
   await setUp(page);
   let posted: unknown = null;
   await mockPlan(page, () => []);
@@ -212,9 +217,11 @@ test('SPL-06 Thema braucht ein Ziel und wird mit Zielen gespeichert', async ({ p
   await capture(page, testInfo, 'form');
   await page.getByLabel('Qualität sichern').check();
   await page.getByRole('button', { name: 'Speichern' }).click();
-  await expect.poll(() => posted).toMatchObject({
-    title: 'Kosten',
-    reason: 'Wegen Preisdruck.',
-    objectiveIds: [objectives[1]?.id],
-  });
+  await expect
+    .poll(() => posted)
+    .toMatchObject({
+      title: 'Kosten',
+      reason: 'Wegen Preisdruck.',
+      objectiveIds: [objectives[1]?.id],
+    });
 });

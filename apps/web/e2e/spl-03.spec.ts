@@ -1,4 +1,4 @@
-import { expect, type Page, test, type TestInfo } from '@playwright/test';
+import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
 const relationshipId = '550e8400-e29b-41d4-a716-446655440191';
@@ -97,7 +97,8 @@ const contributionList = [
 async function capture(page: Page, testInfo: TestInfo, name: string) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       await page.waitForTimeout(300);
       const overflowing = await page.evaluate(() =>
@@ -163,7 +164,9 @@ test('SPL-03 Plan zeigt Fortschritt und offene Beiträge', async ({ page }, test
   await capture(page, testInfo, 'plan');
 });
 
-test('SPL-03 Anfrage: eine Zeile je Bezug und ein Klick auf Anfragen', async ({ page }, testInfo) => {
+test('SPL-03 Anfrage: eine Zeile je Bezug und ein Klick auf Anfragen', async ({
+  page,
+}, testInfo) => {
   await setUp(page);
   let posted: unknown = null;
   await page.route(`**/api/suppliers/${relationshipId}/plan`, (route) =>
@@ -202,24 +205,37 @@ test('SPL-03 Anfrage: eine Zeile je Bezug und ein Klick auf Anfragen', async ({ 
       },
     }),
   );
-  await page.route(`**/api/suppliers/${relationshipId}/plan/${planId}/contribution-suggestions`, (route) =>
-    route.fulfill({
-      json: {
-        rows: [
-          { businessUnit: { id: '550e8400-e29b-41d4-a716-446655440201', name: 'Werk Nord' }, materialGroup: null, suggestedUserId: 'anna' },
-          { businessUnit: null, materialGroup: { id: '550e8400-e29b-41d4-a716-446655440202', name: 'Stahl' }, suggestedUserId: 'ben' },
-        ],
-        teamCandidates: [
-          { userId: 'anna', name: 'Anna Schmidt' },
-          { userId: 'ben', name: 'Ben Roth' },
-        ],
-      },
-    }),
+  await page.route(
+    `**/api/suppliers/${relationshipId}/plan/${planId}/contribution-suggestions`,
+    (route) =>
+      route.fulfill({
+        json: {
+          rows: [
+            {
+              businessUnit: { id: '550e8400-e29b-41d4-a716-446655440201', name: 'Werk Nord' },
+              materialGroup: null,
+              suggestedUserId: 'anna',
+            },
+            {
+              businessUnit: null,
+              materialGroup: { id: '550e8400-e29b-41d4-a716-446655440202', name: 'Stahl' },
+              suggestedUserId: 'ben',
+            },
+          ],
+          teamCandidates: [
+            { userId: 'anna', name: 'Anna Schmidt' },
+            { userId: 'ben', name: 'Ben Roth' },
+          ],
+        },
+      }),
   );
-  await page.route(`**/api/suppliers/${relationshipId}/plan/${planId}/contributions`, async (route) => {
-    posted = route.request().postDataJSON();
-    await route.fulfill({ status: 201, json: { ids: ['a', 'b'] } });
-  });
+  await page.route(
+    `**/api/suppliers/${relationshipId}/plan/${planId}/contributions`,
+    async (route) => {
+      posted = route.request().postDataJSON();
+      await route.fulfill({ status: 201, json: { ids: ['a', 'b'] } });
+    },
+  );
 
   await page.goto(`${planPath}/beitraege/neu`);
   await expect(page.getByRole('heading', { level: 1, name: 'Beiträge anfordern' })).toBeVisible();
@@ -229,59 +245,71 @@ test('SPL-03 Anfrage: eine Zeile je Bezug und ein Klick auf Anfragen', async ({ 
   await page.getByLabel(/Frist · Werk Nord/).fill('2099-03-01');
   await page.getByLabel(/Frist · Stahl/).fill('2099-03-15');
   await page.getByRole('button', { name: 'Anfragen' }).click();
-  await expect.poll(() => posted).toMatchObject({
-    contributions: [
-      { assigneeUserId: 'anna', dueDate: '2099-03-01' },
-      { assigneeUserId: 'ben', dueDate: '2099-03-15' },
-    ],
-  });
+  await expect
+    .poll(() => posted)
+    .toMatchObject({
+      contributions: [
+        { assigneeUserId: 'anna', dueDate: '2099-03-01' },
+        { assigneeUserId: 'ben', dueDate: '2099-03-15' },
+      ],
+    });
 });
 
 test('SPL-03 Beitrag: Ziele erfassen und abschließen', async ({ page }, testInfo) => {
   await setUp(page);
   const posted: string[] = [];
-  await page.route(`**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}`, (route) =>
-    route.fulfill({
-      json: {
-        id: contributionId,
-        planId,
-        relationshipId,
-        businessUnit: { id: 'bu-1', name: 'Werk Nord' },
-        materialGroup: null,
-        assignee: { userId: 'anna', name: 'Anna Schmidt' },
-        dueDate: '2099-03-01',
-        status: 'open',
-        summary: 'Versorgung sichern.',
-        targetType: 'Strategischer Partner',
-        categories,
-        objectives: [
-          {
-            id: '550e8400-e29b-41d4-a716-446655440203',
-            categoryKey: 'quality',
-            categoryName: 'Qualität',
-            businessUnit: { id: 'bu-1', name: 'Werk Nord' },
-            materialGroup: null,
-            text: 'Ausschussquote senken',
-            owner: { userId: 'anna', name: 'Anna Schmidt' },
-            targetYear: 2027,
-            canEdit: false,
-          },
-        ],
-        canEdit: true,
-      },
-    }),
+  await page.route(
+    `**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}`,
+    (route) =>
+      route.fulfill({
+        json: {
+          id: contributionId,
+          planId,
+          relationshipId,
+          businessUnit: { id: 'bu-1', name: 'Werk Nord' },
+          materialGroup: null,
+          assignee: { userId: 'anna', name: 'Anna Schmidt' },
+          dueDate: '2099-03-01',
+          status: 'open',
+          summary: 'Versorgung sichern.',
+          targetType: 'Strategischer Partner',
+          categories,
+          objectives: [
+            {
+              id: '550e8400-e29b-41d4-a716-446655440203',
+              categoryKey: 'quality',
+              categoryName: 'Qualität',
+              businessUnit: { id: 'bu-1', name: 'Werk Nord' },
+              materialGroup: null,
+              text: 'Ausschussquote senken',
+              owner: { userId: 'anna', name: 'Anna Schmidt' },
+              targetYear: 2027,
+              canEdit: false,
+            },
+          ],
+          canEdit: true,
+        },
+      }),
   );
-  await page.route(`**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}/objectives`, async (route) => {
-    posted.push('objective');
-    await route.fulfill({ status: 201, json: { id: 'neu' } });
-  });
-  await page.route(`**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}/complete`, async (route) => {
-    posted.push('complete');
-    await route.fulfill({ status: 201, json: { id: contributionId } });
-  });
+  await page.route(
+    `**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}/objectives`,
+    async (route) => {
+      posted.push('objective');
+      await route.fulfill({ status: 201, json: { id: 'neu' } });
+    },
+  );
+  await page.route(
+    `**/api/suppliers/${relationshipId}/plan/contributions/${contributionId}/complete`,
+    async (route) => {
+      posted.push('complete');
+      await route.fulfill({ status: 201, json: { id: contributionId } });
+    },
+  );
 
   await page.goto(`${planPath}/beitrag/${contributionId}`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Beitrag zum Lieferantenplan' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Beitrag zum Lieferantenplan' }),
+  ).toBeVisible();
   await expect(page.getByText('Strategischer Partner')).toBeVisible();
   await expect(page.getByText('Ausschussquote senken')).toBeVisible();
   await capture(page, testInfo, 'contribution');

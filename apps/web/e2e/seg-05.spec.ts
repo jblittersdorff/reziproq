@@ -147,7 +147,8 @@ async function mock(page: Page, empty: boolean) {
 async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, name: string) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       await page.waitForTimeout(400);
       const overflowing = await page.evaluate(() =>

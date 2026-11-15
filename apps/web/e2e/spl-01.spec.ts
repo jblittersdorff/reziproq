@@ -136,7 +136,8 @@ test('SPL-01 Lieferantenplan responsive und Ziele nach Kategorie', async ({ page
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       await page.waitForTimeout(300);
       const overflowing = await page.evaluate(() =>
@@ -163,16 +164,16 @@ test('SPL-01 Lieferantenplan responsive und Ziele nach Kategorie', async ({ page
   ).toBeVisible();
 });
 
-test('SPL-01 Zielkategorien zeigen alle sieben Standards und führen zum Anlegen', async ({ page }) => {
+test('SPL-01 Zielkategorien zeigen alle sieben Standards und führen zum Anlegen', async ({
+  page,
+}) => {
   await setUp(page);
   await page.route('**/api/objective-categories', (route) =>
     route.fulfill({ json: { categories } }),
   );
 
   await page.goto('/einstellungen/zielkategorien');
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Zielkategorien' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Zielkategorien' })).toBeVisible();
   for (const category of categories) {
     await expect(page.getByRole('link', { name: category.name })).toBeVisible();
   }

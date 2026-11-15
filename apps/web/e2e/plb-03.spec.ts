@@ -148,7 +148,9 @@ async function mockBuyer(page: Page) {
     }),
   );
   await page.route(`**/api/suppliers/${rel}/spielregeln`, (route) =>
-    route.fulfill({ json: { current, target, targetChanged: true, canManage: true, shared: null } }),
+    route.fulfill({
+      json: { current, target, targetChanged: true, canManage: true, shared: null },
+    }),
   );
   await page.route(`**/api/suppliers/${rel}/spielregeln/vorschlag*`, (route) =>
     route.fulfill({ json: { target, items: proposal } }),
@@ -159,7 +161,8 @@ async function mockBuyer(page: Page) {
 async function shoot(page: Page, testInfo: TestInfo, name: string) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       // Farbübergänge der Kacheln abwarten, sonst zeigt der Screenshot Zwischenfarben.
       await page.waitForTimeout(300);

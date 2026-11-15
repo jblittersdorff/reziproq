@@ -97,7 +97,8 @@ async function setUp(page: Page) {
 async function shoot(page: Page, name: string, testInfo: import('@playwright/test').TestInfo) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    // Es gibt nur ein helles Thema (Designsprache).
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
       await page.waitForTimeout(300);
       const overflowing = await page.evaluate(() =>
@@ -130,11 +131,11 @@ test('ZYK-02 zeigt die Fristvorschau für den gewählten JBP-Termin', async ({ p
   await shoot(page, 'zyklus-termin', testInfo);
 });
 
-test('ZYK-02 lässt Admins die organisationsweiten Vorlaufzeiten ändern', async ({ page }, testInfo) => {
+test('ZYK-02 lässt Admins die organisationsweiten Vorlaufzeiten ändern', async ({
+  page,
+}, testInfo) => {
   await setUp(page);
-  await page.route('**/api/cycle/settings', (route) =>
-    route.fulfill({ json: { settings } }),
-  );
+  await page.route('**/api/cycle/settings', (route) => route.fulfill({ json: { settings } }));
   await page.goto('/einstellungen/zyklus');
   await expect(page.getByRole('heading', { name: 'Zyklus-Einstellungen' })).toBeVisible();
   await page.getByRole('spinbutton', { name: 'Feedback: Wochen zum Gemeinsamen Plan' }).fill('-9');

@@ -38,6 +38,26 @@ export const textPairs: [string, string][] = [
   ['chart-label', 'chart-surface'],
   ['chart-tooltip-foreground', 'chart-tooltip'],
   ...[1, 2, 3, 4, 5].map((n): [string, string] => [`chart-seq-label-${n}`, `chart-seq-${n}`]),
+  // Designsprache „Zwei Kreise“: Text auf Seitengrund, neutraler Fläche, Mint und Tinte
+  ['text', 'paper'],
+  ['text', 'card'],
+  ['muted-foreground', 'paper'],
+  ['muted-foreground', 'line-soft'],
+  ['muted-strong', 'line-soft'],
+  ['muted-strong', 'card'],
+  ['muted-strong', 'paper'],
+  ['petrol', 'paper'],
+  ['petrol-dark', 'card'],
+  ['petrol-dark', 'mint-soft'],
+  ['text', 'mint-soft'],
+  ['ink', 'mint'],
+  ['mint', 'ink'],
+  ['on-dark', 'ink'],
+  ['on-dark-muted', 'ink'],
+  ['on-dark', 'dark-2'],
+  ['status-neutral-foreground', 'status-neutral'],
+  ['status-shared-foreground', 'status-shared'],
+  ['status-ink-foreground', 'status-ink'],
 ];
 
 /** Großer Text, Symbole, Bedienelemente und bedeutungstragende Grafik brauchen 3:1 */
@@ -49,4 +69,8 @@ export const graphicPairs: [string, string][] = [
   ['chart-supplier', 'background'],
   ['chart-strong', 'background'],
   ['stage-input', 'stage'],
+  // Rand von Textfeldern und fertige Schritte (Petrol) auf Karte und Seitengrund
+  ['input-border', 'card'],
+  ['input-border', 'paper'],
+  ['petrol', 'card'],
 ];
