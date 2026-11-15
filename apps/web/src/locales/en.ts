@@ -565,10 +565,6 @@ export const en: Messages = {
     noOrganization: 'Not assigned to an organization',
     display: 'Display',
     language: 'Language',
-    theme: 'Appearance',
-    themeSystem: 'System',
-    themeLight: 'Light',
-    themeDark: 'Dark',
     settings: 'Settings',
     allSettings: 'All settings',
     role: 'Your role',
@@ -602,13 +598,6 @@ export const en: Messages = {
     failed: 'The language could not be saved. Please try again.',
   },
 
-  appearance: {
-    title: 'Appearance',
-    purpose: 'How Reziproq looks on this device.',
-    description: 'System follows your device setting.',
-    save: 'Save',
-    cancel: 'Cancel',
-  },
 
   settings: {
     title: 'Settings',

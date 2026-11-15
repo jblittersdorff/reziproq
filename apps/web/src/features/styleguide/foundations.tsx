@@ -22,7 +22,7 @@ const tokenFile = 'src/styles/tokens.css';
 /** Farben: jedes Token mit Name und Wert, dazu alle Text-Hintergrund-Paare mit Kontrast. */
 export function Colors({ values }: { values: Record<string, string> }) {
   const t = useMessages(styleguideMessages);
-  const groups: ColorGroup[] = ['surfaces', 'text', 'accent', 'stage', 'status', 'chart'];
+  const groups: ColorGroup[] = ['brand', 'surfaces', 'text', 'accent', 'stage', 'status', 'chart'];
 
   return (
     <>

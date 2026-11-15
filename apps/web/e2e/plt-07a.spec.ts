@@ -124,9 +124,8 @@ test('PLT-07 importiert die Demo über die Oberfläche in die echte Datenbank', 
     ).toBeVisible();
     await expect(page.getByText('UTF-8 · höchstens 10 MB und 5.000 Zeilen')).toBeVisible();
 
-    for (const scheme of ['light', 'dark'] as const) {
+    for (const scheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme: scheme });
-      await expect(page.locator('html')).toHaveClass(scheme === 'dark' ? /dark/ : /^(?!.*dark)/);
       for (const viewport of [
         { name: 'desktop', width: 1440, height: 1000 },
         { name: 'mobile', width: 390, height: 844 },
@@ -168,7 +167,7 @@ test('PLT-07 importiert die Demo über die Oberfläche in die echte Datenbank', 
     expect(errorLines.join('\n')).toContain('"Ungültige Umsatzsteuer (Demo)"');
     expect(errorLines.join('\n')).toContain('"Unbekannte Warengruppe (Demo)"');
     expect(errorLines.join('\n')).toContain('"Land: Kein gültiger ISO-Ländercode."');
-    for (const scheme of ['light', 'dark'] as const) {
+    for (const scheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme: scheme });
       for (const viewport of [
         { name: 'desktop', width: 1440, height: 1000 },

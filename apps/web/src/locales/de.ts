@@ -579,10 +579,6 @@ export const de = {
     noOrganization: 'Keiner Organisation zugeordnet',
     display: 'Darstellung',
     language: 'Sprache',
-    theme: 'Erscheinungsbild',
-    themeSystem: 'System',
-    themeLight: 'Hell',
-    themeDark: 'Dunkel',
     settings: 'Einstellungen',
     allSettings: 'Alle Einstellungen',
     role: 'Deine Rolle',
@@ -617,13 +613,6 @@ export const de = {
     failed: 'Die Sprache konnte nicht gespeichert werden. Versuch es noch einmal.',
   },
 
-  appearance: {
-    title: 'Erscheinungsbild',
-    purpose: 'Wie Reziproq auf diesem Gerät aussieht.',
-    description: 'System folgt der Einstellung deines Geräts.',
-    save: 'Speichern',
-    cancel: 'Abbrechen',
-  },
 
   settings: {
     title: 'Einstellungen',

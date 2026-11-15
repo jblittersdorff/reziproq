@@ -91,3 +91,9 @@ Entscheidungen beim Bauen, abgestimmt vor der Umsetzung:
 - Lieferanten-Arbeitsbereich mit lokaler Leiste (NAV-06)
 - Fragen-Seite mit Inhalt (PLT-12)
 - Englische Oberfläche (PLT-09)
+
+## Änderung vom 15.11.2026: nur ein helles Thema
+
+Mit der Designsprache „Zwei Kreise“ (`docs/design/designsprache.md`) gibt es nur ein helles Thema.
+Der Dunkelmodus, die Seite `/profil/erscheinungsbild` und der Umschalter im Styleguide sind
+entfernt (Entscheidung des Gründers). Kriterien zu Hell und Dunkel gelten seitdem nur noch für Hell.

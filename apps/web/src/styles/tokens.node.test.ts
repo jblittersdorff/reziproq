@@ -102,7 +102,7 @@ describe('Feste Farben, Schriftgrößen und Abstände nur in der Token-Datei', (
   });
 });
 
-function readTheme(selector: ':root' | '.dark'): Record<string, string> {
+function readTheme(selector: ':root'): Record<string, string> {
   const css = readFileSync(tokensFile, 'utf8');
   const block = css.match(new RegExp(`${selector.replace('.', '\\.')}\\s*\\{([^}]*)\\}`))?.[1];
   if (!block) throw new Error(`Block ${selector} fehlt in tokens.css`);
@@ -111,9 +111,9 @@ function readTheme(selector: ':root' | '.dark'): Record<string, string> {
   );
 }
 
-describe.each([':root', '.dark'] as const)('Kontrast nach WCAG AA (%s)', (selector) => {
-  // Dunkel überschreibt nur Farben; was dort fehlt, gilt aus Hell weiter.
-  const theme = { ...readTheme(':root'), ...readTheme(selector) };
+// Designsprache „Zwei Kreise“: es gibt nur ein helles Thema.
+describe('Kontrast nach WCAG AA', () => {
+  const theme = readTheme(':root');
 
   it.each(textPairs)('Text %s auf %s mindestens 4,5:1', (fg, bg) => {
     expect(contrast(theme[fg] ?? '', theme[bg] ?? '')).toBeGreaterThanOrEqual(minimumContrast.text);
@@ -125,10 +125,8 @@ describe.each([':root', '.dark'] as const)('Kontrast nach WCAG AA (%s)', (select
     );
   });
 
-  it('jedes Farb-Token hat einen Wert für Hell und einen für Dunkel', () => {
-    const light = Object.keys(readTheme(':root'));
-    const dark = Object.keys(readTheme('.dark'));
-    expect(dark.sort()).toEqual(light.sort());
+  it('es gibt nur ein helles Thema', () => {
+    expect(readFileSync(tokensFile, 'utf8')).not.toMatch(/\.dark\s*\{/);
   });
 });
 

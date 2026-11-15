@@ -12,7 +12,6 @@ import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { signedOut } from '@/lib/auth';
 import { useLocale, useT } from '@/lib/i18n';
-import { useTheme } from '@/lib/theme';
 
 /**
  * Profil (PLT-11): wer angemeldet ist, Erscheinungsbild, der Weg zu den Einstellungen und
@@ -24,13 +23,6 @@ export function ProfilePage() {
   const me = useMe();
   const { locale } = useLocale();
   const manageSettings = useCan('einstellungen.verwalten');
-  const { preference } = useTheme();
-
-  const themeLabel = {
-    system: t.profile.themeSystem,
-    light: t.profile.themeLight,
-    dark: t.profile.themeDark,
-  }[preference];
 
   return (
     <>
@@ -71,12 +63,6 @@ export function ProfilePage() {
           </SettingsGroup>
 
           <SettingsGroup title={t.profile.display}>
-            <SettingsLinkRow
-              href="/profil/erscheinungsbild"
-              label={t.profile.theme}
-              value={themeLabel}
-              renderLink={routerLink}
-            />
             <SettingsLinkRow
               href="/profil/sprache"
               label={t.profile.language}

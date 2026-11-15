@@ -78,3 +78,9 @@ Je Kriterium ein Test.
 - Übersetzung von Inhalten, die Nutzer eingeben
 - Englische Fragebögen des Pulses (kommen mit PUL-01, das DE und EN selbst verlangt)
 - E-Mails (QS-01)
+
+## Änderung vom 15.11.2026: nur ein helles Thema
+
+Mit der Designsprache „Zwei Kreise“ (`docs/design/designsprache.md`) gibt es nur ein helles Thema.
+Der Dunkelmodus, die Seite `/profil/erscheinungsbild` und der Umschalter im Styleguide sind
+entfernt (Entscheidung des Gründers). Kriterien zu Hell und Dunkel gelten seitdem nur noch für Hell.

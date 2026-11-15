@@ -12,7 +12,6 @@ import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/rea
 import { cleanup, render } from '@testing-library/react';
 import { expect, vi } from 'vitest';
 import { LocaleProvider } from '@/lib/i18n';
-import { ThemeProvider } from '@/lib/theme';
 import { routeTree } from '@/routeTree.gen';
 
 // Gemeinsamer Aufbau für Oberflächentests mit jsdom: echter Router, nachgebauter Login,
@@ -323,13 +322,12 @@ export function renderAt(path: string) {
     context: { queryClient },
   });
   render(
-    <ThemeProvider>
-      <LocaleProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
-      </LocaleProvider>
-    </ThemeProvider>,
+    <LocaleProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </LocaleProvider>
+,
   );
   return router;
 }

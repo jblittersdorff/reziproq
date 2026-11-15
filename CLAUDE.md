@@ -59,3 +59,37 @@ Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Mi
 - Keine `WG`-Spec (Warengruppenmanagement, Release 1.1) anfangen, solange eine Spec des
   Lieferantenmanagements offen ist; auch nichts dafür vorbauen. Ausnahme nur auf ausdrückliche
   Anweisung des Gründers (docs/umsetzungsplan.md, Abschnitt 9)
+
+## Oberfläche: Designsprache „Zwei Kreise“
+
+`docs/design/designsprache.md` ist die verbindliche Vorgabe für jede Oberfläche
+von Reziproq: Käuferseite, Lieferantenseite, Seiten ohne Anmeldung, Mails,
+Fehlerseiten, leere Zustände. Die Dateien in `docs/design/referenz/` sind
+Vorlagen für Aufbau und exakte Werte, kein Code zum Übernehmen.
+
+Gilt für jede Änderung an der Oberfläche:
+
+1. Farben, Schriften, Radien und Schatten nur über die Tokens. Keine Hex-Werte,
+   keine Schriftnamen, keine Einzelwerte in Komponenten.
+2. Erst einen Baustein aus dem UI-Paket nehmen. Gibt es keinen passenden, den
+   Baustein im UI-Paket anlegen, nicht in der Seite.
+3. Gibt es für eine Seite eine Vorlage in `docs/design/referenz/`, folgt die
+   Seite ihr. Gibt es keine, gelten Regeln und Bausteine der Designsprache und
+   die ähnlichste Vorlage.
+4. Die zehn Regeln der Designsprache gelten auf jeder Seite, besonders: Titel
+   nennt die Aufgabe. Höchstens eine Hauptaktion in der Tinte-Karte. Parteien,
+   Termine und Schritte sind Kreise. Klickbares ist eine Pille. Privat grau
+   gestrichelt mit Schloss, geteilt Mint mit Doppelring, KI-Entwurf gestrichelt
+   Petrol mit Quellen. Status immer als Text.
+5. Jede Seite funktioniert auf Telefonbreite und mit Tastatur. Text hat
+   mindestens 4,5:1 Kontrast. Die Seite scrollt nie seitwärts.
+6. Eine Spec beschreibt Inhalt und Verhalten, die Designsprache das Aussehen.
+   Widersprechen sich beide im Aussehen, gilt die Designsprache. Melde mir den
+   Widerspruch.
+7. Weicht eine Seite bewusst ab, steht der Grund als Kommentar im Code und
+   in deiner Abschlussmeldung.
+
+Bevor eine Aufgabe mit Oberfläche als fertig gilt: Fundstellen von Hex-Werten
+und alter Schrift in den geänderten Dateien prüfen, Seite auf Telefonbreite
+ansehen, in der Abschlussmeldung sagen, ob die Seite „nach Vorlage“ oder
+„nach Regeln“ gebaut ist.

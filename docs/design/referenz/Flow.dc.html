@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Ablauf-Leiste</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<section aria-label="{{aria}}" style="font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+  <div style="max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 0;box-sizing:border-box">
+    <div style="display:flex;flex-direction:column;gap:18px;padding:20px 24px;border-radius:24px;background:#ffffff;box-shadow:0 0 0 1px #0f1b2214,0 6px 20px #0f1b220a">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:#0f1b22;color:#4fd1b4;font-size:12px;font-weight:600">Ablauf</span>
+          <strong style="font-family:Outfit,Figtree,sans-serif;font-size:19px;font-weight:600;letter-spacing:-0.015em">{{title}}</strong>
+          <span style="font-size:13px;color:#5a636b">Schritt {{number}} von {{total}} · {{context}}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+          <sc-if value="{{hasPrev}}" hint-placeholder-val="{{true}}">
+            <a href="{{prevHref}}" style="display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;color:#3f4a52;text-decoration:none">Zurück</a>
+          </sc-if>
+          <a href="{{nextHref}}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;background:#ffffff;box-shadow:inset 0 0 0 1px #b9bfba;font-size:14px;font-weight:600;color:#0f1b22;text-decoration:none">{{nextLabel}}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></a>
+        </div>
+      </div>
+      <ol style="{{grid}}">
+        <sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+          <li aria-current="{{s.current}}">
+            <a href="{{s.href}}" style="display:flex;flex-direction:column;gap:8px;text-decoration:none;color:#14181b">
+              <span style="display:flex;align-items:center"><span style="{{s.ring}}">{{s.mark}}</span><span style="{{s.line}}"></span></span>
+              <span style="{{s.labelStyle}}">{{s.label}}</span>
+              <span style="font-size:12px;color:#5a636b">{{s.state}}</span>
+            </a>
+          </li>
+        </sc-for>
+      </ol>
+      <p style="margin:0;padding:12px 16px;border-radius:16px;background:#f4f5f2;font-size:14px;line-height:1.5"><strong style="font-weight:600">Fertig, wenn</strong> {{doneWhen}}</p>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"flow":{"editor":"enum","options":["JBP","Warengruppe"],"default":"JBP"},"step":{"editor":"text","default":"Themen"},"$preview":{"width":1440,"height":250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const flows = {
+      JBP: {
+        title: 'JBP abschließen',
+        end: 'L-Ueberblick.dc.html',
+        min: 130,
+        context: () => 'JBP am 04.12., noch 20 Tage',
+        steps: [
+          ['Vorbereiten', 'P-Vorbereitung.dc.html', 'beide Geschäftsupdates und die Themen eurer Seite vorliegen.'],
+          ['Themen', 'P-Themen.dc.html', 'beide Seiten ihre Themen eingebracht und gereiht haben.'],
+          ['Initiativen', 'P-Initiativen.dc.html', 'jedes Thema einer Initiative zugeordnet oder geparkt ist.'],
+          ['Zusagen', 'P-Zusagen.dc.html', 'jede Initiative Zusagen beider Seiten mit Termin hat.'],
+          ['Freigabe', 'P-Freigabe.dc.html', 'euer Sponsor und Rheintal freigegeben haben.'],
+          ['Scorecard', 'P-Scorecard.dc.html', 'beide Seiten die Scorecard unterschrieben haben.'],
+        ],
+      },
+      Warengruppe: {
+        title: 'Warengruppenstrategie erarbeiten',
+        end: 'L-Warengruppen.dc.html',
+        min: 96,
+        context: (i) => i === 0 ? 'Vorbereitung' : i < 5 ? 'Phase 1 von 3: Ziele und Analysen' : i === 5 ? 'Phase 2 von 3: Strategische Bewertung' : 'Phase 3 von 3: Umsetzung und Tracking',
+        steps: [
+          ['Aufsetzen', 'WG-Aufsetzen.dc.html', 'Team, Lead und die Produktgruppen der Warengruppe feststehen.'],
+          ['Ziele', 'WG-Ziele.dc.html', 'jede Zieldimension ein messbares Ziel hat oder begründet zurückgestellt ist.'],
+          ['Intern', 'WG-Intern.dc.html', 'alle vier Sichten eine Beobachtung haben: Volumen, Lieferkette, Kosten, Technologie.'],
+          ['Lieferanten', 'WG-Lieferanten.dc.html', 'alle drei Sichten eine Beobachtung haben und die Bewertungsrunde der Warengruppe entschieden ist.'],
+          ['Markt', 'WG-Markt.dc.html', 'alle sechs Marktkräfte für heute und künftig bestätigt sind.'],
+          ['Bewertung', 'WG-Bewertung.dc.html', 'jede wichtige Paarung aus dem Stärken-Schwächen-Profil einen Hebel mit Begründung hat.'],
+          ['Scorecard', 'WG-Scorecard.dc.html', 'jeder Hebel mindestens eine Initiative mit Wirkung, Verantwortung und Termin hat.'],
+          ['Vergaben', 'WG-Vergaben.dc.html', 'jede anstehende Vergabe geeignete Lieferanten und ihr Volumen nennt.'],
+          ['Supplier Map', 'WG-SupplierMap.dc.html', 'jeder Lieferant Umsatzanteil und Segment in Ist und Soll sowie eine Beziehungseinschätzung hat.'],
+          ['Freigabe', 'WG-Freigabe.dc.html', 'Lead, Commodity Manager und Freigabegremium unterschrieben haben.'],
+        ],
+      },
+    };
+    const flow = flows[this.props.flow ?? 'JBP'] ?? flows.JBP;
+    const all = flow.steps;
+    const found = all.findIndex((entry) => entry[0] === (this.props.step ?? ''));
+    const at = found < 0 ? 0 : found;
+    const ring = 'width:32px;height:32px;box-sizing:border-box;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 13px Outfit,Figtree,sans-serif;flex:none;';
+    const line = 'flex:1;height:2px;border-radius:2px;background:';
+    return {
+      aria: 'Ablauf ' + flow.title,
+      title: flow.title,
+      total: all.length,
+      context: flow.context(at),
+      grid: 'margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(' + flow.min + 'px,1fr));gap:14px 0',
+      number: at + 1,
+      doneWhen: all[at][2],
+      hasPrev: at > 0,
+      prevHref: at > 0 ? all[at - 1][1] : all[0][1],
+      nextHref: at < all.length - 1 ? all[at + 1][1] : flow.end,
+      nextLabel: at < all.length - 1 ? 'Weiter: ' + all[at + 1][0] : 'Ablauf abschließen',
+      steps: all.map(([label, href], i) => ({
+        label,
+        href,
+        current: i === at ? 'step' : 'false',
+        mark: i < at ? '✓' : String(i + 1),
+        state: i < at ? 'fertig' : i === at ? 'jetzt' : 'offen',
+        ring: ring + (i < at
+          ? 'background:#0b7a6a;color:#ffffff'
+          : i === at
+            ? 'background:#4fd1b4;color:#0f1b22;border:2px solid #0f1b22'
+            : 'background:#ffffff;color:#5a636b;border:2px solid #b9bfba'),
+        line: i === all.length - 1 ? 'display:none' : line + (i < at ? '#0b7a6a' : '#dfe2dd'),
+        labelStyle: 'font-size:14px;font-weight:' + (i === at ? '700' : '600') + ';color:' + (i > at ? '#5a636b' : '#14181b'),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

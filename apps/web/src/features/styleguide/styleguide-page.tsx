@@ -9,7 +9,6 @@ import { Timeline } from '@/components/charts/timeline';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { type Locale, useLocale, useMessages, useT } from '@/lib/i18n';
 import { formatMoney, formatNumber } from '@/lib/money';
-import { type ThemePreference, usePageTheme } from '@/lib/theme';
 import { BuildingBlocks } from './building-blocks';
 import { Colors, Layout, Typography } from './foundations';
 import { styleguideMessages } from './messages';
@@ -27,12 +26,11 @@ import { useTokenValues } from './tokens';
 
 const sectionIds = ['colors', 'typography', 'layout', 'navigation', 'blocks', 'charts'] as const;
 
-/** Alle Bausteine der Oberfläche auf einer Seite, in Hell und Dunkel (PLT-10). */
+/** Alle Bausteine der Oberfläche auf einer Seite (PLT-10); es gibt nur ein helles Thema. */
 export function StyleguidePage() {
   const t = useMessages(styleguideMessages);
   const app = useT();
   const { locale, setLocale } = useLocale();
-  const [theme, setTheme] = usePageTheme();
   const values = useTokenValues();
 
   useEffect(() => {
@@ -70,16 +68,6 @@ export function StyleguidePage() {
                 options={[
                   { value: 'de', label: 'Deutsch' },
                   { value: 'en', label: 'English' },
-                ]}
-              />
-              <SegmentedControl<ThemePreference>
-                label={`${t.theme.label}. ${t.themeHint}`}
-                value={theme}
-                onChange={setTheme}
-                options={[
-                  { value: 'system', label: t.theme.system },
-                  { value: 'light', label: t.theme.light },
-                  { value: 'dark', label: t.theme.dark },
                 ]}
               />
             </div>

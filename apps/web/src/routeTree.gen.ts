@@ -36,7 +36,6 @@ import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/i
 import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/matrix'
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
-import { Route as AppProfilErscheinungsbildRouteImport } from './routes/_app/profil/erscheinungsbild'
 import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprache'
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
@@ -373,12 +372,6 @@ const AppProfilIndexRoute = AppProfilIndexRouteImport.update({
   path: '/profil/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProfilErscheinungsbildRoute =
-  AppProfilErscheinungsbildRouteImport.update({
-    id: '/profil/erscheinungsbild',
-    path: '/profil/erscheinungsbild',
-    getParentRoute: () => AppRoute,
-  } as any)
 const AppProfilSpracheRoute = AppProfilSpracheRouteImport.update({
   id: '/profil/sprache',
   path: '/profil/sprache',
@@ -1579,7 +1572,6 @@ export interface FileRoutesByFullPath {
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
-  '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -1803,7 +1795,6 @@ export interface FileRoutesByTo {
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
-  '/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2031,7 +2022,6 @@ export interface FileRoutesById {
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/_app/portfolio/offen': typeof AppPortfolioOffenRoute
-  '/_app/profil/erscheinungsbild': typeof AppProfilErscheinungsbildRoute
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2260,7 +2250,6 @@ export interface FileRouteTypes {
     | '/lieferanten/neu'
     | '/portfolio/matrix'
     | '/portfolio/offen'
-    | '/profil/erscheinungsbild'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -2484,7 +2473,6 @@ export interface FileRouteTypes {
     | '/lieferanten/neu'
     | '/portfolio/matrix'
     | '/portfolio/offen'
-    | '/profil/erscheinungsbild'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -2711,7 +2699,6 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/neu'
     | '/_app/portfolio/matrix'
     | '/_app/portfolio/offen'
-    | '/_app/profil/erscheinungsbild'
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
@@ -3116,13 +3103,6 @@ declare module '@tanstack/react-router' {
       path: '/profil'
       fullPath: '/profil/'
       preLoaderRoute: typeof AppProfilIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/profil/erscheinungsbild': {
-      id: '/_app/profil/erscheinungsbild'
-      path: '/profil/erscheinungsbild'
-      fullPath: '/profil/erscheinungsbild'
-      preLoaderRoute: typeof AppProfilErscheinungsbildRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profil/sprache': {
@@ -4950,7 +4930,6 @@ interface AppRouteChildren {
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
   AppPortfolioOffenRoute: typeof AppPortfolioOffenRoute
-  AppProfilErscheinungsbildRoute: typeof AppProfilErscheinungsbildRoute
   AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
@@ -5027,7 +5006,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
   AppPortfolioOffenRoute: AppPortfolioOffenRoute,
-  AppProfilErscheinungsbildRoute: AppProfilErscheinungsbildRoute,
   AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,

@@ -1,7 +1,8 @@
 /*
  * Design-Tokens von Reziproq – die einzige Stelle mit festen Farben, Schriftgrößen, Abständen,
  * Radien, Schatten, Breakpoints und Bewegung (PLT-10). Tailwind liest sie über @theme unten.
- * Grundlage: docs/design/prinzipien.md und docs/design/visualisierung.md.
+ * Grundlage: docs/design/designsprache.md („Zwei Kreise“), dazu docs/design/prinzipien.md und
+ * docs/design/visualisierung.md. Es gibt nur ein helles Thema.
  * Farben als Hex, damit auch die Diagramm-Bibliotheken sie verarbeiten können.
  * Kontraste prüft src/styles/tokens.node.test.ts (WCAG AA).
  */
@@ -23,15 +24,34 @@
 :root {
   color-scheme: light;
 
-  /* Schrift: sechs Stufen – Bühne (display), Seitentitel (2xl), Großtitel (xl), Titel (lg),
-     Text (base), Fußnote (sm). Zeilenhöhen im 4-Pixel-Raster. Betonung über Schriftstärke. */
-  --font-family-sans: system-ui, -apple-system, Inter, sans-serif;
+  /* Schrift (Designsprache „Zwei Kreise“): Figtree für Text und Bedienelemente, Outfit 600 für
+     Titel, große Zahlen und Monogramme. Beide liefert die App selbst aus (styles/fonts.css). */
+  --font-family-sans: 'Figtree', system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Outfit', 'Figtree', system-ui, sans-serif;
+  /* Stufen der Designsprache: Chip 12, Klein 13, Text 15, Abschnitt klein 19, Abschnitt 22,
+     Kennzahl 28, Titel Arbeitsseite 36, Titel 42, Titel groß 46 */
+  --font-size-chip: 0.75rem;
+  --line-height-chip: 1rem;
+  --font-size-section: 1.375rem;
+  --line-height-section: 1.75rem;
+  --font-size-figure: 1.75rem;
+  --line-height-figure: 2.25rem;
+  --font-size-title-work: 2.25rem;
+  --line-height-title-work: 1.08;
+  --font-size-title: 2.625rem;
+  --line-height-title: 1.05;
+  --font-size-title-hero: 2.875rem;
+  --line-height-title-hero: 1.04;
+  --letter-spacing-title-lg: -0.035em;
+  --letter-spacing-title-work: -0.03em;
+  --letter-spacing-section: -0.02em;
+  --letter-spacing-section-sm: -0.015em;
   --font-size-sm: 0.8125rem;
   --line-height-sm: 1.25rem;
   --font-size-base: 0.9375rem;
   --line-height-base: 1.5rem;
-  --font-size-lg: 1.25rem;
-  --line-height-lg: 1.75rem;
+  --font-size-lg: 1.1875rem;
+  --line-height-lg: 1.625rem;
   --font-size-xl: 1.75rem;
   --line-height-xl: 2.25rem;
   --font-size-2xl: 2.5rem;
@@ -44,12 +64,19 @@
   /* Abstände: 1 Einheit = 4 Pixel */
   --spacing-unit: 0.25rem;
 
-  /* Abgerundete Ecken */
-  --corner-sm: 0.25rem;
-  --corner-md: 0.625rem;
-  --corner-lg: 0.75rem;
-  --corner-xl: 1rem;
+  /* Abgerundete Ecken (Designsprache): Karte 24, Tinte-Karte 28, Feld in einer Karte 16 bis 20,
+     klein 8. Alles Klickbare ist eine Pille (rounded-full). */
+  --corner-sm: 0.5rem;
+  --corner-md: 1rem;
+  --corner-lg: 1.5rem;
+  --corner-xl: 1.75rem;
+  --corner-field: 1.25rem;
 
+  /* Formen der Designsprache: Karte mit hauchfeinem Rand, großes Eingabefeld (Frage), aktiver
+     Schalter. Kein farbiger Schatten. */
+  --elevation-card: 0 0 0 1px #0f1b220a;
+  --elevation-ask: 0 0 0 1px #0f1b2214, 0 6px 20px #0f1b220a;
+  --elevation-toggle: 0 1px 2px #0f1b221f;
   /* Sanfte Schatten: nur für Flächen, die über anderen liegen (Overlays, Menüs, Umschalter) */
   --elevation-xs: 0 1px 2px #1d1d1f0f;
   --elevation-sm: 0 1px 3px #1d1d1f14, 0 1px 2px #1d1d1f0a;
@@ -61,7 +88,33 @@
   --motion-duration: 150ms;
   --motion-easing: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Flächen und Text: Seite warmes Hellgrau, Karten weiß (Handschrift Bühne, PLT-10) */
+  /* Farben der Designsprache „Zwei Kreise“: Tinte für die eigene Seite, Petrol für den
+     Lieferanten und Aktionen, Mint für das Geteilte und „jetzt“. */
+  --ink: #0f1b22;
+  --text: #14181b;
+  --petrol: #0b7a6a;
+  --petrol-dark: #0a5c50;
+  --mint: #4fd1b4;
+  --mint-soft: #e1f3ed;
+  --mint-line: #9fd9c8;
+  --paper: #f4f5f2;
+  --line: #dfe2dd;
+  --line-soft: #eceeea;
+  --muted-strong: #3f4a52;
+  --ring-open: #b9bfba;
+  --input-border: #7b8389;
+  --on-dark: #f4f5f2;
+  --on-dark-muted: #a9b4b9;
+  --dark-2: #2e3e47;
+  /* Status: immer Fläche plus Text */
+  --status-neutral: #eceeea;
+  --status-neutral-foreground: #3f4a52;
+  --status-shared: #e1f3ed;
+  --status-shared-foreground: #0a5c50;
+  --status-ink: #0f1b22;
+  --status-ink-foreground: #4fd1b4;
+
+  /* Flächen und Text der Bausteine, auf die Farben oben gelegt */
   --background: #f4f5f2;
   --foreground: #14181b;
   --muted: #eceeea;
@@ -72,8 +125,9 @@
   --popover-foreground: #14181b;
   /* Abdunkelung hinter eingeblendeten Flächen, z. B. der Seitenleiste in schmalen Fenstern */
   --overlay: #0f1b2266;
-  --secondary: #e8eae6;
-  --secondary-foreground: #14181b;
+  /* Neutrale Fläche (line-soft) mit Text auf neutraler Fläche (muted-strong) */
+  --secondary: #eceeea;
+  --secondary-foreground: #3f4a52;
   /* shadcn-Name: Hover-Fläche, nicht die Akzentfarbe */
   --accent: #e2e5e0;
   --accent-foreground: #14181b;
@@ -140,85 +194,6 @@
   --chart-seq-label-5: #ffffff;
 }
 
-.dark {
-  color-scheme: dark;
-
-  --background: #11181c;
-  --foreground: #eef1ee;
-  --muted: #1b252b;
-  --muted-foreground: #a9b4b9;
-  --card: #172127;
-  --card-foreground: #eef1ee;
-  --popover: #1b252b;
-  --popover-foreground: #eef1ee;
-  --overlay: #000000a3;
-  --secondary: #1f2a30;
-  --secondary-foreground: #eef1ee;
-  --accent: #26333a;
-  --accent-foreground: #eef1ee;
-  --border: #2b3a42;
-  --input: #7f8b91;
-
-  --primary: #4fd1b4;
-  --primary-foreground: #0f1b22;
-  --primary-soft: #133a33;
-  --primary-soft-foreground: #8fe3cf;
-  --ring: #4fd1b4;
-
-  --stage: #0a1216;
-  --stage-foreground: #eef1ee;
-  --stage-muted: #a9b4b9;
-  --stage-raised: #152027;
-  --stage-border: #26333a;
-  --stage-input: #7f8b91;
-  --stage-accent: #4fd1b4;
-  --stage-accent-foreground: #0f1b22;
-
-  --success: #9bd27a;
-  --success-soft: #1f3318;
-  --success-soft-foreground: #b5e09a;
-  --warning: #e0b04f;
-  --warning-soft: #3a2f17;
-  --warning-soft-foreground: #ecc778;
-  --destructive: #f07a72;
-  --destructive-foreground: #3d0d0a;
-  --destructive-soft: #3d1f1d;
-  --destructive-soft-foreground: #f5a39d;
-
-  /* Auf dunklen Flächen braucht ein Schatten mehr Deckkraft, um sichtbar zu sein */
-  --elevation-xs: 0 1px 2px #00000052;
-  --elevation-sm: 0 1px 3px #0000005c, 0 1px 2px #00000033;
-  --elevation-md: 0 4px 12px #00000066, 0 1px 3px #00000033;
-  --elevation-lg: 0 12px 32px #00000080, 0 2px 6px #00000040;
-  --elevation-xl: 0 24px 64px #00000099, 0 4px 12px #0000004d;
-
-  --chart-context: #5f6b70;
-  --chart-accent: #4fd1b4;
-  --chart-strong: #d1d6d3;
-  --chart-negative: #4a565b;
-  --chart-grid: #2b3a42;
-  --chart-axis: #a9b4b9;
-  --chart-label: #eef1ee;
-  --chart-field: #1b252b;
-  --chart-surface: #172127;
-  --chart-tooltip: #1b252b;
-  --chart-tooltip-foreground: #eef1ee;
-  --chart-tooltip-border: #2b3a42;
-  --chart-buyer: #4fd1b4;
-  --chart-supplier: #d1d6d3;
-  /* Im Dunkelmodus: niedrige Werte nah am Hintergrund, hohe Werte hell */
-  --chart-seq-1: #15302b;
-  --chart-seq-2: #1c4d44;
-  --chart-seq-3: #2a7768;
-  --chart-seq-4: #4fbfa5;
-  --chart-seq-5: #a6ead8;
-  --chart-seq-label-1: #eef1ee;
-  --chart-seq-label-2: #eef1ee;
-  --chart-seq-label-3: #ffffff;
-  --chart-seq-label-4: #0f1b22;
-  --chart-seq-label-5: #0f1b22;
-}
-
 /* Tailwinds eingebaute Farben, Schriftgrößen, Radien und Schatten abschalten –
    es gelten nur die Tokens oben. */
 @theme {
@@ -234,6 +209,7 @@
   --color-current: currentColor;
 
   --font-sans: var(--font-family-sans);
+  --font-display: var(--font-family-display);
 
   --text-sm: var(--font-size-sm);
   --text-sm--line-height: var(--line-height-sm);
@@ -248,6 +224,22 @@
   --text-display: var(--font-size-display);
   --text-display--line-height: var(--line-height-display);
   --tracking-title: var(--letter-spacing-title);
+  --text-chip: var(--font-size-chip);
+  --text-chip--line-height: var(--line-height-chip);
+  --text-section: var(--font-size-section);
+  --text-section--line-height: var(--line-height-section);
+  --text-figure: var(--font-size-figure);
+  --text-figure--line-height: var(--line-height-figure);
+  --text-title-work: var(--font-size-title-work);
+  --text-title-work--line-height: var(--line-height-title-work);
+  --text-title: var(--font-size-title);
+  --text-title--line-height: var(--line-height-title);
+  --text-title-hero: var(--font-size-title-hero);
+  --text-title-hero--line-height: var(--line-height-title-hero);
+  --tracking-title-lg: var(--letter-spacing-title-lg);
+  --tracking-title-work: var(--letter-spacing-title-work);
+  --tracking-section: var(--letter-spacing-section);
+  --tracking-section-sm: var(--letter-spacing-section-sm);
 
   --spacing: var(--spacing-unit);
 
@@ -255,12 +247,16 @@
   --radius-md: var(--corner-md);
   --radius-lg: var(--corner-lg);
   --radius-xl: var(--corner-xl);
+  --radius-field: var(--corner-field);
 
   --shadow-xs: var(--elevation-xs);
   --shadow-sm: var(--elevation-sm);
   --shadow-md: var(--elevation-md);
   --shadow-lg: var(--elevation-lg);
   --shadow-xl: var(--elevation-xl);
+  --shadow-card: var(--elevation-card);
+  --shadow-ask: var(--elevation-ask);
+  --shadow-toggle: var(--elevation-toggle);
 
   --default-transition-duration: var(--motion-duration);
   --default-transition-timing-function: var(--motion-easing);
@@ -303,4 +299,27 @@
   --color-stage-input: var(--stage-input);
   --color-stage-accent: var(--stage-accent);
   --color-stage-accent-foreground: var(--stage-accent-foreground);
+  /* Namen der Designsprache */
+  --color-ink: var(--ink);
+  --color-text: var(--text);
+  --color-petrol: var(--petrol);
+  --color-petrol-dark: var(--petrol-dark);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-mint-line: var(--mint-line);
+  --color-paper: var(--paper);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-muted-strong: var(--muted-strong);
+  --color-ring-open: var(--ring-open);
+  --color-input-border: var(--input-border);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+  --color-dark-2: var(--dark-2);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-foreground: var(--status-neutral-foreground);
+  --color-status-shared: var(--status-shared);
+  --color-status-shared-foreground: var(--status-shared-foreground);
+  --color-status-ink: var(--status-ink);
+  --color-status-ink-foreground: var(--status-ink-foreground);
 }

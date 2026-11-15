@@ -122,3 +122,9 @@ Je Kriterium ein Test.
 - Navigation mit echten Routen (PLT-11)
 - Englische Texte (PLT-09)
 - Diagramme mit Fachdaten (eigene Specs)
+
+## Änderung vom 15.11.2026: nur ein helles Thema
+
+Mit der Designsprache „Zwei Kreise“ (`docs/design/designsprache.md`) gibt es nur ein helles Thema.
+Der Dunkelmodus, die Seite `/profil/erscheinungsbild` und der Umschalter im Styleguide sind
+entfernt (Entscheidung des Gründers). Kriterien zu Hell und Dunkel gelten seitdem nur noch für Hell.

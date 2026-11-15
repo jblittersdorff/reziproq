@@ -99,11 +99,11 @@ test('Ohne Login leitet /styleguide zur Anmeldung weiter und zeigt bis dahin nic
   await expect(page.getByRole('heading', { name: 'Styleguide' })).toHaveCount(0);
 });
 
-for (const mode of ['Hell', 'Dunkel'] as const) {
+// Designsprache „Zwei Kreise“: nur ein helles Thema.
+for (const mode of ['Hell'] as const) {
   test(`/styleguide zeigt alle Abschnitte und Bausteine (${mode})`, async ({ page }) => {
     await openStyleguide(page);
-    await page.getByText(mode, { exact: true }).click();
-    await expect(page.locator('html')).toHaveClass(mode === 'Dunkel' ? /dark/ : /^(?!.*dark)/);
+    await expect(page.locator('html')).not.toHaveClass(/dark/);
 
     // Die Fläche der Seite kommt aus dem Token des gewählten Modus.
     const background = await page.evaluate(() => {
@@ -250,15 +250,10 @@ for (const mode of ['Hell', 'Dunkel'] as const) {
   });
 }
 
-test('Der Umschalter gilt nur für den Styleguide', async ({ page }) => {
+test('Der Styleguide hat keinen Umschalter für Hell und Dunkel mehr', async ({ page }) => {
   await openStyleguide(page);
-  await page.getByText('Dunkel', { exact: true }).click();
-  await expect(page.locator('html')).toHaveClass(/dark/);
-
-  await page.goto('/start');
-  await expect(page.locator('#inhalt h1')).toBeVisible();
+  await expect(page.getByText('Dunkel', { exact: true })).toHaveCount(0);
   await expect(page.locator('html')).not.toHaveClass(/dark/);
-  expect(await page.evaluate(() => localStorage.getItem('reziproq-theme'))).toBeNull();
 });
 
 test('Der Styleguide ist nicht in der Navigation verlinkt', async ({ page }) => {
@@ -352,7 +347,6 @@ test('Alle Bausteine sind per Tastatur erreichbar und haben einen sichtbaren Fok
   const names = visited.map((entry) => entry.name);
   for (const expected of [
     'Deutsch',
-    'System',
     'Farben',
     'Diagramme',
     'Normal',
@@ -408,11 +402,9 @@ test('Bei „Bewegung reduzieren“ laufen keine Animationen', async ({ page }) 
   expect(await bridge.innerHTML()).toBe(first);
 });
 
-for (const mode of ['Hell', 'Dunkel'] as const) {
+for (const mode of ['Hell'] as const) {
   test(`Die Diagramm-Beispiele nutzen nur Diagramm-Tokens (${mode})`, async ({ page }) => {
     await openStyleguide(page);
-    await page.getByText(mode, { exact: true }).click();
-    // Neu gezeichnet nach dem Wechsel
     await page.waitForTimeout(300);
 
     const result = await page.evaluate(

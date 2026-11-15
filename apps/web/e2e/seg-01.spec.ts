@@ -18,9 +18,7 @@ const model = {
 
 test.use({ locale: 'de-DE' });
 
-test('SEG-01 passt sich auf Desktop und Mobil an und bleibt in Hell und Dunkel lesbar', async ({
-  page,
-}, testInfo) => {
+test('SEG-01 passt sich auf Desktop und Mobil an und bleibt lesbar', async ({ page }, testInfo) => {
   await fakeZitadel(page);
   await page.route('**/api/me', (route) =>
     route.fulfill({
@@ -68,10 +66,8 @@ test('SEG-01 passt sich auf Desktop und Mobil an und bleibt in Hell und Dunkel l
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const colorScheme of ['light', 'dark'] as const) {
+    for (const colorScheme of ['light'] as const) {
       await page.emulateMedia({ colorScheme });
-      if (colorScheme === 'dark') await expect(page.locator('html')).toHaveClass(/dark/);
-      else await expect(page.locator('html')).not.toHaveClass(/dark/);
       const overflowingElements = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('body *')]
           .filter((element) => element.getBoundingClientRect().right > window.innerWidth + 1)

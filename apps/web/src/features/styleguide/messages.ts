@@ -6,8 +6,6 @@ export const styleguideMessages = defineMessages({
     intro: 'Alle Bausteine der Oberfläche an einem Ort – aus denselben Design-Tokens.',
     nav: 'Abschnitte',
     language: 'Sprache',
-    theme: { label: 'Darstellung', system: 'System', light: 'Hell', dark: 'Dunkel' },
-    themeHint: 'Gilt nur für diese Seite.',
     source: 'Aus',
     sections: {
       colors: 'Farben',
@@ -18,6 +16,7 @@ export const styleguideMessages = defineMessages({
       charts: 'Diagramme',
     },
     colors: {
+      brand: 'Designsprache „Zwei Kreise“',
       surfaces: 'Flächen',
       text: 'Text',
       accent: 'Akzentfarbe Petrol – für Hauptaktion, Auswahl und Geteiltes',
@@ -305,8 +304,6 @@ export const styleguideMessages = defineMessages({
     intro: 'Every building block of the interface in one place – from the same design tokens.',
     nav: 'Sections',
     language: 'Language',
-    theme: { label: 'Appearance', system: 'System', light: 'Light', dark: 'Dark' },
-    themeHint: 'Applies to this page only.',
     source: 'From',
     sections: {
       colors: 'Colours',
@@ -317,6 +314,7 @@ export const styleguideMessages = defineMessages({
       charts: 'Charts',
     },
     colors: {
+      brand: 'Design language “Two circles”',
       surfaces: 'Surfaces',
       text: 'Text',
       accent: 'Accent colour petrol – for the main action, selection and shared content',

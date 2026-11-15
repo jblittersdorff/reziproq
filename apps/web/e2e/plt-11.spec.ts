@@ -25,7 +25,6 @@ const routes = [
   { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
   { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
   { path: '/profil', title: 'Profil' },
-  { path: '/profil/erscheinungsbild', title: 'Erscheinungsbild' },
   { path: '/einstellungen', title: 'Einstellungen' },
   { path: '/einstellungen/organisation', title: 'Organisation' },
   { path: '/menu', title: 'Menü' },
@@ -259,28 +258,18 @@ test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, au
     await expect(page.locator('#inhalt h1')).toBeVisible();
   }
 
-  // Speichern und Abbrechen führen zur vorigen Ansicht.
+  // Speichern und Abbrechen führen zur vorigen Ansicht (Formularseite Sprache).
+  await page.route('**/api/me/sprache', (route) => route.fulfill({ status: 204 }));
   for (const button of ['Speichern', 'Abbrechen']) {
     await page.goto('/profil');
     await pageSettled(page);
-    await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
-    await expect(page).toHaveURL(url('/profil/erscheinungsbild'));
-    await page.getByText('Dunkel', { exact: true }).click();
+    await page.getByRole('link', { name: /^Sprache/ }).click();
+    await expect(page).toHaveURL(url('/profil/sprache'));
+    // Abbrechen verwirft die Wahl English; Speichern behält Deutsch.
+    if (button === 'Abbrechen') await page.getByText('English', { exact: true }).click();
     await page.getByRole('button', { name: button }).click();
     await expect(page).toHaveURL(url('/profil'));
-    if (button === 'Speichern') await expect(page.locator('html')).toHaveClass(/dark/);
-    else {
-      // Abbrechen verwirft; davor war Dunkel gespeichert, also zurück auf System.
-      await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
-      await page.getByText('System', { exact: true }).click();
-      await page.getByRole('button', { name: 'Speichern' }).click();
-      await expect(page).toHaveURL(url('/profil'));
-      await page.getByRole('link', { name: /^Erscheinungsbild/ }).click();
-      await page.getByText('Dunkel', { exact: true }).click();
-      await page.getByRole('button', { name: 'Abbrechen' }).click();
-      await expect(page).toHaveURL(url('/profil'));
-      await expect(page.locator('html')).not.toHaveClass(/dark/);
-    }
+    await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   }
 });
 
@@ -352,11 +341,11 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
   await page.keyboard.type('Wer ist mein Fokuslieferant?');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/fragen\?q=/);
-  await page.goto('/profil/erscheinungsbild');
+  await page.goto('/profil/sprache');
   await pageSettled(page);
-  await page.getByRole('radio', { name: 'System' }).focus();
+  await page.getByRole('radio', { name: 'Deutsch' }).focus();
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('radio', { name: 'Hell' })).toBeChecked();
+  await expect(page.getByRole('radio', { name: 'English' })).toBeChecked();
 });
 
 test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page }) => {
@@ -370,14 +359,13 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Deine Frage an Reziproq');
 });
 
-test('Hell- und Dunkelmodus folgen dem System', async ({ page }) => {
+test('Es gibt nur ein helles Thema, auch bei dunkler Systemeinstellung', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await signIn(page);
-  await page.goto('/profil/erscheinungsbild');
-  await expect(page.locator('html')).toHaveClass(/dark/);
-  await expect(page.getByRole('radio', { name: 'System' })).toBeChecked();
-  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/profil');
+  await pageSettled(page);
   await expect(page.locator('html')).not.toHaveClass(/dark/);
+  await expect(page.getByRole('link', { name: /^Erscheinungsbild/ })).toHaveCount(0);
 });
 
 test('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', async ({ page }) => {

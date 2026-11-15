@@ -6,7 +6,6 @@ import { AuthProvider } from 'react-oidc-context';
 import { reportLogin } from './lib/api';
 import { oidcConfig, safeReturnTo, zitadelSettings } from './lib/auth';
 import { LocaleProvider } from './lib/i18n';
-import { ThemeProvider } from './lib/theme';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 
@@ -50,10 +49,8 @@ if (!rootElement) throw new Error('Element #root fehlt in index.html');
 
 createRoot(rootElement).render(
   <StrictMode>
-    <ThemeProvider>
-      <LocaleProvider>
-        {authConfig ? <AuthProvider {...authConfig}>{app}</AuthProvider> : app}
-      </LocaleProvider>
-    </ThemeProvider>
+    <LocaleProvider>
+      {authConfig ? <AuthProvider {...authConfig}>{app}</AuthProvider> : app}
+    </LocaleProvider>
   </StrictMode>,
 );

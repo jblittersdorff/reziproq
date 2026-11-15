@@ -52,7 +52,6 @@ const routes = [
   { path: '/wirkung', title: 'Wirkung' },
   { path: '/fragen', title: 'Frag Reziproq' },
   { path: '/profil', title: 'Profil' },
-  { path: '/profil/erscheinungsbild', title: 'Erscheinungsbild' },
   { path: '/einstellungen', title: 'Einstellungen' },
   { path: '/einstellungen/organisation', title: 'Organisation' },
   { path: '/menu', title: 'Menü' },
@@ -246,7 +245,7 @@ describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mit
 
 describe('Pfad mit Zurück-Pfeil', () => {
   it.each([
-    ['/profil/erscheinungsbild', anna, ['Profil'], 'Zurück zu Profil', '/profil'],
+    ['/profil/sprache', anna, ['Profil'], 'Zurück zu Profil', '/profil'],
     ['/einstellungen/organisation', anna, ['Profil'], 'Zurück zu Profil', '/profil'],
     [
       '/einstellungen/organisation',
@@ -273,31 +272,6 @@ describe('Pfad mit Zurück-Pfeil', () => {
     renderAt('/portfolio');
     await screen.findByRole('heading', { level: 1, name: 'Portfolio' });
     expect(screen.queryByRole('navigation', { name: 'Pfad' })).toBeNull();
-  });
-});
-
-describe('Erscheinungsbild als Formularseite', () => {
-  it('zeigt „System“ als Standard und den Wert auf dem Profil', async () => {
-    renderAt('/profil/erscheinungsbild');
-    expect(await screen.findByRole('radio', { name: 'System' })).toHaveProperty('checked', true);
-  });
-
-  it('übernimmt die Wahl erst mit Speichern und merkt sie sich im Browser', async () => {
-    const router = renderAt('/profil/erscheinungsbild');
-    fireEvent.click(await screen.findByRole('radio', { name: 'Dunkel' }));
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/profil'));
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(localStorage.getItem('reziproq-theme')).toBe('dark');
-  });
-
-  it('verwirft die Wahl mit Abbrechen', async () => {
-    const router = renderAt('/profil/erscheinungsbild');
-    fireEvent.click(await screen.findByRole('radio', { name: 'Dunkel' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/profil'));
-    expect(localStorage.getItem('reziproq-theme')).toBeNull();
   });
 });
 

@@ -4,6 +4,31 @@ import { useEffect, useState } from 'react';
 // vorkommt, prüft tokens.node.test.ts in diesem Ordner.
 
 export const colorGroups = {
+  /* Designsprache „Zwei Kreise“ */
+  brand: [
+    'ink',
+    'text',
+    'petrol',
+    'petrol-dark',
+    'mint',
+    'mint-soft',
+    'mint-line',
+    'paper',
+    'line',
+    'line-soft',
+    'muted-strong',
+    'ring-open',
+    'input-border',
+    'on-dark',
+    'on-dark-muted',
+    'dark-2',
+    'status-neutral',
+    'status-neutral-foreground',
+    'status-shared',
+    'status-shared-foreground',
+    'status-ink',
+    'status-ink-foreground',
+  ],
   surfaces: [
     'background',
     'muted',

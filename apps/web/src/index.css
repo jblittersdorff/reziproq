@@ -1,8 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/fonts.css";
 @import "./styles/tokens.css";
-
-@custom-variant dark (&:is(.dark *));
 
 /*
  * Bühne (PLT-10, Handschrift Bühne): Innerhalb einer dunklen Fläche gelten die Bühnenfarben.
@@ -32,7 +31,19 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  /* Titel in Outfit 600, ausgeglichen umbrochen (Designsprache „Zwei Kreise“). */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-family-display);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+  /* Zahlen in Spalten sind Tabellenziffern. */
+  table {
+    font-variant-numeric: tabular-nums;
   }
   body {
     @apply bg-background text-base text-foreground;
