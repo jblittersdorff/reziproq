@@ -258,7 +258,7 @@ describe('PLT-08: Verlauf in der Datenbank', () => {
 
     // Ein Objekt, das ein Feld einer privaten Tabelle teilen würde, fällt in der Prüfung auf.
     const columns = await privateColumns(temp.db);
-    expect(columns.get('amount_cents')).toEqual(['relationship_spend']);
+    expect(columns.get('amount_cents')).toEqual(expect.arrayContaining(['relationship_spend']));
     expect(columns.get('external_ref')).toEqual(['relationship_side']);
     const leaky = auditedObject({
       type: 'x',

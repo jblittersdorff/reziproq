@@ -42,6 +42,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `massnahmen.bearbeiten` | Maßnahmen anlegen, eigene bearbeiten und den Status ändern (nicht mit Teamrolle Leser) | ja | ja | nein | nein |
 | `kontaktpunkte.sehen` | Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte) | ja | ja | ja | ja |
 | `kontaktpunkte.bearbeiten` | Kontaktpunkte anlegen, ändern, teilen und als geprüft markieren (Käufer, Admin oder Team, nicht mit Teamrolle Leser) | ja | ja | nein | nein |
+| `teilung.vereinbaren` | Teilungsregel einer Initiative vorschlagen (Käufer: SRO oder Admin) oder bestätigen (Lieferant: Key Account Manager oder Admin) | ja | ja | nein | nein |
 | `jbp.sehen` | Gemeinsamen Plan und seine Vorbereitung sehen (beide Seiten) | ja | ja | ja | ja |
 | `jbp.anlegen` | Gemeinsamen Plan anlegen, mit Termin und Agenda (Käufer: Admin oder SRO) | ja | ja | nein | nein |
 | `jbp.bearbeiten` | Eigenes Geschäftsupdate schreiben (beide Seiten, nicht mit Teamrolle Leser) | ja | ja | nein | nein |

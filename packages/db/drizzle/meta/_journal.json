@@ -470,6 +470,20 @@
       "when": 1794694325888,
       "tag": "0066_profil_finanzen",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1794694972734,
+      "tag": "0067_teilung_wirkungsarten",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1794695025767,
+      "tag": "0068_teilung_ohne_eindeutigkeit",
+      "breakpoints": true
     }
   ]
 }

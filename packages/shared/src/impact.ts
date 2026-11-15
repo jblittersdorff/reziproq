@@ -53,8 +53,53 @@ export const impactSetupSchema = z.object({
   effectiveFrom: z.iso.date().nullable(),
 });
 
+// PNL-07: Teilungsregel, Wirkungsarten getrennt, keine Doppelzählung.
+
+export const initiativeShareSchema = z.object({
+  id: z.uuid(),
+  buyerSharePct: z.number().int(),
+  supplierSharePct: z.number().int(),
+  ruleText: z.string().nullable(),
+  proposedByName: z.string(),
+  proposedAt: z.string(),
+  /** Bestätigt durch den Lieferanten; erst dann ist die Teilung vereinbart */
+  supplierConfirmedByName: z.string().nullable(),
+  agreedAt: z.string().nullable(),
+});
+export type InitiativeShare = z.infer<typeof initiativeShareSchema>;
+
+/** Summe genau einer Wirkungsart; es gibt keine Summe über Arten hinweg. */
+export const effectTotalSchema = z.object({
+  effectType: z.enum(effectTypes),
+  plan: z.number().int(),
+  actual: z.number().int(),
+});
+export type EffectTotal = z.infer<typeof effectTotalSchema>;
+
+export const savingsReferenceSchema = z.object({
+  system: z.string().trim().min(1).max(80),
+  reference: z.string().trim().min(1).max(200),
+});
+export type SavingsReference = z.infer<typeof savingsReferenceSchema>;
+export const saveSavingsReferenceSchema = savingsReferenceSchema.strict();
+
+export const saveShareSchema = z
+  .object({
+    buyerSharePct: z.number().int().min(0).max(100),
+    supplierSharePct: z.number().int().min(0).max(100),
+    ruleText: z.string().trim().max(1000).nullable(),
+  })
+  .strict()
+  .refine((input) => input.buyerSharePct + input.supplierSharePct === 100, {
+    message: 'share_sum',
+    path: ['supplierSharePct'],
+  });
+export type SaveShare = z.infer<typeof saveShareSchema>;
+
 export const impactListSchema = z.object({
   canEdit: z.boolean(),
+  /** SRO oder Admin: Teilung vorschlagen und Savings-Verweis setzen */
+  canLead: z.boolean(),
   initiatives: z.array(
     z.object({
       id: z.uuid(),
@@ -62,8 +107,13 @@ export const impactListSchema = z.object({
       source: z.enum(initiativeSources),
       maturity: z.number().int(),
       impact: impactSetupSchema.nullable(),
+      share: initiativeShareSchema.nullable(),
+      /** Bereits im Savings-Tracking: zählt in keiner Summe */
+      savingsReference: savingsReferenceSchema.nullable(),
     }),
   ),
+  /** Je Wirkungsart eine Summe, ohne Initiativen mit Savings-Verweis */
+  totals: z.array(effectTotalSchema),
 });
 export type ImpactList = z.infer<typeof impactListSchema>;
 
@@ -267,3 +317,44 @@ export const decideValidationSchema = z
     message: 'begruendung_fehlt',
   });
 export type DecideValidation = z.infer<typeof decideValidationSchema>;
+
+// PNL-07: Wirkung beim Lieferanten unter /kunden/<beziehung>/wirkung.
+
+export const supplierBenefitSchema = z.object({
+  id: z.uuid(),
+  month: z.iso.date(),
+  amountCents: z.number().int(),
+  currency: z.string(),
+  note: z.string().nullable(),
+});
+export type SupplierBenefit = z.infer<typeof supplierBenefitSchema>;
+
+export const customerImpactSchema = z.object({
+  initiatives: z.array(
+    z.object({
+      id: z.uuid(),
+      title: z.string(),
+      share: initiativeShareSchema.nullable(),
+      /** Vereinbarte Wirkung, erst sichtbar nach der Vereinbarung */
+      value: effectTotalSchema.nullable(),
+      /** Nur für den Lieferanten sichtbar */
+      benefits: z.array(supplierBenefitSchema),
+    }),
+  ),
+  totals: z.array(effectTotalSchema),
+  /** Eigener Nutzen je Währung, nie mit der vereinbarten Wirkung addiert */
+  benefitTotals: z.array(z.object({ currency: z.string(), amountCents: z.number().int() })),
+  canConfirm: z.boolean(),
+  canEditBenefit: z.boolean(),
+});
+export type CustomerImpact = z.infer<typeof customerImpactSchema>;
+
+export const saveBenefitSchema = z
+  .object({
+    month: z.iso.date().refine((date) => date.endsWith('-01'), { message: 'invalid_month' }),
+    amountCents: z.number().int(),
+    currency: z.string().regex(/^[A-Z]{3}$/),
+    note: z.string().trim().max(500).nullable(),
+  })
+  .strict();
+export type SaveBenefit = z.infer<typeof saveBenefitSchema>;

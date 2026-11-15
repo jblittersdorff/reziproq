@@ -243,6 +243,65 @@ export const de = {
   },
 
   impact: {
+    // PNL-07: Teilung, Wirkungsarten, Doppelzählung
+    sharing: {
+      totalsTitle: 'Wirkung je Wirkungsart',
+      totalsHint:
+        'Jede Kachel ist eine eigene Summe. EBIT, Kostenvermeidung, Cash und strategischer Wert werden nie addiert; Initiativen im Savings-Tracking zählen nicht mit.',
+      totalsHintSupplier:
+        'Jede Kachel ist eine eigene Summe. EBIT, Kostenvermeidung, Cash und strategischer Wert werden nie addiert.',
+      plan: 'Plan',
+      actual: 'Ist',
+      share: 'Teilung',
+      shareNone: 'Noch keine Teilung',
+      shareProposed: (buyer: number, supplier: number) =>
+        `Teilung ${buyer} : ${supplier} vorgeschlagen, wartet auf den Lieferanten`,
+      shareAgreed: (buyer: number, supplier: number) => `Teilung ${buyer} : ${supplier} vereinbart`,
+      sharePurpose:
+        'Wie die vereinbarte Wirkung zwischen euch geteilt wird. Der Lieferant bestätigt; erst dann sieht er die Wirkung. Jede Änderung braucht eine neue Bestätigung.',
+      shareEdit: 'Teilung bearbeiten',
+      sharePropose: 'Teilung vorschlagen',
+      buyerShare: 'Anteil Käufer in %',
+      supplierShare: 'Anteil Lieferant in %',
+      ruleText: 'Regel in Worten',
+      ruleTextHint: 'z. B. „Je zur Hälfte nach Abzug der Werkzeugkosten“.',
+      shareSum: 'Die Anteile müssen zusammen 100 % ergeben.',
+      proposedBy: (name: string) => `Vorgeschlagen von ${name}`,
+      confirmedBy: (name: string) => `Bestätigt von ${name}`,
+      savings: 'Savings-Tracking',
+      savingsMarker: 'bereits im Savings-Tracking',
+      savingsNone: 'Kein Verweis. Die Wirkung zählt in den Summen.',
+      savingsSet: (system: string, reference: string) =>
+        `${system} · ${reference}. Zählt in keiner Summe, damit nichts doppelt gezählt wird.`,
+      savingsEdit: 'Verweis setzen',
+      savingsPurpose:
+        'Steht die Einsparung schon im Savings-Tracking (z. B. Coupa oder Sievo), zählt die Initiative hier in keiner Summe. Nur deine Organisation sieht den Verweis.',
+      system: 'System',
+      reference: 'Nummer im System',
+      removeReference: 'Verweis entfernen',
+      onlyLead: 'Teilung und Verweis setzen der SRO oder ein Admin.',
+      // Lieferantenseite
+      customerTitle: 'Wirkung',
+      customerPurpose:
+        'Vereinbarte Wirkung der gemeinsamen Initiativen und wie sie geteilt wird. Darunter euer eigener Nutzen, nur für euch.',
+      customerLoading: 'Wirkung wird geladen …',
+      customerFailed: 'Die Wirkung konnte nicht geladen werden.',
+      customerEmpty: 'Noch keine gemeinsamen Initiativen.',
+      notAgreed: 'Die Wirkung erscheint, sobald die Teilung vereinbart ist.',
+      confirm: 'Teilung bestätigen',
+      confirmed: 'Bestätigt.',
+      benefit: 'Eigener Nutzen',
+      benefitEmpty: 'Noch kein eigener Nutzen erfasst.',
+      benefitTotal: 'Eigener Nutzen gesamt',
+      benefitAdd: 'Nutzen erfassen',
+      benefitTitle: 'Eigenen Nutzen erfassen',
+      benefitPurpose: 'Was die Initiative euch je Monat bringt. Der Kunde sieht es nie.',
+      month: 'Monat',
+      amount: 'Betrag in Euro',
+      note: 'Notiz',
+      duplicateMonth: 'Für diesen Monat gibt es schon einen Eintrag.',
+      removeBenefit: (month: string) => `Nutzen ${month} löschen`,
+    },
     title: 'Wirkung',
     purpose: 'Welcher Wert aus der Zusammenarbeit in der GuV ankommt.',
     emptyTitle: 'Noch keine Wirkung',

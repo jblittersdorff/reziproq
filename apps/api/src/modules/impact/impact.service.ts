@@ -57,6 +57,7 @@ import { can } from '../auth/can.js';
 import { EmailService } from '../email/email.service.js';
 import { normalizeHeader } from '../suppliers/import-file.js';
 import { maturityOf } from './maturity.js';
+import { referencesOf, sharesOf, totalsOf, valuesOf } from './sharing.js';
 import { isLocked, lockedPeriods, monthsOf, recompute, validationsOf } from './values.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -64,7 +65,7 @@ const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gef
 const conflict = (code: string) => new ConflictException({ statusCode: 409, code });
 const invalid = (code: string) => new BadRequestException({ statusCode: 400, code });
 
-interface ImpactScope {
+export interface ImpactScope {
   tx: TenantTransaction;
   auth: AuthContext;
   orgId: string;
@@ -122,7 +123,7 @@ export class ImpactService {
   }
 
   /** Freigabe anfordern: SRO oder Admin (PNL-06). */
-  private canLead(scope: ImpactScope) {
+  canLead(scope: ImpactScope) {
     return this.canEdit(scope) && (scope.auth.orgRole === 'admin' || scope.teamRole === 'sro');
   }
 
@@ -209,7 +210,23 @@ export class ImpactService {
         ),
       });
     }
-    return impactListSchema.parse({ canEdit: this.canEdit(scope), initiatives });
+    // PNL-07: Teilung, Savings-Verweis und Summen je Wirkungsart ohne Doppelzählung.
+    const ids = initiatives.map((entry) => entry.id);
+    const shares = await sharesOf(tx, ids);
+    const references = await referencesOf(tx, ids);
+    const values = await valuesOf(tx, ids);
+    return impactListSchema.parse({
+      canEdit: this.canEdit(scope),
+      canLead: this.canLead(scope),
+      initiatives: initiatives.map((entry) => ({
+        ...entry,
+        share: shares.get(entry.id) ?? null,
+        savingsReference: references.get(entry.id) ?? null,
+      })),
+      totals: totalsOf(
+        ids.filter((id) => !references.has(id)).flatMap((id) => values.get(id) ?? []),
+      ),
+    });
   }
 
   private async initiative(scope: ImpactScope, initiativeId: string) {

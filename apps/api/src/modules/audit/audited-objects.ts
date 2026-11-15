@@ -241,6 +241,25 @@ export const scorecardSettingAudit = auditedObject({
   fields: ['tolerance_percent'],
 });
 
+/** Teilungsregel einer Initiative (PNL-07): beide Seiten sehen den Verlauf. */
+export const initiativeShareAudit = auditedObject({
+  type: 'initiative_share',
+  visibility: 'shared',
+  fields: ['buyer_share_pct', 'supplier_share_pct', 'rule_text', 'agreed'],
+});
+/** Savings-Verweis (PNL-07), käuferprivat. */
+export const savingsReferenceAudit = auditedObject({
+  type: 'savings_reference',
+  visibility: 'internal',
+  fields: ['system', 'reference'],
+});
+/** Eigener Nutzen des Lieferanten (PNL-07), nur für ihn. */
+export const supplierBenefitAudit = auditedObject({
+  type: 'supplier_benefit',
+  visibility: 'internal',
+  fields: ['month', 'amount_cents'],
+});
+
 /** Profil und Finanzen eines Lieferanten (SPL-05), käuferprivat. */
 export const supplierProfileAudit = auditedObject({
   type: 'supplier_profile',
@@ -418,6 +437,9 @@ export const auditedObjects: readonly AuditedObject[] = [
   validationAudit,
   scorecardSettingAudit,
   orgSettingAudit,
+  initiativeShareAudit,
+  savingsReferenceAudit,
+  supplierBenefitAudit,
   supplierProfileAudit,
   supplierExecutivesAudit,
   supplierFinancialAudit,
