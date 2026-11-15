@@ -93,6 +93,40 @@ async function signIn(page: Page) {
     }
     return route.fulfill({ json: supplier });
   });
+  // SPL-04: Spend-Seite mit Einträgen; ein neuer Eintrag landet im Spend je Jahr des Details.
+  const spendOverview = () => ({
+    currency: 'EUR',
+    otherCurrencies: [],
+    years: [...supplier.spend].reverse().map((entry) => ({
+      year: entry.year,
+      kind: 'actual',
+      amountCents: entry.amount.amountCents,
+      byBusinessUnit: [],
+      byMaterialGroup: [],
+    })),
+    kpis: null,
+    entries: supplier.spend.map((entry) => ({
+      id: `0190a0a0-0000-7000-8000-00000000${entry.year}`,
+      year: entry.year,
+      kind: 'actual',
+      businessUnit: null,
+      materialGroup: null,
+      amount: entry.amount,
+    })),
+    options: { businessUnits: [], materialGroups: [] },
+    canEdit: true,
+  });
+  await page.route(`**/api/suppliers/${id}/spend**`, (route) => {
+    const request = route.request();
+    if (request.method() === 'POST') {
+      const body = request.postDataJSON();
+      supplier.spend = [
+        { year: body.year, amount: { amountCents: body.amountCents, currency: 'EUR' } },
+        ...supplier.spend.filter((entry) => entry.year !== body.year),
+      ].sort((a, b) => b.year - a.year);
+    }
+    return route.fulfill({ json: spendOverview() });
+  });
   await page.route('**/api/audit**', (route) => route.fulfill({ json: { entries: [] } }));
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
 }
@@ -130,19 +164,19 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
   await expect(page.getByText('Rahmenvertrag bis 2027')).toBeVisible();
 
-  // Spend: Jahr hinzufügen auf eigener Seite, Abbrechen und Speichern führen zur Liste der Jahre.
+  // Spend: Eintrag hinzufügen auf eigener Seite, Abbrechen und Speichern führen zur Spend-Seite.
   await page.getByRole('link', { name: /Spend je Jahr/ }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
-  await page.getByRole('link', { name: 'Jahr hinzufügen' }).click();
+  await page.getByRole('link', { name: 'Eintrag hinzufügen' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend/neu`));
   await page.getByRole('button', { name: 'Abbrechen' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
-  await page.getByRole('link', { name: 'Jahr hinzufügen' }).click();
-  await page.getByLabel('Jahr').fill('2024');
-  await page.getByLabel('Spend in Euro').fill('980.000');
+  await page.getByRole('link', { name: 'Eintrag hinzufügen' }).click();
+  await page.getByLabel('Jahr', { exact: true }).fill('2024');
+  await page.getByLabel('Spend in Euro', { exact: false }).fill('980.000');
   await page.getByRole('button', { name: 'Speichern' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
-  await expect(page.getByRole('table', { name: 'Spend' })).toContainText('980.000,00');
+  await expect(page.getByRole('table', { name: 'Einträge' })).toContainText('980.000,00');
 
   // Zurück-Pfeil im Pfad führt eine Ebene nach oben zum Bereich Strategie, seit UMB-05 ein
   // Abschnitt auf dem Überblick; von dort die Zeile zum Profil.
@@ -178,7 +212,7 @@ for (const width of [1440, 390]) {
       `/lieferanten/${id}/strategie/profil`,
       `/lieferanten/${id}/strategie/profil/bearbeiten`,
       `/lieferanten/${id}/strategie/spend`,
-      `/lieferanten/${id}/strategie/spend/2025`,
+      `/lieferanten/${id}/strategie/spend/0190a0a0-0000-7000-8000-000000002025`,
     ]) {
       await page.goto(path);
       await expect(page.locator('#inhalt h1')).toBeVisible();
