@@ -5,14 +5,14 @@ import {
   cycleSettingsResponseSchema,
   defaultCycleSettings,
   dueListSchema,
+  type OrgRole,
   offsetCycleDate,
   supplierOverviewSchema,
-  type OrgRole,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { CycleReminderService } from '../email/cycle-reminder.service.js';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { CycleReminderService } from '../email/cycle-reminder.service.js';
 
 describe('ZYK-02: Termine, Fälligkeiten und Erinnerungen', () => {
   let testApp: Awaited<ReturnType<typeof startTestApp>>;
@@ -58,9 +58,7 @@ describe('ZYK-02: Termine, Fälligkeiten und Erinnerungen', () => {
       { id: orgId, name: `ZYK-02 Käufer ${run}` },
       { id: supplierOrgId, name: `ZYK-02 Lieferant ${run}` },
     ]);
-    await db
-      .insert(schema.organizationFeature)
-      .values({ organizationId: orgId, feature: 'buyer' });
+    await db.insert(schema.organizationFeature).values({ organizationId: orgId, feature: 'buyer' });
     const person = (id: string, orgRole: OrgRole, locale: 'de' | 'en' = 'de') => ({
       id,
       name: id,
@@ -70,14 +68,14 @@ describe('ZYK-02: Termine, Fälligkeiten und Erinnerungen', () => {
       locale,
       rolesImportedAt: new Date(),
     });
-    await db.insert(schema.appUser).values([
-      person(users.admin, 'admin'),
-      person(users.sro, 'member', 'en'),
-      person(users.member, 'member'),
-    ]);
-    await insertRelationships(db, [
-      { id: relationshipId, buyer: orgId, supplier: supplierOrgId },
-    ]);
+    await db
+      .insert(schema.appUser)
+      .values([
+        person(users.admin, 'admin'),
+        person(users.sro, 'member', 'en'),
+        person(users.member, 'member'),
+      ]);
+    await insertRelationships(db, [{ id: relationshipId, buyer: orgId, supplier: supplierOrgId }]);
     await db.insert(schema.relationshipMember).values([
       { relationshipId, orgId, userId: users.sro, teamRole: 'sro' },
       { relationshipId, orgId, userId: users.member, teamRole: 'member' },
@@ -86,7 +84,9 @@ describe('ZYK-02: Termine, Fälligkeiten und Erinnerungen', () => {
   });
 
   afterAll(async () => {
-    await db.delete(schema.cycleReminderSent).where(eq(schema.cycleReminderSent.relationshipId, relationshipId));
+    await db
+      .delete(schema.cycleReminderSent)
+      .where(eq(schema.cycleReminderSent.relationshipId, relationshipId));
     await db.delete(schema.cycle).where(eq(schema.cycle.relationshipId, relationshipId));
     await db.delete(schema.cycleSetting).where(eq(schema.cycleSetting.orgId, orgId));
     await db.delete(schema.outboxEvent).where(eq(schema.outboxEvent.orgId, orgId));
@@ -155,18 +155,14 @@ describe('ZYK-02: Termine, Fälligkeiten und Erinnerungen', () => {
     await ensureCycle();
     await setDate(users.sro, offsetCycleDate(today, -56));
 
-    const overviewResponse = await call(
-      users.sro,
-      'GET',
-      `/suppliers/${relationshipId}/overview`,
-    );
+    const overviewResponse = await call(users.sro, 'GET', `/suppliers/${relationshipId}/overview`);
     const overview = supplierOverviewSchema.parse(overviewResponse.body);
     expect(overview.cycle?.steps.filter((step) => step.status === 'overdue')).toHaveLength(5);
 
     const dueResponse = await call(users.sro, 'GET', '/start/due');
-    const overdue = dueListSchema.parse(dueResponse.body).items.filter(
-      (item) => item.kind === 'cycle',
-    );
+    const overdue = dueListSchema
+      .parse(dueResponse.body)
+      .items.filter((item) => item.kind === 'cycle');
     expect(overdue).toHaveLength(5);
     expect(overdue.every((item) => item.href === `/lieferanten/${relationshipId}`)).toBe(true);
   });

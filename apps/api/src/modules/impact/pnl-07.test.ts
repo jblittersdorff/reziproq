@@ -172,7 +172,10 @@ describe('PNL-07 Teilungsregel, Wirkungsarten und Doppelzählung', () => {
     ]);
     for (const body of [data, await supplierView()]) {
       expect(Object.keys(body)).not.toContain('total');
-      expect(JSON.stringify(body)).not.toContain(String(34_00 + 10_00 + 20_00));
+      // Als Zahlenwert, nicht als Teil einer zufälligen ID
+      expect(JSON.stringify(body)).not.toMatch(
+        new RegExp(`[:\\[,]${34_00 + 10_00 + 20_00}[,\\]}]`),
+      );
     }
   });
 

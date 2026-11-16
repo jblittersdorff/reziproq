@@ -8,10 +8,10 @@ Als Leitung des Lieferantenmanagements sehe ich auf einer Seite, bei welchen Fok
 
 ## Wer darf was
 
-| Rolle | Darf |
-|---|---|
+| Rolle               | Darf                                                        |
+| ------------------- | ----------------------------------------------------------- |
 | Käufer: alle Rollen | Die Seite sehen, nur mit Lieferanten, die sie sehen dürfen. |
-| Lieferant | Nie. |
+| Lieferant           | Nie.                                                        |
 
 ## Daten
 
@@ -36,10 +36,18 @@ Als Leitung des Lieferantenmanagements sehe ich auf einer Seite, bei welchen Fok
 
 Je Kriterium ein Test.
 
-- [ ] Schritt, Fälligkeit und Verzug stimmen mit ZYK-01 und ZYK-02 überein und sind nirgends gespeichert.
-- [ ] Sortierung und Filter wirken und stehen in der Adresse.
-- [ ] Fokuslieferanten ohne Termin stehen oben mit „Termin fehlt“.
-- [ ] Die Seite lädt bei 50 Fokuslieferanten in unter zwei Sekunden (lokal gemessen).
+- [x] Schritt, Fälligkeit und Verzug stimmen mit ZYK-01 und ZYK-02 überein und sind nirgends gespeichert (`apps/api/src/modules/overview/zyk-04.test.ts`).
+- [x] Sortierung und Filter wirken und stehen in der Adresse (`apps/api/src/modules/overview/zyk-04.test.ts`, `apps/web/src/features/portfolio/zyk-04.test.tsx`).
+- [x] Fokuslieferanten ohne Termin stehen oben mit „Termin fehlt“ (`apps/api/src/modules/overview/zyk-04.test.ts`, `apps/web/src/features/portfolio/zyk-04.test.tsx`).
+- [x] Die Seite lädt bei 50 Fokuslieferanten in unter zwei Sekunden (lokal gemessen) (`apps/api/src/modules/overview/zyk-04.test.ts`).
+
+## Umsetzung (16.11.2026)
+
+- API `GET /portfolio/zyklen` mit `?sro=&bu=&wg=&sortierung=termin`; Recht `portfolio.sehen`.
+  Je Fokuslieferant rechnet `readActiveCycle` den Stand wie der Überblick; aktueller Schritt ist
+  der erste offene. „Tage im Verzug“ zählt ab der ältesten verpassten Frist.
+- Fokuslieferanten ohne aktiven Zyklus stehen mit „Kein Zyklus gestartet“ in der Tabelle, zählen
+  aber nicht zu „Zyklen gesamt“. Wie Lieferanten ohne JBP-Termin stehen sie oben.
 
 ## Nicht Teil dieser Funktion
 

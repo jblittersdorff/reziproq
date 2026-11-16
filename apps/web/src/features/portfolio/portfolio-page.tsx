@@ -5,6 +5,7 @@ import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { TileGrid, WorkspaceTile } from '@/features/workspace/workspace-tile';
 import { useT } from '@/lib/i18n';
+import { useCycleStatus } from './cycle-status-page';
 import { usePortfolio } from './use-portfolio';
 
 /** Portfolio (SEG-07): fünf Kacheln mit je einer Kennzahl. */
@@ -13,6 +14,7 @@ export function PortfolioPage() {
   const text = t.portfolio;
   const canSeeRounds = useCan('runden.sehen');
   const query = usePortfolio();
+  const cycles = useCycleStatus();
 
   return (
     <>
@@ -66,6 +68,20 @@ export function PortfolioPage() {
               />
             }
             href="/portfolio/fokus"
+          />
+          {/* ZYK-04: Zahl der Zyklen im Verzug */}
+          <WorkspaceTile
+            title={text.cycles}
+            text={text.tiles.cycles}
+            metric={
+              cycles.data && (
+                <TileMetric
+                  value={cycles.data.metrics.overdue}
+                  label={text.metrics.cycles(cycles.data.metrics.overdue)}
+                />
+              )
+            }
+            href="/portfolio/zyklen"
           />
         </TileGrid>
       )}

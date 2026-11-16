@@ -22,6 +22,7 @@ import {
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
+  type CycleStatusQuery,
   commentListSchema,
   commitmentsSchema,
   contributionDetailSchema,
@@ -34,6 +35,7 @@ import {
   customerWorkspaceSchema,
   cycleSchema,
   cycleSettingsResponseSchema,
+  cycleStatusSchema,
   type DecideJbp,
   type DecideValidation,
   dataExportListSchema,
@@ -1793,6 +1795,20 @@ export async function downloadPdf(
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+/** ZYK-04: Stand der Zyklen; Filter und Sortierung wie in der Adresse. */
+export const cycleStatusQueryOptions = (accessToken: string, query: CycleStatusQuery) =>
+  queryOptions({
+    queryKey: ['portfolio', 'zyklen', query],
+    queryFn: () => {
+      const params = new URLSearchParams(
+        Object.entries(query).filter((entry): entry is [string, string] => Boolean(entry[1])),
+      );
+      const suffix = params.size > 0 ? `?${params}` : '';
+      return getJson(`/portfolio/zyklen${suffix}`, cycleStatusSchema, accessToken);
+    },
+    retry: retryUnlessDenied,
+  });
 
 /** QS-03: Gesamtexport der Organisation; solange er läuft, alle fünf Sekunden neu laden. */
 export const dataExportsQueryOptions = (accessToken: string) =>

@@ -37,6 +37,7 @@ import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten
 import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
 import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/matrix'
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
+import { Route as AppPortfolioZyklenRouteImport } from './routes/_app/portfolio/zyklen'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
 import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprache'
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
@@ -377,6 +378,11 @@ const AppPortfolioMatrixRoute = AppPortfolioMatrixRouteImport.update({
 const AppPortfolioOffenRoute = AppPortfolioOffenRouteImport.update({
   id: '/portfolio/offen',
   path: '/portfolio/offen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioZyklenRoute = AppPortfolioZyklenRouteImport.update({
+  id: '/portfolio/zyklen',
+  path: '/portfolio/zyklen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfilIndexRoute = AppProfilIndexRouteImport.update({
@@ -1586,6 +1592,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
+  '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -1811,6 +1818,7 @@ export interface FileRoutesByTo {
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
+  '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2040,6 +2048,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/_app/portfolio/offen': typeof AppPortfolioOffenRoute
+  '/_app/portfolio/zyklen': typeof AppPortfolioZyklenRoute
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2270,6 +2279,7 @@ export interface FileRouteTypes {
     | '/lieferanten/neu'
     | '/portfolio/matrix'
     | '/portfolio/offen'
+    | '/portfolio/zyklen'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -2495,6 +2505,7 @@ export interface FileRouteTypes {
     | '/lieferanten/neu'
     | '/portfolio/matrix'
     | '/portfolio/offen'
+    | '/portfolio/zyklen'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -2723,6 +2734,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/neu'
     | '/_app/portfolio/matrix'
     | '/_app/portfolio/offen'
+    | '/_app/portfolio/zyklen'
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
@@ -3135,6 +3147,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio/offen'
       fullPath: '/portfolio/offen'
       preLoaderRoute: typeof AppPortfolioOffenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portfolio/zyklen': {
+      id: '/_app/portfolio/zyklen'
+      path: '/portfolio/zyklen'
+      fullPath: '/portfolio/zyklen'
+      preLoaderRoute: typeof AppPortfolioZyklenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profil/': {
@@ -4970,6 +4989,7 @@ interface AppRouteChildren {
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
   AppPortfolioOffenRoute: typeof AppPortfolioOffenRoute
+  AppPortfolioZyklenRoute: typeof AppPortfolioZyklenRoute
   AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
@@ -5047,6 +5067,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
   AppPortfolioOffenRoute: AppPortfolioOffenRoute,
+  AppPortfolioZyklenRoute: AppPortfolioZyklenRoute,
   AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,

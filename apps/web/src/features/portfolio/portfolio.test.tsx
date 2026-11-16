@@ -84,14 +84,15 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('SEG-07 Portfolio', () => {
-  it('zeigt vier Kacheln mit Kennzahl und keine für Ungebautes (UMB-05)', async () => {
+  it('zeigt fünf Kacheln mit Kennzahl und keine für Ungebautes (UMB-05, ZYK-04)', async () => {
     renderAt('/portfolio');
     expect(await screen.findByText('Lieferanten in der Matrix')).toBeTruthy();
     expect(screen.getByText('offene Entscheidungen')).toBeTruthy();
     expect(screen.getByText('offene Runde')).toBeTruthy();
     expect(screen.getByText('Fokuslieferanten', { selector: 'dd,span,p' })).toBeTruthy();
     expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
-    expect(screen.queryByText('Stand der Zyklen')).toBeNull();
+    // ZYK-04 ist gebaut: Die Kachel „Stand der Zyklen“ führt zur Seite.
+    expect(screen.getByText('Stand der Zyklen')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Matrix öffnen' }).getAttribute('href')).toBe(
       '/portfolio/matrix',
     );

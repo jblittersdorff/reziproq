@@ -16,6 +16,8 @@ import {
   touchpointCycleStepSource,
 } from './cycle.js';
 import { CycleSettingsController } from './cycle-settings.controller.js';
+import { CycleStatusController } from './cycle-status.controller.js';
+import { CycleStatusService } from './cycle-status.service.js';
 import { OverviewController } from './overview.controller.js';
 import { OverviewService } from './overview.service.js';
 import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
@@ -23,9 +25,10 @@ import { OVERVIEW_METRIC_SOURCES } from './overview-metric.js';
 /** Überblick des Arbeitsbereichs (NAV-06). Jedes Modul mit Kennzahl trägt hier seine Quelle ein. */
 @Module({
   imports: [SuppliersModule, RatingsModule],
-  controllers: [OverviewController, CycleSettingsController],
+  controllers: [OverviewController, CycleSettingsController, CycleStatusController],
   providers: [
     OverviewService,
+    CycleStatusService,
     ActionsMetricSource,
     RulesMetricSource,
     JbpMetricSource,
