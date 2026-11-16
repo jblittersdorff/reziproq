@@ -4,6 +4,7 @@ import {
   CalendarIcon,
   CalendarRangeIcon,
   ClipboardListIcon,
+  DatabaseIcon,
   ReceiptEuroIcon,
   UserCogIcon,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ export function SettingsPage() {
   const me = useMe();
   const permissions = me.data?.permissions;
   const manageSettings = useCan('einstellungen.verwalten');
+  const canExport = useCan('datenexport.anfordern');
 
   return (
     <>
@@ -95,6 +97,15 @@ export function SettingsPage() {
             />
           )}
           {permissions.viewBuyerAreas && <MasterDataLinks />}
+          {canExport && (
+            <SettingsLinkRow
+              href="/einstellungen/export"
+              label={t.settings.dataExport.navTitle}
+              description={t.settings.dataExport.navHint}
+              icon={<DatabaseIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
         </SettingsGroup>
       )}
     </>

@@ -26,6 +26,7 @@ import { StatusLine } from '@/components/ui/status-line';
 import { StepActions, StepProgress } from '@/components/ui/step-progress';
 import { Tile, TileMetric, TileTitle } from '@/components/ui/tile';
 import { CustomerFrame } from '@/features/customers/customer-frame';
+import { PdfButton } from '@/features/print/pdf-button';
 import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -738,7 +739,13 @@ export function WavePage({
       ) : !data ? (
         <LoadingState label={text.loading} />
       ) : (
-        <WaveBody data={data} base={base} labels={labels} onClose={close} />
+        <WaveBody
+          data={data}
+          base={base}
+          labels={labels}
+          onClose={close}
+          pdfPath={`${side === 'buyer' ? '/suppliers' : '/kunden'}/${relationshipId}/feedback/${waveId}/pdf`}
+        />
       )}
     </WaveFrame>
   );
@@ -749,11 +756,14 @@ function WaveBody({
   base,
   labels,
   onClose,
+  pdfPath,
 }: {
   data: SurveyWaveDetail;
   base: string;
   labels: Record<string, string>;
   onClose: () => Promise<void>;
+  /** API-Pfad des Ergebnisses als PDF (QS-03) */
+  pdfPath: string;
 }) {
   const text = useT().feedback;
   const format = useFormat();
@@ -819,7 +829,15 @@ function WaveBody({
         </div>
       )}
       {data.results ? (
-        <ResultsSection results={data.results} side={data.ownSide} newActionPath={newActionPath} />
+        <>
+          {/* QS-03, LIF-06: Ergebnis als PDF, auf beiden Seiten mit denselben Zahlen */}
+          <PdfButton path={pdfPath} fileName="Feedback-Ergebnis.pdf" />
+          <ResultsSection
+            results={data.results}
+            side={data.ownSide}
+            newActionPath={newActionPath}
+          />
+        </>
       ) : (
         <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
           {wave.status === 'open' ? text.waiting : text.tooFew}

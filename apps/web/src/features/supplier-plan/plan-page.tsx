@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { StatusLine } from '@/components/ui/status-line';
+import { PdfButton } from '@/features/print/pdf-button';
 import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -148,6 +149,8 @@ function PlanContent({
           </Badge>
         }
       />
+      {/* QS-03, SPL-08: der Lieferantenplan als PDF, für das eigene Gremium */}
+      <PdfButton path={`/suppliers/${relationshipId}/plan/pdf`} fileName="Lieferantenplan.pdf" />
       {plan.canManage && (
         <div className="flex flex-wrap justify-end gap-3">
           {routerLink({

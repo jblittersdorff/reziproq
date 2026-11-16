@@ -38,6 +38,12 @@ const copy = {
       deadline: 'Frist',
       link: 'Kommentar öffnen',
     },
+    export_ready: {
+      subject: 'Dein Gesamtexport ist fertig',
+      body: 'Der Gesamtexport deiner Organisation liegt bereit. Du kannst ihn 24 Stunden lang in Reziproq herunterladen.',
+      deadline: 'Abrufbar bis',
+      link: 'Export öffnen',
+    },
     escalation: {
       subject: 'Eskalation',
       body: 'Der folgende Vorgang benötigt deine Aufmerksamkeit.',
@@ -81,6 +87,12 @@ const copy = {
       body: 'Someone mentioned you in a comment. You can read the comment in Reziproq.',
       deadline: 'Due date',
       link: 'Open comment',
+    },
+    export_ready: {
+      subject: 'Your full export is ready',
+      body: 'The full export of your organisation is ready. You can download it in Reziproq for 24 hours.',
+      deadline: 'Available until',
+      link: 'Open export',
     },
     escalation: {
       subject: 'Escalation',

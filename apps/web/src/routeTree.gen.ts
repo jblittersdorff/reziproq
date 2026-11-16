@@ -24,6 +24,7 @@ import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
 import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/einstellungen/erinnerungen'
+import { Route as AppEinstellungenExportRouteImport } from './routes/_app/einstellungen/export'
 import { Route as AppEinstellungenGeschaeftsjahrRouteImport } from './routes/_app/einstellungen/geschaeftsjahr'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
@@ -311,6 +312,11 @@ const AppEinstellungenErinnerungenRoute =
     path: '/einstellungen/erinnerungen',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenExportRoute = AppEinstellungenExportRouteImport.update({
+  id: '/einstellungen/export',
+  path: '/einstellungen/export',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEinstellungenGeschaeftsjahrRoute =
   AppEinstellungenGeschaeftsjahrRouteImport.update({
     id: '/einstellungen/geschaeftsjahr',
@@ -1572,6 +1578,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
@@ -1796,6 +1803,7 @@ export interface FileRoutesByTo {
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
@@ -2024,6 +2032,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
   '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
+  '/_app/einstellungen/export': typeof AppEinstellungenExportRoute
   '/_app/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
@@ -2253,6 +2262,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id'
     | '/betreiber/kunden'
     | '/einstellungen/erinnerungen'
+    | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
@@ -2477,6 +2487,7 @@ export interface FileRouteTypes {
     | '/umfrage/$token'
     | '/betreiber/kunden'
     | '/einstellungen/erinnerungen'
+    | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
@@ -2704,6 +2715,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
     | '/_app/einstellungen/erinnerungen'
+    | '/_app/einstellungen/export'
     | '/_app/einstellungen/geschaeftsjahr'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
@@ -3032,6 +3044,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/erinnerungen'
       fullPath: '/einstellungen/erinnerungen'
       preLoaderRoute: typeof AppEinstellungenErinnerungenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/export': {
+      id: '/_app/einstellungen/export'
+      path: '/einstellungen/export'
+      fullPath: '/einstellungen/export'
+      preLoaderRoute: typeof AppEinstellungenExportRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/geschaeftsjahr': {
@@ -4943,6 +4962,7 @@ interface AppRouteChildren {
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
   AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
+  AppEinstellungenExportRoute: typeof AppEinstellungenExportRoute
   AppEinstellungenGeschaeftsjahrRoute: typeof AppEinstellungenGeschaeftsjahrRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
@@ -5019,6 +5039,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
   AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
+  AppEinstellungenExportRoute: AppEinstellungenExportRoute,
   AppEinstellungenGeschaeftsjahrRoute: AppEinstellungenGeschaeftsjahrRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,

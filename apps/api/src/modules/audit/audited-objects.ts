@@ -475,3 +475,10 @@ export const commentInternalAudit = auditedObject({
   visibility: 'internal',
   fields: ['visibility', 'edited_at', 'deleted_at'],
 });
+
+/** Gesamtexport der Organisation (QS-03): intern, ohne Inhalt. */
+export const dataExportAudit = auditedObject({
+  type: 'data_export',
+  visibility: 'internal',
+  fields: ['status'],
+});

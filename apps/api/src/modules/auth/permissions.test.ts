@@ -309,6 +309,10 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'datenexport.anfordern': async (user) => {
+      const { status } = await request(user, 'GET', '/api/einstellungen/export');
+      return status;
+    },
     'kommentare.schreiben': async (user) => {
       const { status } = await request(
         user,

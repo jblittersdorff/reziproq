@@ -103,6 +103,7 @@ describe('PLT-02 in der Datenbank', () => {
       'cycle',
       'cycle_reminder_sent',
       'cycle_setting',
+      'data_export',
       'email_log',
       'format_catalog_item',
       'initiative',

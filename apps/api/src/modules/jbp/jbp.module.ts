@@ -50,6 +50,13 @@ import { ScorecardSettingsController } from './scorecard-settings.controller.js'
     JbpApprovalService,
     JbpScorecardService,
   ],
-  exports: [JbpService, JbpCommitmentsService, JbpApprovalService, JbpScorecardService],
+  exports: [
+    JbpService,
+    JbpTopicsService,
+    JbpInitiativesService,
+    JbpCommitmentsService,
+    JbpApprovalService,
+    JbpScorecardService,
+  ],
 })
 export class JbpModule {}

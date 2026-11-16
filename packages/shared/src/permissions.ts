@@ -60,6 +60,7 @@ export const actions = [
   'kontaktpunkte.sehen',
   'kontaktpunkte.bearbeiten',
   'kommentare.schreiben',
+  'datenexport.anfordern',
   'teilung.vereinbaren',
   'jbp.sehen',
   'jbp.anlegen',

@@ -167,6 +167,11 @@ export const permissions: Record<Action, Permission> = {
     description: 'Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte)',
     roles: ['admin', 'member', 'viewer'],
   },
+  'datenexport.anfordern': {
+    description:
+      'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',
+    roles: ['admin'],
+  },
   'kommentare.schreiben': {
     description:
       'Objekte kommentieren, die man sieht, intern oder geteilt; eigene Kommentare 24 Stunden bearbeiten (beide Seiten)',

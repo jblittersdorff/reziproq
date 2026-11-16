@@ -606,6 +606,32 @@ export const en: Messages = {
     adminOnly: 'Only an admin can change the settings. You can still view your organization.',
     organization: 'Organization',
     organizationHint: 'Name, country and members',
+    // QS-03 Full export
+    dataExport: {
+      navTitle: 'Data export',
+      navHint: 'All data of your organisation as a ZIP file',
+      title: 'Export all data',
+      purpose:
+        'One CSV file per table of your organisation, plus a description of the columns. The export runs in the background; you get an email once it is ready.',
+      loading: 'Loading exports …',
+      failed: 'The exports could not be loaded.',
+      request: 'Request full export',
+      requestFailed: 'The export could not be requested.',
+      runningHint: 'The export is running. This page updates by itself.',
+      listTitle: 'Recent exports',
+      empty: 'No export requested yet.',
+      requestedAt: (date: string) => `Requested on ${date}`,
+      validUntil: (date: string) => `Available until ${date}`,
+      download: 'Download',
+      downloadFailed: 'The file could not be loaded.',
+      statuses: {
+        pending: 'Waiting',
+        running: 'Running',
+        done: 'Ready',
+        failed: 'Failed',
+        expired: 'Expired',
+      },
+    },
     actionReminders: {
       navTitle: 'Reminders',
       navHint: 'When to remind about action due dates',
@@ -1204,6 +1230,11 @@ export const en: Messages = {
     },
   },
 
+  // QS-03 PDFs
+  print: {
+    asPdf: 'As PDF',
+    failed: 'The PDF could not be created.',
+  },
   // QS-02 Comments
   comments: {
     title: 'Comments',

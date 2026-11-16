@@ -8,6 +8,7 @@ import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
+import { DataExportModule } from './modules/data-export/data-export.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
@@ -20,6 +21,7 @@ import { MeModule } from './modules/me/me.module.js';
 import { MeetingsModule } from './modules/meetings/meetings.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
+import { PdfExportsModule } from './modules/pdf-exports/pdf-exports.module.js';
 import { PlaybookModule } from './modules/playbook/playbook.module.js';
 import { PortfolioModule } from './modules/portfolio/portfolio.module.js';
 import { PromptModule } from './modules/prompt/prompt.module.js';
@@ -64,6 +66,8 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     ActionsModule,
     TouchpointsModule,
     CommentsModule,
+    DataExportModule,
+    PdfExportsModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

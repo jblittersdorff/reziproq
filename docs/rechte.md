@@ -43,6 +43,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `kontaktpunkte.sehen` | Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte) | ja | ja | ja | ja |
 | `kontaktpunkte.bearbeiten` | Kontaktpunkte anlegen, ändern, teilen und als geprüft markieren (Käufer, Admin oder Team, nicht mit Teamrolle Leser) | ja | ja | nein | nein |
 | `kommentare.schreiben` | Objekte kommentieren, die man sieht, intern oder geteilt; eigene Kommentare 24 Stunden bearbeiten (beide Seiten) | ja | ja | ja | ja |
+| `datenexport.anfordern` | Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen | ja | nein | nein | nein |
 | `teilung.vereinbaren` | Teilungsregel einer Initiative vorschlagen (Käufer: SRO oder Admin) oder bestätigen (Lieferant: Key Account Manager oder Admin) | ja | ja | nein | nein |
 | `jbp.sehen` | Gemeinsamen Plan und seine Vorbereitung sehen (beide Seiten) | ja | ja | ja | ja |
 | `jbp.anlegen` | Gemeinsamen Plan anlegen, mit Termin und Agenda (Käufer: Admin oder SRO) | ja | ja | nein | nein |

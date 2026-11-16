@@ -72,6 +72,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'fokus.setzen',
     'zyklus.starten',
     'lieferantenplan.bearbeiten',
+    'datenexport.anfordern',
   ],
   member: [
     'organisation.sehen',
@@ -326,8 +327,7 @@ export function renderAt(path: string) {
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </LocaleProvider>
-,
+    </LocaleProvider>,
   );
   return router;
 }

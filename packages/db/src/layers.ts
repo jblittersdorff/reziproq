@@ -319,6 +319,8 @@ export const layerRegister: Record<string, LayerEntry> = {
       user_id: `probe-${randomUUID()}`,
     }),
   },
+  // QS-03: Gesamtexport der Organisation; die Datei sieht nur die eigene Organisation.
+  data_export: { kind: 'org_private', testValues: { requested_by: 'demo-test-oem-1' } },
   action_private_source: {
     kind: 'org_private',
     testValues: ({ buyer, probe }) => ({

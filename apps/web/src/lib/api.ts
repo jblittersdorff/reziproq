@@ -36,6 +36,7 @@ import {
   cycleSettingsResponseSchema,
   type DecideJbp,
   type DecideValidation,
+  dataExportListSchema,
   decisionHistorySchema,
   dueListSchema,
   type EditComment,
@@ -1765,7 +1766,20 @@ export async function downloadPreRead(
   meetingId: string,
   locale: 'de' | 'en',
 ) {
-  const path = `${base}/termine/${meetingId}/pre-read?sprache=${locale}`;
+  await downloadPdf(accessToken, `${base}/termine/${meetingId}/pre-read`, locale, 'Pre-Read.pdf');
+}
+
+/**
+ * QS-03: PDF vom Server laden und speichern (Baustein aus QBR-06). Den Dateinamen setzt der
+ * Server; gespeichert wird nichts.
+ */
+export async function downloadPdf(
+  accessToken: string,
+  pathWithoutQuery: string,
+  locale: 'de' | 'en',
+  fallbackName: string,
+) {
+  const path = `${pathWithoutQuery}?sprache=${locale}`;
   const res = await fetch(`/api${path}`, {
     headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
   });
@@ -1775,7 +1789,40 @@ export async function downloadPreRead(
   const url = URL.createObjectURL(await res.blob());
   const link = document.createElement('a');
   link.href = url;
-  link.download = encoded ? decodeURIComponent(encoded) : 'Pre-Read.pdf';
+  link.download = encoded ? decodeURIComponent(encoded) : fallbackName;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+/** QS-03: Gesamtexport der Organisation; solange er läuft, alle fünf Sekunden neu laden. */
+export const dataExportsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['datenexport'],
+    queryFn: () => getJson('/einstellungen/export', dataExportListSchema, accessToken),
+    retry: retryUnlessDenied,
+    refetchInterval: (query) =>
+      query.state.data?.exports.some(
+        (entry) => entry.status === 'pending' || entry.status === 'running',
+      )
+        ? 5000
+        : false,
+  });
+
+export const requestDataExport = (accessToken: string) =>
+  sendJson('POST', '/einstellungen/export', undefined, dataExportListSchema, accessToken);
+
+export async function downloadDataExport(accessToken: string, exportId: string) {
+  const path = `/einstellungen/export/${exportId}/datei`;
+  const res = await fetch(`/api${path}`, {
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res), null);
+  const disposition = res.headers.get('content-disposition') ?? '';
+  const name = /filename="([^"]+)"/.exec(disposition)?.[1];
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name ?? 'reziproq-export.zip';
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }

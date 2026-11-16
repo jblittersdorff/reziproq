@@ -27,6 +27,6 @@ import { SupplierPlansService } from './supplier-plans.service.js';
     StrategicTopicsService,
     PlanApprovalsService,
   ],
-  exports: [PlanContributionsService, PlanApprovalsService],
+  exports: [SupplierPlansService, PlanContributionsService, PlanApprovalsService],
 })
 export class SupplierPlansModule {}

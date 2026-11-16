@@ -622,6 +622,32 @@ export const de = {
       'Die Einstellungen kann nur ein Admin ändern. Deine Organisation siehst du trotzdem.',
     organization: 'Organisation',
     organizationHint: 'Name, Land und Mitglieder',
+    // QS-03 Gesamtexport
+    dataExport: {
+      navTitle: 'Datenexport',
+      navHint: 'Alle Daten eurer Organisation als ZIP-Datei',
+      title: 'Alle Daten exportieren',
+      purpose:
+        'Je Tabelle eurer Organisation eine CSV-Datei, dazu eine Beschreibung der Spalten. Der Export läuft im Hintergrund; ihr bekommt eine Mail, sobald er fertig ist.',
+      loading: 'Exporte werden geladen …',
+      failed: 'Die Exporte konnten nicht geladen werden.',
+      request: 'Gesamtexport anfordern',
+      requestFailed: 'Der Export konnte nicht angefordert werden.',
+      runningHint: 'Der Export läuft. Die Seite aktualisiert sich von selbst.',
+      listTitle: 'Letzte Exporte',
+      empty: 'Noch kein Export angefordert.',
+      requestedAt: (date: string) => `Angefordert am ${date}`,
+      validUntil: (date: string) => `Abrufbar bis ${date}`,
+      download: 'Herunterladen',
+      downloadFailed: 'Die Datei konnte nicht geladen werden.',
+      statuses: {
+        pending: 'Wartet',
+        running: 'Läuft',
+        done: 'Fertig',
+        failed: 'Fehlgeschlagen',
+        expired: 'Abgelaufen',
+      },
+    },
     actionReminders: {
       navTitle: 'Erinnerungen',
       navHint: 'Wann an Fristen von Maßnahmen erinnert wird',
@@ -1227,6 +1253,11 @@ export const de = {
   },
 
   // JBP-01 Vorbereitung des Joint Business Planning
+  // QS-03 PDFs
+  print: {
+    asPdf: 'Als PDF',
+    failed: 'Das PDF konnte nicht erzeugt werden.',
+  },
   // QS-02 Kommentare
   comments: {
     title: 'Kommentare',

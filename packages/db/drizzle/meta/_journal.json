@@ -498,6 +498,13 @@
       "when": 1794775356782,
       "tag": "0070_kommentare",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1794813636560,
+      "tag": "0071_gesamtexport",
+      "breakpoints": true
     }
   ]
 }

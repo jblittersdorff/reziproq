@@ -15,6 +15,7 @@ import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { useCustomerWorkspace } from '@/features/customers/customer-workspace';
 import { apiBase, type MeetingPlace, SideBadge } from '@/features/meetings/meeting-pages';
+import { PdfButton } from '@/features/print/pdf-button';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
@@ -156,6 +157,8 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
   return (
     <>
       {message && <StatusLine message={message} onHidden={hideMessage} />}
+      {/* QS-03, LIF-06: der ganze Gemeinsame Plan als PDF, auf beiden Seiten */}
+      <PdfButton path={`${apiBase(place)}/jbp/pdf`} fileName="Gemeinsamer-Plan.pdf" />
       {data.buyerHint && !data.buyerHint.supplierPlanApproved && (
         <div
           role="status"
