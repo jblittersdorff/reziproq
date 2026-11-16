@@ -3,11 +3,11 @@ import { z } from 'zod';
 import { QuestionsPage } from '@/features/prompt/questions-page';
 
 export const Route = createFileRoute('/_app/fragen')({
-  validateSearch: z.object({ q: z.string().optional() }),
+  validateSearch: z.object({ q: z.string().optional(), kunde: z.uuid().optional() }),
   component: QuestionsRoute,
 });
 
 function QuestionsRoute() {
-  const { q } = Route.useSearch();
-  return <QuestionsPage initialQuestion={q} />;
+  const { q, kunde } = Route.useSearch();
+  return <QuestionsPage initialQuestion={q} customer={kunde} />;
 }

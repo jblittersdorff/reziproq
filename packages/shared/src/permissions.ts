@@ -64,6 +64,7 @@ export const actions = [
   'hinweise.sehen',
   'hinweise.entscheiden',
   'hinweise.einstellen',
+  'suche.nutzen',
   'teilung.vereinbaren',
   'jbp.sehen',
   'jbp.anlegen',

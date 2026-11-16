@@ -181,6 +181,11 @@ export const permissions: Record<Action, Permission> = {
     description: 'Schwellwerte der Hinweis-Regeln einstellen',
     roles: ['admin'],
   },
+  'suche.nutzen': {
+    description:
+      'Lieferanten, Initiativen und Maßnahmen per Suchwort finden, nur im Sichtbaren (beide Seiten; Lieferant im aktuellen Kunden)',
+    roles: ['admin', 'member', 'viewer'],
+  },
   'datenexport.anfordern': {
     description:
       'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',

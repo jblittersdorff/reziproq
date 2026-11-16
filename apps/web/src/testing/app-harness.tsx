@@ -74,6 +74,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'lieferantenplan.bearbeiten',
     'datenexport.anfordern',
     'hinweise.sehen',
+    'suche.nutzen',
     'hinweise.entscheiden',
     'hinweise.einstellen',
   ],
@@ -94,6 +95,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'zyklus.starten',
     'lieferantenplan.bearbeiten',
     'hinweise.sehen',
+    'suche.nutzen',
     'hinweise.entscheiden',
   ],
   viewer: [
@@ -106,6 +108,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'bewertungen.sehen',
     'portfolio.sehen',
     'hinweise.sehen',
+    'suche.nutzen',
   ],
 };
 

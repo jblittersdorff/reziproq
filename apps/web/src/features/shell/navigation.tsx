@@ -58,6 +58,7 @@ export function useActiveNavKey(): NavKey | undefined {
 export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
   const t = useT();
   const me = useMe();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const buyer = !me.data || (me.data.organization !== null && me.data.permissions.viewBuyerAreas);
   const main = areas.map((area) => ({
     key: area.key,
@@ -78,8 +79,10 @@ export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
     icon: UserRoundIcon,
   };
   if (buyer) return { main, actions: [questions, profile] };
-  // Lieferantenseite (LIF-02): Start und Kunden; Fragen folgen mit QS-05.
+  // Lieferantenseite (LIF-02): Start, Kunden und Fragen (QS-05: Suche im aktuellen Kunden).
   if (me.data?.permissions.viewCustomers) {
+    const customer = /^\/kunden\/([0-9a-f-]{36})(?:\/|$)/.exec(pathname)?.[1];
+    const search = { ...questions, href: customer ? `/fragen?kunde=${customer}` : '/fragen' };
     const start = main.find((target) => target.key === 'start');
     const customers = {
       key: 'customers' as const,
@@ -87,7 +90,7 @@ export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
       href: '/kunden',
       icon: BuildingIcon,
     };
-    return { main: start ? [start, customers] : [customers], actions: [profile] };
+    return { main: start ? [start, customers] : [customers], actions: [search, profile] };
   }
   return { main: [], actions: [profile] };
 }

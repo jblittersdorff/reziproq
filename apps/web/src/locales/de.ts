@@ -3017,6 +3017,21 @@ export const de = {
 
   // Fragen (PLT-12), seit PLT-11 als Seite /fragen
   prompt: {
+    search: {
+      title: 'Treffer',
+      hint: 'Ab drei Zeichen sucht Reziproq schon beim Tippen, ohne KI.',
+      kinds: { suppliers: 'Lieferanten', initiatives: 'Initiativen', actions: 'Maßnahmen' },
+      none: (q: string) => `Keine Treffer für „${q}“.`,
+      loading: 'Reziproq sucht …',
+      failed: 'Die Suche hat gerade nicht geklappt.',
+      supplierTitle: 'Suchen',
+      supplierPurpose:
+        'Initiativen und Maßnahmen im gewählten Kunden finden. Treffer zeigen nur, was ihr seht.',
+      supplierPlaceholder: 'Suchwort, z. B. Kosten',
+      supplierField: 'Suchwort',
+      customer: 'Kunde',
+      noCustomers: 'Noch kein Kunde, in dem du suchen kannst.',
+    },
     title: 'Frag Reziproq',
     placeholder: 'Frag Reziproq …',
     question: 'Deine Frage an Reziproq',

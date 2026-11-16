@@ -2947,6 +2947,21 @@ export const en: Messages = {
   },
 
   prompt: {
+    search: {
+      title: 'Results',
+      hint: 'From three characters Reziproq searches as you type, without AI.',
+      kinds: { suppliers: 'Suppliers', initiatives: 'Initiatives', actions: 'Actions' },
+      none: (q: string) => `No results for “${q}”.`,
+      loading: 'Reziproq is searching …',
+      failed: 'The search did not work just now.',
+      supplierTitle: 'Search',
+      supplierPurpose:
+        'Find initiatives and actions with the selected customer. Results show only what you see.',
+      supplierPlaceholder: 'Search term, e.g. cost',
+      supplierField: 'Search term',
+      customer: 'Customer',
+      noCustomers: 'No customer to search in yet.',
+    },
     title: 'Ask Reziproq',
     placeholder: 'Ask Reziproq …',
     question: 'Your question to Reziproq',

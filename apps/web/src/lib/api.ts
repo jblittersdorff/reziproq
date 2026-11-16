@@ -44,15 +44,13 @@ import {
   dataExportListSchema,
   decisionHistorySchema,
   deviationExplanationsSchema,
-  feedbackThemesSchema,
-  planSummaryDraftSchema,
-  preReadDraftSchema,
   dueListSchema,
   type EditComment,
   type ExtendRound,
   type FiscalYearSetting,
   type ForbiddenCode,
   type FreezeBaseline,
+  feedbackThemesSchema,
   financialImportResultSchema,
   fiscalYearSettingSchema,
   focusDetailSchema,
@@ -103,6 +101,7 @@ import {
   type PromptEvent,
   type PromptRequest,
   permissionsResponseSchema,
+  planSummaryDraftSchema,
   planVersionsSchema,
   playbookCatalogSchema,
   playbookPreviewSchema,
@@ -111,6 +110,7 @@ import {
   portfolioMatrixSchema,
   portfolioOpenSchema,
   portfolioSchema,
+  preReadDraftSchema,
   promptEventSchema,
   publicInvitationSchema,
   publicSurveySchema,
@@ -169,6 +169,7 @@ import {
   type SurveySide,
   scorecardSettingSchema,
   scorecardViewSchema,
+  searchResultsSchema,
   segmentationSchema,
   segmentModelResponseSchema,
   spendOverviewSchema,
@@ -1393,6 +1394,20 @@ export const customerListQueryOptions = (accessToken: string) =>
     queryKey: ['kunden'],
     queryFn: () => getJson('/kunden', customerListSchema, accessToken),
     retry: retryUnlessDenied,
+  });
+
+// QS-05: Suche ohne KI; beim Lieferanten nur im aktuellen Kunden
+export const searchQueryOptions = (accessToken: string, q: string, kunde?: string) =>
+  queryOptions({
+    queryKey: ['suche', q, kunde ?? null],
+    queryFn: () =>
+      getJson(
+        `/suche?${new URLSearchParams({ q, ...(kunde ? { kunde } : {}) })}`,
+        searchResultsSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+    staleTime: 30_000,
   });
 
 export const customerWorkspaceQueryOptions = (accessToken: string, relationshipId: string) =>

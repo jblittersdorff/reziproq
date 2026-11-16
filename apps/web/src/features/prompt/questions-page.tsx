@@ -1,20 +1,44 @@
+import { minSearchLength } from '@reziproq/shared';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowUpIcon, RefreshCwIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
+import { useMe } from '@/features/auth/use-me';
+import { useToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
 import { SupplierCard } from '@/features/suppliers/supplier-card';
+import { customerListQueryOptions } from '@/lib/api';
 import { useT } from '@/lib/i18n';
+import { SearchHits } from './search-hits';
 import { type PromptTurn, usePromptConversation } from './use-prompt-conversation';
 
 /**
  * Fragen an Reziproq als eigene Seite (PLT-11, PLT-12): ein großes Feld, Vorschläge oder das
  * Gespräch, ein Hinweis. Cmd+K führt von jeder Seite hierher.
  */
-export function QuestionsPage({ initialQuestion }: { initialQuestion?: string | undefined }) {
+export function QuestionsPage({
+  initialQuestion,
+  customer,
+}: {
+  initialQuestion?: string | undefined;
+  /** QS-05: Lieferanten-Nutzer, Beziehung des aktuellen Kunden */
+  customer?: string | undefined;
+}) {
+  const me = useMe();
+  // Lieferantenseite (LIF-02, QS-05): Suche im aktuellen Kunden, ohne KI-Fragen.
+  if (me.data && !me.data.permissions.viewBuyerAreas && me.data.permissions.viewCustomers) {
+    return <SupplierSearchPage customer={customer} />;
+  }
+  return <BuyerQuestionsPage initialQuestion={initialQuestion} />;
+}
+
+function BuyerQuestionsPage({ initialQuestion }: { initialQuestion?: string | undefined }) {
   const t = useT();
   const [question, setQuestion] = useState('');
   const input = useRef<HTMLInputElement>(null);
@@ -87,6 +111,11 @@ export function QuestionsPage({ initialQuestion }: { initialQuestion?: string | 
           <ArrowUpIcon />
         </Button>
       </form>
+
+      {/* QS-05: Treffer ohne KI über der Antwort, schon beim Tippen */}
+      <SearchHits
+        term={question.trim().length >= minSearchLength ? question : (turns.at(-1)?.question ?? '')}
+      />
 
       <div>
         {turns.length === 0 ? (
@@ -221,5 +250,73 @@ function AnsweringDots() {
         />
       ))}
     </p>
+  );
+}
+
+/**
+ * QS-05 für Lieferanten-Nutzer: Suchwort und Kunde; Treffer nur im gewählten Kunden. Die KI-Fragen
+ * (PLT-12) gehören zur Käuferseite.
+ */
+function SupplierSearchPage({ customer }: { customer?: string | undefined }) {
+  const t = useT();
+  const text = t.prompt.search;
+  const accessToken = useToken();
+  const customers = useQuery({
+    ...customerListQueryOptions(accessToken),
+    enabled: accessToken !== '',
+  });
+  const [term, setTerm] = useState('');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const list = customers.data?.customers ?? [];
+  const current =
+    chosen ??
+    list.find((entry) => entry.relationshipId === customer)?.relationshipId ??
+    list[0]?.relationshipId;
+
+  return (
+    <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
+      <PagePath trail={[{ label: t.app.name, href: '/start' }]} current={text.supplierTitle} />
+      <PageHeader size="list" title={text.supplierTitle} purpose={text.supplierPurpose} />
+      {customers.data && list.length === 0 ? (
+        <p role="status" className="text-muted-foreground">
+          {text.noCustomers}
+        </p>
+      ) : (
+        <>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            {list.length > 1 && (
+              <FormField label={text.customer} className="sm:w-64">
+                {(field) => (
+                  <NativeSelect
+                    {...field}
+                    value={current ?? ''}
+                    onChange={(event) => setChosen(event.target.value)}
+                  >
+                    {list.map((entry) => (
+                      <option key={entry.relationshipId} value={entry.relationshipId}>
+                        {entry.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </FormField>
+            )}
+            <FormField label={text.supplierField} hint={text.hint} className="flex-1">
+              {(field) => (
+                <Input
+                  {...field}
+                  autoFocus
+                  type="search"
+                  value={term}
+                  placeholder={text.supplierPlaceholder}
+                  onChange={(event) => setTerm(event.target.value)}
+                />
+              )}
+            </FormField>
+          </div>
+          {current && <SearchHits term={term} customer={current} />}
+        </>
+      )}
+    </div>
   );
 }

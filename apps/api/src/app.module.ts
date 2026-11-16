@@ -9,11 +9,11 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { DataExportModule } from './modules/data-export/data-export.module.js';
-import { HintsModule } from './modules/hints/hints.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { HintsModule } from './modules/hints/hints.module.js';
 import { ImpactModule } from './modules/impact/impact.module.js';
 import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { JbpModule } from './modules/jbp/jbp.module.js';
@@ -28,6 +28,7 @@ import { PortfolioModule } from './modules/portfolio/portfolio.module.js';
 import { PromptModule } from './modules/prompt/prompt.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
 import { RoundsModule } from './modules/rounds/rounds.module.js';
+import { SearchModule } from './modules/search/search.module.js';
 import { SegmentModelModule } from './modules/segment-model/segment-model.module.js';
 import { StartModule } from './modules/start/start.module.js';
 import { SupplierPlansModule } from './modules/supplier-plans/supplier-plans.module.js';
@@ -70,6 +71,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     DataExportModule,
     PdfExportsModule,
     HintsModule,
+    SearchModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

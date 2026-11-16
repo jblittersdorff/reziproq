@@ -76,12 +76,12 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
-  it('die globale Leiste zeigt Start, Kunden und Profil, aber keine Käuferbereiche', async () => {
+  it('die globale Leiste zeigt Start, Kunden, Fragen (seit QS-05) und Profil, aber keine Käuferbereiche', async () => {
     renderAt('/kunden');
     const nav = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
     await waitFor(() => expect(within(nav).getByRole('link', { name: 'Kunden' })).toBeDefined());
     expect(within(nav).getByRole('link', { name: 'Start' })).toBeDefined();
-    for (const buyer of ['Lieferanten', 'Portfolio', 'Wirkung', 'Fragen']) {
+    for (const buyer of ['Lieferanten', 'Portfolio', 'Wirkung']) {
       expect(within(nav).queryByRole('link', { name: buyer })).toBeNull();
     }
   });

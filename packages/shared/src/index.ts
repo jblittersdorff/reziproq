@@ -43,3 +43,4 @@ export * from './cycle-status.js';
 export * from './next-cycle.js';
 export * from './ai-drafts.js';
 export * from './hints.js';
+export * from './search.js';
