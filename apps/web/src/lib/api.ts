@@ -1755,6 +1755,31 @@ export async function downloadImpactExport(
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+/**
+ * QBR-06: Pre-Read eines Termins als PDF (bei abgeschlossenen Terminen das Protokoll). Erzeugt
+ * der Server, gespeichert wird nichts; der Dateiname kommt vom Server.
+ */
+export async function downloadPreRead(
+  accessToken: string,
+  base: string,
+  meetingId: string,
+  locale: 'de' | 'en',
+) {
+  const path = `${base}/termine/${meetingId}/pre-read?sprache=${locale}`;
+  const res = await fetch(`/api${path}`, {
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res), null);
+  const disposition = res.headers.get('content-disposition') ?? '';
+  const encoded = /filename\*=UTF-8''([^;]+)/.exec(disposition)?.[1];
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = encoded ? decodeURIComponent(encoded) : 'Pre-Read.pdf';
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 /** PNL-07: Teilung und Savings-Verweis beim Käufer; Wirkung beim Lieferanten. */
 export const saveImpactShare = (
   accessToken: string,

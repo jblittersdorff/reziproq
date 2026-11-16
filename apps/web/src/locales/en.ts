@@ -1651,6 +1651,7 @@ export const en: Messages = {
     liveSections: {
       actions: 'Open actions',
       commitments: 'Open commitments',
+      initiatives: 'Initiatives',
       scorecard: 'Scorecard',
     } as Record<string, string>,
     close: 'Close meeting',
@@ -1685,6 +1686,10 @@ export const en: Messages = {
     internal: 'Internal',
     edit: 'Edit',
     editMeeting: 'Edit meeting',
+    // QBR-06
+    preReadPdf: 'Pre-read as PDF',
+    protocolPdf: 'Minutes as PDF',
+    preReadFailed: 'The PDF could not be created.',
     editMeetingPurpose: 'Title, date, location and your participants.',
     createdBy: (name: string) => `Created by ${name}`,
     notFound: 'This meeting does not exist.',

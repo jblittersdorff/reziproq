@@ -281,7 +281,9 @@ describe('QS-02 Kommentare über die API', () => {
       .from(schema.auditEvent)
       .where(
         sql`${schema.auditEvent.objectType} = 'comment' and ${schema.auditEvent.objectId} = ${mine?.id}`,
-      );
+      )
+      // uuidv7: in der Reihenfolge des Entstehens
+      .orderBy(schema.auditEvent.id);
     expect(events.map((event) => event.action)).toEqual(['created', 'updated', 'updated']);
     expect(JSON.stringify(events.at(-1)?.changes)).toContain('deleted_at');
   });

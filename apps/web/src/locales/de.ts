@@ -1699,6 +1699,7 @@ export const de = {
     liveSections: {
       actions: 'Offene Maßnahmen',
       commitments: 'Offene Zusagen',
+      initiatives: 'Initiativen',
       scorecard: 'Scorecard',
     } as Record<string, string>,
     close: 'Termin abschließen',
@@ -1733,6 +1734,10 @@ export const de = {
     internal: 'Intern',
     edit: 'Bearbeiten',
     editMeeting: 'Termin bearbeiten',
+    // QBR-06
+    preReadPdf: 'Pre-Read als PDF',
+    protocolPdf: 'Protokoll als PDF',
+    preReadFailed: 'Das PDF konnte nicht erzeugt werden.',
     editMeetingPurpose: 'Titel, Datum, Ort und eure Teilnehmenden.',
     createdBy: (name: string) => `Angelegt von ${name}`,
     notFound: 'Diesen Termin gibt es nicht.',

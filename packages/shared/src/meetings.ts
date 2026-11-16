@@ -110,6 +110,8 @@ export const liveSectionSchema = z.object({
       /** Statusschlüssel der Quelle, z. B. open; die Oberfläche übersetzt ihn */
       status: z.string().nullable(),
       dueDate: z.iso.date().nullable().default(null),
+      /** Zusatz, z. B. der letzte Ist-Wert einer Kennzahl mit Einheit (QBR-06) */
+      detail: z.string().nullable().optional(),
     }),
   ),
 });

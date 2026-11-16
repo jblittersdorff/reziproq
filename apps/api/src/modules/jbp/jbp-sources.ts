@@ -98,6 +98,7 @@ export class ScorecardLiveSource implements MeetingLiveSource {
         baseline: schema.scorecardKpi.baseline,
         target: schema.scorecardKpi.target,
         direction: schema.scorecardKpi.direction,
+        unit: schema.scorecardKpi.unit,
         targetDate: schema.scorecardKpi.targetDate,
         createdAt: schema.scorecardKpi.createdAt,
       })
@@ -118,13 +119,54 @@ export class ScorecardLiveSource implements MeetingLiveSource {
         const own = values
           .filter((entry) => entry.kpiId === kpi.id)
           .map((entry) => ({ period: entry.period, value: entry.value }));
+        // Letzter Ist-Wert mit Einheit und Zeitraum, z. B. „94 % (2026-10)“ (QBR-06)
+        const last = own.at(-1);
         return {
           id: kpi.id,
           title: kpi.name,
           status: kpiTrack({ ...kpi, startDate }, own, tolerance) ?? 'none',
           dueDate: kpi.targetDate,
+          detail: last ? `${Number(last.value)} ${kpi.unit} (${last.period})` : null,
         };
       }),
+    };
+  }
+}
+
+/**
+ * Live-Abschnitt im Termin (QBR-06): Initiativen des aktuellen Plans mit Status, aus ihrem Ort
+ * gelesen. Interne Initiativen sieht nur die eigene Seite (RLS).
+ */
+export class InitiativesLiveSource implements MeetingLiveSource {
+  readonly key = 'initiatives';
+  async read(tx: TenantTransaction, relationshipId: string): Promise<LiveSection | null> {
+    const [plan] = await tx
+      .select({ id: schema.jbp.id })
+      .from(schema.jbp)
+      .where(eq(schema.jbp.relationshipId, relationshipId))
+      .orderBy(desc(schema.jbp.version))
+      .limit(1);
+    if (!plan) return null;
+    const rows = await tx
+      .select({
+        id: schema.initiative.id,
+        title: schema.initiative.title,
+        status: schema.initiative.status,
+        endsOn: schema.initiative.endsOn,
+      })
+      .from(schema.initiative)
+      .where(eq(schema.initiative.jbpId, plan.id))
+      .orderBy(asc(schema.initiative.startsOn), asc(schema.initiative.title));
+    if (rows.length === 0) return null;
+    return {
+      key: this.key,
+      items: rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        status: row.status,
+        dueDate: row.endsOn,
+        detail: null,
+      })),
     };
   }
 }

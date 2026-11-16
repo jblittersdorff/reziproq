@@ -1,7 +1,7 @@
 import type { MeetingDetail, MeetingSide, MeetingSummary, MeetingType } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { CalendarDaysIcon, PlusIcon } from 'lucide-react';
+import { CalendarDaysIcon, FileDownIcon, PlusIcon } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
   closeMeeting,
   createMeeting,
+  downloadPreRead,
   type MeetingBase,
   meetingListQueryOptions,
   meetingQueryOptions,
@@ -493,6 +494,53 @@ export function MeetingPage({ place, meetingId }: { place: MeetingPlace; meeting
   );
 }
 
+/**
+ * Pre-Read als PDF (QBR-06), bei abgeschlossenen Terminen das Protokoll aus dem eingefrorenen
+ * Stand. Der Server erzeugt die Datei mit dem, was diese Seite sehen darf.
+ */
+function PreReadButton({
+  place,
+  meetingId,
+  closed,
+}: {
+  place: MeetingPlace;
+  meetingId: string;
+  closed: boolean;
+}) {
+  const text = useT().meetings;
+  const { locale } = useLocale();
+  const accessToken = useToken();
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  return (
+    <>
+      <Button
+        variant="secondary"
+        loading={busy}
+        onClick={async () => {
+          setBusy(true);
+          setFailed(false);
+          try {
+            await downloadPreRead(accessToken, apiBase(place), meetingId, locale);
+          } catch {
+            setFailed(true);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <FileDownIcon aria-hidden />
+        {closed ? text.protocolPdf : text.preReadPdf}
+      </Button>
+      {failed && (
+        <p role="alert" className="w-full text-destructive text-sm">
+          {text.preReadFailed}
+        </p>
+      )}
+    </>
+  );
+}
+
 function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: string }) {
   const t = useT();
   const text = t.meetings;
@@ -549,12 +597,15 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           </p>
         )}
       </div>
-      {canEditMeeting &&
-        routerLink({
-          href: `${base}/bearbeiten`,
-          className: `${buttonVariants({ variant: 'outline' })} self-start`,
-          children: text.editMeeting,
-        })}
+      <div className="flex flex-wrap items-center gap-3">
+        {canEditMeeting &&
+          routerLink({
+            href: `${base}/bearbeiten`,
+            className: buttonVariants({ variant: 'outline' }),
+            children: text.editMeeting,
+          })}
+        <PreReadButton place={place} meetingId={meetingId} closed={meeting.status === 'closed'} />
+      </div>
       <Section
         id="termin-agenda"
         title={text.agenda}
@@ -599,7 +650,13 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
                               ? (t.jbp.commitments.statuses[item.status] ?? item.status)
                               : section.key === 'scorecard'
                                 ? (t.jbp.scorecard.tracks[item.status] ?? item.status)
-                                : item.status),
+                                : section.key === 'initiatives' &&
+                                    item.status in t.jbp.initiatives.statuses
+                                  ? t.jbp.initiatives.statuses[
+                                      item.status as keyof typeof t.jbp.initiatives.statuses
+                                    ]
+                                  : item.status),
+                        item.detail,
                         item.dueDate && t.actions.due(format.date(item.dueDate)),
                       ]
                         .filter(Boolean)
