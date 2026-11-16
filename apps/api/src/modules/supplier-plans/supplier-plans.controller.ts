@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Inject,
   Param,
   ParseUUIDPipe,
@@ -31,6 +32,7 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { PlanApprovalsService } from './plan-approvals.service.js';
 import { PlanContributionsService } from './plan-contributions.service.js';
+import { PlanSummaryDraftService } from './plan-summary-draft.service.js';
 import { StrategicTopicsService } from './strategic-topics.service.js';
 import { SupplierPlansService } from './supplier-plans.service.js';
 
@@ -38,7 +40,10 @@ const uuid = new ParseUUIDPipe();
 
 @Controller('suppliers/:relationshipId/plan')
 export class SupplierPlansController {
-  constructor(@Inject(SupplierPlansService) private readonly plans: SupplierPlansService) {}
+  constructor(
+    @Inject(SupplierPlansService) private readonly plans: SupplierPlansService,
+    @Inject(PlanSummaryDraftService) private readonly summaryDrafts: PlanSummaryDraftService,
+  ) {}
 
   @Get()
   @Requires('lieferanten.sehen')
@@ -69,6 +74,52 @@ export class SupplierPlansController {
       planId,
       updatePlanSummarySchema.parse(body),
     );
+  }
+
+  // SPL-10: KI-Entwurf der Strategie-Zusammenfassung; Teil des Plans erst mit PATCH summary.
+  @Get(':planId/summary/draft')
+  @Requires('lieferantenplan.bearbeiten')
+  summaryDraft(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+  ) {
+    return this.summaryDrafts.get(auth, relationshipId, planId);
+  }
+
+  @Post(':planId/summary/draft')
+  @HttpCode(200)
+  @Requires('lieferantenplan.bearbeiten')
+  proposeSummary(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+  ) {
+    return this.summaryDrafts.propose(auth, relationshipId, planId);
+  }
+
+  @Post(':planId/summary/draft/:draftId/accept')
+  @HttpCode(200)
+  @Requires('lieferantenplan.bearbeiten')
+  acceptSummaryDraft(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+    @Param('draftId', uuid) draftId: string,
+  ) {
+    return this.summaryDrafts.decide(auth, relationshipId, planId, draftId, 'accepted');
+  }
+
+  @Post(':planId/summary/draft/:draftId/discard')
+  @HttpCode(200)
+  @Requires('lieferantenplan.bearbeiten')
+  discardSummaryDraft(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', uuid) relationshipId: string,
+    @Param('planId', uuid) planId: string,
+    @Param('draftId', uuid) draftId: string,
+  ) {
+    return this.summaryDrafts.decide(auth, relationshipId, planId, draftId, 'discarded');
   }
 
   @Post(':planId/objectives')

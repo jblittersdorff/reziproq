@@ -71,3 +71,30 @@ export const feedbackThemesSchema = z.object({
   accepted: aiDraftSchema.nullable(),
 });
 export type FeedbackThemes = z.infer<typeof feedbackThemesSchema>;
+
+/** SPL-10: höchstens so viele Wörter hat der Entwurf der Strategie-Zusammenfassung */
+export const maxPlanSummaryWords = 120;
+
+/** Wörter eines Textes, getrennt an Leerraum */
+export const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
+/**
+ * Kürzt einen Text auf höchstens max Wörter. Endet er dann mitten im Satz, endet er am letzten
+ * vollständigen Satz, sofern davon genug übrig bleibt; sonst mit „…“.
+ */
+export function limitWords(text: string, max: number): string {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (words.length <= max) return words.join(' ');
+  const cut = words.slice(0, max).join(' ');
+  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+  if (end > cut.length / 2) return cut.slice(0, end + 1);
+  return `${words.slice(0, max - 1).join(' ')} …`;
+}
+
+export const planSummaryDraftSchema = z.object({
+  /** SRO der Beziehung oder Admin, solange der Plan ein Entwurf ist */
+  canDraft: z.boolean(),
+  /** Offener KI-Entwurf */
+  draft: aiDraftSchema.nullable(),
+});
+export type PlanSummaryDraft = z.infer<typeof planSummaryDraftSchema>;

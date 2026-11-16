@@ -25,6 +25,7 @@ import {
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
+import { PlanSummaryDraftPanel } from './summary-draft';
 
 const planPath = (relationshipId: string) =>
   `/lieferanten/${relationshipId}/strategie/lieferantenplan`;
@@ -125,6 +126,11 @@ function SummaryForm({
     <>
       {failed && <StatusLine message={t.supplierPlan.saveFailed} tone="warning" />}
       {message && <StatusLine message={message} onHidden={hideMessage} />}
+      <PlanSummaryDraftPanel
+        relationshipId={relationshipId}
+        planId={planId}
+        onAccept={(content) => setValue(content)}
+      />
       <form className="flex max-w-3xl flex-col gap-6" onSubmit={(event) => void save(event)}>
         <FormField label={t.supplierPlan.summaryLabel} hint={t.supplierPlan.summaryHint}>
           {(field) => (

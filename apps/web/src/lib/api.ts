@@ -44,6 +44,7 @@ import {
   decisionHistorySchema,
   deviationExplanationsSchema,
   feedbackThemesSchema,
+  planSummaryDraftSchema,
   dueListSchema,
   type EditComment,
   type ExtendRound,
@@ -730,6 +731,47 @@ export const updateSupplierPlanSummary = (
     `/suppliers/${relationshipId}/plan/${planId}/summary`,
     request,
     z.object({ summary: z.string() }),
+    accessToken,
+  );
+
+// SPL-10: KI-Entwurf der Strategie-Zusammenfassung
+export const planSummaryDraftQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  planId: string,
+) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'supplier-plan', planId, 'summary-draft'],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/plan/${planId}/summary/draft`,
+        planSummaryDraftSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const proposePlanSummary = (accessToken: string, relationshipId: string, planId: string) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/plan/${planId}/summary/draft`,
+    {},
+    planSummaryDraftSchema,
+    accessToken,
+  );
+
+export const decidePlanSummaryDraft = (
+  accessToken: string,
+  relationshipId: string,
+  planId: string,
+  draftId: string,
+  decision: 'accept' | 'discard',
+) =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/plan/${planId}/summary/draft/${draftId}/${decision}`,
+    {},
+    planSummaryDraftSchema,
     accessToken,
   );
 
