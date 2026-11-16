@@ -127,7 +127,8 @@ describe('ZYK-04 Stand der Zyklen', () => {
     await db.execute(
       sql`update cycle set jbp_date = ${iso(10)} where relationship_id = ${rels[2]}`,
     );
-  });
+    // Mehrere Abrufe mit 50 Lieferanten; die Zeit misst der eigene Test unten.
+  }, 30_000);
 
   it('Fokuslieferanten ohne Termin stehen oben mit „Termin fehlt“', async () => {
     const result = await status();

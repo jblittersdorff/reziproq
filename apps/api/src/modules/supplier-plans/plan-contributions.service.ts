@@ -1,10 +1,16 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { and, asc, auditedChange, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
 import {
   type ContributionDetail,
   type ContributionObjectiveRequest,
-  contributionDetailSchema,
   type ContributionSuggestionsResponse,
+  contributionDetailSchema,
   contributionSuggestionsResponseSchema,
   type DueItem,
   type RequestContributions,
@@ -252,7 +258,11 @@ export class PlanContributionsService {
     });
   }
 
-  private async supplierName(tx: TenantTransaction, organizationId: string, relationshipId: string) {
+  private async supplierName(
+    tx: TenantTransaction,
+    organizationId: string,
+    relationshipId: string,
+  ) {
     const [row] = await tx
       .select({ name: schema.organization.name, displayName: schema.relationshipSide.displayName })
       .from(schema.relationship)
@@ -461,10 +471,7 @@ export class PlanContributionsService {
           materialGroup: schema.materialGroup.name,
         })
         .from(schema.planContribution)
-        .innerJoin(
-          schema.supplierPlan,
-          eq(schema.supplierPlan.id, schema.planContribution.planId),
-        )
+        .innerJoin(schema.supplierPlan, eq(schema.supplierPlan.id, schema.planContribution.planId))
         .innerJoin(
           schema.relationship,
           eq(schema.relationship.id, schema.planContribution.relationshipId),

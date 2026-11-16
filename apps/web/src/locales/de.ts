@@ -2045,6 +2045,52 @@ export const de = {
       noActions: 'Keine offenen Maßnahmen.',
     },
     cycle: {
+      // ZYK-05
+      next: {
+        link: 'Nächsten Zyklus starten',
+        archiveLink: 'Frühere Zyklen',
+        title: 'Den nächsten Zyklus starten',
+        purpose:
+          'Der neue Zyklus baut auf dem freigegebenen Lieferantenplan und den laufenden Initiativen auf. Der jetzige wird geschlossen und bleibt lesbar.',
+        loading: 'Wird geladen …',
+        failed: 'Der Zyklus konnte nicht geladen werden.',
+        noPermission: 'Den nächsten Zyklus starten SRO oder Admin.',
+        carryTitle: 'Was übernommen wird',
+        newTitle: 'Was neu beginnt',
+        plan: (version: number, objectives: number) =>
+          `Lieferantenplan Version ${version} mit ${objectives} ${objectives === 1 ? 'Ziel' : 'Zielen'}, als neuer Entwurf`,
+        noPlan: 'Noch kein freigegebener Lieferantenplan: Der neue Zyklus beginnt ohne Plan.',
+        jointPlan: (version: number) =>
+          `Gemeinsamer Plan als Version ${version + 1}, mit den laufenden Initiativen`,
+        jointPlanOpen: 'Gemeinsamer Plan läuft weiter, er ist noch nicht freigegeben',
+        stay: (initiatives: number, commitments: number, actions: number) =>
+          `Bleiben, wo sie sind: ${initiatives} laufende Initiativen, ${commitments} offene Zusagen, ${actions} offene Maßnahmen`,
+        fresh:
+          'Feedback, Kontaktpunkte, Freigaben und Scorecard des neuen Jahres; die Fristen folgen aus dem neuen JBP-Termin.',
+        label: 'Name des neuen Zyklus',
+        jbpDate: 'Termin des nächsten Joint Business Planning',
+        submit: 'Zyklus starten',
+        question: (label: string) => `Zyklus ${label} schließen und den neuen starten?`,
+        confirm: 'Ja, starten',
+        cancel: 'Abbrechen',
+        started: (label: string) => `Zyklus ${label} läuft.`,
+        startFailed: 'Der Zyklus konnte nicht gestartet werden.',
+        archiveTitle: 'Frühere Zyklen',
+        archivePurpose:
+          'Lieferantenplan, Gemeinsamer Plan, Scorecard und Feedback früherer Jahre, nur lesend.',
+        archiveEmpty: 'Noch kein früherer Zyklus.',
+        period: (from: string, to: string) => `${from} bis ${to}`,
+        supplierPlan: 'Lieferantenplan',
+        jointPlans: 'Gemeinsamer Plan',
+        scorecard: 'Scorecard',
+        feedback: 'Feedback',
+        none: 'Keine Einträge.',
+        version: (n: number) => `Version ${n}`,
+        approvedOn: (date: string) => `freigegeben am ${date}`,
+        revealed: 'aufgedeckt',
+        notRevealed: 'nicht aufgedeckt',
+        kinds: { annual: 'Jahres-Feedback', pulse: 'Puls' } as Record<string, string>,
+      },
       title: (label: string) => `Zyklus ${label}`,
       start: 'Zyklus starten',
       startFailed: 'Der Zyklus konnte nicht gestartet werden.',

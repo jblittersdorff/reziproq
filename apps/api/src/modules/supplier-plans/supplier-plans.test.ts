@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { eq, schema, type Database, sql } from '@reziproq/db';
+import { type Database, eq, schema, sql } from '@reziproq/db';
 import {
+  type OrgRole,
   objectiveCategoriesResponseSchema,
   supplierPlanResponseSchema,
-  type OrgRole,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
@@ -53,9 +53,7 @@ describe('SPL-01: interner Lieferantenplan', () => {
       { id: organizationId, name: `SPL-01 Käufer ${run}` },
       { id: supplierOrgId, name: `SPL-01 Lieferant ${run}` },
     ]);
-    await db
-      .insert(schema.organizationFeature)
-      .values({ organizationId, feature: 'buyer' });
+    await db.insert(schema.organizationFeature).values({ organizationId, feature: 'buyer' });
     const person = (id: string, orgRole: OrgRole, organization = organizationId) => ({
       id,
       name: id,
@@ -64,13 +62,15 @@ describe('SPL-01: interner Lieferantenplan', () => {
       orgRole,
       rolesImportedAt: new Date(),
     });
-    await db.insert(schema.appUser).values([
-      person(users.admin, 'admin'),
-      person(users.sro, 'member'),
-      person(users.member, 'member'),
-      person(users.viewer, 'member'),
-      person(users.supplier, 'member', supplierOrgId),
-    ]);
+    await db
+      .insert(schema.appUser)
+      .values([
+        person(users.admin, 'admin'),
+        person(users.sro, 'member'),
+        person(users.member, 'member'),
+        person(users.viewer, 'member'),
+        person(users.supplier, 'member', supplierOrgId),
+      ]);
     await insertRelationships(db, [
       { id: relationshipId, buyer: organizationId, supplier: supplierOrgId },
     ]);
@@ -127,12 +127,14 @@ describe('SPL-01: interner Lieferantenplan', () => {
 
   afterAll(async () => {
     if (planId) {
-      await db
-        .delete(schema.supplierPlan)
-        .where(eq(schema.supplierPlan.id, planId));
+      await db.delete(schema.supplierPlan).where(eq(schema.supplierPlan.id, planId));
     }
-    await db.delete(schema.objectiveCategory).where(eq(schema.objectiveCategory.orgId, organizationId));
-    await db.delete(schema.segmentDecision).where(eq(schema.segmentDecision.relationshipId, relationshipId));
+    await db
+      .delete(schema.objectiveCategory)
+      .where(eq(schema.objectiveCategory.orgId, organizationId));
+    await db
+      .delete(schema.segmentDecision)
+      .where(eq(schema.segmentDecision.relationshipId, relationshipId));
     await db.delete(schema.segmentType).where(eq(schema.segmentType.modelId, segmentModelId));
     await db.delete(schema.segmentModel).where(eq(schema.segmentModel.id, segmentModelId));
     await deleteRelationships(db, [organizationId, supplierOrgId]);
@@ -264,19 +266,14 @@ describe('SPL-01: interner Lieferantenplan', () => {
     ).toBe(403);
     expect(
       (
-        await call(
-          users.supplier,
-          'PATCH',
-          `${planPath}/${planId}/objectives/${objectiveId}`,
-          {
-            categoryKey: 'quality',
-            businessUnitId,
-            materialGroupId: null,
-            text: 'Nicht sichtbar',
-            ownerUserId: users.member,
-            targetYear: 2027,
-          },
-        )
+        await call(users.supplier, 'PATCH', `${planPath}/${planId}/objectives/${objectiveId}`, {
+          categoryKey: 'quality',
+          businessUnitId,
+          materialGroupId: null,
+          text: 'Nicht sichtbar',
+          ownerUserId: users.member,
+          targetYear: 2027,
+        })
       ).status,
     ).toBe(403);
     expect((await call(users.supplier, 'GET', '/objective-categories')).status).toBe(403);
@@ -301,7 +298,9 @@ describe('SPL-01: interner Lieferantenplan', () => {
     const categories = objectiveCategoriesResponseSchema.parse(
       (await call(users.admin, 'GET', '/objective-categories')).body,
     );
-    expect(categories.categories.find((category) => category.key === 'quality')?.active).toBe(false);
+    expect(categories.categories.find((category) => category.key === 'quality')?.active).toBe(
+      false,
+    );
     const plan = supplierPlanResponseSchema.parse((await call(users.sro, 'GET', planPath)).body);
     expect(plan.plan?.objectives[0]?.categoryName).toBe('Qualität');
     expect(plan.categories.find((category) => category.key === 'quality')?.active).toBe(false);

@@ -84,6 +84,7 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
           cycle={overview.data.cycle}
           relationshipId={relationshipId}
           canSetJbpDate={overview.data.canSetJbpDate}
+          canStartNextCycle={overview.data.canStartNextCycle ?? false}
         />
       )}
       {/* Die Bereiche mit ihren Unterseiten stehen auch, wenn die Kennzahlen nicht laden. */}

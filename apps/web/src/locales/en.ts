@@ -1991,6 +1991,52 @@ export const en: Messages = {
       noActions: 'No open actions.',
     },
     cycle: {
+      // ZYK-05
+      next: {
+        link: 'Start next cycle',
+        archiveLink: 'Earlier cycles',
+        title: 'Start the next cycle',
+        purpose:
+          'The new cycle builds on the approved supplier plan and the running initiatives. The current one is closed and stays readable.',
+        loading: 'Loading …',
+        failed: 'The cycle could not be loaded.',
+        noPermission: 'The SRO or an admin starts the next cycle.',
+        carryTitle: 'What carries over',
+        newTitle: 'What starts fresh',
+        plan: (version: number, objectives: number) =>
+          `Supplier plan version ${version} with ${objectives} ${objectives === 1 ? 'objective' : 'objectives'}, as a new draft`,
+        noPlan: 'No approved supplier plan yet: the new cycle starts without a plan.',
+        jointPlan: (version: number) =>
+          `Joint plan as version ${version + 1}, with the running initiatives`,
+        jointPlanOpen: 'The joint plan continues; it is not approved yet',
+        stay: (initiatives: number, commitments: number, actions: number) =>
+          `Stay where they are: ${initiatives} running initiatives, ${commitments} open commitments, ${actions} open actions`,
+        fresh:
+          'Feedback, touchpoints, approvals and the scorecard of the new year; deadlines follow from the new JBP date.',
+        label: 'Name of the new cycle',
+        jbpDate: 'Date of the next Joint Business Planning',
+        submit: 'Start cycle',
+        question: (label: string) => `Close cycle ${label} and start the new one?`,
+        confirm: 'Yes, start',
+        cancel: 'Cancel',
+        started: (label: string) => `Cycle ${label} is running.`,
+        startFailed: 'The cycle could not be started.',
+        archiveTitle: 'Earlier cycles',
+        archivePurpose:
+          'Supplier plan, joint plan, scorecard and feedback of earlier years, read only.',
+        archiveEmpty: 'No earlier cycle yet.',
+        period: (from: string, to: string) => `${from} to ${to}`,
+        supplierPlan: 'Supplier plan',
+        jointPlans: 'Joint plan',
+        scorecard: 'Scorecard',
+        feedback: 'Feedback',
+        none: 'No entries.',
+        version: (n: number) => `Version ${n}`,
+        approvedOn: (date: string) => `approved on ${date}`,
+        revealed: 'revealed',
+        notRevealed: 'not revealed',
+        kinds: { annual: 'Annual feedback', pulse: 'Pulse' } as Record<string, string>,
+      },
       title: (label: string) => `Cycle ${label}`,
       start: 'Start cycle',
       startFailed: 'The cycle could not be started.',

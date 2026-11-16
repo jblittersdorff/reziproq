@@ -94,6 +94,8 @@ export const cycle = pgTable(
     startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
     jbpDate: date('jbp_date'),
     status: text({ enum: cycleStatuses }).notNull().default('active'),
+    /** ZYK-05: wann der nächste Zyklus diesen abgelöst hat; offen bei aktiven Zyklen */
+    closedAt: timestamp('closed_at', { withTimezone: true }),
   },
   (table) => [
     check('cycle_status', sql`${table.status} in ('active', 'closed')`),

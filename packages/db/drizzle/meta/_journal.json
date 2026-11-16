@@ -505,6 +505,13 @@
       "when": 1794813636560,
       "tag": "0071_gesamtexport",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1794820142044,
+      "tag": "0072_neuer_zyklus",
+      "breakpoints": true
     }
   ]
 }

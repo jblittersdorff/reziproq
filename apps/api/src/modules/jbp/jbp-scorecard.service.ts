@@ -157,13 +157,18 @@ export class JbpScorecardService {
       .orderBy(asc(schema.scorecardSignature.signedAt));
   }
 
-  /** Frist aus dem Zyklus (ZYK-02); der Verweis auf den Zyklus ist käuferprivat. */
+  /**
+   * Frist aus dem Zyklus (ZYK-02); der Verweis auf den Zyklus ist käuferprivat. Läuft der Plan über
+   * mehrere Zyklen (ZYK-05), gilt der jüngste.
+   */
   private async deadline(tx: TenantTransaction, planId: string): Promise<string | null> {
     const [row] = await tx
       .select({ jbpDate: schema.cycle.jbpDate })
       .from(schema.jbpCycleLink)
       .innerJoin(schema.cycle, eq(schema.cycle.id, schema.jbpCycleLink.cycleId))
-      .where(eq(schema.jbpCycleLink.jbpId, planId));
+      .where(eq(schema.jbpCycleLink.jbpId, planId))
+      .orderBy(desc(schema.cycle.startedAt))
+      .limit(1);
     if (!row?.jbpDate) return null;
     const settings = await readCycleSettings(tx);
     return (

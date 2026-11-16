@@ -33,6 +33,7 @@ import {
   customerRuleSetSchema,
   customersResponseSchema,
   customerWorkspaceSchema,
+  cycleArchiveSchema,
   cycleSchema,
   cycleSettingsResponseSchema,
   cycleStatusSchema,
@@ -81,6 +82,7 @@ import {
   meetingListSchema,
   meResponseSchema,
   myActionsSchema,
+  nextCyclePreviewSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
   objectiveCategoryRequestSchema,
@@ -148,6 +150,7 @@ import {
   type SetRoundSuppliers,
   type SetupImpact,
   type SpendRequest,
+  type StartNextCycle,
   type StartSurveyWave,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
@@ -1795,6 +1798,29 @@ export async function downloadPdf(
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+/** ZYK-05: was in den nächsten Zyklus übergeht, Start und frühere Zyklen. */
+export const nextCycleQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'zyklus', 'neu'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/cycle/next`, nextCyclePreviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const startNextCycle = (
+  accessToken: string,
+  relationshipId: string,
+  request: StartNextCycle,
+) => sendJson('POST', `/suppliers/${relationshipId}/cycle/next`, request, cycleSchema, accessToken);
+
+export const cycleArchiveQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'zyklus', 'archiv'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/cycle/archive`, cycleArchiveSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
 
 /** ZYK-04: Stand der Zyklen; Filter und Sortierung wie in der Adresse. */
 export const cycleStatusQueryOptions = (accessToken: string, query: CycleStatusQuery) =>

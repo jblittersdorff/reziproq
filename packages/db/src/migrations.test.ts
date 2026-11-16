@@ -65,6 +65,8 @@ describe('Migrationen', () => {
       'started_at',
       'jbp_date',
       'status',
+      // ZYK-05
+      'closed_at',
     ]);
     expect(await columns('cycle_setting')).toEqual([
       'id',

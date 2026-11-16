@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { and, eq, schema, sql, type Database } from '@reziproq/db';
+import { and, type Database, eq, schema, sql } from '@reziproq/db';
 import {
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
   dueListSchema,
-  supplierPlanResponseSchema,
   type OrgRole,
+  supplierPlanResponseSchema,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
@@ -72,14 +72,16 @@ describe('SPL-03: Beiträge der Funktionen', () => {
       rolesImportedAt: new Date(),
       ...extra,
     });
-    await db.insert(schema.appUser).values([
-      person(users.admin, 'admin'),
-      person(users.sro, 'member'),
-      person(users.anna, 'member', { defaultFunction: 'programs', locale: 'de' }),
-      person(users.ben, 'member', { defaultFunction: 'purchasing', locale: 'en' }),
-      person(users.viewer, 'member'),
-      person(users.supplier, 'member', {}, supplierOrgId),
-    ]);
+    await db
+      .insert(schema.appUser)
+      .values([
+        person(users.admin, 'admin'),
+        person(users.sro, 'member'),
+        person(users.anna, 'member', { defaultFunction: 'programs', locale: 'de' }),
+        person(users.ben, 'member', { defaultFunction: 'purchasing', locale: 'en' }),
+        person(users.viewer, 'member'),
+        person(users.supplier, 'member', {}, supplierOrgId),
+      ]);
     await insertRelationships(db, [
       { id: relationshipId, buyer: organizationId, supplier: supplierOrgId },
     ]);
@@ -89,7 +91,9 @@ describe('SPL-03: Beiträge der Funktionen', () => {
       { relationshipId, orgId: organizationId, userId: users.ben, teamRole: 'member' },
       { relationshipId, orgId: organizationId, userId: users.viewer, teamRole: 'viewer' },
     ]);
-    await db.insert(schema.cycle).values({ id: cycleId, relationshipId, label: '2099', status: 'active' });
+    await db
+      .insert(schema.cycle)
+      .values({ id: cycleId, relationshipId, label: '2099', status: 'active' });
     await db.insert(schema.businessUnit).values([
       { id: unitId, orgId: organizationId, name: 'Werk Nord', code: `N-${run}` },
       { id: otherUnitId, orgId: organizationId, name: 'Werk Süd', code: `S-${run}` },
@@ -114,20 +118,14 @@ describe('SPL-03: Beiträge der Funktionen', () => {
   });
 
   afterAll(async () => {
-    await db
-      .delete(schema.outboxEvent)
-      .where(eq(schema.outboxEvent.orgId, organizationId));
+    await db.delete(schema.outboxEvent).where(eq(schema.outboxEvent.orgId, organizationId));
     await db.delete(schema.supplierPlan).where(eq(schema.supplierPlan.id, planId));
     await db
       .delete(schema.objectiveCategory)
       .where(eq(schema.objectiveCategory.orgId, organizationId));
     await deleteRelationships(db, [organizationId, supplierOrgId]);
-    await db
-      .delete(schema.materialGroup)
-      .where(eq(schema.materialGroup.orgId, organizationId));
-    await db
-      .delete(schema.businessUnit)
-      .where(eq(schema.businessUnit.orgId, organizationId));
+    await db.delete(schema.materialGroup).where(eq(schema.materialGroup.orgId, organizationId));
+    await db.delete(schema.businessUnit).where(eq(schema.businessUnit.orgId, organizationId));
     await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${Object.values(users)}`);
     await db
       .delete(schema.organization)
@@ -136,12 +134,19 @@ describe('SPL-03: Beiträge der Funktionen', () => {
   });
 
   it('schlägt je Business Unit und Warengruppe eine Person nach Funktion vor', async () => {
-    const response = await call(users.sro, 'GET', `${planPath()}/${planId}/contribution-suggestions`);
+    const response = await call(
+      users.sro,
+      'GET',
+      `${planPath()}/${planId}/contribution-suggestions`,
+    );
     expect(response.status).toBe(200);
     const parsed = contributionSuggestionsResponseSchema.parse(response.body);
     expect(parsed.rows).toHaveLength(3);
     const byName = new Map(
-      parsed.rows.map((row) => [(row.businessUnit ?? row.materialGroup)?.name, row.suggestedUserId]),
+      parsed.rows.map((row) => [
+        (row.businessUnit ?? row.materialGroup)?.name,
+        row.suggestedUserId,
+      ]),
     );
     expect(byName.get('Werk Nord')).toBe(users.anna);
     expect(byName.get('Stahl')).toBe(users.ben);
@@ -152,7 +157,12 @@ describe('SPL-03: Beiträge der Funktionen', () => {
     const response = await call(users.admin, 'POST', `${planPath()}/${planId}/contributions`, {
       contributions: [
         { businessUnitId: unitId, materialGroupId: null, assigneeUserId: users.anna, dueDate: due },
-        { businessUnitId: otherUnitId, materialGroupId: null, assigneeUserId: users.anna, dueDate: '2099-04-01' },
+        {
+          businessUnitId: otherUnitId,
+          materialGroupId: null,
+          assigneeUserId: users.anna,
+          dueDate: '2099-04-01',
+        },
         { businessUnitId: null, materialGroupId: groupId, assigneeUserId: users.ben, dueDate: due },
       ],
     });
@@ -168,11 +178,18 @@ describe('SPL-03: Beiträge der Funktionen', () => {
         title: schema.outboxEvent.emailTitle,
       })
       .from(schema.outboxEvent)
-      .where(and(eq(schema.outboxEvent.orgId, organizationId), sql`${schema.outboxEvent.emailRecipient} is not null`));
+      .where(
+        and(
+          eq(schema.outboxEvent.orgId, organizationId),
+          sql`${schema.outboxEvent.emailRecipient} is not null`,
+        ),
+      );
     const recipients = mails.map((mail) => mail.recipient).sort();
     expect(recipients).toEqual([`${users.anna}@example.com`, `${users.ben}@example.com`]);
     const ben = mails.find((mail) => mail.recipient === `${users.ben}@example.com`);
-    expect(ben?.link).toBe(`/lieferanten/${relationshipId}/strategie/lieferantenplan/beitrag/${ids[2]}`);
+    expect(ben?.link).toBe(
+      `/lieferanten/${relationshipId}/strategie/lieferantenplan/beitrag/${ids[2]}`,
+    );
     expect(ben?.title).toContain('Supplier plan contribution');
     const anna = mails.find((mail) => mail.recipient === `${users.anna}@example.com`);
     expect(anna?.deadline).toBe(due);
@@ -189,7 +206,9 @@ describe('SPL-03: Beiträge der Funktionen', () => {
   it('zeigt die Anfrage bei der Person unter "Fällig bei mir"', async () => {
     const response = await call(users.ben, 'GET', '/start/due');
     expect(response.status).toBe(200);
-    const items = dueListSchema.parse(response.body).items.filter((item) => item.kind === 'contribution');
+    const items = dueListSchema
+      .parse(response.body)
+      .items.filter((item) => item.kind === 'contribution');
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({
       id: ids[2],
@@ -216,7 +235,9 @@ describe('SPL-03: Beiträge der Funktionen', () => {
     });
     expect(created).toMatchObject({ status: 201 });
     const plan = supplierPlanResponseSchema.parse((await call(users.sro, 'GET', planPath())).body);
-    const objective = plan.plan?.objectives.find((item) => item.text === 'Stahlpreis stabil halten');
+    const objective = plan.plan?.objectives.find(
+      (item) => item.text === 'Stahlpreis stabil halten',
+    );
     expect(objective?.materialGroup?.name).toBe('Stahl');
     expect(objective?.businessUnit).toBeNull();
     expect(objective?.owner.userId).toBe(users.ben);
@@ -244,7 +265,12 @@ describe('SPL-03: Beiträge der Funktionen', () => {
     expect((await call(users.supplier, 'GET', contributionPath(ids[2] ?? ''))).status).toBe(403);
     expect((await call(users.viewer, 'GET', contributionPath(ids[2] ?? ''))).status).toBe(403);
     expect(
-      (await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/objectives`, { ...body, categoryKey: 'gibt-es-nicht' })).status,
+      (
+        await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/objectives`, {
+          ...body,
+          categoryKey: 'gibt-es-nicht',
+        })
+      ).status,
     ).toBe(409);
   });
 
@@ -257,7 +283,12 @@ describe('SPL-03: Beiträge der Funktionen', () => {
         (
           await call(user, 'POST', `${planPath()}/${planId}/contributions`, {
             contributions: [
-              { businessUnitId: unitId, materialGroupId: null, assigneeUserId: users.anna, dueDate: due },
+              {
+                businessUnitId: unitId,
+                materialGroupId: null,
+                assigneeUserId: users.anna,
+                dueDate: due,
+              },
             ],
           })
         ).status,
@@ -266,12 +297,16 @@ describe('SPL-03: Beiträge der Funktionen', () => {
   });
 
   it('rechnet den Fortschritt und listet offene Beiträge im Plan', async () => {
-    const before = supplierPlanResponseSchema.parse((await call(users.sro, 'GET', planPath())).body);
+    const before = supplierPlanResponseSchema.parse(
+      (await call(users.sro, 'GET', planPath())).body,
+    );
     expect(before.plan?.contributions).toMatchObject({ done: 0, total: 3 });
 
     const done = await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/complete`);
     expect(done.status).toBe(201);
-    expect((await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/complete`)).status).toBe(409);
+    expect(
+      (await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/complete`)).status,
+    ).toBe(409);
     expect(
       (
         await call(users.ben, 'POST', `${contributionPath(ids[2] ?? '')}/objectives`, {
@@ -294,7 +329,9 @@ describe('SPL-03: Beiträge der Funktionen', () => {
     const rows = await db
       .select({ id: schema.planContribution.id })
       .from(schema.planContribution)
-      .where(and(eq(schema.planContribution.planId, planId), eq(schema.planContribution.status, 'done')));
+      .where(
+        and(eq(schema.planContribution.planId, planId), eq(schema.planContribution.status, 'done')),
+      );
     expect(rows).toHaveLength(1);
   });
 });

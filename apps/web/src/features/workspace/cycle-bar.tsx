@@ -10,10 +10,13 @@ export function CycleBar({
   cycle,
   relationshipId,
   canSetJbpDate,
+  canStartNextCycle = false,
 }: {
   cycle: SupplierCycle;
   relationshipId: string;
   canSetJbpDate: boolean;
+  /** ZYK-05: elf Monate nach dem JBP, für SRO und Admin */
+  canStartNextCycle?: boolean;
 }) {
   const t = useT();
   const { locale } = useLocale();
@@ -30,15 +33,33 @@ export function CycleBar({
         <h2 id="cycle-title" className="text-section tracking-section">
           {t.workspace.cycle.title(cycle.label)}
         </h2>
-        {canSetJbpDate && (
-          <Button asChild size="sm" variant="secondary">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild size="sm" variant="ghost">
             {routerLink({
-              href: `/lieferanten/${relationshipId}/zyklus/termin`,
+              href: `/lieferanten/${relationshipId}/zyklus/archiv`,
               className: '',
-              children: t.workspace.cycle.setDate,
+              children: t.workspace.cycle.next.archiveLink,
             })}
           </Button>
-        )}
+          {canSetJbpDate && (
+            <Button asChild size="sm" variant="secondary">
+              {routerLink({
+                href: `/lieferanten/${relationshipId}/zyklus/termin`,
+                className: '',
+                children: t.workspace.cycle.setDate,
+              })}
+            </Button>
+          )}
+          {canStartNextCycle && (
+            <Button asChild size="sm">
+              {routerLink({
+                href: `/lieferanten/${relationshipId}/zyklus/neu`,
+                className: '',
+                children: t.workspace.cycle.next.link,
+              })}
+            </Button>
+          )}
+        </div>
       </div>
       {/* Schrittfolge der Designsprache: Ringe mit Linie, Status als Text darunter. */}
       <ol className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4 lg:grid-cols-7">

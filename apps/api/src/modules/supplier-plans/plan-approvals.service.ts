@@ -29,6 +29,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { EmailService } from '../email/email.service.js';
 import { ownRelationship } from '../suppliers/team.service.js';
+import { copyPlan } from './copy-plan.js';
 import { SupplierPlansService } from './supplier-plans.service.js';
 
 const notFound = () =>
@@ -305,54 +306,10 @@ export class PlanApprovalsService {
           .update(schema.supplierPlan)
           .set({ status: 'superseded' })
           .where(eq(schema.supplierPlan.id, plan.id));
-        const [copy] = await tx
-          .insert(schema.supplierPlan)
-          .values({
-            relationshipId,
-            cycleId: plan.cycleId,
-            version: plan.version + 1,
-            summary: plan.summary,
-          })
-          .returning({ id: schema.supplierPlan.id });
-        const newId = (copy as { id: string }).id;
-        const objectives = await tx
-          .select()
-          .from(schema.planObjective)
-          .where(eq(schema.planObjective.planId, plan.id));
-        const objectiveIds = new Map<string, string>();
-        for (const objective of objectives) {
-          const [created] = await tx
-            .insert(schema.planObjective)
-            .values({ ...objective, id: undefined, planId: newId })
-            .returning({ id: schema.planObjective.id });
-          objectiveIds.set(objective.id, (created as { id: string }).id);
-        }
-        const topics = await tx
-          .select()
-          .from(schema.strategicTopic)
-          .where(eq(schema.strategicTopic.planId, plan.id));
-        for (const topic of topics) {
-          const [created] = await tx
-            .insert(schema.strategicTopic)
-            .values({ ...topic, id: undefined, planId: newId })
-            .returning({ id: schema.strategicTopic.id });
-          const links = await tx
-            .select({ objectiveId: schema.strategicTopicObjective.objectiveId })
-            .from(schema.strategicTopicObjective)
-            .where(eq(schema.strategicTopicObjective.topicId, topic.id));
-          const mapped = links
-            .map((link) => objectiveIds.get(link.objectiveId))
-            .filter((id): id is string => Boolean(id));
-          if (mapped.length > 0) {
-            await tx.insert(schema.strategicTopicObjective).values(
-              mapped.map((objectiveId) => ({
-                relationshipId,
-                topicId: (created as { id: string }).id,
-                objectiveId,
-              })),
-            );
-          }
-        }
+        const newId = await copyPlan(tx, plan, {
+          cycleId: plan.cycleId,
+          version: plan.version + 1,
+        });
         return {
           objectId: newId,
           relationshipId,

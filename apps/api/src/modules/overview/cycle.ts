@@ -53,13 +53,17 @@ export const jbpCycleStepSource: CycleStepSource = {
       .from(schema.jbpCycleLink)
       .where(eq(schema.jbpCycleLink.cycleId, cycle.id));
     if (plans.length === 0) return 'open';
+    // Nur Freigaben in diesem Zyklus: Läuft der Plan weiter (ZYK-05), zählt die alte nicht.
     const [approved] = await tx
       .select({ id: schema.jbpVersion.id })
       .from(schema.jbpVersion)
       .where(
-        inArray(
-          schema.jbpVersion.jbpId,
-          plans.map((plan) => plan.id),
+        and(
+          inArray(
+            schema.jbpVersion.jbpId,
+            plans.map((plan) => plan.id),
+          ),
+          gte(schema.jbpVersion.approvedAt, cycle.startedAt),
         ),
       )
       .limit(1);
@@ -77,7 +81,7 @@ export const scorecardCycleStepSource: CycleStepSource = {
       .where(eq(schema.jbpCycleLink.cycleId, cycle.id));
     if (plans.length === 0) return 'open';
     const cards = await tx
-      .select({ status: schema.scorecard.status })
+      .select({ id: schema.scorecard.id, status: schema.scorecard.status })
       .from(schema.scorecard)
       .where(
         inArray(
@@ -85,7 +89,25 @@ export const scorecardCycleStepSource: CycleStepSource = {
           plans.map((plan) => plan.id),
         ),
       );
-    if (cards.some((card) => card.status === 'signed')) return 'completed';
+    // Nur Unterschriften in diesem Zyklus zählen (ZYK-05): Die Scorecard des Vorjahrs erledigt
+    // den Schritt nicht.
+    const signed = cards.filter((card) => card.status === 'signed');
+    if (signed.length > 0) {
+      const [recent] = await tx
+        .select({ id: schema.scorecardSignature.id })
+        .from(schema.scorecardSignature)
+        .where(
+          and(
+            inArray(
+              schema.scorecardSignature.scorecardId,
+              signed.map((card) => card.id),
+            ),
+            gte(schema.scorecardSignature.signedAt, cycle.startedAt),
+          ),
+        )
+        .limit(1);
+      if (recent) return 'completed';
+    }
     return cards.length > 0 ? 'in_progress' : 'open';
   },
 };

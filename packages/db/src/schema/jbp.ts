@@ -30,7 +30,9 @@ export const jbp = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     // Termin der Art jbp (QBR-01); geteilt auf geteilt.
     meetingId: uuid().references(() => meeting.id, { onDelete: 'set null' }),
     version: integer().notNull().default(1),
@@ -61,7 +63,8 @@ export const jbpCycleLink = pgTable(
       .notNull()
       .references(() => cycle.id),
   },
-  (table) => [unique('jbp_cycle_link_once').on(table.jbpId)],
+  // ZYK-05: Ein Plan läuft als neue Version im nächsten Zyklus weiter; je Zyklus ein Verweis.
+  (table) => [unique('jbp_cycle_link_once').on(table.jbpId, table.cycleId)],
 );
 
 /** Geschäftsupdate einer Seite für das JBP; je Seite eines (über owner_org_id). */
@@ -75,7 +78,9 @@ export const jbpBusinessUpdate = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),
@@ -106,7 +111,9 @@ export const jbpTopic = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),
@@ -167,7 +174,9 @@ export const jbpApproval = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),
@@ -201,7 +210,9 @@ export const jbpVersion = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),

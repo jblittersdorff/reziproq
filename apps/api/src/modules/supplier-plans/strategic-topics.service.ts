@@ -1,4 +1,10 @@
-import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { and, auditedChange, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
 import type { StrategicTopicOrder, StrategicTopicRequest } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
@@ -34,7 +40,8 @@ export class StrategicTopicsService {
       organization.id,
       relationshipId,
     );
-    if (!permissions.canManage) throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
+    if (!permissions.canManage)
+      throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
   }
 
   private async requireObjectives(
@@ -73,7 +80,12 @@ export class StrategicTopicsService {
     const organization = this.plans.organization(auth);
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
       await this.prepare(tx, auth, organization, relationshipId, planId);
-      const objectiveIds = await this.requireObjectives(tx, relationshipId, planId, input.objectiveIds);
+      const objectiveIds = await this.requireObjectives(
+        tx,
+        relationshipId,
+        planId,
+        input.objectiveIds,
+      );
       const existing = await tx
         .select({ id: schema.strategicTopic.id })
         .from(schema.strategicTopic)
@@ -88,7 +100,13 @@ export class StrategicTopicsService {
         if (!created) throw new Error('Thema konnte nicht angelegt werden');
         await tx
           .insert(schema.strategicTopicObjective)
-          .values(objectiveIds.map((objectiveId) => ({ relationshipId, topicId: created.id, objectiveId })));
+          .values(
+            objectiveIds.map((objectiveId) => ({
+              relationshipId,
+              topicId: created.id,
+              objectiveId,
+            })),
+          );
         return {
           objectId: created.id,
           relationshipId,
@@ -127,7 +145,12 @@ export class StrategicTopicsService {
           ),
         );
       if (!before) throw notFound();
-      const objectiveIds = await this.requireObjectives(tx, relationshipId, planId, input.objectiveIds);
+      const objectiveIds = await this.requireObjectives(
+        tx,
+        relationshipId,
+        planId,
+        input.objectiveIds,
+      );
       const beforeLinks = await tx
         .select({ id: schema.strategicTopicObjective.objectiveId })
         .from(schema.strategicTopicObjective)
@@ -152,7 +175,10 @@ export class StrategicTopicsService {
             title: before.title,
             reason: before.reason,
             priority: before.priority,
-            objective_ids: beforeLinks.map((link) => link.id).sort().join(','),
+            objective_ids: beforeLinks
+              .map((link) => link.id)
+              .sort()
+              .join(','),
           },
           after: {
             title: input.title,

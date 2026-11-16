@@ -8,10 +8,10 @@ Nach einem Jahr startet der SRO den nächsten Zyklus. Er baut auf dem freigegebe
 
 ## Wer darf was
 
-| Rolle | Darf |
-|---|---|
-| SRO, Admin | Neuen Zyklus starten. |
-| Käufer: alle mit Zugriff | Alte Zyklen lesen. |
+| Rolle                    | Darf                  |
+| ------------------------ | --------------------- |
+| SRO, Admin               | Neuen Zyklus starten. |
+| Käufer: alle mit Zugriff | Alte Zyklen lesen.    |
 
 ## Daten
 
@@ -34,10 +34,24 @@ Nach einem Jahr startet der SRO den nächsten Zyklus. Er baut auf dem freigegebe
 
 Je Kriterium ein Test.
 
-- [ ] Der Start eines neuen Zyklus verändert keine Daten des alten.
-- [ ] Der neue Lieferantenplan entspricht inhaltlich dem letzten freigegebenen und ist ein Entwurf.
-- [ ] Laufende Initiativen und offene Maßnahmen bleiben unverändert und erscheinen im neuen Zyklus.
-- [ ] Das Archiv zeigt jeden alten Zyklus vollständig und nur lesend.
+- [x] Der Start eines neuen Zyklus verändert keine Daten des alten (`apps/api/src/modules/overview/zyk-05.test.ts`).
+- [x] Der neue Lieferantenplan entspricht inhaltlich dem letzten freigegebenen und ist ein Entwurf (`apps/api/src/modules/overview/zyk-05.test.ts`).
+- [x] Laufende Initiativen und offene Maßnahmen bleiben unverändert und erscheinen im neuen Zyklus (`apps/api/src/modules/overview/zyk-05.test.ts`).
+- [x] Das Archiv zeigt jeden alten Zyklus vollständig und nur lesend (`apps/api/src/modules/overview/zyk-05.test.ts`, `apps/web/src/features/workspace/zyk-05.test.tsx`).
+
+## Umsetzung (16.11.2026)
+
+- `cycle` hat `closed_at`. Beim Start wird der alte Zyklus `closed` mit Zeitpunkt; sonst bleibt
+  alles an ihm unverändert (Lieferantenpläne, eingefrorene Versionen des Gemeinsamen Plans).
+- Der Gemeinsame Plan läuft als neue Version desselben Plans weiter (Übergang `new_version` aus
+  JBP-06), wenn er freigegeben ist; Initiativen und Zusagen hängen weiter an ihm.
+  `jbp_cycle_link` ist dafür je Plan und Zyklus eindeutig statt je Plan.
+- In den Zyklusschritten zählen Freigabe des Gemeinsamen Plans und Unterschrift der Scorecard nur,
+  wenn sie im laufenden Zyklus geschehen sind.
+- Das Archiv zeigt je Zyklus die Lieferantenpläne des Zyklus und, über den Zeitraum des Zyklus,
+  die freigegebenen Versionen des Gemeinsamen Plans, Scorecards und Feedback-Wellen.
+- Die API lässt den Start auch vor Ablauf der elf Monate zu; der Überblick bietet den Knopf erst
+  danach an.
 
 ## Nicht Teil dieser Funktion
 

@@ -31,6 +31,7 @@ import {
   readCycleSettings,
   segmentCycleStepSource,
 } from './cycle.js';
+import { nextCycleDue } from './next-cycle.service.js';
 import { OVERVIEW_METRIC_SOURCES, type OverviewMetricSource } from './overview-metric.js';
 
 /** Der Überblick liest die Werte am Ursprung; der separate Zyklusstart schreibt buyer-private. */
@@ -82,6 +83,11 @@ export class OverviewService {
             isFocus && (await canStartCycleOf(tx, auth, organization.id, relationshipId)),
           canSetJbpDate:
             isFocus && (await canStartCycleOf(tx, auth, organization.id, relationshipId)),
+          // ZYK-05: elf Monate nach dem JBP-Termin
+          canStartNextCycle:
+            isFocus &&
+            nextCycleDue(activeCycle?.jbpDate ?? null) &&
+            (await canStartCycleOf(tx, auth, organization.id, relationshipId)),
         };
       },
       { readOnly: true },
@@ -295,7 +301,7 @@ async function isFocusOf(tx: TenantTransaction, orgId: string, relationshipId: s
   return row?.isFocus ?? false;
 }
 
-async function canStartCycleOf(
+export async function canStartCycleOf(
   tx: TenantTransaction,
   auth: AuthContext,
   orgId: string,

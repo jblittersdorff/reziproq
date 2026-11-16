@@ -8,8 +8,8 @@ import {
 import { and, asc, auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
 import {
   defaultObjectiveCategories,
-  objectiveCategoriesResponseSchema,
   type ObjectiveCategoryRequest,
+  objectiveCategoriesResponseSchema,
   type PlanObjectiveRequest,
   type SupplierPlanResponse,
   supplierPlanResponseSchema,
@@ -26,10 +26,10 @@ import {
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { readDecisions } from '../ratings/consolidation.js';
+import { ownRelationship, sroOf } from '../suppliers/team.service.js';
 import { readContributions, summarizeContributions } from './contributions.js';
 import { approvalStateOf } from './plan-approvals.service.js';
 import { readTopics } from './strategic-topics.js';
-import { ownRelationship, sroOf } from '../suppliers/team.service.js';
 
 const notFound = () =>
   new NotFoundException({ statusCode: 404, code: 'nicht_gefunden', message: 'Nicht gefunden.' });
@@ -69,13 +69,10 @@ export class SupplierPlansService {
 
   async listCategories(auth: AuthContext) {
     const organization = this.organization(auth);
-    return this.tenant.run(
-      { userId: auth.userId, organizationId: organization.id },
-      async (tx) => {
-        const categories = await this.ensureDefaultCategories(tx, organization.id);
-        return objectiveCategoriesResponseSchema.parse({ categories });
-      },
-    );
+    return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
+      const categories = await this.ensureDefaultCategories(tx, organization.id);
+      return objectiveCategoriesResponseSchema.parse({ categories });
+    });
   }
 
   async createCategory(auth: AuthContext, input: ObjectiveCategoryRequest) {
@@ -94,7 +91,8 @@ export class SupplierPlansService {
           })
           .onConflictDoNothing()
           .returning();
-        if (!created) throw conflict('category_taken', 'Dieser Kategorien-Schlüssel existiert bereits.');
+        if (!created)
+          throw conflict('category_taken', 'Dieser Kategorien-Schlüssel existiert bereits.');
         return {
           objectId: `${organization.id}:${created.key}`,
           relationshipId: null,
@@ -147,144 +145,134 @@ export class SupplierPlansService {
 
   async get(auth: AuthContext, relationshipId: string): Promise<SupplierPlanResponse> {
     const organization = this.organization(auth);
-    return this.tenant.run(
-      { userId: auth.userId, organizationId: organization.id },
-      async (tx) => {
-        await ownRelationship(tx, organization, relationshipId);
-        const categories = await this.ensureDefaultCategories(tx, organization.id);
-        const [cycle] = await tx
-          .select()
-          .from(schema.cycle)
-          .where(
-            and(
-              eq(schema.cycle.relationshipId, relationshipId),
-              eq(schema.cycle.status, 'active'),
-            ),
-          )
-          .limit(1);
-        const [permissions, sro] = await Promise.all([
-          this.relationshipPermissions(tx, auth, organization.id, relationshipId),
-          sroOf(tx, organization, relationshipId),
-        ]);
-        if (!cycle) {
-          return supplierPlanResponseSchema.parse({
-            plan: null,
-            cycleId: null,
-            categories,
-            teamCandidates: [],
-            canCreate: false,
-          });
-        }
-        // Die jüngste Version zählt; abgelöste bleiben unter „Versionen“ lesbar (SPL-07).
-        const [plan] = await tx
-          .select()
-          .from(schema.supplierPlan)
-          .where(eq(schema.supplierPlan.cycleId, cycle.id))
-          .orderBy(desc(schema.supplierPlan.version))
-          .limit(1);
-        const categoryByKey = new Map(categories.map((category) => [category.key, category]));
-        const teamCandidates = await this.teamCandidatesIn(tx, organization.id, relationshipId);
-        if (!plan) {
-          return supplierPlanResponseSchema.parse({
-            plan: null,
-            cycleId: cycle.id,
-            categories: categories.filter((category) => category.active),
-            teamCandidates,
-            canCreate: permissions.canManage,
-          });
-        }
-
-        const objectives = await tx
-          .select({
-            id: schema.planObjective.id,
-            categoryKey: schema.planObjective.categoryKey,
-            businessUnitId: schema.businessUnit.id,
-            businessUnitName: schema.businessUnit.name,
-            materialGroupId: schema.materialGroup.id,
-            materialGroupName: schema.materialGroup.name,
-            text: schema.planObjective.text,
-            ownerUserId: schema.planObjective.ownerUserId,
-            ownerName: schema.appUser.name,
-            targetYear: schema.planObjective.targetYear,
-          })
-          .from(schema.planObjective)
-          .innerJoin(
-            schema.appUser,
-            eq(schema.appUser.id, schema.planObjective.ownerUserId),
-          )
-          .leftJoin(
-            schema.businessUnit,
-            eq(schema.businessUnit.id, schema.planObjective.businessUnitId),
-          )
-          .leftJoin(
-            schema.materialGroup,
-            eq(schema.materialGroup.id, schema.planObjective.materialGroupId),
-          )
-          .where(
-            and(
-              eq(schema.planObjective.planId, plan.id),
-              eq(schema.planObjective.relationshipId, relationshipId),
-            ),
-          )
-          .orderBy(asc(schema.planObjective.targetYear), asc(schema.planObjective.text));
-        const contributions = await readContributions(tx, relationshipId, plan.id);
-        const topics = await readTopics(tx, relationshipId, plan.id);
-        const decisions = await readDecisions(tx, organization.id, relationshipId);
-        const targetType =
-          decisions[0]?.entries.find((entry) => entry.scope === 'total')?.soll.typeName ?? null;
-
+    return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
+      await ownRelationship(tx, organization, relationshipId);
+      const categories = await this.ensureDefaultCategories(tx, organization.id);
+      const [cycle] = await tx
+        .select()
+        .from(schema.cycle)
+        .where(
+          and(eq(schema.cycle.relationshipId, relationshipId), eq(schema.cycle.status, 'active')),
+        )
+        .limit(1);
+      const [permissions, sro] = await Promise.all([
+        this.relationshipPermissions(tx, auth, organization.id, relationshipId),
+        sroOf(tx, organization, relationshipId),
+      ]);
+      if (!cycle) {
         return supplierPlanResponseSchema.parse({
-          plan: {
-            id: plan.id,
-            relationshipId,
-            cycleId: cycle.id,
-            version: plan.version,
-            status: plan.status,
-            summary: plan.summary,
-            createdAt: plan.createdAt.toISOString(),
-            targetType,
-            sro,
-            canManage: permissions.canManage && plan.status === 'draft',
-            contributions: summarizeContributions(contributions),
-            topics,
-            approval: await approvalStateOf(tx, auth, organization.id, plan, {
-              canManage: permissions.canManage,
-              openContributions: contributions.filter((entry) => entry.status === 'open').length,
-              topicCount: topics.length,
-            }),
-            objectives: objectives.map((objective) => ({
-              id: objective.id,
-              categoryKey: objective.categoryKey,
-              categoryName:
-                categoryByKey.get(objective.categoryKey)?.name ?? objective.categoryKey,
-              businessUnit:
-                objective.businessUnitId && objective.businessUnitName
-                  ? { id: objective.businessUnitId, name: objective.businessUnitName }
-                  : null,
-              materialGroup:
-                objective.materialGroupId && objective.materialGroupName
-                  ? { id: objective.materialGroupId, name: objective.materialGroupName }
-                  : null,
-              text: objective.text,
-              owner: { userId: objective.ownerUserId, name: objective.ownerName },
-              targetYear: objective.targetYear,
-              canEdit:
-                plan.status === 'draft' &&
-                (permissions.canManage ||
-                  (permissions.isTeamMember && objective.ownerUserId === auth.userId)),
-            })),
-          },
-          cycleId: cycle.id,
-          categories: categories.filter(
-            (category) =>
-              category.active ||
-              objectives.some((objective) => objective.categoryKey === category.key),
-          ),
-          teamCandidates,
+          plan: null,
+          cycleId: null,
+          categories,
+          teamCandidates: [],
           canCreate: false,
         });
-      },
-    );
+      }
+      // Die jüngste Version zählt; abgelöste bleiben unter „Versionen“ lesbar (SPL-07).
+      const [plan] = await tx
+        .select()
+        .from(schema.supplierPlan)
+        .where(eq(schema.supplierPlan.cycleId, cycle.id))
+        .orderBy(desc(schema.supplierPlan.version))
+        .limit(1);
+      const categoryByKey = new Map(categories.map((category) => [category.key, category]));
+      const teamCandidates = await this.teamCandidatesIn(tx, organization.id, relationshipId);
+      if (!plan) {
+        return supplierPlanResponseSchema.parse({
+          plan: null,
+          cycleId: cycle.id,
+          categories: categories.filter((category) => category.active),
+          teamCandidates,
+          canCreate: permissions.canManage,
+        });
+      }
+
+      const objectives = await tx
+        .select({
+          id: schema.planObjective.id,
+          categoryKey: schema.planObjective.categoryKey,
+          businessUnitId: schema.businessUnit.id,
+          businessUnitName: schema.businessUnit.name,
+          materialGroupId: schema.materialGroup.id,
+          materialGroupName: schema.materialGroup.name,
+          text: schema.planObjective.text,
+          ownerUserId: schema.planObjective.ownerUserId,
+          ownerName: schema.appUser.name,
+          targetYear: schema.planObjective.targetYear,
+        })
+        .from(schema.planObjective)
+        .innerJoin(schema.appUser, eq(schema.appUser.id, schema.planObjective.ownerUserId))
+        .leftJoin(
+          schema.businessUnit,
+          eq(schema.businessUnit.id, schema.planObjective.businessUnitId),
+        )
+        .leftJoin(
+          schema.materialGroup,
+          eq(schema.materialGroup.id, schema.planObjective.materialGroupId),
+        )
+        .where(
+          and(
+            eq(schema.planObjective.planId, plan.id),
+            eq(schema.planObjective.relationshipId, relationshipId),
+          ),
+        )
+        .orderBy(asc(schema.planObjective.targetYear), asc(schema.planObjective.text));
+      const contributions = await readContributions(tx, relationshipId, plan.id);
+      const topics = await readTopics(tx, relationshipId, plan.id);
+      const decisions = await readDecisions(tx, organization.id, relationshipId);
+      const targetType =
+        decisions[0]?.entries.find((entry) => entry.scope === 'total')?.soll.typeName ?? null;
+
+      return supplierPlanResponseSchema.parse({
+        plan: {
+          id: plan.id,
+          relationshipId,
+          cycleId: cycle.id,
+          version: plan.version,
+          status: plan.status,
+          summary: plan.summary,
+          createdAt: plan.createdAt.toISOString(),
+          targetType,
+          sro,
+          canManage: permissions.canManage && plan.status === 'draft',
+          contributions: summarizeContributions(contributions),
+          topics,
+          approval: await approvalStateOf(tx, auth, organization.id, plan, {
+            canManage: permissions.canManage,
+            openContributions: contributions.filter((entry) => entry.status === 'open').length,
+            topicCount: topics.length,
+          }),
+          objectives: objectives.map((objective) => ({
+            id: objective.id,
+            categoryKey: objective.categoryKey,
+            categoryName: categoryByKey.get(objective.categoryKey)?.name ?? objective.categoryKey,
+            businessUnit:
+              objective.businessUnitId && objective.businessUnitName
+                ? { id: objective.businessUnitId, name: objective.businessUnitName }
+                : null,
+            materialGroup:
+              objective.materialGroupId && objective.materialGroupName
+                ? { id: objective.materialGroupId, name: objective.materialGroupName }
+                : null,
+            text: objective.text,
+            owner: { userId: objective.ownerUserId, name: objective.ownerName },
+            targetYear: objective.targetYear,
+            canEdit:
+              plan.status === 'draft' &&
+              (permissions.canManage ||
+                (permissions.isTeamMember && objective.ownerUserId === auth.userId)),
+          })),
+        },
+        cycleId: cycle.id,
+        categories: categories.filter(
+          (category) =>
+            category.active ||
+            objectives.some((objective) => objective.categoryKey === category.key),
+        ),
+        teamCandidates,
+        canCreate: false,
+      });
+    });
   }
 
   async create(auth: AuthContext, relationshipId: string) {
@@ -304,10 +292,7 @@ export class SupplierPlansService {
         .select()
         .from(schema.cycle)
         .where(
-          and(
-            eq(schema.cycle.relationshipId, relationshipId),
-            eq(schema.cycle.status, 'active'),
-          ),
+          and(eq(schema.cycle.relationshipId, relationshipId), eq(schema.cycle.status, 'active')),
         )
         .limit(1);
       if (!cycle) throw conflict('zyklus_nicht_aktiv', 'Es gibt keinen aktiven Zyklus.');
@@ -319,7 +304,8 @@ export class SupplierPlansService {
           .values({ relationshipId, cycleId: cycle.id })
           .onConflictDoNothing()
           .returning({ id: schema.supplierPlan.id });
-        if (!created) throw conflict('plan_exists', 'Für diesen Zyklus gibt es bereits einen Entwurf.');
+        if (!created)
+          throw conflict('plan_exists', 'Für diesen Zyklus gibt es bereits einen Entwurf.');
         return {
           objectId: created.id,
           relationshipId,
@@ -431,8 +417,8 @@ export class SupplierPlansService {
         organization.id,
         relationshipId,
       );
-      const canEdit = permissions.canManage ||
-        (permissions.isTeamMember && before.ownerUserId === auth.userId);
+      const canEdit =
+        permissions.canManage || (permissions.isTeamMember && before.ownerUserId === auth.userId);
       if (!canEdit) {
         throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
       }
@@ -550,10 +536,7 @@ export class SupplierPlansService {
           eq(schema.objectiveCategory.key, input.categoryKey),
         ),
       );
-    if (
-      !category ||
-      (!category.active && input.categoryKey !== allowInactiveCategoryKey)
-    ) {
+    if (!category || (!category.active && input.categoryKey !== allowInactiveCategoryKey)) {
       throw conflict('category_inactive', 'Die Zielkategorie ist nicht aktiv.');
     }
     await this.validateReference(tx, organizationId, relationshipId, input);
@@ -581,7 +564,8 @@ export class SupplierPlansService {
             eq(schema.businessUnit.orgId, organizationId),
           ),
         );
-      if (!assignment) throw conflict('invalid_reference', 'Die Business Unit ist nicht zugeordnet.');
+      if (!assignment)
+        throw conflict('invalid_reference', 'Die Business Unit ist nicht zugeordnet.');
     } else if (input.materialGroupId) {
       const [assignment] = await tx
         .select({ id: schema.relationshipMaterialGroup.id })
@@ -615,11 +599,7 @@ export class SupplierPlansService {
     }
   }
 
-  async teamCandidatesIn(
-    tx: TenantTransaction,
-    organizationId: string,
-    relationshipId: string,
-  ) {
+  async teamCandidatesIn(tx: TenantTransaction, organizationId: string, relationshipId: string) {
     const members = await tx
       .select({
         userId: schema.relationshipMember.userId,

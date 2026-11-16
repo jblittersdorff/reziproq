@@ -109,6 +109,8 @@ import { Route as AppLieferantenIdStrategieLieferantenplanRouteRouteImport } fro
 import { Route as AppLieferantenIdUmsetzungIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/index'
 import { Route as AppLieferantenIdWirkungIndexRouteImport } from './routes/_app/lieferanten/$id/wirkung/index'
 import { Route as AppLieferantenIdWirkungBrueckeRouteImport } from './routes/_app/lieferanten/$id/wirkung/bruecke'
+import { Route as AppLieferantenIdZyklusArchivRouteImport } from './routes/_app/lieferanten/$id/zyklus/archiv'
+import { Route as AppLieferantenIdZyklusNeuRouteImport } from './routes/_app/lieferanten/$id/zyklus/neu'
 import { Route as AppLieferantenIdZyklusTerminRouteImport } from './routes/_app/lieferanten/$id/zyklus/termin'
 import { Route as AppPortfolioRundenIdIndexRouteImport } from './routes/_app/portfolio/runden/$id/index'
 import { Route as AppPortfolioRundenIdBewertendeRouteImport } from './routes/_app/portfolio/runden/$id/bewertende'
@@ -790,6 +792,18 @@ const AppLieferantenIdWirkungBrueckeRoute =
   AppLieferantenIdWirkungBrueckeRouteImport.update({
     id: '/wirkung/bruecke',
     path: '/wirkung/bruecke',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdZyklusArchivRoute =
+  AppLieferantenIdZyklusArchivRouteImport.update({
+    id: '/zyklus/archiv',
+    path: '/zyklus/archiv',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
+const AppLieferantenIdZyklusNeuRoute =
+  AppLieferantenIdZyklusNeuRouteImport.update({
+    id: '/zyklus/neu',
+    path: '/zyklus/neu',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
 const AppLieferantenIdZyklusTerminRoute =
@@ -1656,6 +1670,8 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
+  '/lieferanten/$id/zyklus/archiv': typeof AppLieferantenIdZyklusArchivRoute
+  '/lieferanten/$id/zyklus/neu': typeof AppLieferantenIdZyklusNeuRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -1881,6 +1897,8 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
+  '/lieferanten/$id/zyklus/archiv': typeof AppLieferantenIdZyklusArchivRoute
+  '/lieferanten/$id/zyklus/neu': typeof AppLieferantenIdZyklusNeuRoute
   '/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -2112,6 +2130,8 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/plan/freigabe': typeof AppLieferantenIdPlanFreigabeRoute
   '/_app/lieferanten/$id/plan/versionen': typeof AppLieferantenIdPlanVersionenRoute
   '/_app/lieferanten/$id/wirkung/bruecke': typeof AppLieferantenIdWirkungBrueckeRoute
+  '/_app/lieferanten/$id/zyklus/archiv': typeof AppLieferantenIdZyklusArchivRoute
+  '/_app/lieferanten/$id/zyklus/neu': typeof AppLieferantenIdZyklusNeuRoute
   '/_app/lieferanten/$id/zyklus/termin': typeof AppLieferantenIdZyklusTerminRoute
   '/_app/portfolio/runden/$id/bewertende': typeof AppPortfolioRundenIdBewertendeRoute
   '/_app/portfolio/runden/$id/lieferanten': typeof AppPortfolioRundenIdLieferantenRoute
@@ -2343,6 +2363,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/freigabe'
     | '/lieferanten/$id/plan/versionen'
     | '/lieferanten/$id/wirkung/bruecke'
+    | '/lieferanten/$id/zyklus/archiv'
+    | '/lieferanten/$id/zyklus/neu'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -2568,6 +2590,8 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/plan/freigabe'
     | '/lieferanten/$id/plan/versionen'
     | '/lieferanten/$id/wirkung/bruecke'
+    | '/lieferanten/$id/zyklus/archiv'
+    | '/lieferanten/$id/zyklus/neu'
     | '/lieferanten/$id/zyklus/termin'
     | '/portfolio/runden/$id/bewertende'
     | '/portfolio/runden/$id/lieferanten'
@@ -2798,6 +2822,8 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/plan/freigabe'
     | '/_app/lieferanten/$id/plan/versionen'
     | '/_app/lieferanten/$id/wirkung/bruecke'
+    | '/_app/lieferanten/$id/zyklus/archiv'
+    | '/_app/lieferanten/$id/zyklus/neu'
     | '/_app/lieferanten/$id/zyklus/termin'
     | '/_app/portfolio/runden/$id/bewertende'
     | '/_app/portfolio/runden/$id/lieferanten'
@@ -3651,6 +3677,20 @@ declare module '@tanstack/react-router' {
       path: '/wirkung/bruecke'
       fullPath: '/lieferanten/$id/wirkung/bruecke'
       preLoaderRoute: typeof AppLieferantenIdWirkungBrueckeRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/zyklus/archiv': {
+      id: '/_app/lieferanten/$id/zyklus/archiv'
+      path: '/zyklus/archiv'
+      fullPath: '/lieferanten/$id/zyklus/archiv'
+      preLoaderRoute: typeof AppLieferantenIdZyklusArchivRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/zyklus/neu': {
+      id: '/_app/lieferanten/$id/zyklus/neu'
+      path: '/zyklus/neu'
+      fullPath: '/lieferanten/$id/zyklus/neu'
+      preLoaderRoute: typeof AppLieferantenIdZyklusNeuRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/lieferanten/$id/zyklus/termin': {
@@ -4734,6 +4774,8 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdPlanFreigabeRoute: typeof AppLieferantenIdPlanFreigabeRoute
   AppLieferantenIdPlanVersionenRoute: typeof AppLieferantenIdPlanVersionenRoute
   AppLieferantenIdWirkungBrueckeRoute: typeof AppLieferantenIdWirkungBrueckeRoute
+  AppLieferantenIdZyklusArchivRoute: typeof AppLieferantenIdZyklusArchivRoute
+  AppLieferantenIdZyklusNeuRoute: typeof AppLieferantenIdZyklusNeuRoute
   AppLieferantenIdZyklusTerminRoute: typeof AppLieferantenIdZyklusTerminRoute
   AppLieferantenIdBeziehungIndexRoute: typeof AppLieferantenIdBeziehungIndexRoute
   AppLieferantenIdPlanIndexRoute: typeof AppLieferantenIdPlanIndexRoute
@@ -4821,6 +4863,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
   AppLieferantenIdPlanFreigabeRoute: AppLieferantenIdPlanFreigabeRoute,
   AppLieferantenIdPlanVersionenRoute: AppLieferantenIdPlanVersionenRoute,
   AppLieferantenIdWirkungBrueckeRoute: AppLieferantenIdWirkungBrueckeRoute,
+  AppLieferantenIdZyklusArchivRoute: AppLieferantenIdZyklusArchivRoute,
+  AppLieferantenIdZyklusNeuRoute: AppLieferantenIdZyklusNeuRoute,
   AppLieferantenIdZyklusTerminRoute: AppLieferantenIdZyklusTerminRoute,
   AppLieferantenIdBeziehungIndexRoute: AppLieferantenIdBeziehungIndexRoute,
   AppLieferantenIdPlanIndexRoute: AppLieferantenIdPlanIndexRoute,
