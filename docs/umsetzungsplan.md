@@ -590,5 +590,11 @@ Vor Paket 1:
 Vorlagen für die Oberfläche liegen in `docs/design`: Canvas-Seite „Warengruppenstrategie (Basis)“
 und „Warengruppen zusammengeführt“.
 
+**Vorarbeit erledigt (16.11.2026), Start auf Anweisung des Gründers:** Specs liegen in `docs/specs/`
+(`WG-01` … `WG-23`, `WG-startdaten.md`, `WG-rechte.md`). Kennungen WG-01 bis WG-24 und Release 1.1
+waren frei. Tabellennamen stehen in WG-01 und WG-18 (`material_group`, `relationship_material_group`,
+`relationship_spend`, `segmentation_round`, `segment_decision`). Die Hebel tragen einen Vorschlag
+für ihre Zieldimensionen (zu bestätigen). Die Warengruppe am Spend bleibt optional (Gründer).
+
 Offen zur Klärung: Entscheidung 1 in Abschnitt 6 sieht die Blöcke F bis K als Releases 1.1, 1.2
 usw. vor; die WG-Specs belegen 1.1 für das Warengruppenmanagement.
