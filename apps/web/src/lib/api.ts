@@ -90,6 +90,7 @@ import {
   meetingListSchema,
   meResponseSchema,
   myActionsSchema,
+  myFeedbackSchema,
   nextCyclePreviewSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
@@ -2334,6 +2335,27 @@ export const publicSurveyQueryOptions = (token: string) =>
     queryFn: () => getJson(`/umfrage/${encodeURIComponent(token)}`, publicSurveySchema),
     retry: retryUnlessDenied,
   });
+
+// Feedback in der App: eigene Fragebögen beider Seiten, angemeldet beantworten
+export const myFeedbackQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['feedback', 'meine'],
+    queryFn: () => getJson('/feedback/meine', myFeedbackSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const myFeedbackSurveyQueryOptions = (accessToken: string, invitationId: string) =>
+  queryOptions({
+    queryKey: ['feedback', 'meine', invitationId],
+    queryFn: () => getJson(`/feedback/meine/${invitationId}`, publicSurveySchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const submitMyFeedback = (
+  accessToken: string,
+  invitationId: string,
+  request: SubmitSurvey,
+) => sendJson('POST', `/feedback/meine/${invitationId}`, request, publicSurveySchema, accessToken);
 
 export async function submitSurvey(token: string, request: SubmitSurvey) {
   const path = `/umfrage/${encodeURIComponent(token)}`;

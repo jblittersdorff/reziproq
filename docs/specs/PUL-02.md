@@ -99,6 +99,27 @@ Je Kriterium ein Test.
 - [x] Antworten einer Seite sind für die andere Seite vor der Aufdeckung unsichtbar (PLT-04).
 - [x] Das Beantworten funktioniert auf dem Smartphone bei 390 px.
 
+## Änderung: Feedback in der App (16.11.2026, Vorgabe des Gründers)
+
+Feedback wird direkt in Reziproq abgegeben, auf Käufer- und Lieferantenseite, nicht über einen
+Umweg per E-Mail.
+
+- Wer zu einer Welle eingeladen ist und ein Konto hat (gleiche E-Mail, eigene Organisation auf der
+  eingeladenen Seite), sieht den Fragebogen als Aufgabe „Feedback geben“ auf Start, unter
+  `/feedback` und als Hinweis auf den Feedback-Seiten der Beziehung, und beantwortet ihn
+  angemeldet unter `/feedback/<einladung>`.
+- Der Bogen ist derselbe wie beim Link: je Dimension eine Seite, Ist und Soll, Freitext, einmal
+  absenden. Die Antwort bleibt anonym: `survey_response` hat weiterhin keinen Verweis auf Person
+  oder Einladung, nur `completed_at` an der Einladung.
+- Weil die Einladungen intern der einladenden Seite bleiben, finden drei enge Funktionen als
+  `reziproq_umfrage` nur die Einladungen der angemeldeten Person (`app_umfrage_meine`,
+  `app_umfrage_teilnahme_lesen`, `app_umfrage_teilnahme_absenden`, Migration 0079) und schreiben
+  über dieselben Prüfungen wie der Link.
+- Der persönliche Link bleibt für Eingeladene ohne Konto. Die Einladungsmail geht weiterhin an
+  alle; wer ein Konto hat, kann sie ignorieren und in der App antworten.
+- Tests: `apps/api/src/modules/feedback/feedback-in-app.test.ts`,
+  `apps/web/src/features/feedback/feedback-in-app.test.tsx`, `apps/web/e2e/feedback-in-app.spec.ts`.
+
 ## Nicht Teil dieser Funktion
 
 - Auswertung und Aufdeckung (PUL-03)

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ActionsModule } from '../actions/actions.module.js';
 import { CommentsModule } from '../comments/comments.module.js';
 import { CustomersModule } from '../customers/customers.module.js';
+import { FeedbackModule } from '../feedback/feedback.module.js';
 import { ImpactModule } from '../impact/impact.module.js';
 import { JbpModule } from '../jbp/jbp.module.js';
 import { OverviewModule } from '../overview/overview.module.js';
@@ -22,6 +23,7 @@ import { StartService } from './start.service.js';
     JbpModule,
     ImpactModule,
     CommentsModule,
+    FeedbackModule,
   ],
   controllers: [StartController],
   providers: [StartService],

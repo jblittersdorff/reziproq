@@ -120,7 +120,7 @@ function useQuestionsShortcut() {
 const alwaysOpen = ['/profil', '/einstellungen', '/menu', '/betreiber'];
 
 /** Was die Lieferantenseite sieht (LIF-02); alles andere gehört dem Käufer. */
-const supplierPaths = ['/start', '/kunden', '/fragen'];
+const supplierPaths = ['/start', '/kunden', '/fragen', '/feedback'];
 
 /**
  * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur

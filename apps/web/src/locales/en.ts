@@ -67,6 +67,7 @@ export const en: Messages = {
     dueValidation: (detail: string | null) =>
       detail ? `Approve impact · ${detail}` : 'Approve impact',
     dueMention: (name: string | null) => (name ? `Mentioned by ${name}` : 'Mention'),
+    dueFeedback: (counterpart: string) => `Give feedback on ${counterpart}`,
     dueSignature: (supplier: string) => `Sign scorecard · ${supplier}`,
     dueReview: (supplier: string) => `Review joint plan · ${supplier}`,
     dueMilestone: (detail: string | null) => (detail ? `Milestone · ${detail}` : 'Milestone'),
@@ -118,8 +119,10 @@ export const en: Messages = {
       signature: 'Sign scorecard',
       validation: 'Approve impact',
       mention: 'Mention',
+      feedback: 'Give feedback',
     },
     rateNow: 'Rate now',
+    giveFeedback: 'Give feedback',
     internal: 'Internal only',
     internalShort: 'internal',
     sharedWith: (name: string) => `Shared with ${name}`,
@@ -3140,6 +3143,23 @@ export const en: Messages = {
     trendAria: (dimension: string, buyer: string, supplier: string) =>
       `${dimension}: your side ${buyer}, supplier ${supplier}`,
     notFound: 'This wave does not exist.',
+  },
+  myFeedback: {
+    title: 'Give feedback',
+    purpose:
+      'Questionnaires you are invited to. You answer them here; your answers stay anonymous.',
+    loading: 'Loading questionnaires …',
+    failed: 'The questionnaires could not be loaded.',
+    emptyTitle: 'No open questionnaire',
+    emptyText:
+      'As soon as you are invited to a feedback wave, the questionnaire appears here and on Start.',
+    open: 'Open',
+    done: 'Done',
+    answer: 'Answer now',
+    kinds: { pulse: 'Pulse', annual: 'Annual feedback' },
+    statuses: { open: 'Open', used: 'Answered', expired: 'Expired' },
+    due: (date: string) => `by ${date}`,
+    banner: 'You are invited to this wave.',
   },
   surveyAnswer: {
     title: 'Feedback on the collaboration',

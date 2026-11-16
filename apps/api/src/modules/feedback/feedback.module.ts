@@ -3,8 +3,10 @@ import { AiDraftsModule } from '../ai-drafts/ai-drafts.module.js';
 import { CustomersModule } from '../customers/customers.module.js';
 import { EmailModule } from '../email/email.module.js';
 import { AnswerService } from './answer.service.js';
-import { FeedbackThemesService } from './feedback-themes.service.js';
 import { SurveyController } from './feedback.controller.js';
+import { FeedbackThemesService } from './feedback-themes.service.js';
+import { MyFeedbackController } from './my-feedback.controller.js';
+import { MyFeedbackService } from './my-feedback.service.js';
 import { SurveyService } from './survey.service.js';
 import {
   BuyerWavesController,
@@ -18,11 +20,12 @@ import { WavesService } from './waves.service.js';
   imports: [AiDraftsModule, CustomersModule, EmailModule],
   controllers: [
     SurveyController,
+    MyFeedbackController,
     BuyerWavesController,
     SupplierWavesController,
     PublicSurveyController,
   ],
-  providers: [SurveyService, WavesService, AnswerService, FeedbackThemesService],
-  exports: [SurveyService, WavesService],
+  providers: [SurveyService, WavesService, AnswerService, FeedbackThemesService, MyFeedbackService],
+  exports: [SurveyService, WavesService, MyFeedbackService],
 })
 export class FeedbackModule {}

@@ -13,8 +13,9 @@ import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CommentsService } from '../comments/comments.service.js';
-import { openHintCount } from '../hints/hint-count.js';
 import { CustomersService } from '../customers/customers.service.js';
+import { MyFeedbackService } from '../feedback/my-feedback.service.js';
+import { openHintCount } from '../hints/hint-count.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
@@ -60,6 +61,7 @@ export class StartService {
     @Inject(JbpScorecardService) private readonly scorecards: JbpScorecardService,
     @Inject(ValidationService) private readonly validations: ValidationService,
     @Inject(CommentsService) private readonly comments: CommentsService,
+    @Inject(MyFeedbackService) private readonly feedback: MyFeedbackService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -92,6 +94,8 @@ export class StartService {
     const validations = await this.validations.dueItems(auth);
     // QS-02: Erwähnungen, bis sie geöffnet wurden.
     const mentions = await this.comments.dueItems(auth);
+    // Feedback in der App: offene Fragebögen, zu denen die Person eingeladen ist (beide Seiten).
+    const feedback = await this.feedback.dueItems(auth);
     const items = [
       ...ratings,
       ...cycles,
@@ -103,6 +107,7 @@ export class StartService {
       ...signatures,
       ...validations,
       ...mentions,
+      ...feedback,
     ];
     return items.sort(
       (a, b) => a.dueDate.localeCompare(b.dueDate) || a.supplier.localeCompare(b.supplier),

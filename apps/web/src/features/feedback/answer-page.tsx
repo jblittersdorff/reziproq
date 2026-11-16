@@ -1,5 +1,5 @@
 import type { PublicSurvey, SubmitSurvey, SurveyDimension, SurveyQuestion } from '@reziproq/shared';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CalendarXIcon, CircleCheckIcon, LinkIcon } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { Logo } from '@/components/ui/brand-mark';
@@ -9,17 +9,26 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StepActions, StepProgress } from '@/components/ui/step-progress';
+import { useToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
-import { ApiError, publicSurveyQueryOptions, submitSurvey } from '@/lib/api';
+import { PagePath } from '@/features/shell/page-path';
+import {
+  ApiError,
+  myFeedbackSurveyQueryOptions,
+  publicSurveyQueryOptions,
+  submitMyFeedback,
+  submitSurvey,
+} from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useLocale } from '@/lib/i18n';
 import { de } from '@/locales/de';
 import { en } from '@/locales/en';
 import { type SurveyAnswer, type SurveyLanguage, SurveyQuestionnaire } from './survey-form';
 
-// PUL-02b: Beantworten über /umfrage/<token> ohne Anmeldung. Je Dimension eine Seite mit
-// Fortschritt; am Ende Freitext und Absenden. Der Zwischenstand bleibt nur auf diesem Gerät, damit
-// nirgends Antworten mit einer Person verbunden gespeichert sind.
+// PUL-02b: Beantworten über /umfrage/<token> ohne Anmeldung, und angemeldet in der App unter
+// /feedback/<einladung> (beide Seiten). Je Dimension eine Seite mit Fortschritt; am Ende Freitext
+// und Absenden. Der Zwischenstand bleibt nur auf diesem Gerät, damit nirgends Antworten mit einer
+// Person verbunden gespeichert sind.
 
 const messages = { de, en };
 
@@ -29,12 +38,18 @@ interface Draft {
   page: number;
 }
 
-const draftKey = (token: string) => `reziproq:umfrage:${token}`;
+/** Woher der Bogen kommt: Link ohne Anmeldung oder eigene Einladung in der App */
+interface SurveySource {
+  /** Schlüssel des Zwischenstands auf diesem Gerät */
+  draftKey: string;
+  queryKey: QueryKey;
+  submit: (request: SubmitSurvey) => Promise<PublicSurvey>;
+}
 
-function readDraft(token: string): Draft {
+function readDraft(draftKey: string): Draft {
   const empty: Draft = { answers: {}, comment: '', page: 0 };
   try {
-    const stored = localStorage.getItem(draftKey(token));
+    const stored = localStorage.getItem(draftKey);
     return stored ? { ...empty, ...(JSON.parse(stored) as Partial<Draft>) } : empty;
   } catch {
     return empty;
@@ -59,13 +74,67 @@ function pagesOf(survey: PublicSurvey): SurveyQuestion[][] {
   );
 }
 
+/** Ohne Anmeldung über den persönlichen Link */
 export function AnswerPage({ token }: { token: string }) {
+  const options = publicSurveyQueryOptions(token);
+  return (
+    <SurveyFlow
+      query={useQuery(options)}
+      source={{
+        draftKey: `reziproq:umfrage:${token}`,
+        queryKey: options.queryKey,
+        submit: (request) => submitSurvey(token, request),
+      }}
+      Frame={Frame}
+    />
+  );
+}
+
+/** In der App: eigene Einladung, angemeldet; beide Seiten (Feedback in der App). */
+export function InAppAnswerPage({ invitationId }: { invitationId: string }) {
+  const accessToken = useToken();
+  const options = myFeedbackSurveyQueryOptions(accessToken, invitationId);
+  return (
+    <SurveyFlow
+      query={useQuery({ ...options, enabled: accessToken !== '' })}
+      source={{
+        draftKey: `reziproq:feedback:${invitationId}`,
+        queryKey: options.queryKey,
+        submit: (request) => submitMyFeedback(accessToken, invitationId, request),
+      }}
+      Frame={InAppFrame}
+    />
+  );
+}
+
+function InAppFrame({ children }: { children: ReactNode }) {
+  const { locale } = useLocale();
+  const text = messages[locale === 'en' ? 'en' : 'de'];
+  return (
+    <div className="flex max-w-3xl flex-col gap-8">
+      <PagePath
+        trail={[{ label: text.myFeedback.title, href: '/feedback' }]}
+        current={text.surveyAnswer.title}
+      />
+      {children}
+    </div>
+  );
+}
+
+function SurveyFlow({
+  query,
+  source,
+  Frame,
+}: {
+  query: ReturnType<typeof useQuery<PublicSurvey>>;
+  source: SurveySource;
+  Frame: (props: { children: ReactNode }) => ReactNode;
+}) {
   const { locale } = useLocale();
   // Folgt der Sprache des Browsers, bis jemand selbst umschaltet.
   const [chosen, setLanguage] = useState<SurveyLanguage | null>(null);
   const language: SurveyLanguage = chosen ?? (locale === 'en' ? 'en' : 'de');
   const text = messages[language].surveyAnswer;
-  const query = useQuery(publicSurveyQueryOptions(token));
 
   if (query.isError) {
     const notFound = query.error instanceof ApiError && query.error.status === 404;
@@ -112,7 +181,7 @@ export function AnswerPage({ token }: { token: string }) {
   return (
     <Frame>
       <OpenSurvey
-        token={token}
+        source={source}
         survey={survey}
         title={title}
         language={language}
@@ -123,13 +192,13 @@ export function AnswerPage({ token }: { token: string }) {
 }
 
 function OpenSurvey({
-  token,
+  source,
   survey,
   title,
   language,
   onLanguage,
 }: {
-  token: string;
+  source: SurveySource;
   survey: PublicSurvey;
   title: string;
   language: SurveyLanguage;
@@ -139,7 +208,7 @@ function OpenSurvey({
   const format = useFormat();
   const queryClient = useQueryClient();
   const pages = pagesOf(survey);
-  const [draft, setDraft] = useState<Draft>(() => readDraft(token));
+  const [draft, setDraft] = useState<Draft>(() => readDraft(source.draftKey));
   const [missing, setMissing] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -150,11 +219,11 @@ function OpenSurvey({
 
   useEffect(() => {
     try {
-      localStorage.setItem(draftKey(token), JSON.stringify(draft));
+      localStorage.setItem(source.draftKey, JSON.stringify(draft));
     } catch {
       // Ohne Speicher bleibt der Zwischenstand nur bis zum Schließen der Seite.
     }
-  }, [draft, token]);
+  }, [draft, source.draftKey]);
 
   const incomplete = (list: SurveyQuestion[]) =>
     list
@@ -197,19 +266,21 @@ function OpenSurvey({
       };
     }
     try {
-      const result = await submitSurvey(token, {
+      const result = await source.submit({
         answers,
         comment: draft.comment.trim() || null,
       });
       try {
-        localStorage.removeItem(draftKey(token));
+        localStorage.removeItem(source.draftKey);
       } catch {
         // siehe oben
       }
-      queryClient.setQueryData(['umfrage', token], result);
+      queryClient.setQueryData(source.queryKey, result);
+      // Start und die Liste der eigenen Fragebögen zeigen den neuen Stand.
+      await queryClient.invalidateQueries({ queryKey: ['feedback', 'meine'], exact: true });
     } catch (failure) {
       if (failure instanceof ApiError && (failure.status === 409 || failure.status === 410)) {
-        await queryClient.invalidateQueries({ queryKey: ['umfrage', token] });
+        await queryClient.invalidateQueries({ queryKey: source.queryKey });
         return;
       }
       setError(text.submitFailed);

@@ -28,7 +28,6 @@ import { Tile, TileMetric, TileTitle } from '@/components/ui/tile';
 import { CustomerFrame } from '@/features/customers/customer-frame';
 import { PdfButton } from '@/features/print/pdf-button';
 import { useToken } from '@/features/ratings/use-rating';
-import { FeedbackThemesPanel } from './feedback-themes';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
@@ -45,6 +44,8 @@ import {
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { FeedbackThemesPanel } from './feedback-themes';
+import { MyInvitationNotice } from './my-feedback';
 import { ResultsSection } from './results-section';
 import { TrendSection } from './trend-section';
 
@@ -129,6 +130,7 @@ export function WavesPage({ side, relationshipId }: { side: SurveySide; relation
   return (
     <WaveFrame side={side} relationshipId={relationshipId} current={text.title}>
       <PageHeader title={text.title} purpose={text.purpose} />
+      <MyInvitationNotice relationshipId={relationshipId} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {query.data?.canStart && (
         <div className="flex justify-end">
@@ -733,6 +735,7 @@ export function WavePage({
         title={title}
         purpose={data ? text.due(format.date(data.wave.dueDate)) : text.purpose}
       />
+      <MyInvitationNotice relationshipId={relationshipId} waveId={waveId} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {failure && <StatusLine message={failure} tone="warning" />}
       {query.isError ? (

@@ -69,6 +69,7 @@ export const de = {
     dueValidation: (detail: string | null) =>
       detail ? `Wirkung freigeben · ${detail}` : 'Wirkung freigeben',
     dueMention: (name: string | null) => (name ? `Erwähnung von ${name}` : 'Erwähnung'),
+    dueFeedback: (counterpart: string) => `Feedback zu ${counterpart} geben`,
     dueSignature: (supplier: string) => `Scorecard unterschreiben · ${supplier}`,
     dueReview: (supplier: string) => `Gemeinsamen Plan prüfen · ${supplier}`,
     dueMilestone: (detail: string | null) => (detail ? `Meilenstein · ${detail}` : 'Meilenstein'),
@@ -122,8 +123,10 @@ export const de = {
       signature: 'Scorecard unterschreiben',
       validation: 'Wirkung freigeben',
       mention: 'Erwähnung',
+      feedback: 'Feedback geben',
     },
     rateNow: 'Jetzt bewerten',
+    giveFeedback: 'Feedback geben',
     internal: 'Nur intern',
     internalShort: 'intern',
     sharedWith: (name: string) => `Geteilt mit ${name}`,
@@ -3218,6 +3221,23 @@ export const de = {
     trendAria: (dimension: string, buyer: string, supplier: string) =>
       `${dimension}: eure Seite ${buyer}, Lieferant ${supplier}`,
     notFound: 'Diese Welle gibt es nicht.',
+  },
+  myFeedback: {
+    title: 'Feedback geben',
+    purpose:
+      'Fragebögen, zu denen du eingeladen bist. Du beantwortest sie hier; deine Antworten bleiben anonym.',
+    loading: 'Fragebögen werden geladen …',
+    failed: 'Die Fragebögen konnten nicht geladen werden.',
+    emptyTitle: 'Kein offener Fragebogen',
+    emptyText:
+      'Sobald du zu einer Feedback-Welle eingeladen wirst, steht der Fragebogen hier und auf Start.',
+    open: 'Offen',
+    done: 'Erledigt',
+    answer: 'Jetzt beantworten',
+    kinds: { pulse: 'Puls', annual: 'Jahres-Feedback' },
+    statuses: { open: 'Offen', used: 'Beantwortet', expired: 'Abgelaufen' },
+    due: (date: string) => `bis ${date}`,
+    banner: 'Du bist zu dieser Welle eingeladen.',
   },
   surveyAnswer: {
     title: 'Feedback zur Zusammenarbeit',

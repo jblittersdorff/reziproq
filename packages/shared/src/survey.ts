@@ -414,6 +414,27 @@ export const publicSurveySchema = z.object({
 });
 export type PublicSurvey = z.infer<typeof publicSurveySchema>;
 
+/**
+ * Feedback in der App: eigene Einladungen der angemeldeten Person, beide Seiten. Beantwortet wird
+ * unter /feedback/<id> mit demselben Bogen wie über den Link, anonym.
+ */
+export const myFeedbackSchema = z.object({
+  invitations: z.array(
+    z.object({
+      id: z.uuid(),
+      waveId: z.uuid(),
+      relationshipId: z.uuid(),
+      side: z.enum(surveySides),
+      kind: z.enum(surveyKinds),
+      dueDate: z.iso.date(),
+      status: z.enum(['open', 'used', 'expired']),
+      /** Die andere Seite der Beziehung */
+      counterpart: z.string(),
+    }),
+  ),
+});
+export type MyFeedback = z.infer<typeof myFeedbackSchema>;
+
 const scaleValue = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
 
 export const surveyAnswerSchema = z

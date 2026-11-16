@@ -29,6 +29,8 @@ import { Route as AppEinstellungenGeschaeftsjahrRouteImport } from './routes/_ap
 import { Route as AppEinstellungenHinweiseRouteImport } from './routes/_app/einstellungen/hinweise'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
+import { Route as AppFeedbackIndexRouteImport } from './routes/_app/feedback/index'
+import { Route as AppFeedbackIdRouteImport } from './routes/_app/feedback/$id'
 import { Route as AppHinweiseIndexRouteImport } from './routes/_app/hinweise/index'
 import { Route as AppHinweiseIdRouteImport } from './routes/_app/hinweise/$id'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
@@ -343,6 +345,16 @@ const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
 const AppEinstellungenZyklusRoute = AppEinstellungenZyklusRouteImport.update({
   id: '/einstellungen/zyklus',
   path: '/einstellungen/zyklus',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFeedbackIndexRoute = AppFeedbackIndexRouteImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFeedbackIdRoute = AppFeedbackIdRouteImport.update({
+  id: '/feedback/$id',
+  path: '/feedback/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHinweiseIndexRoute = AppHinweiseIndexRouteImport.update({
@@ -1622,6 +1634,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/feedback/$id': typeof AppFeedbackIdRoute
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -1635,6 +1648,7 @@ export interface FileRoutesByFullPath {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/feedback/': typeof AppFeedbackIndexRoute
   '/hinweise/': typeof AppHinweiseIndexRoute
   '/kunden/': typeof AppKundenIndexRoute
   '/lieferanten/': typeof AppLieferantenIndexRoute
@@ -1853,6 +1867,7 @@ export interface FileRoutesByTo {
   '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/feedback/$id': typeof AppFeedbackIdRoute
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -1866,6 +1881,7 @@ export interface FileRoutesByTo {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
+  '/feedback': typeof AppFeedbackIndexRoute
   '/hinweise': typeof AppHinweiseIndexRoute
   '/kunden': typeof AppKundenIndexRoute
   '/lieferanten': typeof AppLieferantenIndexRoute
@@ -2088,6 +2104,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/_app/feedback/$id': typeof AppFeedbackIdRoute
   '/_app/hinweise/$id': typeof AppHinweiseIdRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
@@ -2101,6 +2118,7 @@ export interface FileRoutesById {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/_app/feedback/': typeof AppFeedbackIndexRoute
   '/_app/hinweise/': typeof AppHinweiseIndexRoute
   '/_app/kunden/': typeof AppKundenIndexRoute
   '/_app/lieferanten/': typeof AppLieferantenIndexRoute
@@ -2324,6 +2342,7 @@ export interface FileRouteTypes {
     | '/einstellungen/hinweise'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
+    | '/feedback/$id'
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
@@ -2337,6 +2356,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/bewertungen/'
     | '/einstellungen/'
+    | '/feedback/'
     | '/hinweise/'
     | '/kunden/'
     | '/lieferanten/'
@@ -2555,6 +2575,7 @@ export interface FileRouteTypes {
     | '/einstellungen/hinweise'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
+    | '/feedback/$id'
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
@@ -2568,6 +2589,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/bewertungen'
     | '/einstellungen'
+    | '/feedback'
     | '/hinweise'
     | '/kunden'
     | '/lieferanten'
@@ -2789,6 +2811,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/hinweise'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
+    | '/_app/feedback/$id'
     | '/_app/hinweise/$id'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
@@ -2802,6 +2825,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
     | '/_app/einstellungen/'
+    | '/_app/feedback/'
     | '/_app/hinweise/'
     | '/_app/kunden/'
     | '/_app/lieferanten/'
@@ -3154,6 +3178,20 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/zyklus'
       fullPath: '/einstellungen/zyklus'
       preLoaderRoute: typeof AppEinstellungenZyklusRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/feedback/': {
+      id: '/_app/feedback/'
+      path: '/feedback'
+      fullPath: '/feedback/'
+      preLoaderRoute: typeof AppFeedbackIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/feedback/$id': {
+      id: '/_app/feedback/$id'
+      path: '/feedback/$id'
+      fullPath: '/feedback/$id'
+      preLoaderRoute: typeof AppFeedbackIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/hinweise/': {
@@ -5088,6 +5126,7 @@ interface AppRouteChildren {
   AppEinstellungenHinweiseRoute: typeof AppEinstellungenHinweiseRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
+  AppFeedbackIdRoute: typeof AppFeedbackIdRoute
   AppHinweiseIdRoute: typeof AppHinweiseIdRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
@@ -5099,6 +5138,7 @@ interface AppRouteChildren {
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
+  AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
   AppHinweiseIndexRoute: typeof AppHinweiseIndexRoute
   AppKundenIndexRoute: typeof AppKundenIndexRoute
   AppLieferantenIndexRoute: typeof AppLieferantenIndexRoute
@@ -5169,6 +5209,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenHinweiseRoute: AppEinstellungenHinweiseRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
+  AppFeedbackIdRoute: AppFeedbackIdRoute,
   AppHinweiseIdRoute: AppHinweiseIdRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
@@ -5180,6 +5221,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
+  AppFeedbackIndexRoute: AppFeedbackIndexRoute,
   AppHinweiseIndexRoute: AppHinweiseIndexRoute,
   AppKundenIndexRoute: AppKundenIndexRoute,
   AppLieferantenIndexRoute: AppLieferantenIndexRoute,

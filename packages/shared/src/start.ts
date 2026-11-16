@@ -16,6 +16,8 @@ export const dueKinds = [
   'validation',
   // QS-02: Erwähnung in einem Kommentar, bis sie geöffnet wurde
   'mention',
+  // Feedback in der App: offener Fragebogen, zu dem die Person eingeladen ist
+  'feedback',
 ] as const;
 
 export const dueItemSchema = z.object({

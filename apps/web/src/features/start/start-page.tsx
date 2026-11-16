@@ -41,6 +41,7 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'signature') return t.start.dueSignature(item.supplier);
   if (item.kind === 'validation') return t.start.dueValidation(item.detail);
   if (item.kind === 'mention') return t.start.dueMention(item.detail);
+  if (item.kind === 'feedback') return t.start.dueFeedback(item.supplier);
   return t.start.dueRating(item.detail);
 }
 
@@ -258,7 +259,11 @@ function DueTile({ item }: { item: DueItem | undefined }) {
               'aria-label': t.start.openItem(item.supplier, dueTitle(t, item)),
               children: (
                 <>
-                  {item.kind === 'rating' ? t.start.rateNow : t.start.open}
+                  {item.kind === 'rating'
+                    ? t.start.rateNow
+                    : item.kind === 'feedback'
+                      ? t.start.giveFeedback
+                      : t.start.open}
                   <NextStepArrow />
                 </>
               ),
