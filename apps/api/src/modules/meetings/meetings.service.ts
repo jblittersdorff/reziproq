@@ -21,6 +21,7 @@ import {
   type SaveAgenda,
   type SaveMeetingNote,
   type SaveProtocol,
+  type TeamRole,
   type UpdateMeeting,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
@@ -49,6 +50,8 @@ export interface MeetingScope {
   buyerOrgId: string;
   relationshipId: string;
   canEdit: boolean;
+  /** Teamrolle der eigenen Seite; „sro“ heißt beim Lieferanten Key Account Manager (QBR-07) */
+  teamRole: TeamRole | null;
 }
 
 type MeetingRow = typeof schema.meeting.$inferSelect;
@@ -186,6 +189,7 @@ export class MeetingsService {
         buyerOrgId: organization.id,
         relationshipId,
         canEdit,
+        teamRole: member?.teamRole ?? null,
       });
     });
   }
@@ -196,8 +200,18 @@ export class MeetingsService {
     relationshipId: string,
     work: (scope: MeetingScope) => Promise<T>,
   ) {
-    return this.customers.inCustomer(auth, relationshipId, (tx, customer) =>
-      work({
+    return this.customers.inCustomer(auth, relationshipId, async (tx, customer) => {
+      const [member] = await tx
+        .select({ teamRole: schema.relationshipMember.teamRole })
+        .from(schema.relationshipMember)
+        .where(
+          and(
+            eq(schema.relationshipMember.relationshipId, relationshipId),
+            eq(schema.relationshipMember.orgId, auth.organization?.id as string),
+            eq(schema.relationshipMember.userId, auth.userId),
+          ),
+        );
+      return work({
         tx,
         auth,
         side: 'supplier',
@@ -205,8 +219,9 @@ export class MeetingsService {
         buyerOrgId: customer.buyerOrgId,
         relationshipId,
         canEdit: can(auth, 'termine.bearbeiten'),
-      }),
-    );
+        teamRole: member?.teamRole ?? null,
+      });
+    });
   }
 
   private sideOf(scope: MeetingScope, ownerOrgId: string): MeetingSide {

@@ -98,3 +98,31 @@ export const planSummaryDraftSchema = z.object({
   draft: aiDraftSchema.nullable(),
 });
 export type PlanSummaryDraft = z.infer<typeof planSummaryDraftSchema>;
+
+/** QBR-07: höchstens so viele Wörter hat die Zusammenfassung im Pre-Read */
+export const maxPreReadWords = 200;
+
+export const preReadDraftSchema = z.object({
+  /** SRO bzw. Key Account Manager oder Admin */
+  canDraft: z.boolean(),
+  /** Offener KI-Entwurf der eigenen Seite */
+  draft: aiDraftSchema.nullable(),
+  /** Übernommene Zusammenfassung der eigenen Seite; steht im Pre-Read-PDF */
+  accepted: aiDraftSchema.nullable(),
+});
+export type PreReadDraft = z.infer<typeof preReadDraftSchema>;
+
+/** Übernehmen, auch mit bearbeitetem Text; nie mehr als 200 Wörter */
+export const acceptPreReadSchema = z
+  .object({
+    content: z
+      .string()
+      .trim()
+      .min(1)
+      .max(4000)
+      .refine((text) => wordCount(text) <= maxPreReadWords, {
+        message: `Höchstens ${maxPreReadWords} Wörter`,
+      }),
+  })
+  .strict();
+export type AcceptPreRead = z.infer<typeof acceptPreReadSchema>;

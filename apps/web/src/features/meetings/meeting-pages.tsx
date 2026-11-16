@@ -37,6 +37,7 @@ import {
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
+import { PreReadSummary } from './pre-read-summary';
 
 // QBR-01a: Termine für beide Seiten. Der Käufer arbeitet unter /lieferanten/<id>/umsetzung/termine,
 // der Lieferant unter /kunden/<beziehung>/umsetzung/termine; die API unterscheidet genauso.
@@ -606,6 +607,9 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           })}
         <PreReadButton place={place} meetingId={meetingId} closed={meeting.status === 'closed'} />
       </div>
+      {meeting.status !== 'closed' && (
+        <PreReadSummary base={apiBase(place)} side={place.side} meetingId={meetingId} />
+      )}
       <Section
         id="termin-agenda"
         title={text.agenda}

@@ -540,6 +540,13 @@
       "when": 1794835209432,
       "tag": "0076_ki_plan_zusammenfassung",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794837287766,
+      "tag": "0077_ki_pre_read",
+      "breakpoints": true
     }
   ]
 }

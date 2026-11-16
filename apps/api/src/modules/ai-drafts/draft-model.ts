@@ -49,6 +49,12 @@ export class TestDraftModel implements DraftModel {
 
   async write(request: DraftRequest): Promise<string> {
     TestDraftModel.requests.push(request);
+    if (request.prompt.startsWith('Termin:')) {
+      // Absichtlich zu lang: Reziproq kürzt auf höchstens 200 Wörter (QBR-07).
+      const sentence =
+        'Stand: Die Zusammenarbeit läuft stabil, die meisten Zusagen sind gehalten und die Initiativen kommen voran. Offen bleiben einzelne Maßnahmen mit Termin im nächsten Quartal.';
+      return Array.from({ length: 10 }, () => sentence).join(' ');
+    }
     if (request.prompt.startsWith('Lieferant:')) {
       // Absichtlich zu lang: Reziproq kürzt auf höchstens 120 Wörter (SPL-10).
       const sentence =

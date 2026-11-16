@@ -1,5 +1,6 @@
 import {
   type AcceptInvitationRequest,
+  type AcceptPreRead,
   type ActionReminderSetting,
   type ActionStatus,
   type AddAssignment,
@@ -45,6 +46,7 @@ import {
   deviationExplanationsSchema,
   feedbackThemesSchema,
   planSummaryDraftSchema,
+  preReadDraftSchema,
   dueListSchema,
   type EditComment,
   type ExtendRound,
@@ -1850,6 +1852,57 @@ export async function downloadImpactExport(
  * QBR-06: Pre-Read eines Termins als PDF (bei abgeschlossenen Terminen das Protokoll). Erzeugt
  * der Server, gespeichert wird nichts; der Dateiname kommt vom Server.
  */
+// QBR-07: KI-Entwurf der Zusammenfassung im Pre-Read, nur für die eigene Seite
+export const preReadDraftQueryOptions = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+) =>
+  queryOptions({
+    queryKey: ['termine', base, meetingId, 'zusammenfassung'],
+    queryFn: () =>
+      getJson(`${base}/termine/${meetingId}/zusammenfassung`, preReadDraftSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const proposePreRead = (accessToken: string, base: MeetingBase, meetingId: string) =>
+  sendJson(
+    'POST',
+    `${base}/termine/${meetingId}/zusammenfassung`,
+    {},
+    preReadDraftSchema,
+    accessToken,
+  );
+
+export const acceptPreRead = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  draftId: string,
+  request: AcceptPreRead,
+) =>
+  sendJson(
+    'POST',
+    `${base}/termine/${meetingId}/zusammenfassung/${draftId}/uebernehmen`,
+    request,
+    preReadDraftSchema,
+    accessToken,
+  );
+
+export const discardPreRead = (
+  accessToken: string,
+  base: MeetingBase,
+  meetingId: string,
+  draftId: string,
+) =>
+  sendJson(
+    'POST',
+    `${base}/termine/${meetingId}/zusammenfassung/${draftId}/verwerfen`,
+    {},
+    preReadDraftSchema,
+    accessToken,
+  );
+
 export async function downloadPreRead(
   accessToken: string,
   base: string,

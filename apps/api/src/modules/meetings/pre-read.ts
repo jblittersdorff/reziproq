@@ -10,6 +10,7 @@ export type PrintLocale = 'de' | 'en';
 const copy = {
   de: {
     preRead: 'Pre-Read',
+    summary: 'Zusammenfassung',
     protocol: 'Protokoll',
     participants: 'Teilnehmende',
     agenda: 'Agenda',
@@ -62,6 +63,7 @@ const copy = {
   },
   en: {
     preRead: 'Pre-read',
+    summary: 'Summary',
     protocol: 'Minutes',
     participants: 'Participants',
     agenda: 'Agenda',
@@ -108,7 +110,13 @@ export function preReadFileName(detail: MeetingDetail, locale: PrintLocale): str
   return `${kind} ${detail.meeting.title} ${day}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
 }
 
-export function preReadHtml(detail: MeetingDetail, locale: PrintLocale, now = new Date()): string {
+export function preReadHtml(
+  detail: MeetingDetail,
+  locale: PrintLocale,
+  now = new Date(),
+  /** QBR-07: übernommene Zusammenfassung der eigenen Seite */
+  summary: string | null = null,
+): string {
   const t = copy[locale];
   const tag = locale === 'de' ? 'de-DE' : 'en-GB';
   const dateTime = (iso: string) =>
@@ -194,6 +202,7 @@ export function preReadHtml(detail: MeetingDetail, locale: PrintLocale, now = ne
   <h1>${h(meeting.title)}</h1>
   <p class="facts"><span>${h(dateTime(meeting.startsAt))}</span>${meeting.location ? `<span>${h(meeting.location)}</span>` : ''}<span>${h(stand)}</span></p>
 </header>
+${summary ? `<section data-section="summary"><h2>${h(t.summary)}</h2><p class="protocol">${h(summary)}</p></section>` : ''}
 <section><h2>${h(t.participants)}</h2>${participants}</section>
 <section><h2>${h(t.agenda)}</h2>${agenda}</section>
 ${sections}
