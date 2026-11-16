@@ -321,6 +321,18 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   // QS-03: Gesamtexport der Organisation; die Datei sieht nur die eigene Organisation.
   data_export: { kind: 'org_private', testValues: { requested_by: 'demo-test-oem-1' } },
+  // SEG-11: Entwürfe der KI; nur die eigene Organisation sieht sie, der Lieferant nie.
+  ai_draft: {
+    kind: 'org_private',
+    testValues: {
+      kind: 'deviation_explanation',
+      object_type: 'segmentation_round',
+      object_id: '0190a0a0-0000-7000-8000-000000000002',
+      content: 'Probe',
+      model: 'test',
+      created_by: 'demo-test-oem-1',
+    },
+  },
   // FS-01: Hinweise; nur die eigene Organisation sieht sie, der Lieferant nie.
   hint: { kind: 'org_private', testValues: { rule_key: 'no_feedback', fingerprint: 'probe' } },
   action_private_source: {

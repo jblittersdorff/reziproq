@@ -42,6 +42,7 @@ import {
   type DismissHint,
   dataExportListSchema,
   decisionHistorySchema,
+  deviationExplanationsSchema,
   dueListSchema,
   type EditComment,
   type ExtendRound,
@@ -1227,6 +1228,42 @@ export const consolidate = (
     `/ratings/relationship/${relationshipId}/decisions`,
     request,
     decisionHistorySchema,
+    accessToken,
+  );
+
+// SEG-11: KI erklärt die größten Abweichungen
+export const deviationExplanationsQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['ratings', 'explanations', relationshipId],
+    queryFn: () =>
+      getJson(
+        `/ratings/relationship/${relationshipId}/segmentation/explanations`,
+        deviationExplanationsSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const explainDeviations = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `/ratings/relationship/${relationshipId}/segmentation/explanations`,
+    {},
+    deviationExplanationsSchema,
+    accessToken,
+  );
+
+export const decideExplanation = (
+  accessToken: string,
+  relationshipId: string,
+  draftId: string,
+  decision: 'accept' | 'discard',
+) =>
+  sendJson(
+    'POST',
+    `/ratings/relationship/${relationshipId}/segmentation/explanations/${draftId}/${decision}`,
+    {},
+    deviationExplanationsSchema,
     accessToken,
   );
 

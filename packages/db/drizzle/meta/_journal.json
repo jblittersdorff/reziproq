@@ -519,6 +519,13 @@
       "when": 1794824377488,
       "tag": "0073_hinweise",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1794832330602,
+      "tag": "0074_ki_entwuerfe",
+      "breakpoints": true
     }
   ]
 }

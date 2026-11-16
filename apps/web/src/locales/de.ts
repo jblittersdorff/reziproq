@@ -3235,6 +3235,26 @@ export const de = {
   // Bewertung abgeben (SEG-04)
   // Segmentierung je Lieferant (SEG-05)
   segmentation: {
+    explain: {
+      title: 'Abweichungen verstehen',
+      intro:
+        'Reziproq erklärt die drei größten Abweichungen in zwei Sätzen, aus den Begründungen der Bewertenden. Namen gehen nicht an die KI.',
+      action: 'Abweichungen erklären',
+      working: 'Reziproq schreibt die Erklärungen …',
+      failed: 'Die Erklärungen konnten nicht erzeugt werden. Bitte versuche es noch einmal.',
+      loadFailed: 'Die Erklärungen konnten nicht geladen werden.',
+      none: 'Die Bewertenden sind sich einig; es gibt keine Abweichung zu erklären.',
+      range: (min: string, max: string) => `Ist-Werte von ${min} bis ${max}`,
+      draftHeading: 'KI-Entwurf, bitte prüfen',
+      acceptedHeading: (date: string) => `Erklärung von Reziproq · übernommen am ${date}`,
+      sources: 'Quellen',
+      reasons: (n: number) => (n === 1 ? '1 Begründung' : `${n} Begründungen`),
+      accept: 'Übernehmen',
+      discard: 'Verwerfen',
+      noExplanation: 'Noch keine übernommene Erklärung.',
+      withoutReasons: (criteria: string) =>
+        `Zu ${criteria} gibt es keine Begründungen. Reziproq hat dafür keinen Entwurf geschrieben; bitte die Bewertenden um eine kurze Begründung.`,
+    },
     title: 'Segmentierung',
     purpose: 'Ist und Soll aus den Bewertungen, mit den Abweichungen zwischen den Bewertenden.',
     loading: 'Segmentierung wird geladen …',

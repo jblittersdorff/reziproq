@@ -93,6 +93,7 @@ describe('PLT-02 in der Datenbank', () => {
       'action',
       'action_notification',
       'action_private_source',
+      'ai_draft',
       'app_user',
       'audit_event',
       'business_unit',

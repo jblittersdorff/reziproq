@@ -14,6 +14,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import { InternalBadge } from '@/features/workspace/internal-badge';
 import { useLocale, useT } from '@/lib/i18n';
+import { DeviationExplanationsSection } from './deviation-explanations';
 import { useDecisions } from './use-decisions';
 import { useSegmentation } from './use-segmentation';
 
@@ -158,6 +159,7 @@ export function SegmentationPage({ relationshipId }: { relationshipId: string })
                   format={(value) => number.format(value)}
                   empty={{ title: text.emptyTitle, description: text.emptyDescription }}
                 />
+                <DeviationExplanationsSection relationshipId={relationshipId} stats={data.stats} />
                 <section aria-labelledby="seg-criteria" className="space-y-2">
                   <h2 id="seg-criteria" className="font-semibold text-lg">
                     {text.criteria}

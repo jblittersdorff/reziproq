@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { createLanguageModel } from '../../common/ai-language-model.js';
 import { env } from '../../config/env.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import { AiSdkPromptModel } from './ai-sdk-model.js';
@@ -16,30 +17,8 @@ import { TestPromptModel } from './test-model.js';
     {
       provide: PROMPT_MODEL,
       useFactory: async () => {
-        if (env.AI_PROVIDER === 'anthropic') {
-          const { anthropic } = await import('@ai-sdk/anthropic');
-          return new AiSdkPromptModel(anthropic(env.AI_MODEL));
-        }
-        if (env.AI_PROVIDER === 'bedrock') {
-          if (!env.AWS_REGION) throw new Error('AI_PROVIDER=bedrock braucht AWS_REGION.');
-          const { defaultProvider } = await import('@aws-sdk/credential-provider-node');
-          const { createAmazonBedrock } = await import('@ai-sdk/amazon-bedrock');
-          const provider = defaultProvider();
-          return new AiSdkPromptModel(
-            createAmazonBedrock({
-              region: env.AWS_REGION,
-              credentialProvider: async () => {
-                const { accessKeyId, secretAccessKey, sessionToken } = await provider();
-                return {
-                  accessKeyId,
-                  secretAccessKey,
-                  ...(sessionToken ? { sessionToken } : {}),
-                };
-              },
-            })(env.AI_MODEL),
-          );
-        }
-        return new TestPromptModel();
+        const model = await createLanguageModel();
+        return model ? new AiSdkPromptModel(model) : new TestPromptModel();
       },
     },
     {

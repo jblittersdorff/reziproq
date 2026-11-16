@@ -3,6 +3,7 @@ export * from './app-user.js';
 export * from './audit.js';
 export * from './comment.js';
 export * from './data-export.js';
+export * from './ai-draft.js';
 export * from './hint.js';
 export * from './impact.js';
 export * from './initiative.js';

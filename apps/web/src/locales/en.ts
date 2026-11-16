@@ -3157,6 +3157,26 @@ export const en: Messages = {
   },
   // Segmentation per supplier (SEG-05)
   segmentation: {
+    explain: {
+      title: 'Understand deviations',
+      intro:
+        'Reziproq explains the three largest deviations in two sentences, based on the raters’ reasons. Names are not sent to the AI.',
+      action: 'Explain deviations',
+      working: 'Reziproq is writing the explanations …',
+      failed: 'The explanations could not be created. Please try again.',
+      loadFailed: 'The explanations could not be loaded.',
+      none: 'The raters agree; there is no deviation to explain.',
+      range: (min: string, max: string) => `Current values from ${min} to ${max}`,
+      draftHeading: 'AI draft, please review',
+      acceptedHeading: (date: string) => `Explanation by Reziproq · accepted on ${date}`,
+      sources: 'Sources',
+      reasons: (n: number) => (n === 1 ? '1 reason' : `${n} reasons`),
+      accept: 'Accept',
+      discard: 'Discard',
+      noExplanation: 'No accepted explanation yet.',
+      withoutReasons: (criteria: string) =>
+        `There are no reasons for ${criteria}. Reziproq did not write a draft; ask the raters for a short reason.`,
+    },
     title: 'Segmentation',
     purpose: 'Current and target from the ratings, with the differences between raters.',
     loading: 'Loading segmentation …',

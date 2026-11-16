@@ -20,6 +20,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { ConsolidationService } from './consolidation.service.js';
+import { DeviationExplanationsService } from './deviation-explanations.service.js';
 import { RatingsService } from './ratings.service.js';
 
 @Controller('ratings')
@@ -27,6 +28,8 @@ export class RatingsController {
   constructor(
     @Inject(RatingsService) private readonly ratings: RatingsService,
     @Inject(ConsolidationService) private readonly consolidation: ConsolidationService,
+    @Inject(DeviationExplanationsService)
+    private readonly explanations: DeviationExplanationsService,
   ) {}
 
   @Get('mine')
@@ -51,6 +54,49 @@ export class RatingsController {
     @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
   ) {
     return this.ratings.segmentation(auth, relationshipId);
+  }
+
+  // SEG-11: KI erklärt die größten Abweichungen; übernommene Erklärungen sieht, wer die
+  // Segmentierung sieht, Entwürfe nur SRO und Admin.
+  @Get('relationship/:relationshipId/segmentation/explanations')
+  @Requires('bewertungen.sehen')
+  deviationExplanations(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
+  ) {
+    return this.explanations.list(auth, relationshipId);
+  }
+
+  @Post('relationship/:relationshipId/segmentation/explanations')
+  @HttpCode(200)
+  @Requires('segmentierung.konsolidieren')
+  explainDeviations(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
+  ) {
+    return this.explanations.explain(auth, relationshipId);
+  }
+
+  @Post('relationship/:relationshipId/segmentation/explanations/:draftId/accept')
+  @HttpCode(200)
+  @Requires('segmentierung.konsolidieren')
+  acceptExplanation(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
+    @Param('draftId', ParseUUIDPipe) draftId: string,
+  ) {
+    return this.explanations.decide(auth, relationshipId, draftId, 'accepted');
+  }
+
+  @Post('relationship/:relationshipId/segmentation/explanations/:draftId/discard')
+  @HttpCode(200)
+  @Requires('segmentierung.konsolidieren')
+  discardExplanation(
+    @CurrentUser() auth: AuthContext,
+    @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
+    @Param('draftId', ParseUUIDPipe) draftId: string,
+  ) {
+    return this.explanations.decide(auth, relationshipId, draftId, 'discarded');
   }
 
   @Get('relationship/:relationshipId/decisions')
