@@ -2959,6 +2959,23 @@ export const en: Messages = {
   },
 
   feedback: {
+    themes: {
+      title: 'Themes of the free texts',
+      intro:
+        'Reziproq summarises the other side’s free texts into at most five themes, without quotes, names or functions.',
+      action: 'Summarise free texts',
+      working: 'Reziproq is summarising the free texts …',
+      failed: 'The summary could not be created. Please try again.',
+      quoted: 'The draft contained a quote and was not saved. Please try again.',
+      tooFew: (n: number) => `A summary needs at least three free texts; there are ${n}.`,
+      draftHeading: 'AI draft, please review',
+      acceptedHeading: (date: string) => `Summary by Reziproq · accepted on ${date}`,
+      sources: 'Sources',
+      source: (n: number) => (n === 1 ? '1 free text' : `${n} free texts`),
+      accept: 'Accept',
+      discard: 'Discard',
+      ownOnly: 'Only your side sees this summary.',
+    },
     title: 'Feedback',
     purpose:
       'Both sides answer the same questionnaire with current and target. Answers stay anonymous; turnout only shows counts.',

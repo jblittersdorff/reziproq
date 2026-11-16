@@ -59,7 +59,7 @@ export interface WaveScope {
   side: SurveySide;
   orgId: string;
   relationshipId: string;
-  /** Teamrolle beim Käufer; beim Lieferanten null */
+  /** Teamrolle der eigenen Seite; „sro“ heißt beim Lieferanten Key Account Manager */
   teamRole: TeamRole | null;
   /** Für den Titel der Mail: Käufer und Lieferant */
   names: { buyer: string; supplier: string };
@@ -137,17 +137,27 @@ export class WavesService {
   }
 
   supplier<T>(auth: AuthContext, relationshipId: string, work: (scope: WaveScope) => Promise<T>) {
-    return this.customers.inCustomer(auth, relationshipId, (tx, customer) =>
-      work({
+    return this.customers.inCustomer(auth, relationshipId, async (tx, customer) => {
+      const [member] = await tx
+        .select({ teamRole: schema.relationshipMember.teamRole })
+        .from(schema.relationshipMember)
+        .where(
+          and(
+            eq(schema.relationshipMember.relationshipId, relationshipId),
+            eq(schema.relationshipMember.orgId, auth.organization?.id as string),
+            eq(schema.relationshipMember.userId, auth.userId),
+          ),
+        );
+      return work({
         tx,
         auth,
         side: 'supplier',
         orgId: auth.organization?.id as string,
         relationshipId,
-        teamRole: null,
+        teamRole: member?.teamRole ?? null,
         names: { buyer: customer.name, supplier: auth.organization?.name ?? '' },
-      }),
-    );
+      });
+    });
   }
 
   /** Starten, Frist ändern: Käufer, SRO oder Admin. */

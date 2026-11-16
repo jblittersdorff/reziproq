@@ -3034,6 +3034,25 @@ export const de = {
   },
 
   feedback: {
+    themes: {
+      title: 'Themen der Freitexte',
+      intro:
+        'Reziproq fasst die Freitexte der anderen Seite zu höchstens fünf Themen zusammen, ohne Zitate, Namen oder Funktionen.',
+      action: 'Freitexte zusammenfassen',
+      working: 'Reziproq fasst die Freitexte zusammen …',
+      failed: 'Die Zusammenfassung konnte nicht erzeugt werden. Bitte versuche es noch einmal.',
+      quoted:
+        'Der Entwurf enthielt ein Zitat und wurde nicht gespeichert. Bitte versuche es noch einmal.',
+      tooFew: (n: number) =>
+        `Für eine Zusammenfassung braucht es mindestens drei Freitexte; es gibt ${n}.`,
+      draftHeading: 'KI-Entwurf, bitte prüfen',
+      acceptedHeading: (date: string) => `Zusammenfassung von Reziproq · übernommen am ${date}`,
+      sources: 'Quellen',
+      source: (n: number) => (n === 1 ? '1 Freitext' : `${n} Freitexte`),
+      accept: 'Übernehmen',
+      discard: 'Verwerfen',
+      ownOnly: 'Nur eure Seite sieht diese Zusammenfassung.',
+    },
     title: 'Feedback',
     purpose:
       'Beide Seiten beantworten denselben Fragebogen mit Ist und Soll. Antworten bleiben anonym; der Rücklauf zeigt nur Anzahlen.',

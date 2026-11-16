@@ -148,11 +148,14 @@ export function ResultsSection({
   results,
   side,
   newActionPath,
+  freeTextSummary,
 }: {
   results: SurveyResults;
   side: SurveySide;
   /** Seite für eine neue Maßnahme der eigenen Seite (PUL-06) */
   newActionPath: string;
+  /** PUL-08: Themen der Freitexte, über den Freitexten */
+  freeTextSummary?: React.ReactNode;
 }) {
   const t = useT();
   const text = t.feedback;
@@ -304,6 +307,7 @@ export function ResultsSection({
         <h3 id="freitexte" className="font-semibold text-lg">
           {text.freeTexts(other ?? '')}
         </h3>
+        {freeTextSummary}
         {results.freeTexts.length === 0 ? (
           <p className="text-muted-foreground">{text.noFreeTexts}</p>
         ) : (

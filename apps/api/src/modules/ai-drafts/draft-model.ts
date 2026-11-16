@@ -49,6 +49,13 @@ export class TestDraftModel implements DraftModel {
 
   async write(request: DraftRequest): Promise<string> {
     TestDraftModel.requests.push(request);
+    if (request.prompt.startsWith('Freitexte:')) {
+      return [
+        '- Abstimmungen bei Änderungen dauern aus Sicht der anderen Seite zu lange.',
+        '- Die Prognosen für Abrufe kommen oft spät und schwanken stark.',
+        '- Ansprechpartner wechseln häufig, Zuständigkeiten sind unklar.',
+      ].join('\n');
+    }
     const subject = /^Kriterium: (.+)$/m.exec(request.prompt)?.[1] ?? 'diesem Kriterium';
     return `Die Bewertungen zu ${subject} gehen auseinander, weil die Funktionen unterschiedliche Erfahrungen schildern. Die Begründungen nennen vor allem Liefertreue und Abstimmung als Ursache.`;
   }

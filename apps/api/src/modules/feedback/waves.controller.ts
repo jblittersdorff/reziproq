@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   type ExtendSurveyWave,
+  type FeedbackThemes,
   extendSurveyWaveSchema,
   type InviteSurveyParticipants,
   inviteSurveyParticipantsSchema,
@@ -29,6 +30,7 @@ import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Public } from '../auth/public.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { AnswerService } from './answer.service.js';
+import { FeedbackThemesService } from './feedback-themes.service.js';
 import { type WaveScope, WavesService } from './waves.service.js';
 
 type Side = 'buyer' | 'supplier';
@@ -36,7 +38,10 @@ type Side = 'buyer' | 'supplier';
 /** PUL-02a: dieselben Endpunkte je Seite; Starten und Frist nur beim Käufer. */
 function waveRoutes(side: Side) {
   class SideWavesController {
-    constructor(@Inject(WavesService) readonly waves: WavesService) {}
+    constructor(
+      @Inject(WavesService) readonly waves: WavesService,
+      @Inject(FeedbackThemesService) readonly themes: FeedbackThemesService,
+    ) {}
 
     scoped<T>(auth: AuthContext, id: string, work: (scope: WaveScope) => Promise<T>) {
       return side === 'buyer'
@@ -70,6 +75,52 @@ function waveRoutes(side: Side) {
       @Param('waveId', ParseUUIDPipe) waveId: string,
     ): Promise<SurveyWaveDetail> {
       return this.scoped(auth, id, (scope) => this.waves.detail(scope, waveId));
+    }
+
+    // PUL-08: KI fasst die Freitexte der anderen Seite zu Themen zusammen.
+    @Get(':waveId/themen')
+    @Requires('feedback.sehen')
+    feedbackThemes(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('waveId', ParseUUIDPipe) waveId: string,
+    ): Promise<FeedbackThemes> {
+      return this.themes.get(side, auth, id, waveId);
+    }
+
+    @Post(':waveId/themen')
+    @HttpCode(200)
+    @Requires('feedback.sehen')
+    summarize(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('waveId', ParseUUIDPipe) waveId: string,
+    ): Promise<FeedbackThemes> {
+      return this.themes.summarize(side, auth, id, waveId);
+    }
+
+    @Post(':waveId/themen/:draftId/uebernehmen')
+    @HttpCode(200)
+    @Requires('feedback.sehen')
+    acceptThemes(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('waveId', ParseUUIDPipe) waveId: string,
+      @Param('draftId', ParseUUIDPipe) draftId: string,
+    ): Promise<FeedbackThemes> {
+      return this.themes.decide(side, auth, id, waveId, draftId, 'accepted');
+    }
+
+    @Post(':waveId/themen/:draftId/verwerfen')
+    @HttpCode(200)
+    @Requires('feedback.sehen')
+    discardThemes(
+      @CurrentUser() auth: AuthContext,
+      @Param('id', ParseUUIDPipe) id: string,
+      @Param('waveId', ParseUUIDPipe) waveId: string,
+      @Param('draftId', ParseUUIDPipe) draftId: string,
+    ): Promise<FeedbackThemes> {
+      return this.themes.decide(side, auth, id, waveId, draftId, 'discarded');
     }
 
     @Post(':waveId/teilnehmende')

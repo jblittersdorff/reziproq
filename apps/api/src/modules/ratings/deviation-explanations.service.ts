@@ -8,7 +8,6 @@ import {
 import {
   and,
   auditedChange,
-  auditedObject,
   desc,
   eq,
   inArray,
@@ -25,6 +24,7 @@ import {
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { withoutNames } from '../ai-drafts/anonymize.js';
+import { aiDraftAudit } from '../ai-drafts/audit.js';
 import { DRAFT_MODEL, type DraftModel } from '../ai-drafts/draft-model.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -32,13 +32,6 @@ import { ownRelationship, sroOf } from '../suppliers/team.service.js';
 import { RatingsService } from './ratings.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
-
-/** Verlauf: wer eine Erklärung übernommen oder verworfen hat; ohne den Text. */
-export const aiDraftAudit = auditedObject({
-  type: 'ai_draft',
-  visibility: 'internal',
-  fields: ['status'],
-});
 
 const kind = 'deviation_explanation' as const;
 const objectType = 'segmentation_round';

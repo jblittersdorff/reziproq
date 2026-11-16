@@ -28,6 +28,7 @@ import { Tile, TileMetric, TileTitle } from '@/components/ui/tile';
 import { CustomerFrame } from '@/features/customers/customer-frame';
 import { PdfButton } from '@/features/print/pdf-button';
 import { useToken } from '@/features/ratings/use-rating';
+import { FeedbackThemesPanel } from './feedback-themes';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
@@ -745,6 +746,9 @@ export function WavePage({
           labels={labels}
           onClose={close}
           pdfPath={`${side === 'buyer' ? '/suppliers' : '/kunden'}/${relationshipId}/feedback/${waveId}/pdf`}
+          freeTextSummary={
+            <FeedbackThemesPanel side={side} relationshipId={relationshipId} waveId={waveId} />
+          }
         />
       )}
     </WaveFrame>
@@ -757,6 +761,7 @@ function WaveBody({
   labels,
   onClose,
   pdfPath,
+  freeTextSummary,
 }: {
   data: SurveyWaveDetail;
   base: string;
@@ -764,6 +769,8 @@ function WaveBody({
   onClose: () => Promise<void>;
   /** API-Pfad des Ergebnisses als PDF (QS-03) */
   pdfPath: string;
+  /** PUL-08: Themen der Freitexte */
+  freeTextSummary: React.ReactNode;
 }) {
   const text = useT().feedback;
   const format = useFormat();
@@ -836,6 +843,7 @@ function WaveBody({
             results={data.results}
             side={data.ownSide}
             newActionPath={newActionPath}
+            freeTextSummary={freeTextSummary}
           />
         </>
       ) : (

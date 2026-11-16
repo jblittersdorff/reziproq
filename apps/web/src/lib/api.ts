@@ -43,6 +43,7 @@ import {
   dataExportListSchema,
   decisionHistorySchema,
   deviationExplanationsSchema,
+  feedbackThemesSchema,
   dueListSchema,
   type EditComment,
   type ExtendRound,
@@ -2269,6 +2270,54 @@ export const surveyWaveQueryOptions = (
       ),
     retry: retryUnlessDenied,
   });
+
+// PUL-08: KI fasst die Freitexte der anderen Seite zu Themen zusammen
+export const feedbackThemesQueryOptions = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+) =>
+  queryOptions({
+    queryKey: ['feedback', side, relationshipId, waveId, 'themen'],
+    queryFn: () =>
+      getJson(
+        `${feedbackBase(side, relationshipId)}/${waveId}/themen`,
+        feedbackThemesSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const summarizeFreeTexts = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+) =>
+  sendJson(
+    'POST',
+    `${feedbackBase(side, relationshipId)}/${waveId}/themen`,
+    {},
+    feedbackThemesSchema,
+    accessToken,
+  );
+
+export const decideFeedbackThemes = (
+  accessToken: string,
+  side: SurveySide,
+  relationshipId: string,
+  waveId: string,
+  draftId: string,
+  decision: 'uebernehmen' | 'verwerfen',
+) =>
+  sendJson(
+    'POST',
+    `${feedbackBase(side, relationshipId)}/${waveId}/themen/${draftId}/${decision}`,
+    {},
+    feedbackThemesSchema,
+    accessToken,
+  );
 
 export const surveySuggestionsQueryOptions = (
   accessToken: string,
