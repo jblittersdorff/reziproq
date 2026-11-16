@@ -196,6 +196,24 @@ export class PortfolioService {
     return this.run(auth, (tx, organization) => this.openIn(tx, auth, organization.id));
   }
 
+  /**
+   * FS-01: ungeklärte Abweichungen (SEG-07) der ganzen Organisation, für die Regel
+   * „Ungeklärte Abweichung“. Läuft in der Session des Aufrufers; sieht alle Beziehungen wie ein
+   * Admin, damit der Hinweis nicht von der Person abhängt.
+   */
+  async deviationsIn(tx: TenantTransaction, orgId: string) {
+    const open = await this.openIn(
+      tx,
+      { orgRole: 'admin', userId: 'system:hints' } as AuthContext,
+      orgId,
+    );
+    return open.groups.deviation.map((item) => ({
+      relationshipId: item.relationshipId,
+      deviation: item.deviation,
+      threshold: open.deviationThreshold,
+    }));
+  }
+
   /** Offene Entscheidungen zeigt das Portfolio nur für Beziehungen, die die Person verantwortet (SEG-04). */
   private async openIn(
     tx: TenantTransaction,

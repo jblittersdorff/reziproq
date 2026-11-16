@@ -13,6 +13,7 @@ import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CommentsService } from '../comments/comments.service.js';
+import { openHintCount } from '../hints/hint-count.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
@@ -244,6 +245,15 @@ export class StartService {
           ? await this.portfolio.startSummary(auth)
           : null,
       openActions: (await this.actions.mine(auth)).items.length,
+      // FS-01: offene Hinweise, nur beim Käufer
+      openHints:
+        auth.organization?.buyer && can(auth, 'hinweise.sehen')
+          ? await this.tenant.run(
+              { userId: auth.userId, organizationId: auth.organization.id },
+              (tx) => openHintCount(tx, auth.organization?.id as string),
+              { readOnly: true },
+            )
+          : 0,
     });
   }
 }

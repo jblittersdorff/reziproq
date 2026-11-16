@@ -321,6 +321,8 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   // QS-03: Gesamtexport der Organisation; die Datei sieht nur die eigene Organisation.
   data_export: { kind: 'org_private', testValues: { requested_by: 'demo-test-oem-1' } },
+  // FS-01: Hinweise; nur die eigene Organisation sieht sie, der Lieferant nie.
+  hint: { kind: 'org_private', testValues: { rule_key: 'no_feedback', fingerprint: 'probe' } },
   action_private_source: {
     kind: 'org_private',
     testValues: ({ buyer, probe }) => ({

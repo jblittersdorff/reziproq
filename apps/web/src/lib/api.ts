@@ -39,6 +39,7 @@ import {
   cycleStatusSchema,
   type DecideJbp,
   type DecideValidation,
+  type DismissHint,
   dataExportListSchema,
   decisionHistorySchema,
   dueListSchema,
@@ -52,7 +53,11 @@ import {
   focusDetailSchema,
   focusListSchema,
   forbiddenCodes,
+  type HintSettings,
   healthResponseSchema,
+  hintListSchema,
+  hintSchema,
+  hintSettingsSchema,
   type ImpactView,
   type ImportJbpTopics,
   type ImportPreview,
@@ -1798,6 +1803,37 @@ export async function downloadPdf(
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+/** FS-01: Hinweise, nur beim Käufer. Die Liste prüft die Regeln neu. */
+export const hintsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['hinweise'],
+    queryFn: () => getJson('/hinweise', hintListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const hintQueryOptions = (accessToken: string, hintId: string) =>
+  queryOptions({
+    queryKey: ['hinweise', hintId],
+    queryFn: () => getJson(`/hinweise/${hintId}`, hintSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const acceptHint = (accessToken: string, hintId: string) =>
+  sendJson('POST', `/hinweise/${hintId}/annehmen`, undefined, hintSchema, accessToken);
+
+export const dismissHint = (accessToken: string, hintId: string, request: DismissHint) =>
+  sendJson('POST', `/hinweise/${hintId}/verwerfen`, request, hintSchema, accessToken);
+
+export const hintSettingsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['hinweise', 'einstellungen'],
+    queryFn: () => getJson('/hinweise/einstellungen', hintSettingsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveHintSettings = (accessToken: string, request: HintSettings) =>
+  sendJson('PUT', '/hinweise/einstellungen', request, hintSettingsSchema, accessToken);
 
 /** ZYK-05: was in den nächsten Zyklus übergeht, Start und frühere Zyklen. */
 export const nextCycleQueryOptions = (accessToken: string, relationshipId: string) =>

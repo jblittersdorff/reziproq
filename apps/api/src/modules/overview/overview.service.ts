@@ -31,6 +31,7 @@ import {
   readCycleSettings,
   segmentCycleStepSource,
 } from './cycle.js';
+import { openHintCount } from '../hints/hint-count.js';
 import { nextCycleDue } from './next-cycle.service.js';
 import { OVERVIEW_METRIC_SOURCES, type OverviewMetricSource } from './overview-metric.js';
 
@@ -84,6 +85,9 @@ export class OverviewService {
           canSetJbpDate:
             isFocus && (await canStartCycleOf(tx, auth, organization.id, relationshipId)),
           // ZYK-05: elf Monate nach dem JBP-Termin
+          openHints: can(auth, 'hinweise.sehen')
+            ? await openHintCount(tx, organization.id, relationshipId)
+            : 0,
           canStartNextCycle:
             isFocus &&
             nextCycleDue(activeCycle?.jbpDate ?? null) &&

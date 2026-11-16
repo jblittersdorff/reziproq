@@ -229,6 +229,14 @@ export class ActionDueStore {
     );
     return result.rows.map((row) => ({ orgId: row.org_id, customerOrgId: row.customer_org_id }));
   }
+
+  /** FS-01: Käufer mit aktiven Beziehungen, für den täglichen Hinweis-Job; nur IDs. */
+  async hintOrganizations(): Promise<string[]> {
+    const result = await this.db.execute<{ org_id: string }>(
+      sql`select org_id::text from app_hint_orgs()`,
+    );
+    return result.rows.map((row) => row.org_id);
+  }
 }
 
 @Global()

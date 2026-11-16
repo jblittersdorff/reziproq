@@ -309,6 +309,25 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'hinweise.sehen': async (user) => {
+      const { status } = await request(user, 'GET', '/api/hinweise');
+      return status;
+    },
+    'hinweise.entscheiden': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/hinweise/00000000-0000-4000-8000-000000000000/verwerfen',
+        { reason: 'Passt hier nicht' },
+      );
+      return status === 404 ? 200 : status;
+    },
+    'hinweise.einstellen': async (user) => {
+      const { status } = await request(user, 'PUT', '/api/hinweise/einstellungen', {
+        maxFocusPerSro: 8,
+      });
+      return status;
+    },
     'datenexport.anfordern': async (user) => {
       const { status } = await request(user, 'GET', '/api/einstellungen/export');
       return status;
@@ -403,8 +422,15 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       .where(sql`${schema.segmentationRound.orgId} in ${Object.values(orgs)}`);
     await db.delete(schema.appUser).where(sql`${schema.appUser.id} in ${Object.values(users)}`);
     await deleteRelationships(db, [orgs.oem]);
-    // GET /api/playbook legt beim ersten Aufruf den Standardkatalog an (PLB-01).
-    for (const table of ['rule_catalog_item', 'format_catalog_item', 'catalog_setup']) {
+    // GET /api/playbook legt beim ersten Aufruf den Standardkatalog an (PLB-01); die Proben der
+    // Hinweise prüfen die Regeln und speichern den Schwellwert (FS-01).
+    for (const table of [
+      'rule_catalog_item',
+      'format_catalog_item',
+      'catalog_setup',
+      'hint',
+      'org_setting',
+    ]) {
       await db.execute(
         sql`delete from ${sql.identifier(table)} where org_id in ${Object.values(orgs)}`,
       );

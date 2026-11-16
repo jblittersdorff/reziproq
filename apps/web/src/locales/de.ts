@@ -1286,6 +1286,81 @@ export const de = {
   },
 
   // JBP-01 Vorbereitung des Joint Business Planning
+  // FS-01 Hinweise
+  hints: {
+    title: 'Hinweise prüfen',
+    navTitle: 'Hinweise',
+    purpose:
+      'Reziproq warnt vor typischen Fehlern im Lieferantenmanagement. Jeder Hinweis führt dorthin, wo du ihn behebst.',
+    loading: 'Hinweise werden geprüft …',
+    failed: 'Die Hinweise konnten nicht geladen werden.',
+    emptyTitle: 'Keine offenen Hinweise',
+    emptyText: 'Gerade fällt nichts auf.',
+    organization: 'Ganze Organisation',
+    fix: 'Beheben',
+    details: 'Annehmen oder verwerfen',
+    decided: 'Entschieden',
+    count: (n: number) => (n === 1 ? '1 offener Hinweis' : `${n} offene Hinweise`),
+    statuses: { open: 'Offen', accepted: 'Angenommen', dismissed: 'Verworfen' },
+    rules: {
+      segment_spend_only: 'Segment nur aus Spend',
+      weak_focus: 'Großlieferant automatisch Fokus',
+      unexplained_deviation: 'Ungeklärte Abweichung',
+      too_many_focus: 'Zu viele Fokuslieferanten je SRO',
+      no_operational_function: 'Keine operative Funktion im Team',
+      cadence_missed: 'Takt verfehlt',
+      no_feedback: 'Kein Feedback',
+      plan_missing: 'Lieferantenplan fehlt',
+      right_without_obligation: 'Recht ohne Pflicht',
+      buyer_commitments_overdue: 'Zusagen des Käufers überfällig',
+    },
+    why: {
+      segment_spend_only: () =>
+        'Der Typ ist konsolidiert, aber außer dem Spend ist kein Kriterium bewertet.',
+      weak_focus: () => 'Der Fokus ist nur mit dem Spend oder sehr knapp begründet.',
+      unexplained_deviation: (d: { deviation?: number; threshold?: number }) =>
+        `Die Bewertungen weichen um ${d.deviation ?? '–'} Punkte ab (Grenze ${d.threshold ?? '–'}), und es gibt noch keine Konsolidierung.`,
+      too_many_focus: (d: { person?: string; count?: number; limit?: number }) =>
+        `${d.person ?? 'Ein SRO'} betreut ${d.count ?? '–'} Fokuslieferanten, eingestellt sind höchstens ${d.limit ?? '–'}.`,
+      no_operational_function: () =>
+        'Im Team ist nur der Einkauf; Qualität, Entwicklung oder Logistik fehlen.',
+      cadence_missed: (d: { format?: string; since?: string }) =>
+        `„${d.format ?? 'Format'}“ hatte seit ${d.since ?? '–'} keinen Termin, länger als sein Takt.`,
+      no_feedback: (d: { since?: string }) =>
+        d.since
+          ? `Die letzte aufgedeckte Feedback-Welle ist vom ${d.since}, länger als zwölf Monate her.`
+          : 'Seit zwölf Monaten gab es keine aufgedeckte Feedback-Welle.',
+      plan_missing: (d: { jbpDate?: string }) =>
+        `Das Joint Business Planning ist am ${d.jbpDate ?? '–'}, und der Lieferantenplan ist nicht freigegeben.`,
+      right_without_obligation: (d: { groups?: string[] }) =>
+        `In den freigegebenen Spielregeln steht ein Recht ohne passende Pflicht (${(d.groups ?? []).join(', ')}).`,
+      buyer_commitments_overdue: (d: { count?: number }) =>
+        d.count === 1
+          ? 'Eine Zusage eurer Seite ist überfällig.'
+          : `${d.count ?? '–'} Zusagen eurer Seite sind überfällig.`,
+    },
+    detailTitle: 'Hinweis entscheiden',
+    accept: 'Annehmen',
+    acceptHint: 'Erzeugt eine interne Maßnahme für dich, fällig in zwei Wochen.',
+    acceptOnlyDismiss:
+      'Dieser Hinweis betrifft keine einzelne Beziehung; er lässt sich nur verwerfen.',
+    accepted: 'Angenommen. Die interne Maßnahme ist angelegt.',
+    toAction: 'Zur Maßnahme',
+    dismiss: 'Verwerfen',
+    reason: 'Begründung',
+    reasonHint: 'Warum passt der Hinweis hier nicht? Die Begründung steht im Verlauf.',
+    dismissed: 'Verworfen. Er kommt erst wieder, wenn sich die Lage ändert.',
+    noPermission: 'Annehmen oder verwerfen dürfen der SRO der Beziehung und Admins.',
+    decidedBy: (name: string, date: string) => `${name}, ${date}`,
+    failedSave: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    settingsTitle: 'Schwellwerte der Hinweise',
+    settingsPurpose: 'Ab wann Reziproq warnt. Gilt für die ganze Organisation.',
+    maxFocus: 'Fokuslieferanten je SRO höchstens',
+    maxFocusHint: 'Darüber erscheint der Hinweis „Zu viele Fokuslieferanten je SRO“.',
+    save: 'Speichern',
+    saved: 'Gespeichert.',
+    settingsNavHint: 'Ab wann Reziproq warnt',
+  },
   // QS-03 PDFs
   print: {
     asPdf: 'Als PDF',

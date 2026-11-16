@@ -512,6 +512,13 @@
       "when": 1794820142044,
       "tag": "0072_neuer_zyklus",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1794824377488,
+      "tag": "0073_hinweise",
+      "breakpoints": true
     }
   ]
 }

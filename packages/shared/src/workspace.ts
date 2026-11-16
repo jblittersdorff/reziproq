@@ -136,6 +136,8 @@ export const supplierOverviewSchema = z.object({
   canSetJbpDate: z.boolean(),
   /** ZYK-05: Elf Monate nach dem JBP darf SRO oder Admin den nächsten Zyklus starten. */
   canStartNextCycle: z.boolean().optional(),
+  /** FS-01: offene Hinweise zu dieser Beziehung, nur beim Käufer */
+  openHints: z.number().int().optional(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

@@ -1263,6 +1263,81 @@ export const en: Messages = {
     },
   },
 
+  // FS-01 Hints
+  hints: {
+    title: 'Review hints',
+    navTitle: 'Hints',
+    purpose:
+      'Reziproq warns about typical mistakes in supplier management. Each hint leads to where you fix it.',
+    loading: 'Checking hints …',
+    failed: 'The hints could not be loaded.',
+    emptyTitle: 'No open hints',
+    emptyText: 'Nothing stands out right now.',
+    organization: 'Whole organisation',
+    fix: 'Fix',
+    details: 'Accept or dismiss',
+    decided: 'Decided',
+    count: (n: number) => (n === 1 ? '1 open hint' : `${n} open hints`),
+    statuses: { open: 'Open', accepted: 'Accepted', dismissed: 'Dismissed' },
+    rules: {
+      segment_spend_only: 'Segment from spend only',
+      weak_focus: 'Large supplier automatically in focus',
+      unexplained_deviation: 'Unexplained deviation',
+      too_many_focus: 'Too many focus suppliers per SRO',
+      no_operational_function: 'No operational function in the team',
+      cadence_missed: 'Cadence missed',
+      no_feedback: 'No feedback',
+      plan_missing: 'Supplier plan missing',
+      right_without_obligation: 'Right without obligation',
+      buyer_commitments_overdue: 'Buyer commitments overdue',
+    },
+    why: {
+      segment_spend_only: () =>
+        'The type is consolidated, but no criterion other than spend is rated.',
+      weak_focus: () => 'The focus is justified only by spend or very briefly.',
+      unexplained_deviation: (d: { deviation?: number; threshold?: number }) =>
+        `Ratings deviate by ${d.deviation ?? '–'} points (limit ${d.threshold ?? '–'}), and there is no consolidation yet.`,
+      too_many_focus: (d: { person?: string; count?: number; limit?: number }) =>
+        `${d.person ?? 'An SRO'} looks after ${d.count ?? '–'} focus suppliers; at most ${d.limit ?? '–'} are set.`,
+      no_operational_function: () =>
+        'The team has only purchasing; quality, engineering or logistics are missing.',
+      cadence_missed: (d: { formatEn?: string; format?: string; since?: string }) =>
+        `“${d.formatEn ?? d.format ?? 'Format'}” has had no meeting since ${d.since ?? '–'}, longer than its cadence.`,
+      no_feedback: (d: { since?: string }) =>
+        d.since
+          ? `The last revealed feedback wave is from ${d.since}, more than twelve months ago.`
+          : 'No feedback wave has been revealed in twelve months.',
+      plan_missing: (d: { jbpDate?: string }) =>
+        `The Joint Business Planning is on ${d.jbpDate ?? '–'}, and the supplier plan is not approved.`,
+      right_without_obligation: (d: { groups?: string[] }) =>
+        `The approved rules of engagement contain a right without a matching obligation (${(d.groups ?? []).join(', ')}).`,
+      buyer_commitments_overdue: (d: { count?: number }) =>
+        d.count === 1
+          ? 'One commitment of your side is overdue.'
+          : `${d.count ?? '–'} commitments of your side are overdue.`,
+    },
+    detailTitle: 'Decide on the hint',
+    accept: 'Accept',
+    acceptHint: 'Creates an internal action for you, due in two weeks.',
+    acceptOnlyDismiss:
+      'This hint does not concern a single relationship; it can only be dismissed.',
+    accepted: 'Accepted. The internal action has been created.',
+    toAction: 'Open action',
+    dismiss: 'Dismiss',
+    reason: 'Reason',
+    reasonHint: 'Why does the hint not fit here? The reason is kept in the history.',
+    dismissed: 'Dismissed. It only returns if the situation changes.',
+    noPermission: 'The SRO of the relationship and admins accept or dismiss hints.',
+    decidedBy: (name: string, date: string) => `${name}, ${date}`,
+    failedSave: 'That did not work. Please try again.',
+    settingsTitle: 'Hint thresholds',
+    settingsPurpose: 'When Reziproq warns. Applies to the whole organisation.',
+    maxFocus: 'Focus suppliers per SRO at most',
+    maxFocusHint: 'Above this, the hint “Too many focus suppliers per SRO” appears.',
+    save: 'Save',
+    saved: 'Saved.',
+    settingsNavHint: 'When Reziproq warns',
+  },
   // QS-03 PDFs
   print: {
     asPdf: 'As PDF',

@@ -106,6 +106,7 @@ describe('PLT-02 in der Datenbank', () => {
       'data_export',
       'email_log',
       'format_catalog_item',
+      'hint',
       'initiative',
       'initiative_baseline',
       'initiative_impact',

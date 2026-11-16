@@ -31,4 +31,8 @@ export const buyerOnlyActions: readonly Action[] = [
   'wirkung.bearbeiten',
   'wirkung.freigeben',
   'kontaktpunkte.bearbeiten',
+  // FS-01: Hinweise sieht der Lieferant nie.
+  'hinweise.sehen',
+  'hinweise.entscheiden',
+  'hinweise.einstellen',
 ];

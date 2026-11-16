@@ -167,6 +167,20 @@ export const permissions: Record<Action, Permission> = {
     description: 'Kontaktpunkte einer Beziehung sehen (Lieferant nur geteilte)',
     roles: ['admin', 'member', 'viewer'],
   },
+  'hinweise.sehen': {
+    description: 'Hinweise auf typische Fehler im Lieferantenmanagement sehen (nur Käufer)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'hinweise.entscheiden': {
+    description:
+      'Hinweise annehmen (erzeugt eine interne Maßnahme) oder begründet verwerfen (SRO der Beziehung oder Admin)',
+    roles: ['admin', 'member'],
+    notForTeamViewer: true,
+  },
+  'hinweise.einstellen': {
+    description: 'Schwellwerte der Hinweis-Regeln einstellen',
+    roles: ['admin'],
+  },
   'datenexport.anfordern': {
     description:
       'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',

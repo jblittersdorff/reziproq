@@ -26,8 +26,11 @@ import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstel
 import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/einstellungen/erinnerungen'
 import { Route as AppEinstellungenExportRouteImport } from './routes/_app/einstellungen/export'
 import { Route as AppEinstellungenGeschaeftsjahrRouteImport } from './routes/_app/einstellungen/geschaeftsjahr'
+import { Route as AppEinstellungenHinweiseRouteImport } from './routes/_app/einstellungen/hinweise'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
+import { Route as AppHinweiseIndexRouteImport } from './routes/_app/hinweise/index'
+import { Route as AppHinweiseIdRouteImport } from './routes/_app/hinweise/$id'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
 import { Route as AppKundenIdRouteRouteImport } from './routes/_app/kunden/$id/route'
 import { Route as AppLieferantenIndexRouteImport } from './routes/_app/lieferanten/index'
@@ -326,6 +329,12 @@ const AppEinstellungenGeschaeftsjahrRoute =
     path: '/einstellungen/geschaeftsjahr',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenHinweiseRoute =
+  AppEinstellungenHinweiseRouteImport.update({
+    id: '/einstellungen/hinweise',
+    path: '/einstellungen/hinweise',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
   id: '/einstellungen/rollen',
   path: '/einstellungen/rollen',
@@ -334,6 +343,16 @@ const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
 const AppEinstellungenZyklusRoute = AppEinstellungenZyklusRouteImport.update({
   id: '/einstellungen/zyklus',
   path: '/einstellungen/zyklus',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHinweiseIndexRoute = AppHinweiseIndexRouteImport.update({
+  id: '/hinweise/',
+  path: '/hinweise/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHinweiseIdRoute = AppHinweiseIdRouteImport.update({
+  id: '/hinweise/$id',
+  path: '/hinweise/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppKundenIndexRoute = AppKundenIndexRouteImport.update({
@@ -1600,8 +1619,10 @@ export interface FileRoutesByFullPath {
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
+  '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -1614,6 +1635,7 @@ export interface FileRoutesByFullPath {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/hinweise/': typeof AppHinweiseIndexRoute
   '/kunden/': typeof AppKundenIndexRoute
   '/lieferanten/': typeof AppLieferantenIndexRoute
   '/portfolio/': typeof AppPortfolioIndexRoute
@@ -1828,8 +1850,10 @@ export interface FileRoutesByTo {
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
+  '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -1842,6 +1866,7 @@ export interface FileRoutesByTo {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
+  '/hinweise': typeof AppHinweiseIndexRoute
   '/kunden': typeof AppKundenIndexRoute
   '/lieferanten': typeof AppLieferantenIndexRoute
   '/portfolio': typeof AppPortfolioIndexRoute
@@ -2060,8 +2085,10 @@ export interface FileRoutesById {
   '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/_app/einstellungen/export': typeof AppEinstellungenExportRoute
   '/_app/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
+  '/_app/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
+  '/_app/hinweise/$id': typeof AppHinweiseIdRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -2074,6 +2101,7 @@ export interface FileRoutesById {
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
+  '/_app/hinweise/': typeof AppHinweiseIndexRoute
   '/_app/kunden/': typeof AppKundenIndexRoute
   '/_app/lieferanten/': typeof AppLieferantenIndexRoute
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
@@ -2293,8 +2321,10 @@ export interface FileRouteTypes {
     | '/einstellungen/erinnerungen'
     | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
+    | '/einstellungen/hinweise'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
+    | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
     | '/portfolio/matrix'
@@ -2307,6 +2337,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/bewertungen/'
     | '/einstellungen/'
+    | '/hinweise/'
     | '/kunden/'
     | '/lieferanten/'
     | '/portfolio/'
@@ -2521,8 +2552,10 @@ export interface FileRouteTypes {
     | '/einstellungen/erinnerungen'
     | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
+    | '/einstellungen/hinweise'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
+    | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
     | '/portfolio/matrix'
@@ -2535,6 +2568,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/bewertungen'
     | '/einstellungen'
+    | '/hinweise'
     | '/kunden'
     | '/lieferanten'
     | '/portfolio'
@@ -2752,8 +2786,10 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/erinnerungen'
     | '/_app/einstellungen/export'
     | '/_app/einstellungen/geschaeftsjahr'
+    | '/_app/einstellungen/hinweise'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
+    | '/_app/hinweise/$id'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
     | '/_app/portfolio/matrix'
@@ -2766,6 +2802,7 @@ export interface FileRouteTypes {
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
     | '/_app/einstellungen/'
+    | '/_app/hinweise/'
     | '/_app/kunden/'
     | '/_app/lieferanten/'
     | '/_app/portfolio/'
@@ -3098,6 +3135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenGeschaeftsjahrRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/einstellungen/hinweise': {
+      id: '/_app/einstellungen/hinweise'
+      path: '/einstellungen/hinweise'
+      fullPath: '/einstellungen/hinweise'
+      preLoaderRoute: typeof AppEinstellungenHinweiseRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/einstellungen/rollen': {
       id: '/_app/einstellungen/rollen'
       path: '/einstellungen/rollen'
@@ -3110,6 +3154,20 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/zyklus'
       fullPath: '/einstellungen/zyklus'
       preLoaderRoute: typeof AppEinstellungenZyklusRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hinweise/': {
+      id: '/_app/hinweise/'
+      path: '/hinweise'
+      fullPath: '/hinweise/'
+      preLoaderRoute: typeof AppHinweiseIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hinweise/$id': {
+      id: '/_app/hinweise/$id'
+      path: '/hinweise/$id'
+      fullPath: '/hinweise/$id'
+      preLoaderRoute: typeof AppHinweiseIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/kunden/': {
@@ -5027,8 +5085,10 @@ interface AppRouteChildren {
   AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
   AppEinstellungenExportRoute: typeof AppEinstellungenExportRoute
   AppEinstellungenGeschaeftsjahrRoute: typeof AppEinstellungenGeschaeftsjahrRoute
+  AppEinstellungenHinweiseRoute: typeof AppEinstellungenHinweiseRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
+  AppHinweiseIdRoute: typeof AppHinweiseIdRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
@@ -5039,6 +5099,7 @@ interface AppRouteChildren {
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
+  AppHinweiseIndexRoute: typeof AppHinweiseIndexRoute
   AppKundenIndexRoute: typeof AppKundenIndexRoute
   AppLieferantenIndexRoute: typeof AppLieferantenIndexRoute
   AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
@@ -5105,8 +5166,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
   AppEinstellungenExportRoute: AppEinstellungenExportRoute,
   AppEinstellungenGeschaeftsjahrRoute: AppEinstellungenGeschaeftsjahrRoute,
+  AppEinstellungenHinweiseRoute: AppEinstellungenHinweiseRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
+  AppHinweiseIdRoute: AppHinweiseIdRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
@@ -5117,6 +5180,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
+  AppHinweiseIndexRoute: AppHinweiseIndexRoute,
   AppKundenIndexRoute: AppKundenIndexRoute,
   AppLieferantenIndexRoute: AppLieferantenIndexRoute,
   AppPortfolioIndexRoute: AppPortfolioIndexRoute,

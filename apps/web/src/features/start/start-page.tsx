@@ -414,6 +414,9 @@ function CountTile({ data }: { data: StartData }) {
         ) : (
           <TileLink href="/start/massnahmen">{t.start.actionsLink}</TileLink>
         )}
+        {data.openHints !== undefined && data.openHints > 0 && (
+          <TileLink href="/hinweise">{t.hints.count(data.openHints)}</TileLink>
+        )}
       </div>
     </Tile>
   );

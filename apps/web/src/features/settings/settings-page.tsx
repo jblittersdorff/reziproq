@@ -5,6 +5,7 @@ import {
   CalendarRangeIcon,
   ClipboardListIcon,
   DatabaseIcon,
+  LightbulbIcon,
   ReceiptEuroIcon,
   UserCogIcon,
 } from 'lucide-react';
@@ -27,6 +28,7 @@ export function SettingsPage() {
   const permissions = me.data?.permissions;
   const manageSettings = useCan('einstellungen.verwalten');
   const canExport = useCan('datenexport.anfordern');
+  const canConfigureHints = useCan('hinweise.einstellen');
 
   return (
     <>
@@ -97,6 +99,15 @@ export function SettingsPage() {
             />
           )}
           {permissions.viewBuyerAreas && <MasterDataLinks />}
+          {canConfigureHints && (
+            <SettingsLinkRow
+              href="/einstellungen/hinweise"
+              label={t.hints.settingsTitle}
+              description={t.hints.settingsNavHint}
+              icon={<LightbulbIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
           {canExport && (
             <SettingsLinkRow
               href="/einstellungen/export"

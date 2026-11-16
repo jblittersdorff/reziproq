@@ -56,6 +56,8 @@ export const startSchema = z.object({
     .nullable(),
   /** Offene Maßnahmen der eigenen Beziehungen (QBR-03) */
   openActions: z.number().int(),
+  /** FS-01: offene Hinweise der Organisation, nur beim Käufer */
+  openHints: z.number().int().optional(),
 });
 
 export type DueItem = z.infer<typeof dueItemSchema>;

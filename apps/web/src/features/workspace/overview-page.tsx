@@ -1,9 +1,10 @@
 import type { OverviewMetric, WorkspaceArea, WorkspaceHead } from '@reziproq/shared';
 import { workspaceAreas } from '@reziproq/shared';
 import { useRouterState } from '@tanstack/react-router';
-import { ChevronRightIcon, StarIcon } from 'lucide-react';
+import { ChevronRightIcon, LightbulbIcon, StarIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { buttonVariants } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Tile } from '@/components/ui/tile';
@@ -86,6 +87,16 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
           canSetJbpDate={overview.data.canSetJbpDate}
           canStartNextCycle={overview.data.canStartNextCycle ?? false}
         />
+      )}
+      {overview.data?.openHints !== undefined && overview.data.openHints > 0 && (
+        <p className="flex flex-wrap items-center gap-2">
+          <LightbulbIcon aria-hidden className="size-4 text-muted-foreground" />
+          {routerLink({
+            href: '/hinweise',
+            className: buttonVariants({ size: 'sm', variant: 'secondary' }),
+            children: t.hints.count(overview.data.openHints),
+          })}
+        </p>
       )}
       {/* Die Bereiche mit ihren Unterseiten stehen auch, wenn die Kennzahlen nicht laden. */}
       <div className="grid gap-5 md:grid-cols-2">
