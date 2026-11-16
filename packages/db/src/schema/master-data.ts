@@ -2,7 +2,9 @@ import { sql } from 'drizzle-orm';
 import {
   type AnyPgColumn,
   boolean,
+  check,
   index,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -10,6 +12,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { appUser } from './app-user.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -47,6 +50,10 @@ export const materialGroup = pgTable(
     // Höchstens zwei Ebenen; eine Oberebene mit Untergruppen lässt sich nicht löschen.
     parentId: uuid().references((): AnyPgColumn => materialGroup.id),
     active: boolean().notNull().default(true),
+    // WG-01: Beschreibung, Lead (koordiniert das Team) und optional Commodity Manager
+    description: text(),
+    leadUserId: text().references(() => appUser.id),
+    commodityManagerUserId: text().references(() => appUser.id),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -83,6 +90,10 @@ export const relationshipMaterialGroup = pgTable(
       .notNull()
       .references(() => materialGroup.id),
     isPrimary: boolean().notNull().default(false),
+    // WG-01: entsteht automatisch aus Spend (Trigger) oder manuell, z. B. ohne Umsatz
+    source: text({ enum: ['spend', 'manual'] })
+      .notNull()
+      .default('manual'),
   },
   (table) => [
     unique('relationship_material_group_once').on(table.relationshipId, table.materialGroupId),
@@ -91,5 +102,60 @@ export const relationshipMaterialGroup = pgTable(
       .on(table.relationshipId)
       .where(sql`${table.isPrimary}`),
     index('relationship_material_group_group').on(table.materialGroupId),
+    check('relationship_material_group_source', sql`${table.source} in ('spend', 'manual')`),
+  ],
+);
+
+// WG-01: Produktgruppen untergliedern eine Warengruppe; das Team je Warengruppe mit Rolle.
+export const materialGroupMemberRoles = ['lead', 'commodity_manager', 'buyer', 'function'] as const;
+
+export const materialGroupProductGroup = pgTable(
+  'material_group_product_group',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    materialGroupId: uuid()
+      .notNull()
+      .references(() => materialGroup.id),
+    name: text().notNull(),
+    description: text(),
+    position: integer().notNull().default(0),
+  },
+  (table) => [
+    index('material_group_product_group_group').on(table.materialGroupId),
+    uniqueIndex('material_group_product_group_name').on(
+      table.materialGroupId,
+      sql`lower(${table.name})`,
+    ),
+  ],
+);
+
+export const materialGroupMember = pgTable(
+  'material_group_member',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    materialGroupId: uuid()
+      .notNull()
+      .references(() => materialGroup.id),
+    userId: text()
+      .notNull()
+      .references(() => appUser.id),
+    role: text({ enum: materialGroupMemberRoles }).notNull(),
+    businessUnitId: uuid().references(() => businessUnit.id),
+    region: text(),
+    task: text(),
+  },
+  (table) => [
+    check(
+      'material_group_member_role',
+      sql`${table.role} in ('lead', 'commodity_manager', 'buyer', 'function')`,
+    ),
+    unique('material_group_member_once').on(table.materialGroupId, table.userId, table.role),
+    index('material_group_member_group').on(table.materialGroupId),
   ],
 );

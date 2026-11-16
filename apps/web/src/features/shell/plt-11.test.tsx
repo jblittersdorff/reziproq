@@ -38,6 +38,8 @@ const admin = { ...anna, orgRole: 'admin' as const };
 const barTargets = [
   { label: 'Start', path: '/start' },
   { label: 'Lieferanten', path: '/lieferanten' },
+  // WG-01
+  { label: 'Warengruppen', path: '/warengruppen' },
   { label: 'Portfolio', path: '/portfolio' },
   { label: 'Wirkung', path: '/wirkung' },
   { label: 'Fragen', path: '/fragen' },

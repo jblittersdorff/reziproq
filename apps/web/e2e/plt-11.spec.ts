@@ -9,6 +9,8 @@ test.use({ locale: 'de-DE' });
 const barTargets = [
   { name: 'Start', path: '/start' },
   { name: 'Lieferanten', path: '/lieferanten' },
+  // WG-01
+  { name: 'Warengruppen', path: '/warengruppen' },
   { name: 'Portfolio', path: '/portfolio' },
   { name: 'Wirkung', path: '/wirkung' },
   { name: 'Fragen', path: '/fragen' },

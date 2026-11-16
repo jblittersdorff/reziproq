@@ -62,6 +62,8 @@ describe('GET /api/me', () => {
       isOperator: false,
       // Ohne gespeicherte Sprache Deutsch (PLT-09).
       locale: 'de',
+      // WG-01: ohne Organisation die Vorgabe
+      categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);

@@ -16,7 +16,13 @@ export interface KindConfig {
   hasParent: boolean;
 }
 
-export type Entry = BusinessUnit & Partial<Pick<MaterialGroup, 'parentId' | 'childCount'>>;
+export type Entry = BusinessUnit &
+  Partial<
+    Pick<
+      MaterialGroup,
+      'parentId' | 'childCount' | 'description' | 'leadUserId' | 'commodityManagerUserId'
+    >
+  >;
 
 export const kinds = {
   'business-units': {

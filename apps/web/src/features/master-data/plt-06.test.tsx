@@ -52,7 +52,15 @@ const group = (
   name: string,
   code: string,
   extra: Partial<MaterialGroup> = {},
-): MaterialGroup => ({ ...unit(n, name, code), parentId: null, childCount: 0, ...extra });
+): MaterialGroup => ({
+  ...unit(n, name, code),
+  parentId: null,
+  childCount: 0,
+  description: null,
+  leadUserId: null,
+  commodityManagerUserId: null,
+  ...extra,
+});
 
 let units: BusinessUnit[];
 let groups: MaterialGroup[];

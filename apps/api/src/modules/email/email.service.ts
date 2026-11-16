@@ -1,12 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import type { OutboxEmailPayload } from '@reziproq/db';
+import { applyCategoryLabel, type CategoryLabel } from '@reziproq/shared';
 import { emailNotificationSchema } from './email.schema.js';
 
 @Injectable()
 export class EmailService {
-  /** Validiert die erlaubten Mailvariablen für einen Outbox-Eintrag in derselben Transaktion. */
-  prepare(input: unknown): OutboxEmailPayload {
-    const notification = emailNotificationSchema.parse(input);
+  /**
+   * Validiert die erlaubten Mailvariablen für einen Outbox-Eintrag in derselben Transaktion. Mit
+   * der Bezeichnung des Kunden (WG-01) steht in Titel und Nachricht dessen Wort statt „Warengruppe“.
+   */
+  prepare(input: unknown, options: { categoryLabel?: CategoryLabel } = {}): OutboxEmailPayload {
+    const parsed = emailNotificationSchema.parse(input);
+    const label = options.categoryLabel;
+    const notification = {
+      ...parsed,
+      title: applyCategoryLabel(parsed.title, label),
+      ...(parsed.message === undefined ? {} : { message: applyCategoryLabel(parsed.message, label) }),
+    };
     return {
       template: notification.template,
       locale: notification.locale,

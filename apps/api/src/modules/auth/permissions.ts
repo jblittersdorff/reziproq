@@ -186,6 +186,15 @@ export const permissions: Record<Action, Permission> = {
       'Lieferanten, Initiativen und Maßnahmen per Suchwort finden, nur im Sichtbaren (beide Seiten; Lieferant im aktuellen Kunden)',
     roles: ['admin', 'member', 'viewer'],
   },
+  'warengruppen.sehen': {
+    description: 'Warengruppen mit Team, Produktgruppen und Lieferanten sehen (nur Käufer)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'warengruppen.team': {
+    description:
+      'Team und Produktgruppen einer Warengruppe pflegen (Admin oder Lead der Warengruppe)',
+    roles: ['admin', 'member'],
+  },
   'datenexport.anfordern': {
     description:
       'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',

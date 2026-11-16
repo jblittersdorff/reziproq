@@ -20,6 +20,7 @@ import { actorOf } from '../audit/actor.js';
 import { relationshipAssignmentAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { syncLeadership } from '../material-groups/leadership.js';
 import { teamRoleOf } from '../suppliers/suppliers.service.js';
 import { ownRelationship } from '../suppliers/team.service.js';
 
@@ -47,7 +48,9 @@ function translate(error: unknown): never {
     throw conflict('in_use', 'Der Eintrag ist zugeordnet; deaktiviere ihn stattdessen.');
   }
   const code = (cause?.message ?? '').split(':')[0] as MasterDataError;
-  if (['too_deep', 'inactive', 'primary_required', 'foreign_entry'].includes(code)) {
+  if (
+    ['too_deep', 'inactive', 'primary_required', 'foreign_entry', 'foreign_user'].includes(code)
+  ) {
     throw conflict(code, cause?.message ?? code);
   }
   throw error;
@@ -120,9 +123,20 @@ export class MasterDataService {
           code: input.code,
           parentId: input.parentId ?? null,
           active: input.active ?? true,
+          description: input.description ?? null,
+          leadUserId: input.leadUserId ?? null,
+          commodityManagerUserId: input.commodityManagerUserId ?? null,
         })
         .returning({ id: schema.materialGroup.id });
-      return row?.id as string;
+      const id = row?.id as string;
+      await syncLeadership(
+        tx,
+        org.id,
+        id,
+        input.leadUserId ?? null,
+        input.commodityManagerUserId ?? null,
+      );
+      return id;
     });
     return this.materialGroup(auth, id);
   }
@@ -144,7 +158,7 @@ export class MasterDataService {
   }
 
   async updateMaterialGroup(auth: AuthContext, id: string, input: MaterialGroupRequest) {
-    await this.run(auth, async (tx) => {
+    await this.run(auth, async (tx, org) => {
       const updated = await tx
         .update(schema.materialGroup)
         .set({
@@ -152,10 +166,22 @@ export class MasterDataService {
           code: input.code,
           parentId: input.parentId ?? null,
           ...(input.active === undefined ? {} : { active: input.active }),
+          // WG-01: fehlt ein Feld in der Anfrage, bleibt es, wie es ist.
+          ...(input.description === undefined ? {} : { description: input.description }),
+          ...(input.leadUserId === undefined ? {} : { leadUserId: input.leadUserId }),
+          ...(input.commodityManagerUserId === undefined
+            ? {}
+            : { commodityManagerUserId: input.commodityManagerUserId }),
         })
         .where(eq(schema.materialGroup.id, id))
-        .returning({ id: schema.materialGroup.id });
-      if (updated.length === 0) throw notFound();
+        .returning({
+          id: schema.materialGroup.id,
+          leadUserId: schema.materialGroup.leadUserId,
+          commodityManagerUserId: schema.materialGroup.commodityManagerUserId,
+        });
+      const [row] = updated;
+      if (!row) throw notFound();
+      await syncLeadership(tx, org.id, id, row.leadUserId, row.commodityManagerUserId);
     });
     return this.materialGroup(auth, id);
   }
@@ -164,6 +190,12 @@ export class MasterDataService {
   async remove(auth: AuthContext, kind: EntryKind, id: string): Promise<void> {
     await this.run(auth, async (tx) => {
       const table = kind === 'business_unit' ? schema.businessUnit : schema.materialGroup;
+      // WG-01: Das Team zählt nicht als Nutzung; es geht mit der Warengruppe.
+      if (kind === 'material_group') {
+        await tx
+          .delete(schema.materialGroupMember)
+          .where(eq(schema.materialGroupMember.materialGroupId, id));
+      }
       const deleted = await tx.delete(table).where(eq(table.id, id)).returning({ id: table.id });
       if (deleted.length === 0) throw notFound();
     });
@@ -281,6 +313,8 @@ async function readBusinessUnits(tx: TenantTransaction): Promise<BusinessUnit[]>
 async function readMaterialGroups(tx: TenantTransaction): Promise<MaterialGroup[]> {
   const result = await tx.execute<MaterialGroup>(sql`
     select g.id, g.name, g.code, g.active, g.parent_id as "parentId",
+      g.description, g.lead_user_id as "leadUserId",
+      g.commodity_manager_user_id as "commodityManagerUserId",
       (select count(*)::int from relationship_material_group r where r.material_group_id = g.id)
         as "supplierCount",
       (select count(*)::int from material_group c where c.parent_id = g.id) as "childCount"

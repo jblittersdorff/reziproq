@@ -39,6 +39,10 @@ export const meResponseSchema = z.object({
   isOperator: z.boolean().default(false),
   /** Gespeicherte Sprache (PLT-09); ohne gespeicherte Sprache Deutsch. */
   locale: z.enum(userLocales).default('de'),
+  /** WG-01: eigene Bezeichnung der Warengruppe; ohne Organisation die Vorgabe */
+  categoryLabel: z
+    .object({ singular: z.string(), plural: z.string() })
+    .default({ singular: 'Warengruppe', plural: 'Warengruppen' }),
   permissions: z.object({
     /** Abschnitt „Organisation“ in den Einstellungen: jedes Mitglied einer Organisation (PLT-02). */
     viewOrganizationSettings: z.boolean(),

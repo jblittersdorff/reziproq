@@ -18,6 +18,7 @@ import { ImpactModule } from './modules/impact/impact.module.js';
 import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { JbpModule } from './modules/jbp/jbp.module.js';
 import { MasterDataModule } from './modules/master-data/master-data.module.js';
+import { MaterialGroupsModule } from './modules/material-groups/material-groups.module.js';
 import { MeModule } from './modules/me/me.module.js';
 import { MeetingsModule } from './modules/meetings/meetings.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
@@ -72,6 +73,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     PdfExportsModule,
     HintsModule,
     SearchModule,
+    MaterialGroupsModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

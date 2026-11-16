@@ -23,6 +23,12 @@ import { createTempDatabase, migrateTo } from './testing/temp-database.js';
 const testOem = seedBuyers.testOem.id;
 const zweitOem = seedBuyers.zweitOem.id;
 const supplier = seedSupplierOrg.id;
+/** Je Organisation eine Person aus den Beispieldaten (WG-01: Team je Warengruppe) */
+const orgUsers: Record<string, string> = {
+  [testOem]: 'demo-test-oem-1',
+  [zweitOem]: 'demo-zweit-oem-1',
+  [supplier]: 'demo-test-lieferant-1',
+};
 
 /** Test-OEM und Zweit-OEM haben beide eine Beziehung zum Test-Lieferanten. */
 const relationships = {
@@ -154,6 +160,8 @@ function columnsOf(
           buyer: row.relationship === null ? null : relationships[row.relationship].buyer,
           probe,
           visibility: row.visibility,
+          org: row.org,
+          orgUser: row.org ? orgUsers[row.org] : undefined,
         })
       : entry.testValues;
   const values: Record<string, unknown> = { ...testValues, id };
@@ -257,6 +265,8 @@ describe('PLT-04: Drei Datenebenen', () => {
     await temp.db.execute(sql`delete from format_catalog_item`);
     await temp.db.execute(sql`delete from catalog_setup`);
     await temp.db.execute(sql`delete from business_unit`);
+    await temp.db.execute(sql`delete from material_group_member`);
+    await temp.db.execute(sql`delete from material_group_product_group`);
     await temp.db.execute(sql`delete from material_group where parent_id is not null`);
     await temp.db.execute(sql`delete from material_group`);
     await temp.db.execute(sql`delete from relationship`);

@@ -38,6 +38,7 @@ export const anna: MeResponse = {
   isControlling: false,
   isOperator: false,
   locale: 'de',
+  categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
   permissions: {
     viewOrganizationSettings: true,
     viewBuyerAreas: true,
@@ -77,6 +78,8 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'suche.nutzen',
     'hinweise.entscheiden',
     'hinweise.einstellen',
+    'warengruppen.sehen',
+    'warengruppen.team',
   ],
   member: [
     'organisation.sehen',
@@ -97,6 +100,8 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'hinweise.sehen',
     'suche.nutzen',
     'hinweise.entscheiden',
+    'warengruppen.sehen',
+    'warengruppen.team',
   ],
   viewer: [
     'organisation.sehen',
@@ -109,6 +114,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'portfolio.sehen',
     'hinweise.sehen',
     'suche.nutzen',
+    'warengruppen.sehen',
   ],
 };
 

@@ -94,11 +94,16 @@ export function personInitials(name: string): string | undefined {
  */
 function useAccountLocale() {
   const me = useMe();
-  const { setLocale } = useLocale();
+  const { setLocale, setCategoryLabel } = useLocale();
   const saved = me.data?.locale;
   useEffect(() => {
     if (saved) setLocale(saved);
   }, [saved, setLocale]);
+  // WG-01: Bezeichnung der Warengruppe der Organisation
+  const label = me.data?.categoryLabel;
+  useEffect(() => {
+    if (label) setCategoryLabel(label);
+  }, [label?.singular, label?.plural, label, setCategoryLabel]);
 }
 
 /** Cmd+K (Mac) oder Strg+K öffnet von jeder Seite die Fragen-Seite, wie Spotlight (PLT-12). */

@@ -72,6 +72,9 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
     sql`delete from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds}`,
   );
   // Business Units und Warengruppen der Organisationen (PLT-06), Untergruppen zuerst.
+  // WG-01: Team und Produktgruppen hängen an Warengruppe und Business Unit.
+  await db.execute(sql`delete from material_group_member where org_id in ${orgIds}`);
+  await db.execute(sql`delete from material_group_product_group where org_id in ${orgIds}`);
   await db.execute(sql`delete from business_unit where org_id in ${orgIds}`);
   await db.execute(
     sql`delete from material_group where org_id in ${orgIds} and parent_id is not null`,

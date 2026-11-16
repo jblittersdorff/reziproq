@@ -12,6 +12,8 @@ import {
   businessUnit,
   invitation,
   materialGroup,
+  materialGroupMember,
+  materialGroupProductGroup,
   type OrgRole,
   organization,
   organizationFeature,
@@ -263,6 +265,28 @@ const seedMaterialGroups = [
   },
   { id: id(613), orgId: seedBuyers.zweitOem.id, name: 'Mechanik', code: 'M', parentId: null },
 ];
+/** WG-01: Lead, Beschreibung, Produktgruppen und Team für die Oberebenen des Test-OEM. */
+const seedGroupDetails: Record<number, { lead: string; description: string }> = {
+  601: { lead: 'demo-test-oem-1', description: 'Elektronische Bauteile und Baugruppen.' },
+  604: { lead: 'demo-test-oem-2', description: 'Guss aus Aluminium und Eisen.' },
+  605: { lead: 'demo-test-oem-1', description: 'Spritzguss und technische Kunststoffe.' },
+  606: { lead: 'demo-test-oem-2', description: 'Transport und Lagerung.' },
+};
+const seedProductGroups = [
+  { id: id(651), materialGroupId: id(601), name: 'Leiterplatten', position: 1 },
+  { id: id(652), materialGroupId: id(601), name: 'Steuergeräte', position: 2 },
+  { id: id(653), materialGroupId: id(604), name: 'Aluminiumguss', position: 1 },
+  { id: id(654), materialGroupId: id(604), name: 'Grauguss', position: 2 },
+  { id: id(655), materialGroupId: id(605), name: 'Spritzgussteile', position: 1 },
+].map((group) => ({ ...group, orgId: seedBuyers.testOem.id }));
+const seedGroupMembers = [
+  { id: id(661), materialGroupId: id(601), userId: 'demo-test-oem-1', role: 'lead' as const },
+  { id: id(662), materialGroupId: id(601), userId: 'demo-test-oem-2', role: 'buyer' as const },
+  { id: id(663), materialGroupId: id(601), userId: 'demo-test-oem-3', role: 'function' as const },
+  { id: id(664), materialGroupId: id(604), userId: 'demo-test-oem-2', role: 'lead' as const },
+  { id: id(665), materialGroupId: id(605), userId: 'demo-test-oem-1', role: 'lead' as const },
+  { id: id(666), materialGroupId: id(606), userId: 'demo-test-oem-2', role: 'lead' as const },
+].map((member) => ({ ...member, orgId: seedBuyers.testOem.id }));
 /** Haupt-Warengruppe je Lieferant des Test-OEM, in der Reihenfolge der Lieferanten oben. */
 const testOemPrimary = [601, 604, 605, 604, 606, 602, 605, 601, 604, 606, 605, 604, 603, 606, 605];
 /** Zuordnung je Beziehung: BUs, Warengruppen und die Haupt-Warengruppe zuerst. */
@@ -525,6 +549,15 @@ export async function seed(
           set: { name: sql`excluded.name`, code: sql`excluded.code`, active: true },
         });
     }
+    // WG-01: Lead, Beschreibung, Produktgruppen und Team
+    for (const [key, detail] of Object.entries(seedGroupDetails)) {
+      await tx
+        .update(materialGroup)
+        .set({ leadUserId: detail.lead, description: detail.description })
+        .where(eq(materialGroup.id, id(Number(key))));
+    }
+    await tx.insert(materialGroupProductGroup).values(seedProductGroups).onConflictDoNothing();
+    await tx.insert(materialGroupMember).values(seedGroupMembers).onConflictDoNothing();
     // Zuordnungen neu setzen, wie die Teams.
     const assigned = seedAssignments.map((entry) => entry.relationshipId);
     await tx

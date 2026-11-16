@@ -14,6 +14,7 @@ import {
   auditResponseSchema,
   bridgeSchema,
   businessUnitsResponseSchema,
+  type CategoryLabel,
   type CommentObjectType,
   type CommitmentStatus,
   type ConsolidateRequest,
@@ -24,6 +25,7 @@ import {
   type CreateRound,
   type CreateSupplierRequest,
   type CycleStatusQuery,
+  categoryLabelSchema,
   commentListSchema,
   commitmentsSchema,
   contributionDetailSchema,
@@ -85,6 +87,11 @@ import {
   kpiDetailSchema,
   kpiImportPreviewSchema,
   type MaterialGroupRequest,
+  type MergeMaterialGroup,
+  materialGroupDetailSchema,
+  materialGroupImportPreviewSchema,
+  materialGroupImportResultSchema,
+  materialGroupOverviewSchema,
   materialGroupsResponseSchema,
   meetingDetailSchema,
   meetingListSchema,
@@ -99,6 +106,7 @@ import {
   organizationResponseSchema,
   type PlanDecision,
   type PlanObjectiveRequest,
+  type ProductGroupRequest,
   type PromptEvent,
   type PromptRequest,
   permissionsResponseSchema,
@@ -161,6 +169,7 @@ import {
   type SetRoundSuppliers,
   type SetupImpact,
   type SpendRequest,
+  type SplitMaterialGroup,
   type StartNextCycle,
   type StartSurveyWave,
   type StrategicTopicOrder,
@@ -187,6 +196,7 @@ import {
   surveysSchema,
   surveyWaveDetailSchema,
   surveyWavesSchema,
+  type TeamRequest,
   teamResponseSchema,
   touchpointListSchema,
   touchpointSchema,
@@ -606,6 +616,98 @@ export async function importFinancials(accessToken: string, relationshipId: stri
   }
   return financialImportResultSchema.parse(await res.json());
 }
+
+// WG-01: Warengruppen mit Team, Produktgruppen, Import, Zusammenlegen, Teilen und Bezeichnung
+export const materialGroupOverviewQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen'],
+    queryFn: () => getJson('/warengruppen', materialGroupOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const materialGroupDetailQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', id],
+    queryFn: () => getJson(`/warengruppen/${id}`, materialGroupDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveMaterialGroupTeam = (accessToken: string, id: string, request: TeamRequest) =>
+  sendJson('PUT', `/warengruppen/${id}/team`, request, materialGroupDetailSchema, accessToken);
+
+export const createProductGroup = (accessToken: string, id: string, request: ProductGroupRequest) =>
+  sendJson(
+    'POST',
+    `/warengruppen/${id}/produktgruppen`,
+    request,
+    materialGroupDetailSchema,
+    accessToken,
+  );
+
+export const updateProductGroup = (
+  accessToken: string,
+  id: string,
+  productGroupId: string,
+  request: ProductGroupRequest,
+) =>
+  sendJson(
+    'PATCH',
+    `/warengruppen/${id}/produktgruppen/${productGroupId}`,
+    request,
+    materialGroupDetailSchema,
+    accessToken,
+  );
+
+export const deleteProductGroup = (accessToken: string, id: string, productGroupId: string) =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/${id}/produktgruppen/${productGroupId}`,
+    undefined,
+    materialGroupDetailSchema,
+    accessToken,
+  );
+
+export const categoryLabelQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'bezeichnung'],
+    queryFn: () => getJson('/warengruppen/bezeichnung', categoryLabelSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveCategoryLabel = (accessToken: string, request: CategoryLabel) =>
+  sendJson('PUT', '/warengruppen/bezeichnung', request, categoryLabelSchema, accessToken);
+
+export const mergeMaterialGroup = (accessToken: string, id: string, request: MergeMaterialGroup) =>
+  sendJson(
+    'POST',
+    `/warengruppen/${id}/zusammenlegen`,
+    request,
+    materialGroupDetailSchema,
+    accessToken,
+  );
+
+export const splitMaterialGroup = (accessToken: string, id: string, request: SplitMaterialGroup) =>
+  sendJson('POST', `/warengruppen/${id}/teilen`, request, materialGroupDetailSchema, accessToken);
+
+/** Import der Warengruppen: Vorschau oder Übernahme; bei Fehlern übernimmt der Server nichts. */
+export async function uploadMaterialGroups(accessToken: string, file: File, apply: boolean) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = apply ? '/warengruppen/import' : '/warengruppen/import/vorschau';
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  const answer: unknown = await res.json().catch(() => null);
+  if (!res.ok) throw new ApiError(path, res.status, undefined, answer);
+  return answer;
+}
+
+export const parseMaterialGroupPreview = (answer: unknown) =>
+  materialGroupImportPreviewSchema.parse(answer);
+export const parseMaterialGroupImport = (answer: unknown) =>
+  materialGroupImportResultSchema.parse(answer);
 
 export const putSpend = (
   accessToken: string,

@@ -1,14 +1,15 @@
 import { type AreaKey, areas } from '@reziproq/shared';
 import { useRouter, useRouterState } from '@tanstack/react-router';
 import {
+  BoxesIcon,
   BuildingIcon,
   ChartScatterIcon,
   FactoryIcon,
   HouseIcon,
-  type LucideIcon,
   MessageCircleQuestionIcon,
   ReceiptEuroIcon,
   UserRoundIcon,
+  type LucideIcon,
 } from 'lucide-react';
 import type { NavItem, RenderLink } from '@/components/ui/nav-link';
 import { useMe } from '@/features/auth/use-me';
@@ -28,6 +29,7 @@ export interface NavTarget extends NavItem {
 const areaIcons: Record<AreaKey, LucideIcon> = {
   start: HouseIcon,
   suppliers: FactoryIcon,
+  materialGroups: BoxesIcon,
   portfolio: ChartScatterIcon,
   impact: ReceiptEuroIcon,
 };

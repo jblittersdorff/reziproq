@@ -95,6 +95,22 @@ async function takeOver(
       update action set created_by = ${account.id}, created_by_name = ${account.name}
       where created_by in ${ids}
     `);
+    // WG-01: Lead, Commodity Manager und Team der Warengruppen
+    await tx.execute(
+      sql`update material_group set lead_user_id = ${account.id} where lead_user_id in ${ids}`,
+    );
+    await tx.execute(sql`
+      update material_group set commodity_manager_user_id = ${account.id}
+      where commodity_manager_user_id in ${ids}
+    `);
+    await tx.execute(sql`
+      update material_group_member m set user_id = ${account.id}
+      where m.user_id in ${ids} and not exists (
+        select 1 from material_group_member o
+        where o.material_group_id = m.material_group_id and o.user_id = ${account.id} and o.role = m.role
+      )
+    `);
+    await tx.execute(sql`delete from material_group_member where user_id in ${ids}`);
     await tx.execute(sql`delete from relationship_member where user_id in ${ids}`);
     await tx.execute(sql`delete from app_user where id in ${ids}`);
   }

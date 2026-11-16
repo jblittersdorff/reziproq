@@ -118,6 +118,9 @@ export const orgSettingKeys = [
   'action_reminder_days',
   'fiscal_year_start_month',
   'hint_max_focus_per_sro',
+  // WG-01: eigene Bezeichnung statt „Warengruppe“ / „Warengruppen“
+  'category_label_singular',
+  'category_label_plural',
 ] as const;
 
 export const orgSetting = pgTable(
@@ -135,7 +138,8 @@ export const orgSetting = pgTable(
   (table) => [
     check(
       'org_setting_key',
-      sql`${table.key} in ('action_reminder_days', 'fiscal_year_start_month', 'hint_max_focus_per_sro')`,
+      sql`${table.key} in ('action_reminder_days', 'fiscal_year_start_month', 'hint_max_focus_per_sro',
+        'category_label_singular', 'category_label_plural')`,
     ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],

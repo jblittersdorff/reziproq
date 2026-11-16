@@ -5,6 +5,8 @@
 export const areas = [
   { key: 'start', path: '/start', name: 'Start' },
   { key: 'suppliers', path: '/lieferanten', name: 'Lieferanten' },
+  // WG-01: Warengruppen; in der Oberfläche mit der Bezeichnung des Kunden
+  { key: 'materialGroups', path: '/warengruppen', name: 'Warengruppen' },
   { key: 'portfolio', path: '/portfolio', name: 'Portfolio' },
   { key: 'impact', path: '/wirkung', name: 'Wirkung' },
 ] as const;

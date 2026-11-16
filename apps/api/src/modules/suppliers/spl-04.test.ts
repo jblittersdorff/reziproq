@@ -103,8 +103,7 @@ describe('SPL-04 Spend-Entwicklung', () => {
     await db.execute(
       sql`delete from relationship_spend where relationship_id in ${Object.values(rel)}`,
     );
-    await db.execute(sql`delete from business_unit where org_id = ${orgs.oem}`);
-    await db.execute(sql`delete from material_group where org_id = ${orgs.oem}`);
+    // deleteRelationships nimmt auch Zuordnungen (WG-01: aus Spend), BUs und Warengruppen mit.
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
     await db.execute(sql`delete from organization_feature where organization_id = ${orgs.oem}`);

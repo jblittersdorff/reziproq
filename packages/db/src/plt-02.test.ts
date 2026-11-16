@@ -127,6 +127,8 @@ describe('PLT-02 in der Datenbank', () => {
       'jbp_version',
       'kpi_value',
       'material_group',
+      'material_group_member',
+      'material_group_product_group',
       'maturity_step',
       'meeting',
       'meeting_agenda_item',

@@ -1,14 +1,16 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   actions,
+  defaultCategoryLabel,
   type MeResponse,
   type PermissionsResponse,
   type UserLocale,
 } from '@reziproq/shared';
-import { AccountStore } from '../../common/database.module.js';
+import { AccountStore, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { buyerOnlyActions } from '../auth/buyer-only.js';
 import { can } from '../auth/can.js';
+import { readCategoryLabel } from '../material-groups/category-label.js';
 import { UserinfoClient } from './userinfo.client.js';
 
 @Injectable()
@@ -16,6 +18,7 @@ export class MeService {
   constructor(
     @Inject(UserinfoClient) private readonly userinfo: UserinfoClient,
     @Inject(AccountStore) private readonly accounts: AccountStore,
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
   ) {}
 
   /**
@@ -66,6 +69,14 @@ export class MeService {
       isControlling: subject.isControlling,
       isOperator: subject.isOperator,
       locale: await this.accounts.localeOf(auth.userId),
+      // WG-01: eigene Bezeichnung der Warengruppe, z. B. „Werkstoffgruppe“
+      categoryLabel: organization?.buyer
+        ? await this.tenant.run(
+            { userId: auth.userId, organizationId: organization.id },
+            (tx) => readCategoryLabel(tx, organization.id),
+            { readOnly: true },
+          )
+        : defaultCategoryLabel,
       permissions: {
         viewOrganizationSettings: organization !== null && can(subject, 'organisation.sehen'),
         viewBuyerAreas: organization?.buyer ?? false,

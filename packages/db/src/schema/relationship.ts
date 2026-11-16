@@ -16,7 +16,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { appUser, userFunctions } from './app-user.js';
-import { businessUnit, materialGroup } from './master-data.js';
+import { businessUnit, materialGroup, materialGroupProductGroup } from './master-data.js';
 import { organization } from './organization.js';
 
 // PLT-03: Beziehung zwischen einem Käufer und einem Lieferanten. Ein Lieferant existiert in
@@ -178,6 +178,8 @@ export const relationshipSpend = pgTable(
     kind: text({ enum: spendKinds }).notNull().default('actual'),
     businessUnitId: uuid().references(() => businessUnit.id),
     materialGroupId: uuid().references(() => materialGroup.id),
+    // WG-01: optional die Produktgruppe innerhalb der Warengruppe
+    productGroupId: uuid().references(() => materialGroupProductGroup.id),
   },
   (table) => [
     unique('relationship_spend_je_eintrag')

@@ -173,3 +173,21 @@ describe('QS-01 Outbox-Verarbeitung', () => {
     expect(outbox.markSent).toHaveBeenCalledWith(delivery.id);
   });
 });
+
+describe('WG-01 Bezeichnung in Mails', () => {
+  it('Titel und Nachricht tragen die Bezeichnung des Kunden', () => {
+    const payload = new EmailService().prepare(
+      {
+        template: 'reminder',
+        locale: 'de',
+        recipient: 'ada@example.com',
+        title: 'Warengruppenstrategie Elektronik',
+        link: '/warengruppen',
+        message: 'Bitte prüfe die Warengruppe.',
+      },
+      { categoryLabel: { singular: 'Werkstoffgruppe', plural: 'Werkstoffgruppen' } },
+    );
+    expect(payload.title).toBe('Werkstoffgruppenstrategie Elektronik');
+    expect(payload.message).toBe('Bitte prüfe die Werkstoffgruppe.');
+  });
+});

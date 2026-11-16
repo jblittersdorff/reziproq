@@ -14,6 +14,8 @@ export const masterDataErrors = [
   'in_use',
   'primary_required',
   'foreign_entry',
+  // WG-01: Lead oder Team nur aus der eigenen Organisation
+  'foreign_user',
 ] as const;
 export type MasterDataError = (typeof masterDataErrors)[number];
 
@@ -41,6 +43,10 @@ export const materialGroupSchema = businessUnitSchema.extend({
   parentId: z.string().nullable(),
   /** Untergruppen; eine Oberebene mit Untergruppen gilt als benutzt */
   childCount: z.number().int(),
+  /** WG-01 */
+  description: z.string().nullable().default(null),
+  leadUserId: z.string().nullable().default(null),
+  commodityManagerUserId: z.string().nullable().default(null),
 });
 export type MaterialGroup = z.infer<typeof materialGroupSchema>;
 
@@ -55,6 +61,10 @@ export type BusinessUnitRequest = z.infer<typeof businessUnitRequestSchema>;
 
 export const materialGroupRequestSchema = businessUnitRequestSchema.extend({
   parentId: z.uuid().nullable().default(null),
+  /** WG-01: Beschreibung, Lead und optional Commodity Manager */
+  description: z.string().trim().max(1000, 'too_long').nullable().optional(),
+  leadUserId: z.string().min(1).nullable().optional(),
+  commodityManagerUserId: z.string().min(1).nullable().optional(),
 });
 export type MaterialGroupRequest = z.input<typeof materialGroupRequestSchema>;
 

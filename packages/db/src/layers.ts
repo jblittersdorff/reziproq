@@ -31,6 +31,10 @@ export interface TestRowContext {
   probe: (table: string, org: string) => string;
   /** Sichtbarkeit der Zeile bei geteilten Tabellen (PLB-04: eine Person je Zeile und Seite) */
   visibility?: 'internal' | 'shared' | undefined;
+  /** Organisation der Zeile bei org_private, z. B. für eine Person derselben Organisation */
+  org?: string | undefined;
+  /** Eine Person der Organisation der Zeile (WG-01: Team je Warengruppe) */
+  orgUser?: string | undefined;
 }
 
 export interface LayerEntry {
@@ -694,6 +698,22 @@ export const layerRegister: Record<string, LayerEntry> = {
   // PLT-06: Stammdaten je Organisation und ihre Zuordnung zu Lieferanten.
   business_unit: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
   material_group: { kind: 'org_private', testValues: { name: 'Probe', code: 'PROBE' } },
+  // WG-01: Produktgruppen und Team je Warengruppe; nur die eigene Organisation sieht sie.
+  material_group_product_group: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      material_group_id: org && probe('material_group', org),
+      name: `Probe ${randomUUID()}`,
+    }),
+  },
+  material_group_member: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      material_group_id: org && probe('material_group', org),
+      user_id: orgUser,
+      role: 'buyer',
+    }),
+  },
   relationship_business_unit: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

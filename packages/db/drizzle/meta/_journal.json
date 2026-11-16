@@ -561,6 +561,13 @@
       "when": 1794843150550,
       "tag": "0079_feedback_in_der_app",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1794858217412,
+      "tag": "0080_warengruppen",
+      "breakpoints": true
     }
   ]
 }

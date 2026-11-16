@@ -35,4 +35,7 @@ export const buyerOnlyActions: readonly Action[] = [
   'hinweise.sehen',
   'hinweise.entscheiden',
   'hinweise.einstellen',
+  // WG-01: Warengruppen sieht der Lieferant nie.
+  'warengruppen.sehen',
+  'warengruppen.team',
 ];

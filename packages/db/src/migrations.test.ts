@@ -125,6 +125,8 @@ describe('Migrationen', () => {
       'kind',
       'business_unit_id',
       'material_group_id',
+      // WG-01: optional die Produktgruppe
+      'product_group_id',
     ]);
     expect(await columns('beziehung')).toEqual([]);
     expect(await columns('beziehung_kaeufer')).toEqual([]);

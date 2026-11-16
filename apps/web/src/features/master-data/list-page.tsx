@@ -67,12 +67,41 @@ export function MasterDataListPage({ kind }: { kind: MasterDataKind }) {
           icon={<TagsIcon aria-hidden />}
           title={config.emptyTitle(t)}
           description={manage ? t.masterData.emptyDescription : t.masterData.readOnly}
-          action={manage ? newLink(config.createFirst(t)) : undefined}
+          action={
+            manage ? (
+              <div className="flex flex-wrap justify-center gap-2">
+                {newLink(config.createFirst(t))}
+                {kind === 'material-groups' &&
+                  routerLink({
+                    href: `${config.path}/import`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.materialGroupsPage.import,
+                  })}
+              </div>
+            ) : undefined
+          }
         />
       ) : (
         <>
           {manage ? (
-            <div className="flex justify-end">{newLink(config.newTitle(t))}</div>
+            <div className="flex flex-wrap justify-end gap-2">
+              {/* WG-01: Warengruppen importieren und eigene Bezeichnung */}
+              {kind === 'material-groups' && (
+                <>
+                  {routerLink({
+                    href: `${config.path}/bezeichnung`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.materialGroupsPage.label,
+                  })}
+                  {routerLink({
+                    href: `${config.path}/import`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.materialGroupsPage.import,
+                  })}
+                </>
+              )}
+              {newLink(config.newTitle(t))}
+            </div>
           ) : (
             <p className="text-muted-foreground">{t.masterData.readOnly}</p>
           )}

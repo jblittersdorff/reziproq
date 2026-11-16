@@ -323,6 +323,16 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       return status === 404 ? 200 : status;
     },
     'suche.nutzen': async (user) => (await request(user, 'GET', '/api/suche?q=Kosten')).status,
+    'warengruppen.sehen': async (user) => (await request(user, 'GET', '/api/warengruppen')).status,
+    'warengruppen.team': async (user) => {
+      const { status } = await request(
+        user,
+        'PUT',
+        '/api/warengruppen/00000000-0000-4000-8000-000000000000/team',
+        { members: [] },
+      );
+      return status === 404 ? 200 : status;
+    },
     'hinweise.einstellen': async (user) => {
       const { status } = await request(user, 'PUT', '/api/hinweise/einstellungen', {
         maxFocusPerSro: 8,

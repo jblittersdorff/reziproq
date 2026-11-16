@@ -48,6 +48,8 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `hinweise.entscheiden` | Hinweise annehmen (erzeugt eine interne Maßnahme) oder begründet verwerfen (SRO der Beziehung oder Admin) | ja | ja | nein | nein |
 | `hinweise.einstellen` | Schwellwerte der Hinweis-Regeln einstellen | ja | nein | nein | nein |
 | `suche.nutzen` | Lieferanten, Initiativen und Maßnahmen per Suchwort finden, nur im Sichtbaren (beide Seiten; Lieferant im aktuellen Kunden) | ja | ja | ja | ja |
+| `warengruppen.sehen` | Warengruppen mit Team, Produktgruppen und Lieferanten sehen (nur Käufer) | ja | ja | ja | ja |
+| `warengruppen.team` | Team und Produktgruppen einer Warengruppe pflegen (Admin oder Lead der Warengruppe) | ja | ja | nein | nein |
 | `teilung.vereinbaren` | Teilungsregel einer Initiative vorschlagen (Käufer: SRO oder Admin) oder bestätigen (Lieferant: Key Account Manager oder Admin) | ja | ja | nein | nein |
 | `jbp.sehen` | Gemeinsamen Plan und seine Vorbereitung sehen (beide Seiten) | ja | ja | ja | ja |
 | `jbp.anlegen` | Gemeinsamen Plan anlegen, mit Termin und Agenda (Käufer: Admin oder SRO) | ja | ja | nein | nein |

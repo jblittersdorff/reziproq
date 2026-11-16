@@ -11,6 +11,7 @@ const ada = {
   isControlling: false,
   isOperator: true,
   locale: 'en',
+  categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
   permissions: {
     viewOrganizationSettings: false,
     viewBuyerAreas: false,

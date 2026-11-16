@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
+import { StatusLine } from '@/components/ui/status-line';
 import {
   Table,
   TableBody,
@@ -22,7 +23,13 @@ import { useMe } from '@/features/auth/use-me';
 import { usePermissions } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { ApiError, applyImport, downloadImportTemplate, previewImport } from '@/lib/api';
+import {
+  ApiError,
+  applyImport,
+  createEntry,
+  downloadImportTemplate,
+  previewImport,
+} from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 
 type ImportableType = ImportType;
@@ -401,6 +408,13 @@ export function SupplierImportPage() {
                   </Button>
                 )}
               </div>
+              {canManageMasterData && (
+                <UnknownMaterialGroups
+                  preview={preview}
+                  token={auth.user?.access_token ?? ''}
+                  onCreated={() => runPreview()}
+                />
+              )}
               <ImportPreviewTable preview={preview} t={t} />
               <Button
                 type="button"
@@ -479,5 +493,91 @@ function ImportPreviewTable({
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+/** Kennung aus dem Namen: Großbuchstaben, Ziffern und Bindestrich, höchstens 20 Zeichen. */
+export function codeFromName(name: string, attempt: number) {
+  const base =
+    name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleUpperCase('de')
+      .replace(/[^A-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 16) || 'WG';
+  return attempt === 0 ? base : `${base}-${attempt + 1}`;
+}
+
+/**
+ * WG-01: Eine unbekannte Warengruppe im Spend-Import ist ein Fehler in der Vorschau, mit dem
+ * Angebot, sie als neue Warengruppe anzulegen. Danach prüft die Vorschau erneut.
+ */
+function UnknownMaterialGroups({
+  preview,
+  token,
+  onCreated,
+}: {
+  preview: ImportPreview;
+  token: string;
+  onCreated: () => Promise<void> | void;
+}) {
+  const text = useT().materialGroupsPage;
+  const [busy, setBusy] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const names = [
+    ...new Set(
+      preview.rows.flatMap((row) =>
+        row.issues
+          .filter((issue) => issue.code === 'unknown_material_group' && issue.value)
+          .map((issue) => issue.value as string),
+      ),
+    ),
+  ];
+  if (names.length === 0) return null;
+  const create = async (name: string) => {
+    setBusy(name);
+    setMessage(null);
+    try {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        try {
+          await createEntry(token, 'material-groups', {
+            name,
+            code: codeFromName(name, attempt),
+            parentId: null,
+          });
+          break;
+        } catch (error) {
+          const code =
+            error instanceof ApiError ? (error.body as { code?: string } | null)?.code : null;
+          if (code !== 'code_taken' || attempt === 4) throw error;
+        }
+      }
+      setMessage(text.createdFromImport(name));
+      await onCreated();
+    } catch {
+      setMessage(text.failedSave);
+    } finally {
+      setBusy(null);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+      <div className="flex flex-wrap gap-2">
+        {names.map((name) => (
+          <Button
+            key={name}
+            type="button"
+            variant="secondary"
+            loading={busy === name}
+            disabled={busy !== null}
+            onClick={() => void create(name)}
+          >
+            {text.createFromImport(name)}
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 }

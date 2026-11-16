@@ -4,10 +4,10 @@ import {
   masterDataErrors,
   materialGroupRequestSchema,
 } from '@reziproq/shared';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SearchXIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -15,10 +15,19 @@ import { FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { Textarea } from '@/components/ui/textarea';
 import { useCan } from '@/features/auth/use-permissions';
+import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
-import { ApiError, createEntry, deleteEntry, type MasterDataKind, updateEntry } from '@/lib/api';
+import {
+  ApiError,
+  createEntry,
+  deleteEntry,
+  type MasterDataKind,
+  organizationQueryOptions,
+  updateEntry,
+} from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import type { Messages } from '@/locales/de';
@@ -100,7 +109,16 @@ function EntryForm({
     name: entry?.name ?? '',
     code: entry?.code ?? '',
     parentId: entry?.parentId ?? '',
+    // WG-01: Beschreibung, Lead und Commodity Manager der Warengruppe
+    description: entry?.description ?? '',
+    leadUserId: entry?.leadUserId ?? '',
+    commodityManagerUserId: entry?.commodityManagerUserId ?? '',
   });
+  const organization = useQuery({
+    ...organizationQueryOptions(accessToken),
+    enabled: accessToken !== '' && config.hasParent,
+  });
+  const people = organization.data?.members ?? [];
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -129,7 +147,14 @@ function EntryForm({
     const parsed = schema.safeParse({
       name: form.name,
       code: form.code,
-      ...(config.hasParent ? { parentId: form.parentId || null } : {}),
+      ...(config.hasParent
+        ? {
+            parentId: form.parentId || null,
+            description: form.description.trim() || null,
+            leadUserId: form.leadUserId || null,
+            commodityManagerUserId: form.commodityManagerUserId || null,
+          }
+        : {}),
       ...request,
     });
     if (!parsed.success) {
@@ -233,6 +258,46 @@ function EntryForm({
           )}
         </FormField>
       )}
+      {config.hasParent && (
+        <>
+          <FormField label={t.materialGroupsPage.description} error={errors.description}>
+            {(field) => (
+              <Textarea
+                {...field}
+                name="description"
+                rows={3}
+                maxLength={1000}
+                value={form.description}
+                onChange={(event) => setForm({ ...form, description: event.target.value })}
+              />
+            )}
+          </FormField>
+          {(
+            [
+              ['leadUserId', t.materialGroupsPage.lead],
+              ['commodityManagerUserId', t.materialGroupsPage.commodityManager],
+            ] as const
+          ).map(([key, label]) => (
+            <FormField key={key} label={label} error={errors[key]}>
+              {(field) => (
+                <NativeSelect
+                  {...field}
+                  name={key}
+                  value={form[key]}
+                  onChange={(event) => setForm({ ...form, [key]: event.target.value })}
+                >
+                  <option value="">–</option>
+                  {people.map((person) => (
+                    <option key={person.id} value={person.id}>
+                      {person.name}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+            </FormField>
+          ))}
+        </>
+      )}
 
       {failure && (
         <p role="alert" className="text-destructive">
@@ -248,6 +313,21 @@ function EntryForm({
         </Button>
       </FormActions>
 
+      {entry && config.hasParent && entry.active && (
+        <div className="flex flex-wrap gap-2 pt-2">
+          {/* WG-01: Zusammenlegen und Teilen fragen auf eigenen Seiten nach dem Spend. */}
+          {routerLink({
+            href: `${config.path}/${entry.id}/zusammenlegen`,
+            className: buttonVariants({ variant: 'secondary' }),
+            children: t.materialGroupsPage.toMerge,
+          })}
+          {routerLink({
+            href: `${config.path}/${entry.id}/teilen`,
+            className: buttonVariants({ variant: 'secondary' }),
+            children: t.materialGroupsPage.toSplit,
+          })}
+        </div>
+      )}
       {entry && (
         <div className="flex flex-col items-start gap-3 pt-6">
           {entry.active ? (
