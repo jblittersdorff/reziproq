@@ -27,7 +27,7 @@
     "demo:setup": "pnpm --filter @reziproq/db demo:setup"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.8",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
