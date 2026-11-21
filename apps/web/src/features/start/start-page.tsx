@@ -42,6 +42,10 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'validation') return t.start.dueValidation(item.detail);
   if (item.kind === 'mention') return t.start.dueMention(item.detail);
   if (item.kind === 'feedback') return t.start.dueFeedback(item.supplier);
+  if (item.kind === 'strategy') {
+    const step = Number(item.detail);
+    return t.start.dueStrategy(t.strategy.stepName(step));
+  }
   return t.start.dueRating(item.detail);
 }
 

@@ -195,6 +195,11 @@ export const permissions: Record<Action, Permission> = {
       'Team und Produktgruppen einer Warengruppe pflegen (Admin oder Lead der Warengruppe)',
     roles: ['admin', 'member'],
   },
+  'warengruppenstrategie.bearbeiten': {
+    description:
+      'Warengruppenstrategie anlegen und bearbeiten (Lead und Commodity Manager alle Schritte, Einkauf im Team die Schritte 2 bis 9)',
+    roles: ['admin', 'member'],
+  },
   'datenexport.anfordern': {
     description:
       'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',

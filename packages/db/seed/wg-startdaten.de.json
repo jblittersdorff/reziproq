@@ -1,0 +1,566 @@
+{
+  "kpis": [
+    {
+      "dimension": "supply",
+      "name": "Bestätigte Kapazität",
+      "description": "Anteil bestätigter Kapazität für Anlauf und Serie in der Lieferantenbasis",
+      "unit": "%"
+    },
+    {
+      "dimension": "supply",
+      "name": "Logistik-Bewertung",
+      "description": "Verlässlichkeit der Logistik der Lieferantenbasis",
+      "unit": null
+    },
+    {
+      "dimension": "quality",
+      "name": "Umsatzanteil mit bester Bewertung",
+      "description": "Umsatzgewichteter Anteil der Lieferanten, die den Qualitätsstandard erfüllen",
+      "unit": "%"
+    },
+    {
+      "dimension": "quality",
+      "name": "Fehlerquote",
+      "description": "ppm, umsatzgewichtet, im Wareneingang und in der Fertigung",
+      "unit": "ppm"
+    },
+    {
+      "dimension": "cost",
+      "name": "Jährliche Preisverbesserung",
+      "description": "Verbesserung des Teilepreises über die Laufzeit",
+      "unit": "%"
+    },
+    {
+      "dimension": "cost",
+      "name": "Abweichung zur Soll-Kalkulation",
+      "description": "Abstand des Einkaufspreises zur Soll-Kalkulation",
+      "unit": "%"
+    },
+    {
+      "dimension": "technology",
+      "name": "Innovationsprojekte",
+      "description": "Zahl der Innovationsprojekte in der Warengruppe",
+      "unit": "Anzahl"
+    },
+    {
+      "dimension": "technology",
+      "name": "Anteil vom Lieferanten angestoßen",
+      "description": "Anteil der vom Lieferanten angestoßenen Innovationsprojekte",
+      "unit": "%"
+    },
+    {
+      "dimension": "sustainability",
+      "name": "Umsatzanteil mit bestandener Bewertung",
+      "description": "Umsatzgewichteter Anteil der Lieferanten, die den Nachhaltigkeitsstandard erfüllen",
+      "unit": "%"
+    },
+    {
+      "dimension": "sustainability",
+      "name": "CO₂-Fußabdruck",
+      "description": "Fußabdruck der Warengruppe",
+      "unit": "t CO₂e"
+    }
+  ],
+  "questions": [
+    {
+      "step": 1,
+      "view": null,
+      "text": "Wer kauft welche Produktgruppe, in welcher Business Unit und Region?"
+    },
+    {
+      "step": 1,
+      "view": null,
+      "text": "Wer koordiniert als Lead?"
+    },
+    {
+      "step": 1,
+      "view": null,
+      "text": "Ist die Warengruppe so relevant, dass sie einen Commodity Manager braucht?"
+    },
+    {
+      "step": 1,
+      "view": null,
+      "text": "Worin gleichen und unterscheiden sich die Produktgruppen zwischen den Business Units?"
+    },
+    {
+      "step": 2,
+      "view": null,
+      "text": "Welche übergeordnete Strategie gilt? Immer die nächsthöhere ansehen."
+    },
+    {
+      "step": 2,
+      "view": null,
+      "text": "Welche der fünf Dimensionen spricht sie an?"
+    },
+    {
+      "step": 2,
+      "view": null,
+      "text": "Welche davon sind für diese Warengruppe relevant, und warum?"
+    },
+    {
+      "step": 2,
+      "view": null,
+      "text": "Was bedeutet jedes übergeordnete Ziel für die Warengruppe?"
+    },
+    {
+      "step": 2,
+      "view": null,
+      "text": "Welche Dimension stellt ihr zurück, und mit welcher Begründung?"
+    },
+    {
+      "step": 3,
+      "view": "Volumen",
+      "text": "Welche Produktgruppen machen den größten Umsatz aus?"
+    },
+    {
+      "step": 3,
+      "view": "Volumen",
+      "text": "Dominieren wenige, oder verteilt sich der Umsatz gleichmäßig?"
+    },
+    {
+      "step": 3,
+      "view": "Volumen",
+      "text": "Welche Business Unit hat den größten Anteil, und stellt sie besondere Anforderungen?"
+    },
+    {
+      "step": 3,
+      "view": "Volumen",
+      "text": "Welche Teile unterscheiden euch im Wettbewerb und brauchen besonderes Augenmerk?"
+    },
+    {
+      "step": 3,
+      "view": "Volumen",
+      "text": "Welche Mindestanforderungen müssen alle Teile erfüllen?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Ist die Lieferkette vollständig bekannt, und wie ist sie aufgebaut?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Macht die Zahl der Stufen sie anfällig?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Gibt es Technik oder Material nur in bestimmten Regionen?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Auf welchen Stufen entsteht die meiste Wertschöpfung?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Ist der Footprint ausgewogen oder von einzelnen Ländern abhängig?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Gibt es lange Transportwege oder eine regionale Bündelung mehrerer Stufen?"
+    },
+    {
+      "step": 3,
+      "view": "Lieferkette",
+      "text": "Welche Länder sind besonders wichtig, und ergeben sich daraus geopolitische Risiken?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Welche Kosten dominieren die Kostenstruktur?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Was sind die Ursachen je Kostenart?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Wie weichen die Soll-Kosten von den Ist-Kosten ab?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Welche Kostenarten weichen am stärksten ab, und warum?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Wie teuer kauft der Wettbewerb ein?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Wo spart der Wettbewerb, und warum?"
+    },
+    {
+      "step": 3,
+      "view": "Kosten",
+      "text": "Wie viel Einsparung ist möglich, und wodurch?"
+    },
+    {
+      "step": 3,
+      "view": "Technologie",
+      "text": "Welche Technologien sind geplant oder könnten relevant werden?"
+    },
+    {
+      "step": 3,
+      "view": "Technologie",
+      "text": "Kann die heutige Lieferantenbasis die Roadmap abbilden?"
+    },
+    {
+      "step": 3,
+      "view": "Technologie",
+      "text": "Kommen neue Technologien von Lieferanten oder sind sie auf wenige beschränkt?"
+    },
+    {
+      "step": 3,
+      "view": "Technologie",
+      "text": "In welchem Volumen und Tempo laufen sie an?"
+    },
+    {
+      "step": 4,
+      "view": "Umsatz und Finanzen",
+      "text": "Ist die Basis breit aufgestellt oder von wenigen Lieferanten abhängig?"
+    },
+    {
+      "step": 4,
+      "view": "Umsatz und Finanzen",
+      "text": "Wie verschiebt sich der Umsatz in 3 bis 5 Jahren: Bündelung oder Zersplitterung?"
+    },
+    {
+      "step": 4,
+      "view": "Umsatz und Finanzen",
+      "text": "Passen Verträge und Abrufe zusammen? Reichen weniger Lieferanten, oder braucht ihr mehr?"
+    },
+    {
+      "step": 4,
+      "view": "Umsatz und Finanzen",
+      "text": "Gefährdet die finanzielle Lage eines Lieferanten eure Ziele?"
+    },
+    {
+      "step": 4,
+      "view": "Qualität",
+      "text": "Verursacht die Basis insgesamt Qualitätsprobleme oder einzelne Lieferanten?"
+    },
+    {
+      "step": 4,
+      "view": "Qualität",
+      "text": "Welchen Umsatzanteil haben Lieferanten mit schwächerer Bewertung, und ist das ein Risiko?"
+    },
+    {
+      "step": 4,
+      "view": "Qualität",
+      "text": "Gibt es negative Entwicklungen bei Audits, die die Strategie aufgreifen muss?"
+    },
+    {
+      "step": 4,
+      "view": "Qualität",
+      "text": "Gefährdet die Qualität der Lieferanten eure Ziele?"
+    },
+    {
+      "step": 4,
+      "view": "Footprint",
+      "text": "In welchen Ländern ist die Basis stark oder schwach vertreten, mit welchen Risiken und Chancen?"
+    },
+    {
+      "step": 4,
+      "view": "Footprint",
+      "text": "Woher kommen und wohin fließen die Warenströme? Gibt es riskante Kombinationen?"
+    },
+    {
+      "step": 4,
+      "view": "Footprint",
+      "text": "Welche Lieferanten sind noch nicht Teil der Basis, wären aber wertvoll?"
+    },
+    {
+      "step": 4,
+      "view": "Footprint",
+      "text": "Wer bietet die Warengruppe noch nicht an, will aber dazukommen?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Lieferanten",
+      "text": "Wie viele alternative Lieferanten gibt es?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Lieferanten",
+      "text": "Wie spezialisiert sind sie, und wie groß ist ihr Anteil an der Wertschöpfung?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Lieferanten",
+      "text": "Wie teuer ist ein Wechsel für euch?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Endkunden",
+      "text": "Welche Kundengruppen kaufen Produkte mit dieser Warengruppe, und wie wichtig ist sie ihnen?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Endkunden",
+      "text": "Gibt es Alternativen für die Kunden, und was kostet sie der Wechsel?"
+    },
+    {
+      "step": 5,
+      "view": "Verhandlungsmacht der Endkunden",
+      "text": "Wie empfindlich reagieren sie auf Preisänderungen?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch neue Konkurrenz",
+      "text": "Wie hoch sind die Eintrittsbarrieren (Kapital, Wissen, Lizenzen, Regulierung)?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch neue Konkurrenz",
+      "text": "Haben etablierte Anbieter Größenvorteile?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch neue Konkurrenz",
+      "text": "Wie leicht ist der Zugang zu Kunden und Märkten?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch Ersatzprodukte",
+      "text": "Gibt es Ersatz, der dieselbe Funktion erfüllt?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch Ersatzprodukte",
+      "text": "Wie ist dessen Preis-Leistungs-Verhältnis?"
+    },
+    {
+      "step": 5,
+      "view": "Bedrohung durch Ersatzprodukte",
+      "text": "Wie hoch ist der Wechselaufwand, wie treu sind die Abnehmer?"
+    },
+    {
+      "step": 5,
+      "view": "Abhängigkeit von externen Faktoren",
+      "text": "Von welchen externen Faktoren hängt die Warengruppe ab (Technik, Material)?"
+    },
+    {
+      "step": 5,
+      "view": "Abhängigkeit von externen Faktoren",
+      "text": "Gibt es starken Wettbewerb um diese Faktoren?"
+    },
+    {
+      "step": 5,
+      "view": "Abhängigkeit von externen Faktoren",
+      "text": "Welche Gesetze beeinflussen die Warengruppe maßgeblich?"
+    },
+    {
+      "step": 5,
+      "view": "Wettbewerb im Markt",
+      "text": "Wächst der Markt, oder kämpfen viele ähnliche Anbieter um dieselben Kunden?"
+    },
+    {
+      "step": 5,
+      "view": "Wettbewerb im Markt",
+      "text": "Worin unterscheiden sich eure Produkte von denen der Wettbewerber?"
+    },
+    {
+      "step": 5,
+      "view": "Wettbewerb im Markt",
+      "text": "Wie hoch sind Kapital- und Fixkosten im Markt?"
+    },
+    {
+      "step": 5,
+      "view": "Wettbewerb im Markt",
+      "text": "Welche Lieferanten nutzen Wettbewerber, und warum?"
+    },
+    {
+      "step": 5,
+      "view": "Zusammenschau",
+      "text": "Welche Kraft oder Kombination ist heute oder künftig ein Risiko, das die Strategie abfedern muss?"
+    },
+    {
+      "step": 5,
+      "view": "Zusammenschau",
+      "text": "Wo könnt ihr das Kräfteverhältnis nutzen, um eure Ziele zu erreichen, und wie?"
+    },
+    {
+      "step": 6,
+      "view": null,
+      "text": "Mit welchem Hebel nutzt ihr eine Stärke, um ein Risiko abzufedern?"
+    },
+    {
+      "step": 6,
+      "view": null,
+      "text": "Mit welchem Hebel macht ihr aus Stärke und Chance einen Vorteil?"
+    },
+    {
+      "step": 6,
+      "view": null,
+      "text": "Welcher Hebel verhindert, dass Schwäche und Risiko zusammen eintreten?"
+    },
+    {
+      "step": 6,
+      "view": null,
+      "text": "Welcher Hebel gleicht eine Schwäche aus, damit ihr eine Chance nutzen könnt?"
+    },
+    {
+      "step": 7,
+      "view": null,
+      "text": "Auf welches Ziel der Warengruppe zahlt die Initiative ein?"
+    },
+    {
+      "step": 7,
+      "view": null,
+      "text": "Was muss geschehen, damit der Hebel umgesetzt ist?"
+    },
+    {
+      "step": 7,
+      "view": null,
+      "text": "Wer treibt die Initiative und verantwortet die Umsetzung?"
+    },
+    {
+      "step": 8,
+      "view": null,
+      "text": "Wie muss die Vergabe laufen, damit sie die Ziele der Warengruppe stützt?"
+    },
+    {
+      "step": 8,
+      "view": null,
+      "text": "Welche Lieferanten sind geeignet, und warum?"
+    },
+    {
+      "step": 8,
+      "view": null,
+      "text": "Wie groß ist das Volumen, und was verändert die Vergabe an Lieferantenbasis und Footprint?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Lieferkette",
+      "text": "In wie vielen Ländern produziert er, und welche Standorte kommen in Frage?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Lieferkette",
+      "text": "Wie zuverlässig hat er in Anlauf und Serie geliefert, und kennt er die Warengruppe?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Lieferkette",
+      "text": "Welchen Umsatzanteil hätte er nach der Vergabe, entsteht ein Klumpenrisiko?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Qualität",
+      "text": "Welches Auditergebnis hat er, und wie hat es sich in drei Jahren entwickelt?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Qualität",
+      "text": "Wie liegt seine Fehlerquote zum Durchschnitt der Warengruppe?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Kosten",
+      "text": "Wie liegt der gebotene Preis zum Zielpreis der Soll-Kalkulation?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Kosten",
+      "text": "Wie liegt er zum Durchschnitt der Warengruppe?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Kosten",
+      "text": "Wie offen legt er Material-, Prozess- und Gemeinkosten?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Technologie",
+      "text": "Wie viele Patente hält er im Verhältnis zum Umsatz?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Technologie",
+      "text": "Welche Neuerungen hat er in drei Jahren in Serie gebracht?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Technologie",
+      "text": "Wie viele seiner Produkte gelten im Vergleich als führend?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Nachhaltigkeit",
+      "text": "Wie ist seine Nachhaltigkeitsbewertung, und wie entwickelt sie sich?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Nachhaltigkeit",
+      "text": "Wie hoch ist sein CO₂-Fußabdruck je Einheit?"
+    },
+    {
+      "step": 8,
+      "view": "Eignung: Nachhaltigkeit",
+      "text": "Welchen Rezyklatanteil kann er umsetzen?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "In welchem Segment steht der Lieferant heute, und welches strebt ihr an?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "Wie verteilt sich der Umsatz heute, welche Verteilung wollt ihr, und bis wann?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "Gibt es regelmäßige Termine und einen aktiven Austausch?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "Wie offen werden Informationen geteilt?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "Gibt es ungelöste Konflikte, und wie werden sie gelöst?"
+    },
+    {
+      "step": 9,
+      "view": null,
+      "text": "Werden Zusagen verbindlich eingehalten?"
+    },
+    {
+      "step": 10,
+      "view": null,
+      "text": "Wie lässt sich die Ausgangslage knapp zusammenfassen?"
+    },
+    {
+      "step": 10,
+      "view": null,
+      "text": "Welche Ziele gelten, und wie werden sie gemessen?"
+    },
+    {
+      "step": 10,
+      "view": null,
+      "text": "Welche Hebel sind entscheidend, und mit welchen Initiativen werden sie umgesetzt?"
+    },
+    {
+      "step": 10,
+      "view": null,
+      "text": "In welchen Segmenten stehen die wichtigsten Lieferanten heute und künftig?"
+    },
+    {
+      "step": 10,
+      "view": null,
+      "text": "Was hat sich seit der letzten Vorlage geändert?"
+    }
+  ]
+}

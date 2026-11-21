@@ -89,6 +89,16 @@ export function MasterDataListPage({ kind }: { kind: MasterDataKind }) {
               {kind === 'material-groups' && (
                 <>
                   {routerLink({
+                    href: `${config.path}/kennzahlen`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.strategy.settings.kpiTitle,
+                  })}
+                  {routerLink({
+                    href: `${config.path}/leitfragen`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.strategy.settings.questionsTitle,
+                  })}
+                  {routerLink({
                     href: `${config.path}/bezeichnung`,
                     className: buttonVariants({ variant: 'secondary' }),
                     children: t.materialGroupsPage.label,

@@ -22,6 +22,10 @@ function StepProgress({
   actions,
   doneWhen,
   doneLabel = '✓',
+  stepStates,
+  stateLabels,
+  hrefOf,
+  renderLink,
 }: {
   current: number;
   total: number;
@@ -40,6 +44,22 @@ function StepProgress({
   doneWhen?: { label: string; text: string };
   /** Text für den Haken fertiger Schritte, z. B. „fertig“ */
   doneLabel?: string;
+  /**
+   * Stand je Schritt aus den Daten (WG-04), statt ihn aus der Position abzuleiten; der aktuelle
+   * Schritt bleibt markiert.
+   */
+  stepStates?: ('done' | 'in_progress' | 'open')[];
+  /** Stand als Text für Screenreader, z. B. { done: 'fertig', in_progress: 'in Arbeit', open: 'offen' } */
+  stateLabels?: Record<'done' | 'in_progress' | 'open', string>;
+  /** Adresse je Schritt: Schritte sind dann frei anspringbar */
+  hrefOf?: (step: number) => string;
+  renderLink?: (props: {
+    href: string;
+    className: string;
+    'aria-label'?: string;
+    'aria-current'?: 'step' | undefined;
+    children: React.ReactNode;
+  }) => React.ReactNode;
 }) {
   return (
     <div
@@ -61,8 +81,22 @@ function StepProgress({
       <ol className="flex items-start" aria-label={label(current, total)}>
         {Array.from({ length: total }, (_, index) => {
           const step = index + 1;
-          const state = step < current ? 'done' : step === current ? 'current' : 'open';
+          const data = stepStates?.[index];
+          const state =
+            step === current
+              ? 'current'
+              : data
+                ? data === 'in_progress'
+                  ? 'progress'
+                  : data
+                : step < current
+                  ? 'done'
+                  : 'open';
           const name = steps?.[index];
+          const ring = <StepRing size="sm" number={step} doneLabel={doneLabel} state={state} />;
+          const label = [name ?? String(step), data && stateLabels?.[data]]
+            .filter(Boolean)
+            .join(', ');
           return (
             <li
               key={step}
@@ -70,7 +104,16 @@ function StepProgress({
               className={cn('flex min-w-0 flex-col gap-2', step < total && 'flex-1')}
             >
               <span className="flex items-center">
-                <StepRing size="sm" number={step} doneLabel={doneLabel} state={state} />
+                {hrefOf && renderLink
+                  ? renderLink({
+                      href: hrefOf(step),
+                      className:
+                        'relative rounded-full after:absolute after:-inset-1.5 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                      'aria-label': label,
+                      'aria-current': step === current ? 'step' : undefined,
+                      children: ring,
+                    })
+                  : ring}
                 {step < total && (
                   <span
                     aria-hidden
@@ -85,7 +128,7 @@ function StepProgress({
                 // Auf schmalen Bildschirmen nur die Ringe; die Namen bleiben für Screenreader.
                 <span
                   className={cn(
-                    'sr-only pr-2 text-sm sm:not-sr-only',
+                    'sr-only hyphens-auto pr-2 text-sm [overflow-wrap:anywhere] sm:not-sr-only',
                     state === 'current' ? 'font-semibold' : 'font-semibold',
                     state === 'open' && 'text-muted-foreground',
                   )}

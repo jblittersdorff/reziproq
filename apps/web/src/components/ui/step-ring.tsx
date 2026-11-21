@@ -2,11 +2,12 @@ import { CheckIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
-export type StepState = 'done' | 'current' | 'open';
+export type StepState = 'done' | 'current' | 'progress' | 'open';
 
 /**
  * Ring eines Schritts (Designsprache, Regel 4): fertig Petrol mit Haken, jetzt Mint mit
- * Tinte-Rand, offen weiß mit grauem Rand. Die Ziffer oder „fertig“ steht für Screenreader da.
+ * Tinte-Rand, in Arbeit weiß mit Petrol-Rand (WG-04), offen weiß mit grauem Rand. Die Ziffer oder
+ * „fertig“ steht für Screenreader da.
  */
 function StepRing({
   state,
@@ -30,6 +31,7 @@ function StepRing({
         size === 'sm' ? 'size-8 text-sm' : 'size-9 text-sm',
         state === 'done' && 'border-petrol bg-petrol text-primary-foreground',
         state === 'current' && 'border-ink bg-mint text-ink',
+        state === 'progress' && 'border-petrol bg-card text-petrol-dark',
         state === 'open' && 'border-ring-open bg-card text-muted-foreground',
       )}
     >

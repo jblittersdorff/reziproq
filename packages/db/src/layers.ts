@@ -714,6 +714,48 @@ export const layerRegister: Record<string, LayerEntry> = {
       role: 'buyer',
     }),
   },
+  // WG-04, WG-06: Strategie je Warengruppe; nur die eigene Organisation sieht sie.
+  material_group_strategy: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      material_group_id: org && probe('material_group', org),
+      year: 2000 + Math.floor(Math.random() * 100),
+      created_by: orgUser,
+    }),
+  },
+  material_group_question: {
+    kind: 'org_private',
+    testValues: { step: 1, text: 'Probe', position: 1 },
+  },
+  material_group_note: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      step: 1,
+      view: `probe-${randomUUID()}`,
+      updated_by: 'probe',
+    }),
+  },
+  material_group_milestone: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      title: 'Probe',
+      due_on: '2099-01-01',
+    }),
+  },
+  material_group_kpi: {
+    kind: 'org_private',
+    testValues: { dimension: 'cost', name: `Probe ${randomUUID()}` },
+  },
+  material_group_goal: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      kpi_id: org && probe('material_group_kpi', org),
+      text: 'Probe',
+    }),
+  },
   relationship_business_unit: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

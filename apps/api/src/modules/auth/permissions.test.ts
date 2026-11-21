@@ -324,6 +324,15 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     },
     'suche.nutzen': async (user) => (await request(user, 'GET', '/api/suche?q=Kosten')).status,
     'warengruppen.sehen': async (user) => (await request(user, 'GET', '/api/warengruppen')).status,
+    'warengruppenstrategie.bearbeiten': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/warengruppen/00000000-0000-4000-8000-000000000000/strategie',
+        { year: 2027 },
+      );
+      return status === 404 ? 200 : status;
+    },
     'warengruppen.team': async (user) => {
       const { status } = await request(
         user,

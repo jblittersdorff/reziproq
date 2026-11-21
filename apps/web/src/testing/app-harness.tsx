@@ -80,6 +80,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'hinweise.einstellen',
     'warengruppen.sehen',
     'warengruppen.team',
+    'warengruppenstrategie.bearbeiten',
   ],
   member: [
     'organisation.sehen',
@@ -102,6 +103,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'hinweise.entscheiden',
     'warengruppen.sehen',
     'warengruppen.team',
+    'warengruppenstrategie.bearbeiten',
   ],
   viewer: [
     'organisation.sehen',

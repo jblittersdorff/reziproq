@@ -1,4 +1,13 @@
 import {
+  type GoalRequest,
+  type KpiRequest,
+  kpiListSchema,
+  type MilestoneRequest,
+  questionListSchema,
+  type SaveNote,
+  strategyContextResponseSchema,
+  strategyOverviewSchema,
+  strategyStepSchema,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -688,6 +697,138 @@ export const mergeMaterialGroup = (accessToken: string, id: string, request: Mer
 
 export const splitMaterialGroup = (accessToken: string, id: string, request: SplitMaterialGroup) =>
   sendJson('POST', `/warengruppen/${id}/teilen`, request, materialGroupDetailSchema, accessToken);
+
+// WG-04, WG-06: Warengruppenstrategie
+export const strategyOverviewQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien'],
+    queryFn: () => getJson('/warengruppen/strategien', strategyOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const strategyContextQueryOptions = (accessToken: string, groupId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', groupId, 'strategie'],
+    queryFn: () =>
+      getJson(`/warengruppen/${groupId}/strategie`, strategyContextResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createStrategy = (accessToken: string, groupId: string, year: number) =>
+  sendJson(
+    'POST',
+    `/warengruppen/${groupId}/strategie`,
+    { year },
+    strategyContextResponseSchema,
+    accessToken,
+  );
+
+export const strategyStepQueryOptions = (accessToken: string, strategyId: string, step: number) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, step],
+    queryFn: () =>
+      getJson(
+        `/warengruppen/strategien/${strategyId}/schritte/${step}`,
+        strategyStepSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const saveStrategyNote = (
+  accessToken: string,
+  strategyId: string,
+  step: number,
+  request: SaveNote,
+) =>
+  sendJson(
+    'PUT',
+    `/warengruppen/strategien/${strategyId}/schritte/${step}/notiz`,
+    request,
+    strategyStepSchema,
+    accessToken,
+  );
+
+export const addStrategyMilestone = (
+  accessToken: string,
+  strategyId: string,
+  request: MilestoneRequest,
+) =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/meilensteine`,
+    request,
+    strategyStepSchema,
+    accessToken,
+  );
+
+export const removeStrategyMilestone = (
+  accessToken: string,
+  strategyId: string,
+  milestoneId: string,
+) =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/strategien/${strategyId}/meilensteine/${milestoneId}`,
+    undefined,
+    strategyStepSchema,
+    accessToken,
+  );
+
+export const saveStrategyGoal = (
+  accessToken: string,
+  strategyId: string,
+  request: GoalRequest,
+  goalId?: string,
+) =>
+  sendJson(
+    goalId ? 'PATCH' : 'POST',
+    `/warengruppen/strategien/${strategyId}/ziele${goalId ? `/${goalId}` : ''}`,
+    request,
+    strategyStepSchema,
+    accessToken,
+  );
+
+export const removeStrategyGoal = (accessToken: string, strategyId: string, goalId: string) =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/strategien/${strategyId}/ziele/${goalId}`,
+    undefined,
+    strategyStepSchema,
+    accessToken,
+  );
+
+export const kpiListQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'kennzahlen'],
+    queryFn: () => getJson('/warengruppen/kennzahlen', kpiListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveKpi = (accessToken: string, request: KpiRequest, kpiId?: string) =>
+  sendJson(
+    kpiId ? 'PATCH' : 'POST',
+    `/warengruppen/kennzahlen${kpiId ? `/${kpiId}` : ''}`,
+    request,
+    kpiListSchema,
+    accessToken,
+  );
+
+export const questionListQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'leitfragen'],
+    queryFn: () => getJson('/warengruppen/leitfragen', questionListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveQuestion = (accessToken: string, questionId: string, text: string) =>
+  sendJson(
+    'PATCH',
+    `/warengruppen/leitfragen/${questionId}`,
+    { text },
+    questionListSchema,
+    accessToken,
+  );
 
 /** Import der Warengruppen: Vorschau oder Übernahme; bei Fehlern übernimmt der Server nichts. */
 export async function uploadMaterialGroups(accessToken: string, file: File, apply: boolean) {

@@ -25,12 +25,16 @@ import { PagePath, useGoBack } from '@/features/shell/page-path';
 import {
   ApiError,
   categoryLabelQueryOptions,
+  kpiListQueryOptions,
   materialGroupDetailQueryOptions,
   materialGroupOverviewQueryOptions,
   mergeMaterialGroup,
   parseMaterialGroupImport,
   parseMaterialGroupPreview,
+  questionListQueryOptions,
   saveCategoryLabel,
+  saveKpi,
+  saveQuestion,
   splitMaterialGroup,
   uploadMaterialGroups,
 } from '@/lib/api';
@@ -566,6 +570,269 @@ export function SplitMaterialGroupPage({ id }: { id: string }) {
             </Button>
           </FormActions>
         </form>
+      )}
+    </>
+  );
+}
+
+/** Einstellungen › Warengruppen › Kennzahlen (WG-06): feste Kennzahlen je Dimension, nur Admins. */
+export function KpiSettingsPage() {
+  const t = useT();
+  const text = t.strategy.settings;
+  const accessToken = useToken();
+  const manage = useCan('stammdaten.verwalten');
+  const queryClient = useQueryClient();
+  const options = kpiListQueryOptions(accessToken);
+  const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const [draft, setDraft] = useState({ dimension: 'cost', name: '', unit: '' });
+  const [message, setMessage] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const trail = useTrail(text.kpiTitle);
+  const run = async (work: () => Promise<unknown>) => {
+    setMessage(null);
+    setFailure(null);
+    try {
+      queryClient.setQueryData(options.queryKey, (await work()) as never);
+      setMessage(text.saved);
+      return true;
+    } catch {
+      setFailure(t.strategy.failedSave);
+      return false;
+    }
+  };
+  const data = query.data;
+
+  return (
+    <>
+      {trail}
+      <PageHeader title={text.kpiTitle} purpose={text.kpiPurpose} />
+      {query.isError ? (
+        <ErrorState title={t.strategy.failed} />
+      ) : !data ? (
+        <LoadingState label={t.strategy.loading} />
+      ) : (
+        <div className="flex max-w-4xl flex-col gap-6">
+          {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+          {failure && <StatusLine message={failure} tone="warning" />}
+          {data.dimensions.map((dimension) => (
+            <section
+              key={dimension.key}
+              aria-labelledby={`kpi-${dimension.key}`}
+              className="flex flex-col gap-2"
+            >
+              <h2 id={`kpi-${dimension.key}`} className="font-semibold text-lg">
+                {dimension.name}
+              </h2>
+              <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
+                {data.kpis
+                  .filter((kpi) => kpi.dimension === dimension.key)
+                  .map((kpi) => (
+                    <li
+                      key={kpi.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-4"
+                    >
+                      <span className="flex min-w-0 flex-col">
+                        <span className="font-medium">
+                          {kpi.name}
+                          {kpi.unit ? ` (${kpi.unit})` : ''}
+                        </span>
+                        {kpi.description && (
+                          <span className="text-muted-foreground text-sm">{kpi.description}</span>
+                        )}
+                      </span>
+                      <span className="flex flex-wrap items-center gap-2">
+                        <Badge variant={kpi.active ? 'success' : 'neutral'}>
+                          {kpi.active ? text.active : text.inactive}
+                        </Badge>
+                        {manage && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            aria-label={`${kpi.active ? text.deactivate : text.activate}: ${kpi.name}`}
+                            onClick={() =>
+                              void run(() =>
+                                saveKpi(
+                                  accessToken,
+                                  {
+                                    dimension: kpi.dimension as 'cost',
+                                    name: kpi.name,
+                                    description: kpi.description,
+                                    unit: kpi.unit,
+                                    source: kpi.source,
+                                    active: !kpi.active,
+                                  },
+                                  kpi.id,
+                                ),
+                              )
+                            }
+                          >
+                            {kpi.active ? text.deactivate : text.activate}
+                          </Button>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ))}
+          {manage ? (
+            <form
+              className="flex flex-wrap items-end gap-3 rounded-lg bg-card p-5 shadow-card"
+              onSubmit={async (event: FormEvent) => {
+                event.preventDefault();
+                const done = await run(() =>
+                  saveKpi(accessToken, {
+                    dimension: draft.dimension as 'cost',
+                    name: draft.name,
+                    unit: draft.unit || null,
+                  }),
+                );
+                if (done) setDraft({ ...draft, name: '', unit: '' });
+              }}
+            >
+              <FormField label={text.dimension} className="basis-44">
+                {(field) => (
+                  <NativeSelect
+                    {...field}
+                    value={draft.dimension}
+                    onChange={(event) => setDraft({ ...draft, dimension: event.target.value })}
+                  >
+                    {data.dimensions.map((dimension) => (
+                      <option key={dimension.key} value={dimension.key}>
+                        {dimension.name}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </FormField>
+              <FormField label={text.name} className="min-w-0 flex-1 basis-56">
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={draft.name}
+                    maxLength={120}
+                    onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+                  />
+                )}
+              </FormField>
+              <FormField label={text.unit} className="basis-28">
+                {(field) => (
+                  <Input
+                    {...field}
+                    value={draft.unit}
+                    maxLength={20}
+                    onChange={(event) => setDraft({ ...draft, unit: event.target.value })}
+                  />
+                )}
+              </FormField>
+              <Button type="submit" disabled={!draft.name.trim()}>
+                {text.add}
+              </Button>
+            </form>
+          ) : (
+            <AdminOnly />
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+/** Einstellungen › Warengruppen › Leitfragen (WG-04): je Schritt, nur Admins ändern den Text. */
+export function QuestionSettingsPage() {
+  const t = useT();
+  const text = t.strategy.settings;
+  const accessToken = useToken();
+  const manage = useCan('stammdaten.verwalten');
+  const queryClient = useQueryClient();
+  const options = questionListQueryOptions(accessToken);
+  const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const trail = useTrail(text.questionsTitle);
+  const data = query.data;
+
+  return (
+    <>
+      {trail}
+      <PageHeader title={text.questionsTitle} purpose={text.questionsPurpose} />
+      {query.isError ? (
+        <ErrorState title={t.strategy.failed} />
+      ) : !data ? (
+        <LoadingState label={t.strategy.loading} />
+      ) : (
+        <div className="flex max-w-3xl flex-col gap-6">
+          {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+          {Array.from({ length: 10 }, (_, index) => index + 1).map((step) => (
+            <section
+              key={step}
+              aria-labelledby={`questions-${step}`}
+              className="flex flex-col gap-2"
+            >
+              <h2 id={`questions-${step}`} className="font-semibold text-lg">
+                {text.step(step, t.strategy.stepName(step))}
+              </h2>
+              <ol className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
+                {data.questions
+                  .filter((question) => question.step === step)
+                  .map((question) => (
+                    <li key={question.id} className="flex flex-col gap-2 p-4">
+                      {question.view && (
+                        <span className="text-muted-foreground text-sm">{question.view}</span>
+                      )}
+                      {editing?.id === question.id ? (
+                        <form
+                          className="flex flex-wrap items-end gap-2"
+                          onSubmit={async (event: FormEvent) => {
+                            event.preventDefault();
+                            queryClient.setQueryData(
+                              options.queryKey,
+                              await saveQuestion(accessToken, question.id, editing.text),
+                            );
+                            setEditing(null);
+                            setMessage(text.saved);
+                          }}
+                        >
+                          <FormField
+                            label={text.editQuestion}
+                            className="min-w-0 flex-1 basis-64 [&>label]:sr-only"
+                          >
+                            {(field) => (
+                              <Input
+                                {...field}
+                                value={editing.text}
+                                maxLength={500}
+                                onChange={(event) =>
+                                  setEditing({ id: question.id, text: event.target.value })
+                                }
+                              />
+                            )}
+                          </FormField>
+                          <Button type="submit" size="sm" disabled={!editing.text.trim()}>
+                            {text.save}
+                          </Button>
+                        </form>
+                      ) : (
+                        <span className="flex flex-wrap items-center justify-between gap-2">
+                          <span>{question.text}</span>
+                          {manage && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              aria-label={`${text.editQuestion}: ${question.text}`}
+                              onClick={() => setEditing({ id: question.id, text: question.text })}
+                            >
+                              {text.editQuestion}
+                            </Button>
+                          )}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+              </ol>
+            </section>
+          ))}
+        </div>
       )}
     </>
   );

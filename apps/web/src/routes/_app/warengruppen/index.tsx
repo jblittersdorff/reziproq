@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { MaterialGroupsPage } from '@/features/material-groups/material-groups-pages';
+import { StrategyOverviewPage } from '@/features/material-groups/strategy-pages';
 
+// WG-04: Warengruppen mit Strategie je Jahr (WG-Uebersicht.dc.html)
 export const Route = createFileRoute('/_app/warengruppen/')({
-  component: MaterialGroupsPage,
+  component: StrategyOverviewPage,
 });

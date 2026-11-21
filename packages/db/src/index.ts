@@ -9,6 +9,10 @@ export {
   type OutboxEmailPayload,
 } from './audit.js';
 export { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
+export {
+  loadMaterialGroupDefaults,
+  seedMaterialGroupDefaults,
+} from './material-group-defaults.js';
 export { createDatabase, type Database } from './client.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {

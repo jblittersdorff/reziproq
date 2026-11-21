@@ -49,7 +49,6 @@ import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
 import { Route as AppStartMassnahmenRouteImport } from './routes/_app/start/massnahmen'
 import { Route as AppWarengruppenIndexRouteImport } from './routes/_app/warengruppen/index'
-import { Route as AppWarengruppenIdRouteImport } from './routes/_app/warengruppen/$id'
 import { Route as AppWirkungIndexRouteImport } from './routes/_app/wirkung/index'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
 import { Route as EinladungTokenNameRouteImport } from './routes/einladung/$token/name'
@@ -71,6 +70,8 @@ import { Route as AppEinstellungenSpielregelnIndexRouteImport } from './routes/_
 import { Route as AppEinstellungenWarengruppenIndexRouteImport } from './routes/_app/einstellungen/warengruppen/index'
 import { Route as AppEinstellungenWarengruppenBezeichnungRouteImport } from './routes/_app/einstellungen/warengruppen/bezeichnung'
 import { Route as AppEinstellungenWarengruppenImportRouteImport } from './routes/_app/einstellungen/warengruppen/import'
+import { Route as AppEinstellungenWarengruppenKennzahlenRouteImport } from './routes/_app/einstellungen/warengruppen/kennzahlen'
+import { Route as AppEinstellungenWarengruppenLeitfragenRouteImport } from './routes/_app/einstellungen/warengruppen/leitfragen'
 import { Route as AppEinstellungenWarengruppenNeuRouteImport } from './routes/_app/einstellungen/warengruppen/neu'
 import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './routes/_app/einstellungen/zielkategorien/index'
 import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/_app/einstellungen/zielkategorien/neu'
@@ -80,6 +81,7 @@ import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfo
 import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio/fokus/$id'
 import { Route as AppPortfolioRundenIndexRouteImport } from './routes/_app/portfolio/runden/index'
 import { Route as AppPortfolioRundenNeuRouteImport } from './routes/_app/portfolio/runden/neu'
+import { Route as AppWarengruppenIdIndexRouteImport } from './routes/_app/warengruppen/$id/index'
 import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
 import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
@@ -129,6 +131,8 @@ import { Route as AppPortfolioRundenIdLieferantenRouteImport } from './routes/_a
 import { Route as AppPortfolioRundenIdNachnominierenRouteImport } from './routes/_app/portfolio/runden/$id/nachnominieren'
 import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/portfolio/runden/$id/name'
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
+import { Route as AppWarengruppenIdStrategieIndexRouteImport } from './routes/_app/warengruppen/$id/strategie/index'
+import { Route as AppWarengruppenIdStrategieStepRouteImport } from './routes/_app/warengruppen/$id/strategie/$step'
 import { Route as AppKundenIdBeziehungFeedbackIndexRouteImport } from './routes/_app/kunden/$id/beziehung/feedback/index'
 import { Route as AppKundenIdBeziehungKontaktpunkteIndexRouteImport } from './routes/_app/kunden/$id/beziehung/kontaktpunkte/index'
 import { Route as AppKundenIdBeziehungTeamIndexRouteImport } from './routes/_app/kunden/$id/beziehung/team/index'
@@ -454,11 +458,6 @@ const AppWarengruppenIndexRoute = AppWarengruppenIndexRouteImport.update({
   path: '/warengruppen/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppWarengruppenIdRoute = AppWarengruppenIdRouteImport.update({
-  id: '/warengruppen/$id',
-  path: '/warengruppen/$id',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppWirkungIndexRoute = AppWirkungIndexRouteImport.update({
   id: '/wirkung/',
   path: '/wirkung/',
@@ -580,6 +579,18 @@ const AppEinstellungenWarengruppenImportRoute =
     path: '/einstellungen/warengruppen/import',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenWarengruppenKennzahlenRoute =
+  AppEinstellungenWarengruppenKennzahlenRouteImport.update({
+    id: '/einstellungen/warengruppen/kennzahlen',
+    path: '/einstellungen/warengruppen/kennzahlen',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenWarengruppenLeitfragenRoute =
+  AppEinstellungenWarengruppenLeitfragenRouteImport.update({
+    id: '/einstellungen/warengruppen/leitfragen',
+    path: '/einstellungen/warengruppen/leitfragen',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenWarengruppenNeuRoute =
   AppEinstellungenWarengruppenNeuRouteImport.update({
     id: '/einstellungen/warengruppen/neu',
@@ -626,6 +637,11 @@ const AppPortfolioRundenIndexRoute = AppPortfolioRundenIndexRouteImport.update({
 const AppPortfolioRundenNeuRoute = AppPortfolioRundenNeuRouteImport.update({
   id: '/portfolio/runden/neu',
   path: '/portfolio/runden/neu',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWarengruppenIdIndexRoute = AppWarengruppenIdIndexRouteImport.update({
+  id: '/warengruppen/$id/',
+  path: '/warengruppen/$id/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWirkungFreigabenIndexRoute =
@@ -917,6 +933,18 @@ const AppPortfolioRundenIdPruefenRoute =
   AppPortfolioRundenIdPruefenRouteImport.update({
     id: '/portfolio/runden/$id/pruefen',
     path: '/portfolio/runden/$id/pruefen',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppWarengruppenIdStrategieIndexRoute =
+  AppWarengruppenIdStrategieIndexRouteImport.update({
+    id: '/warengruppen/$id/strategie/',
+    path: '/warengruppen/$id/strategie/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppWarengruppenIdStrategieStepRoute =
+  AppWarengruppenIdStrategieStepRouteImport.update({
+    id: '/warengruppen/$id/strategie/$step',
+    path: '/warengruppen/$id/strategie/$step',
     getParentRoute: () => AppRoute,
   } as any)
 const AppKundenIdBeziehungFeedbackIndexRoute =
@@ -1684,7 +1712,6 @@ export interface FileRoutesByFullPath {
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
-  '/warengruppen/$id': typeof AppWarengruppenIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
@@ -1708,6 +1735,8 @@ export interface FileRoutesByFullPath {
   '/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
   '/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
+  '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
+  '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -1726,6 +1755,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/portfolio/fokus/': typeof AppPortfolioFokusIndexRoute
   '/portfolio/runden/': typeof AppPortfolioRundenIndexRoute
+  '/warengruppen/$id/': typeof AppWarengruppenIdIndexRoute
   '/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
@@ -1760,6 +1790,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
@@ -1774,6 +1805,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/warengruppen/$id/strategie/': typeof AppWarengruppenIdStrategieIndexRoute
   '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
@@ -1923,7 +1955,6 @@ export interface FileRoutesByTo {
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
-  '/warengruppen/$id': typeof AppWarengruppenIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
@@ -1947,6 +1978,8 @@ export interface FileRoutesByTo {
   '/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
   '/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
+  '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
+  '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -1965,6 +1998,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id': typeof AppLieferantenIdIndexRoute
   '/portfolio/fokus': typeof AppPortfolioFokusIndexRoute
   '/portfolio/runden': typeof AppPortfolioRundenIndexRoute
+  '/warengruppen/$id': typeof AppWarengruppenIdIndexRoute
   '/wirkung/freigaben': typeof AppWirkungFreigabenIndexRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
@@ -1998,6 +2032,7 @@ export interface FileRoutesByTo {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/einstellungen/fragebogen/$kind': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/spielregeln/formate': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/einstellungen/spielregeln/rechte': typeof AppEinstellungenSpielregelnRechteIndexRoute
@@ -2012,6 +2047,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/umsetzung': typeof AppLieferantenIdUmsetzungIndexRoute
   '/lieferanten/$id/wirkung': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id': typeof AppPortfolioRundenIdIndexRoute
+  '/warengruppen/$id/strategie': typeof AppWarengruppenIdStrategieIndexRoute
   '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
@@ -2166,7 +2202,6 @@ export interface FileRoutesById {
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
-  '/_app/warengruppen/$id': typeof AppWarengruppenIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2190,6 +2225,8 @@ export interface FileRoutesById {
   '/_app/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/_app/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
   '/_app/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
+  '/_app/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
+  '/_app/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/_app/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -2208,6 +2245,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/': typeof AppLieferantenIdIndexRoute
   '/_app/portfolio/fokus/': typeof AppPortfolioFokusIndexRoute
   '/_app/portfolio/runden/': typeof AppPortfolioRundenIndexRoute
+  '/_app/warengruppen/$id/': typeof AppWarengruppenIdIndexRoute
   '/_app/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
@@ -2242,6 +2280,7 @@ export interface FileRoutesById {
   '/_app/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/_app/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/_app/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/_app/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/_app/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/_app/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
   '/_app/einstellungen/spielregeln/rechte/': typeof AppEinstellungenSpielregelnRechteIndexRoute
@@ -2256,6 +2295,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/umsetzung/': typeof AppLieferantenIdUmsetzungIndexRoute
   '/_app/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/_app/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
+  '/_app/warengruppen/$id/strategie/': typeof AppWarengruppenIdStrategieIndexRoute
   '/_app/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
   '/_app/kunden/$id/eigene-sicht/ziele/neu': typeof AppKundenIdEigeneSichtZieleNeuRoute
@@ -2410,7 +2450,6 @@ export interface FileRouteTypes {
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
-    | '/warengruppen/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen/'
@@ -2434,6 +2473,8 @@ export interface FileRouteTypes {
     | '/einstellungen/segmentmodell/grenzen'
     | '/einstellungen/warengruppen/bezeichnung'
     | '/einstellungen/warengruppen/import'
+    | '/einstellungen/warengruppen/kennzahlen'
+    | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
     | '/portfolio/fokus/$id'
@@ -2452,6 +2493,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/'
     | '/portfolio/fokus/'
     | '/portfolio/runden/'
+    | '/warengruppen/$id/'
     | '/wirkung/freigaben/'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/einstellungen/business-units/$id/bearbeiten'
@@ -2486,6 +2528,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/warengruppen/$id/strategie/$step'
     | '/einstellungen/fragebogen/$kind/'
     | '/einstellungen/spielregeln/formate/'
     | '/einstellungen/spielregeln/rechte/'
@@ -2500,6 +2543,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung/'
     | '/lieferanten/$id/wirkung/'
     | '/portfolio/runden/$id/'
+    | '/warengruppen/$id/strategie/'
     | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/kunden/$id/eigene-sicht/ziele/neu'
@@ -2649,7 +2693,6 @@ export interface FileRouteTypes {
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
-    | '/warengruppen/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen'
@@ -2673,6 +2716,8 @@ export interface FileRouteTypes {
     | '/einstellungen/segmentmodell/grenzen'
     | '/einstellungen/warengruppen/bezeichnung'
     | '/einstellungen/warengruppen/import'
+    | '/einstellungen/warengruppen/kennzahlen'
+    | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
     | '/portfolio/fokus/$id'
@@ -2691,6 +2736,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id'
     | '/portfolio/fokus'
     | '/portfolio/runden'
+    | '/warengruppen/$id'
     | '/wirkung/freigaben'
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/fragebogen/$kind/$questionKey'
@@ -2724,6 +2770,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/warengruppen/$id/strategie/$step'
     | '/einstellungen/fragebogen/$kind'
     | '/einstellungen/spielregeln/formate'
     | '/einstellungen/spielregeln/rechte'
@@ -2738,6 +2785,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/umsetzung'
     | '/lieferanten/$id/wirkung'
     | '/portfolio/runden/$id'
+    | '/warengruppen/$id/strategie'
     | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/kunden/$id/eigene-sicht/ziele/neu'
@@ -2891,7 +2939,6 @@ export interface FileRouteTypes {
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
-    | '/_app/warengruppen/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
@@ -2915,6 +2962,8 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/segmentmodell/grenzen'
     | '/_app/einstellungen/warengruppen/bezeichnung'
     | '/_app/einstellungen/warengruppen/import'
+    | '/_app/einstellungen/warengruppen/kennzahlen'
+    | '/_app/einstellungen/warengruppen/leitfragen'
     | '/_app/einstellungen/warengruppen/neu'
     | '/_app/einstellungen/zielkategorien/neu'
     | '/_app/portfolio/fokus/$id'
@@ -2933,6 +2982,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/'
     | '/_app/portfolio/fokus/'
     | '/_app/portfolio/runden/'
+    | '/_app/warengruppen/$id/'
     | '/_app/wirkung/freigaben/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan'
     | '/_app/einstellungen/business-units/$id/bearbeiten'
@@ -2967,6 +3017,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/runden/$id/nachnominieren'
     | '/_app/portfolio/runden/$id/name'
     | '/_app/portfolio/runden/$id/pruefen'
+    | '/_app/warengruppen/$id/strategie/$step'
     | '/_app/einstellungen/fragebogen/$kind/'
     | '/_app/einstellungen/spielregeln/formate/'
     | '/_app/einstellungen/spielregeln/rechte/'
@@ -2981,6 +3032,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/umsetzung/'
     | '/_app/lieferanten/$id/wirkung/'
     | '/_app/portfolio/runden/$id/'
+    | '/_app/warengruppen/$id/strategie/'
     | '/_app/kunden/$id/beziehung/team/bearbeiten'
     | '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
     | '/_app/kunden/$id/eigene-sicht/ziele/neu'
@@ -3396,13 +3448,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWarengruppenIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/warengruppen/$id': {
-      id: '/_app/warengruppen/$id'
-      path: '/warengruppen/$id'
-      fullPath: '/warengruppen/$id'
-      preLoaderRoute: typeof AppWarengruppenIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/wirkung/': {
       id: '/_app/wirkung/'
       path: '/wirkung'
@@ -3550,6 +3595,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenWarengruppenImportRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/einstellungen/warengruppen/kennzahlen': {
+      id: '/_app/einstellungen/warengruppen/kennzahlen'
+      path: '/einstellungen/warengruppen/kennzahlen'
+      fullPath: '/einstellungen/warengruppen/kennzahlen'
+      preLoaderRoute: typeof AppEinstellungenWarengruppenKennzahlenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/warengruppen/leitfragen': {
+      id: '/_app/einstellungen/warengruppen/leitfragen'
+      path: '/einstellungen/warengruppen/leitfragen'
+      fullPath: '/einstellungen/warengruppen/leitfragen'
+      preLoaderRoute: typeof AppEinstellungenWarengruppenLeitfragenRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/einstellungen/warengruppen/neu': {
       id: '/_app/einstellungen/warengruppen/neu'
       path: '/einstellungen/warengruppen/neu'
@@ -3611,6 +3670,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio/runden/neu'
       fullPath: '/portfolio/runden/neu'
       preLoaderRoute: typeof AppPortfolioRundenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warengruppen/$id/': {
+      id: '/_app/warengruppen/$id/'
+      path: '/warengruppen/$id'
+      fullPath: '/warengruppen/$id/'
+      preLoaderRoute: typeof AppWarengruppenIdIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/wirkung/freigaben/': {
@@ -3954,6 +4020,20 @@ declare module '@tanstack/react-router' {
       path: '/portfolio/runden/$id/pruefen'
       fullPath: '/portfolio/runden/$id/pruefen'
       preLoaderRoute: typeof AppPortfolioRundenIdPruefenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warengruppen/$id/strategie/': {
+      id: '/_app/warengruppen/$id/strategie/'
+      path: '/warengruppen/$id/strategie'
+      fullPath: '/warengruppen/$id/strategie/'
+      preLoaderRoute: typeof AppWarengruppenIdStrategieIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warengruppen/$id/strategie/$step': {
+      id: '/_app/warengruppen/$id/strategie/$step'
+      path: '/warengruppen/$id/strategie/$step'
+      fullPath: '/warengruppen/$id/strategie/$step'
+      preLoaderRoute: typeof AppWarengruppenIdStrategieStepRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/kunden/$id/beziehung/feedback/': {
@@ -5254,7 +5334,6 @@ interface AppRouteChildren {
   AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
-  AppWarengruppenIdRoute: typeof AppWarengruppenIdRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
@@ -5275,6 +5354,8 @@ interface AppRouteChildren {
   AppEinstellungenSegmentmodellGrenzenRoute: typeof AppEinstellungenSegmentmodellGrenzenRoute
   AppEinstellungenWarengruppenBezeichnungRoute: typeof AppEinstellungenWarengruppenBezeichnungRoute
   AppEinstellungenWarengruppenImportRoute: typeof AppEinstellungenWarengruppenImportRoute
+  AppEinstellungenWarengruppenKennzahlenRoute: typeof AppEinstellungenWarengruppenKennzahlenRoute
+  AppEinstellungenWarengruppenLeitfragenRoute: typeof AppEinstellungenWarengruppenLeitfragenRoute
   AppEinstellungenWarengruppenNeuRoute: typeof AppEinstellungenWarengruppenNeuRoute
   AppEinstellungenZielkategorienNeuRoute: typeof AppEinstellungenZielkategorienNeuRoute
   AppPortfolioFokusIdRoute: typeof AppPortfolioFokusIdRoute
@@ -5291,6 +5372,7 @@ interface AppRouteChildren {
   AppEinstellungenZielkategorienIndexRoute: typeof AppEinstellungenZielkategorienIndexRoute
   AppPortfolioFokusIndexRoute: typeof AppPortfolioFokusIndexRoute
   AppPortfolioRundenIndexRoute: typeof AppPortfolioRundenIndexRoute
+  AppWarengruppenIdIndexRoute: typeof AppWarengruppenIdIndexRoute
   AppWirkungFreigabenIndexRoute: typeof AppWirkungFreigabenIndexRoute
   AppEinstellungenBusinessUnitsIdBearbeitenRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   AppEinstellungenFragebogenKindQuestionKeyRoute: typeof AppEinstellungenFragebogenKindQuestionKeyRoute
@@ -5313,10 +5395,12 @@ interface AppRouteChildren {
   AppPortfolioRundenIdNachnominierenRoute: typeof AppPortfolioRundenIdNachnominierenRoute
   AppPortfolioRundenIdNameRoute: typeof AppPortfolioRundenIdNameRoute
   AppPortfolioRundenIdPruefenRoute: typeof AppPortfolioRundenIdPruefenRoute
+  AppWarengruppenIdStrategieStepRoute: typeof AppWarengruppenIdStrategieStepRoute
   AppEinstellungenFragebogenKindIndexRoute: typeof AppEinstellungenFragebogenKindIndexRoute
   AppEinstellungenSpielregelnFormateIndexRoute: typeof AppEinstellungenSpielregelnFormateIndexRoute
   AppEinstellungenSpielregelnRechteIndexRoute: typeof AppEinstellungenSpielregelnRechteIndexRoute
   AppPortfolioRundenIdIndexRoute: typeof AppPortfolioRundenIdIndexRoute
+  AppWarengruppenIdStrategieIndexRoute: typeof AppWarengruppenIdStrategieIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -5343,7 +5427,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
-  AppWarengruppenIdRoute: AppWarengruppenIdRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppFeedbackIndexRoute: AppFeedbackIndexRoute,
@@ -5369,6 +5452,10 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenWarengruppenBezeichnungRoute,
   AppEinstellungenWarengruppenImportRoute:
     AppEinstellungenWarengruppenImportRoute,
+  AppEinstellungenWarengruppenKennzahlenRoute:
+    AppEinstellungenWarengruppenKennzahlenRoute,
+  AppEinstellungenWarengruppenLeitfragenRoute:
+    AppEinstellungenWarengruppenLeitfragenRoute,
   AppEinstellungenWarengruppenNeuRoute: AppEinstellungenWarengruppenNeuRoute,
   AppEinstellungenZielkategorienNeuRoute:
     AppEinstellungenZielkategorienNeuRoute,
@@ -5391,6 +5478,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenZielkategorienIndexRoute,
   AppPortfolioFokusIndexRoute: AppPortfolioFokusIndexRoute,
   AppPortfolioRundenIndexRoute: AppPortfolioRundenIndexRoute,
+  AppWarengruppenIdIndexRoute: AppWarengruppenIdIndexRoute,
   AppWirkungFreigabenIndexRoute: AppWirkungFreigabenIndexRoute,
   AppEinstellungenBusinessUnitsIdBearbeitenRoute:
     AppEinstellungenBusinessUnitsIdBearbeitenRoute,
@@ -5430,6 +5518,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppPortfolioRundenIdNachnominierenRoute,
   AppPortfolioRundenIdNameRoute: AppPortfolioRundenIdNameRoute,
   AppPortfolioRundenIdPruefenRoute: AppPortfolioRundenIdPruefenRoute,
+  AppWarengruppenIdStrategieStepRoute: AppWarengruppenIdStrategieStepRoute,
   AppEinstellungenFragebogenKindIndexRoute:
     AppEinstellungenFragebogenKindIndexRoute,
   AppEinstellungenSpielregelnFormateIndexRoute:
@@ -5437,6 +5526,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenSpielregelnRechteIndexRoute:
     AppEinstellungenSpielregelnRechteIndexRoute,
   AppPortfolioRundenIdIndexRoute: AppPortfolioRundenIdIndexRoute,
+  AppWarengruppenIdStrategieIndexRoute: AppWarengruppenIdStrategieIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

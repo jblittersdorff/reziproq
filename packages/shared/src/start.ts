@@ -18,6 +18,8 @@ export const dueKinds = [
   'mention',
   // Feedback in der App: offener Fragebogen, zu dem die Person eingeladen ist
   'feedback',
+  // WG-04: nächster offener Schritt einer Warengruppenstrategie
+  'strategy',
 ] as const;
 
 export const dueItemSchema = z.object({

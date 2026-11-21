@@ -10,6 +10,7 @@ export * from './initiative.js';
 export * from './invitation.js';
 export * from './jbp.js';
 export * from './master-data.js';
+export * from './material-group-strategy.js';
 export * from './meeting.js';
 export * from './organization.js';
 export * from './playbook.js';

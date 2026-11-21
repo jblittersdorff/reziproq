@@ -97,6 +97,27 @@ beforeEach(() => {
   };
   api.handle = (request) => {
     if (request.url === '/api/warengruppen') return Response.json(overview);
+    // WG-04: Die Übersicht zeigt die Strategien je Warengruppe.
+    if (request.url === '/api/warengruppen/strategien') {
+      return Response.json({
+        year: 2027,
+        next: null,
+        approvedCount: 0,
+        groups: overview.groups
+          .filter((entry) => entry.parentId === null)
+          .map((entry) => ({
+            id: entry.id,
+            name: entry.name,
+            code: entry.code,
+            lead: entry.lead,
+            spend: null,
+            supplierCount: entry.supplierCount,
+            strategy: null,
+            hidden: false,
+            canCreate: false,
+          })),
+      });
+    }
     if (request.url === `/api/warengruppen/${uuid(10)}`) return Response.json(detail);
     if (request.url.startsWith(`/api/warengruppen/${uuid(10)}/`)) {
       sent.push(request);
@@ -170,16 +191,6 @@ describe('WG-01 Warengruppen in der Oberfläche', () => {
     expect(screen.getByRole('link', { name: 'Importieren' }).getAttribute('href')).toBe(
       '/einstellungen/warengruppen/import',
     );
-  });
-
-  it('der Baum zeigt Lead und Zahlen; Spend ohne Warengruppe ist aufgeführt', async () => {
-    renderAt('/warengruppen');
-    const tree = await screen.findByRole('region', { name: 'Elektronik' });
-    expect(
-      within(tree).getByText('Lead: Anna Schmidt · 4 Lieferanten · 3 im Team · 2 Produktgruppen'),
-    ).toBeTruthy();
-    expect(within(tree).getByRole('link', { name: /Sensorik · EL-SE/ })).toBeTruthy();
-    expect(screen.getByText(/2 Spend-Zeilen haben keine Warengruppe/)).toBeTruthy();
   });
 
   it('der Lead pflegt Team und Produktgruppen', async () => {

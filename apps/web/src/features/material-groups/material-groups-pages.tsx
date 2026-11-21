@@ -173,6 +173,12 @@ function Detail({ data }: { data: MaterialGroupDetail }) {
         purpose={data.parent ? text.parent(data.parent.name) : text.detailPurpose}
         badge={!group.active ? <Badge variant="neutral">{text.inactive}</Badge> : undefined}
       />
+      {group.active &&
+        routerLink({
+          href: `/warengruppen/${group.id}/strategie`,
+          className: buttonVariants({ className: 'self-start' }),
+          children: text.toStrategy,
+        })}
       <dl className="grid gap-3 sm:grid-cols-3">
         {[
           [text.lead, group.lead?.name ?? text.noLead],
@@ -281,7 +287,7 @@ function useSave(id: string) {
 
 type DraftMember = TeamRequest['members'][number];
 
-function TeamSection({ data }: { data: MaterialGroupDetail }) {
+export function TeamSection({ data }: { data: MaterialGroupDetail }) {
   const text = useT().materialGroupsPage;
   const save = useSave(data.group.id);
   const [editing, setEditing] = useState(false);
@@ -474,7 +480,7 @@ function TeamSection({ data }: { data: MaterialGroupDetail }) {
   );
 }
 
-function ProductGroupsSection({ data }: { data: MaterialGroupDetail }) {
+export function ProductGroupsSection({ data }: { data: MaterialGroupDetail }) {
   const text = useT().materialGroupsPage;
   const id = data.group.id;
   const save = useSave(id);

@@ -568,6 +568,13 @@
       "when": 1794858217412,
       "tag": "0080_warengruppen",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1794866572620,
+      "tag": "0081_warengruppenstrategie",
+      "breakpoints": true
     }
   ]
 }

@@ -265,6 +265,7 @@ describe('PLT-04: Drei Datenebenen', () => {
     await temp.db.execute(sql`delete from format_catalog_item`);
     await temp.db.execute(sql`delete from catalog_setup`);
     await temp.db.execute(sql`delete from business_unit`);
+    await temp.db.execute(sql`delete from material_group_strategy`);
     await temp.db.execute(sql`delete from material_group_member`);
     await temp.db.execute(sql`delete from material_group_product_group`);
     await temp.db.execute(sql`delete from material_group where parent_id is not null`);
