@@ -1,4 +1,7 @@
 import {
+  type AnalysisStep,
+  analysisStepSchema,
+  type CandidateRequest,
   type CategorySegmentation,
   categorySegmentationSchema,
   type DecideCategorySegment,
@@ -738,6 +741,68 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
       ),
     retry: retryUnlessDenied,
   });
+
+/** WG-07: Analysen der Schritte 3 und 4 */
+export const analysisStepQueryOptions = (accessToken: string, strategyId: string, step: number) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, step, 'analysen'],
+    queryFn: () =>
+      getJson(
+        `/warengruppen/strategien/${strategyId}/schritte/${step}/analysen`,
+        analysisStepSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAnalysis = (
+  accessToken: string,
+  strategyId: string,
+  view: string,
+  data: unknown,
+): Promise<AnalysisStep> =>
+  sendJson(
+    'PUT',
+    `/warengruppen/strategien/${strategyId}/analysen/${view}`,
+    { data },
+    analysisStepSchema,
+    accessToken,
+  );
+
+export const addCandidate = (
+  accessToken: string,
+  strategyId: string,
+  request: CandidateRequest,
+): Promise<AnalysisStep> =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/kandidaten`,
+    request,
+    analysisStepSchema,
+    accessToken,
+  );
+
+export const removeCandidate = (
+  accessToken: string,
+  strategyId: string,
+  id: string,
+): Promise<AnalysisStep> =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/strategien/${strategyId}/kandidaten/${id}`,
+    undefined,
+    analysisStepSchema,
+    accessToken,
+  );
+
+export const candidateToSupplier = (accessToken: string, strategyId: string, id: string) =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/kandidaten/${id}/lieferant`,
+    undefined,
+    z.object({ relationshipId: z.string(), step: analysisStepSchema }),
+    accessToken,
+  );
 
 /** WG-18: Segmentierung je Warengruppe */
 export const categorySegmentationQueryOptions = (accessToken: string, groupId: string) =>

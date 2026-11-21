@@ -46,6 +46,7 @@ import {
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { analysisStates } from './analysis-states.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -172,6 +173,7 @@ export class StrategyService {
         step: schema.materialGroupNote.step,
         view: schema.materialGroupNote.view,
         text: schema.materialGroupNote.text,
+        notApplicable: schema.materialGroupNote.notApplicable,
       })
       .from(schema.materialGroupNote)
       .where(eq(schema.materialGroupNote.strategyId, strategy.id));
@@ -190,6 +192,7 @@ export class StrategyService {
         eq(schema.materialGroupKpi.id, schema.materialGroupGoal.kpiId),
       )
       .where(eq(schema.materialGroupGoal.strategyId, strategy.id));
+    const analysis = await analysisStates(tx, strategy.id, group.id, notes);
     const hasLead = group.leadUserId !== null;
     const hasProducts = (productGroups?.n ?? 0) > 0;
     return strategySteps.map(({ step }): StepState => {
@@ -207,6 +210,10 @@ export class StrategyService {
         return goals.length > 0 || anyNote(2) ? 'in_progress' : 'open';
       }
       if (step === 10) return strategy.status === 'approved' ? 'done' : 'open';
+      // WG-07: Schritte 3 und 4 sind fertig, wenn alle Sichten fertig sind; Schritt 4 verlangt
+      // zusätzlich die entschiedene Bewertungsrunde der Warengruppe (WG-18).
+      if (step === 3) return analysis.step3;
+      if (step === 4) return analysis.step4;
       // Schritte 3 bis 9: bis ihre Specs (WG-07 ff.) gebaut sind, zählt „Beobachtung und Erklärung“.
       return noteFilled(step) ? 'done' : anyNote(step) ? 'in_progress' : 'open';
     });
@@ -410,6 +417,27 @@ export class StrategyService {
     });
   }
 
+  /**
+   * Zugriff für andere Teile der Strategie (WG-07 ff.): Strategie, Warengruppe, Rolle, bearbeitbare
+   * Schritte. Wirft 404, wenn die Person den Entwurf nicht lesen darf.
+   */
+  async accessIn(tx: TenantTransaction, auth: AuthContext, strategyId: string) {
+    const { strategy, group, role } = await this.readable(tx, auth, strategyId);
+    return {
+      strategy,
+      group,
+      role,
+      editableSteps: this.editable(auth, role, strategy),
+      // WG-07: Kostensicht nur für Team und Freigebende (heute Admins), auch nach der Freigabe
+      seesCost: role !== 'reader',
+    };
+  }
+
+  /** Nach einer Änderung in einem Schritt (WG-16): merkt sich die Änderung seit dem Vorlegen. */
+  async touchedIn(tx: TenantTransaction, strategy: StrategyRow) {
+    await this.touched(tx, strategy);
+  }
+
   /** Lesen eines Schritts: Entwürfe nur im Team und für Admins (WG-04). */
   private async readable(tx: TenantTransaction, auth: AuthContext, strategyId: string) {
     const strategy = await this.strategy(tx, strategyId);
@@ -470,7 +498,8 @@ export class StrategyService {
             .where(eq(schema.materialGroupMilestone.strategyId, strategy.id))
             .orderBy(asc(schema.materialGroupMilestone.dueOn))
         : [];
-    const leadSuggestion = step === 1 ? await this.leadSuggestion(tx, strategy.materialGroupId) : null;
+    const leadSuggestion =
+      step === 1 ? await this.leadSuggestion(tx, strategy.materialGroupId) : null;
     const goalStep = step === 2;
     const kpis = goalStep
       ? await tx.select().from(schema.materialGroupKpi).orderBy(asc(schema.materialGroupKpi.name))
@@ -543,8 +572,12 @@ export class StrategyService {
 
   step(auth: AuthContext, strategyId: string, step: number): Promise<StrategyStep> {
     return this.run(auth, async (tx, org) => {
-      const { strategy } = await this.readable(tx, auth, strategyId);
-      return this.stepIn(tx, org, strategy, step);
+      const { strategy, role } = await this.readable(tx, auth, strategyId);
+      const content = await this.stepIn(tx, org, strategy, step);
+      // WG-07: Die Beobachtung zur Kostensicht sieht nur das Team.
+      return role === 'reader'
+        ? { ...content, notes: content.notes.filter((note) => note.view !== 'cost') }
+        : content;
     });
   }
 

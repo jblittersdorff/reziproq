@@ -1,10 +1,12 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   boolean,
   check,
   date,
   index,
   integer,
+  jsonb,
   numeric,
   pgTable,
   text,
@@ -174,5 +176,83 @@ export const materialGroupGoal = pgTable(
       sql`${table.targetQuarter} is null or ${table.targetQuarter} between 1 and 4`,
     ),
     index('material_group_goal_strategy').on(table.strategyId),
+  ],
+);
+
+// WG-07: Sieben Sichten der Analysen (Schritte 3 und 4). data folgt dem Schema der Sicht aus
+// @reziproq/shared; Umsatzwerte rechnet der Dienst aus dem Spend, sie stehen nicht hier.
+export const analysisViews = [
+  'volume',
+  'supply_chain',
+  'cost',
+  'technology',
+  'revenue_finance',
+  'quality',
+  'footprint',
+] as const;
+
+export const materialGroupAnalysis = pgTable(
+  'material_group_analysis',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    view: text({ enum: analysisViews }).notNull(),
+    data: jsonb().notNull().default({}),
+    updatedBy: text()
+      .notNull()
+      .references(() => appUser.id),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'material_group_analysis_view',
+      sql`${table.view} in ('volume', 'supply_chain', 'cost', 'technology', 'revenue_finance', 'quality', 'footprint')`,
+    ),
+    // Kartellrecht: In der Kostensicht steht nie ein Lieferant (WG-07).
+    check(
+      'material_group_analysis_cost_supplier',
+      sql`${table.view} <> 'cost' or not (${table.data}::text ~* '"(relationship_?id|supplier[a-z_]*)"')`,
+    ),
+    uniqueIndex('material_group_analysis_once').on(table.strategyId, table.view),
+  ],
+);
+
+/** WG-07 Footprint: weitere verfügbare Lieferanten, die noch nicht zur Basis gehören */
+export const materialGroupCandidate = pgTable(
+  'material_group_candidate',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    name: text().notNull(),
+    site: text(),
+    // Zusätzlich zur Spec: Land des Standorts, damit „Als Lieferant anlegen“ ein Land hat
+    country: text(),
+    revenueCents: bigint({ mode: 'number' }),
+    currency: text().notNull().default('EUR'),
+    isSupplier: boolean().notNull().default(false),
+    comment: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('material_group_candidate_name', sql`length(trim(${table.name})) > 0`),
+    check(
+      'material_group_candidate_country',
+      sql`${table.country} is null or ${table.country} ~ '^[A-Z]{2}$'`,
+    ),
+    check(
+      'material_group_candidate_revenue',
+      sql`${table.revenueCents} is null or ${table.revenueCents} >= 0`,
+    ),
+    index('material_group_candidate_strategy').on(table.strategyId),
   ],
 );

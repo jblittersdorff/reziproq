@@ -582,6 +582,20 @@
       "when": 1795255744822,
       "tag": "0082_segmentierung_warengruppe",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1795260061351,
+      "tag": "0083_analysen",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1795265195051,
+      "tag": "0084_kandidat_land",
+      "breakpoints": true
     }
   ]
 }

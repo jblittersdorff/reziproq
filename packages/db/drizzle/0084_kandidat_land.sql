@@ -1,0 +1,2 @@
+ALTER TABLE "material_group_candidate" ADD COLUMN "country" text;--> statement-breakpoint
+ALTER TABLE "material_group_candidate" ADD CONSTRAINT "material_group_candidate_country" CHECK ("material_group_candidate"."country" is null or "material_group_candidate"."country" ~ '^[A-Z]{2}$');

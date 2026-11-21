@@ -57,8 +57,8 @@ import {
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
+import { AnalysisSection } from './analysis-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
-import { CategorySegmentsCard } from './segmentation-pages';
 
 const strategyPath = (groupId: string, step?: number) =>
   `/warengruppen/${groupId}/strategie${step ? `/${step}` : ''}`;
@@ -526,6 +526,12 @@ function StepContent({
       editable={editable}
     />
   );
+  // WG-07: Schritte 3 und 4 zeigen die Sichten mit eigener Beobachtung je Sicht.
+  if (content.step === 3 || content.step === 4) {
+    return (
+      <AnalysisSection groupId={groupId} context={context} content={content} editable={editable} />
+    );
+  }
   return (
     <div className="flex flex-col gap-6">
       {/* WG-Ziele.dc.html: die Tabelle der Ziele über die ganze Breite, darunter Text und Leitfragen */}
@@ -535,8 +541,6 @@ function StepContent({
           {content.step === 1 && (
             <SetupStep groupId={groupId} context={context} content={content} editable={editable} />
           )}
-          {/* WG-Lieferanten.dc.html: Segmente in der Warengruppe (WG-18) über dem Text */}
-          {content.step === 4 && <CategorySegmentsCard groupId={groupId} />}
           {content.step === 2 ? note('', text.goals.reasonTitle, text.goals.reasonHint) : note()}
           {content.step === 2 && note('beobachtung')}
         </div>
@@ -554,7 +558,7 @@ function StepContent({
   );
 }
 
-function NoteForm({
+export function NoteForm({
   context,
   step,
   view,
@@ -617,7 +621,8 @@ function NoteForm({
               />
             )}
           </FormField>
-          {step > 2 && step < 10 && view === '' && (
+          {/* WG-07: auch je Sicht „nicht anwendbar“ mit Begründung */}
+          {step > 2 && step < 10 && view !== 'beobachtung' && (
             <label className="flex min-h-11 items-center gap-3 text-sm">
               <input
                 type="checkbox"

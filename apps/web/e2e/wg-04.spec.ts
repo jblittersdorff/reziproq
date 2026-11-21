@@ -284,6 +284,121 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-07: Analysen der Schritte 3 und 4
+  const share = (key: string, name: string, pct: number) => ({
+    key,
+    name,
+    amountCents: pct * 8_200_000,
+    share: pct / 100,
+  });
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/schritte/*/analysen`, (route) => {
+    const step = route.request().url().includes('/schritte/3/') ? 3 : 4;
+    return route.fulfill({
+      json: {
+        step,
+        canEdit: true,
+        views:
+          step === 3
+            ? [
+                {
+                  view: 'volume',
+                  state: 'in_progress',
+                  data: {
+                    minRequirements: ['Temperaturfest bis 150 °C', 'Rückverfolgbar bis zur Charge'],
+                    differentiators: ['Starrflex spart Stecker und Bauraum'],
+                    forecast: [{ businessUnitId: uuid(50), year: 2027, amountCents: 480_000_000 }],
+                  },
+                  updatedAt: null,
+                },
+                {
+                  view: 'supply_chain',
+                  state: 'done',
+                  data: {
+                    stages: [{ name: 'Laminat', description: '', valueSharePct: 30 }],
+                    countries: [],
+                  },
+                  updatedAt: null,
+                },
+                {
+                  view: 'cost',
+                  state: 'done',
+                  data: { costTypes: [{ name: 'Material', own: 100, target: 98.5, market: 91 }] },
+                  updatedAt: null,
+                },
+                {
+                  view: 'technology',
+                  state: 'done',
+                  data: {
+                    technologies: [
+                      {
+                        name: 'Ultra-HDI',
+                        startsOn: '2027-08',
+                        products: 'Steuergeräte',
+                        rampUp: [],
+                      },
+                    ],
+                  },
+                  updatedAt: null,
+                },
+              ]
+            : [
+                {
+                  view: 'revenue_finance',
+                  state: 'in_progress',
+                  data: { stability: [], callOff: [] },
+                  updatedAt: null,
+                },
+                {
+                  view: 'quality',
+                  state: 'done',
+                  data: { ratings: [], defects: [], audits: [] },
+                  updatedAt: null,
+                },
+                { view: 'footprint', state: 'open', data: { recipients: [] }, updatedAt: null },
+              ],
+        computed: {
+          currency: 'EUR',
+          spendYear: 2025,
+          years: [2023, 2024, 2025],
+          productGroups: [
+            share(uuid(20), 'Mehrlagen', 46),
+            share(uuid(21), 'Starrflex', 22),
+            share(uuid(22), 'HDI', 15),
+          ],
+          productGroupRestShare: 0.17,
+          byBusinessUnit: [
+            {
+              businessUnit: { id: uuid(50), name: 'Antriebe' },
+              years: [
+                { year: 2023, amountCents: 360_000_000 },
+                { year: 2024, amountCents: 380_000_000 },
+                { year: 2025, amountCents: 420_000_000 },
+              ],
+            },
+          ],
+          bySegment: [],
+          topSuppliers: [
+            {
+              relationshipId: uuid(21),
+              name: 'Rheintal Elektronik',
+              shares: [
+                { year: 2023, share: 0.35 },
+                { year: 2024, share: 0.38 },
+                { year: 2025, share: 0.41 },
+              ],
+            },
+          ],
+          byStability: [share('ok', 'ok', 74), share('critical', 'critical', 26)],
+          byQualityRating: [],
+          bySupplierCountry: [share('DE', 'DE', 65), share('AT', 'AT', 35)],
+        },
+        suppliers: [{ relationshipId: uuid(21), name: 'Rheintal Elektronik' }],
+        businessUnits: [{ id: uuid(50), name: 'Antriebe' }],
+        candidates: [],
+        round: { exists: true, decided: false },
+      },
+    });
+  });
   await page.route(`**/api/warengruppen/strategien/${strategyId}/schritte/*`, (route) => {
     const n = Number(route.request().url().split('/').pop());
     const kpis = [
@@ -372,6 +487,7 @@ const pages = [
   ['uebersicht', '/warengruppen', 'Warengruppen'],
   ['aufsetzen', `/warengruppen/${group}/strategie/1`, 'Team und Umfang festlegen'],
   ['ziele', `/warengruppen/${group}/strategie/2`, 'Messbare Ziele setzen'],
+  ['intern', `/warengruppen/${group}/strategie/3`, 'Die eigene Ausgangslage analysieren'],
   ['lieferanten', `/warengruppen/${group}/strategie/4`, 'Die Lieferantenbasis analysieren'],
   [
     'segmentierung',

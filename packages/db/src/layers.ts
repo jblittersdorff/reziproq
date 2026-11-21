@@ -756,6 +756,23 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // WG-07: Analysen und weitere verfügbare Lieferanten je Strategie
+  material_group_analysis: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      view: 'volume',
+      data: '{}',
+      updated_by: orgUser,
+    }),
+  },
+  material_group_candidate: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      name: 'Probe',
+    }),
+  },
   relationship_business_unit: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({
