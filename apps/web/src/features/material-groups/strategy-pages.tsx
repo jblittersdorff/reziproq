@@ -58,6 +58,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
+import { CategorySegmentsCard } from './segmentation-pages';
 
 const strategyPath = (groupId: string, step?: number) =>
   `/warengruppen/${groupId}/strategie${step ? `/${step}` : ''}`;
@@ -534,6 +535,8 @@ function StepContent({
           {content.step === 1 && (
             <SetupStep groupId={groupId} context={context} content={content} editable={editable} />
           )}
+          {/* WG-Lieferanten.dc.html: Segmente in der Warengruppe (WG-18) über dem Text */}
+          {content.step === 4 && <CategorySegmentsCard groupId={groupId} />}
           {content.step === 2 ? note('', text.goals.reasonTitle, text.goals.reasonHint) : note()}
           {content.step === 2 && note('beobachtung')}
         </div>

@@ -11,7 +11,8 @@ import { useLocale, useT } from '@/lib/i18n';
 import { segmentationPath } from './matrix-page';
 import { usePortfolioOpen } from './use-portfolio';
 
-const reasons = ['ratings_open', 'not_consolidated', 'deviation'] as const;
+// WG-18: category_newer erscheint nur, wenn es Einträge gibt.
+const reasons = ['ratings_open', 'not_consolidated', 'deviation', 'category_newer'] as const;
 
 /** Portfolio › Offene Entscheidungen (SEG-07): Lieferanten nach dem Grund, warum noch etwas fehlt. */
 export function OpenPage() {
@@ -27,9 +28,13 @@ export function OpenPage() {
   const detail = (reason: (typeof reasons)[number], item: OpenItem) =>
     reason === 'ratings_open'
       ? text.progress(item.submitted, item.total)
-      : item.deviation === null
-        ? ''
-        : text.deviation(number.format(item.deviation));
+      : reason === 'category_newer'
+        ? item.materialGroup
+          ? text.categoryNewer(item.materialGroup.name)
+          : ''
+        : item.deviation === null
+          ? ''
+          : text.deviation(number.format(item.deviation));
 
   return (
     <>
@@ -49,6 +54,7 @@ export function OpenPage() {
       ) : (
         reasons.map((reason) => {
           const items = query.data.groups[reason];
+          if (reason === 'category_newer' && items.length === 0) return null;
           return (
             <section key={reason} aria-labelledby={`open-${reason}`} className="space-y-2">
               <h2 id={`open-${reason}`} className="font-semibold text-lg">

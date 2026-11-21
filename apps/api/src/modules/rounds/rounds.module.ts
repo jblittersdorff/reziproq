@@ -7,5 +7,6 @@ import { RoundsService } from './rounds.service.js';
   imports: [EmailModule],
   controllers: [RoundsController],
   providers: [RoundsService],
+  exports: [RoundsService],
 })
 export class RoundsModule {}

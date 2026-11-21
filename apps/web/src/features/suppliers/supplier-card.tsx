@@ -17,9 +17,12 @@ export function SupplierCard({
   supplier,
   spendYear = lastFullYear(),
   headingLevel = 2,
+  segment = null,
   className,
 }: {
   supplier: Supplier;
+  /** WG-18: Segment Ist als fertiger Text, gesamt oder in der gefilterten Warengruppe */
+  segment?: string | null;
   spendYear?: number;
   headingLevel?: 2 | 3;
   className?: string;
@@ -60,6 +63,7 @@ export function SupplierCard({
               )}
             </div>
           </div>
+          {segment && <p className="text-sm">{segment}</p>}
           <div className="flex flex-wrap items-center gap-2">
             {supplier.isFocus && (
               <Badge variant="shared">

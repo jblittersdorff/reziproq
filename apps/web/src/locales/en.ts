@@ -252,6 +252,17 @@ export const en: Messages = {
       chartTitle: (n: number) => `Portfolio matrix with ${n} suppliers`,
       chartDescription: (year: number) => `Dot size by spend ${year}`,
       list: 'Suppliers',
+      // WG-18
+      titleFiltered: (group: string) => `Matrix · ${group}`,
+      purposeFiltered:
+        'Segment in this category, current and target; size shows the category’s spend.',
+      view: 'View',
+      views: { ist: 'Current', soll: 'Target', both: 'Both' },
+      spendTitle: 'Spend by segment',
+      spendHint: (year: number, group: string | null) =>
+        group
+          ? `Spend ${year} in ${group}, by current segment.`
+          : `Total spend ${year}, by current segment.`,
     },
     open: {
       title: 'Open decisions',
@@ -265,14 +276,18 @@ export const en: Messages = {
         ratings_open: 'Ratings open',
         not_consolidated: 'Not consolidated',
         deviation: 'Unresolved deviation',
+        category_newer: 'Overall decision older',
       },
       reasonHints: {
+        category_newer:
+          'A category decided later than the overall view. Please review the overall decision.',
         ratings_open: 'Ratings of the latest round are missing.',
         not_consolidated: 'All ratings are in, the decision is missing.',
         deviation: (limit: number) => `A rating deviates by more than ${limit} points.`,
       },
       progress: (done: number, total: number) => `${done} of ${total} ratings`,
       deviation: (points: string) => `Deviation ${points} points`,
+      categoryNewer: (group: string) => `Decided more recently in ${group}`,
     },
   },
 
@@ -1345,6 +1360,72 @@ export const en: Messages = {
     settingsNavHint: 'When Reziproq warns',
   },
   // WG-04, WG-06 Material group strategy
+  // WG-18: segmentation per category
+  categorySegments: {
+    cardTitle: 'Segments in this category',
+    cardHint:
+      'From this category’s rating round, with the same criteria as the portfolio. Share of the category’s spend.',
+    cardEmpty: 'No segment set in this category yet.',
+    toRound: 'To the rating round',
+    toPortfolio: 'View in portfolio',
+    shareLabel: (segment: string, percent: string) =>
+      `${segment}: ${percent} of the category’s spend`,
+    names: (names: string, more = 0) =>
+      [names, more > 0 ? `${more} more` : null].filter(Boolean).join(', '),
+    title: 'Set the segments in this category',
+    purpose: (group: string) =>
+      `Rating round for ${group}, then current and target segment per supplier. Same criteria, weights and segments as the portfolio.`,
+    loading: 'Loading segmentation …',
+    failed: 'The segmentation could not be loaded.',
+    roundTitle: 'Rating round',
+    roundOpen: (submitted: number, total: number, due: string) =>
+      `Runs until ${due} · ${submitted} of ${total} ratings submitted`,
+    roundClosed: (submitted: number, total: number) =>
+      `Closed · ${submitted} of ${total} ratings submitted`,
+    roundStatus: { draft: 'Draft', open: 'running', closed: 'closed' } as Record<string, string>,
+    roundNone: 'There has been no rating round for this category yet.',
+    startEyebrow: 'Next step',
+    startTitle: 'Start a rating round for this category',
+    startHint:
+      'All suppliers in this category are preselected. The category team rates; everyone gets an invitation.',
+    dueDate: 'Deadline',
+    suppliersLabel: 'Suppliers in the round',
+    noUnit: 'no business unit, cannot be rated',
+    raters: 'Raters from the team',
+    noRaters: 'Nobody in the team can rate. Please maintain the team first.',
+    toTeam: 'Maintain team',
+    start: 'Start round',
+    started: 'The round is running. The team has been invited.',
+    errors: {
+      round_open: 'A round is already running for this category.',
+      due_date_past: 'The deadline is in the past.',
+      no_assignments: 'Please choose at least one supplier.',
+      no_business_unit: 'A supplier has no business unit.',
+      no_raters: 'Nobody in the team can rate.',
+      no_active_model: 'There is no active segment model.',
+      segment_unknown: 'This segment is not configured.',
+    } as Record<string, string>,
+    listTitle: 'Suppliers in this category',
+    empty: 'This category has no suppliers yet.',
+    spend: (amount: string) => `Spend in this category ${amount}`,
+    ratings: (submitted: number, total: number) => `${submitted} of ${total} ratings`,
+    suggestion: (ist: string, soll: string) => `Suggested by the round: ${ist} → ${soll}`,
+    decision: (ist: string, soll: string) => `In this category: ${ist} → ${soll}`,
+    noDecision: 'Segment not set yet',
+    overall: (ist: string, soll: string) => `Overall: ${ist} → ${soll}`,
+    origins: { round: 'from the round', manual: 'without a round', merged: 'merged' },
+    decide: 'Set segment',
+    decideFor: (name: string) => `Segment for ${name}`,
+    ist: 'Current segment',
+    soll: 'Target segment',
+    reason: 'Reason',
+    reasonHint: 'Briefly, why this segment applies in the category.',
+    reasonMissing: 'Please enter a reason.',
+    save: 'Set',
+    cancel: 'Cancel',
+    saved: 'Segment set.',
+    readOnly: 'Lead, commodity manager and admin can start rounds and set segments.',
+  },
   strategy: {
     overviewPurpose:
       'The strategy per material group is the basis. It segments the suppliers in their material group; supplier management combines these views per supplier.',
@@ -3004,6 +3085,9 @@ export const en: Messages = {
     sortName: 'Name, A to Z',
     country: 'Country',
     externalRef: 'Own number',
+    // WG-18: current segment on the card
+    segment: (name: string) => `Segment ${name}`,
+    segmentIn: (group: string, name: string) => `In ${group}: ${name}`,
     annualSpend: (year: number) => `Annual spend ${year}`,
     filters: {
       label: 'Filters',

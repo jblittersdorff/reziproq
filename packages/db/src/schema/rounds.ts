@@ -21,6 +21,8 @@ import { relationship } from './relationship.js';
 
 export const roundStatuses = ['draft', 'open', 'closed'] as const;
 export const assignmentStatuses = ['open', 'in_progress', 'submitted'] as const;
+// WG-18: Eine Runde gilt dem ganzen Portfolio oder einer Warengruppe.
+export const roundScopes = ['portfolio', 'category'] as const;
 
 export const segmentationRound = pgTable(
   'segmentation_round',
@@ -32,6 +34,8 @@ export const segmentationRound = pgTable(
     name: text().notNull(),
     dueDate: date('due_date', { mode: 'string' }).notNull(),
     status: text({ enum: roundStatuses }).notNull().default('draft'),
+    scope: text({ enum: roundScopes }).notNull().default('portfolio'),
+    materialGroupId: uuid('material_group_id').references(() => materialGroup.id),
     // Die beim Start aktive Modellversion; spätere Aktivierungen ändern sie nicht.
     modelVersion: smallint('model_version'),
     createdBy: text('created_by')
@@ -49,6 +53,11 @@ export const segmentationRound = pgTable(
       'segmentation_round_model_version',
       sql`(${table.status} = 'draft' and ${table.modelVersion} is null) or
         (${table.status} in ('open', 'closed') and ${table.modelVersion} > 0)`,
+    ),
+    check(
+      'segmentation_round_scope',
+      sql`(${table.scope} = 'portfolio' and ${table.materialGroupId} is null) or
+        (${table.scope} = 'category' and ${table.materialGroupId} is not null)`,
     ),
     index('segmentation_round_org').on(table.orgId),
   ],
@@ -120,7 +129,10 @@ export const rating = pgTable(
   ],
 );
 
-export const decisionScopes = ['total', 'bu_mg'] as const;
+// WG-18: `category` ist das Segment in einer Warengruppe; es hat eine eigene Versionsfolge je
+// Lieferant und Warengruppe und zählt nie zur Konsolidierung aus SEG-06.
+export const decisionScopes = ['total', 'bu_mg', 'category'] as const;
+export const decisionOrigins = ['round', 'manual', 'merged'] as const;
 
 // SEG-06: Die Unternehmenssicht des SRO. Jede Konsolidierung schreibt Zeilen mit höherer
 // Version; alte Zeilen bleiben unverändert (nur anfügen). Typen stehen als Stufen je Achse,
@@ -146,14 +158,17 @@ export const segmentDecision = pgTable(
       .references(() => appUser.id),
     decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().defaultNow(),
     version: integer().notNull(),
+    origin: text({ enum: decisionOrigins }).notNull().default('round'),
   },
   (table) => [
-    check('segment_decision_scope', sql`${table.scope} in ('total', 'bu_mg')`),
+    check('segment_decision_scope', sql`${table.scope} in ('total', 'bu_mg', 'category')`),
     check(
       'segment_decision_target',
       sql`(${table.scope} = 'total' and ${table.businessUnitId} is null) or
-        (${table.scope} = 'bu_mg' and ${table.businessUnitId} is not null)`,
+        (${table.scope} = 'bu_mg' and ${table.businessUnitId} is not null) or
+        (${table.scope} = 'category' and ${table.businessUnitId} is null and ${table.materialGroupId} is not null)`,
     ),
+    check('segment_decision_origin', sql`${table.origin} in ('round', 'manual', 'merged')`),
     check(
       'segment_decision_levels',
       sql`${table.istImpactLevel} between 1 and 3 and ${table.istQualityLevel} between 1 and 3
@@ -161,5 +176,9 @@ export const segmentDecision = pgTable(
     ),
     check('segment_decision_reason', sql`length(btrim(${table.reason})) > 0`),
     index('segment_decision_relationship').on(table.relationshipId, table.version),
+    // Je Lieferant und Warengruppe gilt die höchste Version; jede Version gibt es nur einmal.
+    uniqueIndex('segment_decision_category_version')
+      .on(table.relationshipId, table.materialGroupId, table.version)
+      .where(sql`${table.scope} = 'category'`),
   ],
 );

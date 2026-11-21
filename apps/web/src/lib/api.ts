@@ -1,4 +1,8 @@
 import {
+  type CategorySegmentation,
+  categorySegmentationSchema,
+  type DecideCategorySegment,
+  type StartCategoryRound,
   type GoalRequest,
   type KpiRequest,
   kpiListSchema,
@@ -734,6 +738,42 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
       ),
     retry: retryUnlessDenied,
   });
+
+/** WG-18: Segmentierung je Warengruppe */
+export const categorySegmentationQueryOptions = (accessToken: string, groupId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', groupId, 'segmentierung'],
+    queryFn: () =>
+      getJson(`/warengruppen/${groupId}/segmentierung`, categorySegmentationSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const startCategoryRound = (
+  accessToken: string,
+  groupId: string,
+  request: StartCategoryRound,
+): Promise<CategorySegmentation> =>
+  sendJson(
+    'POST',
+    `/warengruppen/${groupId}/runden`,
+    request,
+    categorySegmentationSchema,
+    accessToken,
+  );
+
+export const decideCategorySegment = (
+  accessToken: string,
+  groupId: string,
+  relationshipId: string,
+  request: DecideCategorySegment,
+): Promise<CategorySegmentation> =>
+  sendJson(
+    'POST',
+    `/warengruppen/${groupId}/segmente/${relationshipId}`,
+    request,
+    categorySegmentationSchema,
+    accessToken,
+  );
 
 export const saveStrategyNote = (
   accessToken: string,

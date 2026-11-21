@@ -7,6 +7,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { ShareRows } from '@/components/ui/share-rows';
 import { linkClass } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -48,6 +50,24 @@ export function spread<T>(
 export const segmentationPath = (relationshipId: string) =>
   `/lieferanten/${relationshipId}/strategie/segmentierung`;
 
+type MatrixView = 'ist' | 'soll' | 'both';
+
+/** Spend je Segment (WG-18): Summe, Anteil und die größten Lieferanten je Segment. */
+export function spendBySegment(points: PortfolioPoint[], view: MatrixView) {
+  const total = points.reduce((sum, point) => sum + point.spendCents, 0);
+  const groups = new Map<string, { name: string; cents: number; suppliers: string[] }>();
+  for (const point of [...points].sort((a, b) => b.spendCents - a.spendCents)) {
+    const name = (view === 'soll' ? point.soll : point.ist).typeName;
+    const entry = groups.get(name) ?? { name, cents: 0, suppliers: [] };
+    entry.cents += point.spendCents;
+    if (!entry.suppliers.includes(point.name)) entry.suppliers.push(point.name);
+    groups.set(name, entry);
+  }
+  return [...groups.values()]
+    .sort((a, b) => b.cents - a.cents || a.name.localeCompare(b.name))
+    .map((entry) => ({ ...entry, share: total > 0 ? entry.cents / total : 0 }));
+}
+
 /** Portfolio › Matrix (SEG-07): alle konsolidierten Lieferanten, Pfeil von Ist zu Soll, Filter in der Adresse. */
 export function MatrixPage() {
   const t = useT();
@@ -62,12 +82,21 @@ export function MatrixPage() {
   const unitId = useId();
   const groupId = useId();
   const points = query.data?.points ?? [];
-  const update = (next: { bu?: string | undefined; wg?: string | undefined }) =>
-    void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
+  const update = (next: {
+    bu?: string | undefined;
+    wg?: string | undefined;
+    ansicht?: MatrixView | undefined;
+  }) => void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
+  // WG-18: Mit Warengruppe gilt deren Segment; der Umschalter zeigt Ist, Soll oder beides.
+  const group = query.data?.materialGroups.find((entry) => entry.id === search.wg) ?? null;
+  const view: MatrixView = search.wg ? (search.ansicht ?? 'both') : 'both';
+  const placed = (point: PortfolioPoint) => (view === 'soll' ? point.soll : point.ist);
 
-  const current = spread(points, (point) => point.ist);
+  const current = spread(points, placed);
   const targets = spread(points, (point) => point.soll);
-  const crowded = new Set(points.map((point) => cell(point.ist))).size < points.length;
+  const crowded = new Set(points.map((point) => cell(placed(point)))).size < points.length;
+  const percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
+  const segments = spendBySegment(points, view);
   const money = (cents: number, currency: string) =>
     formatMoney({ amountCents: cents, currency }, locale, { compact: true });
   const label = (point: PortfolioPoint) =>
@@ -78,7 +107,11 @@ export function MatrixPage() {
   return (
     <>
       <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
-      <PageHeader size="list" title={text.title} purpose={text.purpose} />
+      <PageHeader
+        size="list"
+        title={group ? text.titleFiltered(group.name) : text.title}
+        purpose={group ? text.purposeFiltered : text.purpose}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label htmlFor={unitId} className="text-muted-foreground text-sm">
@@ -115,6 +148,18 @@ export function MatrixPage() {
           </NativeSelect>
         </div>
       </div>
+      {search.wg && (
+        <SegmentedControl
+          className="self-start"
+          label={text.view}
+          value={view}
+          options={(['ist', 'soll', 'both'] as const).map((value) => ({
+            value,
+            label: text.views[value],
+          }))}
+          onChange={(value) => update({ ansicht: value === 'both' ? undefined : value })}
+        />
+      )}
       {query.isError ? (
         <ErrorState title={text.failed} />
       ) : !query.data ? (
@@ -135,9 +180,10 @@ export function MatrixPage() {
               name: label(point),
               volumeCents: point.spendCents,
               current: current[index] as { x: number; y: number },
-              ...(cell(point.ist) !== cell(point.soll) && {
-                target: targets[index] as { x: number; y: number },
-              }),
+              ...(view === 'both' &&
+                cell(point.ist) !== cell(point.soll) && {
+                  target: targets[index] as { x: number; y: number },
+                }),
             }))}
             axes={{ x: t.ratings.qualityAxis, y: t.ratings.impactAxis }}
             levels={t.ratings.levels as [string, string, string]}
@@ -154,6 +200,29 @@ export function MatrixPage() {
               }
             }}
           />
+          <section
+            aria-labelledby="pf-spend"
+            className="flex flex-col gap-3 rounded-lg bg-card p-5 shadow-card"
+          >
+            <div className="flex flex-col gap-1">
+              <h2 id="pf-spend" className="font-semibold text-lg">
+                {text.spendTitle}
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                {text.spendHint(query.data.spendYear, group?.name ?? null)}
+              </p>
+            </div>
+            <ShareRows
+              rows={segments.map((entry) => ({
+                key: entry.name,
+                label: entry.name,
+                share: entry.share,
+                value: percent.format(entry.share),
+                note: `${money(entry.cents, points[0]?.currency ?? 'EUR')} · ${entry.suppliers.slice(0, 2).join(', ')}${entry.suppliers.length > 2 ? ` +${entry.suppliers.length - 2}` : ''}`,
+                srLabel: `${entry.name}: ${percent.format(entry.share)}`,
+              }))}
+            />
+          </section>
           <section aria-labelledby="pf-list" className="space-y-2">
             <h2 id="pf-list" className="font-semibold text-lg">
               {text.list}

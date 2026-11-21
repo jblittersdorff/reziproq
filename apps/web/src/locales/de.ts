@@ -259,6 +259,17 @@ export const de = {
       chartTitle: (n: number) => `Portfolio-Matrix mit ${n} Lieferanten`,
       chartDescription: (year: number) => `Punktgröße nach Spend ${year}`,
       list: 'Lieferanten',
+      // WG-18
+      titleFiltered: (group: string) => `Matrix · ${group}`,
+      purposeFiltered:
+        'Segment in der Warengruppe, Ist und Soll; die Größe zeigt den Spend in der Warengruppe.',
+      view: 'Ansicht',
+      views: { ist: 'Ist', soll: 'Soll', both: 'Beides' },
+      spendTitle: 'Spend nach Segment',
+      spendHint: (year: number, group: string | null) =>
+        group
+          ? `Spend ${year} in ${group}, nach Segment Ist.`
+          : `Gesamtspend ${year}, nach Segment Ist.`,
     },
     open: {
       title: 'Offene Entscheidungen',
@@ -272,14 +283,18 @@ export const de = {
         ratings_open: 'Bewertungen offen',
         not_consolidated: 'Nicht konsolidiert',
         deviation: 'Ungeklärte Abweichung',
+        category_newer: 'Gesamtentscheidung älter',
       },
       reasonHints: {
+        category_newer:
+          'In einer Warengruppe wurde später entschieden als im Gesamtbild. Bitte die Gesamtentscheidung prüfen.',
         ratings_open: 'Es fehlen Bewertungen der letzten Runde.',
         not_consolidated: 'Alle Bewertungen liegen vor, die Entscheidung fehlt.',
         deviation: (limit: number) => `Eine Bewertung weicht um mehr als ${limit} Punkte ab.`,
       },
       progress: (done: number, total: number) => `${done} von ${total} Bewertungen`,
       deviation: (points: string) => `Abweichung ${points} Punkte`,
+      categoryNewer: (group: string) => `Jünger entschieden in ${group}`,
     },
   },
 
@@ -1368,6 +1383,77 @@ export const de = {
     settingsNavHint: 'Ab wann Reziproq warnt',
   },
   // WG-04, WG-06 Warengruppenstrategie
+  // WG-18: Segmentierung je Warengruppe
+  categorySegments: {
+    cardTitle: 'Segmente in der Warengruppe',
+    cardHint:
+      'Aus der Bewertungsrunde dieser Warengruppe, mit denselben Kriterien wie im Portfolio. Anteil am Umsatz der Warengruppe.',
+    cardEmpty: 'Noch kein Segment in dieser Warengruppe festgelegt.',
+    toRound: 'Zur Bewertungsrunde',
+    toPortfolio: 'Im Portfolio ansehen',
+    shareLabel: (segment: string, percent: string) =>
+      `${segment}: ${percent} des Umsatzes der Warengruppe`,
+    names: (names: string, more = 0) =>
+      [names, more > 0 ? `${more} ${more === 1 ? 'weiterer' : 'weitere'}` : null]
+        .filter(Boolean)
+        .join(', '),
+    title: 'Segmente in der Warengruppe festlegen',
+    purpose: (group: string) =>
+      `Bewertungsrunde für ${group}, dann Segment Ist und Soll je Lieferant. Kriterien, Gewichte und Segmente wie im Portfolio.`,
+    loading: 'Segmentierung wird geladen …',
+    failed: 'Die Segmentierung konnte nicht geladen werden.',
+    roundTitle: 'Bewertungsrunde',
+    roundOpen: (submitted: number, total: number, due: string) =>
+      `Läuft bis ${due} · ${submitted} von ${total} Bewertungen abgegeben`,
+    roundClosed: (submitted: number, total: number) =>
+      `Abgeschlossen · ${submitted} von ${total} Bewertungen abgegeben`,
+    roundStatus: { draft: 'Entwurf', open: 'läuft', closed: 'abgeschlossen' } as Record<
+      string,
+      string
+    >,
+    roundNone: 'Für diese Warengruppe gab es noch keine Bewertungsrunde.',
+    startEyebrow: 'Nächster Schritt',
+    startTitle: 'Bewertungsrunde für die Warengruppe starten',
+    startHint:
+      'Alle Lieferanten der Warengruppe sind vorgewählt. Das Team der Warengruppe bewertet; jede Person bekommt eine Einladung.',
+    dueDate: 'Frist',
+    suppliersLabel: 'Lieferanten in der Runde',
+    noUnit: 'ohne Business Unit, nicht bewertbar',
+    raters: 'Bewertende aus dem Team',
+    noRaters: 'Im Team ist niemand, der bewerten kann. Bitte zuerst das Team pflegen.',
+    toTeam: 'Team pflegen',
+    start: 'Runde starten',
+    started: 'Die Runde läuft. Das Team ist eingeladen.',
+    errors: {
+      round_open: 'Für diese Warengruppe läuft schon eine Runde.',
+      due_date_past: 'Die Frist liegt in der Vergangenheit.',
+      no_assignments: 'Bitte mindestens einen Lieferanten wählen.',
+      no_business_unit: 'Ein Lieferant hat keine Business Unit.',
+      no_raters: 'Im Team ist niemand, der bewerten kann.',
+      no_active_model: 'Es gibt kein aktives Segmentmodell.',
+      segment_unknown: 'Dieses Segment ist nicht eingestellt.',
+    } as Record<string, string>,
+    listTitle: 'Lieferanten der Warengruppe',
+    empty: 'Diese Warengruppe hat noch keine Lieferanten.',
+    spend: (amount: string) => `Spend in der Warengruppe ${amount}`,
+    ratings: (submitted: number, total: number) => `${submitted} von ${total} Bewertungen`,
+    suggestion: (ist: string, soll: string) => `Vorschlag aus der Runde: ${ist} → ${soll}`,
+    decision: (ist: string, soll: string) => `In der Warengruppe: ${ist} → ${soll}`,
+    noDecision: 'Segment noch nicht festgelegt',
+    overall: (ist: string, soll: string) => `Gesamt: ${ist} → ${soll}`,
+    origins: { round: 'aus der Runde', manual: 'ohne Runde', merged: 'zusammengeführt' },
+    decide: 'Segment festlegen',
+    decideFor: (name: string) => `Segment für ${name}`,
+    ist: 'Segment Ist',
+    soll: 'Segment Soll',
+    reason: 'Begründung',
+    reasonHint: 'Kurz, warum dieses Segment in der Warengruppe gilt.',
+    reasonMissing: 'Bitte eine Begründung eintragen.',
+    save: 'Festlegen',
+    cancel: 'Abbrechen',
+    saved: 'Segment festgelegt.',
+    readOnly: 'Runde starten und Segmente festlegen dürfen Lead, Commodity Manager und Admin.',
+  },
   strategy: {
     overviewPurpose:
       'Die Strategie je Warengruppe ist die Basis. Sie segmentiert die Lieferanten in ihrer Warengruppe; das Lieferantenmanagement führt diese Sichten je Lieferant zusammen.',
@@ -3074,6 +3160,9 @@ export const de = {
     sortName: 'Name, A bis Z',
     country: 'Land',
     externalRef: 'Eigene Nummer',
+    // WG-18: Segment Ist auf der Karte
+    segment: (name: string) => `Segment ${name}`,
+    segmentIn: (group: string, name: string) => `In ${group}: ${name}`,
     annualSpend: (year: number) => `Jahresspend ${year}`,
     filters: {
       label: 'Filter',

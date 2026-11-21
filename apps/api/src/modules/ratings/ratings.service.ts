@@ -53,6 +53,8 @@ interface Row extends Omit<RatingAssignment, 'raterName'> {
   modelVersion: number | null;
   consolidated: boolean;
   roundCreated: Date;
+  roundScope: 'portfolio' | 'category';
+  roundGroupId: string | null;
 }
 
 interface Viewer {
@@ -62,6 +64,8 @@ interface Viewer {
   // Runde und Business Unit der eigenen Einladungen: Wer dieselbe BU bewertet, sieht deren Werte.
   ownUnits: Set<string>;
   seesSuppliers: boolean;
+  // WG-18: Lead und Commodity Manager sehen die Bewertungen der Runden ihrer Warengruppe.
+  leadOf: Set<string>;
 }
 
 @Injectable()
@@ -97,7 +101,18 @@ export class RatingsService implements OverviewMetricSource {
       })
       .from(schema.ratingAssignment)
       .where(eq(schema.ratingAssignment.raterUserId, auth.userId));
+    const leads = await tx
+      .select({ id: schema.materialGroup.id })
+      .from(schema.materialGroup)
+      .where(
+        sql`${schema.materialGroup.leadUserId} = ${auth.userId} or ${schema.materialGroup.commodityManagerUserId} = ${auth.userId} or exists (
+          select 1 from ${schema.materialGroupMember}
+          where ${schema.materialGroupMember.materialGroupId} = ${schema.materialGroup.id}
+            and ${schema.materialGroupMember.userId} = ${auth.userId}
+            and ${schema.materialGroupMember.role} in ('lead', 'commodity_manager'))`,
+      );
     return {
+      leadOf: new Set(leads.map((row) => row.id)),
       userId: auth.userId,
       admin: auth.orgRole === 'admin',
       sroOf: new Set(sro.map((row) => row.relationshipId)),
@@ -118,6 +133,9 @@ export class RatingsService implements OverviewMetricSource {
     return (
       this.manages(viewer, row) ||
       row.raterId === viewer.userId ||
+      (row.roundScope === 'category' &&
+        row.roundGroupId !== null &&
+        viewer.leadOf.has(row.roundGroupId)) ||
       (row.consolidated && viewer.seesSuppliers) ||
       viewer.ownUnits.has(`${roundId}:${unitId}`)
     );
@@ -133,8 +151,10 @@ export class RatingsService implements OverviewMetricSource {
         dueDate: schema.segmentationRound.dueDate,
         modelVersion: schema.segmentationRound.modelVersion,
         // Ab der ersten Konsolidierung der Beziehung sehen alle Käufer-Nutzer alle Bewertungen (SEG-06).
-        consolidated: sql<boolean>`exists (select 1 from ${schema.segmentDecision} where ${schema.segmentDecision.relationshipId} = ${schema.ratingAssignment.relationshipId})`,
+        consolidated: sql<boolean>`exists (select 1 from ${schema.segmentDecision} where ${schema.segmentDecision.relationshipId} = ${schema.ratingAssignment.relationshipId} and ${schema.segmentDecision.scope} <> 'category')`,
         roundCreated: schema.segmentationRound.createdAt,
+        roundScope: schema.segmentationRound.scope,
+        roundGroupId: schema.segmentationRound.materialGroupId,
         relationshipId: schema.ratingAssignment.relationshipId,
         supplier: supplierName,
         unitId: schema.businessUnit.id,
@@ -206,6 +226,8 @@ export class RatingsService implements OverviewMetricSource {
       modelVersion: row.modelVersion,
       consolidated: row.consolidated,
       roundCreated: row.roundCreated,
+      roundScope: row.roundScope,
+      roundGroupId: row.roundGroupId,
       unitId: row.unitId,
     };
   }
@@ -216,6 +238,8 @@ export class RatingsService implements OverviewMetricSource {
       modelVersion: _modelVersion,
       consolidated: _consolidated,
       roundCreated: _roundCreated,
+      roundScope: _roundScope,
+      roundGroupId: _roundGroupId,
       ...rest
     } = row;
     // Den Namen der bewertenden Person sehen nur SRO und Admin (NF-03).
@@ -260,12 +284,15 @@ export class RatingsService implements OverviewMetricSource {
   /**
    * SEG-05: Einordnung eines Lieferanten aus der neuesten Runde mit abgegebenen Bewertungen, die der
    * Nutzer sehen darf (Regel aus SEG-04). Vorläufig, solange die Runde nicht konsolidiert ist.
+   * Ohne `category` zählen nur Portfolio-Runden; mit `category` nur die Runden dieser Warengruppe
+   * (WG-18), dann ohne Konsolidierung aus SEG-06.
    */
   async segmentationIn(
     tx: TenantTransaction,
     auth: AuthContext,
     orgId: string,
     relationshipId: string,
+    category?: string,
   ): Promise<Segmentation> {
     const viewer = await this.viewer(tx, auth, orgId);
     const all = (
@@ -273,7 +300,12 @@ export class RatingsService implements OverviewMetricSource {
     )
       .map((row) => this.toRow(row))
       .filter(
-        (row) => row.status === 'submitted' && this.visible(viewer, row, row.roundId, row.unitId),
+        (row) =>
+          row.status === 'submitted' &&
+          (category
+            ? row.roundScope === 'category' && row.roundGroupId === category
+            : row.roundScope === 'portfolio') &&
+          this.visible(viewer, row, row.roundId, row.unitId),
       );
     const latest = all.reduce<Row | null>(
       (best, row) => (!best || row.roundCreated > best.roundCreated ? row : best),
@@ -310,7 +342,7 @@ export class RatingsService implements OverviewMetricSource {
     }));
     const outcome = (values: Parameters<RatingsService['outcome']>[1], field: 'ist' | 'soll') =>
       this.outcome(model, values, field);
-    const decisions = await readDecisions(tx, orgId, relationshipId);
+    const decisions = category ? [] : await readDecisions(tx, orgId, relationshipId);
     const status = decisions.length > 0 ? ('consolidated' as const) : ('provisional' as const);
     const aggregated = aggregateSegmentation(model, input, outcome);
     return segmentationSchema.parse({

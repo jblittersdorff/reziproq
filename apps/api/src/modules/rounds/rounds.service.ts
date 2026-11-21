@@ -671,6 +671,78 @@ export class RoundsService {
     });
   }
 
+  /**
+   * WG-18: Runde mit Geltungsbereich Warengruppe anlegen und gleich starten. Die Zuordnungen kommen
+   * fertig besetzt aus der Warengruppe (Lieferanten und Team); Modell, Einladung und Verlauf wie bei
+   * jeder Runde. Läuft in der Transaktion des Aufrufers, der die Rolle in der Warengruppe prüft.
+   */
+  async startCategoryIn(
+    tx: TenantTransaction,
+    auth: AuthContext,
+    orgId: string,
+    input: {
+      materialGroupId: string;
+      name: string;
+      dueDate: string;
+      slots: {
+        relationshipId: string;
+        businessUnitId: string;
+        function: UserFunction;
+        raterUserId: string;
+      }[];
+    },
+  ): Promise<string> {
+    if (input.dueDate < today()) throw pastDue();
+    if (!input.slots.length) throw fail(400, 'no_assignments', 'Wähle mindestens einen Lieferanten.');
+    const [model] = await tx
+      .select({ version: schema.segmentModel.version })
+      .from(schema.segmentModel)
+      .where(and(eq(schema.segmentModel.orgId, orgId), eq(schema.segmentModel.status, 'active')));
+    if (!model) throw fail(409, 'no_active_model', 'Es gibt kein aktives Segmentmodell.');
+    const actor = await actorOf(tx, auth, orgId);
+    const round = await auditedChange(tx, actor, segmentationRoundAudit, async () => {
+      const [row] = await tx
+        .insert(schema.segmentationRound)
+        .values({
+          orgId,
+          name: input.name,
+          dueDate: input.dueDate,
+          status: 'open',
+          scope: 'category',
+          materialGroupId: input.materialGroupId,
+          modelVersion: model.version,
+          startedAt: new Date(),
+          createdBy: auth.userId,
+        })
+        .returning();
+      if (!row) throw new Error('Runde nicht angelegt');
+      return {
+        objectId: row.id,
+        relationshipId: null,
+        action: 'created',
+        after: {
+          name: input.name,
+          due_date: input.dueDate,
+          status: 'open',
+          scope: 'category',
+          material_group_id: input.materialGroupId,
+          model_version: model.version,
+        },
+        result: row,
+      };
+    });
+    await tx.insert(schema.ratingAssignment).values(
+      input.slots.map((slot) => ({
+        ...slot,
+        roundId: round.id,
+        materialGroupId: input.materialGroupId,
+      })),
+    );
+    const raterIds = [...new Set(input.slots.map((slot) => slot.raterUserId))];
+    await this.invite(tx, auth, orgId, round, raterIds);
+    return round.id;
+  }
+
   extend(auth: AuthContext, id: string, input: ExtendRound): Promise<RoundDetail> {
     return this.run(auth, async (tx, organization) => {
       const round = await this.round(tx, organization.id, id);

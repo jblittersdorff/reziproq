@@ -82,6 +82,7 @@ import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio
 import { Route as AppPortfolioRundenIndexRouteImport } from './routes/_app/portfolio/runden/index'
 import { Route as AppPortfolioRundenNeuRouteImport } from './routes/_app/portfolio/runden/neu'
 import { Route as AppWarengruppenIdIndexRouteImport } from './routes/_app/warengruppen/$id/index'
+import { Route as AppWarengruppenIdSegmentierungRouteImport } from './routes/_app/warengruppen/$id/segmentierung'
 import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
 import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
@@ -644,6 +645,12 @@ const AppWarengruppenIdIndexRoute = AppWarengruppenIdIndexRouteImport.update({
   path: '/warengruppen/$id/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWarengruppenIdSegmentierungRoute =
+  AppWarengruppenIdSegmentierungRouteImport.update({
+    id: '/warengruppen/$id/segmentierung',
+    path: '/warengruppen/$id/segmentierung',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppWirkungFreigabenIndexRoute =
   AppWirkungFreigabenIndexRouteImport.update({
     id: '/wirkung/freigaben/',
@@ -1741,6 +1748,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
   '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
@@ -1984,6 +1992,7 @@ export interface FileRoutesByTo {
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
   '/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/bewertungen/$id': typeof AppBewertungenIdIndexRoute
   '/einstellungen/business-units': typeof AppEinstellungenBusinessUnitsIndexRoute
@@ -2231,6 +2240,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
+  '/_app/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
   '/_app/wirkung/freigaben/$validationId': typeof AppWirkungFreigabenValidationIdRoute
   '/_app/bewertungen/$id/': typeof AppBewertungenIdIndexRoute
   '/_app/einstellungen/business-units/': typeof AppEinstellungenBusinessUnitsIndexRoute
@@ -2479,6 +2489,7 @@ export interface FileRouteTypes {
     | '/einstellungen/zielkategorien/neu'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
+    | '/warengruppen/$id/segmentierung'
     | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id/'
     | '/einstellungen/business-units/'
@@ -2722,6 +2733,7 @@ export interface FileRouteTypes {
     | '/einstellungen/zielkategorien/neu'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
+    | '/warengruppen/$id/segmentierung'
     | '/wirkung/freigaben/$validationId'
     | '/bewertungen/$id'
     | '/einstellungen/business-units'
@@ -2968,6 +2980,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/zielkategorien/neu'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
+    | '/_app/warengruppen/$id/segmentierung'
     | '/_app/wirkung/freigaben/$validationId'
     | '/_app/bewertungen/$id/'
     | '/_app/einstellungen/business-units/'
@@ -3677,6 +3690,13 @@ declare module '@tanstack/react-router' {
       path: '/warengruppen/$id'
       fullPath: '/warengruppen/$id/'
       preLoaderRoute: typeof AppWarengruppenIdIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warengruppen/$id/segmentierung': {
+      id: '/_app/warengruppen/$id/segmentierung'
+      path: '/warengruppen/$id/segmentierung'
+      fullPath: '/warengruppen/$id/segmentierung'
+      preLoaderRoute: typeof AppWarengruppenIdSegmentierungRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/wirkung/freigaben/': {
@@ -5360,6 +5380,7 @@ interface AppRouteChildren {
   AppEinstellungenZielkategorienNeuRoute: typeof AppEinstellungenZielkategorienNeuRoute
   AppPortfolioFokusIdRoute: typeof AppPortfolioFokusIdRoute
   AppPortfolioRundenNeuRoute: typeof AppPortfolioRundenNeuRoute
+  AppWarengruppenIdSegmentierungRoute: typeof AppWarengruppenIdSegmentierungRoute
   AppWirkungFreigabenValidationIdRoute: typeof AppWirkungFreigabenValidationIdRoute
   AppBewertungenIdIndexRoute: typeof AppBewertungenIdIndexRoute
   AppEinstellungenBusinessUnitsIndexRoute: typeof AppEinstellungenBusinessUnitsIndexRoute
@@ -5461,6 +5482,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenZielkategorienNeuRoute,
   AppPortfolioFokusIdRoute: AppPortfolioFokusIdRoute,
   AppPortfolioRundenNeuRoute: AppPortfolioRundenNeuRoute,
+  AppWarengruppenIdSegmentierungRoute: AppWarengruppenIdSegmentierungRoute,
   AppWirkungFreigabenValidationIdRoute: AppWirkungFreigabenValidationIdRoute,
   AppBewertungenIdIndexRoute: AppBewertungenIdIndexRoute,
   AppEinstellungenBusinessUnitsIndexRoute:

@@ -39,4 +39,5 @@ export const buyerOnlyActions: readonly Action[] = [
   'warengruppen.sehen',
   'warengruppen.team',
   'warengruppenstrategie.bearbeiten',
+  'warengruppen.segmentieren',
 ];

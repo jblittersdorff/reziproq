@@ -333,6 +333,15 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    'warengruppen.segmentieren': async (user) => {
+      const { status } = await request(
+        user,
+        'POST',
+        '/api/warengruppen/00000000-0000-4000-8000-000000000000/runden',
+        { dueDate: '2099-01-31', relationshipIds: [] },
+      );
+      return status === 404 ? 200 : status;
+    },
     'warengruppen.team': async (user) => {
       const { status } = await request(
         user,

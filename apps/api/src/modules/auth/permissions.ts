@@ -200,6 +200,11 @@ export const permissions: Record<Action, Permission> = {
       'Warengruppenstrategie anlegen und bearbeiten (Lead und Commodity Manager alle Schritte, Einkauf im Team die Schritte 2 bis 9)',
     roles: ['admin', 'member'],
   },
+  'warengruppen.segmentieren': {
+    description:
+      'Bewertungsrunde je Warengruppe starten und das Segment in der Warengruppe festlegen (Lead, Commodity Manager, Admin)',
+    roles: ['admin', 'member'],
+  },
   'datenexport.anfordern': {
     description:
       'Gesamtexport aller Daten der eigenen Organisation anfordern und 24 Stunden lang herunterladen',

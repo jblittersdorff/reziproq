@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, desc, eq, inArray, ne, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   defaultMaxFocusPerSro,
   type HintDetail,
@@ -72,7 +72,12 @@ export async function evaluateRules(context: RuleContext): Promise<HintFinding[]
       version: schema.segmentDecision.version,
     })
     .from(schema.segmentDecision)
-    .where(inArray(schema.segmentDecision.relationshipId, ids))
+    .where(
+      and(
+        inArray(schema.segmentDecision.relationshipId, ids),
+        ne(schema.segmentDecision.scope, 'category'),
+      ),
+    )
     .orderBy(desc(schema.segmentDecision.version));
   const decided = new Map<string, number>();
   for (const row of decisions)

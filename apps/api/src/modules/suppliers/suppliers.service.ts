@@ -598,6 +598,23 @@ export async function listSuppliers(
         where sd.relationship_id = ${relationship.id} and sd.scope = 'total'
         order by sd.version desc limit 1
       )`,
+      // WG-18: Segment Ist gesamt und je Warengruppe (jeweils die jüngste Version)
+      segmentType: sql<string | null>`(
+        select sd.ist_impact_level || '-' || sd.ist_quality_level
+        from segment_decision sd
+        where sd.relationship_id = ${relationship.id} and sd.scope = 'total'
+        order by sd.version desc limit 1
+      )`,
+      categorySegments: sql<{ materialGroupId: string; type: string }[]>`coalesce((
+        select json_agg(json_build_object('materialGroupId', x.material_group_id, 'type', x.type))
+        from (
+          select distinct on (sd.material_group_id) sd.material_group_id,
+            sd.ist_impact_level || '-' || sd.ist_quality_level as type
+          from segment_decision sd
+          where sd.relationship_id = ${relationship.id} and sd.scope = 'category'
+          order by sd.material_group_id, sd.version desc
+        ) x
+      ), '[]'::json)`,
       isMine: sql<boolean>`${
         userId
           ? sql`exists (
@@ -630,11 +647,16 @@ export async function listSuppliers(
     )
     .orderBy(sql`${relationshipSpend.amountCents} desc nulls last`, organization.name);
 
-  return rows.map(({ amountCents, currency, hasPrimary, ...supplier }) => ({
-    ...supplier,
-    spend: amountCents !== null && currency !== null ? { amountCents, currency } : null,
-    primaryMaterialGroup: hasPrimary ? (supplier.materialGroups[0] ?? null) : null,
-  }));
+  return rows.map(
+    ({ amountCents, currency, hasPrimary, segmentType, categorySegments, ...supplier }) => ({
+      ...supplier,
+      // WG-18: nur mitschicken, wenn es ein Segment gibt
+      ...(segmentType ? { segmentType } : {}),
+      ...(categorySegments.length ? { categorySegments } : {}),
+      spend: amountCents !== null && currency !== null ? { amountCents, currency } : null,
+      primaryMaterialGroup: hasPrimary ? (supplier.materialGroups[0] ?? null) : null,
+    }),
+  );
 }
 
 /** Auswahl für die Filter: aktive Business Units und Warengruppen, Soll-Typen des aktiven Modells. */

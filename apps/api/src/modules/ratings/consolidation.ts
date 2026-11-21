@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
+import { and, asc, desc, eq, ne, schema, type TenantTransaction } from '@reziproq/db';
 import type { DecisionVersion } from '@reziproq/shared';
 
 /** Typname je Stufenpaar einer Modellversion der Organisation. */
@@ -46,7 +46,8 @@ export async function readDecisions(
     .innerJoin(schema.appUser, eq(schema.appUser.id, d.decidedBy))
     .leftJoin(schema.businessUnit, eq(schema.businessUnit.id, d.businessUnitId))
     .leftJoin(schema.materialGroup, eq(schema.materialGroup.id, d.materialGroupId))
-    .where(eq(d.relationshipId, relationshipId))
+    // WG-18: Segmente je Warengruppe haben eine eigene Versionsfolge und gehören nicht hierher.
+    .where(and(eq(d.relationshipId, relationshipId), ne(d.scope, 'category')))
     .orderBy(desc(d.version), asc(d.scope), asc(schema.businessUnit.name));
 
   const names = new Map<number, Map<string, string>>();
@@ -69,7 +70,8 @@ export async function readDecisions(
       versions.set(row.version, entry);
     }
     entry.entries.push({
-      scope: row.scope,
+      // Die Abfrage schließt `category` aus (WG-18).
+      scope: row.scope as 'total' | 'bu_mg',
       businessUnit: row.unitId && row.unitName ? { id: row.unitId, name: row.unitName } : null,
       materialGroup: row.groupId && row.groupName ? { id: row.groupId, name: row.groupName } : null,
       ist: {

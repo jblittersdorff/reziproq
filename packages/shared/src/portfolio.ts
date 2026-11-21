@@ -40,7 +40,8 @@ export const portfolioMatrixSchema = z.object({
   points: z.array(portfolioPointSchema),
 });
 
-export const openReasons = ['ratings_open', 'not_consolidated', 'deviation'] as const;
+// WG-18: category_newer: Die Gesamtentscheidung ist älter als die jüngste in einer Warengruppe.
+export const openReasons = ['ratings_open', 'not_consolidated', 'deviation', 'category_newer'] as const;
 
 export const openItemSchema = z.object({
   relationshipId: z.uuid(),
@@ -49,6 +50,8 @@ export const openItemSchema = z.object({
   total: z.number().int(),
   // Größte Abweichung eines Kriteriums in Punkten; null, solange Bewertungen fehlen
   deviation: z.number().nullable(),
+  // WG-18: bei category_newer die Warengruppe mit der jüngeren Entscheidung
+  materialGroup: namedSchema.nullable().optional(),
 });
 
 export const portfolioOpenSchema = z.object({
@@ -57,6 +60,7 @@ export const portfolioOpenSchema = z.object({
     ratings_open: z.array(openItemSchema),
     not_consolidated: z.array(openItemSchema),
     deviation: z.array(openItemSchema),
+    category_newer: z.array(openItemSchema).default([]),
   }),
 });
 
@@ -64,5 +68,6 @@ export type PortfolioMatrixQuery = z.infer<typeof portfolioMatrixQuerySchema>;
 export type Portfolio = z.infer<typeof portfolioSchema>;
 export type PortfolioPoint = z.infer<typeof portfolioPointSchema>;
 export type PortfolioMatrix = z.infer<typeof portfolioMatrixSchema>;
-export type PortfolioOpen = z.infer<typeof portfolioOpenSchema>;
+// Eingabeform: category_newer (WG-18) darf fehlen und wird zu [].
+export type PortfolioOpen = z.input<typeof portfolioOpenSchema>;
 export type OpenItem = z.infer<typeof openItemSchema>;

@@ -50,7 +50,7 @@ export const relationshipAssignmentAudit = auditedObject({
 export const segmentationRoundAudit = auditedObject({
   type: 'segmentation_round',
   visibility: 'internal',
-  fields: ['name', 'due_date', 'status', 'model_version'],
+  fields: ['name', 'due_date', 'status', 'model_version', 'scope', 'material_group_id'],
 });
 
 /** Einladung zur Bewertung (SEG-03): je bewertender Person ein Eintrag samt Mail. */

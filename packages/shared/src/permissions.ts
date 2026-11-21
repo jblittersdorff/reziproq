@@ -68,6 +68,7 @@ export const actions = [
   'warengruppen.sehen',
   'warengruppen.team',
   'warengruppenstrategie.bearbeiten',
+  'warengruppen.segmentieren',
   'teilung.vereinbaren',
   'jbp.sehen',
   'jbp.anlegen',

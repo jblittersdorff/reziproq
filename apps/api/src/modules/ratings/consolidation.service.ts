@@ -90,7 +90,9 @@ export class ConsolidationService {
       const [latest] = await tx
         .select({ version: sql<number>`coalesce(max(${schema.segmentDecision.version}), 0)::int` })
         .from(schema.segmentDecision)
-        .where(sql`${schema.segmentDecision.relationshipId} = ${relationshipId}`);
+        .where(
+          sql`${schema.segmentDecision.relationshipId} = ${relationshipId} and ${schema.segmentDecision.scope} <> 'category'`,
+        );
       const version = (latest?.version ?? 0) + 1;
       const base = {
         relationshipId,

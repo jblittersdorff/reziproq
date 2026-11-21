@@ -124,6 +124,18 @@ export function SuppliersPage() {
   const visible = visibleSuppliers(data.suppliers, search, filters?.materialGroups);
   const filterCount = activeFilters(search);
   const query = search.suche ?? '';
+  // WG-18: Gesamtsegment; mit gefilterter Warengruppe das Segment dort, mit ihrem Namen.
+  const typeName = new Map(filters?.targetTypes.map((type) => [type.key, type.name]) ?? []);
+  const filteredGroup = filters?.materialGroups.find((group) => group.id === search.wg);
+  const segmentOf = (supplier: (typeof visible)[number]) => {
+    if (filteredGroup) {
+      const own = supplier.categorySegments?.find((entry) => entry.materialGroupId === search.wg);
+      const name = own && typeName.get(own.type);
+      return name ? t.suppliers.segmentIn(filteredGroup.name, name) : null;
+    }
+    const name = supplier.segmentType && typeName.get(supplier.segmentType);
+    return name ? t.suppliers.segment(name) : null;
+  };
 
   return (
     <>
@@ -261,6 +273,7 @@ export function SuppliersPage() {
               <SupplierCard
                 key={supplier.relationshipId}
                 supplier={supplier}
+                segment={segmentOf(supplier)}
                 spendYear={data.spendYear}
               />
             ))}

@@ -2,7 +2,8 @@ import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
 // WG-04, WG-06: Übersicht, Aufsetzen und Ziele der Warengruppenstrategie nach den Vorlagen, ohne
-// seitliches Scrollen auf Telefonbreite und am Schreibtisch.
+// seitliches Scrollen auf Telefonbreite und am Schreibtisch. WG-18: Lieferantenanalyse mit den
+// Segmenten in der Warengruppe und die Seite der Bewertungsrunde.
 
 test.use({ locale: 'de-DE' });
 
@@ -227,6 +228,62 @@ async function mock(page: Page) {
       },
     }),
   );
+  const typed = (impactLevel: number, qualityLevel: number, typeName: string) => ({
+    impactLevel,
+    qualityLevel,
+    typeName,
+  });
+  const segmentSupplier = (
+    n: number,
+    name: string,
+    spendCents: number,
+    decision: [number, number, string] | null,
+  ) => ({
+    relationshipId: uuid(n),
+    name,
+    spendCents,
+    currency: 'EUR',
+    rateable: n !== 24,
+    ratings: { submitted: 3, total: 4 },
+    suggestion: { ist: typed(2, 2, 'Entwickeln'), soll: typed(3, 3, 'Strategisch') },
+    decision: decision
+      ? {
+          ist: typed(decision[0], decision[1], decision[2]),
+          soll: typed(3, 3, 'Strategisch'),
+          reason: 'Im Team besprochen',
+          origin: 'round',
+          decidedAt: '2026-11-20T09:00:00Z',
+          decidedBy: 'Lena Berger',
+          version: 1,
+        }
+      : null,
+    overall: { ist: typed(3, 3, 'Strategisch'), soll: typed(3, 3, 'Strategisch') },
+  });
+  await page.route(`**/api/warengruppen/${group}/segmentierung`, (route) =>
+    route.fulfill({
+      json: {
+        group: { id: group, name: 'Leiterplatten' },
+        spendYear: 2025,
+        canManage: true,
+        round: null,
+        types: [
+          { impactLevel: 3, qualityLevel: 3, name: 'Strategisch' },
+          { impactLevel: 2, qualityLevel: 2, name: 'Entwickeln' },
+          { impactLevel: 1, qualityLevel: 1, name: 'Routine' },
+        ],
+        raters: [
+          { userId: 'lena', name: 'Lena Berger', function: 'purchasing' },
+          { userId: 'tom', name: 'Tom Weber', function: 'quality' },
+        ],
+        suppliers: [
+          segmentSupplier(21, 'Rheintal Elektronik', 310_000_000, [3, 3, 'Strategisch']),
+          segmentSupplier(22, 'Saar Circuits', 220_000_000, [2, 2, 'Entwickeln']),
+          segmentSupplier(23, 'Moldau PCB', 75_000_000, [2, 2, 'Entwickeln']),
+          segmentSupplier(24, 'Donau Print Verwaltungsgesellschaft mbH', 60_000_000, null),
+        ],
+      },
+    }),
+  );
   await page.route(`**/api/warengruppen/strategien/${strategyId}/schritte/*`, (route) => {
     const n = Number(route.request().url().split('/').pop());
     const kpis = [
@@ -315,6 +372,12 @@ const pages = [
   ['uebersicht', '/warengruppen', 'Warengruppen'],
   ['aufsetzen', `/warengruppen/${group}/strategie/1`, 'Team und Umfang festlegen'],
   ['ziele', `/warengruppen/${group}/strategie/2`, 'Messbare Ziele setzen'],
+  ['lieferanten', `/warengruppen/${group}/strategie/4`, 'Die Lieferantenbasis analysieren'],
+  [
+    'segmentierung',
+    `/warengruppen/${group}/segmentierung`,
+    'Segmente in der Warengruppe festlegen',
+  ],
 ] as const;
 
 for (const width of [390, 1440]) {

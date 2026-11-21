@@ -81,6 +81,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'warengruppen.sehen',
     'warengruppen.team',
     'warengruppenstrategie.bearbeiten',
+    'warengruppen.segmentieren',
   ],
   member: [
     'organisation.sehen',
@@ -104,6 +105,7 @@ export const actionsFor: Record<'admin' | 'member' | 'viewer', Action[]> = {
     'warengruppen.sehen',
     'warengruppen.team',
     'warengruppenstrategie.bearbeiten',
+    'warengruppen.segmentieren',
   ],
   viewer: [
     'organisation.sehen',
