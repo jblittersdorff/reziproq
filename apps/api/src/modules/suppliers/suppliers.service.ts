@@ -551,9 +551,8 @@ export interface SupplierFilter {
 }
 
 /**
- * Liest die Lieferanten in einer Mandanten-Session. Gefiltert wird nur über Row-Level Security:
- * relationship_side und relationship_spend liefern nur die eigenen Zeilen (PLT-04). Ohne gesetzte
- * Organisation liefert die Abfrage nichts. Auch PLT-12 nutzt diese Funktion.
+ * Liest die Lieferanten der Käuferorganisation aus der Mandanten-Session. Der Käuferfilter
+ * hilft dem Abfrageplan, während Row-Level Security weiterhin alle Zeilen prüft (PLT-04).
  */
 export async function listSuppliers(
   tx: TenantTransaction,
@@ -561,7 +560,24 @@ export async function listSuppliers(
   userId?: string,
 ): Promise<Supplier[]> {
   const { organization, relationship, relationshipSide } = schema;
-  const relationshipSpend = schema.relationshipSpendTotal;
+  const spend = schema.relationshipSpend;
+  // Die Sicht aggregiert bei manchen Plänen das ganze Geschäftsjahr für jede Beziehung erneut.
+  // Die Lateral-Abfrage summiert nur den Ist-Spend der jeweiligen Beziehung über den Spend-Index.
+  const relationshipSpend = tx
+    .select({
+      amountCents: sql<number>`sum(${spend.amountCents})`.mapWith(Number).as('amount_cents'),
+      currency: spend.currency,
+    })
+    .from(spend)
+    .where(
+      and(
+        eq(spend.relationshipId, relationship.id),
+        eq(spend.year, spendYear),
+        eq(spend.kind, 'actual'),
+      ),
+    )
+    .groupBy(spend.currency)
+    .as('list_spend');
   const rows = await tx
     .select({
       relationshipId: relationship.id,
@@ -650,13 +666,8 @@ export async function listSuppliers(
         eq(relationshipSide.orgId, relationship.buyerOrgId),
       ),
     )
-    .leftJoin(
-      relationshipSpend,
-      and(
-        eq(relationshipSpend.relationshipId, relationship.id),
-        eq(relationshipSpend.year, spendYear),
-      ),
-    )
+    .leftJoinLateral(relationshipSpend, sql`true`)
+    .where(eq(relationship.buyerOrgId, sql`(select app_current_organization_id())`))
     .orderBy(sql`${relationshipSpend.amountCents} desc nulls last`, organization.name);
 
   return rows.map(

@@ -1,4 +1,7 @@
 import {
+  type AiSettings,
+  aiSettingsResponseSchema,
+  aiUsageSchema,
   type EbitGoalRequest,
   overviewInsightSchema,
   supplierRingsSchema,
@@ -3429,3 +3432,21 @@ export const removeComment = (
     commentListSchema,
     accessToken,
   );
+
+/** KI-01: Einstellungen KI (nur Admins) und Kontingent des Monats (alle Käufer). */
+export const aiSettingsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['einstellungen', 'ki'],
+    queryFn: () => getJson('/einstellungen/ki', aiSettingsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAiSettings = (accessToken: string, settings: AiSettings) =>
+  sendJson('PUT', '/einstellungen/ki', settings, aiSettingsResponseSchema, accessToken);
+
+export const aiUsageQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['ki', 'kontingent'],
+    queryFn: () => getJson('/ki/kontingent', aiUsageSchema, accessToken),
+    retry: retryUnlessDenied,
+  });

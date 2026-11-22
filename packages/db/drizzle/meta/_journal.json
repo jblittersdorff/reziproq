@@ -659,6 +659,20 @@
       "when": 1795371175152,
       "tag": "0093_auswertungen_ziele",
       "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1795372691370,
+      "tag": "0094_ki_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1795372957334,
+      "tag": "0095_model_call_loeschen",
+      "breakpoints": true
     }
   ]
 }

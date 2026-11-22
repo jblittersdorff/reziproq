@@ -20,6 +20,7 @@ export const dueKinds = [
   'feedback',
   // WG-04: nächster offener Schritt einer Warengruppenstrategie
   'strategy',
+  'ai_budget',
 ] as const;
 
 export const dueItemSchema = z.object({

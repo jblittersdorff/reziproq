@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { createLanguageModel } from '../../common/ai-language-model.js';
-import { AiSdkDraftModel, DRAFT_MODEL, TestDraftModel } from './draft-model.js';
+import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
+import { ModelGateway } from '../ai-gateway/model-gateway.js';
+import { DRAFT_MODEL, GatewayDraftModel } from './draft-model.js';
 
 @Module({
+  imports: [AiGatewayModule],
   providers: [
     {
       provide: DRAFT_MODEL,
-      useFactory: async () => {
-        const model = await createLanguageModel();
-        return model ? new AiSdkDraftModel(model) : new TestDraftModel();
-      },
+      inject: [ModelGateway],
+      useFactory: (gateway: ModelGateway) => new GatewayDraftModel(gateway),
     },
   ],
   exports: [DRAFT_MODEL],

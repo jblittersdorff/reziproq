@@ -1,5 +1,6 @@
 import {
   BellIcon,
+  BotIcon,
   Building2Icon,
   CalendarIcon,
   CalendarRangeIcon,
@@ -99,6 +100,15 @@ export function SettingsPage() {
             />
           )}
           {permissions.viewBuyerAreas && <MasterDataLinks />}
+          {permissions.viewBuyerAreas && manageSettings && (
+            <SettingsLinkRow
+              href="/einstellungen/ki"
+              label={t.aiSettings.navTitle}
+              description={t.aiSettings.navHint}
+              icon={<BotIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
           {canConfigureHints && (
             <SettingsLinkRow
               href="/einstellungen/hinweise"

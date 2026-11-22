@@ -10,17 +10,18 @@ import {
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { ActionsService } from '../actions/actions.service.js';
+import { ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CommentsService } from '../comments/comments.service.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { MyFeedbackService } from '../feedback/my-feedback.service.js';
-import { StrategyService } from '../material-groups/strategy.service.js';
 import { openHintCount } from '../hints/hint-count.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import { JbpScorecardService } from '../jbp/jbp-scorecard.service.js';
+import { StrategyService } from '../material-groups/strategy.service.js';
 import { nextMeetingOf } from '../meetings/next-meeting.js';
 import { OverviewService } from '../overview/overview.service.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
@@ -64,6 +65,7 @@ export class StartService {
     @Inject(CommentsService) private readonly comments: CommentsService,
     @Inject(MyFeedbackService) private readonly feedback: MyFeedbackService,
     @Inject(StrategyService) private readonly strategies: StrategyService,
+    @Inject(ModelGateway) private readonly gateway: ModelGateway,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -100,7 +102,12 @@ export class StartService {
     const feedback = await this.feedback.dueItems(auth);
     // WG-04: der nächste offene Schritt jeder Warengruppenstrategie im Entwurf
     const strategies = await this.strategies.dueItems(auth);
+    const budget =
+      auth.organization?.buyer && auth.orgRole === 'admin'
+        ? await this.gateway.budgetDue({ orgId: auth.organization.id, userId: auth.userId })
+        : [];
     const items = [
+      ...budget,
       ...ratings,
       ...cycles,
       ...contributions,

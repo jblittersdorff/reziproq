@@ -25,7 +25,8 @@ import {
 import { TenantDatabase } from '../../common/database.module.js';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
-import { DRAFT_MODEL, type DraftModel } from '../ai-drafts/draft-model.js';
+import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
@@ -247,7 +248,12 @@ export class DeviationExplanationsService {
           ? []
           : [
               this.model
-                .write({ system, prompt: deviation.prompt, maxOutputTokens: 300 })
+                .write({
+                  context: gatewayContext(auth, 'deviation_explanation'),
+                  system,
+                  prompt: deviation.prompt,
+                  maxOutputTokens: 300,
+                })
                 .then((content) => ({ criterionKey: deviation.criterionKey, content })),
             ],
       ),
@@ -276,7 +282,7 @@ export class DeviationExplanationsService {
           objectId: prepared.roundId,
           subject: criterionKey,
           content,
-          model: this.model.name,
+          model: draftModelName(this.model, 'deviation_explanation'),
           createdBy: auth.userId,
         });
       }

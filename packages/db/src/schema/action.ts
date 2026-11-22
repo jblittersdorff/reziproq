@@ -123,6 +123,15 @@ export const orgSettingKeys = [
   'category_label_plural',
   // AW-01, NAV-10: Jahresziel EBIT gesichert je Geschäftsjahr, { "2026": 60000000 } in Cent
   'goal_ebit_year',
+  // KI-01: Einstellungen KI (Startwerte im Code, packages/shared/src/ai-settings.ts)
+  'ai_public_research',
+  'ai_source_kinds',
+  'ai_budget_month_cents',
+  'ai_budget_run_cents',
+  'ai_max_steps',
+  'ai_custom_agent_roles',
+  'ai_custom_agent_approval',
+  'ai_agent_budget_overrides',
 ] as const;
 
 export const orgSetting = pgTable(
@@ -141,7 +150,10 @@ export const orgSetting = pgTable(
     check(
       'org_setting_key',
       sql`${table.key} in ('action_reminder_days', 'fiscal_year_start_month', 'hint_max_focus_per_sro',
-        'category_label_singular', 'category_label_plural', 'goal_ebit_year')`,
+        'category_label_singular', 'category_label_plural', 'goal_ebit_year',
+        'ai_public_research', 'ai_source_kinds', 'ai_budget_month_cents', 'ai_budget_run_cents',
+        'ai_max_steps', 'ai_custom_agent_roles', 'ai_custom_agent_approval',
+        'ai_agent_budget_overrides')`,
     ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],

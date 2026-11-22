@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { dayTime } from './greeting';
 
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
+  if (item.kind === 'ai_budget') return t.start.kind.ai_budget;
   if (item.kind === 'cycle') {
     const steps = t.workspace.cycle.steps;
     const step =

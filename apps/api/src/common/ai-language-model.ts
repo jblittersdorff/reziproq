@@ -2,14 +2,14 @@ import type { LanguageModel } from 'ai';
 import { env } from '../config/env.js';
 
 /**
- * Sprachmodell nach PLT-12: Anbieter und Modell aus der Konfiguration. Echte Kundendaten nur über
- * bedrock (im Betrieb Pflicht, siehe env.ts). Bei AI_PROVIDER=test gibt es kein Modell; die
- * Aufrufer nehmen dann ihr festes Testmodell.
+ * Sprachmodell nach PLT-12: Anbieter aus der Konfiguration, Modell aus der Routing-Tabelle des
+ * Gateways (KI-01). Echte Kundendaten nur über bedrock (im Betrieb Pflicht, siehe env.ts). Bei
+ * AI_PROVIDER=test gibt es kein Modell; die Aufrufer nehmen dann ihr festes Testmodell.
  */
-export async function createLanguageModel(): Promise<LanguageModel | null> {
+export async function createLanguageModel(modelId = env.AI_MODEL): Promise<LanguageModel | null> {
   if (env.AI_PROVIDER === 'anthropic') {
     const { anthropic } = await import('@ai-sdk/anthropic');
-    return anthropic(env.AI_MODEL);
+    return anthropic(modelId);
   }
   if (env.AI_PROVIDER === 'bedrock') {
     if (!env.AWS_REGION) throw new Error('AI_PROVIDER=bedrock braucht AWS_REGION.');
@@ -26,7 +26,7 @@ export async function createLanguageModel(): Promise<LanguageModel | null> {
           ...(sessionToken ? { sessionToken } : {}),
         };
       },
-    })(env.AI_MODEL);
+    })(modelId);
   }
   return null;
 }

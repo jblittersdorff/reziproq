@@ -1,41 +1,75 @@
-import { Logger } from '@nestjs/common';
-import { generateText, type LanguageModel } from 'ai';
-import { env } from '../../config/env.js';
+import type { AiFeature } from '@reziproq/shared';
+import { aiFeatureClasses } from '@reziproq/shared';
+import { generateText } from 'ai';
+import {
+  estimateTokens,
+  type GatewayContext,
+  gatewayProvider,
+  type ModelGateway,
+} from '../ai-gateway/model-gateway.js';
+import { modelIdFor } from '../ai-gateway/routing.js';
 
 export const DRAFT_MODEL = Symbol('DRAFT_MODEL');
 
 export interface DraftRequest {
+  /** Organisation, Person und Funktion für das Gateway (KI-01) */
+  context: GatewayContext;
   system: string;
   prompt: string;
   maxOutputTokens: number;
 }
 
 /**
- * Schreibt einen kurzen Entwurf (SEG-11, später PUL-08, SPL-10, QBR-07). Anbieter und Modell wie im
- * Prompt (PLT-12). Ins Protokoll kommen nur Dauer und Tokens, nie der Text.
+ * Schreibt einen kurzen Entwurf (SEG-11, PUL-08, SPL-10, QBR-07, WG-09). Jeder Aufruf läuft über das
+ * Modell-Gateway (KI-01); ins Protokoll kommen nur Dauer und Tokens, nie der Text.
  */
 export interface DraftModel {
   readonly name: string;
+  /** Modell, das eine Funktion schreibt; ohne Angabe gilt name. */
+  nameFor?(feature: AiFeature): string;
   write(request: DraftRequest): Promise<string>;
 }
 
-export class AiSdkDraftModel implements DraftModel {
-  private readonly logger = new Logger('KI-Entwurf');
-  readonly name = env.AI_MODEL;
+/** Name des Modells für ai_draft.model */
+export const draftModelName = (model: DraftModel, feature: AiFeature) =>
+  model.nameFor?.(feature) ?? model.name;
 
-  constructor(private readonly model: LanguageModel) {}
+/** Entwürfe über das Gateway; beim Testanbieter schreibt das feste Testmodell. */
+export class GatewayDraftModel implements DraftModel {
+  readonly name = 'test';
 
-  async write({ system, prompt, maxOutputTokens }: DraftRequest): Promise<string> {
-    const started = Date.now();
-    const result = await generateText({ model: this.model, system, prompt, maxOutputTokens });
-    this.logger.log(
-      JSON.stringify({
-        dauerMs: Date.now() - started,
-        eingabeTokens: result.usage.inputTokens ?? 0,
-        ausgabeTokens: result.usage.outputTokens ?? 0,
-      }),
-    );
-    return result.text.trim();
+  constructor(
+    private readonly gateway: ModelGateway,
+    private readonly fallback: DraftModel = new TestDraftModel(),
+  ) {}
+
+  nameFor(feature: AiFeature) {
+    const provider = gatewayProvider();
+    return provider === 'fake' ? 'test' : modelIdFor(provider, aiFeatureClasses[feature]);
+  }
+
+  write(request: DraftRequest): Promise<string> {
+    const { system, prompt, maxOutputTokens } = request;
+    return this.gateway.call(request.context, async (model) => {
+      if (!model) {
+        const text = await this.fallback.write(request);
+        return {
+          value: text,
+          usage: {
+            inputTokens: estimateTokens(system + prompt),
+            outputTokens: estimateTokens(text),
+          },
+        };
+      }
+      const result = await generateText({ model, system, prompt, maxOutputTokens, maxRetries: 0 });
+      return {
+        value: result.text.trim(),
+        usage: {
+          inputTokens: result.usage.inputTokens ?? 0,
+          outputTokens: result.usage.outputTokens ?? 0,
+        },
+      };
+    });
   }
 }
 

@@ -826,6 +826,18 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // KI-01: Modellaufrufe über das Gateway, je Organisation
+  model_call: {
+    kind: 'org_private',
+    testValues: {
+      feature: 'probe',
+      model_class: 'small',
+      provider: 'fake',
+      model_id: 'fake-small',
+      region: 'eu-local',
+      outcome: 'ok',
+    },
+  },
   // AW-01: EBIT-Ziel je Lieferant
   relationship_ebit_target: {
     kind: 'org_private',

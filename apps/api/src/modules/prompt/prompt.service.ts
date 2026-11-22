@@ -1,9 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PromptEvent, PromptRequest } from '@reziproq/shared';
+import { gatewayContext, gatewayProvider, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { SuppliersService } from '../suppliers/suppliers.service.js';
+import { AiSdkPromptModel } from './ai-sdk-model.js';
 import { PromptLog } from './prompt-log.js';
-import { PROMPT_MODEL, type PromptModel } from './prompt-model.js';
+import { PROMPT_MODEL, type PromptModel, type TurnRequest } from './prompt-model.js';
 import { systemPrompt } from './system-prompt.js';
 import { createPromptTools, invokePromptTool } from './tools.js';
 
@@ -15,6 +17,7 @@ export class PromptService {
     @Inject(PROMPT_MODEL) private readonly model: PromptModel,
     @Inject(SuppliersService) private readonly suppliers: SuppliersService,
     @Inject(PromptLog) private readonly log: PromptLog,
+    @Inject(ModelGateway) private readonly gateway: ModelGateway,
   ) {}
 
   /**
@@ -50,14 +53,27 @@ export class PromptService {
       const tools = createPromptTools((name, input) =>
         invokePromptTool(name, input, auth, this.suppliers, emit),
       );
-      const result = await this.model.turn({
+      const context = gatewayContext(auth, 'prompt');
+      const turnRequest: TurnRequest = {
         system,
         messages,
         tools,
         invokeTool: (name, input) => invokePromptTool(name, input, auth, this.suppliers, emit),
         onText: (delta) => emit({ type: 'text', delta }),
         signal,
-      });
+      };
+      const result =
+        gatewayProvider() === 'bedrock_eu'
+          ? await this.gateway.promptModel().then((model) => {
+              if (!model) throw new Error('Bedrock-Modell fehlt.');
+              return new AiSdkPromptModel(model, () => this.gateway.beginStep(context)).turn(
+                turnRequest,
+              );
+            })
+          : await this.gateway.call(context, async () => {
+              const turn = await this.model.turn(turnRequest);
+              return { value: turn, usage: turn.usage };
+            });
       usage.inputTokens += result.usage.inputTokens;
       usage.outputTokens += result.usage.outputTokens;
       emit({ type: 'done' });

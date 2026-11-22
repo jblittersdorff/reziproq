@@ -16,7 +16,8 @@ import {
 } from '@reziproq/shared';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
-import { DRAFT_MODEL, type DraftModel } from '../ai-drafts/draft-model.js';
+import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { type MeetingScope, MeetingsService } from './meetings.service.js';
@@ -204,7 +205,12 @@ export class PreReadDraftService {
           : { note: null, plan: null };
       return preReadPrompt(detail, scope.side, buyerOnly, names);
     });
-    const written = await this.model.write({ system, prompt, maxOutputTokens: 600 });
+    const written = await this.model.write({
+      context: gatewayContext(auth, 'pre_read'),
+      system,
+      prompt,
+      maxOutputTokens: 600,
+    });
     const content = limitWords(written, maxPreReadWords);
     return this.scoped(side, auth, relationshipId, async (scope) => {
       // Ein neuer Entwurf ersetzt den offenen; die übernommene Zusammenfassung bleibt.
@@ -216,7 +222,7 @@ export class PreReadDraftService {
         objectType,
         objectId: meetingId,
         content,
-        model: this.model.name,
+        model: draftModelName(this.model, 'pre_read'),
         createdBy: auth.userId,
       });
       return this.view(scope, meetingId);

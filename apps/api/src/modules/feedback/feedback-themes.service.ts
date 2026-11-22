@@ -25,7 +25,8 @@ import {
 } from '@reziproq/shared';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
-import { DRAFT_MODEL, type DraftModel } from '../ai-drafts/draft-model.js';
+import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { quotes } from '../ai-drafts/quotes.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -164,6 +165,7 @@ export class FeedbackThemesService {
     let content = '';
     for (const attempt of [0, 1]) {
       const written = await this.model.write({
+        context: gatewayContext(auth, 'feedback_themes'),
         system:
           attempt === 0
             ? system
@@ -196,7 +198,7 @@ export class FeedbackThemesService {
         objectType,
         objectId: waveId,
         content,
-        model: this.model.name,
+        model: draftModelName(this.model, 'feedback_themes'),
         createdBy: auth.userId,
       });
       return this.view(scope, waveId, prepared.texts.length);

@@ -281,7 +281,19 @@ export const supplierFinancialAudit = auditedObject({
 export const orgSettingAudit = auditedObject({
   type: 'org_setting',
   visibility: 'internal',
-  fields: ['action_reminder_days', 'fiscal_year_start_month'],
+  fields: [
+    'action_reminder_days',
+    'fiscal_year_start_month',
+    // KI-01: Einstellungen KI
+    'ai_public_research',
+    'ai_source_kinds',
+    'ai_budget_month_cents',
+    'ai_budget_run_cents',
+    'ai_max_steps',
+    'ai_custom_agent_roles',
+    'ai_custom_agent_approval',
+    'ai_agent_budget_overrides',
+  ],
 });
 
 /** Bitte um Unterschrift an eine Person des Lieferanten (JBP-07), mit Mail; käuferprivat. */

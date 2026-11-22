@@ -27,6 +27,7 @@ import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/
 import { Route as AppEinstellungenExportRouteImport } from './routes/_app/einstellungen/export'
 import { Route as AppEinstellungenGeschaeftsjahrRouteImport } from './routes/_app/einstellungen/geschaeftsjahr'
 import { Route as AppEinstellungenHinweiseRouteImport } from './routes/_app/einstellungen/hinweise'
+import { Route as AppEinstellungenKiRouteImport } from './routes/_app/einstellungen/ki'
 import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einstellungen/rollen'
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
 import { Route as AppFeedbackIndexRouteImport } from './routes/_app/feedback/index'
@@ -351,6 +352,11 @@ const AppEinstellungenHinweiseRoute =
     path: '/einstellungen/hinweise',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenKiRoute = AppEinstellungenKiRouteImport.update({
+  id: '/einstellungen/ki',
+  path: '/einstellungen/ki',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppEinstellungenRollenRoute = AppEinstellungenRollenRouteImport.update({
   id: '/einstellungen/rollen',
   path: '/einstellungen/rollen',
@@ -1726,6 +1732,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
+  '/einstellungen/ki': typeof AppEinstellungenKiRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/feedback/$id': typeof AppFeedbackIdRoute
@@ -1973,6 +1980,7 @@ export interface FileRoutesByTo {
   '/einstellungen/export': typeof AppEinstellungenExportRoute
   '/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
+  '/einstellungen/ki': typeof AppEinstellungenKiRoute
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/feedback/$id': typeof AppFeedbackIdRoute
@@ -2224,6 +2232,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/export': typeof AppEinstellungenExportRoute
   '/_app/einstellungen/geschaeftsjahr': typeof AppEinstellungenGeschaeftsjahrRoute
   '/_app/einstellungen/hinweise': typeof AppEinstellungenHinweiseRoute
+  '/_app/einstellungen/ki': typeof AppEinstellungenKiRoute
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/_app/feedback/$id': typeof AppFeedbackIdRoute
@@ -2476,6 +2485,7 @@ export interface FileRouteTypes {
     | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/hinweise'
+    | '/einstellungen/ki'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/feedback/$id'
@@ -2723,6 +2733,7 @@ export interface FileRouteTypes {
     | '/einstellungen/export'
     | '/einstellungen/geschaeftsjahr'
     | '/einstellungen/hinweise'
+    | '/einstellungen/ki'
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/feedback/$id'
@@ -2973,6 +2984,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/export'
     | '/_app/einstellungen/geschaeftsjahr'
     | '/_app/einstellungen/hinweise'
+    | '/_app/einstellungen/ki'
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
     | '/_app/feedback/$id'
@@ -3342,6 +3354,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/hinweise'
       fullPath: '/einstellungen/hinweise'
       preLoaderRoute: typeof AppEinstellungenHinweiseRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/ki': {
+      id: '/_app/einstellungen/ki'
+      path: '/einstellungen/ki'
+      fullPath: '/einstellungen/ki'
+      preLoaderRoute: typeof AppEinstellungenKiRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/rollen': {
@@ -5402,6 +5421,7 @@ interface AppRouteChildren {
   AppEinstellungenExportRoute: typeof AppEinstellungenExportRoute
   AppEinstellungenGeschaeftsjahrRoute: typeof AppEinstellungenGeschaeftsjahrRoute
   AppEinstellungenHinweiseRoute: typeof AppEinstellungenHinweiseRoute
+  AppEinstellungenKiRoute: typeof AppEinstellungenKiRoute
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
   AppFeedbackIdRoute: typeof AppFeedbackIdRoute
@@ -5498,6 +5518,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenExportRoute: AppEinstellungenExportRoute,
   AppEinstellungenGeschaeftsjahrRoute: AppEinstellungenGeschaeftsjahrRoute,
   AppEinstellungenHinweiseRoute: AppEinstellungenHinweiseRoute,
+  AppEinstellungenKiRoute: AppEinstellungenKiRoute,
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
   AppFeedbackIdRoute: AppFeedbackIdRoute,

@@ -29,7 +29,8 @@ import {
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
-import { DRAFT_MODEL, type DraftModel } from '../ai-drafts/draft-model.js';
+import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { StrategyService } from './strategy.service.js';
@@ -300,7 +301,12 @@ export class MarketService {
         ...items.map((item, index) => `Q${index + 1} ${item.title}: ${item.text}`),
       ].join('\n');
       const output = parseMarketDraft(
-        await this.model.write({ system, prompt, maxOutputTokens: 1600 }),
+        await this.model.write({
+          context: gatewayContext(auth, 'market_analysis'),
+          system,
+          prompt,
+          maxOutputTokens: 1600,
+        }),
       );
       if (!output) {
         throw new HttpException(
@@ -319,7 +325,7 @@ export class MarketService {
             objectType,
             objectId: strategyId,
             content: JSON.stringify(output),
-            model: this.model.name,
+            model: draftModelName(this.model, 'market_analysis'),
             createdBy: auth.userId,
           })
           .returning({ id: schema.aiDraft.id });
