@@ -6,6 +6,7 @@ import {
   kpiDirections,
   type MeetingSide,
   maxScorecardKpis,
+  progressFromBaseline,
   type ScorecardView,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +24,7 @@ import { type FormEvent, useState } from 'react';
 import { KpiLineChart } from '@/components/charts/kpi-line-chart';
 import { KpiSparkline } from '@/components/charts/kpi-sparkline';
 import { Badge } from '@/components/ui/badge';
+import { BaselineProgress } from '@/components/ui/baseline-progress';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -300,6 +302,26 @@ function SignatureHead({
   );
 }
 
+/** AW-01: Fortschritt von der Basis zum Ziel, auch wenn weniger besser ist */
+function KpiProgress({ kpi }: { kpi: Kpi }) {
+  const text = useT().jbp.scorecard;
+  const { locale } = useLocale();
+  const percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
+  const latest = kpi.values.at(-1)?.value;
+  return (
+    <BaselineProgress
+      progress={progressFromBaseline(
+        kpi.baseline === null ? null : Number(kpi.baseline),
+        Number(kpi.target),
+        latest === undefined || latest === null ? null : Number(latest),
+      )}
+      label={text.progress}
+      emptyLabel={text.noValue}
+      format={(share) => percent.format(share)}
+    />
+  );
+}
+
 function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView }) {
   const text = useT().jbp.scorecard;
   const day = useDay();
@@ -335,6 +357,7 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
               <KpiSparkline {...sparkPoints(kpi)} />
               <TrackBadge track={kpi.track} />
             </span>
+            <KpiProgress kpi={kpi} />
             <span className="flex flex-wrap items-center gap-2 text-sm">
               <span>
                 {kpi.ownerName} ({text.sides[kpi.ownerSide]})
@@ -393,9 +416,12 @@ function KpiTable({ place, data }: { place: MeetingPlace; data: ScorecardView })
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <span className="flex items-center gap-3">
-                    <KpiSparkline {...sparkPoints(kpi)} />
-                    <TrackBadge track={kpi.track} />
+                  <span className="flex flex-col gap-1">
+                    <span className="flex items-center gap-3">
+                      <KpiSparkline {...sparkPoints(kpi)} />
+                      <TrackBadge track={kpi.track} />
+                    </span>
+                    <KpiProgress kpi={kpi} />
                   </span>
                 </TableCell>
               </TableRow>

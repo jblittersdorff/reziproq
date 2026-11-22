@@ -2359,6 +2359,8 @@ export const de = {
     },
     // JBP-07: Scorecard und Unterschrift
     scorecard: {
+      progress: 'Fortschritt von der Basis zum Ziel',
+      noValue: 'noch kein Wert',
       title: 'Scorecard',
       // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
       pageTitle: 'Die Scorecard vereinbaren',
@@ -2806,6 +2808,50 @@ export const de = {
   },
 
   // Arbeitsbereich eines Lieferanten (NAV-06)
+  // AW-01, NAV-10: Beleg der Übersicht und des Lieferanten
+  insights: {
+    overviewTitle: 'Übersicht',
+    overviewPurpose: (year: number) => `Was wir im Geschäftsjahr ${year} erreicht haben, belegt.`,
+    loading: 'Übersicht wird geladen …',
+    failed: 'Die Übersicht konnte nicht geladen werden.',
+    yearLabel: 'Geschäftsjahr',
+    evidenceTitle: (secured: string, goal: string | null) =>
+      goal ? `Gesichert sind ${secured} von ${goal} EBIT.` : `Gesichert sind ${secured} EBIT.`,
+    evidenceSource: 'Quelle: Impact-Ledger, vom Controlling bestätigt; gemeinsame Pläne',
+    result: 'Ergebnisse',
+    relationships: 'Fokuslieferanten mit freigegebenem JBP',
+    moneyOf: (actual: string, target: string) => `${actual} von ${target}`,
+    countOf: (actual: number, target: number) => `${actual} von ${target}`,
+    noGoal: 'Noch kein Jahresziel.',
+    setGoal: 'Ziel festlegen',
+    goalLabel: (year: number) => `Jahresziel EBIT ${year} in Euro`,
+    saveGoal: 'Ziel speichern',
+    cancel: 'Abbrechen',
+    goalSaved: 'Jahresziel gespeichert.',
+    goalFailed: 'Das Ziel konnte nicht gespeichert werden.',
+    rowsLabel: 'Was dahinter steht',
+    inProgress: 'In Umsetzung',
+    inProgressDetail: 'EBIT der laufenden Initiativen, ab Reifegrad R3 bis alle',
+    range: (low: string, high: string) => `${low} bis ${high}`,
+    cash: 'Cash',
+    cashDetail: 'Getrennt vom EBIT, nie addiert',
+    questionsTitle: 'Mehr wissen? Frag Reziproq',
+    questions: [
+      'Welche Initiativen tragen am meisten zum gesicherten EBIT bei?',
+      'Was fehlt noch bis zum Jahresziel?',
+      'Welche Fokuslieferanten haben noch keinen freigegebenen JBP?',
+    ],
+    supplierTitle: 'Ergebnisse und Zusagen',
+    supplierSource: (year: number) => `Geschäftsjahr ${year} · Impact-Ledger und Zusagen`,
+    supplierEvidence: (secured: string) => `Gesichert sind ${secured} EBIT.`,
+    commitments: 'Zusagen',
+    commitmentsOf: (kept: number, due: number) => `${kept} von ${due} fälligen rechtzeitig`,
+    targetPending: (amount: string) => `Ziel ${amount} vorgeschlagen, Freigabe offen.`,
+    proposeTarget: 'Ziel vorschlagen',
+    approveTarget: 'Ziel freigeben',
+    targetLabel: (year: number) => `EBIT-Ziel ${year} in Euro`,
+    saveTarget: 'Vorschlagen',
+  },
   // NAV-10: Aktivitäten eines Lieferanten (früher Notizraum)
   activities: {
     history: 'Verlauf',

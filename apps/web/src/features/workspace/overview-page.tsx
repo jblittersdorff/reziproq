@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { SupplierRingsCard } from '@/features/insights/insight-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
@@ -88,6 +89,8 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
           canStartNextCycle={overview.data.canStartNextCycle ?? false}
         />
       )}
+      {/* AW-01: Ringpaar Ergebnisse gegen Ziel und eingehaltene Zusagen */}
+      <SupplierRingsCard relationshipId={relationshipId} />
       {overview.data?.openHints !== undefined && overview.data.openHints > 0 && (
         <p className="flex flex-wrap items-center gap-2">
           <LightbulbIcon aria-hidden className="size-4 text-muted-foreground" />

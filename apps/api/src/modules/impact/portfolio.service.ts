@@ -47,6 +47,8 @@ export interface InitiativeFacts {
   excluded: boolean;
   /** Ist in von Controlling freigegebenen Zeiträumen */
   realizedCents: number;
+  /** AW-01: dieselben Ist-Werte je Monat, für „Gesichert“ in einem Zeitraum */
+  realizedValues: { month: string; valueCents: number }[];
 }
 
 /** Was die Session sieht; RLS entscheidet, beim Lieferanten nur Geteiltes. */
@@ -132,6 +134,13 @@ export async function factsOf(
             periods.some((period) => value.month >= period.from && value.month <= period.to),
         )
         .reduce((sum, value) => sum + value.valueCents, 0),
+      realizedValues: own
+        .filter(
+          (value) =>
+            value.kind === 'actual' &&
+            periods.some((period) => value.month >= period.from && value.month <= period.to),
+        )
+        .map(({ month, valueCents }) => ({ month, valueCents })),
     });
   }
   return facts;

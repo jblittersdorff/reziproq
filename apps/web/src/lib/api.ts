@@ -1,4 +1,8 @@
 import {
+  type EbitGoalRequest,
+  overviewInsightSchema,
+  supplierRingsSchema,
+  type SupplierTargetRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -773,6 +777,56 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
         accessToken,
       ),
     retry: retryUnlessDenied,
+  });
+
+/** AW-01: Beleg der Übersicht und Ringpaar des Lieferanten */
+export const overviewInsightQueryOptions = (accessToken: string, year?: number) =>
+  queryOptions({
+    queryKey: ['uebersicht', year ?? 'aktuell'],
+    queryFn: () =>
+      getJson(`/uebersicht${year ? `?jahr=${year}` : ''}`, overviewInsightSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const supplierRingsQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'ringe'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/ergebnisse/ringe`, supplierRingsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+const sendNoContent = async (
+  accessToken: string,
+  method: 'PUT' | 'POST',
+  path: string,
+  body: unknown,
+) => {
+  const res = await fetch(`/api${path}`, {
+    method,
+    headers: {
+      ...supportHeaders(),
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+};
+
+export const saveEbitGoal = (accessToken: string, request: EbitGoalRequest) =>
+  sendNoContent(accessToken, 'PUT', '/uebersicht/ziel', request);
+export const proposeSupplierTarget = (
+  accessToken: string,
+  relationshipId: string,
+  request: SupplierTargetRequest,
+) => sendNoContent(accessToken, 'PUT', `/suppliers/${relationshipId}/ergebnisse/ziel`, request);
+export const approveSupplierTarget = (accessToken: string, relationshipId: string, year: number) =>
+  sendNoContent(accessToken, 'POST', `/suppliers/${relationshipId}/ergebnisse/ziel/freigeben`, {
+    year,
   });
 
 /** NAV-10: Aktivitäten eines Lieferanten und Notizen */

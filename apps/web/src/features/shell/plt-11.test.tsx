@@ -182,7 +182,7 @@ describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Tit
     ).toBeDefined();
   });
 
-  it.each([['/wirkung', 'Übersicht', 'Noch keine Ergebnisse']])(
+  it.each([['/uebersicht/ergebnisse', 'Ergebnisse', 'Noch keine Ergebnisse']])(
     '%s zeigt den leeren Zustand und setzt den Tab-Titel',
     async (path, title, empty) => {
       renderAt(path);

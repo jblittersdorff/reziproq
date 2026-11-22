@@ -121,6 +121,8 @@ export const orgSettingKeys = [
   // WG-01: eigene Bezeichnung statt „Warengruppe“ / „Warengruppen“
   'category_label_singular',
   'category_label_plural',
+  // AW-01, NAV-10: Jahresziel EBIT gesichert je Geschäftsjahr, { "2026": 60000000 } in Cent
+  'goal_ebit_year',
 ] as const;
 
 export const orgSetting = pgTable(
@@ -139,7 +141,7 @@ export const orgSetting = pgTable(
     check(
       'org_setting_key',
       sql`${table.key} in ('action_reminder_days', 'fiscal_year_start_month', 'hint_max_focus_per_sro',
-        'category_label_singular', 'category_label_plural')`,
+        'category_label_singular', 'category_label_plural', 'goal_ebit_year')`,
     ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],

@@ -64,7 +64,7 @@ afterEach(() => {
 
 describe('PNL-11 in der Oberfläche', () => {
   it('„Excel herunterladen“ holt die Datei für Sicht und Geschäftsjahr und nimmt den Namen vom Server', async () => {
-    renderAt('/wirkung?sicht=geschaeftsjahr&gj=2026');
+    renderAt('/uebersicht/ergebnisse?sicht=geschaeftsjahr&gj=2026');
     fireEvent.click(await screen.findByRole('button', { name: 'Excel herunterladen' }));
     await waitFor(() => expect(saved).toEqual(['Wirkung_Test-OEM_GJ_2026_2026-11-15.xlsx']));
     expect(requests).toContain('/api/wirkung/export?sicht=geschaeftsjahr&gj=2026');

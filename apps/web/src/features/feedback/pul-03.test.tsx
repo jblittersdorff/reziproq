@@ -171,6 +171,13 @@ describe('PUL-03 Auswertung in der Oberfläche', () => {
     // Nicht nur über Farbe: jede Zeile nennt beide Werte und die Lücke als Text.
     expect(rows[0]?.textContent).toContain('Eure Seite 4,1 · Lieferant 3,2');
     expect(rows[0]?.textContent).toContain('Lücke 0,9');
+    // AW-01: nur Lücken ab 0,5 sind markiert
+    for (const row of rows) {
+      const gap = Number(
+        (row.textContent?.match(/Lücke (\d+,\d+)/)?.[1] ?? '0').replace(',', '.'),
+      );
+      expect(row.querySelector('[data-gap="marked"]') !== null).toBe(gap >= 0.5);
+    }
   });
 
   it('Funktionen nur ab drei Antworten; Freitexte der anderen Seite', async () => {

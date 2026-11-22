@@ -826,6 +826,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // AW-01: EBIT-Ziel je Lieferant
+  relationship_ebit_target: {
+    kind: 'org_private',
+    testValues: () => ({
+      year: 2000 + Math.floor(Math.random() * 100),
+      ebit_target_cents: 100,
+      proposed_by: 'probe',
+    }),
+  },
   relationship_business_unit: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

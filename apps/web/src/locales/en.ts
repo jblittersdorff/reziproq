@@ -2303,6 +2303,8 @@ export const en: Messages = {
       } as Record<string, string>,
     },
     scorecard: {
+      progress: 'Progress from baseline to target',
+      noValue: 'no value yet',
       title: 'Scorecard',
       // Seitentitel nach Regel 9 der Designsprache: nennt die Aufgabe
       pageTitle: 'Agree on the scorecard',
@@ -2736,6 +2738,50 @@ export const en: Messages = {
   },
 
   // Supplier workspace (NAV-06)
+  // AW-01, NAV-10: evidence for the overview and the supplier
+  insights: {
+    overviewTitle: 'Overview',
+    overviewPurpose: (year: number) => `What we achieved in fiscal year ${year}, with evidence.`,
+    loading: 'Loading overview …',
+    failed: 'The overview could not be loaded.',
+    yearLabel: 'Fiscal year',
+    evidenceTitle: (secured: string, goal: string | null) =>
+      goal ? `${secured} of ${goal} EBIT secured.` : `${secured} EBIT secured.`,
+    evidenceSource: 'Source: impact ledger, confirmed by Controlling; joint business plans',
+    result: 'Results',
+    relationships: 'Focus suppliers with an approved JBP',
+    moneyOf: (actual: string, target: string) => `${actual} of ${target}`,
+    countOf: (actual: number, target: number) => `${actual} of ${target}`,
+    noGoal: 'No annual target yet.',
+    setGoal: 'Set target',
+    goalLabel: (year: number) => `Annual EBIT target ${year} in euros`,
+    saveGoal: 'Save target',
+    cancel: 'Cancel',
+    goalSaved: 'Annual target saved.',
+    goalFailed: 'The target could not be saved.',
+    rowsLabel: 'What is behind it',
+    inProgress: 'In progress',
+    inProgressDetail: 'EBIT of running initiatives, from maturity R3 to all',
+    range: (low: string, high: string) => `${low} to ${high}`,
+    cash: 'Cash',
+    cashDetail: 'Separate from EBIT, never added',
+    questionsTitle: 'Want to know more? Ask Reziproq',
+    questions: [
+      'Which initiatives contribute most to secured EBIT?',
+      'What is still missing to reach the annual target?',
+      'Which focus suppliers do not have an approved JBP yet?',
+    ],
+    supplierTitle: 'Results and commitments',
+    supplierSource: (year: number) => `Fiscal year ${year} · impact ledger and commitments`,
+    supplierEvidence: (secured: string) => `${secured} EBIT secured.`,
+    commitments: 'Commitments',
+    commitmentsOf: (kept: number, due: number) => `${kept} of ${due} due kept on time`,
+    targetPending: (amount: string) => `Target ${amount} proposed, approval pending.`,
+    proposeTarget: 'Propose target',
+    approveTarget: 'Approve target',
+    targetLabel: (year: number) => `EBIT target ${year} in euros`,
+    saveTarget: 'Propose',
+  },
   // NAV-10: supplier activities (formerly notes room)
   activities: {
     history: 'History',

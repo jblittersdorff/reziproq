@@ -14,11 +14,13 @@ import {
   ValidationController,
 } from './impact.controller.js';
 import { ImpactService } from './impact.service.js';
+import { OverviewInsightController, SupplierRingsController } from './insights.controller.js';
+import { InsightsService } from './insights.service.js';
 import { PortfolioService } from './portfolio.service.js';
 import { SharingService } from './sharing.service.js';
 import { ValidationService } from './validation.service.js';
 
-/** GuV-Wirkung (PNL-01 ff.). */
+/** GuV-Wirkung (PNL-01 ff.) und der Beleg der Auswertungen (AW-01). */
 @Module({
   imports: [EmailModule, CustomersModule],
   controllers: [
@@ -31,8 +33,17 @@ import { ValidationService } from './validation.service.js';
     ImpactExportController,
     PnlLinesController,
     ValidationController,
+    OverviewInsightController,
+    SupplierRingsController,
   ],
-  providers: [ImpactService, ValidationService, SharingService, PortfolioService, ExportService],
+  providers: [
+    ImpactService,
+    ValidationService,
+    SharingService,
+    PortfolioService,
+    ExportService,
+    InsightsService,
+  ],
   exports: [ImpactService, ValidationService],
 })
 export class ImpactModule {}

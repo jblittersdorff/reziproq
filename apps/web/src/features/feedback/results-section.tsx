@@ -11,6 +11,9 @@ import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { routerLink } from '@/features/shell/navigation';
 import { useLocale, useT } from '@/lib/i18n';
 
+/** AW-01: ab dieser Lücke (Skala des Fragebogens) wird sie hervorgehoben */
+const markedGap = 0.5;
+
 // PUL-03: Auswertung einer aufgedeckten Welle. Beide Seiten sehen dieselben Zahlen; Formen und
 // Zahlen statt nur Farbe: Käufer gefüllter Punkt, Lieferant Ring, Soll als Strich darüber/darunter.
 
@@ -124,7 +127,15 @@ function Dumbbell({
                   number(supplier.ist),
                 )}
                 {row.delta !== null && (
-                  <span className="block text-muted-foreground">
+                  // AW-01: Lücken ab 0,5 rot und fett beschriftet, kleinere bleiben grau.
+                  <span
+                    data-gap={Math.abs(row.delta) >= markedGap ? 'marked' : undefined}
+                    className={
+                      Math.abs(row.delta) >= markedGap
+                        ? 'block font-semibold text-destructive'
+                        : 'block text-muted-foreground'
+                    }
+                  >
                     {text.feedback.gapLine(number(Math.abs(row.delta)))}
                   </span>
                 )}

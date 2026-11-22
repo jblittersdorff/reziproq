@@ -11,7 +11,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 1 | Anpassung Designsprache · Ringe, Diagramme, Informationsdichte | Bestehende Tokens, Bausteine und Referenzen; [Designsprache](design/designsprache.md) und Beispiel auf `/design#insights` | M | fertig |
 | 2 | Anpassung NAV-10 · Kopf, Weiterleitungen, Mein Tag, Aktivitäten aus vorhandenen Quellen | 1; NAV-05/06, FS-01, QS-05 und PNL gebaut. Lieferantenzugang und alte Lesezeichen separat testen. LS-01 liefert den Listeninhalt in 3. | L | fertig |
 | 3 | Anpassung LS-01 · Lieferantenliste mit Detailleiste | 1–2; PLT-03/07, NAV-12, SEG, ZYK und WG-18 gebaut. Kurzname und Importrecht klären. Agentenzähler in 9. | L | fertig |
-| 4 | Anpassung AW-01 · Diagramme und Auswertungen aus bestehenden Daten | 1–3; PNL, JBP-Scorecard und PUL gebaut. KI-Aussagen, Chancen und Risiken folgen in 9 und 11. | L | offen |
+| 4 | Anpassung AW-01 · Diagramme und Auswertungen aus bestehenden Daten | 1–3; PNL, JBP-Scorecard und PUL gebaut. KI-Aussagen, Chancen und Risiken folgen in 9 und 11. | L | fertig (ohne KI-Teile, 22.11.2026) |
 | 5 | Anpassung KI-01 · Modell-Gateway, Kontingent und bestehende Modellaufrufe | Lieferantenmodule 1.0 und PLT-12; Bedrock EU und lokale Testmodelle anbinden, Schlüsselraum von org_setting erweitern. | L | offen |
 | 6 | Anpassung KI-03 · bestehende Entwürfe und Quellen überführen | 5; SEG-11, PUL-08, SPL-10, QBR-07, Migrationen 0074–0077 und 0085; Umgang mit Lieferanten-Pre-Reads klären. | L | offen |
 | 7 | KI-04 · Agenten, Werkzeuge und Läufe | 5–6; bestehende KI-Funktionen zuordnen und Rechte je Person und Quelle durchsetzen. | L | offen |

@@ -652,6 +652,13 @@
       "when": 1795352658187,
       "tag": "0092_notiz_ohne_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1795371175152,
+      "tag": "0093_auswertungen_ziele",
+      "breakpoints": true
     }
   ]
 }

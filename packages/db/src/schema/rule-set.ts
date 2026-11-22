@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   check,
   index,
   integer,
@@ -9,6 +10,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
@@ -163,5 +165,31 @@ export const relationshipTarget = pgTable(
       table.ownerOrgId,
       table.visibility,
     ),
+  ],
+);
+
+// AW-01: EBIT-Ziel je Lieferant und Geschäftsjahr für den äußeren Ring. Der SRO schlägt vor, Admin
+// oder Lead gibt frei; der Ring zeigt nur ein freigegebenes Ziel. In der Spec relationship_target;
+// der Name ist hier schon für den Soll-Typ der Spielregeln (SEG-10) vergeben.
+export const relationshipEbitTarget = pgTable(
+  'relationship_ebit_target',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    year: integer().notNull(),
+    ebitTargetCents: bigint({ mode: 'number' }).notNull(),
+    proposedBy: text().notNull(),
+    approvedBy: text(),
+    approvedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('relationship_ebit_target_amount', sql`${table.ebitTargetCents} > 0`),
+    uniqueIndex('relationship_ebit_target_once').on(table.relationshipId, table.year),
   ],
 );

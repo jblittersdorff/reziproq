@@ -17,7 +17,6 @@ import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppFragenRouteImport } from './routes/_app/fragen'
 import { Route as AppMeinTagRouteImport } from './routes/_app/mein-tag'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
-import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as EinladungTokenRouteRouteImport } from './routes/einladung/$token/route'
 import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
@@ -49,6 +48,8 @@ import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprac
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
 import { Route as AppStartMassnahmenRouteImport } from './routes/_app/start/massnahmen'
+import { Route as AppUebersichtIndexRouteImport } from './routes/_app/uebersicht/index'
+import { Route as AppUebersichtErgebnisseRouteImport } from './routes/_app/uebersicht/ergebnisse'
 import { Route as AppWarengruppenIndexRouteImport } from './routes/_app/warengruppen/index'
 import { Route as AppWirkungIndexRouteImport } from './routes/_app/wirkung/index'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
@@ -297,11 +298,6 @@ const AppMenuRoute = AppMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AppRoute,
 } as any)
-const AppUebersichtRoute = AppUebersichtRouteImport.update({
-  id: '/uebersicht',
-  path: '/uebersicht',
-  getParentRoute: () => AppRoute,
-} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -459,6 +455,16 @@ const AppStartFaelligRoute = AppStartFaelligRouteImport.update({
 const AppStartMassnahmenRoute = AppStartMassnahmenRouteImport.update({
   id: '/start/massnahmen',
   path: '/start/massnahmen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUebersichtIndexRoute = AppUebersichtIndexRouteImport.update({
+  id: '/uebersicht/',
+  path: '/uebersicht/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUebersichtErgebnisseRoute = AppUebersichtErgebnisseRouteImport.update({
+  id: '/uebersicht/ergebnisse',
+  path: '/uebersicht/ergebnisse',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWarengruppenIndexRoute = AppWarengruppenIndexRouteImport.update({
@@ -1711,7 +1717,6 @@ export interface FileRoutesByFullPath {
   '/fragen': typeof AppFragenRoute
   '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
-  '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
@@ -1733,6 +1738,7 @@ export interface FileRoutesByFullPath {
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
+  '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
@@ -1744,6 +1750,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/': typeof AppPortfolioIndexRoute
   '/profil/': typeof AppProfilIndexRoute
   '/start/': typeof AppStartIndexRoute
+  '/uebersicht/': typeof AppUebersichtIndexRoute
   '/warengruppen/': typeof AppWarengruppenIndexRoute
   '/wirkung/': typeof AppWirkungIndexRoute
   '/einladung/$token/': typeof EinladungTokenIndexRoute
@@ -1959,7 +1966,6 @@ export interface FileRoutesByTo {
   '/fragen': typeof AppFragenRoute
   '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
-  '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
@@ -1979,6 +1985,7 @@ export interface FileRoutesByTo {
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
+  '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
@@ -1990,6 +1997,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof AppPortfolioIndexRoute
   '/profil': typeof AppProfilIndexRoute
   '/start': typeof AppStartIndexRoute
+  '/uebersicht': typeof AppUebersichtIndexRoute
   '/warengruppen': typeof AppWarengruppenIndexRoute
   '/wirkung': typeof AppWirkungIndexRoute
   '/einladung/$token': typeof EinladungTokenIndexRoute
@@ -2207,7 +2215,6 @@ export interface FileRoutesById {
   '/_app/fragen': typeof AppFragenRoute
   '/_app/mein-tag': typeof AppMeinTagRoute
   '/_app/menu': typeof AppMenuRoute
-  '/_app/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
@@ -2229,6 +2236,7 @@ export interface FileRoutesById {
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
+  '/_app/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2240,6 +2248,7 @@ export interface FileRoutesById {
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
   '/_app/start/': typeof AppStartIndexRoute
+  '/_app/uebersicht/': typeof AppUebersichtIndexRoute
   '/_app/warengruppen/': typeof AppWarengruppenIndexRoute
   '/_app/wirkung/': typeof AppWirkungIndexRoute
   '/einladung/$token/': typeof EinladungTokenIndexRoute
@@ -2458,7 +2467,6 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/mein-tag'
     | '/menu'
-    | '/uebersicht'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/kunden/$id'
@@ -2480,6 +2488,7 @@ export interface FileRouteTypes {
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
+    | '/uebersicht/ergebnisse'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen/'
@@ -2491,6 +2500,7 @@ export interface FileRouteTypes {
     | '/portfolio/'
     | '/profil/'
     | '/start/'
+    | '/uebersicht/'
     | '/warengruppen/'
     | '/wirkung/'
     | '/einladung/$token/'
@@ -2706,7 +2716,6 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/mein-tag'
     | '/menu'
-    | '/uebersicht'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/betreiber/kunden'
@@ -2726,6 +2735,7 @@ export interface FileRouteTypes {
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
+    | '/uebersicht/ergebnisse'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen'
@@ -2737,6 +2747,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/profil'
     | '/start'
+    | '/uebersicht'
     | '/warengruppen'
     | '/wirkung'
     | '/einladung/$token'
@@ -2953,7 +2964,6 @@ export interface FileRouteTypes {
     | '/_app/fragen'
     | '/_app/mein-tag'
     | '/_app/menu'
-    | '/_app/uebersicht'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/_app/kunden/$id'
@@ -2975,6 +2985,7 @@ export interface FileRouteTypes {
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
+    | '/_app/uebersicht/ergebnisse'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
@@ -2986,6 +2997,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/'
     | '/_app/profil/'
     | '/_app/start/'
+    | '/_app/uebersicht/'
     | '/_app/warengruppen/'
     | '/_app/wirkung/'
     | '/einladung/$token/'
@@ -3262,13 +3274,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMenuRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/uebersicht': {
-      id: '/_app/uebersicht'
-      path: '/uebersicht'
-      fullPath: '/uebersicht'
-      preLoaderRoute: typeof AppUebersichtRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -3484,6 +3489,20 @@ declare module '@tanstack/react-router' {
       path: '/start/massnahmen'
       fullPath: '/start/massnahmen'
       preLoaderRoute: typeof AppStartMassnahmenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/uebersicht/': {
+      id: '/_app/uebersicht/'
+      path: '/uebersicht'
+      fullPath: '/uebersicht/'
+      preLoaderRoute: typeof AppUebersichtIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/uebersicht/ergebnisse': {
+      id: '/_app/uebersicht/ergebnisse'
+      path: '/uebersicht/ergebnisse'
+      fullPath: '/uebersicht/ergebnisse'
+      preLoaderRoute: typeof AppUebersichtErgebnisseRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/warengruppen/': {
@@ -5376,7 +5395,6 @@ interface AppRouteChildren {
   AppFragenRoute: typeof AppFragenRoute
   AppMeinTagRoute: typeof AppMeinTagRoute
   AppMenuRoute: typeof AppMenuRoute
-  AppUebersichtRoute: typeof AppUebersichtRoute
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
@@ -5396,6 +5414,7 @@ interface AppRouteChildren {
   AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
+  AppUebersichtErgebnisseRoute: typeof AppUebersichtErgebnisseRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
@@ -5405,6 +5424,7 @@ interface AppRouteChildren {
   AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
   AppStartIndexRoute: typeof AppStartIndexRoute
+  AppUebersichtIndexRoute: typeof AppUebersichtIndexRoute
   AppWarengruppenIndexRoute: typeof AppWarengruppenIndexRoute
   AppWirkungIndexRoute: typeof AppWirkungIndexRoute
   AppBewertungenIdQualitaetRoute: typeof AppBewertungenIdQualitaetRoute
@@ -5471,7 +5491,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppFragenRoute: AppFragenRoute,
   AppMeinTagRoute: AppMeinTagRoute,
   AppMenuRoute: AppMenuRoute,
-  AppUebersichtRoute: AppUebersichtRoute,
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
@@ -5491,6 +5510,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
+  AppUebersichtErgebnisseRoute: AppUebersichtErgebnisseRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppFeedbackIndexRoute: AppFeedbackIndexRoute,
@@ -5500,6 +5520,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioIndexRoute: AppPortfolioIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
   AppStartIndexRoute: AppStartIndexRoute,
+  AppUebersichtIndexRoute: AppUebersichtIndexRoute,
   AppWarengruppenIndexRoute: AppWarengruppenIndexRoute,
   AppWirkungIndexRoute: AppWirkungIndexRoute,
   AppBewertungenIdQualitaetRoute: AppBewertungenIdQualitaetRoute,

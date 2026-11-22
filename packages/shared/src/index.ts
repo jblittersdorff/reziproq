@@ -13,6 +13,7 @@ export * from './impact.js';
 export * from './import.js';
 export * from './import-demo.js';
 export * from './initiatives.js';
+export * from './insights.js';
 export * from './invitations.js';
 export * from './jbp.js';
 export * from './levers.js';

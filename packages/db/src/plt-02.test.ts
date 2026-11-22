@@ -163,6 +163,7 @@ describe('PLT-02 in der Datenbank', () => {
       'rating_assignment',
       'relationship',
       'relationship_business_unit',
+      'relationship_ebit_target',
       'relationship_material_group',
       'relationship_member',
       'relationship_side',

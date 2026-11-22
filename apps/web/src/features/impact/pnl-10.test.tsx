@@ -128,7 +128,7 @@ describe('PNL-10 in der Oberfläche', () => {
   });
 
   it('das Portfolio zeigt die Pipeline je Wirkungsart ohne Gesamtsumme und führt zur Beziehung', async () => {
-    renderAt('/wirkung');
+    renderAt('/uebersicht/ergebnisse');
     expect(await screen.findByText(/2 Fokuslieferanten/)).toBeDefined();
     expect(screen.getByRole('list', { name: 'EBIT' })).toBeDefined();
     expect(screen.getByRole('list', { name: 'Kostenvermeidung' })).toBeDefined();
@@ -148,7 +148,7 @@ describe('PNL-10 in der Oberfläche', () => {
   });
 
   it('Sicht und Geschäftsjahr stehen in der Adresse und gehen an die API', async () => {
-    const router = renderAt('/wirkung');
+    const router = renderAt('/uebersicht/ergebnisse');
     fireEvent.click(await screen.findByRole('radio', { name: 'Geschäftsjahr' }));
     await waitFor(() =>
       expect(router.state.location.search).toEqual({ sicht: 'geschaeftsjahr', gj: 2026 }),

@@ -143,6 +143,7 @@ describe('Migrationen', () => {
       'plan_objective',
       'relationship',
       'relationship_business_unit',
+      'relationship_ebit_target',
       'relationship_material_group',
       'relationship_member',
       'relationship_side',

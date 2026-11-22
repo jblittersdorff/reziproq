@@ -22,7 +22,8 @@ const routes = [
   { path: '/start', title: greeting, empty: 'Heute wartet nichts auf dich.' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Matrix' },
-  { path: '/wirkung', title: 'Übersicht', empty: 'Noch keine Ergebnisse' },
+  // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
+  { path: '/uebersicht/ergebnisse', title: 'Ergebnisse', empty: 'Noch keine Ergebnisse' },
   { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
