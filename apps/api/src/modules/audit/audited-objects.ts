@@ -96,6 +96,13 @@ export const jbpAudit = auditedObject({
 });
 
 /** Thema einer Seite im Gemeinsamen Plan (JBP-02): geteilt. */
+/** KI-11: Wertpotenzial, käuferintern; Annahmen ändern, verwerfen, übernehmen */
+export const valueOpportunityAudit = auditedObject({
+  type: 'value_opportunity',
+  visibility: 'internal',
+  fields: ['inputs', 'status', 'dismiss_reason', 'adopted_topic_id'],
+});
+
 export const jbpTopicAudit = auditedObject({
   type: 'jbp_topic',
   visibility: 'shared',
@@ -449,6 +456,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   validationAudit,
   scorecardSettingAudit,
   orgSettingAudit,
+  valueOpportunityAudit,
   initiativeShareAudit,
   savingsReferenceAudit,
   supplierBenefitAudit,

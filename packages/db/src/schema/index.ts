@@ -28,3 +28,4 @@ export * from './touchpoint.js';
 export * from './note.js';
 export * from './model-call.js';
 export * from './agent.js';
+export * from './value-opportunity.js';

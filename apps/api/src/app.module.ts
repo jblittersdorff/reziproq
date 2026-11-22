@@ -24,6 +24,7 @@ import { MasterDataModule } from './modules/master-data/master-data.module.js';
 import { MaterialGroupsModule } from './modules/material-groups/material-groups.module.js';
 import { MeModule } from './modules/me/me.module.js';
 import { MeetingsModule } from './modules/meetings/meetings.module.js';
+import { OpportunitiesModule } from './modules/opportunities/opportunities.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
 import { PdfExportsModule } from './modules/pdf-exports/pdf-exports.module.js';
@@ -53,6 +54,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     AgentsModule,
     MeModule,
     OrganizationsModule,
+    OpportunitiesModule,
     SuppliersModule,
     OverviewModule,
     MasterDataModule,

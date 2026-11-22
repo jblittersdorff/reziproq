@@ -826,6 +826,38 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // KI-11: Wertpotenziale, Marktsignale und Datenlücken je Beziehung, nur die eigene Organisation
+  value_opportunity: {
+    kind: 'org_private',
+    testValues: {
+      template_key: 'index_clause',
+      template_version: 1,
+      title: 'Probe',
+      reason: 'Probe',
+      impact_type: 'ebit',
+      buyer_low_cents: 1,
+      buyer_high_cents: 2,
+      confidence: 'medium',
+      confidence_reason: 'template_assumption',
+      inputs: '{}',
+    },
+  },
+  value_market_signal: {
+    kind: 'org_private',
+    testValues: {
+      kind: 'technology',
+      title: 'Probe',
+      summary: 'Probe',
+      direction: 'neutral',
+      sources: '[{"title":"Probe","url":"https://example.test","publishedOn":"2026-01-01","excerpt":"Probe"}]',
+      outcome: 'no_effect',
+      outcome_reason: 'Probe',
+    },
+  },
+  value_data_gap: {
+    kind: 'org_private',
+    testValues: { data_key: 'probe', description: 'Probe', templates_blocked: '[]' },
+  },
   // KI-01: Modellaufrufe über das Gateway, je Organisation
   agent: {
     kind: 'org_private',

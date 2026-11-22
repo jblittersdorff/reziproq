@@ -14,6 +14,8 @@ export const aiFeatureClasses = {
   plan_summary: 'standard',
   pre_read: 'standard',
   market_analysis: 'synthesis',
+  // KI-11: Begründungen der Wertpotenziale
+  value_opportunity: 'standard',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];

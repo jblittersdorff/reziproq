@@ -211,6 +211,9 @@ describe('PLT-02 in der Datenbank', () => {
       'touchpoint',
       'touchpoint_review',
       'user_setting',
+      'value_data_gap',
+      'value_market_signal',
+      'value_opportunity',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });

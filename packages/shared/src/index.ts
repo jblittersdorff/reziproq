@@ -55,3 +55,4 @@ export * from './hints.js';
 export * from './search.js';
 export * from './ai-gateway.js';
 export * from './agents.js';
+export * from './opportunities.js';
