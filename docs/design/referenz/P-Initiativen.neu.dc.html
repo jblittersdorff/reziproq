@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Initiativen Roadmap</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+h1,h2,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
+.t1{font-size:36px;line-height:1.08;font-weight:600;letter-spacing:-0.03em;text-wrap:balance}
+.muted{color:#5a636b}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;font:600 14px Figtree,system-ui,sans-serif;text-decoration:none;border:0}
+.bp{background:#0b7a6a;color:#ffffff}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:0;font:600 13px Figtree,system-ui,sans-serif}
+.gr{display:grid;grid-template-columns:240px 1fr;align-items:center;border-top:1px solid #eceeea;min-height:64px}
+.lane{position:relative;height:64px;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(16.666% - 1px),#eceeea calc(16.666% - 1px),#eceeea 16.666%)}
+.b{position:absolute;top:17px;height:30px;border-radius:999px;display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;box-sizing:border-box}
+.run{background:#0b7a6a;color:#ffffff}.plan{background:#e1f3ed;color:#0a5c50;border:1px solid #9fd9c8}.done{background:#dfe2dd;color:#3f4a52}
+.ms{position:absolute;top:23px;width:18px;height:18px;box-sizing:border-box;border-radius:99px;background:#4fd1b4;border:2px solid #0f1b22;box-shadow:0 0 0 2px #ffffff}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<dc-import name="Header" active="Lieferanten" hint-size="100%,68px"></dc-import>
+<dc-import name="SupplierBar" area="Gemeinsamer Plan" page="Initiativen" subs="aus" hint-size="100%,140px"></dc-import>
+<dc-import name="Flow" step="Initiativen" hint-size="100%,250px"></dc-import>
+<main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:8px"><h1 class="t1">Initiativen festlegen</h1><p class="muted">4 gemeinsame Initiativen · 1 Meilenstein in den nächsten 30 Tagen</p></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div role="group" aria-label="Ansicht" style="display:inline-flex;padding:4px;border-radius:999px;background:#eceeea"><button class="pill" style="background:#ffffff;color:#0f1b22;box-shadow:0 1px 2px #0f1b221f">Roadmap</button><button class="pill" style="background:transparent;color:#3f4a52">Liste</button></div>
+      <a href="E-Formular.dc.html" class="btn bp">Initiative anlegen</a>
+    </div>
+  </div>
+
+  <section style="background:#ffffff;border-radius:24px;box-shadow:0 0 0 1px #0f1b220a;padding:12px 22px 20px;overflow-x:auto" aria-label="Roadmap">
+    <div style="min-width:860px">
+      <div class="gr" style="border-top:0;min-height:40px;font-size:12px;font-weight:600" aria-hidden="true">
+        <span class="muted">Initiative</span>
+        <span style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr))" class="muted"><span>Q1 2027</span><span>Q2</span><span>Q3</span><span>Q4</span><span>Q1 2028</span><span>Q2</span></span>
+      </div>
+      <a class="gr" href="P-Initiative.dc.html" style="color:#14181b;text-decoration:none"><span style="display:flex;flex-direction:column"><strong style="font-size:14px;font-weight:600">Preis Leiterplatten</strong><span style="font-size:12px" class="muted">Sara Ost · Kim Kaiser</span></span><span class="lane"><span class="b run" style="left:0;width:40%">läuft</span><span class="ms" style="left:24%" title="Rahmenvertrag"></span></span></a>
+      <a class="gr" href="P-Initiative.dc.html" style="color:#14181b;text-decoration:none"><span style="display:flex;flex-direction:column"><strong style="font-size:14px;font-weight:600">Kapazität 2028 sichern</strong><span style="font-size:12px" class="muted">Ida Roth · Ole Brandt</span></span><span class="lane"><span class="b plan" style="left:30%;width:55%">geplant</span><span class="ms" style="left:62%"></span></span></a>
+      <a class="gr" href="P-Initiative.dc.html" style="color:#14181b;text-decoration:none"><span style="display:flex;flex-direction:column"><strong style="font-size:14px;font-weight:600">8D-Prozess vereinheitlichen</strong><span style="font-size:12px" class="muted">Tom Berg · Lea Lang</span></span><span class="lane"><span class="b run" style="left:8%;width:30%">läuft</span><span class="ms" style="left:20%"></span></span></a>
+      <a class="gr" href="P-Initiative.dc.html" style="color:#14181b;text-decoration:none"><span style="display:flex;flex-direction:column"><strong style="font-size:14px;font-weight:600">Digitaler Lieferschein</strong><span style="font-size:12px" class="muted">Max Klein · Kim Kaiser</span></span><span class="lane"><span class="b done" style="left:0;width:18%">fertig</span></span></a>
+    </div>
+  </section>
+  <div style="display:flex;flex-wrap:wrap;gap:18px;font-size:13px" class="muted">
+    <span style="display:flex;gap:6px;align-items:center"><span style="width:18px;height:10px;border-radius:99px;background:#0b7a6a"></span>läuft</span>
+    <span style="display:flex;gap:6px;align-items:center"><span style="width:18px;height:10px;box-sizing:border-box;border-radius:99px;background:#e1f3ed;border:1px solid #9fd9c8"></span>geplant</span>
+    <span style="display:flex;gap:6px;align-items:center"><span style="width:18px;height:10px;border-radius:99px;background:#dfe2dd"></span>fertig</span>
+    <span style="display:flex;gap:6px;align-items:center"><span style="width:12px;height:12px;box-sizing:border-box;border-radius:99px;background:#4fd1b4;border:2px solid #0f1b22"></span>Meilenstein</span>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

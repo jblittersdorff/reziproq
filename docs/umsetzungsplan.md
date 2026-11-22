@@ -1,6 +1,62 @@
-# Umsetzungsplan Reziproq 1.0
+# Umsetzungsplan Reziproq
 
-> Die neuen Specs liegen noch unter `~/Downloads/specs 2/` (Ordnername mit Leerzeichen). Sie kommen mit UMB-04 nach `docs/specs`.
+## Warteschlange vom 22.11.2026
+
+Dies ist die einzige aktive Reihenfolge. Die Spalte Abhängigkeiten nennt fachliche Voraussetzungen. Ein Verweis auf eine spätere Lieferung schränkt den Umfang des frühen Schritts ein. Wo eine Entscheidung fehlt, ist nur der davon unabhängige Teil einplanbar. Die vollständige Abnahme bleibt am genannten Folgeschritt. Entscheidungen und Spezifikationsfassungen stehen im [Prüfbericht](eingang/PRUEFBERICHT.md).
+
+Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PNL-11, Block R und Block K sowie die erste Designsprache. WG-01, WG-04, WG-06, WG-18, WG-07, WG-09 und WG-10 bauten in dieser Reihenfolge darauf auf (Migrationen 0080–0087). Diese Schritte behalten ihren Platz in der Historie. In der Warteschlange steht nur neue Arbeit. Bei fehlenden Specs ist die Größe eine vorläufige Schätzung. S bezeichnet eine begrenzte Änderung, M eine modulübergreifende Anpassung und L mehrere Daten-, Rechte- oder Oberflächenänderungen.
+
+| Nr. | Spec und Arbeit | Abhängigkeiten für diesen Umfang | Größe | Status |
+|---:|---|---|:---:|---|
+| 1 | Anpassung Designsprache · Ringe, Diagramme, Informationsdichte | Bestehende Tokens, Bausteine und Referenzen; neue Fassung `design/designsprache.neu.md` | M | offen |
+| 2 | Anpassung NAV-10 · Kopf, Weiterleitungen, Mein Tag, Aktivitäten aus vorhandenen Quellen | 1; NAV-05/06, FS-01, QS-05 und PNL gebaut. Lieferantenzugang und alte Lesezeichen separat testen. LS-01 liefert den Listeninhalt in 3. | L | offen |
+| 3 | Anpassung LS-01 · Lieferantenliste mit Detailleiste | 1–2; PLT-03/07, NAV-12, SEG, ZYK und WG-18 gebaut. Kurzname und Importrecht klären. Agentenzähler in 9. | L | offen |
+| 4 | Anpassung AW-01 · Diagramme und Auswertungen aus bestehenden Daten | 1–3; PNL, JBP-Scorecard und PUL gebaut. KI-Aussagen, Chancen und Risiken folgen in 9 und 11. | L | offen |
+| 5 | Anpassung KI-01 · Modell-Gateway, Kontingent und bestehende Modellaufrufe | Lieferantenmodule 1.0 und PLT-12; Bedrock EU und lokale Testmodelle anbinden, Schlüsselraum von org_setting erweitern. | L | offen |
+| 6 | Anpassung KI-03 · bestehende Entwürfe und Quellen überführen | 5; SEG-11, PUL-08, SPL-10, QBR-07, Migrationen 0074–0077 und 0085; Umgang mit Lieferanten-Pre-Reads klären. | L | offen |
+| 7 | KI-04 · Agenten, Werkzeuge und Läufe | 5–6; bestehende KI-Funktionen zuordnen und Rechte je Person und Quelle durchsetzen. | L | offen |
+| 8 | KI-11 · Wertpotenziale | 7; JBP, Impact-Ledger, SEG; vorhandene versionierte Rechenregeln prüfen, Websuche in K1 mit fake. | L | offen |
+| 9 | Anpassung NAV-10 / LS-01 / AW-01 · Agentenläufe, Entwürfe, Aussagen und Potenziale anschließen | 2–4, 6–8; Zusammenfassung und Rechte für aggregierte Fakten klären. | M | offen |
+| 10 | Anpassung KI-07 · QBR-Vorbereitung | 7; Termine, QBR-07, Scorecard, PUL und PNL; interne Vorbereitung und explizite Agendaübernahme. | M | offen |
+| 11a | KI-15 · gemeinsamer Datei- und API-Import | Spec fehlt; fachliches Modell und Übernahmeregeln mit PLT-07 klären. | L | offen |
+| 11b | KI-16 · Hinweise und Priorisierung | Spec fehlt; auf FS-01 und vorhandenen Hinweisen aufbauen. | M | offen |
+| 11c | KI-17 · Ergebnisse nach dem Termin | Spec fehlt; KI-03/04, QBR-01 und KI-07 als fachliche Schnittstellen prüfen. | L | offen |
+| 11d | Anpassung NAV-10 / AW-01 · Hinweise anschließen | 9, 11b; Risiko und nächste Handlung mit freigegebenen Bewertungsregeln abnehmen. | M | offen |
+| 12 | IN-01 · Integrationsschicht (I1.1) | 5, 7; Domänendienste, can() und Jobs; alle Anbindungen lokal mit fake. | L | offen |
+| 13 | IN-07 · Import-API (I1.2) | 12 und KI-15 (11a); gemeinsamer Stapel für Datei und API. | L | offen |
+| 14 | Anpassung IN-02 · Firmenanmeldung (I1.3) | 12; PLT-01/02, NAV-10; Identitätsmodell und Erstanmeldung klären. | L | offen |
+| 15 | Anpassung IN-03 · Termine, Zuordnung und Eingang in Mein Tag (I1.4) | 12, 14, 2, 10; QBR-01; privates Terminmodell und Briefingumfang klären. | L | offen |
+| 16 | IN-04 · Mails in Aktivitäten (I1.5) | 15, 6–7; Anhänge zunächst privat. Dokumentverknüpfung setzt die ausstehende KI-18 voraus. | M | offen |
+| 17 | IN-06 · Benachrichtigungen (I1.6) | 12, 2, 6, 10, 11b–c, 15; spätere Transkripterinnerung mit 18 abnehmen. | M | offen |
+| 18 | IN-05 · Transkripte (I1.7) | 15, 17, KI-17 (11c); Betriebsvereinbarung, Rohtextrechte und Löschfrist klären. | L | offen |
+| 19 | KI-09 · eigene Agenten (K3) | 7, K1 und erster Pilot; Rechte beim Fremdstart festlegen. | L | offen |
+| 20 | Lieferantenmanagement abschließen · NAV-10, AW-01, KI und IN | 9–19; Umfang der fehlenden KI-18 bis KI-23 klären, Lieferantenanteile ggf. vorher spezifizieren und abnehmen; Rechte, bestehende Lieferantenansicht und alle Lieferantenkriterien lokal testen. | M | offen |
+| 21 | Anpassung WG-01 / WG-startdaten · Zuordnung und Startdaten | 20; WG-01 und produktive Seed-Dimensionen vorhanden. Pflichtfeld und Katalog vor Eingriff klären. | M | offen |
+| 22 | Anpassung WG-04 / WG-06 · Rollen im Entwurf und Aktualisierung der Ist-Werte | 20–21; Strategie und Ziele gebaut. | M | offen |
+| 23 | Anpassung WG-18 · Soll-Typ und Segmententscheidung | 20–21; SEG und WG-18 gebaut; Datenhoheit mit WG-15 festlegen. | M | offen |
+| 24 | Anpassung WG-07 · Zuweisung von Sichten und Kostenzugriff | 22–23; bestehende Analysen und RLS. | M | offen |
+| 25 | Anpassung WG-09 / KI-08 · Marktanalyse als Agent (K2-a) | 7, 20, 24; WG-09 und WG-10 gebaut; sechs Kräfte, Vorschläge und Quellen unter den Rechten des Teams. | L | offen |
+| 26 | Anpassung WG-10 · Hebelkatalog und vorgeschlagene Paarungen | 21, 24–25; bestehende Bewertung und Katalogpflege. | M | offen |
+| 27 | WG-12 · Scorecard und Quartalsreview | 22, 26; Abnahme von Review nach Freigabe mit WG-16. | M | offen |
+| 28 | WG-15 · Supplier Map | 22–23, 26; Ist aus SEG und Spend, Soll-Typ, SRO-Zeilenzugriff; Übergabelink mit WG-20. | M | offen |
+| 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | offen |
+| 30 | WG-16 · Freigabe und Versionen | 27–29 und Schritte 2–9; Review und Freigaberollen gemeinsam abnehmen. | L | offen |
+| 31 | WG-20 · Zusammenführung und Übergaben | 23, 28–30; SEG, FS-01 und Lieferantenplan; NAV-10-Warengruppenreiter samt LS-Verweisen abschließen. | L | offen |
+| 32 | WG-23 · Entwürfe Stufe 1 und 2 (WG-24) | 5–7, 25, 27–31; KI-Fassung WG-23.neu.md. Zielort für Feedback und Umfang von „Fragen“ klären. | L | offen |
+| 33 | KI-13 · Strategie-Autor (K2-b) | 7, 25, 28–32, WG-04–16; Schritt 9 an Soll-Typ und bestätigte SEG-Daten binden. | L | offen |
+
+Die ersten vier Schritte priorisieren bestehende Seiten. Der Vorschlag trennt ihre Darstellung von der späteren Datenanbindung. Ob diese Teilabnahmen gelten dürfen, ist im Prüfbericht offen. Die Reihenfolge von I1.1 bis I1.7 folgt der Ergänzungsdatei. Import kommt vor Kalender und Mail, Transkripte nach der Mandantenfreigabe zuletzt. Die Stufe 2 mit Slack, Zoom, Gmail-Add-on, SharePoint/Drive, SFTP, SAP S/4HANA, Qualitätsdaten, SCIM, lesender API und Webhooks hat noch keine Bau-Specs.
+
+K1 läuft lokal mit `fake` für Modelle und Websuche. Für reale Läufe ist `bedrock_eu` vorgesehen, Zugangsdaten kommen aus der Umgebung. Für KI-11 gelten die konfigurierten SEG-Typen und die vorhandenen PNL-Hebelversionen. KI-09 setzt den ersten Pilot voraus. Die Paketnummern K1–K3 und I1 bezeichnen hier Pakete; die externe Release-Nummer für Warengruppen ist offen. Die Warengruppen-Vorlagen, Tabellenzuordnungen und die noch zu bestätigenden Hebeldimensionen stehen im Prüfbericht.
+
+## Historie und frühere Entscheidungen
+
+Die folgenden Abschnitte dokumentieren die Reihenfolge und den damaligen Wissensstand vom 31.10. bis 16.11.2026. Datierte Aussagen wie „offen“ und damalige Terminprognosen gehören zum jeweiligen Stichtag. Für die nächste Arbeit gilt die Warteschlange oben.
+
+<details>
+<summary>Frühere Planung und Nachweise in ihrer ursprünglichen Reihenfolge</summary>
+
+> Historischer Stand vor UMB-04. Die Specs sind inzwischen unter `docs/specs/` abgelegt.
 
 Stand: 31.10.2026. Grundlage:
 - die 71 neuen Specs und ihre README
@@ -598,3 +654,5 @@ für ihre Zieldimensionen (zu bestätigen). Die Warengruppe am Spend bleibt opti
 
 Offen zur Klärung: Entscheidung 1 in Abschnitt 6 sieht die Blöcke F bis K als Releases 1.1, 1.2
 usw. vor; die WG-Specs belegen 1.1 für das Warengruppenmanagement.
+
+</details>

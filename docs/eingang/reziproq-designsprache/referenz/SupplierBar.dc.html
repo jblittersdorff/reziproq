@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>SupplierBar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#ffffff;border-bottom:1px solid #dfe2dd">
+  <div style="max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 0;display:flex;flex-direction:column;gap:16px;box-sizing:border-box">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between">
+      <a href="L-Ueberblick.dc.html" style="display:flex;align-items:center;gap:16px;text-decoration:none;color:#14181b">
+        <span style="width:52px;height:52px;border-radius:999px;background:#e1f3ed;color:#0a5c50;box-shadow:inset 0 0 0 2px #0b7a6a;display:flex;align-items:center;justify-content:center;font:600 16px Outfit,Figtree,sans-serif;letter-spacing:.02em">RE</span>
+        <span style="display:flex;flex-direction:column;gap:2px">
+          <strong style="font-family:Outfit,Figtree,sans-serif;font-size:26px;line-height:1.1;font-weight:600;letter-spacing:-0.025em">Rheintal Elektronik</strong>
+          <span style="font-size:13px;color:#5a636b">Hoher Impact · ausbaufähig · Leiterplatten · SRO Sara Ost</span>
+        </span>
+      </a>
+      <span style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+        <span style="display:inline-flex;align-items:center;gap:12px;min-height:40px;padding:0 16px 0 14px;border-radius:999px;background:#f4f5f2;color:#14181b;font-size:13px;font-weight:600"><span role="img" aria-label="Schritt 4 von 6" style="display:flex;padding-left:4px"><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#0b7a6a;border:2px solid #0b7a6a"></span><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#0b7a6a;border:2px solid #0b7a6a"></span><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#0b7a6a;border:2px solid #0b7a6a"></span><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#4fd1b4;border:2px solid #0f1b22"></span><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#ffffff;border:2px solid #b9bfba"></span><span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;box-shadow:0 0 0 2px #f4f5f2;background:#ffffff;border:2px solid #b9bfba"></span></span>Schritt 4 von 6 · Plan</span>
+        <a href="L-Profil.dc.html" aria-current="{{profileCurrent}}" style="{{profileStyle}}">Profil</a>
+      </span>
+    </div>
+    <nav aria-label="Bereiche des Lieferanten" style="display:flex;gap:4px;overflow-x:auto">
+      <sc-for list="{{areas}}" as="a" hint-placeholder-count="4">
+        <a href="{{a.href}}" aria-current="{{a.current}}" style="{{a.style}}">{{a.label}}</a>
+      </sc-for>
+    </nav>
+  </div>
+  <sc-if value="{{hasSubs}}" hint-placeholder-val="{{true}}">
+    <div style="background:#f4f5f2;border-top:1px solid #dfe2dd">
+      <nav aria-label="Seiten im Bereich" style="max-width:1200px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:flex;flex-wrap:wrap;gap:6px;box-sizing:border-box">
+        <sc-for list="{{subs}}" as="s" hint-placeholder-count="5">
+          <a href="{{s.href}}" aria-current="{{s.current}}" style="{{s.style}}">{{s.label}}</a>
+        </sc-for>
+      </nav>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"area":{"editor":"enum","options":["Überblick","Aktivitäten","Plan","Ergebnisse","Profil","Notizen","Strategie","Beziehung","Gemeinsamer Plan","Umsetzung","Wirkung"],"default":"Plan"},"page":{"editor":"text","default":"Themen"},"subs":{"editor":"enum","options":["an","aus"],"default":"an"},"$preview":{"width":1440,"height":190}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const areaAlias = { Notizen: 'Aktivitäten', Strategie: 'Profil', Beziehung: 'Profil', 'Gemeinsamer Plan': 'Plan', Umsetzung: 'Plan', Wirkung: 'Ergebnisse' };
+    const pageArea = { Wertpotenziale: 'Ergebnisse', Feedback: 'Ergebnisse', Termine: 'Aktivitäten', Verlauf: 'Aktivitäten', Notizen: 'Aktivitäten' };
+    const rawArea = this.props.area ?? 'Plan';
+    let page = this.props.page ?? '';
+    const area = pageArea[page] ?? areaAlias[rawArea] ?? rawArea;
+    if (area === 'Ergebnisse' && page === 'Initiativen') page = 'Gesichert';
+    if (page === 'Notizen') page = 'Verlauf';
+    const tabs = [
+      ['Überblick', 'L-Ueberblick.dc.html', []],
+      ['Aktivitäten', 'L-Notizen.dc.html', [['Verlauf', 'L-Notizen.dc.html'], ['Termine', 'U-Termine.dc.html']]],
+      ['Plan', 'P-Themen.dc.html', [['Vorbereitung', 'P-Vorbereitung.dc.html'], ['Themen', 'P-Themen.dc.html'], ['Initiativen', 'P-Initiativen.dc.html'], ['Zusagen', 'P-Zusagen.dc.html'], ['Maßnahmen', 'U-Massnahmen.dc.html'], ['Scorecard', 'P-Scorecard.dc.html'], ['Freigabe', 'P-Freigabe.dc.html']]],
+      ['Ergebnisse', 'W-Initiative.dc.html', [['Gesichert', 'W-Initiative.dc.html'], ['Wertpotenziale', 'KI-Wert.dc.html'], ['Feedback', 'B-Feedback.dc.html']]],
+    ];
+    const profil = ['Profil', 'L-Profil.dc.html', [['Profil und Spend', 'L-Profil.dc.html'], ['Segmentierung', 'L-Segmentierung.dc.html'], ['Warengruppen', 'L-Warengruppen.dc.html'], ['Lieferantenplan', 'L-Lieferantenplan.dc.html'], ['Team', 'B-Team.dc.html'], ['Spielregeln', 'B-Spielregeln.dc.html']]];
+    const tab = 'display:inline-flex;align-items:center;min-height:48px;padding:0 16px;text-decoration:none;font-size:16px;white-space:nowrap;border-bottom:3px solid ';
+    const pill = 'display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:13px;';
+    const btn = 'display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:600;';
+    const current = area === 'Profil' ? profil : (tabs.find((t) => t[0] === area) ?? tabs[0]);
+    return {
+      areas: tabs.map(([label, href]) => ({
+        label,
+        href,
+        current: label === area ? 'page' : 'false',
+        style: label === area ? tab + '#0f1b22;color:#0f1b22;font-weight:600' : tab + 'transparent;color:#5a636b;font-weight:500',
+      })),
+      profileCurrent: area === 'Profil' ? 'page' : 'false',
+      profileStyle: area === 'Profil' ? btn + 'background:#0f1b22;color:#ffffff' : btn + 'background:#ffffff;color:#14181b;box-shadow:inset 0 0 0 1px #dfe2dd',
+      hasSubs: current[2].length > 0 && (this.props.subs ?? 'an') !== 'aus',
+      subs: current[2].map(([label, href]) => ({
+        label,
+        href,
+        current: label === page ? 'page' : 'false',
+        style: label === page ? pill + 'background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b221f' : pill + 'color:#3f4a52;font-weight:500',
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

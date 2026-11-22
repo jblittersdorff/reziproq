@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Import</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+h1,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
+.t1{font-size:42px;line-height:1.05;font-weight:600;letter-spacing:-0.035em;text-wrap:balance}
+.muted{color:#5a636b}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.ok{background:#e8f1df;color:#2f5f1d}.risk{background:#fae6e3;color:#94201a}.n{background:#eceeea;color:#3f4a52}
+.card{background:#ffffff;border-radius:24px;box-shadow:0 0 0 1px #0f1b220a}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;font:600 14px Figtree,system-ui,sans-serif;text-decoration:none;border:0}
+.bp{background:#0b7a6a;color:#ffffff}.bs{background:#ffffff;color:#14181b;box-shadow:inset 0 0 0 1px #dfe2dd}
+.step{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.num{width:32px;height:32px;box-sizing:border-box;border-radius:99px;display:flex;align-items:center;justify-content:center;font:600 13px Outfit,Figtree,sans-serif}
+.ln{width:40px;height:2px;border-radius:2px}
+td,th{padding:13px 16px;text-align:left;border-top:1px solid #eceeea;font-size:14px}
+th{font-size:12px;color:#5a636b;font-weight:600;border-top:0}
+td{font-variant-numeric:tabular-nums}
+.back{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:14px;font-weight:600;text-decoration:none}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<dc-import name="Header" active="Lieferanten" hint-size="100%,68px"></dc-import>
+<main style="max-width:1000px;margin:0 auto;padding:40px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <a href="Lieferanten.dc.html" class="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Lieferanten</a>
+  <div style="display:flex;flex-direction:column;gap:8px"><h1 class="t1">Lieferanten importieren</h1><p class="muted">CSV oder Excel. Erst die Vorschau, dann übernehmen; mit Fehlern wird nichts übernommen.</p></div>
+  <ol aria-label="Schritte" style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+    <li class="step"><span class="num" style="background:#0b7a6a;color:#ffffff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" role="img" aria-label="fertig"><path d="M5 12l5 5 9-10"></path></svg></span>Datei wählen<span class="ln" style="background:#0b7a6a" aria-hidden="true"></span></li>
+    <li class="step" aria-current="step"><span class="num" style="background:#4fd1b4;color:#0f1b22;border:2px solid #0f1b22">2</span>Vorschau prüfen<span class="ln" style="background:#dfe2dd" aria-hidden="true"></span></li>
+    <li class="step" style="color:#5a636b"><span class="num" style="background:#ffffff;color:#5a636b;border:2px solid #b9bfba">3</span>Übernehmen</li>
+  </ol>
+  <section class="card" style="padding:20px 22px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="width:44px;height:44px;border-radius:999px;background:#eceeea;display:flex;align-items:center;justify-content:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3f4a52" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg></span>
+      <div><strong style="font-weight:600">lieferanten-2027.csv</strong><p style="font-size:13px" class="muted">48 Zeilen · Spalten Name, Land, USt-IdNr., Warengruppe, Spend</p></div>
+    </div>
+    <a href="#" style="font-size:14px;font-weight:600">Andere Datei</a>
+  </section>
+  <div role="status" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:16px 22px;border-radius:24px;background:#fae6e3;color:#94201a;font-size:14px;font-weight:600">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+    46 Zeilen in Ordnung, 2 mit Fehlern. Bitte die Datei korrigieren und neu laden.
+  </div>
+  <section class="card" style="overflow:hidden" aria-label="Vorschau">
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;min-width:640px">
+        <thead><tr><th scope="col">Zeile</th><th scope="col">Name</th><th scope="col">Warengruppe</th><th scope="col">Spend 2026</th><th scope="col">Prüfung</th></tr></thead>
+        <tbody>
+          <tr><td class="muted">2</td><td>Rheintal Elektronik GmbH</td><td>Leiterplatten</td><td>4.200.000 €</td><td><span class="chip ok">✓ in Ordnung</span></td></tr>
+          <tr><td class="muted">3</td><td>Nordwerk Guss AG</td><td>Gussteile</td><td>3.100.000 €</td><td><span class="chip ok">✓ in Ordnung</span></td></tr>
+          <tr style="background:#fdf6f5"><td class="muted">4</td><td>Alpen Kunststoff</td><td style="color:#94201a;font-weight:600">Kunststof</td><td>1.800.000 €</td><td><span class="chip risk">✕ Warengruppe unbekannt</span></td></tr>
+          <tr><td class="muted">5</td><td>Baltic Logistics Sp. z o.o.</td><td>Logistik</td><td>900.000 €</td><td><span class="chip ok">✓ in Ordnung</span></td></tr>
+          <tr style="background:#fdf6f5"><td class="muted">6</td><td>Kessler Präzision</td><td>Drehteile</td><td style="color:#94201a;font-weight:600">2,4 Mio</td><td><span class="chip risk">✕ Betrag nicht lesbar</span></td></tr>
+          <tr><td class="muted">7</td><td>Hanse Verpackung</td><td>Verpackung</td><td>650.000 €</td><td><span class="chip ok">✓ in Ordnung</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="padding:14px 16px;border-top:1px solid #eceeea;font-size:13px" class="muted">Weitere 42 Zeilen in Ordnung · <a href="#">nur Fehler zeigen</a></p>
+  </section>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <a href="Lieferanten.dc.html" class="btn bs">Abbrechen</a>
+    <button class="btn" disabled style="background:#dfe2dd;color:#3f4a52">46 Lieferanten übernehmen</button>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

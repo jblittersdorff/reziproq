@@ -63,7 +63,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `eigene_sicht.bearbeiten` | Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite) | ja | ja | nein | nein |
 | `feedback.verwalten` | Feedback-Welle starten (Käufer: Admin oder SRO), eigene Teilnehmende einladen, eigene Seite abschließen | ja | ja | nein | nein |
 
-## Geplant: Warengruppenmanagement (Release 1.1, noch nicht umgesetzt)
+## Warengruppenmanagement (Zielmatrix)
 
 Die Rollen Lead, Commodity Manager, Einkauf im Team und Funktion im Team gelten je Warengruppe (`category_member.role`).
 
@@ -85,3 +85,43 @@ Für alle Tabellen des Moduls gilt:
 - Art `org_private`, keine Freigabe-Policy.
 - Kein Fremdschlüssel von einer geteilten Tabelle auf eine dieser Tabellen.
 - Je Tabelle ein Test, dass der Test-Lieferant nichts erhält, und ein Test, dass Kunde A nichts von Kunde B erhält.
+
+## KI und Agenten (Planung)
+
+Vorgabe für die Umsetzung. Offene Rollenfragen stehen im [Prüfbericht](eingang/PRUEFBERICHT.md).
+
+| Objekt | Admin | Besitzer eines eigenen Agenten | SRO der Beziehung | Käufer mit Zugriff | Lieferant |
+|---|---|---|---|---|---|
+| Einstellungen KI | schreiben | lesen | lesen | Kontingent lesen | nie |
+| Verbrauch je Agent | lesen | eigene Agenten lesen | lesen | nie | nie |
+| Agent von Reziproq | ein- und ausschalten | lesen, starten | lesen, starten | lesen, starten | nie |
+| Eigener Agent | freigeben, pausieren | schreiben, testen, löschen | lesen, starten | lesen, starten, wenn die Daten sichtbar sind | nie |
+| Lauf und Protokoll | alle lesen | eigene lesen | Läufe zu seinen Beziehungen lesen | eigene lesen | nie |
+| Entwurf | lesen | wie Zielobjekt | wie Zielobjekt | wie Zielobjekt | nie |
+| Wertpotenzial, Rechenweg, Marktsignal, Datenlücke | lesen | – | übernehmen, verwerfen, Annahmen ändern | lesen, wenn Zugriff auf die Beziehung | nie |
+| Frage an das Team | lesen | – | – | beantworten, wenn an sie gerichtet; Lead und Commodity Manager alle | nie |
+
+Für alle Tabellen aus KI-01 bis KI-13 gilt:
+
+- Art `org_private`, keine Freigabe-Policy.
+- Kein Fremdschlüssel von einer geteilten Tabelle auf eine dieser Tabellen.
+- Je Tabelle ein Test, dass der Test-Lieferant nichts erhält, und ein Test, dass Kunde A nichts von Kunde B erhält.
+- Ein Werkzeug liefert nie mehr, als die Person sehen darf, in deren Namen der Lauf handelt.
+
+## Anbindungen (Planung)
+
+Vorgabe für die Umsetzung. Offene Rollenfragen stehen im [Prüfbericht](eingang/PRUEFBERICHT.md).
+
+| Recht | Admin | SRO | Commodity Manager | Käufer | Lieferant |
+|---|---|---|---|---|---|
+| `integration.manage` | ✓ | – | – | – | – |
+| `integration.connect_own` (Kalender, Add-in) | ✓ | ✓ | ✓ | ✓ | – |
+| `inbound.assign` (eigene Eingänge) | ✓ | ✓ | ✓ | ✓ | – |
+| `inbound.assign_relationship` (Eingänge zu eigenen Lieferanten) | ✓ | ✓ | – | – | – |
+| `mail.file` | ✓ | ✓ | ✓ | ✓ | – |
+| `transcript.settings` | ✓ | – | – | – | – |
+| `transcript.opt_in` (je Termin) | – | ✓ | – | Organisator | – |
+| `transcript.read_raw` | – | ✓ | – | nach Freigabe | – |
+| `api_key.manage` | ✓ | – | – | – | – |
+
+Regeln: Daten aus Anbindungen sind immer `org_private`. Der Lieferant sieht nur, was ein Mensch teilt.

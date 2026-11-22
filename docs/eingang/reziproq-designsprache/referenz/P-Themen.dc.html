@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Themen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+h1,h2,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
+.t1{font-size:36px;line-height:1.08;font-weight:600;letter-spacing:-0.03em;text-wrap:balance}
+.t3{font-size:19px;font-weight:600;letter-spacing:-0.015em}
+.muted{color:#5a636b}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.n{background:#eceeea;color:#3f4a52}.sh{background:#e1f3ed;color:#0a5c50}
+.card{background:#ffffff;border-radius:24px;box-shadow:0 0 0 1px #0f1b220a}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;font:600 14px Figtree,system-ui,sans-serif;text-decoration:none;border:0}
+.bp{background:#0b7a6a;color:#ffffff}.bs{background:#ffffff;color:#14181b;box-shadow:inset 0 0 0 1px #dfe2dd}
+.topic{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:24px;background:#ffffff;box-shadow:0 0 0 1px #0f1b220a;text-decoration:none;color:#14181b}
+.rank{width:34px;height:34px;box-sizing:border-box;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 14px Outfit,Figtree,sans-serif;flex:none}
+.we{background:#0f1b22;color:#4fd1b4}.they{background:#e1f3ed;color:#0a5c50;border:2px solid #0b7a6a}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<dc-import name="Header" active="Lieferanten" hint-size="100%,68px"></dc-import>
+<dc-import name="SupplierBar" area="Gemeinsamer Plan" page="Themen" subs="aus" hint-size="100%,140px"></dc-import>
+<dc-import name="Flow" step="Themen" hint-size="100%,250px"></dc-import>
+<main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:8px"><h1 class="t1">Themen sammeln und reihen</h1><p class="muted">Was beide Seiten im JBP besprechen wollen, in eurer Reihenfolge. Beide Seiten sehen alle Themen.</p></div>
+    <div style="display:flex;gap:10px"><a href="#" class="btn bs">Zusammenführen</a><a href="E-Formular.dc.html" class="btn bp">Thema hinzufügen</a></div>
+  </div>
+
+  <div role="status" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 22px;border-radius:24px;background:#0f1b22;color:#f4f5f2">
+    <span style="font-size:15px"><strong style="font-weight:600;color:#4fd1b4">Dein nächster Schritt:</strong> 2 Themen aus eurem Lieferantenplan sind noch nicht übernommen.</span>
+    <a href="#" class="btn" style="background:#4fd1b4;color:#0f1b22">Vorschläge ansehen</a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:24px">
+    <section aria-labelledby="eure" style="display:flex;flex-direction:column;gap:10px">
+      <h2 id="eure" class="t3">Eure Themen · 1</h2>
+      <a class="topic" href="#"><span class="rank we">1</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Kapazitätsplan 2028</strong><span style="font-size:13px" class="muted">Aus dem Lieferantenplan · Ziel Versorgung</span></span></a>
+      <a class="topic" href="P-Themen.dc.html" style="border:2px dashed #b9bfba;box-shadow:none;background:transparent;justify-content:center;color:#0b7a6a;font-weight:600;font-size:14px">+ Volumenbündelung Baureihe X übernehmen</a>
+    </section>
+    <section aria-labelledby="ihre" style="display:flex;flex-direction:column;gap:10px">
+      <h2 id="ihre" class="t3">Themen von Rheintal · 3</h2>
+      <a class="topic" href="#"><span class="rank they">1</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Neue SMT-Linie auslasten</strong><span style="font-size:13px" class="muted">Kim Kaiser · 08.11.</span></span></a>
+      <a class="topic" href="#"><span class="rank they">2</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Prognosen früher teilen</strong><span style="font-size:13px" class="muted">Kim Kaiser · 08.11.</span></span><span class="chip sh">passt zu Transparenz</span></a>
+      <a class="topic" href="#"><span class="rank they">3</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Rahmenvertrag ab 2028</strong><span style="font-size:13px" class="muted">Kim Kaiser · 09.11.</span></span></a>
+    </section>
+  </div>
+
+  <section class="card" style="padding:20px 22px" aria-labelledby="geparkt">
+    <h2 id="geparkt" style="font-size:16px;font-weight:600;margin-bottom:8px">Geparkt · 1</h2>
+    <p style="font-size:14px"><span class="muted">Verpackung ohne Einweg</span> · <a href="#">wieder aufnehmen</a></p>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1350}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

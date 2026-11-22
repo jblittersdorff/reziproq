@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Alle Aufgaben</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+h1,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
+.t1{font-size:42px;line-height:1.05;font-weight:600;letter-spacing:-0.035em;text-wrap:balance}
+.muted{color:#5a636b}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.ok{background:#e8f1df;color:#2f5f1d}.warn{background:#f8eed6;color:#74500a}.risk{background:#fae6e3;color:#94201a}.n{background:#eceeea;color:#3f4a52}.sh{background:#e1f3ed;color:#0a5c50}
+.card{background:#ffffff;border-radius:24px;box-shadow:0 0 0 1px #0f1b220a}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 22px;border-top:1px solid #eceeea;color:#14181b;text-decoration:none}
+.sec{padding:16px 22px 8px;font-size:13px;font-weight:600;color:#5a636b;border-top:1px solid #eceeea}
+.sec:first-child{border-top:0}
+.sec+.row{border-top:0}
+.mono{width:38px;height:38px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;letter-spacing:.02em;flex:none}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:0;font:600 13px Figtree,system-ui,sans-serif}
+.back{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:14px;font-weight:600;text-decoration:none}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<dc-import name="Header" active="Start" hint-size="100%,68px"></dc-import>
+<main style="max-width:1000px;margin:0 auto;padding:40px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <a href="Main.dc.html" class="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Start</a>
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:8px"><h1 class="t1">Alle Aufgaben</h1><p class="muted">Was du tun sollst und worauf du wartest, über alle Lieferanten.</p></div>
+    <div role="group" aria-label="Ansicht" style="display:inline-flex;flex-wrap:wrap;padding:4px;border-radius:999px;background:#eceeea">
+      <button class="pill" style="background:#ffffff;color:#0f1b22;box-shadow:0 1px 2px #0f1b221f">Für mich · 9</button>
+      <button class="pill" style="background:transparent;color:#3f4a52">Wartet auf andere · 4</button>
+      <button class="pill" style="background:transparent;color:#3f4a52">Maßnahmen · 6</button>
+    </div>
+  </div>
+  <section class="card" style="overflow:hidden" aria-label="Aufgaben">
+    <h2 class="sec" style="color:#94201a">Überfällig · 1</h2>
+    <a class="row" href="P-Kennzahl.dc.html"><span class="mono sh">RE</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Liefertreue Oktober erfassen</strong><span style="font-size:13px" class="muted">Rheintal Elektronik · Scorecard</span></span><span class="chip n">Wert</span><span class="chip risk">seit 2 Tagen</span></a>
+    <h2 class="sec">Heute · 1</h2>
+    <a class="row" href="W-Pruefung.dc.html"><span class="mono sh">RE</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Wirkung „Preis Leiterplatten“ freigeben</strong><span style="font-size:13px" class="muted">Rheintal Elektronik · Controlling</span></span><span class="chip n">Freigabe</span><span class="chip warn">heute</span></a>
+    <h2 class="sec">Diese Woche · 4</h2>
+    <a class="row" href="P-Scorecard.dc.html"><span class="mono warn">NG</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Scorecard 2027 unterschreiben</strong><span style="font-size:13px" class="muted">Nordwerk Guss</span></span><span class="chip n">Unterschrift</span><span class="chip n">16.11.</span></a>
+    <a class="row" href="P-Themen.dc.html"><span class="mono sh">RE</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Zwei Themen für das JBP ergänzen</strong><span style="font-size:13px" class="muted">Rheintal Elektronik</span></span><span class="chip n">Gemeinsamer Plan</span><span class="chip n">18.11.</span></a>
+    <a class="row" href="PF-Bewerten.dc.html"><span class="mono n">BL</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Baltic Logistics bewerten</strong><span style="font-size:13px" class="muted">Bewertungsrunde 2027 · 4 Kriterien</span></span><span class="chip n">Bewertung</span><span class="chip n">19.11.</span></a>
+    <a class="row" href="U-Massnahmen.dc.html"><span class="mono risk">AK</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Maßnahme zur Lücke Transparenz anlegen</strong><span style="font-size:13px" class="muted">Alpen Kunststofftechnik</span></span><span class="chip n">Feedback</span><span class="chip n">20.11.</span></a>
+    <h2 class="sec">Später · 3</h2>
+    <a class="row" href="L-Lieferantenplan.dc.html"><span class="mono n">AK</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Lieferantenplan freigeben</strong><span style="font-size:13px" class="muted">Alpen Kunststofftechnik · wenn alle Beiträge da sind</span></span><span class="chip n">Freigabe</span><span class="chip n">11.12.</span></a>
+    <a class="row" href="B-Feedback.dc.html"><span class="mono sh">RE</span><span style="flex:1 1 260px;display:flex;flex-direction:column"><strong style="font-weight:600">Eigene Teilnahme am Puls abschließen</strong><span style="font-size:13px" class="muted">Rheintal Elektronik · 4 von 5 haben geantwortet</span></span><span class="chip n">Feedback</span><span class="chip n">28.11.</span></a>
+  </section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
