@@ -1,4 +1,10 @@
 import {
+  type CustomLeverRequest,
+  type LeverChoiceRequest,
+  type StrategyAssessment,
+  strategyAssessmentSchema,
+  strategyLeverSchema,
+  type SwotRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -744,6 +750,58 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
       ),
     retry: retryUnlessDenied,
   });
+
+/** WG-10: Bewertung und Hebel in Schritt 6 */
+export const assessmentQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'bewertung'],
+    queryFn: () =>
+      getJson(
+        `/warengruppen/strategien/${strategyId}/bewertung`,
+        strategyAssessmentSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+const assessmentCall = (
+  accessToken: string,
+  strategyId: string,
+  method: 'POST' | 'PATCH' | 'DELETE',
+  path: string,
+  body?: unknown,
+): Promise<StrategyAssessment> =>
+  sendJson(
+    method,
+    `/warengruppen/strategien/${strategyId}${path}`,
+    body,
+    strategyAssessmentSchema,
+    accessToken,
+  );
+
+export const addSwotItem = (accessToken: string, strategyId: string, request: SwotRequest) =>
+  assessmentCall(accessToken, strategyId, 'POST', '/profil', request);
+export const updateSwotItem = (
+  accessToken: string,
+  strategyId: string,
+  itemId: string,
+  change: { text?: string; confirm?: boolean },
+) => assessmentCall(accessToken, strategyId, 'PATCH', `/profil/${itemId}`, change);
+export const removeSwotItem = (accessToken: string, strategyId: string, itemId: string) =>
+  assessmentCall(accessToken, strategyId, 'DELETE', `/profil/${itemId}`);
+export const saveLeverChoice = (
+  accessToken: string,
+  strategyId: string,
+  request: LeverChoiceRequest,
+  choiceId?: string,
+) =>
+  choiceId
+    ? assessmentCall(accessToken, strategyId, 'PATCH', `/paarungen/${choiceId}`, request)
+    : assessmentCall(accessToken, strategyId, 'POST', '/paarungen', request);
+export const removeLeverChoice = (accessToken: string, strategyId: string, choiceId: string) =>
+  assessmentCall(accessToken, strategyId, 'DELETE', `/paarungen/${choiceId}`);
+export const addCustomLever = (accessToken: string, request: CustomLeverRequest) =>
+  sendJson('POST', '/warengruppen/hebel', request, strategyLeverSchema, accessToken);
 
 /** WG-09: Marktanalyse in Schritt 5 */
 export const marketQueryOptions = (accessToken: string, strategyId: string) =>

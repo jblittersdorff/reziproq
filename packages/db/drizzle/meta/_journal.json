@@ -603,6 +603,20 @@
       "when": 1795274435129,
       "tag": "0085_marktanalyse",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1795333927859,
+      "tag": "0086_bewertung_hebel",
+      "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1795334505404,
+      "tag": "0087_paarung_pruefung",
+      "breakpoints": true
     }
   ]
 }

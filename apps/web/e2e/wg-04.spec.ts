@@ -284,6 +284,139 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-10: Bewertung und Hebel
+  const swot = (
+    n: number,
+    type: string,
+    code: string,
+    text: string,
+    status = 'confirmed',
+    originStep: number | null = null,
+    originView: string | null = null,
+  ) => ({
+    id: uuid(n),
+    type,
+    code,
+    text,
+    originStep,
+    originView,
+    status,
+  });
+  const leverOf = (n: number, name: string, dimensions: string[]) => ({
+    id: uuid(n),
+    name,
+    description: '',
+    dimensions,
+    active: true,
+    custom: false,
+    reason: null,
+  });
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/bewertung`, (route) =>
+    route.fulfill({
+      json: {
+        canEdit: true,
+        items: [
+          swot(
+            30,
+            'strength',
+            'S1',
+            'Guter Draht zu den Laminat-Herstellern auf Stufe 2',
+            'confirmed',
+            3,
+            'supply_chain',
+          ),
+          swot(
+            31,
+            'strength',
+            'S2',
+            'Bedarf lässt sich über drei Business Units bündeln',
+            'confirmed',
+            3,
+            'volume',
+          ),
+          swot(
+            32,
+            'weakness',
+            'W1',
+            '65 % des Umsatzes bei zwei Lieferanten',
+            'confirmed',
+            4,
+            'revenue_finance',
+          ),
+          swot(
+            33,
+            'weakness',
+            'W2',
+            'Spezifikationen liegen über dem Marktstandard',
+            'draft',
+            3,
+            'cost',
+          ),
+          swot(
+            34,
+            'opportunity',
+            'O1',
+            'Moldau PCB baut Kapazität in der EU auf',
+            'confirmed',
+            4,
+            'footprint',
+          ),
+          swot(
+            35,
+            'threat',
+            'T1',
+            'Donau Print ist finanziell kritisch',
+            'confirmed',
+            4,
+            'revenue_finance',
+          ),
+          swot(36, 'threat', 'T2', 'Neue Abnehmer binden Kapazität ab 2028', 'confirmed', 5, ''),
+        ],
+        choices: [
+          {
+            id: uuid(37),
+            internalItemId: uuid(30),
+            externalItemId: uuid(35),
+            leverId: uuid(41),
+            reason:
+              'Laminat direkt einkaufen, damit ein Ausfall auf Stufe 1 die Versorgung nicht stoppt.',
+            status: 'chosen',
+          },
+          {
+            id: uuid(38),
+            internalItemId: uuid(32),
+            externalItemId: uuid(34),
+            leverId: uuid(42),
+            reason:
+              'Moldau PCB für Starrflex aufbauen und die Abhängigkeit von zwei Lieferanten senken.',
+            status: 'chosen',
+          },
+          {
+            id: uuid(39),
+            internalItemId: uuid(31),
+            externalItemId: uuid(36),
+            leverId: uuid(43),
+            reason: 'Als Ankerkunde Kapazität ab 2028 vertraglich sichern.',
+            status: 'proposed',
+          },
+        ],
+        levers: [
+          leverOf(41, 'Second-Level Buying', ['cost', 'supply']),
+          leverOf(42, 'Neue Lieferanten einführen', ['supply', 'cost', 'technology']),
+          leverOf(43, 'Bedarfe bündeln', ['cost']),
+          leverOf(44, 'Preise verhandeln', ['cost']),
+          leverOf(45, 'Wertschöpfungskette durchleuchten', ['cost', 'supply']),
+        ],
+        dimensions: [
+          { key: 'supply', name: 'Versorgung' },
+          { key: 'quality', name: 'Qualität' },
+          { key: 'cost', name: 'Kosten' },
+          { key: 'technology', name: 'Technologie' },
+          { key: 'sustainability', name: 'Nachhaltigkeit' },
+        ],
+      },
+    }),
+  );
   // WG-09: Marktanalyse
   const source = {
     id: uuid(95),
@@ -547,6 +680,11 @@ const pages = [
   ['intern', `/warengruppen/${group}/strategie/3`, 'Die eigene Ausgangslage analysieren'],
   ['lieferanten', `/warengruppen/${group}/strategie/4`, 'Die Lieferantenbasis analysieren'],
   ['markt', `/warengruppen/${group}/strategie/5`, 'Den Markt einschätzen'],
+  [
+    'bewertung',
+    `/warengruppen/${group}/strategie/6`,
+    'Hebel für die strategische Bewertung wählen',
+  ],
   [
     'segmentierung',
     `/warengruppen/${group}/segmentierung`,

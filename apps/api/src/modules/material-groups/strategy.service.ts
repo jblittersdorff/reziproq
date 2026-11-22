@@ -42,6 +42,7 @@ import {
   strategyStepSchema,
   strategySteps,
   strategyYearOf,
+  swotTypes,
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -193,6 +194,23 @@ export class StrategyService {
       )
       .where(eq(schema.materialGroupGoal.strategyId, strategy.id));
     const analysis = await analysisStates(tx, strategy.id, group.id, notes);
+    const swot = await tx
+      .select({
+        type: schema.materialGroupSwotItem.type,
+        status: schema.materialGroupSwotItem.status,
+      })
+      .from(schema.materialGroupSwotItem)
+      .where(eq(schema.materialGroupSwotItem.strategyId, strategy.id));
+    const [choiceCount] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.materialGroupLeverChoice)
+      .where(
+        and(
+          eq(schema.materialGroupLeverChoice.strategyId, strategy.id),
+          eq(schema.materialGroupLeverChoice.status, 'chosen'),
+        ),
+      );
+    const chosen = choiceCount?.n ?? 0;
     const forces = await tx
       .select({ status: schema.materialGroupMarketForce.status })
       .from(schema.materialGroupMarketForce)
@@ -221,6 +239,14 @@ export class StrategyService {
         const confirmed = forces.filter((force) => force.status === 'confirmed').length;
         if (confirmed === 6 && noteFilled(5)) return 'done';
         return forces.length > 0 || anyNote(5) ? 'in_progress' : 'open';
+      }
+      if (step === 6) {
+        // WG-10: je Feld ein bestätigter Eintrag und eine Paarung mit gewähltem Hebel
+        const covered = swotTypes.every((type) =>
+          swot.some((item) => item.type === type && item.status === 'confirmed'),
+        );
+        if (covered && chosen > 0) return 'done';
+        return swot.length > 0 || anyNote(6) ? 'in_progress' : 'open';
       }
       if (step === 3) return analysis.step3;
       if (step === 4) return analysis.step4;

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
-import { materialGroupKpi, materialGroupQuestion } from './schema/index.js';
+import { materialGroupKpi, materialGroupQuestion, strategyLever } from './schema/index.js';
 
 // WG-01, WG-04, WG-06: Startbestand für jeden Kunden aus seed/wg-startdaten.de.json (erzeugt aus
 // docs/specs/WG-startdaten.md). Er wird als Zeilen des Kunden kopiert und ist danach je Kunde
@@ -18,15 +18,27 @@ const startFile = z.object({
     }),
   ),
   questions: z.array(
-    z.object({ step: z.number().int().min(1).max(10), view: z.string().nullable(), text: z.string().min(1) }),
+    z.object({
+      step: z.number().int().min(1).max(10),
+      view: z.string().nullable(),
+      text: z.string().min(1),
+    }),
+  ),
+  // WG-10: Hebelkatalog mit Zieldimensionen, die erste ist die Hauptwirkung
+  levers: z.array(
+    z.object({
+      name: z.string().min(1),
+      description: z.string(),
+      dimensions: z
+        .array(z.enum(['supply', 'quality', 'cost', 'technology', 'sustainability']))
+        .min(1),
+    }),
   ),
 });
 
 export function loadMaterialGroupDefaults() {
   return startFile.parse(
-    JSON.parse(
-      readFileSync(new URL('../seed/wg-startdaten.de.json', import.meta.url), 'utf8'),
-    ),
+    JSON.parse(readFileSync(new URL('../seed/wg-startdaten.de.json', import.meta.url), 'utf8')),
   );
 }
 
@@ -34,7 +46,7 @@ export function loadMaterialGroupDefaults() {
 type Executor = PgDatabase<PgQueryResultHKT, any, any>;
 
 /**
- * Kopiert Leitfragen und Kennzahlen in eine Organisation, die noch keine hat. Hat sie schon welche,
+ * Kopiert Leitfragen, Kennzahlen und Hebel in eine Organisation, die noch keine hat. Hat sie schon welche,
  * bleibt alles, wie der Kunde es eingestellt hat.
  */
 export async function seedMaterialGroupDefaults(tx: Executor, orgId: string): Promise<boolean> {
@@ -42,6 +54,7 @@ export async function seedMaterialGroupDefaults(tx: Executor, orgId: string): Pr
     .select({
       questions: sql<number>`(select count(*)::int from material_group_question where org_id = ${orgId})`,
       kpis: sql<number>`(select count(*)::int from material_group_kpi where org_id = ${orgId})`,
+      levers: sql<number>`(select count(*)::int from lever where org_id = ${orgId})`,
     })
     .from(sql`(select 1) as one`);
   const defaults = loadMaterialGroupDefaults();
@@ -60,6 +73,10 @@ export async function seedMaterialGroupDefaults(tx: Executor, orgId: string): Pr
   }
   if ((existing?.kpis ?? 0) === 0) {
     await tx.insert(materialGroupKpi).values(defaults.kpis.map((kpi) => ({ ...kpi, orgId })));
+    seeded = true;
+  }
+  if ((existing?.levers ?? 0) === 0) {
+    await tx.insert(strategyLever).values(defaults.levers.map((entry) => ({ ...entry, orgId })));
     seeded = true;
   }
   return seeded;

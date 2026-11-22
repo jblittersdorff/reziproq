@@ -791,6 +791,30 @@ export const layerRegister: Record<string, LayerEntry> = {
       force: 'rivalry',
     }),
   },
+  // WG-10: Profil, Hebelkatalog und Paarungen
+  material_group_swot_item: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      type: 'strength',
+      code: `S${Math.floor(Math.random() * 1_000_000)}`,
+      text: 'Probe',
+    }),
+  },
+  lever: {
+    kind: 'org_private',
+    testValues: () => ({ name: `Probe ${randomUUID()}` }),
+  },
+  material_group_lever_choice: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      internal_item_id: org && probe('material_group_swot_item', org),
+      external_item_id: org && probe('material_group_swot_item', org),
+      lever_id: org && probe('lever', org),
+      reason: 'Probe',
+    }),
+  },
   relationship_business_unit: {
     kind: 'buyer_private',
     testValues: ({ buyer, probe }) => ({

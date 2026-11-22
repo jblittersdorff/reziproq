@@ -58,6 +58,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { AnalysisSection } from './analysis-pages';
+import { AssessmentSection } from './assessment-pages';
 import { MarketSection } from './market-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
 
@@ -527,6 +528,17 @@ function StepContent({
       editable={editable}
     />
   );
+  // WG-10: Schritt 6 zeigt Profil, Paarungen und Hebelkatalog.
+  if (content.step === 6) {
+    return (
+      <AssessmentSection
+        groupId={groupId}
+        context={context}
+        content={content}
+        editable={editable}
+      />
+    );
+  }
   // WG-09: Schritt 5 zeigt die sechs Marktkräfte und die Zusammenschau.
   if (content.step === 5) {
     return <MarketSection context={context} content={content} editable={editable} />;

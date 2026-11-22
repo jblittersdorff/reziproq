@@ -309,3 +309,100 @@ export const materialGroupMarketForce = pgTable(
     uniqueIndex('material_group_market_force_once').on(table.strategyId, table.force),
   ],
 );
+
+// WG-10: Profil aus Stärken, Schwächen, Chancen und Risiken; Paarung je ein interner und ein externer
+// Eintrag mit einem Hebel aus dem Katalog des Kunden. In der Spec category_swot_item, lever,
+// category_lever_choice.
+export const swotTypes = ['strength', 'weakness', 'opportunity', 'threat'] as const;
+
+export const materialGroupSwotItem = pgTable(
+  'material_group_swot_item',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    type: text({ enum: swotTypes }).notNull(),
+    code: text().notNull(),
+    text: text().notNull(),
+    originStep: integer(),
+    originView: text(),
+    status: text({ enum: ['draft', 'confirmed'] }).notNull().default('confirmed'),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'material_group_swot_item_type',
+      sql`${table.type} in ('strength', 'weakness', 'opportunity', 'threat')`,
+    ),
+    check('material_group_swot_item_status', sql`${table.status} in ('draft', 'confirmed')`),
+    check('material_group_swot_item_text', sql`length(trim(${table.text})) > 0`),
+    check('material_group_swot_item_code', sql`${table.code} ~ '^[SWOT][0-9]+$'`),
+    uniqueIndex('material_group_swot_item_code_once').on(table.strategyId, table.code),
+  ],
+);
+
+export const strategyLever = pgTable(
+  'lever',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    name: text().notNull(),
+    description: text().notNull().default(''),
+    // Zieldimensionen (WG-06), die erste ist die Hauptwirkung
+    dimensions: text().array().notNull().default(sql`'{}'::text[]`),
+    active: boolean().notNull().default(true),
+    custom: boolean().notNull().default(false),
+    // Ein eigener Hebel verlangt eine Begründung (WG-10).
+    reason: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('lever_name', sql`length(trim(${table.name})) > 0`),
+    check('lever_custom_reason', sql`not ${table.custom} or length(trim(coalesce(${table.reason}, ''))) > 0`),
+    uniqueIndex('lever_name_once').on(table.orgId, sql`lower(${table.name})`),
+  ],
+);
+
+export const leverChoiceStatuses = ['proposed', 'chosen', 'dismissed'] as const;
+
+export const materialGroupLeverChoice = pgTable(
+  'material_group_lever_choice',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    internalItemId: uuid()
+      .notNull()
+      .references(() => materialGroupSwotItem.id, { onDelete: 'cascade' }),
+    externalItemId: uuid()
+      .notNull()
+      .references(() => materialGroupSwotItem.id, { onDelete: 'cascade' }),
+    leverId: uuid()
+      .notNull()
+      .references(() => strategyLever.id),
+    reason: text().notNull().default(''),
+    status: text({ enum: leverChoiceStatuses }).notNull().default('chosen'),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'material_group_lever_choice_status',
+      sql`${table.status} in ('proposed', 'chosen', 'dismissed')`,
+    ),
+    check(
+      'material_group_lever_choice_reason',
+      sql`${table.status} <> 'chosen' or length(trim(${table.reason})) > 0`,
+    ),
+    index('material_group_lever_choice_strategy').on(table.strategyId),
+  ],
+);
