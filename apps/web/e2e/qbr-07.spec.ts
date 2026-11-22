@@ -48,6 +48,27 @@ const draft = (status: 'draft' | 'accepted') => ({
   model: 'test',
   createdAt: '2099-03-01T09:00:00Z',
   decidedAt: status === 'accepted' ? '2099-03-01T10:00:00Z' : null,
+  decidedBy: status === 'accepted' ? 'Lena Berger' : null,
+  decision: status === 'accepted' ? 'edited' : 'open',
+  claims: [
+    {
+      key: '1',
+      text: 'Die Liefertreue liegt über dem Ziel.',
+      thinlySupported: true,
+      sources: [
+        {
+          id: '0190a0a0-0000-7000-8000-000000000011',
+          kind: 'own_data',
+          title: 'Termin und Vorbereitung',
+          objectType: 'meeting',
+          objectId: mid,
+          url: null,
+          excerpt: 'Liefertreue oberhalb des Zielwerts',
+          publishedAt: '2026-11-01',
+        },
+      ],
+    },
+  ],
 });
 
 async function mock(page: Page) {
@@ -104,6 +125,16 @@ async function mock(page: Page) {
     }),
   );
   await page.route('**/api/audit**', (route) => route.fulfill({ json: { entries: [] } }));
+  await page.route('**/api/suppliers/*/kommentare/meeting/*', (route) =>
+    route.fulfill({
+      json: {
+        comments: [],
+        canComment: false,
+        objectVisibility: 'shared',
+        people: { internal: [], shared: [] },
+      },
+    }),
+  );
   await page.route(`**/api/suppliers/${id}/termine/${mid}`, (route) =>
     route.fulfill({ json: meeting }),
   );
@@ -129,16 +160,27 @@ for (const width of [390, 1440]) {
       'border-top-style',
       'solid',
     );
+    const accepted = section.locator('[data-slot="ai-draft"][data-confirmed]');
+    await expect(accepted.getByText('Entschieden von Lena Berger')).toBeVisible();
+    await expect(accepted.getByText('Dünn belegt')).toBeVisible();
+    await accepted.getByText('Termin und Vorbereitung', { exact: true }).click();
+    await expect(accepted.getByText('Liefertreue oberhalb des Zielwerts')).toBeVisible();
+    await expect(accepted.getByRole('link', { name: 'Quelle öffnen' })).toHaveAttribute(
+      'href',
+      `/lieferanten/${id}/umsetzung/termine/${mid}`,
+    );
     await page.waitForLoadState('networkidle');
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       ),
     ).toBe(0);
-    if (process.env.QBR07_SHOTS)
+    if (process.env.QBR07_SHOTS) {
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({
         path: `${process.env.QBR07_SHOTS}/qbr07-${width}.png`,
         fullPage: true,
       });
+    }
   });
 }

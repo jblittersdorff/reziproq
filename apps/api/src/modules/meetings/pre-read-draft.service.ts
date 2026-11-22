@@ -17,6 +17,13 @@ import {
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
 import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import {
+  createBuyerDraft,
+  type DraftEvidence,
+  draftDecision,
+  draftEvidence,
+  ownDraftSource,
+} from '../ai-drafts/evidence.js';
 import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -44,7 +51,9 @@ const system = [
   'Personen.',
 ].join(' ');
 
-const toDraft = (row: DraftRow) => ({
+const toDraft = (row: DraftRow, evidence?: DraftEvidence) => ({
+  ...draftDecision(row),
+  ...evidence,
   id: row.id,
   status: row.status,
   content: row.content,
@@ -152,10 +161,12 @@ export class PreReadDraftService {
       .orderBy(desc(schema.aiDraft.createdAt), desc(schema.aiDraft.id));
     const draft = rows.find((row) => row.status === 'draft');
     const accepted = rows.find((row) => row.status === 'accepted');
+    const evidence =
+      canDraft && scope.side === 'buyer' ? await draftEvidence(scope.tx, rows) : () => undefined;
     return preReadDraftSchema.parse({
       canDraft,
-      draft: canDraft && draft ? toDraft(draft) : null,
-      accepted: accepted ? toDraft(accepted) : null,
+      draft: canDraft && draft ? toDraft(draft, evidence(draft)) : null,
+      accepted: accepted ? toDraft(accepted, evidence(accepted)) : null,
     });
   }
 
@@ -186,12 +197,12 @@ export class PreReadDraftService {
       .from(schema.planObjective)
       .where(eq(schema.planObjective.planId, plan.id))
       .orderBy(asc(schema.planObjective.text));
-    return { summary: plan.summary, objectives: objectives.map((row) => row.text) };
+    return { id: plan.id, summary: plan.summary, objectives: objectives.map((row) => row.text) };
   }
 
   /** „Zusammenfassung vorschlagen“: höchstens 200 Wörter */
   async propose(side: Side, auth: AuthContext, relationshipId: string, meetingId: string) {
-    const prompt = await this.scoped(side, auth, relationshipId, async (scope) => {
+    const prepared = await this.scoped(side, auth, relationshipId, async (scope) => {
       if (!this.canDraft(scope)) throw forbidden();
       const detail = await this.meetings.detail(scope, meetingId);
       const people = await scope.tx.select({ name: schema.appUser.name }).from(schema.appUser);
@@ -203,19 +214,34 @@ export class PreReadDraftService {
         scope.side === 'buyer'
           ? { note: detail.note, plan: await this.supplierPlan(scope) }
           : { note: null, plan: null };
-      return preReadPrompt(detail, scope.side, buyerOnly, names);
+      return {
+        prompt: preReadPrompt(detail, scope.side, buyerOnly, names),
+        sources: [
+          ownDraftSource(
+            'meeting',
+            meetingId,
+            'Termin und Vorbereitung',
+            detail.meeting.startsAt.slice(0, 10),
+          ),
+          ...(buyerOnly.plan
+            ? [ownDraftSource('supplier_plan', buyerOnly.plan.id, 'Lieferantenplan')]
+            : []),
+        ],
+      };
     });
     const written = await this.model.write({
       context: gatewayContext(auth, 'pre_read'),
       system,
-      prompt,
+      prompt: prepared.prompt,
       maxOutputTokens: 600,
     });
     const content = limitWords(written, maxPreReadWords);
     return this.scoped(side, auth, relationshipId, async (scope) => {
+      if (!this.canDraft(scope)) throw forbidden();
+      await this.meetings.detail(scope, meetingId);
       // Ein neuer Entwurf ersetzt den offenen; die übernommene Zusammenfassung bleibt.
       await scope.tx.delete(schema.aiDraft).where(this.ofMeeting(scope, meetingId, ['draft']));
-      await scope.tx.insert(schema.aiDraft).values({
+      const draft = {
         orgId: scope.orgId,
         relationshipId: scope.relationshipId,
         kind,
@@ -224,7 +250,16 @@ export class PreReadDraftService {
         content,
         model: draftModelName(this.model, 'pre_read'),
         createdBy: auth.userId,
-      });
+      };
+      if (scope.side === 'buyer') {
+        await createBuyerDraft(
+          scope.tx,
+          draft,
+          [content].map((text) => ({ text, sources: [...prepared.sources] })),
+        );
+      } else {
+        await scope.tx.insert(schema.aiDraft).values(draft);
+      }
       return this.view(scope, meetingId);
     });
   }
@@ -236,7 +271,9 @@ export class PreReadDraftService {
     relationshipId: string,
     meetingId: string,
     draftId: string,
-    decision: { status: 'accepted'; input: AcceptPreRead } | { status: 'discarded' },
+    decision:
+      | { status: 'accepted'; input: AcceptPreRead }
+      | { status: 'discarded'; reason?: string | undefined },
   ) {
     return this.scoped(side, auth, relationshipId, async (scope) => {
       if (!this.canDraft(scope)) throw forbidden();
@@ -248,7 +285,8 @@ export class PreReadDraftService {
             this.ofMeeting(scope, meetingId, ['draft', 'accepted', 'discarded']),
             eq(schema.aiDraft.id, draftId),
           ),
-        );
+        )
+        .for('update');
       if (!row) throw notFound();
       if (row.status !== 'draft') {
         throw new ConflictException({ statusCode: 409, code: 'schon_entschieden' });
@@ -266,11 +304,20 @@ export class PreReadDraftService {
           .update(schema.aiDraft)
           .set({
             status: decision.status,
+            dismissReason:
+              decision.status === 'discarded' && row.claims !== null
+                ? decision.reason || null
+                : null,
             decidedBy: auth.userId,
             decidedAt: now,
             // Bearbeitet übernommen: der Text der Person, nie mehr als 200 Wörter.
             ...(decision.status === 'accepted'
-              ? { content: limitWords(decision.input.content, maxPreReadWords) }
+              ? {
+                  content: limitWords(decision.input.content, maxPreReadWords),
+                  edited:
+                    row.claims !== null &&
+                    limitWords(decision.input.content, maxPreReadWords) !== row.content,
+                }
               : {}),
           })
           .where(eq(schema.aiDraft.id, row.id));

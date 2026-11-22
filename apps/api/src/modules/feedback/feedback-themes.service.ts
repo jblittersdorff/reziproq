@@ -26,8 +26,15 @@ import {
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
 import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
-import { gatewayContext } from '../ai-gateway/model-gateway.js';
+import {
+  createBuyerDraft,
+  type DraftEvidence,
+  draftDecision,
+  draftEvidence,
+  ownDraftSource,
+} from '../ai-drafts/evidence.js';
 import { quotes } from '../ai-drafts/quotes.js';
+import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { type WaveScope, WavesService } from './waves.service.js';
@@ -49,7 +56,9 @@ const system = [
 type DraftRow = typeof schema.aiDraft.$inferSelect;
 type Side = 'buyer' | 'supplier';
 
-const toDraft = (row: DraftRow) => ({
+const toDraft = (row: DraftRow, evidence?: DraftEvidence) => ({
+  ...draftDecision(row),
+  ...evidence,
   id: row.id,
   status: row.status,
   content: row.content,
@@ -119,11 +128,15 @@ export class FeedbackThemesService {
       .orderBy(desc(schema.aiDraft.createdAt), desc(schema.aiDraft.id));
     const draft = rows.find((row) => row.status === 'draft');
     const accepted = rows.find((row) => row.status === 'accepted');
+    const evidence =
+      canSummarize && scope.side === 'buyer'
+        ? await draftEvidence(scope.tx, rows)
+        : () => undefined;
     return feedbackThemesSchema.parse({
       freeTexts: count,
       canSummarize,
-      draft: canSummarize && draft ? toDraft(draft) : null,
-      accepted: accepted ? toDraft(accepted) : null,
+      draft: canSummarize && draft ? toDraft(draft, evidence(draft)) : null,
+      accepted: accepted ? toDraft(accepted, evidence(accepted)) : null,
     });
   }
 
@@ -189,9 +202,10 @@ export class FeedbackThemesService {
     }
 
     return this.scoped(side, auth, relationshipId, async (scope) => {
+      if (!this.canSummarize(scope)) throw forbidden();
       // Ein neuer Entwurf ersetzt den offenen; die übernommene Zusammenfassung bleibt.
       await scope.tx.delete(schema.aiDraft).where(this.ofWave(scope, waveId, ['draft']));
-      await scope.tx.insert(schema.aiDraft).values({
+      const draft = {
         orgId: scope.orgId,
         relationshipId: scope.relationshipId,
         kind,
@@ -200,7 +214,19 @@ export class FeedbackThemesService {
         content,
         model: draftModelName(this.model, 'feedback_themes'),
         createdBy: auth.userId,
-      });
+      };
+      if (scope.side === 'buyer') {
+        await createBuyerDraft(
+          scope.tx,
+          draft,
+          feedbackThemesOf(content).map((text) => ({
+            text,
+            sources: [ownDraftSource(objectType, waveId, 'Aufgedecktes Feedback')],
+          })),
+        );
+      } else {
+        await scope.tx.insert(schema.aiDraft).values(draft);
+      }
       return this.view(scope, waveId, prepared.texts.length);
     });
   }
@@ -212,10 +238,12 @@ export class FeedbackThemesService {
     waveId: string,
     draftId: string,
     decision: 'accepted' | 'discarded',
+    reason?: string,
+    editedContent?: string,
   ) {
     return this.scoped(side, auth, relationshipId, async (scope) => {
       if (!this.canSummarize(scope)) throw forbidden();
-      const count = (await this.freeTexts(scope, waveId)).length;
+      const texts = await this.freeTexts(scope, waveId);
       const [row] = await scope.tx
         .select()
         .from(schema.aiDraft)
@@ -224,13 +252,23 @@ export class FeedbackThemesService {
             this.ofWave(scope, waveId, ['draft', 'accepted', 'discarded']),
             eq(schema.aiDraft.id, draftId),
           ),
-        );
+        )
+        .for('update');
       if (!row) throw notFound();
       if (row.status !== 'draft') {
         throw new ConflictException({ statusCode: 409, code: 'schon_entschieden' });
       }
-      await this.apply(scope.tx, scope, waveId, row, decision);
-      return this.view(scope, waveId, count);
+      let content = row.content;
+      if (row.claims !== null && decision === 'accepted' && editedContent !== undefined) {
+        content = feedbackThemesOf(editedContent)
+          .map((theme) => `- ${theme}`)
+          .join('\n');
+        if (!content || quotes(content, texts)) {
+          throw new UnprocessableEntityException({ statusCode: 422, code: 'zitat' });
+        }
+      }
+      await this.apply(scope.tx, scope, waveId, row, decision, content, reason);
+      return this.view(scope, waveId, texts.length);
     });
   }
 
@@ -240,6 +278,8 @@ export class FeedbackThemesService {
     waveId: string,
     row: DraftRow,
     decision: 'accepted' | 'discarded',
+    content: string,
+    reason?: string,
   ) {
     const now = new Date();
     if (decision === 'accepted') {
@@ -253,7 +293,14 @@ export class FeedbackThemesService {
     await auditedChange(tx, actor, aiDraftAudit, async () => {
       await tx
         .update(schema.aiDraft)
-        .set({ status: decision, decidedBy: scope.auth.userId, decidedAt: now })
+        .set({
+          status: decision,
+          content,
+          edited: content !== row.content,
+          dismissReason: decision === 'discarded' && row.claims !== null ? reason || null : null,
+          decidedBy: scope.auth.userId,
+          decidedAt: now,
+        })
         .where(eq(schema.aiDraft.id, row.id));
       return {
         relationshipId: scope.relationshipId,

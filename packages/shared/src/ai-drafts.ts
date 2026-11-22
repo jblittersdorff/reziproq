@@ -6,6 +6,26 @@ import { z } from 'zod';
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 export type AiDraftStatus = (typeof aiDraftStatuses)[number];
 
+/** Quellen zu einer Aussage im Käuferentwurf. Altentwürfe haben keine claims. */
+export const draftSourceSchema = z.object({
+  id: z.uuid(),
+  kind: z.enum(['own_data', 'public']),
+  title: z.string().min(1),
+  objectType: z.string().nullable(),
+  objectId: z.uuid().nullable(),
+  url: z.url({ protocol: /^https?$/ }).nullable(),
+  excerpt: z.string().nullable(),
+  publishedAt: z.iso.date().nullable(),
+});
+export type DraftSource = z.infer<typeof draftSourceSchema>;
+
+export const draftClaimSchema = z.object({
+  key: z.string().min(1),
+  text: z.string().trim().min(1),
+  sources: z.array(draftSourceSchema).min(1),
+  thinlySupported: z.boolean(),
+});
+
 export const aiDraftSchema = z.object({
   id: z.uuid(),
   status: z.enum(aiDraftStatuses),
@@ -13,6 +33,10 @@ export const aiDraftSchema = z.object({
   model: z.string(),
   createdAt: z.iso.datetime({ offset: true }),
   decidedAt: z.iso.datetime({ offset: true }).nullable(),
+  decidedBy: z.string().nullable().optional(),
+  decision: z.enum(['open', 'adopted', 'edited', 'dismissed']).optional(),
+  dismissReason: z.string().nullable().optional(),
+  claims: z.array(draftClaimSchema).nonempty().optional(),
 });
 export type AiDraft = z.infer<typeof aiDraftSchema>;
 
@@ -91,11 +115,20 @@ export function limitWords(text: string, max: number): string {
   return `${words.slice(0, max - 1).join(' ')} …`;
 }
 
+export const dismissAiDraftSchema = z.object({ reason: z.string().trim().max(2000).optional() });
+export type DismissAiDraft = z.infer<typeof dismissAiDraftSchema>;
+
+export const acceptAiDraftSchema = z.object({
+  content: z.string().trim().min(1).max(5000).optional(),
+});
+export type AcceptAiDraft = z.infer<typeof acceptAiDraftSchema>;
+
 export const planSummaryDraftSchema = z.object({
   /** SRO der Beziehung oder Admin, solange der Plan ein Entwurf ist */
   canDraft: z.boolean(),
   /** Offener KI-Entwurf */
   draft: aiDraftSchema.nullable(),
+  accepted: aiDraftSchema.nullable().optional(),
 });
 export type PlanSummaryDraft = z.infer<typeof planSummaryDraftSchema>;
 

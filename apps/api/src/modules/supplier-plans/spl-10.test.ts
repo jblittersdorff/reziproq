@@ -131,13 +131,23 @@ describe('SPL-10 KI-Entwurf der Strategie-Zusammenfassung', () => {
     await testApp.close();
   });
 
-  it('Der Entwurf wird erst mit dem normalen Speichern Teil des Plans', async () => {
+  it('Der Entwurf ändert den Plan erst nach autorisierter Übernahme', async () => {
     const proposed = draftOf(
       (await call(users.sro, 'POST', `${path}/${planId}/summary/draft`)).body,
     );
     expect(proposed.canDraft).toBe(true);
     const draft = proposed.draft;
-    expect(draft?.status).toBe('draft');
+    expect(draft).toMatchObject({
+      status: 'draft',
+      decision: 'open',
+      claims: [
+        {
+          sources: expect.arrayContaining([
+            expect.objectContaining({ objectId: planId, kind: 'own_data' }),
+          ]),
+        },
+      ],
+    });
     expect(await summary()).toBe('Alter Text.');
 
     // Nur SRO und Admin; der Lieferant nie.
@@ -151,8 +161,8 @@ describe('SPL-10 KI-Entwurf der Strategie-Zusammenfassung', () => {
       (await call(users.sro, 'POST', `${path}/${planId}/summary/draft/${draft?.id}/accept`)).body,
     );
     expect(accepted.draft).toBeNull();
-    // Übernommen heißt: im Feld, noch nicht im Plan.
-    expect(await summary()).toBe('Alter Text.');
+    expect(accepted.accepted).toMatchObject({ decision: 'adopted', decidedAt: expect.any(String) });
+    expect(await summary()).toBe(draft?.content);
     const edited = `${draft?.content} Ergänzt vom SRO.`;
     expect(
       (await call(users.sro, 'PATCH', `${path}/${planId}/summary`, { summary: edited })).status,

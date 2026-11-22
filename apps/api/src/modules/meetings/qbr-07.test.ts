@@ -7,7 +7,7 @@ import {
   preReadDraftSchema,
   wordCount,
 } from '@reziproq/shared';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { TestDraftModel } from '../ai-drafts/draft-model.js';
@@ -192,6 +192,7 @@ describe('QBR-07 KI-Entwurf für den Pre-Read', () => {
     TestDraftModel.requests.length = 0;
     const forSupplier = draftOf(await json(users.kam, 'POST', summaryPath(supplier)));
     expect(forSupplier.draft?.status).toBe('draft');
+    expect(forSupplier.draft?.claims).toBeUndefined();
     const supplierPrompt = TestDraftModel.requests.at(-1)?.prompt ?? '';
     expect(supplierPrompt).toContain('Seite: Lieferant');
     expect(supplierPrompt).toContain('Muster prüfen');
@@ -211,7 +212,17 @@ describe('QBR-07 KI-Entwurf für den Pre-Read', () => {
       expect(supplierPrompt).not.toContain(name);
 
     const forBuyer = draftOf(await json(users.sro, 'POST', summaryPath(buyer)));
-    expect(forBuyer.draft?.status).toBe('draft');
+    expect(forBuyer.draft).toMatchObject({
+      status: 'draft',
+      decision: 'open',
+      claims: [
+        {
+          sources: expect.arrayContaining([
+            expect.objectContaining({ objectId: meetingId, excerpt: null }),
+          ]),
+        },
+      ],
+    });
     const buyerPrompt = TestDraftModel.requests.at(-1)?.prompt ?? '';
     expect(buyerPrompt).toContain(`Interne Notiz: Käufer intern ${run}`);
     expect(buyerPrompt).toContain(`Lieferantenplan: Lieferantenplan ${run}`);
@@ -240,7 +251,12 @@ describe('QBR-07 KI-Entwurf für den Pre-Read', () => {
         content: edited,
       }),
     );
-    expect(accepted.accepted?.content).toBe(edited);
+    expect(accepted.accepted).toMatchObject({
+      content: edited,
+      decision: 'edited',
+      decidedBy: expect.any(String),
+      decidedAt: expect.any(String),
+    });
     expect(accepted.draft).toBeNull();
 
     const forBuyer = await pdf(users.sro, buyer);
@@ -250,6 +266,31 @@ describe('QBR-07 KI-Entwurf für den Pre-Read', () => {
     expect(forSupplier.text).not.toContain(`Zusammenfassung Käufer ${run}`);
     expect(draftOf(await json(users.kam, 'GET', summaryPath(supplier))).accepted).toBeNull();
   }, 30_000);
+
+  it('Lehnt leere Modellausgaben ab und speichert Entscheidungen zum Verwerfen', async () => {
+    const open = draftOf(await json(users.sro, 'POST', summaryPath(buyer))).draft;
+    expect(open?.claims).toHaveLength(1);
+    const model = vi.spyOn(TestDraftModel.prototype, 'write').mockResolvedValueOnce('');
+    try {
+      expect((await call(users.sro, 'POST', summaryPath(buyer))).status).toBe(422);
+    } finally {
+      model.mockRestore();
+    }
+    expect(draftOf(await json(users.sro, 'GET', summaryPath(buyer))).draft?.id).toBe(open?.id);
+    await json(users.sro, 'POST', `${summaryPath(buyer)}/${open?.id}/verwerfen`, {
+      reason: 'Termin verschoben',
+    });
+    const [row] = await db
+      .select()
+      .from(schema.aiDraft)
+      .where(sql`${schema.aiDraft.id} = ${open?.id}`);
+    expect(row).toMatchObject({
+      status: 'discarded',
+      decidedBy: users.sro,
+      decidedAt: expect.any(Date),
+      dismissReason: 'Termin verschoben',
+    });
+  });
 
   it('Der Entwurf überschreitet nie 200 Wörter', async () => {
     const proposed = draftOf(await json(users.kam, 'POST', summaryPath(supplier)));

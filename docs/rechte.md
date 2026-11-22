@@ -103,6 +103,8 @@ Vorgabe für die Umsetzung. Offene Rollenfragen stehen im [Prüfbericht](eingang
 | Wertpotenzial, Rechenweg, Marktsignal, Datenlücke | lesen | – | übernehmen, verwerfen, Annahmen ändern | lesen, wenn Zugriff auf die Beziehung | nie |
 | Frage an das Team | lesen | – | – | beantworten, wenn an sie gerichtet; Lead und Commodity Manager alle | nie |
 
+KI-03 speichert Aussagen und Quellen in der Käuferorganisation. Die Fachberechtigung des Zielobjekts gilt auch für Übernahme, Bearbeitung und Verwerfen. QBR-07 führt die eigene Lieferantenvorbereitung getrennt in der Lieferantenorganisation weiter.
+
 Für alle Tabellen aus KI-01 bis KI-13 gilt:
 
 - Art `org_private`, keine Freigabe-Policy.

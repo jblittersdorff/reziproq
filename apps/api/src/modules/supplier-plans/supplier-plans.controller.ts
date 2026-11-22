@@ -11,9 +11,13 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  type AcceptAiDraft,
+  acceptAiDraftSchema,
   contributionDetailSchema,
   contributionObjectiveRequestSchema,
   contributionSuggestionsResponseSchema,
+  type DismissAiDraft,
+  dismissAiDraftSchema,
   objectiveCategoriesResponseSchema,
   objectiveCategoryRequestSchema,
   type PlanDecision,
@@ -106,8 +110,17 @@ export class SupplierPlansController {
     @Param('relationshipId', uuid) relationshipId: string,
     @Param('planId', uuid) planId: string,
     @Param('draftId', uuid) draftId: string,
+    @Body(new ZodValidationPipe(acceptAiDraftSchema.optional())) body: AcceptAiDraft | undefined,
   ) {
-    return this.summaryDrafts.decide(auth, relationshipId, planId, draftId, 'accepted');
+    return this.summaryDrafts.decide(
+      auth,
+      relationshipId,
+      planId,
+      draftId,
+      'accepted',
+      undefined,
+      body?.content,
+    );
   }
 
   @Post(':planId/summary/draft/:draftId/discard')
@@ -118,8 +131,16 @@ export class SupplierPlansController {
     @Param('relationshipId', uuid) relationshipId: string,
     @Param('planId', uuid) planId: string,
     @Param('draftId', uuid) draftId: string,
+    @Body(new ZodValidationPipe(dismissAiDraftSchema.optional())) body: DismissAiDraft | undefined,
   ) {
-    return this.summaryDrafts.decide(auth, relationshipId, planId, draftId, 'discarded');
+    return this.summaryDrafts.decide(
+      auth,
+      relationshipId,
+      planId,
+      draftId,
+      'discarded',
+      body?.reason,
+    );
   }
 
   @Post(':planId/objectives')

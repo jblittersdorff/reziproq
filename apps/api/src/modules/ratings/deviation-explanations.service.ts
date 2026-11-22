@@ -26,6 +26,13 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
 import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import {
+  createBuyerDraft,
+  type DraftEvidence,
+  draftDecision,
+  draftEvidence,
+  ownDraftSource,
+} from '../ai-drafts/evidence.js';
 import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -106,8 +113,10 @@ export function explanationPrompt(
 
 type DraftRow = typeof schema.aiDraft.$inferSelect;
 
-function toDraft(row: DraftRow): AiDraft {
+function toDraft(row: DraftRow, evidence?: DraftEvidence): AiDraft {
   return {
+    ...draftDecision(row),
+    ...evidence,
     id: row.id,
     status: row.status,
     content: row.content,
@@ -172,6 +181,7 @@ export class DeviationExplanationsService {
         ),
       )
       .orderBy(desc(schema.aiDraft.createdAt), desc(schema.aiDraft.id));
+    const evidence = canExplain ? await draftEvidence(tx, rows) : () => undefined;
     return deviationExplanationsSchema.parse({
       roundId: segmentation.roundId,
       canExplain,
@@ -187,8 +197,8 @@ export class DeviationExplanationsService {
           range: deviation.range,
           reasons: deviation.reasons,
           // Entwürfe sehen nur SRO und Admin; alle anderen nur übernommene Erklärungen.
-          draft: canExplain && draft ? toDraft(draft) : null,
-          accepted: accepted ? toDraft(accepted) : null,
+          draft: canExplain && draft ? toDraft(draft, evidence(draft)) : null,
+          accepted: accepted ? toDraft(accepted, evidence(accepted)) : null,
         };
       }),
     });
@@ -260,6 +270,11 @@ export class DeviationExplanationsService {
     );
 
     return this.tenant.run(session, async (tx) => {
+      const { canExplain, segmentation } = await this.context(tx, auth, relationshipId);
+      if (!canExplain) throw forbidden();
+      if (segmentation?.roundId !== prepared.roundId) {
+        throw new ConflictException({ statusCode: 409, code: 'bewertungsrunde_geaendert' });
+      }
       for (const { criterionKey, content } of written) {
         // Ein neuer Entwurf ersetzt den offenen; übernommene Erklärungen bleiben.
         await tx
@@ -274,7 +289,7 @@ export class DeviationExplanationsService {
             ),
           );
         if (!content) continue;
-        await tx.insert(schema.aiDraft).values({
+        const draft = {
           orgId: organization.id,
           relationshipId,
           kind,
@@ -284,9 +299,16 @@ export class DeviationExplanationsService {
           content,
           model: draftModelName(this.model, 'deviation_explanation'),
           createdBy: auth.userId,
-        });
+        };
+        await createBuyerDraft(
+          tx,
+          draft,
+          [content].map((text) => ({
+            text,
+            sources: [ownDraftSource(objectType, prepared.roundId, 'Abgegebene Bewertungen')],
+          })),
+        );
       }
-      const { canExplain, segmentation } = await this.context(tx, auth, relationshipId);
       return this.view(tx, relationshipId, segmentation, canExplain, withoutReasons);
     });
   }
@@ -297,6 +319,8 @@ export class DeviationExplanationsService {
     relationshipId: string,
     draftId: string,
     decision: 'accepted' | 'discarded',
+    reason?: string,
+    editedContent?: string,
   ): Promise<DeviationExplanations> {
     const organization = this.organization(auth);
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
@@ -311,7 +335,8 @@ export class DeviationExplanationsService {
             eq(schema.aiDraft.relationshipId, relationshipId),
             eq(schema.aiDraft.kind, kind),
           ),
-        );
+        )
+        .for('update');
       if (!row) throw new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
       if (row.status !== 'draft') {
         throw new ConflictException({
@@ -339,10 +364,21 @@ export class DeviationExplanationsService {
             ),
           );
       }
+      const content =
+        row.claims !== null && decision === 'accepted'
+          ? (editedContent ?? row.content)
+          : row.content;
       await auditedChange(tx, actor, aiDraftAudit, async () => {
         await tx
           .update(schema.aiDraft)
-          .set({ status: decision, decidedBy: auth.userId, decidedAt: now })
+          .set({
+            status: decision,
+            content,
+            edited: content !== row.content,
+            dismissReason: decision === 'discarded' && row.claims !== null ? reason || null : null,
+            decidedBy: auth.userId,
+            decidedAt: now,
+          })
           .where(eq(schema.aiDraft.id, row.id));
         return {
           relationshipId,

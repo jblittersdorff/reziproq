@@ -2,6 +2,7 @@ import type { DeviationExplanation, DeviationExplanations } from '@reziproq/shar
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { AiDraft } from '@/components/ui/ai-draft';
+import { AiDraftInputs, type DraftInput } from '@/components/ui/ai-draft-inputs';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -103,9 +104,9 @@ export function DeviationExplanationsSection({
                     relationshipId={relationshipId}
                     explanation={explanation}
                     busy={busy}
-                    onDecide={(draftId, decision) =>
+                    onDecide={(draftId, decision, input) =>
                       void run(draftId, () =>
-                        decideExplanation(accessToken, relationshipId, draftId, decision),
+                        decideExplanation(accessToken, relationshipId, draftId, decision, input),
                       )
                     }
                   />
@@ -128,7 +129,7 @@ function ExplanationDrafts({
   relationshipId: string;
   explanation: DeviationExplanation;
   busy: string | null;
-  onDecide: (draftId: string, decision: 'accept' | 'discard') => void;
+  onDecide: (draftId: string, decision: 'accept' | 'discard', input: DraftInput) => void;
 }) {
   const text = useT().segmentation.explain;
   const format = useFormat();
@@ -141,6 +142,8 @@ function ExplanationDrafts({
     },
   ];
   const { draft, accepted } = explanation;
+  const [inputByDraft, setInputByDraft] = useState<Record<string, DraftInput>>({});
+  const input = (draft && inputByDraft[draft.id]) ?? {};
   if (!draft && !accepted) {
     return <p className="text-muted-foreground text-sm">{text.noExplanation}</p>;
   }
@@ -148,6 +151,7 @@ function ExplanationDrafts({
     <>
       {accepted && (
         <AiDraft
+          evidence={{ draft: accepted, relationshipId: relationshipId }}
           confirmed
           heading={text.acceptedHeading(format.date(accepted.decidedAt ?? accepted.createdAt))}
           sourcesLabel={text.sources}
@@ -158,6 +162,7 @@ function ExplanationDrafts({
       )}
       {draft && (
         <AiDraft
+          evidence={{ draft: draft, relationshipId: relationshipId }}
           heading={text.draftHeading}
           sourcesLabel={text.sources}
           sources={sources}
@@ -167,7 +172,8 @@ function ExplanationDrafts({
                 size="sm"
                 loading={busy === draft.id}
                 aria-label={`${text.accept}: ${explanation.criterionName}`}
-                onClick={() => onDecide(draft.id, 'accept')}
+                disabled={input.content !== undefined && !input.content.trim()}
+                onClick={() => onDecide(draft.id, 'accept', input)}
               >
                 {text.accept}
               </Button>
@@ -176,7 +182,7 @@ function ExplanationDrafts({
                 variant="secondary"
                 disabled={busy === draft.id}
                 aria-label={`${text.discard}: ${explanation.criterionName}`}
-                onClick={() => onDecide(draft.id, 'discard')}
+                onClick={() => onDecide(draft.id, 'discard', input)}
               >
                 {text.discard}
               </Button>
@@ -184,6 +190,13 @@ function ExplanationDrafts({
           }
         >
           {draft.content}
+          {draft.claims && (
+            <AiDraftInputs
+              content={draft.content}
+              input={input}
+              onChange={(value) => setInputByDraft({ [draft.id]: value })}
+            />
+          )}
         </AiDraft>
       )}
     </>

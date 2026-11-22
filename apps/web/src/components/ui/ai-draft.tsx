@@ -1,6 +1,9 @@
+import type { AiDraft as Draft } from '@reziproq/shared';
 import type * as React from 'react';
 
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { AiDraftEvidence } from './ai-draft-evidence';
 import { BrandMark } from './brand-mark';
 
 export interface DraftSource {
@@ -18,6 +21,7 @@ function AiDraft({
   heading,
   sourcesLabel,
   sources,
+  evidence,
   confirmed = false,
   actions,
   className,
@@ -28,11 +32,13 @@ function AiDraft({
   /** z. B. „Quellen“ */
   sourcesLabel: string;
   sources: DraftSource[];
+  evidence?: { draft: Draft; relationshipId: string };
   confirmed?: boolean;
   actions?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 }) {
+  const t = useT().draftEvidence;
   return (
     <section
       data-slot="ai-draft"
@@ -48,13 +54,20 @@ function AiDraft({
         {heading}
       </p>
       <div className="text-sm leading-relaxed">{children}</div>
-      {sources.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-semibold text-muted-foreground text-sm">{sourcesLabel}</span>
-          {sources.map((source) => (
-            <SourcePill key={source.key} source={source} />
-          ))}
-        </div>
+      {confirmed && evidence?.draft.decidedBy && (
+        <p className="text-muted-foreground text-sm">{t.decidedBy(evidence.draft.decidedBy)}</p>
+      )}
+      {evidence?.draft.claims ? (
+        <AiDraftEvidence claims={evidence.draft.claims} relationshipId={evidence.relationshipId} />
+      ) : (
+        sources.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-semibold text-muted-foreground text-sm">{sourcesLabel}</span>
+            {sources.map((source) => (
+              <SourcePill key={source.key} source={source} />
+            ))}
+          </div>
+        )
       )}
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </section>

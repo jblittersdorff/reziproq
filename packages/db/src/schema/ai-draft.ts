@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, date, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  check,
+  date,
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -12,7 +22,13 @@ import { relationship } from './relationship.js';
 // Pre-Read eines Termins (object_type meeting), je Seite getrennt. Kein Fremdschlüssel auf das Objekt, weil
 // die Tabelle für mehrere Arten dient.
 // WG-09: market_analysis, sechs Marktkräfte und Zusammenschau als JSON (object_type material_group_strategy).
-export const aiDraftKinds = ['deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis'] as const;
+export const aiDraftKinds = [
+  'deviation_explanation',
+  'feedback_themes',
+  'plan_summary',
+  'pre_read',
+  'market_analysis',
+] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
 export const aiDraft = pgTable(
@@ -28,6 +44,11 @@ export const aiDraft = pgTable(
     objectId: uuid().notNull(),
     subject: text(),
     content: text().notNull(),
+    // Alte Entwürfe haben keine belastbare Zuordnung von Quellen zu Aussagen.
+    claims: jsonb().$type<{ key: string; text: string }[]>(),
+    runId: uuid(),
+    edited: boolean().notNull().default(false),
+    dismissReason: text(),
     model: text().notNull(),
     status: text({ enum: aiDraftStatuses }).notNull().default('draft'),
     createdBy: text().notNull(),
@@ -56,7 +77,11 @@ export const aiSource = pgTable(
     orgId: uuid()
       .notNull()
       .references(() => organization.id),
-    draftId: uuid().references(() => aiDraft.id),
+    draftId: uuid().references(() => aiDraft.id, { onDelete: 'cascade' }),
+    claimKey: text(),
+    objectType: text(),
+    objectId: uuid(),
+    excerpt: text(),
     targetType: text().notNull(),
     targetId: uuid().notNull(),
     kind: text({ enum: aiSourceKinds }).notNull(),
@@ -68,6 +93,13 @@ export const aiSource = pgTable(
   (table) => [
     check('ai_source_kind', sql`${table.kind} in ('own_data', 'public')`),
     check('ai_source_title', sql`length(trim(${table.title})) > 0`),
+    check(
+      'ai_source_claim',
+      sql`${table.claimKey} is null or (${table.draftId} is not null and
+        ((${table.kind} = 'own_data' and ${table.objectType} is not null and ${table.objectId} is not null)
+         or (${table.kind} = 'public' and ${table.url} is not null)))`,
+    ),
+    index('ai_source_draft_claim').on(table.orgId, table.draftId, table.claimKey),
     index('ai_source_target').on(table.targetType, table.targetId),
   ],
 );

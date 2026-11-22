@@ -10,9 +10,13 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  type AcceptAiDraft,
+  acceptAiDraftSchema,
+  type DismissAiDraft,
+  dismissAiDraftSchema,
   type ExtendSurveyWave,
-  type FeedbackThemes,
   extendSurveyWaveSchema,
+  type FeedbackThemes,
   type InviteSurveyParticipants,
   inviteSurveyParticipantsSchema,
   type PublicSurvey,
@@ -107,8 +111,18 @@ function waveRoutes(side: Side) {
       @Param('id', ParseUUIDPipe) id: string,
       @Param('waveId', ParseUUIDPipe) waveId: string,
       @Param('draftId', ParseUUIDPipe) draftId: string,
+      @Body(new ZodValidationPipe(acceptAiDraftSchema.optional())) body: AcceptAiDraft | undefined,
     ): Promise<FeedbackThemes> {
-      return this.themes.decide(side, auth, id, waveId, draftId, 'accepted');
+      return this.themes.decide(
+        side,
+        auth,
+        id,
+        waveId,
+        draftId,
+        'accepted',
+        undefined,
+        body?.content,
+      );
     }
 
     @Post(':waveId/themen/:draftId/verwerfen')
@@ -119,8 +133,11 @@ function waveRoutes(side: Side) {
       @Param('id', ParseUUIDPipe) id: string,
       @Param('waveId', ParseUUIDPipe) waveId: string,
       @Param('draftId', ParseUUIDPipe) draftId: string,
+      @Body(new ZodValidationPipe(dismissAiDraftSchema.optional())) body:
+        | DismissAiDraft
+        | undefined,
     ): Promise<FeedbackThemes> {
-      return this.themes.decide(side, auth, id, waveId, draftId, 'discarded');
+      return this.themes.decide(side, auth, id, waveId, draftId, 'discarded', body?.reason);
     }
 
     @Post(':waveId/teilnehmende')

@@ -1,11 +1,4 @@
 import {
-  type AiSettings,
-  aiSettingsResponseSchema,
-  aiUsageSchema,
-  type EbitGoalRequest,
-  overviewInsightSchema,
-  supplierRingsSchema,
-  type SupplierTargetRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -13,6 +6,7 @@ import {
   type ActivityFeed,
   type ActivityFilter,
   type AddAssignment,
+  type AiSettings,
   type AnalysisStep,
   type AssignmentRequest,
   acceptInvitationResponseSchema,
@@ -21,6 +15,8 @@ import {
   actionListSchema,
   actionReminderSettingSchema,
   activityFeedSchema,
+  aiSettingsResponseSchema,
+  aiUsageSchema,
   analysisStepSchema,
   assignmentResponseSchema,
   auditResponseSchema,
@@ -64,6 +60,7 @@ import {
   decisionHistorySchema,
   deviationExplanationsSchema,
   dueListSchema,
+  type EbitGoalRequest,
   type EditComment,
   type ExtendRound,
   type FiscalYearSetting,
@@ -130,6 +127,7 @@ import {
   objectiveCategoryRequestSchema,
   organizationMemberSchema,
   organizationResponseSchema,
+  overviewInsightSchema,
   type PlanDecision,
   type PlanObjectiveRequest,
   type ProductGroupRequest,
@@ -206,6 +204,7 @@ import {
   type StrategicTopicRequest,
   type StrategyAssessment,
   type SubmitSurvey,
+  type SupplierTargetRequest,
   type SurveyKind,
   type SurveySide,
   type SwotRequest,
@@ -226,6 +225,7 @@ import {
   supplierOverviewSchema,
   supplierPlanResponseSchema,
   supplierProfileSchema,
+  supplierRingsSchema,
   suppliersResponseSchema,
   supportHeader,
   surveyDetailSchema,
@@ -1366,11 +1366,12 @@ export const decidePlanSummaryDraft = (
   planId: string,
   draftId: string,
   decision: 'accept' | 'discard',
+  input: { content?: string; reason?: string } = {},
 ) =>
   sendJson(
     'POST',
     `/suppliers/${relationshipId}/plan/${planId}/summary/draft/${draftId}/${decision}`,
-    {},
+    input,
     planSummaryDraftSchema,
     accessToken,
   );
@@ -1902,11 +1903,12 @@ export const decideExplanation = (
   relationshipId: string,
   draftId: string,
   decision: 'accept' | 'discard',
+  input: { content?: string; reason?: string } = {},
 ) =>
   sendJson(
     'POST',
     `/ratings/relationship/${relationshipId}/segmentation/explanations/${draftId}/${decision}`,
-    {},
+    input,
     deviationExplanationsSchema,
     accessToken,
   );
@@ -2507,11 +2509,12 @@ export const discardPreRead = (
   base: MeetingBase,
   meetingId: string,
   draftId: string,
+  input: { reason?: string } = {},
 ) =>
   sendJson(
     'POST',
     `${base}/termine/${meetingId}/zusammenfassung/${draftId}/verwerfen`,
-    {},
+    input,
     preReadDraftSchema,
     accessToken,
   );
@@ -3039,11 +3042,12 @@ export const decideFeedbackThemes = (
   waveId: string,
   draftId: string,
   decision: 'uebernehmen' | 'verwerfen',
+  input: { content?: string; reason?: string } = {},
 ) =>
   sendJson(
     'POST',
     `${feedbackBase(side, relationshipId)}/${waveId}/themen/${draftId}/${decision}`,
-    {},
+    input,
     feedbackThemesSchema,
     accessToken,
   );

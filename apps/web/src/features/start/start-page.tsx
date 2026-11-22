@@ -155,6 +155,12 @@ export function StartPage() {
         <div data-slot="start-tiles" className="flex flex-wrap items-start gap-7">
           <div className="flex min-w-0 shrink grow-999 basis-140 flex-col gap-7">
             <DueTile item={data.due.items[0]} />
+            {!supplierSide && !!data.ownOpenDrafts && (
+              <section className={cn('rounded-lg bg-card', tileClass)}>
+                <h2 className={titleClass}>{t.draftEvidence.prepared}</h2>
+                <p>{t.draftEvidence.openCount(data.ownOpenDrafts)}</p>
+              </section>
+            )}
             <MeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />
             <CountTile data={data} />
           </div>

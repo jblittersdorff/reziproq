@@ -10,7 +10,13 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { type AcceptPreRead, acceptPreReadSchema, type PreReadDraft } from '@reziproq/shared';
+import {
+  type AcceptPreRead,
+  acceptPreReadSchema,
+  type DismissAiDraft,
+  dismissAiDraftSchema,
+  type PreReadDraft,
+} from '@reziproq/shared';
 import type { Response } from 'express';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
@@ -112,8 +118,12 @@ abstract class PreReadEndpoints {
     @Param('id', ParseUUIDPipe) id: string,
     @Param('meetingId', ParseUUIDPipe) meetingId: string,
     @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(dismissAiDraftSchema.optional())) body: DismissAiDraft | undefined,
   ): Promise<PreReadDraft> {
-    return this.drafts.decide(this.side, auth, id, meetingId, draftId, { status: 'discarded' });
+    return this.drafts.decide(this.side, auth, id, meetingId, draftId, {
+      status: 'discarded',
+      reason: body?.reason,
+    });
   }
 }
 

@@ -30,7 +30,9 @@ export function PreReadSummary({
   side: 'buyer' | 'supplier';
   meetingId: string;
 }) {
-  const text = useT().meetings.summaryDraft;
+  const relationshipId = base.slice(base.lastIndexOf('/') + 1);
+  const t = useT();
+  const text = t.meetings.summaryDraft;
   const format = useFormat();
   const accessToken = useToken();
   const queryClient = useQueryClient();
@@ -38,6 +40,7 @@ export function PreReadSummary({
   const query = useQuery({ ...options, enabled: accessToken !== '' });
   const [busy, setBusy] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
+  const [reasonByDraft, setReasonByDraft] = useState<Record<string, string>>({});
   // Bearbeiteter Text je Entwurf; ohne Eingabe gilt der Text der KI.
   const [edits, setEdits] = useState<Record<string, string>>({});
 
@@ -59,6 +62,7 @@ export function PreReadSummary({
     (label) => ({ key: label, label }),
   );
   const draft = data.draft;
+  const reason = (draft && reasonByDraft[draft.id]) ?? '';
   const value = draft ? (edits[draft.id] ?? draft.content) : '';
   const words = wordCount(value);
 
@@ -69,6 +73,7 @@ export function PreReadSummary({
       </h2>
       {data.accepted && (
         <AiDraft
+          evidence={{ draft: data.accepted, relationshipId: relationshipId }}
           confirmed
           heading={text.acceptedHeading(
             format.date(data.accepted.decidedAt ?? data.accepted.createdAt),
@@ -81,6 +86,7 @@ export function PreReadSummary({
       )}
       {draft ? (
         <AiDraft
+          evidence={{ draft: draft, relationshipId: relationshipId }}
           heading={text.heading}
           sourcesLabel={text.sources}
           sources={sources}
@@ -103,7 +109,15 @@ export function PreReadSummary({
                 variant="secondary"
                 disabled={busy !== null}
                 onClick={() =>
-                  void run('discard', () => discardPreRead(accessToken, base, meetingId, draft.id))
+                  void run('discard', () =>
+                    discardPreRead(
+                      accessToken,
+                      base,
+                      meetingId,
+                      draft.id,
+                      draft.claims ? { reason } : {},
+                    ),
+                  )
                 }
               >
                 {text.discard}
@@ -125,6 +139,19 @@ export function PreReadSummary({
               />
             )}
           </FormField>
+          {draft.claims && (
+            <details className="mt-2">
+              <summary className="min-h-11 cursor-pointer content-center">
+                {t.draftEvidence.reason}
+              </summary>
+              <Textarea
+                aria-label={t.draftEvidence.reason}
+                maxLength={2000}
+                value={reason}
+                onChange={(event) => setReasonByDraft({ [draft.id]: event.target.value })}
+              />
+            </details>
+          )}
         </AiDraft>
       ) : (
         data.canDraft && (

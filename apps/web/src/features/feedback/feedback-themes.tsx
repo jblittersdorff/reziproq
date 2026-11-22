@@ -7,6 +7,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { AiDraft } from '@/components/ui/ai-draft';
+import { AiDraftInputs, type DraftInput } from '@/components/ui/ai-draft-inputs';
 import { Button } from '@/components/ui/button';
 import { StatusLine } from '@/components/ui/status-line';
 import { useToken } from '@/features/ratings/use-rating';
@@ -38,6 +39,7 @@ export function FeedbackThemesPanel({
   const queryClient = useQueryClient();
   const options = feedbackThemesQueryOptions(accessToken, side, relationshipId, waveId);
   const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const [inputByDraft, setInputByDraft] = useState<Record<string, DraftInput>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +61,8 @@ export function FeedbackThemesPanel({
   const data = query.data;
   // Ohne Zusammenfassung und ohne Recht dazu bleibt der Bereich leer; die Freitexte stehen darunter.
   if (!data || (!data.canSummarize && !data.accepted)) return null;
+  const draft = data.draft;
+  const input = (draft && inputByDraft[draft.id]) ?? {};
   const sources = [{ key: 'texts', label: text.source(data.freeTexts) }];
   const themes = (content: string) => (
     <ul className="list-disc space-y-1 pl-5">
@@ -73,6 +77,7 @@ export function FeedbackThemesPanel({
       <h4 className="font-semibold">{text.title}</h4>
       {data.accepted && (
         <AiDraft
+          evidence={{ draft: data.accepted, relationshipId: relationshipId }}
           confirmed
           heading={text.acceptedHeading(
             format.date(data.accepted.decidedAt ?? data.accepted.createdAt),
@@ -83,8 +88,9 @@ export function FeedbackThemesPanel({
           {themes(data.accepted.content)}
         </AiDraft>
       )}
-      {data.draft && (
+      {draft && (
         <AiDraft
+          evidence={{ draft: draft, relationshipId: relationshipId }}
           heading={text.draftHeading}
           sourcesLabel={text.sources}
           sources={sources}
@@ -93,6 +99,7 @@ export function FeedbackThemesPanel({
               <Button
                 size="sm"
                 loading={busy === 'accept'}
+                disabled={input.content !== undefined && !input.content.trim()}
                 onClick={() =>
                   void run('accept', () =>
                     decideFeedbackThemes(
@@ -100,8 +107,9 @@ export function FeedbackThemesPanel({
                       side,
                       relationshipId,
                       waveId,
-                      data.draft?.id ?? '',
+                      draft.id,
                       'uebernehmen',
+                      input,
                     ),
                   )
                 }
@@ -119,8 +127,9 @@ export function FeedbackThemesPanel({
                       side,
                       relationshipId,
                       waveId,
-                      data.draft?.id ?? '',
+                      draft.id,
                       'verwerfen',
+                      input,
                     ),
                   )
                 }
@@ -130,7 +139,14 @@ export function FeedbackThemesPanel({
             </>
           }
         >
-          {themes(data.draft.content)}
+          {themes(draft.content)}
+          {draft.claims && (
+            <AiDraftInputs
+              content={draft.content}
+              input={input}
+              onChange={(value) => setInputByDraft({ [draft.id]: value })}
+            />
+          )}
         </AiDraft>
       )}
       {data.canSummarize &&

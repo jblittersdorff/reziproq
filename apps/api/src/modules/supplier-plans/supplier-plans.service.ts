@@ -326,26 +326,38 @@ export class SupplierPlansService {
   ) {
     const organization = this.organization(auth);
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
-      await ownRelationship(tx, organization, relationshipId);
-      const plan = await this.draftPlan(tx, relationshipId, planId);
-      await this.requirePlanManager(tx, auth, organization.id, relationshipId);
-      const actor = await actorOf(tx, auth, organization.id);
-      return auditedChange(tx, actor, supplierPlanAudit, async () => {
-        const [updated] = await tx
-          .update(schema.supplierPlan)
-          .set({ summary: input.summary })
-          .where(eq(schema.supplierPlan.id, plan.id))
-          .returning({ summary: schema.supplierPlan.summary });
-        if (!updated) throw notFound();
-        return {
-          objectId: plan.id,
-          relationshipId,
-          action: 'updated',
-          before: { summary: plan.summary },
-          after: { summary: updated.summary },
-          result: updated,
-        };
-      });
+      return this.updateSummaryInTransaction(tx, auth, relationshipId, planId, input);
+    });
+  }
+
+  /** SPL-10 und KI-03 verwenden dieselbe Rechteprüfung, Planänderung und Protokollierung. */
+  async updateSummaryInTransaction(
+    tx: TenantTransaction,
+    auth: AuthContext,
+    relationshipId: string,
+    planId: string,
+    input: UpdatePlanSummary,
+  ) {
+    const organization = this.organization(auth);
+    await ownRelationship(tx, organization, relationshipId);
+    const plan = await this.draftPlan(tx, relationshipId, planId);
+    await this.requirePlanManager(tx, auth, organization.id, relationshipId);
+    const actor = await actorOf(tx, auth, organization.id);
+    return auditedChange(tx, actor, supplierPlanAudit, async () => {
+      const [updated] = await tx
+        .update(schema.supplierPlan)
+        .set({ summary: input.summary })
+        .where(eq(schema.supplierPlan.id, plan.id))
+        .returning({ summary: schema.supplierPlan.summary });
+      if (!updated) throw notFound();
+      return {
+        objectId: plan.id,
+        relationshipId,
+        action: 'updated',
+        before: { summary: plan.summary },
+        after: { summary: updated.summary },
+        result: updated,
+      };
     });
   }
 

@@ -251,9 +251,45 @@ export class StartService {
     });
   }
 
+  private async openDrafts(auth: AuthContext): Promise<number> {
+    const organization = auth.organization;
+    if (!organization?.buyer || !can(auth, 'lieferanten.sehen')) return 0;
+    const draft = schema.aiDraft;
+    const member = schema.relationshipMember;
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      async (tx) => {
+        const [row] = await tx
+          .select({ count: sql<number>`count(*)::int` })
+          .from(draft)
+          .where(
+            and(
+              eq(draft.orgId, organization.id),
+              eq(draft.createdBy, auth.userId),
+              eq(draft.status, 'draft'),
+              sql`${draft.claims} is not null`,
+              auth.orgRole === 'admin'
+                ? undefined
+                : sql`exists (
+            select 1 from ${member}
+            where ${member.relationshipId} = ${draft.relationshipId}
+              and ${member.orgId} = ${draft.orgId}
+              and ${member.userId} = ${auth.userId}
+              and ${member.teamRole} = 'sro'
+          )`,
+            ),
+          );
+        return row?.count ?? 0;
+      },
+      { readOnly: true },
+    );
+  }
+
   async overview(auth: AuthContext): Promise<StartData> {
     const due = await this.dueItems(auth);
+    const ownOpenDrafts = await this.openDrafts(auth);
     return startSchema.parse({
+      ...(ownOpenDrafts > 0 && { ownOpenDrafts }),
       due: { items: due.slice(0, limit), total: due.length },
       relationships: await this.relationships(auth),
       nextMeeting: await this.nextMeeting(auth),

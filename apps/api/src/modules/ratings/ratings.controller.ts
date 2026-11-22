@@ -10,8 +10,12 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  type AcceptAiDraft,
+  acceptAiDraftSchema,
   type ConsolidateRequest,
   consolidateRequestSchema,
+  type DismissAiDraft,
+  dismissAiDraftSchema,
   type SaveRating,
   saveRatingSchema,
 } from '@reziproq/shared';
@@ -84,8 +88,16 @@ export class RatingsController {
     @CurrentUser() auth: AuthContext,
     @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
     @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(acceptAiDraftSchema.optional())) body: AcceptAiDraft | undefined,
   ) {
-    return this.explanations.decide(auth, relationshipId, draftId, 'accepted');
+    return this.explanations.decide(
+      auth,
+      relationshipId,
+      draftId,
+      'accepted',
+      undefined,
+      body?.content,
+    );
   }
 
   @Post('relationship/:relationshipId/segmentation/explanations/:draftId/discard')
@@ -95,8 +107,9 @@ export class RatingsController {
     @CurrentUser() auth: AuthContext,
     @Param('relationshipId', ParseUUIDPipe) relationshipId: string,
     @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(dismissAiDraftSchema.optional())) body: DismissAiDraft | undefined,
   ) {
-    return this.explanations.decide(auth, relationshipId, draftId, 'discarded');
+    return this.explanations.decide(auth, relationshipId, draftId, 'discarded', body?.reason);
   }
 
   @Get('relationship/:relationshipId/decisions')

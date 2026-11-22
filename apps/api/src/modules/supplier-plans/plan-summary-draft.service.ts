@@ -27,6 +27,13 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { withoutNames } from '../ai-drafts/anonymize.js';
 import { aiDraftAudit } from '../ai-drafts/audit.js';
 import { DRAFT_MODEL, type DraftModel, draftModelName } from '../ai-drafts/draft-model.js';
+import {
+  createBuyerDraft,
+  type DraftEvidence,
+  draftDecision,
+  draftEvidence,
+  ownDraftSource,
+} from '../ai-drafts/evidence.js';
 import { gatewayContext } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -57,7 +64,9 @@ const system = [
 type Plan = NonNullable<SupplierPlanResponse['plan']>;
 type DraftRow = typeof schema.aiDraft.$inferSelect;
 
-const toDraft = (row: DraftRow) => ({
+const toDraft = (row: DraftRow, evidence?: DraftEvidence) => ({
+  ...draftDecision(row),
+  ...evidence,
   id: row.id,
   status: row.status,
   content: row.content,
@@ -185,17 +194,25 @@ export class PlanSummaryDraftService {
     planId: string,
     canDraft: boolean,
   ): Promise<PlanSummaryDraft> {
-    const [draft] = canDraft
-      ? await tx
-          .select()
-          .from(schema.aiDraft)
-          .where(
-            and(this.ofPlan(orgId, relationshipId, planId), eq(schema.aiDraft.status, 'draft')),
-          )
-          .orderBy(desc(schema.aiDraft.createdAt))
-          .limit(1)
-      : [];
-    return planSummaryDraftSchema.parse({ canDraft, draft: draft ? toDraft(draft) : null });
+    if (!canDraft) return { canDraft, draft: null };
+    const rows = await tx
+      .select()
+      .from(schema.aiDraft)
+      .where(
+        and(
+          this.ofPlan(orgId, relationshipId, planId),
+          inArray(schema.aiDraft.status, ['draft', 'accepted']),
+        ),
+      )
+      .orderBy(desc(schema.aiDraft.createdAt), desc(schema.aiDraft.id));
+    const draft = rows.find((row) => row.status === 'draft');
+    const accepted = rows.find((row) => row.status === 'accepted' && row.claims !== null);
+    const evidence = await draftEvidence(tx, rows);
+    return planSummaryDraftSchema.parse({
+      canDraft,
+      draft: draft ? toDraft(draft, evidence(draft)) : null,
+      ...(accepted && { accepted: toDraft(accepted, evidence(accepted)) }),
+    });
   }
 
   get(auth: AuthContext, relationshipId: string, planId: string) {
@@ -310,6 +327,7 @@ export class PlanSummaryDraftService {
     return {
       supplier: supplier?.name ?? '',
       gaps,
+      waveId: wave?.id,
       spend: spendRows,
       profile: profile ?? null,
       financials,
@@ -322,7 +340,7 @@ export class PlanSummaryDraftService {
     const { organization, session } = this.session(auth);
     const { plan } = await this.plans.get(auth, relationshipId);
     if (!plan || plan.id !== planId) throw notFound();
-    const prompt = await this.tenant.run(
+    const prepared = await this.tenant.run(
       session,
       async (tx) => {
         if (!(await this.canDraft(tx, auth, organization.id, relationshipId, planId))) {
@@ -330,18 +348,35 @@ export class PlanSummaryDraftService {
         }
         const context = await this.context(tx, relationshipId);
         // Namen der Verantwortlichen bleiben draußen: Die Ziele gehen ohne owner an die KI.
-        return planSummaryPrompt({ ...context, plan }, context.names);
+        return {
+          prompt: planSummaryPrompt({ ...context, plan }, context.names),
+          sources: [
+            ownDraftSource('supplier_plan', planId, 'Lieferantenplan'),
+            ...(context.spend.length
+              ? [ownDraftSource('supplier_spend', relationshipId, 'Spend')]
+              : []),
+            ...(context.profile || context.financials.length
+              ? [ownDraftSource('supplier_profile', relationshipId, 'Lieferantenprofil')]
+              : []),
+            ...(context.waveId && context.gaps.length
+              ? [ownDraftSource('survey_wave', context.waveId, 'Aufgedecktes Feedback')]
+              : []),
+          ],
+        };
       },
       { readOnly: true },
     );
     const written = await this.model.write({
       context: gatewayContext(auth, 'plan_summary'),
       system,
-      prompt,
+      prompt: prepared.prompt,
       maxOutputTokens: 400,
     });
     const content = limitWords(written, maxPlanSummaryWords);
     return this.tenant.run(session, async (tx) => {
+      await ownRelationship(tx, organization, relationshipId);
+      if (!(await this.canDraft(tx, auth, organization.id, relationshipId, planId)))
+        throw forbidden();
       // Ein neuer Entwurf ersetzt den offenen.
       await tx
         .delete(schema.aiDraft)
@@ -351,7 +386,7 @@ export class PlanSummaryDraftService {
             eq(schema.aiDraft.status, 'draft'),
           ),
         );
-      await tx.insert(schema.aiDraft).values({
+      const draft = {
         orgId: organization.id,
         relationshipId,
         kind,
@@ -360,7 +395,12 @@ export class PlanSummaryDraftService {
         content,
         model: draftModelName(this.model, 'plan_summary'),
         createdBy: auth.userId,
-      });
+      };
+      await createBuyerDraft(
+        tx,
+        draft,
+        [content].map((text) => ({ text, sources: [...prepared.sources] })),
+      );
       return this.view(tx, organization.id, relationshipId, planId, true);
     });
   }
@@ -372,6 +412,8 @@ export class PlanSummaryDraftService {
     planId: string,
     draftId: string,
     decision: 'accepted' | 'discarded',
+    reason?: string,
+    editedContent?: string,
   ) {
     const { organization, session } = this.session(auth);
     return this.tenant.run(session, async (tx) => {
@@ -384,16 +426,30 @@ export class PlanSummaryDraftService {
         .from(schema.aiDraft)
         .where(
           and(this.ofPlan(organization.id, relationshipId, planId), eq(schema.aiDraft.id, draftId)),
-        );
+        )
+        .for('update');
       if (!row) throw notFound();
       if (row.status !== 'draft') {
         throw new ConflictException({ statusCode: 409, code: 'schon_entschieden' });
+      }
+      const content = editedContent ?? row.content;
+      if (decision === 'accepted' && row.claims !== null) {
+        await this.plans.updateSummaryInTransaction(tx, auth, relationshipId, planId, {
+          summary: content,
+        });
       }
       const actor = await actorOf(tx, auth, organization.id);
       await auditedChange(tx, actor, aiDraftAudit, async () => {
         await tx
           .update(schema.aiDraft)
-          .set({ status: decision, decidedBy: auth.userId, decidedAt: new Date() })
+          .set({
+            status: decision,
+            edited: decision === 'accepted' && row.claims !== null && content !== row.content,
+            content: decision === 'accepted' && row.claims !== null ? content : row.content,
+            dismissReason: decision === 'discarded' && row.claims !== null ? reason || null : null,
+            decidedBy: auth.userId,
+            decidedAt: new Date(),
+          })
           .where(eq(schema.aiDraft.id, row.id));
         return {
           relationshipId,
