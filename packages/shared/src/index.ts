@@ -18,6 +18,7 @@ export * from './jbp.js';
 export * from './levers.js';
 export * from './master-data.js';
 export * from './material-group-analysis.js';
+export * from './material-group-market.js';
 export * from './material-group-segmentation.js';
 export * from './material-group-strategy.js';
 export * from './material-groups.js';

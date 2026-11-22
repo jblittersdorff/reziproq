@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { check, date, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -11,7 +11,8 @@ import { relationship } from './relationship.js';
 // eines Lieferantenplans (object_type supplier_plan), nur beim Käufer. QBR-07: Zusammenfassung im
 // Pre-Read eines Termins (object_type meeting), je Seite getrennt. Kein Fremdschlüssel auf das Objekt, weil
 // die Tabelle für mehrere Arten dient.
-export const aiDraftKinds = ['deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read'] as const;
+// WG-09: market_analysis, sechs Marktkräfte und Zusammenschau als JSON (object_type material_group_strategy).
+export const aiDraftKinds = ['deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis'] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
 export const aiDraft = pgTable(
@@ -35,8 +36,38 @@ export const aiDraft = pgTable(
     decidedAt: timestamp({ withTimezone: true }),
   },
   (table) => [
-    check('ai_draft_kind', sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read')`),
+    check(
+      'ai_draft_kind',
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis')`,
+    ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_object').on(table.orgId, table.kind, table.objectId),
+  ],
+);
+
+// WG-23 (für WG-09 gebaut): Quellen eines Entwurfs. Jede Aussage der KI nennt mindestens eine Quelle;
+// eigene Daten (own_data) oder öffentliche (public). Nur die eigene Organisation sieht sie.
+export const aiSourceKinds = ['own_data', 'public'] as const;
+
+export const aiSource = pgTable(
+  'ai_source',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    draftId: uuid().references(() => aiDraft.id),
+    targetType: text().notNull(),
+    targetId: uuid().notNull(),
+    kind: text({ enum: aiSourceKinds }).notNull(),
+    title: text().notNull(),
+    url: text(),
+    publishedAt: date({ mode: 'string' }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('ai_source_kind', sql`${table.kind} in ('own_data', 'public')`),
+    check('ai_source_title', sql`length(trim(${table.title})) > 0`),
+    index('ai_source_target').on(table.targetType, table.targetId),
   ],
 );

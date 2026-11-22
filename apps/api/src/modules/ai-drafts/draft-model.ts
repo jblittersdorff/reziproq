@@ -49,6 +49,34 @@ export class TestDraftModel implements DraftModel {
 
   async write(request: DraftRequest): Promise<string> {
     TestDraftModel.requests.push(request);
+    if (request.prompt.startsWith('Marktkräfte:')) {
+      // WG-09: sechs Kräfte; je Kraft ein Punkt ohne gültige Quelle, den Reziproq verwerfen muss.
+      const forces = [
+        'supplier_power',
+        'customer_power',
+        'new_entrants',
+        'substitutes',
+        'external_factors',
+        'rivalry',
+      ];
+      return JSON.stringify({
+        forces: forces.map((force, index) => ({
+          force,
+          today: index % 2 === 0 ? 'high' : 'low',
+          future: 'high',
+          relevant: index !== 1,
+          points: [
+            {
+              text: `Zwei Lieferanten tragen den größten Teil des Umsatzes (${force}).`,
+              sources: ['Q1'],
+            },
+            { text: 'Die Kapazität wird ab 2028 knapp.', sources: ['Q1', 'Q2'] },
+            { text: 'Eine Aussage ohne Beleg.', sources: ['Q99'] },
+          ],
+        })),
+        synthesis: 'Die Macht der Lieferanten und knappe Kapazität sind das größte Risiko.',
+      });
+    }
     if (request.prompt.startsWith('Termin:')) {
       // Absichtlich zu lang: Reziproq kürzt auf höchstens 200 Wörter (QBR-07).
       const sentence =

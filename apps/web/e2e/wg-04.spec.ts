@@ -284,6 +284,63 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-09: Marktanalyse
+  const source = {
+    id: uuid(95),
+    kind: 'own_data',
+    title: 'Lieferantenanalyse · Umsatz und Finanzen',
+    url: null,
+    publishedAt: null,
+  };
+  const force = (
+    key: string,
+    status: string,
+    today: string,
+    future: string,
+    relevant: boolean,
+    points: string[],
+  ) => ({
+    force: key,
+    today,
+    future,
+    relevant,
+    points: points.map((text) => ({ text, sources: [source] })),
+    status,
+    confirmedBy: status === 'confirmed' ? 'Sara Ost' : null,
+    confirmedAt: status === 'confirmed' ? '2026-11-14T10:00:00Z' : null,
+    proposal: null,
+  });
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/markt`, (route) =>
+    route.fulfill({
+      json: {
+        canEdit: true,
+        confirmedCount: 2,
+        researchedAt: '2026-11-14T09:00:00Z',
+        sourceCount: 4,
+        publicResearch: false,
+        synthesisDraft: {
+          id: uuid(96),
+          text: 'Die Macht der Lieferanten und knappe Kapazität ab 2028 sind das größte Risiko.',
+        },
+        forces: [
+          force('supplier_power', 'confirmed', 'high', 'high', true, [
+            'Zwei Lieferanten decken 65 % des Umsatzes.',
+            'Ein Wechsel kostet 9 bis 12 Monate für die Requalifizierung.',
+          ]),
+          force('customer_power', 'confirmed', 'low', 'low', false, [
+            'Die Leiterplatte ist für Endkunden nicht sichtbar.',
+          ]),
+          force('new_entrants', 'draft', 'low', 'high', true, [
+            'Hersteller aus E-Mobilität und Rechenzentren buchen Kapazität.',
+            'Zwei Lieferanten melden Auslastung über 90 % ab 2028.',
+          ]),
+          force('substitutes', 'draft', 'low', 'low', false, [
+            'Kein Ersatz für Leiterplatten in Sicht.',
+          ]),
+        ],
+      },
+    }),
+  );
   // WG-07: Analysen der Schritte 3 und 4
   const share = (key: string, name: string, pct: number) => ({
     key,
@@ -489,6 +546,7 @@ const pages = [
   ['ziele', `/warengruppen/${group}/strategie/2`, 'Messbare Ziele setzen'],
   ['intern', `/warengruppen/${group}/strategie/3`, 'Die eigene Ausgangslage analysieren'],
   ['lieferanten', `/warengruppen/${group}/strategie/4`, 'Die Lieferantenbasis analysieren'],
+  ['markt', `/warengruppen/${group}/strategie/5`, 'Den Markt einschätzen'],
   [
     'segmentierung',
     `/warengruppen/${group}/segmentierung`,

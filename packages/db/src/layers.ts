@@ -337,6 +337,16 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by: 'demo-test-oem-1',
     },
   },
+  // WG-09 (WG-23): Quellen eines KI-Entwurfs
+  ai_source: {
+    kind: 'org_private',
+    testValues: {
+      target_type: 'material_group_strategy',
+      target_id: '0190a0a0-0000-7000-8000-000000000002',
+      kind: 'own_data',
+      title: 'Probe',
+    },
+  },
   // FS-01: Hinweise; nur die eigene Organisation sieht sie, der Lieferant nie.
   hint: { kind: 'org_private', testValues: { rule_key: 'no_feedback', fingerprint: 'probe' } },
   action_private_source: {
@@ -771,6 +781,14 @@ export const layerRegister: Record<string, LayerEntry> = {
     testValues: ({ org, probe }) => ({
       strategy_id: org && probe('material_group_strategy', org),
       name: 'Probe',
+    }),
+  },
+  // WG-09: Marktkräfte je Strategie
+  material_group_market_force: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      force: 'rivalry',
     }),
   },
   relationship_business_unit: {

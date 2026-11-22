@@ -193,6 +193,10 @@ export class StrategyService {
       )
       .where(eq(schema.materialGroupGoal.strategyId, strategy.id));
     const analysis = await analysisStates(tx, strategy.id, group.id, notes);
+    const forces = await tx
+      .select({ status: schema.materialGroupMarketForce.status })
+      .from(schema.materialGroupMarketForce)
+      .where(eq(schema.materialGroupMarketForce.strategyId, strategy.id));
     const hasLead = group.leadUserId !== null;
     const hasProducts = (productGroups?.n ?? 0) > 0;
     return strategySteps.map(({ step }): StepState => {
@@ -212,6 +216,12 @@ export class StrategyService {
       if (step === 10) return strategy.status === 'approved' ? 'done' : 'open';
       // WG-07: Schritte 3 und 4 sind fertig, wenn alle Sichten fertig sind; Schritt 4 verlangt
       // zusätzlich die entschiedene Bewertungsrunde der Warengruppe (WG-18).
+      if (step === 5) {
+        // WG-09: alle sechs Kräfte bestätigt und die Zusammenschau ausgefüllt
+        const confirmed = forces.filter((force) => force.status === 'confirmed').length;
+        if (confirmed === 6 && noteFilled(5)) return 'done';
+        return forces.length > 0 || anyNote(5) ? 'in_progress' : 'open';
+      }
       if (step === 3) return analysis.step3;
       if (step === 4) return analysis.step4;
       // Schritte 3 bis 9: bis ihre Specs (WG-07 ff.) gebaut sind, zählt „Beobachtung und Erklärung“.

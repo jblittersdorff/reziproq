@@ -1,36 +1,24 @@
 import {
-  type AnalysisStep,
-  analysisStepSchema,
-  type CandidateRequest,
-  type CategorySegmentation,
-  categorySegmentationSchema,
-  type DecideCategorySegment,
-  type StartCategoryRound,
-  type GoalRequest,
-  type KpiRequest,
-  kpiListSchema,
-  type MilestoneRequest,
-  questionListSchema,
-  type SaveNote,
-  strategyContextResponseSchema,
-  strategyOverviewSchema,
-  strategyStepSchema,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
   type ActionStatus,
   type AddAssignment,
+  type AnalysisStep,
   type AssignmentRequest,
   acceptInvitationResponseSchema,
   accountPlanSchema,
   actionItemSchema,
   actionListSchema,
   actionReminderSettingSchema,
+  analysisStepSchema,
   assignmentResponseSchema,
   auditResponseSchema,
   bridgeSchema,
   businessUnitsResponseSchema,
+  type CandidateRequest,
   type CategoryLabel,
+  type CategorySegmentation,
   type CommentObjectType,
   type CommitmentStatus,
   type ConsolidateRequest,
@@ -42,6 +30,7 @@ import {
   type CreateSupplierRequest,
   type CycleStatusQuery,
   categoryLabelSchema,
+  categorySegmentationSchema,
   commentListSchema,
   commitmentsSchema,
   contributionDetailSchema,
@@ -56,6 +45,7 @@ import {
   cycleSchema,
   cycleSettingsResponseSchema,
   cycleStatusSchema,
+  type DecideCategorySegment,
   type DecideJbp,
   type DecideValidation,
   type DismissHint,
@@ -74,6 +64,7 @@ import {
   focusDetailSchema,
   focusListSchema,
   forbiddenCodes,
+  type GoalRequest,
   type HintSettings,
   healthResponseSchema,
   hintListSchema,
@@ -100,10 +91,15 @@ import {
   jbpTopicCandidatesSchema,
   jbpTopicsSchema,
   jbpVersionsSchema,
+  type KpiRequest,
   kpiDetailSchema,
   kpiImportPreviewSchema,
+  kpiListSchema,
+  type MarketAnalysis,
   type MaterialGroupRequest,
   type MergeMaterialGroup,
+  type MilestoneRequest,
+  marketAnalysisSchema,
   materialGroupDetailSchema,
   materialGroupImportPreviewSchema,
   materialGroupImportResultSchema,
@@ -139,6 +135,7 @@ import {
   promptEventSchema,
   publicInvitationSchema,
   publicSurveySchema,
+  questionListSchema,
   type RaiseMaturity,
   type RequestContributions,
   type RequestValidation,
@@ -167,8 +164,10 @@ import {
   type SaveJbpTopic,
   type SaveKpi,
   type SaveKpiValue,
+  type SaveMarketForce,
   type SaveMeetingNote,
   type SaveMilestone,
+  type SaveNote,
   type SavePnlLine,
   type SaveProtocol,
   type SaveRating,
@@ -186,6 +185,7 @@ import {
   type SetupImpact,
   type SpendRequest,
   type SplitMaterialGroup,
+  type StartCategoryRound,
   type StartNextCycle,
   type StartSurveyWave,
   type StrategicTopicOrder,
@@ -200,6 +200,9 @@ import {
   segmentModelResponseSchema,
   spendOverviewSchema,
   startSchema,
+  strategyContextResponseSchema,
+  strategyOverviewSchema,
+  strategyStepSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
   supplierOverviewSchema,
@@ -741,6 +744,55 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
       ),
     retry: retryUnlessDenied,
   });
+
+/** WG-09: Marktanalyse in Schritt 5 */
+export const marketQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'markt'],
+    queryFn: () =>
+      getJson(`/warengruppen/strategien/${strategyId}/markt`, marketAnalysisSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+const marketPost = (accessToken: string, strategyId: string, path: string, body?: unknown) =>
+  sendJson(
+    body === undefined ? 'POST' : 'PUT',
+    `/warengruppen/strategien/${strategyId}/markt${path}`,
+    body,
+    marketAnalysisSchema,
+    accessToken,
+  );
+
+export const requestMarketDraft = (
+  accessToken: string,
+  strategyId: string,
+): Promise<MarketAnalysis> => marketPost(accessToken, strategyId, '/entwurf');
+export const confirmMarketForce = (accessToken: string, strategyId: string, force: string) =>
+  marketPost(accessToken, strategyId, `/${force}/bestaetigen`);
+export const saveMarketForce = (
+  accessToken: string,
+  strategyId: string,
+  force: string,
+  request: SaveMarketForce,
+) => marketPost(accessToken, strategyId, `/${force}`, request);
+export const decideMarketProposal = (
+  accessToken: string,
+  strategyId: string,
+  force: string,
+  adopt: boolean,
+) =>
+  marketPost(accessToken, strategyId, `/${force}/vorschlag/${adopt ? 'uebernehmen' : 'verwerfen'}`);
+export const decideMarketSynthesis = (
+  accessToken: string,
+  strategyId: string,
+  draftId: string,
+  adopt: boolean,
+) =>
+  marketPost(
+    accessToken,
+    strategyId,
+    `/zusammenschau/${draftId}/${adopt ? 'uebernehmen' : 'verwerfen'}`,
+  );
 
 /** WG-07: Analysen der Schritte 3 und 4 */
 export const analysisStepQueryOptions = (accessToken: string, strategyId: string, step: number) =>

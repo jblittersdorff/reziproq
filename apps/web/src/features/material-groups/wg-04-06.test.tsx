@@ -209,17 +209,17 @@ describe('WG-04 Strategie und Ablauf', () => {
   });
 
   it('die Ablauf-Leiste zeigt den Stand jedes Schritts als Text; jeder Schritt ist anspringbar', async () => {
-    renderAt(`/warengruppen/${group}/strategie/5`);
+    renderAt(`/warengruppen/${group}/strategie/7`);
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Den Markt einschätzen' }),
+      await screen.findByRole('heading', { level: 1, name: 'Initiativen in der Scorecard planen' }),
     ).toBeTruthy();
-    const flow = await screen.findByRole('list', { name: 'Schritt 5 von 10' });
+    const flow = await screen.findByRole('list', { name: 'Schritt 7 von 10' });
     expect(within(flow).getByRole('link', { name: 'Aufsetzen, fertig' }).getAttribute('href')).toBe(
       `/warengruppen/${group}/strategie/1`,
     );
     expect(within(flow).getByRole('link', { name: 'Ziele, in Arbeit' })).toBeTruthy();
     expect(
-      within(flow).getByRole('link', { name: 'Marktanalyse, offen' }).getAttribute('aria-current'),
+      within(flow).getByRole('link', { name: 'Scorecard, offen' }).getAttribute('aria-current'),
     ).toBe('step');
     expect(screen.getByText('die Beobachtung und Erklärung ausgefüllt ist.')).toBeTruthy();
     // Warengruppen-Leiste mit Stand als Chip

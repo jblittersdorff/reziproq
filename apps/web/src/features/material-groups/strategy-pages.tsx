@@ -58,6 +58,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { AnalysisSection } from './analysis-pages';
+import { MarketSection } from './market-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
 
 const strategyPath = (groupId: string, step?: number) =>
@@ -526,6 +527,10 @@ function StepContent({
       editable={editable}
     />
   );
+  // WG-09: Schritt 5 zeigt die sechs Marktkräfte und die Zusammenschau.
+  if (content.step === 5) {
+    return <MarketSection context={context} content={content} editable={editable} />;
+  }
   // WG-07: Schritte 3 und 4 zeigen die Sichten mit eigener Beobachtung je Sicht.
   if (content.step === 3 || content.step === 4) {
     return (
@@ -622,7 +627,8 @@ export function NoteForm({
             )}
           </FormField>
           {/* WG-07: auch je Sicht „nicht anwendbar“ mit Begründung */}
-          {step > 2 && step < 10 && view !== 'beobachtung' && (
+          {/* WG-09: Die Zusammenschau in Schritt 5 ist Pflicht, ohne „trifft nicht zu“ */}
+          {step > 2 && step < 10 && view !== 'beobachtung' && !(step === 5 && view === '') && (
             <label className="flex min-h-11 items-center gap-3 text-sm">
               <input
                 type="checkbox"

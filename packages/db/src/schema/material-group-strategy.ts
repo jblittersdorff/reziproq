@@ -256,3 +256,56 @@ export const materialGroupCandidate = pgTable(
     index('material_group_candidate_strategy').on(table.strategyId),
   ],
 );
+
+// WG-09: Sechs Marktkräfte je Strategie. Ein Entwurf (draft) wird erst durch eine Person bestätigt;
+// ein neuer Entwurf neben bestätigtem Stand liegt in proposal und ersetzt nichts stillschweigend.
+export const marketForces = [
+  'supplier_power',
+  'customer_power',
+  'new_entrants',
+  'substitutes',
+  'external_factors',
+  'rivalry',
+] as const;
+export const marketForceStatuses = ['draft', 'confirmed'] as const;
+
+export const materialGroupMarketForce = pgTable(
+  'material_group_market_force',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    force: text({ enum: marketForces }).notNull(),
+    today: text({ enum: ['low', 'high'] }),
+    future: text({ enum: ['low', 'high'] }),
+    relevant: boolean(),
+    // [{ text, sourceIds }]
+    points: jsonb().notNull().default([]),
+    status: text({ enum: marketForceStatuses }).notNull().default('draft'),
+    confirmedBy: text().references(() => appUser.id),
+    confirmedAt: timestamp({ withTimezone: true }),
+    // Neuer Entwurf neben bestätigtem Stand: { today, future, relevant, points, draftId }
+    proposal: jsonb(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check(
+      'material_group_market_force_force',
+      sql`${table.force} in ('supplier_power', 'customer_power', 'new_entrants', 'substitutes', 'external_factors', 'rivalry')`,
+    ),
+    check(
+      'material_group_market_force_levels',
+      sql`(${table.today} is null or ${table.today} in ('low', 'high')) and (${table.future} is null or ${table.future} in ('low', 'high'))`,
+    ),
+    check('material_group_market_force_status', sql`${table.status} in ('draft', 'confirmed')`),
+    check(
+      'material_group_market_force_confirmed',
+      sql`${table.status} <> 'confirmed' or (${table.today} is not null and ${table.future} is not null and ${table.relevant} is not null and ${table.confirmedBy} is not null)`,
+    ),
+    uniqueIndex('material_group_market_force_once').on(table.strategyId, table.force),
+  ],
+);

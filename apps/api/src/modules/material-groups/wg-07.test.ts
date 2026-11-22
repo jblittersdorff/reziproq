@@ -64,19 +64,17 @@ describe('WG-07 Analysen', () => {
   beforeAll(async () => {
     testApp = await startTestApp();
     db = testApp.adminDb;
-    await db
-      .insert(schema.organization)
-      .values([
-        { id: orgs.a, name: `WG07-A ${run}` },
-        { id: orgs.b, name: `WG07-B ${run}` },
-        { id: orgs.s1, name: `WG07-Rheintal ${run}`, country: 'DE' },
-        { id: orgs.s2, name: `WG07-Moldau ${run}`, country: 'CZ' },
-        ...extra.map((entry, n) => ({
-          id: entry.org,
-          name: `WG07-Extra ${n} ${run}`,
-          country: 'PL',
-        })),
-      ]);
+    await db.insert(schema.organization).values([
+      { id: orgs.a, name: `WG07-A ${run}` },
+      { id: orgs.b, name: `WG07-B ${run}` },
+      { id: orgs.s1, name: `WG07-Rheintal ${run}`, country: 'DE' },
+      { id: orgs.s2, name: `WG07-Moldau ${run}`, country: 'CZ' },
+      ...extra.map((entry, n) => ({
+        id: entry.org,
+        name: `WG07-Extra ${n} ${run}`,
+        country: 'PL',
+      })),
+    ]);
     await db.insert(schema.organizationFeature).values([
       { organizationId: orgs.a, feature: 'buyer' },
       { organizationId: orgs.b, feature: 'buyer' },

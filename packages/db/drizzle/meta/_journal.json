@@ -596,6 +596,13 @@
       "when": 1795265195051,
       "tag": "0084_kandidat_land",
       "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1795274435129,
+      "tag": "0085_marktanalyse",
+      "breakpoints": true
     }
   ]
 }
