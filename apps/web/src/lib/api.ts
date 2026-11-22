@@ -1,4 +1,8 @@
 import {
+  type AdoptOpportunity,
+  adoptOpportunitySchema,
+  type ChangeAssumptions,
+  valueOpportunitiesSchema,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -3494,5 +3498,65 @@ export const actOnAgentRun = (
     `${agentsPath}/laeufe/${id}/${action}`,
     payload,
     agentRunDetailSchema,
+    accessToken,
+  );
+
+/** KI-11: Wertpotenziale eines Lieferanten */
+export const valueOpportunitiesQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'wertpotenziale'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/wertpotenziale`, valueOpportunitiesSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+const opportunityPath = (relationshipId: string, id?: string) =>
+  `/suppliers/${relationshipId}/wertpotenziale${id ? `/${id}` : ''}`;
+
+export const runValueFinder = (accessToken: string, relationshipId: string) =>
+  sendJson('POST', `${opportunityPath(relationshipId)}/lauf`, {}, valueOpportunitiesSchema, accessToken);
+
+export const changeOpportunityAssumptions = (
+  accessToken: string,
+  relationshipId: string,
+  id: string,
+  request: ChangeAssumptions,
+) =>
+  sendJson(
+    'PUT',
+    `${opportunityPath(relationshipId, id)}/annahmen`,
+    request,
+    valueOpportunitiesSchema,
+    accessToken,
+  );
+
+export const dismissOpportunity = (
+  accessToken: string,
+  relationshipId: string,
+  id: string,
+  reason: string,
+) =>
+  sendJson(
+    'POST',
+    `${opportunityPath(relationshipId, id)}/verwerfen`,
+    { reason },
+    valueOpportunitiesSchema,
+    accessToken,
+  );
+
+export const opportunityProposal = (accessToken: string, relationshipId: string, id: string) =>
+  getJson(`${opportunityPath(relationshipId, id)}/vorschlag`, adoptOpportunitySchema, accessToken);
+
+export const adoptOpportunity = (
+  accessToken: string,
+  relationshipId: string,
+  id: string,
+  request: AdoptOpportunity,
+) =>
+  sendJson(
+    'POST',
+    `${opportunityPath(relationshipId, id)}/uebernehmen`,
+    request,
+    valueOpportunitiesSchema,
     accessToken,
   );

@@ -28,11 +28,13 @@ export const tabPages: Record<SupplierTab, TabPage[]> = {
     { key: 'scorecard', path: 'plan/scorecard' },
     { key: 'approval', path: 'plan/freigabe' },
   ],
-  // „Gesichert“ ist die P&L-Brücke (bestätigte Ergebnisse), dazu Ergebnisse je Initiative;
-  // Wertpotenziale kommen mit KI-11.
+  // „Gesichert“ ist die P&L-Brücke (bestätigte Ergebnisse), dazu Ergebnisse je Initiative und
+  // Wertpotenziale (KI-11). Adresse unter wirkung/ wie die übrigen Ergebnisseiten, nicht
+  // ergebnisse/ wie in der Spec, damit alle Lesezeichen gleich aufgebaut bleiben.
   results: [
     { key: 'bridge', path: 'wirkung/bruecke' },
     { key: 'initiativeImpact', path: 'wirkung/initiativen' },
+    { key: 'valueOpportunities', path: 'wirkung/wertpotenziale' },
     { key: 'feedback', path: 'beziehung/feedback' },
   ],
   profile: [

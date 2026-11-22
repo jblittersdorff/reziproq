@@ -42,6 +42,7 @@ export const areaPages: Record<WorkspaceArea, SubPage[]> = {
   impact: [
     { key: 'bridge', segment: 'bruecke' },
     { key: 'initiativeImpact', segment: 'initiativen' },
+    { key: 'valueOpportunities', segment: 'wertpotenziale' },
     { key: 'monthly', coming: 'later' },
   ],
 };
