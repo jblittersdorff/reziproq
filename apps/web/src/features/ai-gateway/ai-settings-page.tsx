@@ -6,6 +6,7 @@ import {
   aiSourceKindValues,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
@@ -89,7 +90,7 @@ const settingsOf = (draft: Draft) =>
   });
 
 /** Kontingent des Monats: Balken mit Text, darunter je Funktion Aufrufe und Kosten (nur Admins). */
-function UsageCard() {
+export function UsageCard() {
   const text = useT().aiSettings;
   const { locale } = useLocale();
   const accessToken = useAccessToken();
@@ -212,6 +213,12 @@ export function AiSettingsPage() {
         current={text.navTitle}
       />
       <PageHeader title={text.title} purpose={text.purpose} />
+      <Link
+        to="/einstellungen/ki/agenten"
+        className="inline-flex min-h-11 items-center self-start font-medium underline"
+      >
+        {t.agents.title}
+      </Link>
       <div className="grid items-start gap-5 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-5 lg:col-span-2">
           {!canManage ? (

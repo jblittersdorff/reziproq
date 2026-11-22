@@ -44,6 +44,7 @@ export const modelCall = pgTable(
       'model_call_amounts',
       sql`${table.inputTokens} >= 0 and ${table.outputTokens} >= 0 and ${table.costMicrocents} >= 0`,
     ),
+    index('model_call_org_run').on(table.orgId, table.runId),
     index('model_call_org_month').on(table.orgId, table.createdAt),
   ],
 );

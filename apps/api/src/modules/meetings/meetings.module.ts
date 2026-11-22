@@ -36,6 +36,6 @@ import { PreReadDraftService } from './pre-read-draft.service.js';
       ],
     },
   ],
-  exports: [MeetingsService],
+  exports: [MeetingsService, PreReadDraftService],
 })
 export class MeetingsModule {}

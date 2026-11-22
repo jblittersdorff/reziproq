@@ -680,6 +680,27 @@
       "when": 1795380776751,
       "tag": "0096_ki03_entwurfsquellen",
       "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1795382059192,
+      "tag": "0097_ki04_agentenlaeufe",
+      "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1795382254630,
+      "tag": "0098_ki04_laufauftraege",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1795382872191,
+      "tag": "0099_ki04_rueckfragen",
+      "breakpoints": true
     }
   ]
 }

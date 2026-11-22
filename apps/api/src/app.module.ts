@@ -5,12 +5,13 @@ import { DatabaseModule } from './common/database.module.js';
 import { env } from './config/env.js';
 import { ActionsModule } from './modules/actions/actions.module.js';
 import { ActivitiesModule } from './modules/activities/activities.module.js';
+import { AgentsModule } from './modules/agents/agents.module.js';
+import { AiGatewayModule } from './modules/ai-gateway/ai-gateway.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { DataExportModule } from './modules/data-export/data-export.module.js';
-import { AiGatewayModule } from './modules/ai-gateway/ai-gateway.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
@@ -49,6 +50,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     AuthModule,
     HealthModule,
     AiGatewayModule,
+    AgentsModule,
     MeModule,
     OrganizationsModule,
     SuppliersModule,

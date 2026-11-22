@@ -62,6 +62,7 @@ export const aiDraft = pgTable(
       sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
+    index('ai_draft_run').on(table.orgId, table.runId),
     index('ai_draft_object').on(table.orgId, table.kind, table.objectId),
   ],
 );

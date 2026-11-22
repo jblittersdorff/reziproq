@@ -141,6 +141,107 @@ export class PreReadDraftService {
     );
   }
 
+  assertAgentContext(auth: AuthContext, relationshipId: string, meetingId: string) {
+    return this.meetings.buyer(auth, relationshipId, async (scope) => {
+      if (!this.canDraft(scope)) throw forbidden();
+      const [row] = await scope.tx
+        .select({ id: schema.meeting.id })
+        .from(schema.meeting)
+        .where(
+          and(
+            eq(schema.meeting.id, meetingId),
+            eq(schema.meeting.relationshipId, relationshipId),
+            eq(schema.meeting.type, 'quarterly_review'),
+          ),
+        );
+      if (!row) throw notFound();
+    });
+  }
+
+  /** KI-04: Nur berechtigte Käufer erhalten Fakten zur Vorbereitung des Quartalsreviews. */
+  agentFacts(auth: AuthContext, relationshipId: string, meetingId: string) {
+    return this.meetings.buyer(auth, relationshipId, async (scope) => {
+      if (!this.canDraft(scope)) throw forbidden();
+      const detail = await this.meetings.detail(scope, meetingId);
+      if (detail.meeting.type !== 'quarterly_review') throw notFound();
+      const count = (key: string) =>
+        detail.live.sections.find((section) => section.key === key)?.items.length ?? 0;
+      return {
+        meetingDay: detail.meeting.startsAt.slice(0, 10),
+        agendaItems: detail.agenda.length,
+        actions: count('actions'),
+        commitments: count('commitments'),
+        initiatives: count('initiatives'),
+        scorecardItems: count('scorecard'),
+      };
+    });
+  }
+
+  saveAgentDraft(
+    auth: AuthContext,
+    relationshipId: string,
+    meetingId: string,
+    runId: string,
+    content: string,
+    model: string,
+  ) {
+    return this.meetings.buyer(auth, relationshipId, async (scope) => {
+      if (!this.canDraft(scope)) throw forbidden();
+      const detail = await this.meetings.detail(scope, meetingId);
+      if (detail.meeting.type !== 'quarterly_review') throw notFound();
+      // Dieser Lauf sperrt die Veröffentlichung, damit ein wiederholter Job keinen zweiten Entwurf erzeugt.
+      const [run] = await scope.tx
+        .select({ id: schema.agentRun.id })
+        .from(schema.agentRun)
+        .where(
+          and(
+            eq(schema.agentRun.id, runId),
+            eq(schema.agentRun.orgId, scope.orgId),
+            eq(schema.agentRun.actingUserId, auth.userId),
+            eq(schema.agentRun.contextId, meetingId),
+            eq(schema.agentRun.contextRelationshipId, relationshipId),
+            eq(schema.agentRun.isTest, false),
+          ),
+        )
+        .for('update');
+      if (!run) throw notFound();
+      const [existing] = await scope.tx
+        .select({ id: schema.aiDraft.id })
+        .from(schema.aiDraft)
+        .where(and(eq(schema.aiDraft.orgId, scope.orgId), eq(schema.aiDraft.runId, run.id)));
+      if (existing) return existing.id;
+
+      return createBuyerDraft(
+        scope.tx,
+        {
+          orgId: scope.orgId,
+          relationshipId,
+          runId: run.id,
+          kind,
+          objectType,
+          objectId: meetingId,
+          content,
+          model,
+          createdBy: auth.userId,
+        },
+        [
+          {
+            text: content,
+            sources: [
+              ownDraftSource(
+                objectType,
+                meetingId,
+                'Termin und Vorbereitung',
+                detail.meeting.startsAt.slice(0, 10),
+              ),
+              ownDraftSource('supplier_context', relationshipId, 'Lieferantenkontext'),
+            ],
+          },
+        ],
+      );
+    });
+  }
+
   /** Übernommene Zusammenfassung der eigenen Seite, für das PDF */
   async acceptedIn(scope: MeetingScope, meetingId: string): Promise<string | null> {
     const [row] = await scope.tx

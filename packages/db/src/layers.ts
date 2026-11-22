@@ -827,6 +827,56 @@ export const layerRegister: Record<string, LayerEntry> = {
     }),
   },
   // KI-01: Modellaufrufe über das Gateway, je Organisation
+  agent: {
+    kind: 'org_private',
+    testValues: { key: 'probe', name: 'Probe', description: 'Probe', kind: 'system' },
+  },
+  agent_version: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      agent_id: org && probe('agent', org),
+      version: 1,
+      instructions: 'Probe',
+      tools: '[]',
+      trigger: 'manual',
+      output_target: 'probe',
+      reviewer_rule: 'starter',
+      model_class: 'standard',
+      budget_cents: 100,
+      max_steps: 2,
+    }),
+  },
+  agent_org_state: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({ agent_id: org && probe('agent', org) }),
+  },
+  agent_run: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      agent_version_id: org && probe('agent_version', org),
+      acting_user_id: orgUser ?? 'probe',
+      started_by: orgUser ?? 'probe',
+      trigger: 'manual',
+    }),
+  },
+  agent_step: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      run_id: org && probe('agent_run', org),
+      seq: 1,
+      kind: 'plan',
+      title: 'Probe',
+    }),
+  },
+  agent_outbound_query: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      run_id: org && probe('agent_run', org),
+      step_id: org && probe('agent_step', org),
+      text: 'Probe',
+      provider: 'fake',
+    }),
+  },
   model_call: {
     kind: 'org_private',
     testValues: {

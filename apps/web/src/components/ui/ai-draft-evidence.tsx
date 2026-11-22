@@ -16,6 +16,8 @@ function linkOf(relationshipId: string, source: DraftSource) {
       return `${base}/strategie/lieferantenplan`;
     case 'supplier_spend':
       return `${base}/strategie/spend`;
+    case 'supplier_context':
+      return base;
     case 'supplier_profile':
       return `${base}/strategie/profil`;
     default:

@@ -15,6 +15,9 @@ import {
   actionListSchema,
   actionReminderSettingSchema,
   activityFeedSchema,
+  agentDetailSchema,
+  agentRunDetailSchema,
+  agentsResponseSchema,
   aiSettingsResponseSchema,
   aiUsageSchema,
   analysisStepSchema,
@@ -197,6 +200,7 @@ import {
   type SetupImpact,
   type SpendRequest,
   type SplitMaterialGroup,
+  type StartAgent,
   type StartCategoryRound,
   type StartNextCycle,
   type StartSurveyWave,
@@ -3454,3 +3458,41 @@ export const aiUsageQueryOptions = (accessToken: string) =>
     queryFn: () => getJson('/ki/kontingent', aiUsageSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+const agentsPath = '/ki/agenten';
+
+export const agentsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['agents'],
+    queryFn: () => getJson(agentsPath, agentsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+export const agentQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['agents', 'definition', id],
+    queryFn: () => getJson(`${agentsPath}/${id}`, agentDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+export const agentRunQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['agents', 'run', id],
+    queryFn: () => getJson(`${agentsPath}/laeufe/${id}`, agentRunDetailSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+export const activateAgent = (accessToken: string, id: string, enabled: boolean) =>
+  sendJson('PUT', `${agentsPath}/${id}/aktivierung`, { enabled }, agentDetailSchema, accessToken);
+export const startAgent = (accessToken: string, id: string, input: StartAgent) =>
+  sendJson('POST', `${agentsPath}/${id}/starten`, input, agentRunDetailSchema, accessToken);
+export const actOnAgentRun = (
+  accessToken: string,
+  id: string,
+  action: 'abbrechen' | 'fortsetzen',
+  payload: { answer?: string } = {},
+) =>
+  sendJson(
+    'POST',
+    `${agentsPath}/laeufe/${id}/${action}`,
+    payload,
+    agentRunDetailSchema,
+    accessToken,
+  );

@@ -65,6 +65,7 @@ export async function createBuyerDraft(
       })),
     ),
   );
+  return saved.id;
 }
 
 export type DraftEvidence = Pick<AiDraft, 'claims' | 'decidedBy'>;
