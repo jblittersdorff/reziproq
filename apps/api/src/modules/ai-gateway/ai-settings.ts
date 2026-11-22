@@ -11,6 +11,8 @@ export const aiSettingKeys = {
   customAgentRoles: 'ai_custom_agent_roles',
   customAgentApproval: 'ai_custom_agent_approval',
   agentBudgetOverrides: 'ai_agent_budget_overrides',
+  valueFinderSegments: 'ai_value_finder_segments',
+  valueAssumptions: 'ai_value_assumptions',
 } as const satisfies Record<keyof AiSettings, string>;
 
 /** Einstellungen der Organisation; fehlende oder ungültige Werte nehmen den Startwert. */

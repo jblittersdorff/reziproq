@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { defaultAiSettings, valueOpportunitiesSchema } from '@reziproq/shared';
+import { defaultAiSettings, valueOpportunitiesSchema, valueOverviewSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { queryAllowed, reasonAllowed } from './market.js';
 import { OpportunitiesService } from './opportunities.service.js';
+import { OpportunitiesWorker } from './opportunities.worker.js';
 
 // Tests zu docs/specs/KI-11.md in der API: Lauf mit Anbieter fake und Testquellen, Rechnung nach
 // Vorlage, Signale mit genau einem Ergebnis, Recherche nur wenn eingeschaltet, Filter vor dem Senden,
@@ -114,7 +115,12 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     await db.execute(sql`delete from value_opportunity where relationship_id in ${rels}`);
     await db.execute(sql`delete from value_market_signal where relationship_id in ${rels}`);
     await db.execute(sql`delete from value_data_gap where relationship_id in ${rels}`);
+    await db.execute(sql`delete from initiative_validation where relationship_id in ${rels}`);
+    await db.execute(sql`delete from initiative_topic where relationship_id in ${rels}`);
+    await db.execute(sql`delete from initiative where relationship_id in ${rels}`);
     await db.execute(sql`delete from jbp where relationship_id in ${rels}`);
+    await db.execute(sql`delete from action where relationship_id in ${rels}`);
+    await db.execute(sql`delete from ai_draft where relationship_id in ${rels}`);
     await db.execute(sql`delete from agent where org_id in ${orgIds}`);
     await db.execute(sql`delete from model_call where org_id in ${orgIds}`);
     await db.execute(sql`delete from org_setting where org_id in ${orgIds}`);
@@ -300,7 +306,10 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     });
     // Die Preisgleitklausel trägt seit der geänderten Annahme die Stufe low und fehlt in der Summe.
     expect(index(data)?.confidence).toBe('low');
-    expect(data.totals.find((total) => total.impactType === 'ebit')?.new).toEqual({ low: 0, high: 0 });
+    expect(data.totals.find((total) => total.impactType === 'ebit')?.new).toEqual({
+      low: 0,
+      high: 0,
+    });
   });
 
   it('das Thema aus einem Potenzial enthält keine Zahl aus dem Rechenweg und keine Quelle', async () => {
@@ -343,6 +352,169 @@ describe('KI-11 Wertpotenzial-Finder', () => {
       .from(schema.valueOpportunity)
       .where(sql`${schema.valueOpportunity.relationshipId} = ${rel.b}`);
     expect(JSON.stringify(rows)).not.toContain(rel.a);
+  });
+
+  it('die Übersicht über alle Lieferanten trennt Wirkungsarten und lässt low weg', async () => {
+    const data = valueOverviewSchema.parse(
+      (await call(users.member, 'GET', '/uebersicht/wertpotenziale')).body,
+    );
+    // B: Preisgleitklausel neu (5 Mio. € × 30–50 % × 12 %); A: zwei Cash-Potenziale, eines low
+    expect(data.counts).toMatchObject({ new: 3, adopted: 1, lowExcluded: 1 });
+    expect(data.totals.find((total) => total.impactType === 'ebit')?.new).toEqual({
+      low: 18_000_000,
+      high: 30_000_000,
+    });
+    expect(data.totals.find((total) => total.impactType === 'cash')?.new).toEqual({
+      low: 2_000_000,
+      high: 2_000_000,
+    });
+    expect(data.biggest).toMatchObject({ relationshipId: rel.b, templateKey: 'index_clause' });
+    expect(data.suppliers.map((entry) => entry.relationshipId).sort()).toEqual(
+      [rel.a, rel.b].sort(),
+    );
+    expect(data.signals.find((signal) => signal.title === 'Kupferindex gesunken')?.suppliers).toBe(
+      2,
+    );
+    expect(data.dataGaps[0]?.suppliers).toBe(2);
+    expect(data.dataGaps.length).toBeLessThanOrEqual(5);
+    const other = valueOverviewSchema.parse(
+      (await call(users.other, 'GET', '/uebersicht/wertpotenziale')).body,
+    );
+    expect(other).toMatchObject({ counts: { new: 0 }, suppliers: [], biggest: null });
+    expect((await call(users.supplier, 'GET', '/uebersicht/wertpotenziale')).status).toBe(403);
+  });
+
+  it('der Monatslauf startet für Fokuslieferanten im Namen des SRO, sonst nicht', async () => {
+    await db
+      .insert(schema.relationshipSide)
+      .values({ relationshipId: rel.b, orgId: orgs.oem, isFocus: true, focusReason: 'Test' });
+    const worker = testApp.app.get(OpportunitiesWorker);
+    expect(await worker.runMonthly([orgs.oem])).toBe(1);
+    const runs = await db
+      .select({ contextId: schema.agentRun.contextId, actingUserId: schema.agentRun.actingUserId })
+      .from(schema.agentRun)
+      .where(
+        sql`${schema.agentRun.orgId} = ${orgs.oem} and ${schema.agentRun.trigger} = 'schedule'`,
+      );
+    expect(runs).toEqual([{ contextId: rel.b, actingUserId: users.sro }]);
+  });
+
+  it('eine Anfrage zur Datenlücke ist erst ein Entwurf; gesendet wird sie erst mit Übernahme', async () => {
+    const before = valueOpportunitiesSchema.parse(
+      (await call(users.sro, 'GET', `/suppliers/${rel.a}/wertpotenziale`)).body,
+    );
+    const gap = before.dataGaps.find((entry) => entry.dataKey === 'affected_customs_value_cents');
+    expect(gap?.status).toBe('open');
+    const url = `/suppliers/${rel.a}/wertpotenziale/luecken/${gap?.id}/anfrage`;
+    expect((await call(users.member, 'POST', url)).status).toBe(403);
+    const drafted = valueOpportunitiesSchema.parse((await call(users.sro, 'POST', url)).body);
+    const draft = drafted.dataGaps.find((entry) => entry.id === gap?.id)?.draft;
+    expect(draft?.title).toBe('Daten bereitstellen: Zollwert der betroffenen Vorprodukte');
+    // Keine Zahl aus Spend oder Rechenweg (der Testname des Lieferanten enthält Ziffern)
+    expect(`${draft?.title} ${draft?.description}`).not.toMatch(/3000000|300000000|0\.3/);
+    const actions = () =>
+      db.select().from(schema.action).where(sql`${schema.action.relationshipId} = ${rel.a}`);
+    expect(await actions()).toHaveLength(0);
+    const sent = valueOpportunitiesSchema.parse(
+      (
+        await call(users.sro, 'POST', `${url}/senden`, {
+          title: draft?.title,
+          description: draft?.description,
+          dueDate: '2026-12-31',
+        })
+      ).body,
+    );
+    expect(sent.dataGaps.find((entry) => entry.id === gap?.id)).toMatchObject({
+      status: 'requested',
+      draft: null,
+    });
+    const [created] = await actions();
+    expect(created).toMatchObject({
+      visibility: 'shared',
+      ownerSide: 'supplier',
+      title: 'Daten bereitstellen: Zollwert der betroffenen Vorprodukte',
+    });
+  });
+
+  it('wird aus dem Thema eine Initiative mit bestätigten Ist-Werten, ist das Potenzial realisiert', async () => {
+    const [plan] = await db
+      .select({ id: schema.jbp.id })
+      .from(schema.jbp)
+      .where(sql`${schema.jbp.relationshipId} = ${rel.a}`);
+    const [topic] = await db
+      .select({ id: schema.jbpTopic.id })
+      .from(schema.jbpTopic)
+      .where(sql`${schema.jbpTopic.relationshipId} = ${rel.a}`);
+    const initiative = randomUUID();
+    await db.insert(schema.initiative).values({
+      id: initiative,
+      relationshipId: rel.a,
+      ownerOrgId: orgs.oem,
+      jbpId: plan?.id as string,
+      title: 'Preisgleitklausel',
+      goal: 'Index',
+      benefitBuyer: 'A',
+      benefitSupplier: 'B',
+      ownerBuyerName: 'Sara',
+      ownerSupplierName: 'Kim',
+      startsOn: '2026-01-01',
+      endsOn: '2026-12-31',
+      createdBy: users.sro,
+      createdByName: 'Sara',
+    });
+    await db.insert(schema.initiativeTopic).values({
+      relationshipId: rel.a,
+      ownerOrgId: orgs.oem,
+      initiativeId: initiative,
+      jbpTopicId: topic?.id as string,
+    });
+    const status = async () =>
+      index(
+        valueOpportunitiesSchema.parse(
+          (await call(users.sro, 'GET', `/suppliers/${rel.a}/wertpotenziale`)).body,
+        ),
+      )?.status;
+    expect(await status()).toBe('adopted');
+    await db.insert(schema.initiativeValidation).values({
+      relationshipId: rel.a,
+      initiativeId: initiative,
+      periodFrom: '2026-01-01',
+      periodTo: '2026-03-31',
+      status: 'approved',
+      requestedBy: users.sro,
+      requestedByName: 'Sara',
+      decidedBy: users.admin,
+      decidedByName: 'Ada',
+      decidedAt: new Date(),
+    });
+    expect(await status()).toBe('realized');
+  });
+
+  it('die Annahmen der Vorlagen sind je Kunde änderbar und fließen in den nächsten Lauf', async () => {
+    expect(
+      (
+        await call(users.admin, 'PUT', '/einstellungen/ki', {
+          ...defaultAiSettings,
+          publicResearch: true,
+          valueAssumptions: [
+            { templateKey: 'index_clause', field: 'material_share', low: '0.2', high: '0.2' },
+          ],
+        })
+      ).status,
+    ).toBe(200);
+    const data = await start(rel.b);
+    // 5 Mio. € × 20 % × 12 %
+    expect(index(data)?.buyer).toEqual({ low: 12_000_000, high: 12_000_000 });
+    expect(
+      (
+        await call(users.admin, 'PUT', '/einstellungen/ki', {
+          ...defaultAiSettings,
+          valueAssumptions: [
+            { templateKey: 'index_clause', field: 'unbekannt', low: '0.2', high: '0.2' },
+          ],
+        })
+      ).status,
+    ).toBe(400);
   });
 
   it('der Test-Lieferant und ein fremder Käufer sehen nichts; nur SRO oder Admin starten', async () => {

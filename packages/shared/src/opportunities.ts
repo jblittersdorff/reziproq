@@ -116,6 +116,11 @@ export const valueDataGapSchema = z.object({
   description: z.string(),
   templatesBlocked: z.array(z.enum(opportunityTemplateKeys)),
   status: z.enum(['open', 'requested', 'closed']),
+  /** Offener Entwurf der Anfrage an den Lieferanten (KI-03), sonst null */
+  draft: z
+    .object({ id: z.uuid(), title: z.string(), description: z.string() })
+    .nullable()
+    .optional(),
 });
 
 /** Summen je Wirkungsart: nur Sicherheit hoch und mittel, Wirkungsarten nie addiert */
@@ -175,3 +180,79 @@ export const adoptOpportunitySchema = z
   })
   .strict();
 export type AdoptOpportunity = z.infer<typeof adoptOpportunitySchema>;
+
+/** KI-11, Ablauf 7: Wertpotenziale über alle Lieferanten der Organisation */
+export const valueOverviewSchema = z.object({
+  counts: z.object({
+    new: z.number().int(),
+    adopted: z.number().int(),
+    realized: z.number().int(),
+    lowExcluded: z.number().int(),
+  }),
+  totals: z.array(opportunityTotalsSchema),
+  biggest: z
+    .object({
+      relationshipId: z.uuid(),
+      supplierName: z.string(),
+      templateKey: z.enum(opportunityTemplateKeys),
+      impactType: z.enum(opportunityImpactTypes),
+      buyer: rangeSchema,
+      confidence: z.enum(opportunityConfidences),
+    })
+    .nullable(),
+  suppliers: z.array(
+    z.object({
+      relationshipId: z.uuid(),
+      name: z.string(),
+      newCount: z.number().int(),
+      adoptedCount: z.number().int(),
+      ebitNew: rangeSchema.nullable(),
+      cashNew: rangeSchema.nullable(),
+      confidence: z.enum(opportunityConfidences).nullable(),
+      nextStep: z.enum(['review', 'in_jbp', 'run']),
+    }),
+  ),
+  levers: z.array(z.object({ templateKey: z.enum(opportunityTemplateKeys), count: z.number().int() })),
+  signals: z.array(z.object({ title: z.string(), suppliers: z.number().int() })),
+  dataGaps: z.array(
+    z.object({ dataKey: z.string(), description: z.string(), suppliers: z.number().int() }),
+  ),
+});
+export type ValueOverview = z.infer<typeof valueOverviewSchema>;
+
+/** Anfrage zu einer Datenlücke senden: erst dann entsteht die geteilte Maßnahme beim Lieferanten */
+export const sendDataRequestSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    description: z.string().trim().max(4000),
+    dueDate: z.iso.date(),
+  })
+  .strict();
+export type SendDataRequest = z.infer<typeof sendDataRequestSchema>;
+
+/** Annahmen der Hebel-Vorlagen mit Spanne (Herkunft template_assumption); je Kunde änderbar */
+export const templateAssumptionDefaults: Partial<
+  Record<OpportunityTemplateKey, Record<string, { low: string; high: string }>>
+> = {
+  forecast_sharing: {
+    avoidable_setups: { low: '0.6', high: '0.8' },
+    inventory_reduction: { low: '0.4', high: '0.6' },
+    capital_rate: { low: '0.09', high: '0.09' },
+    pass_through: { low: '0.5', high: '0.5' },
+  },
+  market_standard: { unit_price_reduction: { low: '0.05', high: '0.12' } },
+  index_clause: { material_share: { low: '0.3', high: '0.5' } },
+};
+
+/** Abweichende Annahme eines Kunden, Anteile als Dezimaltext zwischen 0 und 1 */
+export const valueAssumptionSchema = z
+  .object({
+    templateKey: z.enum(opportunityTemplateKeys),
+    field: z.string().min(1).max(60),
+    low: leverValueSchema,
+    high: leverValueSchema,
+  })
+  .strict()
+  .refine((value) => Number(value.low) >= 0 && Number(value.high) <= 1 && Number(value.low) <= Number(value.high))
+  .refine((value) => Boolean(templateAssumptionDefaults[value.templateKey]?.[value.field]));
+export type ValueAssumption = z.infer<typeof valueAssumptionSchema>;

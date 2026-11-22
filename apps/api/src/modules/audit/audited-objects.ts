@@ -300,6 +300,8 @@ export const orgSettingAudit = auditedObject({
     'ai_custom_agent_roles',
     'ai_custom_agent_approval',
     'ai_agent_budget_overrides',
+    'ai_value_finder_segments',
+    'ai_value_assumptions',
   ],
 });
 

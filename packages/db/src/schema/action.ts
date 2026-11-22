@@ -132,6 +132,10 @@ export const orgSettingKeys = [
   'ai_custom_agent_roles',
   'ai_custom_agent_approval',
   'ai_agent_budget_overrides',
+  // KI-11: Segmente für den monatlichen Lauf des Wertpotenzial-Finders
+  'ai_value_finder_segments',
+  // KI-11: eigene Annahmen der Hebel-Vorlagen
+  'ai_value_assumptions',
 ] as const;
 
 export const orgSetting = pgTable(
@@ -153,7 +157,7 @@ export const orgSetting = pgTable(
         'category_label_singular', 'category_label_plural', 'goal_ebit_year',
         'ai_public_research', 'ai_source_kinds', 'ai_budget_month_cents', 'ai_budget_run_cents',
         'ai_max_steps', 'ai_custom_agent_roles', 'ai_custom_agent_approval',
-        'ai_agent_budget_overrides')`,
+        'ai_agent_budget_overrides', 'ai_value_finder_segments', 'ai_value_assumptions')`,
     ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],

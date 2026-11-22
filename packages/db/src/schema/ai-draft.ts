@@ -28,6 +28,8 @@ export const aiDraftKinds = [
   'plan_summary',
   'pre_read',
   'market_analysis',
+  // KI-11: Anfrage an den Lieferanten zu einer Datenlücke (object_type value_data_gap)
+  'data_request',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
@@ -59,7 +61,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_run').on(table.orgId, table.runId),

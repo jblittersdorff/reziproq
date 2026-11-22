@@ -1,5 +1,5 @@
 import { Body, Controller, ForbiddenException, Get, Inject, Put } from '@nestjs/common';
-import { and, auditedChange, eq, schema, sql } from '@reziproq/db';
+import { and, auditedChange, desc, eq, schema, sql } from '@reziproq/db';
 import {
   type AiSettings,
   type AiSettingsResponse,
@@ -37,11 +37,24 @@ export class AiSettingsController {
     if (!can(auth, 'einstellungen.verwalten')) throw forbidden();
     return this.tenant.run(
       { userId: auth.userId, organizationId: organization.id },
-      async (tx) => ({
-        settings: await readAiSettings(tx, organization.id),
-        euOnly: true as const,
-        canEdit: auth.orgRole === 'admin',
-      }),
+      async (tx) => {
+        const types = await tx
+          .select({
+            impact: schema.segmentType.impactLevel,
+            quality: schema.segmentType.qualityLevel,
+            name: schema.segmentType.name,
+          })
+          .from(schema.segmentType)
+          .innerJoin(schema.segmentModel, eq(schema.segmentModel.id, schema.segmentType.modelId))
+          .where(eq(schema.segmentModel.status, 'active'))
+          .orderBy(desc(schema.segmentType.impactLevel), desc(schema.segmentType.qualityLevel));
+        return {
+          settings: await readAiSettings(tx, organization.id),
+          euOnly: true as const,
+          canEdit: auth.orgRole === 'admin',
+          segmentTypes: types.map((type) => ({ key: `${type.impact}-${type.quality}`, name: type.name })),
+        };
+      },
       { readOnly: true },
     );
   }

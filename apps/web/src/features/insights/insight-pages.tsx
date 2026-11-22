@@ -17,6 +17,7 @@ import {
   proposeSupplierTarget,
   saveEbitGoal,
   supplierRingsQueryOptions,
+  valueOverviewQueryOptions,
 } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -114,6 +115,11 @@ export function OverviewPage() {
   });
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
+  // KI-11: Wertpotenziale als dritte Zeile, nur wenn es sie gibt
+  const opportunities = useQuery({
+    ...valueOverviewQueryOptions(accessToken),
+    enabled: accessToken !== '',
+  }).data;
   const data = query.data;
 
   if (query.isError) {
@@ -202,6 +208,14 @@ export function OverviewPage() {
             detail={text.cashDetail}
             value={amount(data.cashCents, data.currency)}
           />
+          {opportunities && opportunities.suppliers.length > 0 && (
+            <EvidenceRow
+              href="/uebersicht/wertpotenziale"
+              title={t.opportunities.overview.rowTitle}
+              detail={t.opportunities.overview.rowDetail}
+              value={t.opportunities.overview.rowValue(opportunities.counts.new)}
+            />
+          )}
         </ListCard>
         <QuestionSuggestions
           title={text.questionsTitle}

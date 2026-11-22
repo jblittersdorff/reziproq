@@ -52,6 +52,7 @@ import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig
 import { Route as AppStartMassnahmenRouteImport } from './routes/_app/start/massnahmen'
 import { Route as AppUebersichtIndexRouteImport } from './routes/_app/uebersicht/index'
 import { Route as AppUebersichtErgebnisseRouteImport } from './routes/_app/uebersicht/ergebnisse'
+import { Route as AppUebersichtWertpotenzialeRouteImport } from './routes/_app/uebersicht/wertpotenziale'
 import { Route as AppWarengruppenIndexRouteImport } from './routes/_app/warengruppen/index'
 import { Route as AppWirkungIndexRouteImport } from './routes/_app/wirkung/index'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
@@ -483,6 +484,12 @@ const AppUebersichtErgebnisseRoute = AppUebersichtErgebnisseRouteImport.update({
   path: '/uebersicht/ergebnisse',
   getParentRoute: () => AppRoute,
 } as any)
+const AppUebersichtWertpotenzialeRoute =
+  AppUebersichtWertpotenzialeRouteImport.update({
+    id: '/uebersicht/wertpotenziale',
+    path: '/uebersicht/wertpotenziale',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppWarengruppenIndexRoute = AppWarengruppenIndexRouteImport.update({
   id: '/warengruppen/',
   path: '/warengruppen/',
@@ -1781,6 +1788,7 @@ export interface FileRoutesByFullPath {
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
+  '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2034,6 +2042,7 @@ export interface FileRoutesByTo {
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
+  '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
@@ -2291,6 +2300,7 @@ export interface FileRoutesById {
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
   '/_app/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
+  '/_app/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2549,6 +2559,7 @@ export interface FileRouteTypes {
     | '/start/faellig'
     | '/start/massnahmen'
     | '/uebersicht/ergebnisse'
+    | '/uebersicht/wertpotenziale'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen/'
@@ -2802,6 +2813,7 @@ export interface FileRouteTypes {
     | '/start/faellig'
     | '/start/massnahmen'
     | '/uebersicht/ergebnisse'
+    | '/uebersicht/wertpotenziale'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen'
@@ -3058,6 +3070,7 @@ export interface FileRouteTypes {
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
     | '/_app/uebersicht/ergebnisse'
+    | '/_app/uebersicht/wertpotenziale'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
@@ -3593,6 +3606,13 @@ declare module '@tanstack/react-router' {
       path: '/uebersicht/ergebnisse'
       fullPath: '/uebersicht/ergebnisse'
       preLoaderRoute: typeof AppUebersichtErgebnisseRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/uebersicht/wertpotenziale': {
+      id: '/_app/uebersicht/wertpotenziale'
+      path: '/uebersicht/wertpotenziale'
+      fullPath: '/uebersicht/wertpotenziale'
+      preLoaderRoute: typeof AppUebersichtWertpotenzialeRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/warengruppen/': {
@@ -5538,6 +5558,7 @@ interface AppRouteChildren {
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
   AppUebersichtErgebnisseRoute: typeof AppUebersichtErgebnisseRoute
+  AppUebersichtWertpotenzialeRoute: typeof AppUebersichtWertpotenzialeRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
@@ -5639,6 +5660,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
   AppUebersichtErgebnisseRoute: AppUebersichtErgebnisseRoute,
+  AppUebersichtWertpotenzialeRoute: AppUebersichtWertpotenzialeRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppFeedbackIndexRoute: AppFeedbackIndexRoute,

@@ -22,13 +22,17 @@ export const templateShareText: Record<OpportunityTemplateKey, string> = {
     'Wir möchten Bedarfsprognosen regelmäßig teilen, damit ihr Umrüstungen und Bestände besser planen könnt.',
   market_standard:
     'Wir möchten gemeinsam prüfen, welche Spezifikationen auf einen Marktstandard umgestellt werden können.',
-  consignment: 'Wir möchten ein Konsignationslager prüfen, das Bestand und Abrufe für beide vereinfacht.',
-  volume_bundling: 'Wir möchten Mengen aus mehreren Bereichen bündeln und dafür Staffeln vereinbaren.',
-  quality_costs: 'Wir möchten Fehlerursachen gemeinsam abstellen und Reklamationskosten auf beiden Seiten senken.',
+  consignment:
+    'Wir möchten ein Konsignationslager prüfen, das Bestand und Abrufe für beide vereinfacht.',
+  volume_bundling:
+    'Wir möchten Mengen aus mehreren Bereichen bündeln und dafür Staffeln vereinbaren.',
+  quality_costs:
+    'Wir möchten Fehlerursachen gemeinsam abstellen und Reklamationskosten auf beiden Seiten senken.',
   logistics_bundling: 'Wir möchten Lieferungen bündeln und die Auslastung der Transporte erhöhen.',
   index_clause:
     'Wir möchten den Materialanteil im Preis an einen öffentlichen Index koppeln, damit beide gegen starke Schwankungen abgesichert sind.',
-  capacity_shortage: 'Wir möchten Kapazität für den Fall eines Engpasses im Markt gemeinsam absichern.',
+  capacity_shortage:
+    'Wir möchten Kapazität für den Fall eines Engpasses im Markt gemeinsam absichern.',
   tariffs: 'Wir möchten Herkunft der Vorprodukte und Zollfolgen gemeinsam prüfen.',
 };
 
@@ -37,19 +41,7 @@ export const templateSupplierEffect: Partial<Record<OpportunityTemplateKey, stri
   index_clause: 'Absicherung gegen Anstieg des Index',
 };
 
-/** Annahmen der Vorlagen mit Spanne (Herkunft template_assumption) */
-export const templateAssumptions: Partial<
-  Record<OpportunityTemplateKey, Record<string, { low: string; high: string }>>
-> = {
-  forecast_sharing: {
-    avoidable_setups: { low: '0.6', high: '0.8' },
-    inventory_reduction: { low: '0.4', high: '0.6' },
-    capital_rate: { low: '0.09', high: '0.09' },
-    pass_through: { low: '0.5', high: '0.5' },
-  },
-  market_standard: { unit_price_reduction: { low: '0.05', high: '0.12' } },
-  index_clause: { material_share: { low: '0.3', high: '0.5' } },
-};
+export { templateAssumptionDefaults as templateAssumptions } from '@reziproq/shared';
 
 /** Beschreibung je fehlender Eingabe für die Datenlücke */
 export const dataGapDescriptions: Record<string, string> = {

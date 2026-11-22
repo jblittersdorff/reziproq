@@ -257,11 +257,109 @@ describe('KI-11 Wertpotenziale', () => {
     await waitFor(() => expect(sent[0]?.body).toEqual({ reason: 'Laufender Rahmenvertrag' }));
   });
 
+  it('die Anfrage zur Datenlücke ist ein Entwurf und wird erst mit „Anfrage senden“ gesendet', async () => {
+    const gapId = '0190a0a0-0000-7000-8000-0000000000dd';
+    const handle = api.handle;
+    const drafted = {
+      ...data,
+      dataGaps: data.dataGaps.map((gap) => ({
+        ...gap,
+        draft: {
+          id: '0190a0a0-0000-7000-8000-0000000000ee',
+          title: 'Daten bereitstellen: Wahrscheinlichkeit und Dauer eines Lieferausfalls',
+          description: 'Liebes Team von Rheintal, bitte um diese Angabe.',
+        },
+      })),
+    };
+    api.handle = (request) => {
+      if (request.url.startsWith(`${base}/luecken/${gapId}/anfrage`)) {
+        sent.push({ url: request.url, body: request.body });
+        return Response.json(drafted);
+      }
+      return handle?.(request);
+    };
+    renderAt(page);
+    fireEvent.click(await screen.findByRole('button', { name: 'Anfrage an Rheintal entwerfen' }));
+    const form = await screen.findByRole('form', { name: 'Anfrage an den Lieferanten' });
+    expect(sent.map((entry) => entry.url)).toEqual([`${base}/luecken/${gapId}/anfrage`]);
+    fireEvent.click(within(form).getByRole('button', { name: 'Anfrage senden' }));
+    await waitFor(() => expect(sent[1]?.url).toBe(`${base}/luecken/${gapId}/anfrage/senden`));
+    expect(sent[1]?.body).toMatchObject({
+      title: 'Daten bereitstellen: Wahrscheinlichkeit und Dauer eines Lieferausfalls',
+    });
+  });
+
   it('wer nicht entscheiden darf, sieht keine Knöpfe', async () => {
     data = { ...data, canRun: false, canDecide: false };
     renderAt(page);
     await screen.findByRole('heading', { name: 'Preisgleitklausel nach Index' });
     expect(screen.queryByRole('button', { name: 'Als Thema ins JBP übernehmen' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Erneut prüfen' })).toBeNull();
+  });
+});
+
+describe('KI-11 Wertpotenziale über alle Lieferanten', () => {
+  it('zeigt Summen getrennt, das größte Potenzial und eine Zeile je Lieferant', async () => {
+    const handle = api.handle;
+    api.handle = (request) => {
+      if (request.url === '/api/uebersicht/wertpotenziale') {
+        return Response.json({
+          counts: { new: 3, adopted: 1, realized: 0, lowExcluded: 1 },
+          totals: [
+            {
+              impactType: 'ebit',
+              new: { low: 18_000_000, high: 30_000_000 },
+              adopted: { low: 0, high: 0 },
+              realized: { low: 0, high: 0 },
+            },
+            {
+              impactType: 'cash',
+              new: { low: 2_000_000, high: 2_000_000 },
+              adopted: { low: 0, high: 0 },
+              realized: { low: 0, high: 0 },
+            },
+          ],
+          biggest: {
+            relationshipId: id,
+            supplierName: 'Rheintal',
+            templateKey: 'index_clause',
+            impactType: 'ebit',
+            buyer: { low: 18_000_000, high: 30_000_000 },
+            confidence: 'medium',
+          },
+          suppliers: [
+            {
+              relationshipId: id,
+              name: 'Rheintal',
+              newCount: 1,
+              adoptedCount: 1,
+              ebitNew: { low: 18_000_000, high: 30_000_000 },
+              cashNew: null,
+              confidence: 'medium',
+              nextStep: 'review',
+            },
+          ],
+          levers: [{ templateKey: 'index_clause', count: 1 }],
+          signals: [{ title: 'Kupferindex gesunken', suppliers: 2 }],
+          dataGaps: [
+            {
+              dataKey: 'capacity_shortfall_risk',
+              description: 'Wahrscheinlichkeit und Dauer eines Lieferausfalls',
+              suppliers: 2,
+            },
+          ],
+        });
+      }
+      return handle?.(request);
+    };
+    renderAt('/uebersicht/wertpotenziale');
+    expect(
+      await screen.findByRole('heading', { name: 'Rheintal: Preisgleitklausel nach Index' }),
+    ).toBeTruthy();
+    expect(screen.getByText(/1 mit Sicherheit niedrig nicht eingerechnet/)).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'Rheintal' });
+    expect(link.getAttribute('href')).toBe(`/lieferanten/${id}/wirkung/wertpotenziale`);
+    expect(screen.getByText('Kupferindex gesunken')).toBeTruthy();
+    expect(screen.getAllByText('2 Lieferanten').length).toBe(2);
   });
 });

@@ -108,7 +108,8 @@ const catalog = {
 >;
 
 /** Eingaben einer Vorlage mit Einheit, in der Reihenfolge des Rechenwegs */
-export const templateFields = (key: OpportunityTemplateKey): readonly Field[] => catalog[key].fields;
+export const templateFields = (key: OpportunityTemplateKey): readonly Field[] =>
+  catalog[key].fields;
 export const templateEffect = (key: OpportunityTemplateKey) => catalog[key].effect;
 export const templateVersion = 1;
 

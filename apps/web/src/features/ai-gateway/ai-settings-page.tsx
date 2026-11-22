@@ -4,6 +4,8 @@ import {
   aiFeatureValues,
   aiSettingsSchema,
   aiSourceKindValues,
+  type OpportunityTemplateKey,
+  templateAssumptionDefaults,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -59,6 +61,27 @@ type Draft = {
   customAgentRoles: AiSettings['customAgentRoles'];
   customAgentApproval: boolean;
   overrides: Record<string, string>[];
+  valueFinderSegments: string[];
+  /** Annahmen der Hebel-Vorlagen in Prozent, Schlüssel „vorlage.feld“ */
+  assumptions: Record<string, { low: string; high: string }>;
+};
+
+/** Alle Annahmen der Vorlagen mit Startwert */
+const assumptionEntries = Object.entries(templateAssumptionDefaults).flatMap(
+  ([templateKey, fields]) =>
+    Object.entries(fields ?? {}).map(([field, range]) => ({
+      key: `${templateKey}.${field}`,
+      templateKey: templateKey as OpportunityTemplateKey,
+      field,
+      range,
+    })),
+);
+const percentText = (value: string) => String(Math.round(Number(value) * 1000) / 10);
+const rateOf = (value: string) => {
+  const number = Number(value.trim().replace(',', '.'));
+  return value.trim() !== '' && Number.isFinite(number)
+    ? String(Math.round(number * 1000) / 100000)
+    : 'x';
 };
 
 const draftOf = (settings: AiSettings, locale: string): Draft => ({
@@ -73,6 +96,16 @@ const draftOf = (settings: AiSettings, locale: string): Draft => ({
     agentKey: entry.agentKey,
     budget: euroText(entry.budgetRunCents, locale, true),
   })),
+  valueFinderSegments: settings.valueFinderSegments,
+  assumptions: Object.fromEntries(
+    assumptionEntries.map((entry) => {
+      const own = settings.valueAssumptions.find(
+        (item) => item.templateKey === entry.templateKey && item.field === entry.field,
+      );
+      const range = own ?? entry.range;
+      return [entry.key, { low: percentText(range.low), high: percentText(range.high) }];
+    }),
+  ),
 });
 
 const settingsOf = (draft: Draft) =>
@@ -87,6 +120,16 @@ const settingsOf = (draft: Draft) =>
     agentBudgetOverrides: draft.overrides
       .filter((row) => row.agentKey)
       .map((row) => ({ agentKey: row.agentKey, budgetRunCents: centsOf(row.budget ?? '') })),
+    valueFinderSegments: draft.valueFinderSegments,
+    valueAssumptions: assumptionEntries.flatMap((entry) => {
+      const value = draft.assumptions[entry.key];
+      if (!value) return [];
+      const low = rateOf(value.low);
+      const high = rateOf(value.high);
+      return low === entry.range.low && high === entry.range.high
+        ? []
+        : [{ templateKey: entry.templateKey, field: entry.field, low, high }];
+    }),
   });
 
 /** Kontingent des Monats: Balken mit Text, darunter je Funktion Aufrufe und Kosten (nur Admins). */
@@ -322,6 +365,66 @@ export function AiSettingsPage() {
                     removeLabel={text.removeOverride}
                     max={aiFeatureValues.length}
                   />
+                </div>
+              </SettingsGroup>
+              {(query.data?.segmentTypes?.length ?? 0) > 0 && (
+                <SettingsGroup title={text.valueFinderTitle}>
+                  <div className="flex flex-col gap-2 px-4 py-3">
+                    <CheckboxGroup
+                      legend={text.valueFinderSegments}
+                      options={(query.data?.segmentTypes ?? []).map((type) => ({
+                        value: type.key,
+                        label: type.name,
+                      }))}
+                      value={current.valueFinderSegments}
+                      onChange={(value) => update({ valueFinderSegments: value })}
+                    />
+                    <p className="text-muted-foreground text-sm">{text.valueFinderHint}</p>
+                  </div>
+                </SettingsGroup>
+              )}
+              <SettingsGroup title={text.assumptionsTitle}>
+                <div className="flex flex-col gap-3 px-4 py-4">
+                  <p className="text-muted-foreground text-sm">{text.assumptionsHint}</p>
+                  {assumptionEntries.map((entry) => {
+                    const value = current.assumptions[entry.key] ?? { low: '', high: '' };
+                    const label = `${t.opportunities.templates[entry.templateKey]}: ${
+                      t.opportunities.fields[entry.field] ?? entry.field
+                    }`;
+                    const set = (patch: Partial<typeof value>) =>
+                      update({
+                        assumptions: {
+                          ...current.assumptions,
+                          [entry.key]: { ...value, ...patch },
+                        },
+                      });
+                    return (
+                      <div key={entry.key} className="grid gap-2 sm:grid-cols-2">
+                        <FormField label={text.assumptionLow(label)}>
+                          {(field) => (
+                            <Input
+                              {...field}
+                              inputMode="decimal"
+                              value={value.low}
+                              readOnly={readOnly}
+                              onChange={(e) => set({ low: e.target.value })}
+                            />
+                          )}
+                        </FormField>
+                        <FormField label={text.assumptionHigh(label)}>
+                          {(field) => (
+                            <Input
+                              {...field}
+                              inputMode="decimal"
+                              value={value.high}
+                              readOnly={readOnly}
+                              onChange={(e) => set({ high: e.target.value })}
+                            />
+                          )}
+                        </FormField>
+                      </div>
+                    );
+                  })}
                 </div>
               </SettingsGroup>
               <SettingsGroup title={text.customTitle}>

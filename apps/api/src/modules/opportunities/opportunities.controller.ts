@@ -5,12 +5,15 @@ import {
   type ChangeAssumptions,
   changeAssumptionsSchema,
   dismissOpportunitySchema,
+  type SendDataRequest,
+  sendDataRequestSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { OpportunitiesService } from './opportunities.service.js';
+import { OpportunityOverviewService } from './overview.service.js';
 
 /** KI-11: Wertpotenziale eines Lieferanten; sehen alle Käufer mit Zugriff, entscheiden SRO und Admin. */
 @Controller('suppliers/:id/wertpotenziale')
@@ -38,6 +41,37 @@ export class OpportunitiesController {
     @Body(new ZodValidationPipe(changeAssumptionsSchema)) body: ChangeAssumptions,
   ) {
     return this.opportunities.changeAssumptions(auth, id, opportunityId, body);
+  }
+
+  @Post('luecken/:gapId/anfrage')
+  @Requires('wirkung.sehen')
+  draftRequest(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('gapId', ParseUUIDPipe) gapId: string,
+  ) {
+    return this.opportunities.draftDataRequest(auth, id, gapId);
+  }
+
+  @Post('luecken/:gapId/anfrage/senden')
+  @Requires('wirkung.sehen')
+  sendRequest(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('gapId', ParseUUIDPipe) gapId: string,
+    @Body(new ZodValidationPipe(sendDataRequestSchema)) body: SendDataRequest,
+  ) {
+    return this.opportunities.sendDataRequest(auth, id, gapId, body);
+  }
+
+  @Post('luecken/:gapId/anfrage/verwerfen')
+  @Requires('wirkung.sehen')
+  discardRequest(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('gapId', ParseUUIDPipe) gapId: string,
+  ) {
+    return this.opportunities.discardDataRequest(auth, id, gapId);
   }
 
   @Post(':opportunityId/verwerfen')
@@ -70,5 +104,19 @@ export class OpportunitiesController {
     @Body(new ZodValidationPipe(adoptOpportunitySchema)) body: AdoptOpportunity,
   ) {
     return this.opportunities.adopt(auth, id, opportunityId, body);
+  }
+}
+
+/** KI-11, Ablauf 7: Wertpotenziale über alle Lieferanten */
+@Controller('uebersicht/wertpotenziale')
+export class OpportunityOverviewController {
+  constructor(
+    @Inject(OpportunityOverviewService) private readonly overview: OpportunityOverviewService,
+  ) {}
+
+  @Get()
+  @Requires('wirkung.sehen')
+  get(@CurrentUser() auth: AuthContext) {
+    return this.overview.overview(auth);
   }
 }

@@ -708,6 +708,27 @@
       "when": 1795388288612,
       "tag": "0100_ki11_wertpotenziale",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1795390171332,
+      "tag": "0101_ki11_monatslauf",
+      "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1795390301000,
+      "tag": "0102_ki11_datenanfrage",
+      "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1795390485562,
+      "tag": "0103_ki11_annahmen",
+      "breakpoints": true
     }
   ]
 }

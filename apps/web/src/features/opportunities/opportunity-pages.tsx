@@ -27,9 +27,12 @@ import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
   adoptOpportunity,
   changeOpportunityAssumptions,
+  discardDataRequest,
   dismissOpportunity,
+  draftDataRequest,
   opportunityProposal,
   runValueFinder,
+  sendDataRequest,
   valueOpportunitiesQueryOptions,
 } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
@@ -37,7 +40,7 @@ import { formatMoney } from '@/lib/money';
 
 type Step = ValueOpportunity['steps'][number];
 
-function useFormatters() {
+export function useFormatters() {
   const { locale } = useLocale();
   const text = useT().opportunities;
   const money = (cents: number) =>
@@ -437,7 +440,13 @@ function OpportunityCard({
 }
 
 /** Drei Zahlen: neu, im JBP, realisiert; je Wirkungsart eine Zeile, nie addiert */
-function Totals({ data }: { data: ValueOpportunities }) {
+export function Totals({
+  data,
+  note,
+}: {
+  data: Pick<ValueOpportunities, 'counts' | 'totals'>;
+  note?: string;
+}) {
   const text = useT().opportunities;
   const format = useFormatters();
   const column = (label: string, pick: 'new' | 'adopted' | 'realized') => (
@@ -461,12 +470,151 @@ function Totals({ data }: { data: ValueOpportunities }) {
         {column(text.totalsAdopted(data.counts.adopted), 'adopted')}
         {column(text.totalsRealized, 'realized')}
       </div>
-      <p className="text-muted-foreground text-sm">{text.totalsNote}</p>
+      <p className="text-muted-foreground text-sm">
+        {note ? `${text.totalsNote} ${note}` : text.totalsNote}
+      </p>
     </section>
   );
 }
 
-function SidePanels({ data, supplierName }: { data: ValueOpportunities; supplierName: string }) {
+/**
+ * Datenlücke mit Anfrage an den Lieferanten (KI-11, Ablauf 5): erst ein Entwurf von Reziproq, den der
+ * SRO ändert; gesendet wird er als geteilte Maßnahme erst mit „Anfrage senden“.
+ */
+function GapRow({
+  gap,
+  supplierName,
+  canDecide,
+  relationshipId,
+  onChanged,
+}: {
+  gap: ValueOpportunities['dataGaps'][number];
+  supplierName: string;
+  canDecide: boolean;
+  relationshipId: string;
+  onChanged: (data: ValueOpportunities, message: string) => void;
+}) {
+  const text = useT().opportunities;
+  const accessToken = useToken();
+  const [busy, setBusy] = useState(false);
+  const inFourWeeks = new Date(Date.now() + 28 * 86_400_000).toISOString().slice(0, 10);
+  const [title, setTitle] = useState(gap.draft?.title ?? '');
+  const [description, setDescription] = useState(gap.draft?.description ?? '');
+  const [dueDate, setDueDate] = useState(inFourWeeks);
+  const draft = gap.draft;
+  const act = async (work: () => Promise<ValueOpportunities>, message: string) => {
+    setBusy(true);
+    try {
+      const next = await work();
+      const fresh = next.dataGaps.find((entry) => entry.id === gap.id)?.draft;
+      if (fresh) {
+        setTitle(fresh.title);
+        setDescription(fresh.description);
+      }
+      onChanged(next, message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="flex flex-col gap-3 border-line-soft border-t px-5.5 py-3.5 first:border-t-0">
+      <div className="flex flex-wrap items-center gap-3">
+        <ListRowText
+          title={gap.description}
+          detail={gap.templatesBlocked.map((key) => text.templates[key]).join(', ')}
+        />
+        <Badge variant={gap.status === 'requested' ? 'shared' : 'neutral'}>
+          {gap.status === 'requested' ? text.gapRequested : text.gapMissing}
+        </Badge>
+      </div>
+      {canDecide && gap.status === 'open' && !draft && (
+        <Button
+          size="sm"
+          variant="secondary"
+          className="self-start"
+          loading={busy}
+          onClick={() =>
+            act(() => draftDataRequest(accessToken, relationshipId, gap.id), text.requestDrafted)
+          }
+        >
+          {text.requestDraft(supplierName)}
+        </Button>
+      )}
+      {canDecide && gap.status === 'open' && draft && (
+        <AiDraft heading={text.draftHeading} sourcesLabel={text.sources} sources={[]}>
+          <form
+            aria-label={text.requestFormLabel}
+            className="flex flex-col gap-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              act(
+                () =>
+                  sendDataRequest(accessToken, relationshipId, gap.id, {
+                    title: title.trim(),
+                    description: description.trim(),
+                    dueDate,
+                  }),
+                text.requestSent,
+              );
+            }}
+          >
+            <FormField label={text.topicTitle}>
+              {(field) => (
+                <Input {...field} value={title} onChange={(e) => setTitle(e.target.value)} />
+              )}
+            </FormField>
+            <FormField label={text.topicDescription}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              )}
+            </FormField>
+            <FormField label={text.requestDue}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              )}
+            </FormField>
+            <FormActions>
+              <Button type="submit" size="sm" loading={busy} disabled={title.trim() === ''}>
+                {text.requestSend}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  act(() => discardDataRequest(accessToken, relationshipId, gap.id), text.dismissed)
+                }
+              >
+                {text.dismiss}
+              </Button>
+            </FormActions>
+          </form>
+        </AiDraft>
+      )}
+    </div>
+  );
+}
+
+function SidePanels({
+  data,
+  supplierName,
+  relationshipId,
+  onChanged,
+}: {
+  data: ValueOpportunities;
+  supplierName: string;
+  relationshipId: string;
+  onChanged: (data: ValueOpportunities, message: string) => void;
+}) {
   const text = useT().opportunities;
   const format = useFormatters();
   const checked = data.checked;
@@ -528,14 +676,20 @@ function SidePanels({ data, supplierName }: { data: ValueOpportunities; supplier
           <p className="px-5.5 pb-5 text-muted-foreground text-sm">{text.gapsEmpty}</p>
         ) : (
           data.dataGaps.map((gap) => (
-            <ListRow key={gap.id}>
-              <ListRowText
-                title={gap.description}
-                detail={gap.templatesBlocked.map((key) => text.templates[key]).join(', ')}
-              />
-              <Badge variant="neutral">{text.gapMissing}</Badge>
-            </ListRow>
+            <GapRow
+              key={gap.id}
+              gap={gap}
+              supplierName={supplierName}
+              canDecide={data.canDecide}
+              relationshipId={relationshipId}
+              onChanged={onChanged}
+            />
           ))
+        )}
+        {data.canDecide && data.dataGaps.some((gap) => gap.status === 'open') && (
+          <p className="border-line-soft border-t px-5.5 py-3.5 text-muted-foreground text-sm">
+            {text.requestHint}
+          </p>
         )}
       </ListCard>
       <ListCard aria-labelledby="wp-sicht">
@@ -676,7 +830,15 @@ export function ValueOpportunitiesPage({ relationshipId }: { relationshipId: str
                   ))
                 )}
               </div>
-              <SidePanels data={data} supplierName={name} />
+              <SidePanels
+                data={data}
+                supplierName={name}
+                relationshipId={relationshipId}
+                onChanged={(next, note) => {
+                  client.setQueryData(options.queryKey, next);
+                  setMessage({ text: note });
+                }}
+              />
             </div>
           </>
         );

@@ -3,6 +3,8 @@ import {
   adoptOpportunitySchema,
   type ChangeAssumptions,
   valueOpportunitiesSchema,
+  valueOverviewSchema,
+  type SendDataRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -3514,7 +3516,13 @@ const opportunityPath = (relationshipId: string, id?: string) =>
   `/suppliers/${relationshipId}/wertpotenziale${id ? `/${id}` : ''}`;
 
 export const runValueFinder = (accessToken: string, relationshipId: string) =>
-  sendJson('POST', `${opportunityPath(relationshipId)}/lauf`, {}, valueOpportunitiesSchema, accessToken);
+  sendJson(
+    'POST',
+    `${opportunityPath(relationshipId)}/lauf`,
+    {},
+    valueOpportunitiesSchema,
+    accessToken,
+  );
 
 export const changeOpportunityAssumptions = (
   accessToken: string,
@@ -3557,6 +3565,44 @@ export const adoptOpportunity = (
     'POST',
     `${opportunityPath(relationshipId, id)}/uebernehmen`,
     request,
+    valueOpportunitiesSchema,
+    accessToken,
+  );
+
+/** KI-11: Wertpotenziale über alle Lieferanten */
+export const valueOverviewQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['uebersicht', 'wertpotenziale'],
+    queryFn: () => getJson('/uebersicht/wertpotenziale', valueOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** KI-11: Anfrage an den Lieferanten zu einer Datenlücke entwerfen, senden, verwerfen */
+const gapPath = (relationshipId: string, gapId: string) =>
+  `/suppliers/${relationshipId}/wertpotenziale/luecken/${gapId}/anfrage`;
+
+export const draftDataRequest = (accessToken: string, relationshipId: string, gapId: string) =>
+  sendJson('POST', gapPath(relationshipId, gapId), {}, valueOpportunitiesSchema, accessToken);
+
+export const sendDataRequest = (
+  accessToken: string,
+  relationshipId: string,
+  gapId: string,
+  request: SendDataRequest,
+) =>
+  sendJson(
+    'POST',
+    `${gapPath(relationshipId, gapId)}/senden`,
+    request,
+    valueOpportunitiesSchema,
+    accessToken,
+  );
+
+export const discardDataRequest = (accessToken: string, relationshipId: string, gapId: string) =>
+  sendJson(
+    'POST',
+    `${gapPath(relationshipId, gapId)}/verwerfen`,
+    {},
     valueOpportunitiesSchema,
     accessToken,
   );

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { valueAssumptionSchema } from './opportunities.js';
 
 // KI-01: Modell-Gateway, Einstellungen KI und Kontingent. Startwerte und Routing gelten im Code;
 // die Organisation ändert nur die Einstellungen.
@@ -48,6 +49,10 @@ export const aiSettingsSchema = z.object({
       }),
     )
     .max(50),
+  // KI-11: Segmente (Ist-Typ „Wirkung-Qualität“), für die der Wertpotenzial-Finder monatlich läuft
+  valueFinderSegments: z.array(z.string().regex(/^[1-3]-[1-3]$/)).max(9),
+  // KI-11: eigene Annahmen der Hebel-Vorlagen statt der Startwerte
+  valueAssumptions: z.array(valueAssumptionSchema).max(20),
 });
 export type AiSettings = z.infer<typeof aiSettingsSchema>;
 
@@ -61,6 +66,8 @@ export const defaultAiSettings: AiSettings = {
   customAgentRoles: 'buyers_with_access',
   customAgentApproval: true,
   agentBudgetOverrides: [],
+  valueFinderSegments: [],
+  valueAssumptions: [],
 };
 
 export const aiSettingsResponseSchema = z.object({
@@ -68,6 +75,8 @@ export const aiSettingsResponseSchema = z.object({
   // Verarbeitung nur in der EU: immer an, nicht abschaltbar
   euOnly: z.literal(true),
   canEdit: z.boolean(),
+  // Segmenttypen des aktiven Modells zur Auswahl für den monatlichen Lauf
+  segmentTypes: z.array(z.object({ key: z.string(), name: z.string() })).optional(),
 });
 export type AiSettingsResponse = z.infer<typeof aiSettingsResponseSchema>;
 

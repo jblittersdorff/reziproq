@@ -87,6 +87,40 @@ describe('KI-01 Einstellungen KI', () => {
     expect(await screen.findByText('Gespeichert.')).toBeTruthy();
   });
 
+  it('KI-11: der Admin wählt Segmente für den monatlichen Lauf', async () => {
+    settings = {
+      ...settings,
+      segmentTypes: [
+        { key: '3-3', name: 'Strategisch' },
+        { key: '1-1', name: 'Abwickeln' },
+      ],
+    };
+    renderAt('/einstellungen/ki');
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Strategisch' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Einstellungen speichern' }));
+    await waitFor(() =>
+      expect(sent[0]).toEqual({ ...defaultAiSettings, valueFinderSegments: ['3-3'] }),
+    );
+  });
+
+  it('KI-11: geänderte Annahmen einer Vorlage werden als Anteil gespeichert', async () => {
+    renderAt('/einstellungen/ki');
+    const low = await screen.findByRole('textbox', {
+      name: 'Preisgleitklausel nach Index: Materialanteil an den Herstellkosten, von',
+    });
+    expect((low as HTMLInputElement).value).toBe('30');
+    fireEvent.change(low, { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Einstellungen speichern' }));
+    await waitFor(() =>
+      expect(sent[0]).toEqual({
+        ...defaultAiSettings,
+        valueAssumptions: [
+          { templateKey: 'index_clause', field: 'material_share', low: '0.2', high: '0.5' },
+        ],
+      }),
+    );
+  });
+
   it('ein ungültiger Betrag wird nicht gesendet', async () => {
     renderAt('/einstellungen/ki');
     const month = await screen.findByRole('textbox', { name: 'Budget je Monat in Euro' });

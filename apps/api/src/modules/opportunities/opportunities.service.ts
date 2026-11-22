@@ -21,6 +21,8 @@ import {
   displayNameOf,
   type OpportunityImpactType,
   type OpportunityInput,
+  type SendDataRequest,
+  type ValueAssumption,
   type OpportunityTemplateKey,
   opportunityImpactTypes,
   opportunityInputSchema,
@@ -38,6 +40,7 @@ import { actorOf } from '../audit/actor.js';
 import { valueOpportunityAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { ActionsService } from '../actions/actions.service.js';
 import { type JbpScope, JbpService } from '../jbp/jbp.service.js';
 import { JbpTopicsService } from '../jbp/jbp-topics.service.js';
 import {
@@ -61,6 +64,7 @@ import {
   templateSupplierEffect,
   templateTitles,
 } from './templates.js';
+import { syncRealized } from './realized.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -124,6 +128,7 @@ export class OpportunitiesService {
     @Inject(JbpService) private readonly jbp: JbpService,
     @Inject(JbpTopicsService) private readonly topics: JbpTopicsService,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
+    @Inject(ActionsService) private readonly actions: ActionsService,
   ) {}
 
   private scope<T>(
@@ -304,14 +309,23 @@ export class OpportunitiesService {
   }
 
   /** Eingaben je Vorlage: Annahmen, eigener Spend, Werte aus Signalen mit Quellen */
-  private factsFor(spend: OpportunityInput | null, findings: MarketFinding[]) {
+  private factsFor(
+    spend: OpportunityInput | null,
+    findings: MarketFinding[],
+    overrides: ValueAssumption[] = [],
+  ) {
     const facts: Partial<
       Record<OpportunityTemplateKey, { inputs: Record<string, OpportunityInput> }>
     > = {};
     for (const key of opportunityTemplateKeys) {
       const inputs: Record<string, OpportunityInput> = {};
       for (const [field, range] of Object.entries(templateAssumptions[key] ?? {})) {
-        inputs[field] = { ...range, source: { kind: 'template_assumption' } };
+        // Annahmen der Vorlage, je Kunde änderbar (Einstellungen KI)
+        const own = overrides.find((entry) => entry.templateKey === key && entry.field === field);
+        inputs[field] = {
+          ...(own ? { low: own.low, high: own.high } : range),
+          source: { kind: 'template_assumption' },
+        };
       }
       if (key === 'index_clause' && spend) inputs.eligible_annual_cost_cents = spend;
       const kind = publicInputs[key];
@@ -400,7 +414,11 @@ export class OpportunitiesService {
   /** Nur für Tests: feste Modellantwort des Testanbieters (z. B. mit erfundener Zahl) */
   testModelText: ((fallback: string) => string) | undefined;
 
-  async run(auth: AuthContext, relationshipId: string): Promise<ValueOpportunities> {
+  async run(
+    auth: AuthContext,
+    relationshipId: string,
+    trigger: 'manual' | 'schedule' = 'manual',
+  ): Promise<ValueOpportunities> {
     const asOf = isoDate();
     const prepared = await this.scope(auth, relationshipId, async (scope) => {
       if (!this.canDecide(scope)) throw forbidden();
@@ -413,7 +431,7 @@ export class OpportunitiesService {
           agentVersionId: versionId,
           actingUserId: auth.userId,
           startedBy: auth.userId,
-          trigger: 'manual',
+          trigger,
           contextRelationshipId: relationshipId,
           contextType: 'relationship',
           contextId: relationshipId,
@@ -458,7 +476,7 @@ export class OpportunitiesService {
           .map((finding) => ({ ...finding, sources: datedSources(finding.sources, asOf) }))
           .filter((finding) => finding.sources.length > 0);
       }
-      const facts = this.factsFor(spend, findings);
+      const facts = this.factsFor(spend, findings, settings.valueAssumptions);
       const results = await calculateOpportunities(tx, facts, { relationshipId, asOf });
       await tx
         .update(schema.agentStep)
@@ -689,6 +707,7 @@ export class OpportunitiesService {
     return this.scope(auth, relationshipId, async (scope) => {
       const { tx, orgId } = scope;
       const decide = this.canDecide(scope);
+      await syncRealized(tx, orgId, relationshipId);
       const settings = await readAiSettings(tx, orgId);
       const run = await this.lastRun(tx, orgId, relationshipId);
       const rows = await tx
@@ -724,6 +743,23 @@ export class OpportunitiesService {
             inArray(schema.valueDataGap.status, ['open', 'requested']),
           ),
         );
+      const drafts =
+        gaps.length > 0
+          ? await tx
+              .select()
+              .from(schema.aiDraft)
+              .where(
+                and(
+                  eq(schema.aiDraft.orgId, orgId),
+                  eq(schema.aiDraft.kind, 'data_request'),
+                  eq(schema.aiDraft.status, 'draft'),
+                  inArray(
+                    schema.aiDraft.objectId,
+                    gaps.map((gap) => gap.id),
+                  ),
+                ),
+              )
+          : [];
       const outbound = run
         ? await tx
             .select({
@@ -802,13 +838,19 @@ export class OpportunitiesService {
           outcome: signal.outcome,
           outcomeReason: signal.outcomeReason,
         })),
-        dataGaps: gaps.map((gap) => ({
-          id: gap.id,
-          dataKey: gap.dataKey,
-          description: gap.description,
-          templatesBlocked: gap.templatesBlocked,
-          status: gap.status,
-        })),
+        dataGaps: gaps.map((gap) => {
+          const draft = drafts.find((entry) => entry.objectId === gap.id);
+          return {
+            id: gap.id,
+            dataKey: gap.dataKey,
+            description: gap.description,
+            templatesBlocked: gap.templatesBlocked,
+            status: gap.status,
+            draft: draft
+              ? { id: draft.id, title: draft.subject ?? '', description: draft.content }
+              : null,
+          };
+        }),
         outbound: outbound.map((query) => ({
           text: query.text,
           sentAt: query.sentAt.toISOString(),
@@ -967,6 +1009,123 @@ export class OpportunitiesService {
           result: undefined,
         };
       });
+    });
+    return this.list(auth, relationshipId);
+  }
+  private async openGap(scope: JbpScope, gapId: string) {
+    if (!this.canDecide(scope)) throw forbidden();
+    const [gap] = await scope.tx
+      .select()
+      .from(schema.valueDataGap)
+      .where(
+        and(
+          eq(schema.valueDataGap.id, gapId),
+          eq(schema.valueDataGap.orgId, scope.orgId),
+          eq(schema.valueDataGap.relationshipId, scope.relationshipId),
+        ),
+      );
+    if (!gap) throw notFound();
+    if (gap.status !== 'open')
+      throw new ConflictException({ statusCode: 409, code: 'nicht_offen' });
+    return gap;
+  }
+
+  private async openDraft(scope: JbpScope, gapId: string) {
+    const [draft] = await scope.tx
+      .select()
+      .from(schema.aiDraft)
+      .where(
+        and(
+          eq(schema.aiDraft.orgId, scope.orgId),
+          eq(schema.aiDraft.kind, 'data_request'),
+          eq(schema.aiDraft.objectId, gapId),
+          eq(schema.aiDraft.status, 'draft'),
+        ),
+      );
+    return draft ?? null;
+  }
+
+  /**
+   * Anfrage an den Lieferanten entwerfen (KI-11, Ablauf 5): ein Entwurf nach KI-03, ohne Zahl und
+   * ohne interne Angabe. Gesendet wird nichts; das geschieht erst mit sendDataRequest.
+   */
+  async draftDataRequest(auth: AuthContext, relationshipId: string, gapId: string) {
+    await this.scope(auth, relationshipId, async (scope) => {
+      const gap = await this.openGap(scope, gapId);
+      if (await this.openDraft(scope, gapId)) return;
+      const { supplierName } = await this.readContext(scope.tx, scope.orgId, relationshipId);
+      await scope.tx.insert(schema.aiDraft).values({
+        orgId: scope.orgId,
+        relationshipId,
+        kind: 'data_request',
+        objectType: 'value_data_gap',
+        objectId: gap.id,
+        subject: `Daten bereitstellen: ${gap.description}`,
+        content: `Liebes Team von ${supplierName}, für unsere gemeinsame Planung bitten wir euch um folgende Angabe: ${gap.description}. Damit können wir prüfen, welche Hebel sich für beide Seiten lohnen.`,
+        model: 'reziproq',
+        createdBy: auth.userId,
+      });
+    });
+    return this.list(auth, relationshipId);
+  }
+
+  /** Erst jetzt entsteht die geteilte Maßnahme beim Lieferanten; die Lücke bekommt requested. */
+  async sendDataRequest(
+    auth: AuthContext,
+    relationshipId: string,
+    gapId: string,
+    input: SendDataRequest,
+  ) {
+    const prepared = await this.scope(auth, relationshipId, async (scope) => {
+      await this.openGap(scope, gapId);
+      const draft = await this.openDraft(scope, gapId);
+      if (!draft) throw notFound();
+      const { supplierName } = await this.readContext(scope.tx, scope.orgId, relationshipId);
+      return { draft, supplierName };
+    });
+    await this.actions.buyer(auth, relationshipId, (scope) =>
+      this.actions.create(scope, {
+        action: {
+          title: input.title,
+          description: input.description || null,
+          visibility: 'shared',
+          ownerSide: 'supplier',
+          ownerUserId: null,
+          ownerName: prepared.supplierName,
+          dueDate: input.dueDate,
+        },
+        sourceType: 'manual',
+        sourceId: null,
+      }),
+    );
+    await this.scope(auth, relationshipId, async (scope) => {
+      await scope.tx
+        .update(schema.aiDraft)
+        .set({
+          status: 'accepted',
+          edited:
+            input.title !== prepared.draft.subject || input.description !== prepared.draft.content,
+          decidedBy: auth.userId,
+          decidedAt: new Date(),
+        })
+        .where(eq(schema.aiDraft.id, prepared.draft.id));
+      await scope.tx
+        .update(schema.valueDataGap)
+        .set({ status: 'requested' })
+        .where(eq(schema.valueDataGap.id, gapId));
+    });
+    return this.list(auth, relationshipId);
+  }
+
+  async discardDataRequest(auth: AuthContext, relationshipId: string, gapId: string) {
+    await this.scope(auth, relationshipId, async (scope) => {
+      await this.openGap(scope, gapId);
+      const draft = await this.openDraft(scope, gapId);
+      if (!draft) throw notFound();
+      await scope.tx
+        .update(schema.aiDraft)
+        .set({ status: 'discarded', decidedBy: auth.userId, decidedAt: new Date() })
+        .where(eq(schema.aiDraft.id, draft.id));
     });
     return this.list(auth, relationshipId);
   }
