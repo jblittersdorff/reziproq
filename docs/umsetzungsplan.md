@@ -8,7 +8,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 
 | Nr. | Spec und Arbeit | Abhängigkeiten für diesen Umfang | Größe | Status |
 |---:|---|---|:---:|---|
-| 1 | Anpassung Designsprache · Ringe, Diagramme, Informationsdichte | Bestehende Tokens, Bausteine und Referenzen; neue Fassung `design/designsprache.neu.md` | M | offen |
+| 1 | Anpassung Designsprache · Ringe, Diagramme, Informationsdichte | Bestehende Tokens, Bausteine und Referenzen; [Designsprache](design/designsprache.md) und Beispiel auf `/design#insights` | M | fertig |
 | 2 | Anpassung NAV-10 · Kopf, Weiterleitungen, Mein Tag, Aktivitäten aus vorhandenen Quellen | 1; NAV-05/06, FS-01, QS-05 und PNL gebaut. Lieferantenzugang und alte Lesezeichen separat testen. LS-01 liefert den Listeninhalt in 3. | L | offen |
 | 3 | Anpassung LS-01 · Lieferantenliste mit Detailleiste | 1–2; PLT-03/07, NAV-12, SEG, ZYK und WG-18 gebaut. Kurzname und Importrecht klären. Agentenzähler in 9. | L | offen |
 | 4 | Anpassung AW-01 · Diagramme und Auswertungen aus bestehenden Daten | 1–3; PNL, JBP-Scorecard und PUL gebaut. KI-Aussagen, Chancen und Risiken folgen in 9 und 11. | L | offen |

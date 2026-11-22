@@ -72,6 +72,8 @@ export const colorGroups = {
     'destructive-soft-foreground',
   ],
   chart: [
+    'track',
+    'risk',
     'chart-context',
     'chart-accent',
     'chart-strong',

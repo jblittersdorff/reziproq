@@ -38,12 +38,18 @@ import {
 import { TimelineLanes } from '@/components/ui/timeline-lanes';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { type Locale, useLocale, useMessages, useT } from '@/lib/i18n';
+import { InsightExample } from './insight-example';
 import { designMessages } from './messages';
 
 type SectionId = keyof (typeof designMessages)['de']['sections'];
 
 /** Die Vorlage in docs/design/referenz/ und die Datei im UI-Paket je Baustein */
 const blocks: { id: SectionId; reference: string | null; files: string[] }[] = [
+  {
+    id: 'insights',
+    reference: 'Uebersicht.dc.html, D-Diagramme.dc.html',
+    files: ['insight.tsx', 'goal-rings.tsx'],
+  },
   { id: 'header', reference: 'Header.dc.html', files: ['global-bar.tsx'] },
   { id: 'supplierBar', reference: 'SupplierBar.dc.html', files: ['local-bar.tsx'] },
   { id: 'flow', reference: 'Flow.dc.html', files: ['step-progress.tsx'] },
@@ -84,6 +90,7 @@ export function DesignPage() {
   }, [t]);
 
   const examples: Record<SectionId, React.ReactNode> = {
+    insights: <InsightExample />,
     header: <HeaderExample />,
     supplierBar: <SupplierBarExample />,
     flow: <FlowExample />,

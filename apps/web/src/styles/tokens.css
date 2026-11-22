@@ -113,6 +113,8 @@
   --line: #dfe2dd;
   --line-soft: #eceeea;
   --muted-strong: #3f4a52;
+  --track: #e6e9e5;
+  --risk: #94201a;
   --ring-open: #b9bfba;
   --input-border: #7b8389;
   --on-dark: #f4f5f2;
@@ -242,6 +244,10 @@
   --text-chip--line-height: var(--line-height-chip);
   --text-bar-name: var(--font-size-bar-name);
   --text-bar-name--line-height: var(--line-height-bar-name);
+  --text-evidence: 3.75rem;
+  --text-evidence--line-height: 1;
+  --text-insight: var(--font-size-2xl);
+  --text-insight--line-height: 1.12;
   --text-section: var(--font-size-section);
   --text-section--line-height: var(--line-height-section);
   --text-figure: var(--font-size-figure);
@@ -263,6 +269,7 @@
   --radius-md: var(--corner-md);
   --radius-lg: var(--corner-lg);
   --radius-xl: var(--corner-xl);
+  --radius-evidence: 2rem;
   --radius-field: var(--corner-field);
 
   --shadow-xs: var(--elevation-xs);
@@ -331,6 +338,8 @@
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
   --color-muted-strong: var(--muted-strong);
+  --color-track: var(--track);
+  --color-risk: var(--risk);
   --color-ring-open: var(--ring-open);
   --color-input-border: var(--input-border);
   --color-on-dark: var(--on-dark);

@@ -10,6 +10,7 @@ export const designMessages = defineMessages({
     source: 'Aus',
     everywhere: 'überall',
     sections: {
+      insights: 'Aussage, Beleg und Daten',
       header: 'Kopfleiste',
       supplierBar: 'Lieferanten-Leiste',
       flow: 'Ablauf-Leiste',
@@ -32,6 +33,8 @@ export const designMessages = defineMessages({
       card: 'Karte und Kennzahl',
     },
     descriptions: {
+      insights:
+        'Eine belegte Aussage führt zum Ringpaar. Über die Zeile oder eine Frage öffnet sich der Rechenweg.',
       header:
         'Grund paper, 68 px. Navigation als Schalter, der aktive Punkt weiß; Profil als Tinte-Kreis mit Initialen.',
       supplierBar:
@@ -202,6 +205,7 @@ export const designMessages = defineMessages({
     source: 'From',
     everywhere: 'everywhere',
     sections: {
+      insights: 'Statement, evidence and data',
       header: 'Header',
       supplierBar: 'Supplier bar',
       flow: 'Flow bar',
@@ -224,6 +228,8 @@ export const designMessages = defineMessages({
       card: 'Card and figure',
     },
     descriptions: {
+      insights:
+        'A sourced statement leads to the pair of rings. Open the calculation from the result row or a question.',
       header:
         'Paper background, 68 px. Navigation as a toggle, the active item white; profile as an ink circle with initials.',
       supplierBar:

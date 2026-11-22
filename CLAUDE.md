@@ -76,7 +76,7 @@ Gilt für jede Änderung an der Oberfläche:
 3. Gibt es für eine Seite eine Vorlage in `docs/design/referenz/`, folgt die
    Seite ihr. Gibt es keine, gelten Regeln und Bausteine der Designsprache und
    die ähnlichste Vorlage.
-4. Die zehn Regeln der Designsprache gelten auf jeder Seite, besonders: Titel
+4. Die dreizehn Regeln der Designsprache gelten auf jeder Seite, besonders: Titel
    nennt die Aufgabe. Höchstens eine Hauptaktion in der Tinte-Karte. Parteien,
    Termine und Schritte sind Kreise. Klickbares ist eine Pille. Privat grau
    gestrichelt mit Schloss, geteilt Mint mit Doppelring, KI-Entwurf gestrichelt

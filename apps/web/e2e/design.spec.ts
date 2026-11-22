@@ -29,6 +29,7 @@ async function openDesign(page: Page) {
 }
 
 const blocks = [
+  'Aussage, Beleg und Daten',
   'Kopfleiste',
   'Lieferanten-Leiste',
   'Ablauf-Leiste',
@@ -156,6 +157,20 @@ for (const width of [1440, 390]) {
         .filter((target) => target.height < 44),
     );
     expect(tooSmall).toEqual([]);
+    const evidence = page.getByRole('region', { name: 'Aussage, Beleg und Daten' });
+    await evidence.screenshot({ path: testInfo.outputPath(`auswertung-${width}.png`) });
     await page.screenshot({ path: testInfo.outputPath(`design-${width}.png`), fullPage: true });
   });
 }
+
+test('Aussage und Ringpaar führen zum zunächst verborgenen Rechenweg', async ({ page }) => {
+  await openDesign(page);
+  const section = page.getByRole('region', { name: 'Aussage, Beleg und Daten' });
+  await expect(section.getByRole('heading', { name: /Das Jahresziel ist zu 69/ })).toBeVisible();
+  await expect(section.getByText('412 von 600 T€')).toBeVisible();
+  const bars = section.getByText('Guss trägt mit 180 T€ am meisten bei.');
+  await expect(bars).toBeHidden();
+  await section.getByRole('link', { name: 'Wie setzt sich das Ergebnis zusammen?' }).click();
+  await expect(bars).toBeVisible();
+  await expect(page).toHaveURL(/#design-breakdown$/);
+});
