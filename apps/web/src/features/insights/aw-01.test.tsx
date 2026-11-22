@@ -147,5 +147,48 @@ describe('AW-01 Lieferant · Überblick', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ziel freigeben' }));
     await waitFor(() => expect(posted).toHaveLength(1));
     await waitFor(() => expect(outerRing()).not.toBeNull());
+    // Ohne Kandidat fehlt die Karte „Größte Chance“
+    expect(screen.queryByText('Größte Chance')).toBeNull();
+  });
+
+  it('die Karte „Größte Chance“ zeigt das Potenzial und führt zu den Wertpotenzialen', async () => {
+    const data = {
+      ...rings(null),
+      chance: {
+        opportunityId: '0190a0a0-0000-7000-8000-0000000000aa',
+        templateKey: 'index_clause',
+        impactType: 'ebit' as const,
+        low: 10_800_000,
+        high: 18_000_000,
+        confidence: 'medium' as const,
+      },
+    };
+    api.handle = (request) => {
+      if (request.url === `/api/suppliers/${id}/ergebnisse/ringe`) return Response.json(data);
+      if (request.url === `/api/suppliers/${id}`) {
+        return Response.json({
+          relationshipId: id,
+          name: 'Rheintal Elektronik GmbH',
+          organizationName: 'Rheintal Elektronik GmbH',
+          country: 'DE',
+          vatId: null,
+          duns: null,
+          externalRef: null,
+          notes: null,
+          status: 'active',
+          createdAt: '2026-10-01T08:00:00Z',
+          endedAt: null,
+          spend: [],
+          permissions: { edit: true, editTeam: true },
+        });
+      }
+      return undefined;
+    };
+    renderAt(`/lieferanten/${id}`);
+    expect(await screen.findByRole('heading', { name: 'Preisgleitklausel nach Index' })).toBeTruthy();
+    expect(screen.getByText('Größte Chance')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Wertpotenzial ansehen' }).getAttribute('href')).toBe(
+      `/lieferanten/${id}/wirkung/wertpotenziale#potenzial-0190a0a0-0000-7000-8000-0000000000aa`,
+    );
   });
 });

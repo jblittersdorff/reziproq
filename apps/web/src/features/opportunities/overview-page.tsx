@@ -4,6 +4,8 @@ import { ErrorState } from '@/components/ui/error-state';
 import { ListCard, ListCardHeader, ListRow, ListRowText } from '@/components/ui/list-card';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NextStep, NextStepArrow } from '@/components/ui/next-step';
+import { RangeBars } from '@/components/ui/range-bars';
+import { Tile } from '@/components/ui/tile';
 import {
   Table,
   TableBody,
@@ -107,6 +109,31 @@ export function ValueOverviewPage() {
               ) : undefined
             }
           />
+          {data.suppliers.some((entry) => entry.ebitNew) && (
+            <Tile className="gap-4">
+              <h2 className="font-display font-semibold text-section tracking-section">
+                {overview.rangeTitle}
+              </h2>
+              <RangeBars
+                label={overview.rangeTitle}
+                rows={data.suppliers.flatMap((entry) =>
+                  entry.ebitNew
+                    ? [
+                        {
+                          key: entry.relationshipId,
+                          label: entry.name,
+                          text: entry.name,
+                          low: entry.ebitNew.low,
+                          high: entry.ebitNew.high,
+                        },
+                      ]
+                    : [],
+                )}
+                format={(low, high) => format.range({ low, high })}
+                note={overview.rangeNote}
+              />
+            </Tile>
+          )}
           {data.suppliers.length === 0 ? (
             <p className="rounded-lg bg-card px-4 py-3 text-muted-foreground">{overview.empty}</p>
           ) : (

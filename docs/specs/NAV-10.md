@@ -137,18 +137,18 @@ Je Kriterium ein Test.
 
 - [x] Die Kopfzeile zeigt genau vier Hauptpunkte in der Reihenfolge Übersicht, Mein Tag, Lieferanten, Warengruppen (`apps/web/src/features/activities/nav-10.test.tsx`, `apps/web/src/features/shell/plt-11.test.tsx`).
 - [x] Ein Lead landet nach der Anmeldung in der Übersicht, ein SRO in Mein Tag. Eine geänderte Startseite gilt ab der nächsten Anmeldung (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/shell/plt-11.test.tsx`).
-- [ ] Jede alte Adresse aus der Tabelle leitet auf die neue weiter.
-- [ ] Gesichert enthält nur vom Controlling bestätigte Ergebnisse. EBIT und Cash stehen getrennt, keine Summe über Wirkungsarten.
+- [x] Jede alte Adresse aus der Tabelle leitet auf die neue weiter.
+- [x] Gesichert enthält nur vom Controlling bestätigte Ergebnisse. EBIT und Cash stehen getrennt, keine Summe über Wirkungsarten.
 - [ ] Die drei Sätze folgen der Regel. Ohne Kandidat fehlt die Karte, statt leer zu erscheinen.
 - [ ] Eine Aussage mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt.
-- [ ] Ohne Jahresziel erscheint kein äußerer Ring.
+- [x] Ohne Jahresziel erscheint kein äußerer Ring.
 - [ ] Die Übersicht zeigt eine Aussage, ein Ringpaar, drei Sätze, drei Zeilen und drei Fragevorschläge.
 - [ ] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keinem Highlight und keiner Matrix.
 - [x] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten des Lieferanten als Eintrag von Reziproq mit Verweis (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`; bis KI-04 mit den bestehenden Entwürfen aus `ai_draft`, Abnahme mit `agent_run` in Schritt 9 der Warteschlange).
 - [x] Eine private Notiz sieht nur ihre Autorin, auch kein Admin (`apps/api/src/modules/activities/nav-10.test.ts`; Zeilensicherheit `note_private_author`).
 - [x] ⌘K öffnet das Suchfeld auf jeder Seite. Eine Frage auf der Seite eines Lieferanten hat diesen Lieferanten als Kontext (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`, `apps/web/src/features/prompt/plt-12.test.tsx`).
 - [x] Die Lieferantenleiste zeigt vier Reiter und den Knopf Profil. Jede bisherige Seite ist genau einem Reiter oder Profil zugeordnet (`apps/web/src/features/workspace/nav-06.test.tsx`, `apps/web/src/features/workspace/tabs.test.ts`).
-- [ ] Die Seite Agenten ist nur noch über Einstellungen, KI erreichbar.
+- [x] Die Seite Agenten ist nur noch über Einstellungen, KI erreichbar.
 - [x] Der Test-Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`).
 
 ## Umsetzung, Schritt 2 der Warteschlange (22.11.2026)
@@ -186,6 +186,13 @@ Prüfbericht stehen aus; wo nötig, gilt die unten genannte vorläufige Wahl.
   EBIT-Wirkung und Wirkungsart bleiben (CLAUDE.md, Glossar).
 - Oberfläche: Aktivitäten nach Vorlage `L-Notizen`, Kopf und Lieferantenleiste nach `Header` und
   `SupplierBar`.
+
+### Nachtrag Schritt 9 (23.11.2026)
+
+- `/agenten` leitet auf `/einstellungen/ki/agenten`; Mein Tag verlinkt die Agenten nicht mehr
+  (die Entwürfe stehen je Lieferant unter Aktivitäten, Filter Reziproq).
+- Die Übersicht zeigt Wertpotenziale als dritte Zeile (KI-11), sobald es welche gibt.
+- Offen bis zur Entscheidung F3: Aussage von Reziproq, die drei Sätze und ihre Speicherung.
 
 ## Nicht Teil dieser Funktion
 

@@ -69,7 +69,10 @@ export function GoalRings({
     >
       {metrics.some(hasTarget) && (
         <svg
-          aria-hidden="true"
+          role="img"
+          aria-label={metrics
+            .map((metric) => `${metric.label}: ${metric.format(metric.actual, metric.target)}`)
+            .join(', ')}
           focusable="false"
           viewBox={relationships ? '0 0 240 240' : '0 0 56 56'}
           className={relationships ? 'size-55 max-w-full shrink-0 sm:size-60' : 'size-14 shrink-0'}

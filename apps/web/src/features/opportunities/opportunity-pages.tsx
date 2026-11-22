@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { ListCard, ListCardHeader, ListRow, ListRowText } from '@/components/ui/list-card';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NextStep, NextStepArrow } from '@/components/ui/next-step';
+import { RangeBars } from '@/components/ui/range-bars';
 import { StatusLine } from '@/components/ui/status-line';
 import {
   Table,
@@ -439,6 +440,48 @@ function OpportunityCard({
   );
 }
 
+/** Beleg (AW-01): Spannen-Balken je Potenzial für EBIT, Cash als eigene Zeile */
+function OpportunityRanges({ data }: { data: ValueOpportunities }) {
+  const text = useT().opportunities;
+  const format = useFormatters();
+  const ebit = data.opportunities.filter((entry) => entry.impactType === 'ebit');
+  const cash = data.opportunities.filter((entry) => entry.impactType === 'cash');
+  if (ebit.length === 0 && cash.length === 0) return null;
+  return (
+    <Tile className="gap-4">
+      <h2 className="font-display font-semibold text-section tracking-section">
+        {text.rangeTitle}
+      </h2>
+      {ebit.length > 0 && (
+        <RangeBars
+          label={text.rangeTitle}
+          rows={ebit.map((entry) => {
+            const name = text.templates[entry.templateKey] ?? entry.title;
+            return {
+              key: entry.id,
+              label: name,
+              text: name,
+              low: entry.buyer.low,
+              high: entry.buyer.high,
+              muted: entry.confidence === 'low',
+            };
+          })}
+          format={(low, high) => format.range({ low, high })}
+          note={text.rangeNote}
+        />
+      )}
+      {cash.map((entry) => (
+        <p key={entry.id} className="text-sm">
+          {text.cashLine(
+            text.templates[entry.templateKey] ?? entry.title,
+            format.range(entry.buyer),
+          )}
+        </p>
+      ))}
+    </Tile>
+  );
+}
+
 /** Drei Zahlen: neu, im JBP, realisiert; je Wirkungsart eine Zeile, nie addiert */
 export function Totals({
   data,
@@ -781,6 +824,7 @@ export function ValueOpportunitiesPage({ relationshipId }: { relationshipId: str
                   />
                 )}
                 <Totals data={data} />
+                <OpportunityRanges data={data} />
                 <NextStep
                   eyebrow={text.nextEyebrow}
                   title={

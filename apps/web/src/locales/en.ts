@@ -2741,6 +2741,10 @@ export const en: Messages = {
   // Supplier workspace (NAV-06)
   // AW-01, NAV-10: evidence for the overview and the supplier
   insights: {
+    chanceTitle: 'Biggest opportunity',
+    chanceValue: (low: string, high: string, impact: string, confidence: string) =>
+      `${low === high ? low : `${low} to ${high}`} ${impact} per year · ${confidence}`,
+    chanceLink: 'View value opportunity',
     overviewTitle: 'Overview',
     overviewPurpose: (year: number) => `What we achieved in fiscal year ${year}, with evidence.`,
     loading: 'Loading overview …',
@@ -4287,6 +4291,9 @@ export const en: Messages = {
     totalsNew: (count: number) => `New · ${count} opportunities`,
     totalsAdopted: (count: number) => `In the JBP · ${count}`,
     totalsRealized: 'Realised',
+    rangeTitle: 'EBIT per year by opportunity',
+    rangeNote: 'Euros per year, axis from 0 · low confidence in grey and not in the totals',
+    cashLine: (name: string, value: string) => `${name}: ${value} cash`,
     totalsNote: 'Impact types are never added up. Totals include high and medium confidence only.',
     impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Cost avoidance' } as Record<string, string>,
     range: (low: string, high: string) => (low === high ? low : `${low} to ${high}`),
@@ -4388,6 +4395,8 @@ export const en: Messages = {
     supplierSees: (name: string) =>
       `Nothing on this page. If you adopt an opportunity as a JBP topic, ${name} sees the topic, not your calculation and not your range.`,
     overview: {
+      rangeTitle: 'New EBIT by supplier',
+      rangeNote: 'Euros per year, axis from 0 · high and medium confidence only',
       title: 'Value opportunities across all suppliers',
       purpose:
         'What the value finder found with your suppliers, what is already in the JBP and what already has an effect.',

@@ -187,6 +187,7 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
 
   afterAll(async () => {
     const orgIds = Object.values(orgs);
+    await db.execute(sql`delete from value_opportunity where org_id in ${orgIds}`);
     await db.execute(sql`delete from relationship_ebit_target where org_id in ${orgIds}`);
     await db.execute(sql`delete from org_setting where org_id in ${orgIds}`);
     await db.execute(sql`delete from commitment where relationship_id in ${Object.values(rel)}`);
@@ -262,6 +263,35 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
         .status,
     ).toBe(204);
     expect((await rings()).target).toMatchObject({ approved: true });
+  });
+
+  it('die Karte „Größte Chance“ nimmt das offene Potenzial mit der höchsten unteren Spanne, ohne low', async () => {
+    expect((await rings()).chance).toBeNull();
+    const row = (confidence: 'low' | 'medium' | 'high', low: number, status = 'new' as const) => ({
+      orgId: orgs.oem,
+      relationshipId: rel.a,
+      templateKey: 'index_clause',
+      templateVersion: 1,
+      title: 'Preisgleitklausel nach Index',
+      reason: 'Test',
+      impactType: 'ebit' as const,
+      buyerLowCents: low,
+      buyerHighCents: low * 2,
+      confidence,
+      confidenceReason: 'test',
+      inputs: {},
+      status,
+    });
+    await db.insert(schema.valueOpportunity).values([row('low', 9_000_000)]);
+    expect((await rings()).chance).toBeNull();
+    await db
+      .insert(schema.valueOpportunity)
+      .values([row('medium', 3_000_000), row('high', 5_000_000)]);
+    expect((await rings()).chance).toMatchObject({
+      low: 5_000_000,
+      high: 10_000_000,
+      confidence: 'high',
+    });
   });
 
   it('ein fremder Käufer und der Test-Lieferant sehen keinen Ring und keine Zahl', async () => {

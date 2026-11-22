@@ -123,6 +123,7 @@ describe('NAV-10 Navigation', () => {
     ['/wirkung', '/uebersicht'],
     ['/start', '/mein-tag'],
     ['/portfolio', '/lieferanten'],
+    ['/agenten', '/einstellungen/ki/agenten'],
   ])('die alte Adresse %s leitet auf %s weiter', async (from, to) => {
     const router = renderAt(from);
     await waitFor(() => expect(router.state.location.pathname).toBe(to));

@@ -75,7 +75,21 @@ function Dumbbell({
               className="grid grid-cols-1 items-center gap-x-4 gap-y-1 border-line-soft border-t py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,5fr)_minmax(0,2.5fr)]"
             >
               <span className="font-medium">{dimensions[row.dimension]}</span>
-              <span className="relative block h-10" aria-hidden>
+              <span
+                className="relative block h-10"
+                role="img"
+                aria-label={[
+                  text.feedback.pairLine(
+                    labels.buyer ?? '',
+                    number(buyer.ist),
+                    labels.supplier ?? '',
+                    number(supplier.ist),
+                  ),
+                  ...(row.delta !== null
+                    ? [text.feedback.gapLine(number(Math.abs(row.delta)))]
+                    : []),
+                ].join(', ')}
+              >
                 <span className="absolute inset-x-0 top-1/2 h-px bg-border" />
                 {[1, 2, 3, 4, 5].map((step) => (
                   <span

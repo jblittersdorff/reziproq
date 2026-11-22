@@ -2811,6 +2811,10 @@ export const de = {
   // Arbeitsbereich eines Lieferanten (NAV-06)
   // AW-01, NAV-10: Beleg der Übersicht und des Lieferanten
   insights: {
+    chanceTitle: 'Größte Chance',
+    chanceValue: (low: string, high: string, impact: string, confidence: string) =>
+      `${low === high ? low : `${low} bis ${high}`} ${impact} im Jahr · ${confidence}`,
+    chanceLink: 'Wertpotenzial ansehen',
     overviewTitle: 'Übersicht',
     overviewPurpose: (year: number) => `Was wir im Geschäftsjahr ${year} erreicht haben, belegt.`,
     loading: 'Übersicht wird geladen …',
@@ -4392,6 +4396,9 @@ export const de = {
     totalsNew: (count: number) => `Neu · ${count} Potenziale`,
     totalsAdopted: (count: number) => `Im JBP · ${count}`,
     totalsRealized: 'Realisiert',
+    rangeTitle: 'EBIT im Jahr je Potenzial',
+    rangeNote: 'Euro im Jahr, Achse ab 0 · Sicherheit niedrig grau und nicht in den Summen',
+    cashLine: (name: string, value: string) => `${name}: ${value} Cash`,
     totalsNote: 'Wirkungsarten werden nie addiert. Summen nur mit Sicherheit hoch und mittel.',
     impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Kostenvermeidung' } as Record<string, string>,
     range: (low: string, high: string) => (low === high ? low : `${low} bis ${high}`),
@@ -4493,6 +4500,8 @@ export const de = {
     supplierSees: (name: string) =>
       `Nichts von dieser Seite. Übernehmt ihr ein Potenzial als Thema ins JBP, sieht ${name} das Thema, nicht euren Rechenweg und nicht eure Spanne.`,
     overview: {
+      rangeTitle: 'EBIT neu je Lieferant',
+      rangeNote: 'Euro im Jahr, Achse ab 0 · nur Sicherheit hoch und mittel',
       title: 'Wertpotenziale über alle Lieferanten',
       purpose:
         'Was der Wertpotenzial-Finder bei euren Lieferanten gefunden hat, was davon im JBP ist und was schon wirkt.',

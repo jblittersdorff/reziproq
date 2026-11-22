@@ -33,6 +33,19 @@ export const supplierRingsSchema = z.object({
   commitments: z.object({ due: z.number().int(), keptOnTime: z.number().int() }),
   canPropose: z.boolean(),
   canApprove: z.boolean(),
+  // AW-01: Größte Chance, das offene Wertpotenzial (KI-11) mit der höchsten unteren Spanne,
+  // Sicherheit hoch oder mittel; ohne Kandidat null und die Karte fehlt
+  chance: z
+    .object({
+      opportunityId: z.uuid(),
+      templateKey: z.string(),
+      impactType: z.enum(['ebit', 'cash', 'cost_avoidance']),
+      low: z.number().int(),
+      high: z.number().int(),
+      confidence: z.enum(['high', 'medium']),
+    })
+    .nullable()
+    .optional(),
 });
 
 export const ebitGoalRequestSchema = z.object({

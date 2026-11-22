@@ -159,7 +159,8 @@ export function StartPage() {
               <section className={cn('rounded-lg bg-card', tileClass)}>
                 <h2 className={titleClass}>{t.draftEvidence.prepared}</h2>
                 <p>{t.draftEvidence.openCount(data.ownOpenDrafts)}</p>
-                <TileLink href="/einstellungen/ki/agenten">{t.agents.title}</TileLink>
+                {/* NAV-10: Die Seite Agenten ist nur über Einstellungen, KI erreichbar. Die
+                    Entwürfe stehen je Lieferant unter Aktivitäten, Filter Reziproq. */}
               </section>
             )}
             <MeetingTile meeting={data.nextMeeting} supplierSide={supplierSide} />

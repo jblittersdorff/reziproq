@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   amountInRange,
   type EbitGoalRequest,
@@ -177,7 +177,30 @@ export class InsightsService {
             sql`${schema.commitment.dueOn} <= least(${to}::date, ${today}::date)`,
           ),
         );
+      const [chance] = await tx
+        .select()
+        .from(schema.valueOpportunity)
+        .where(
+          and(
+            eq(schema.valueOpportunity.relationshipId, relationshipId),
+            eq(schema.valueOpportunity.orgId, scope.orgId),
+            eq(schema.valueOpportunity.status, 'new'),
+            inArray(schema.valueOpportunity.confidence, ['high', 'medium']),
+          ),
+        )
+        .orderBy(desc(schema.valueOpportunity.buyerLowCents))
+        .limit(1);
       return supplierRingsSchema.parse({
+        chance: chance
+          ? {
+              opportunityId: chance.id,
+              templateKey: chance.templateKey,
+              impactType: chance.impactType,
+              low: chance.buyerLowCents,
+              high: chance.buyerHighCents,
+              confidence: chance.confidence,
+            }
+          : null,
         fiscalYear,
         currency: 'EUR',
         securedEbitCents: securedIn(facts, from, to),
