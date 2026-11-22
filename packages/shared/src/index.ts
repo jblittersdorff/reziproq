@@ -41,6 +41,7 @@ export * from './spend.js';
 export * from './start.js';
 export * from './supplier-plan.js';
 export * from './supplier-profile.js';
+export * from './supplier-name.js';
 export * from './suppliers.js';
 export * from './support.js';
 export * from './survey.js';

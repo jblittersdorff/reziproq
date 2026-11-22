@@ -7,6 +7,7 @@ import {
   desc,
   eq,
   schema,
+  sql,
   type TenantTransaction,
 } from '@reziproq/db';
 import {
@@ -88,6 +89,7 @@ export class OverviewService {
           openHints: can(auth, 'hinweise.sehen')
             ? await openHintCount(tx, organization.id, relationshipId)
             : 0,
+          ...(await this.listCounts(tx, relationshipId)),
           canStartNextCycle:
             isFocus &&
             nextCycleDue(activeCycle?.jbpDate ?? null) &&
@@ -96,6 +98,28 @@ export class OverviewService {
       },
       { readOnly: true },
     );
+  }
+
+  /** LS-01: Zahlen für die Detailleiste der Lieferantenliste */
+  private async listCounts(tx: TenantTransaction, relationshipId: string) {
+    const today = new Date().toISOString().slice(0, 10);
+    const [overdue] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.commitment)
+      .where(
+        and(
+          eq(schema.commitment.relationshipId, relationshipId),
+          eq(schema.commitment.status, 'open'),
+          sql`${schema.commitment.dueOn} < ${today}`,
+        ),
+      );
+    const [drafts] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.aiDraft)
+      .where(
+        and(eq(schema.aiDraft.relationshipId, relationshipId), eq(schema.aiDraft.status, 'draft')),
+      );
+    return { overdueCommitments: overdue?.n ?? 0, openDrafts: drafts?.n ?? 0 };
   }
 
   async startCycle(auth: AuthContext, relationshipId: string) {

@@ -278,10 +278,11 @@ describe('Beenden und Rechte', () => {
     ).toBeDefined();
   });
 
-  it('die Karten der Liste führen in den Arbeitsbereich (NAV-06)', async () => {
+  it('die Zeilen der Liste führen über die Detailleiste in den Arbeitsbereich (LS-01)', async () => {
     const router = renderAt('/lieferanten');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
-    fireEvent.click(within(list).getAllByRole('link')[0] as HTMLElement);
+    fireEvent.click(within(list).getAllByRole('button')[0] as HTMLElement);
+    fireEvent.click(await screen.findByRole('link', { name: 'Lieferant öffnen' }));
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(
         '/lieferanten/rel-Rheintal Elektronik GmbH (Demo)',

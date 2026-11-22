@@ -14,7 +14,7 @@ import { ApiError } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { activeFilters, type SortKey, type SupplierSearch, visibleSuppliers } from './search';
-import { SupplierCard } from './supplier-card';
+import { SupplierList } from './supplier-list';
 import { supplierSummary, useSuppliers } from './use-suppliers';
 
 /**
@@ -125,17 +125,12 @@ export function SuppliersPage() {
   const filterCount = activeFilters(search);
   const query = search.suche ?? '';
   // WG-18: Gesamtsegment; mit gefilterter Warengruppe das Segment dort, mit ihrem Namen.
-  const typeName = new Map(filters?.targetTypes.map((type) => [type.key, type.name]) ?? []);
   const filteredGroup = filters?.materialGroups.find((group) => group.id === search.wg);
-  const segmentOf = (supplier: (typeof visible)[number]) => {
-    if (filteredGroup) {
-      const own = supplier.categorySegments?.find((entry) => entry.materialGroupId === search.wg);
-      const name = own && typeName.get(own.type);
-      return name ? t.suppliers.segmentIn(filteredGroup.name, name) : null;
-    }
-    const name = supplier.segmentType && typeName.get(supplier.segmentType);
-    return name ? t.suppliers.segment(name) : null;
-  };
+  const segmentTypeOf = (supplier: (typeof visible)[number]) =>
+    filteredGroup
+      ? (supplier.categorySegments?.find((entry) => entry.materialGroupId === search.wg)?.type ??
+        null)
+      : (supplier.segmentType ?? null);
 
   return (
     <>
@@ -267,18 +262,18 @@ export function SuppliersPage() {
           {query.trim() ? t.suppliers.noResults(query.trim()) : t.suppliers.filters.noMatch}
         </p>
       ) : (
-        <div className="@container">
-          <ul aria-label={title} className="grid gap-4 @xl:grid-cols-2 @4xl:grid-cols-3">
-            {visible.map((supplier) => (
-              <SupplierCard
-                key={supplier.relationshipId}
-                supplier={supplier}
-                segment={segmentOf(supplier)}
-                spendYear={data.spendYear}
-              />
-            ))}
-          </ul>
-        </div>
+        <SupplierList
+          suppliers={visible}
+          spendYear={data.spendYear}
+          segmentOf={segmentTypeOf}
+          segmentHeading={
+            filteredGroup ? t.suppliers.list.columnSegmentIn(filteredGroup.name) : undefined
+          }
+          selectedId={search.lieferant}
+          onSelect={(id) =>
+            void navigate({ search: (prev) => ({ ...prev, lieferant: id }), replace: false })
+          }
+        />
       )}
     </>
   );

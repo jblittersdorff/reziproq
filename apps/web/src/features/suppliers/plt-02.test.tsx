@@ -33,11 +33,12 @@ afterEach(tearDownApp);
 /** Text ohne geschützte Leerzeichen, die Intl zwischen Betrag und Währung setzt. */
 const text = (element: Element | null) => element?.textContent?.replaceAll(' ', ' ') ?? '';
 
+// LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
 const cardNames = async () => {
   const list = await screen.findByRole('list', { name: 'Lieferanten' });
   return within(list)
-    .getAllByRole('heading', { level: 2 })
-    .map((heading) => heading.textContent);
+    .getAllByRole('listitem')
+    .map((row) => row.querySelector('[data-slot="supplier-name"]')?.getAttribute('title'));
 };
 
 const suppliersRequested = () =>
@@ -53,23 +54,25 @@ describe('Lieferantenseite', () => {
     );
   });
 
-  it('Spend erscheint als Euro im deutschen Format; Karten zeigen Name, Land und eigene Nummer', async () => {
+  it('LS-01: Zeilen zeigen Anzeigename ohne Rechtsform, Demo, Land und Spend in Mio. €', async () => {
     renderAt('/lieferanten');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
-    const cards = within(list).getAllByRole('listitem');
-    expect(cards).toHaveLength(4);
-    const first = text(cards[0] ?? null);
-    expect(first).toContain('Rheintal Elektronik GmbH (Demo)');
+    const rows = within(list).getAllByRole('listitem');
+    expect(rows).toHaveLength(4);
+    const first = text(rows[0] ?? null);
+    expect(first).toContain('Rheintal Elektronik');
+    expect(first).not.toContain('GmbH');
+    expect(first).toContain('Demo');
     expect(first).toContain('Deutschland');
-    expect(first).toContain('Eigene NummerL-10001');
-    expect(first).toContain('Jahresspend 2025');
-    // Deutsches Format, ganze Euro ohne Nachkommastellen; in der Datenbank 482000000 Cent.
-    expect(first).toContain('4.820.000 €');
-    expect(first).not.toMatch(/4\.820\.000,00/);
+    // 482000000 Cent = 4,82 Mio. €
+    expect(first).toContain('4,82 Mio. €');
     // Entwurf mit Kennzeichen und ohne Spend
-    const draft = text(cards[3] ?? null);
+    const draft = text(rows[3] ?? null);
     expect(draft).toContain('Entwurf');
-    expect(draft).toContain('Jahresspend 2025–');
+    expect(draft).toContain('0,00 Mio. €');
+    // Rechtlicher Name und eigene Nummer stehen in der Detailleiste (ohne Auswahl: größter Spend)
+    const panel = screen.getByRole('region', { name: 'Details zu Rheintal Elektronik' });
+    expect(text(panel)).toContain('Rheintal Elektronik GmbH (Demo) · L-10001');
   });
 
   it('sortiert standardmäßig nach Spend, absteigend, ohne Spend zuletzt', async () => {
@@ -100,7 +103,7 @@ describe('Lieferantenseite', () => {
 
     fireEvent.click(screen.getByRole('switch', { name: 'Beendete zeigen' }));
     expect(await cardNames()).toContain('Lombardia Fonderie S.p.A. (Demo)');
-    expect(text(screen.getByText('Lombardia Fonderie S.p.A. (Demo)').closest('li'))).toContain(
+    expect(text(screen.getByTitle('Lombardia Fonderie S.p.A. (Demo)').closest('li'))).toContain(
       'Beendet',
     );
     expect(router.state.location.search).toEqual({ sortierung: 'name', beendet: 1 });
@@ -144,7 +147,7 @@ describe('Lieferantenseite', () => {
     renderAt('/lieferanten');
     await cardNames();
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Holz' } });
-    expect((await screen.findByRole('status')).textContent).toBe('Keine Lieferanten zu „Holz“.');
+    expect(await screen.findByText('Keine Lieferanten zu „Holz“.')).toBeDefined();
   });
 
   it('zeigt bei leerer Liste den leeren Zustand aus der Spec', async () => {

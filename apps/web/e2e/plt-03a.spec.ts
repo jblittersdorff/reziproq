@@ -55,11 +55,12 @@ async function signIn(page: Page) {
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
 }
 
+// LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
 const cardNames = (page: Page) =>
   page
     .getByRole('list', { name: 'Lieferanten' })
-    .getByRole('heading', { level: 2 })
-    .allTextContents();
+    .locator('[data-slot="supplier-name"]')
+    .evaluateAll((names) => names.map((name) => name.getAttribute('title')));
 
 test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse', async ({
   page,

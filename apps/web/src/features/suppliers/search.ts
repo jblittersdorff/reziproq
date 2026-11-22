@@ -16,6 +16,8 @@ export const supplierSearchSchema = z.object({
   typ: z.string().optional().catch(undefined),
   fokus: z.literal(1).optional().catch(undefined),
   meine: z.literal(1).optional().catch(undefined),
+  // LS-01: Auswahl der Detailleiste
+  lieferant: z.string().optional().catch(undefined),
 });
 
 export type SupplierSearch = z.infer<typeof supplierSearchSchema>;

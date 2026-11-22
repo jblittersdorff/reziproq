@@ -138,6 +138,10 @@ export const supplierOverviewSchema = z.object({
   canStartNextCycle: z.boolean().optional(),
   /** FS-01: offene Hinweise zu dieser Beziehung, nur beim Käufer */
   openHints: z.number().int().optional(),
+  /** LS-01: überfällige offene Zusagen beider Seiten, nur beim Käufer */
+  overdueCommitments: z.number().int().optional(),
+  /** LS-01: Entwürfe von Reziproq, die noch zu prüfen sind, nur beim Käufer */
+  openDrafts: z.number().int().optional(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

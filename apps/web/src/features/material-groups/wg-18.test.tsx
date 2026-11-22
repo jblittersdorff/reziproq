@@ -287,12 +287,13 @@ describe('WG-18 Lieferantenliste', () => {
     };
     api.suppliers = { status: 200, body };
     renderAt('/lieferanten');
-    expect(await screen.findByText('Segment Routine')).toBeTruthy();
+    expect(await screen.findByText('Niedriger Impact · schwach')).toBeTruthy();
     tearDownApp();
     setUpApp();
     api.suppliers = { status: 200, body };
     renderAt(`/lieferanten?wg=${group}`);
-    expect(await screen.findByText('In Leiterplatten: Strategisch')).toBeTruthy();
-    expect(screen.queryByText('Segment Routine')).toBeNull();
+    expect(await screen.findByText('Hoher Impact · stark')).toBeTruthy();
+    expect(screen.getByText('Segment in Leiterplatten')).toBeTruthy();
+    expect(screen.queryByText('Niedriger Impact · schwach')).toBeNull();
   });
 });

@@ -75,11 +75,12 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
+// LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
 const names = async () => {
   const list = await screen.findByRole('list', { name: 'Lieferanten' });
   return within(list)
-    .getAllByRole('heading', { level: 2 })
-    .map((heading) => heading.textContent);
+    .getAllByRole('listitem')
+    .map((row) => row.querySelector('[data-slot="supplier-name"]')?.getAttribute('title'));
 };
 
 describe('NAV-12 Filter der Lieferantenliste', () => {
@@ -113,7 +114,9 @@ describe('NAV-12 Filter der Lieferantenliste', () => {
     const router = renderAt('/lieferanten');
     fireEvent.click(await screen.findByRole('switch', { name: 'Nur Fokus' }));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ fokus: 1 }));
-    fireEvent.click(await screen.findByRole('link', { name: /Lieferant 1/ }));
+    // LS-01: Zeile wählen, dann über die Detailleiste öffnen
+    fireEvent.click(await screen.findByRole('button', { name: /Lieferant 1/ }));
+    fireEvent.click(await screen.findByRole('link', { name: 'Lieferant öffnen' }));
     await waitFor(() => expect(router.state.location.pathname).toContain('/lieferanten/0190'));
     act(() => router.history.back());
     await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));

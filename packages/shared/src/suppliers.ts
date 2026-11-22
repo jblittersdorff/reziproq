@@ -31,6 +31,10 @@ export const supplierSchema = z.object({
   materialGroupIds: z.array(z.string()).optional(),
   /** Soll-Typ aus der Konsolidierung als „Impact-Qualität“, z. B. „3-3“ (SEG-06); sonst null */
   targetType: z.string().nullable().optional(),
+  /** LS-01: Warengruppe mit dem größten Spend des Jahres */
+  topMaterialGroup: z.string().optional(),
+  /** LS-01: SRO aus dem Team */
+  sroName: z.string().optional(),
   /** WG-18: Segment Ist gesamt und je Warengruppe als „Impact-Qualität“ */
   segmentType: z.string().nullable().optional(),
   categorySegments: z.array(z.object({ materialGroupId: z.string(), type: z.string() })).optional(),

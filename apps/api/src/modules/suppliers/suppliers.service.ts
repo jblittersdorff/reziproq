@@ -628,6 +628,18 @@ export async function listSuppliers(
         select 1 from relationship_material_group rg
         where rg.relationship_id = ${relationship.id} and rg.is_primary
       )`,
+      // LS-01: Hauptwarengruppe = größter Spend des Jahres; SRO aus dem Team
+      topMaterialGroup: sql<string | null>`(
+        select g.name from relationship_spend s join material_group g on g.id = s.material_group_id
+        where s.relationship_id = ${relationship.id} and s.year = ${spendYear} and s.kind = 'actual'
+        group by g.id, g.name order by sum(s.amount_cents) desc, g.name limit 1
+      )`,
+      sroName: sql<string | null>`(
+        select u.name from relationship_member rm join app_user u on u.id = rm.user_id
+        where rm.relationship_id = ${relationship.id} and rm.org_id = ${relationship.buyerOrgId}
+          and rm.team_role = 'sro'
+        limit 1
+      )`,
     })
     .from(relationship)
     .innerJoin(organization, eq(organization.id, relationship.supplierOrgId))
@@ -648,8 +660,20 @@ export async function listSuppliers(
     .orderBy(sql`${relationshipSpend.amountCents} desc nulls last`, organization.name);
 
   return rows.map(
-    ({ amountCents, currency, hasPrimary, segmentType, categorySegments, ...supplier }) => ({
+    ({
+      amountCents,
+      currency,
+      hasPrimary,
+      segmentType,
+      categorySegments,
+      topMaterialGroup,
+      sroName,
+      ...supplier
+    }) => ({
       ...supplier,
+      // LS-01: nur mitschicken, wenn es einen Wert gibt
+      ...(topMaterialGroup ? { topMaterialGroup } : {}),
+      ...(sroName ? { sroName } : {}),
       // WG-18: nur mitschicken, wenn es ein Segment gibt
       ...(segmentType ? { segmentType } : {}),
       ...(categorySegments.length ? { categorySegments } : {}),

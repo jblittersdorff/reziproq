@@ -364,7 +364,10 @@ describe('Zuordnung eines Lieferanten', () => {
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
     const cards = within(list).getAllByRole('listitem');
     expect(cards).toHaveLength(1);
-    expect(cards[0]?.textContent).toContain('Rheintal Elektronik GmbH (Demo)');
-    expect(cards[0]?.textContent).toContain('Haupt-WarengruppeElektronik');
+    // LS-01: Zeile mit Anzeigename (voller Name im Tooltip) und Hauptwarengruppe · Land
+    expect(
+      cards[0]?.querySelector('[data-slot="supplier-name"]')?.getAttribute('title'),
+    ).toBe('Rheintal Elektronik GmbH (Demo)');
+    expect(cards[0]?.textContent).toContain('Elektronik · Deutschland');
   });
 });
