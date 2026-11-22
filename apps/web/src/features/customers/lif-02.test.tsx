@@ -107,8 +107,8 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
       'Beziehung',
       'Gemeinsamer Plan',
       'Umsetzung',
-      // PNL-07: Wirkung ist für den Lieferanten gebaut.
-      'Wirkung',
+      // PNL-07: Ergebnisse sind für den Lieferanten gebaut (NAV-10: früher Wirkung).
+      'Ergebnisse',
     ]);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Gemeinsamer Plan' }),

@@ -107,7 +107,7 @@ test('Tokens liegen nur im Speicher; nach dem Neuladen holt eine Weiterleitung d
 
   await page.reload();
   await expect(page.locator('#inhalt h1')).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/start');
+  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
   expect(zitadel.authorizeRequests).toHaveLength(2);
 });
 

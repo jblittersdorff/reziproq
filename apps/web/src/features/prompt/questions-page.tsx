@@ -25,8 +25,11 @@ import { type PromptTurn, usePromptConversation } from './use-prompt-conversatio
 export function QuestionsPage({
   initialQuestion,
   customer,
+  supplier,
 }: {
   initialQuestion?: string | undefined;
+  /** NAV-10: Beziehung, auf deren Seite die Frage gestellt wurde */
+  supplier?: string | undefined;
   /** QS-05: Lieferanten-Nutzer, Beziehung des aktuellen Kunden */
   customer?: string | undefined;
 }) {
@@ -35,17 +38,23 @@ export function QuestionsPage({
   if (me.data && !me.data.permissions.viewBuyerAreas && me.data.permissions.viewCustomers) {
     return <SupplierSearchPage customer={customer} />;
   }
-  return <BuyerQuestionsPage initialQuestion={initialQuestion} />;
+  return <BuyerQuestionsPage initialQuestion={initialQuestion} supplier={supplier} />;
 }
 
-function BuyerQuestionsPage({ initialQuestion }: { initialQuestion?: string | undefined }) {
+function BuyerQuestionsPage({
+  initialQuestion,
+  supplier,
+}: {
+  initialQuestion?: string | undefined;
+  supplier?: string | undefined;
+}) {
   const t = useT();
   const [question, setQuestion] = useState('');
   const input = useRef<HTMLInputElement>(null);
   const end = useRef<HTMLDivElement>(null);
   const submittedQuestion = useRef<string | null>(null);
 
-  const { turns, ask, reset, busy } = usePromptConversation();
+  const { turns, ask, reset, busy } = usePromptConversation(supplier);
 
   useEffect(() => {
     const text = initialQuestion?.trim();

@@ -135,8 +135,8 @@ Vorlagen in `docs/design/referenz/`: `Header`, `SupplierBar`, `GroupBar`, `Ueber
 
 Je Kriterium ein Test.
 
-- [ ] Die Kopfzeile zeigt genau vier Hauptpunkte in der Reihenfolge Übersicht, Mein Tag, Lieferanten, Warengruppen.
-- [ ] Ein Lead landet nach der Anmeldung in der Übersicht, ein SRO in Mein Tag. Eine geänderte Startseite gilt ab der nächsten Anmeldung.
+- [x] Die Kopfzeile zeigt genau vier Hauptpunkte in der Reihenfolge Übersicht, Mein Tag, Lieferanten, Warengruppen (`apps/web/src/features/activities/nav-10.test.tsx`, `apps/web/src/features/shell/plt-11.test.tsx`).
+- [x] Ein Lead landet nach der Anmeldung in der Übersicht, ein SRO in Mein Tag. Eine geänderte Startseite gilt ab der nächsten Anmeldung (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/shell/plt-11.test.tsx`).
 - [ ] Jede alte Adresse aus der Tabelle leitet auf die neue weiter.
 - [ ] Gesichert enthält nur vom Controlling bestätigte Ergebnisse. EBIT und Cash stehen getrennt, keine Summe über Wirkungsarten.
 - [ ] Die drei Sätze folgen der Regel. Ohne Kandidat fehlt die Karte, statt leer zu erscheinen.
@@ -144,12 +144,48 @@ Je Kriterium ein Test.
 - [ ] Ohne Jahresziel erscheint kein äußerer Ring.
 - [ ] Die Übersicht zeigt eine Aussage, ein Ringpaar, drei Sätze, drei Zeilen und drei Fragevorschläge.
 - [ ] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keinem Highlight und keiner Matrix.
-- [ ] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten des Lieferanten als Eintrag von Reziproq mit Verweis.
-- [ ] Eine private Notiz sieht nur ihre Autorin, auch kein Admin.
-- [ ] ⌘K öffnet das Suchfeld auf jeder Seite. Eine Frage auf der Seite eines Lieferanten hat diesen Lieferanten als Kontext.
-- [ ] Die Lieferantenleiste zeigt vier Reiter und den Knopf Profil. Jede bisherige Seite ist genau einem Reiter oder Profil zugeordnet.
+- [x] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten des Lieferanten als Eintrag von Reziproq mit Verweis (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`; bis KI-04 mit den bestehenden Entwürfen aus `ai_draft`, Abnahme mit `agent_run` in Schritt 9 der Warteschlange).
+- [x] Eine private Notiz sieht nur ihre Autorin, auch kein Admin (`apps/api/src/modules/activities/nav-10.test.ts`; Zeilensicherheit `note_private_author`).
+- [x] ⌘K öffnet das Suchfeld auf jeder Seite. Eine Frage auf der Seite eines Lieferanten hat diesen Lieferanten als Kontext (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`, `apps/web/src/features/prompt/plt-12.test.tsx`).
+- [x] Die Lieferantenleiste zeigt vier Reiter und den Knopf Profil. Jede bisherige Seite ist genau einem Reiter oder Profil zugeordnet (`apps/web/src/features/workspace/nav-06.test.tsx`, `apps/web/src/features/workspace/tabs.test.ts`).
 - [ ] Die Seite Agenten ist nur noch über Einstellungen, KI erreichbar.
-- [ ] Der Test-Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten.
+- [x] Der Test-Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`).
+
+## Umsetzung, Schritt 2 der Warteschlange (22.11.2026)
+
+Umfang laut Warteschlange: Kopf, Weiterleitungen, Mein Tag und Aktivitäten aus vorhandenen
+Quellen. Offen bleiben die Teile, die KI (KI-03/04/16), AW-01 oder Warengruppen voraussetzen; sie
+werden an den genannten Folgeschritten abgenommen. Die Entscheidungen F1 bis F3 aus dem
+Prüfbericht stehen aus; wo nötig, gilt die unten genannte vorläufige Wahl.
+
+- **Kopf:** vier Hauptpunkte Übersicht, Mein Tag, Lieferanten, Warengruppen; rechts „Suchen oder
+  Reziproq fragen“ und Profil; auf dem Telefon die vier Punkte als Leiste unten. ⌘K bzw. Strg+K
+  öffnet Fragen, auf der Seite eines Lieferanten mit `?lieferant=<id>` als Kontext; die API nennt
+  den Lieferanten dann in der Anweisung an das Modell (nur wenn die Person ihn sieht).
+- **Startseite:** `user_setting` (`org_private`, je Person und Organisation, Policy nur die eigene
+  Zeile; vorläufige Wahl zu F2). Leer heißt nach Rolle: Admin und Lead einer Warengruppe starten in
+  der Übersicht, alle anderen in Mein Tag. Wahl im Profil unter Anzeige.
+- **Weiterleitungen:** `/` zur Startseite der Person, `/start` zu Mein Tag (Lieferantenseite
+  unverändert), `/wirkung` zu `/uebersicht`, `/portfolio` zu `/lieferanten?ansicht=matrix`. Die
+  Lieferantenliste hat die Ansichten Liste, Matrix und Bewertungsrunde. `/agenten` gibt es noch
+  nicht (KI-04); die Seite kommt gleich unter Einstellungen, KI.
+- **Übersicht:** bis AW-01 und KI zeigt sie die bestehende Ergebnis-Seite (PNL-10) unter dem neuen
+  Titel. Aussage, Ringpaar, drei Sätze, Zeilen und Fragevorschläge kommen mit Schritt 4 und 9.
+- **Mein Tag:** die bisherige Startseite unter `/mein-tag`; „Von Reziproq vorbereitet“, „Wo du
+  handeln musst“ und „Neu eingegangen“ folgen mit KI und Anbindungen.
+- **Lieferant:** vier Reiter Überblick, Aktivitäten, Plan, Ergebnisse und der Knopf Profil; die
+  bisherigen Adressen bleiben. Kontaktpunkte stehen unter Profil (in der Tabelle der Spec nicht
+  genannt). Wertpotenziale fehlen bis KI-11.
+- **Aktivitäten:** Tabelle `note` (`org_private`; Teamnotizen für die Käuferorganisation, private
+  nur für die Autorin, auch nicht für Admins; anlegen nur als man selbst). Ändern, anheften und
+  löschen nur die eigenen Notizen (Dienst). Der Verlauf liest Notizen, Termine, Hinweise (FS-01)
+  und Entwürfe von Reziproq (`ai_draft`) im Dienst statt als SQL-Sicht; die Zeilensicherheit der
+  Quellen gilt. Filter Alles, Termine, Notizen, Reziproq; Mails, Transkripte und Dateien kommen
+  mit den Anbindungen. Neue Rechte `aktivitaeten.sehen` und `notizen.schreiben` (nur Käufer).
+- **Begriffe:** „Wirkung“ heißt in der Oberfläche „Ergebnisse“; Fachbegriffe wie GuV-Wirkung,
+  EBIT-Wirkung und Wirkungsart bleiben (CLAUDE.md, Glossar).
+- Oberfläche: Aktivitäten nach Vorlage `L-Notizen`, Kopf und Lieferantenleiste nach `Header` und
+  `SupplierBar`.
 
 ## Nicht Teil dieser Funktion
 

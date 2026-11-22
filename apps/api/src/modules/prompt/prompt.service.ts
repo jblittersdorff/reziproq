@@ -17,6 +17,18 @@ export class PromptService {
     @Inject(PromptLog) private readonly log: PromptLog,
   ) {}
 
+  /**
+   * NAV-10: Mit Kontext nennt die Anweisung den Lieferanten. Nur wenn die Person ihn sieht; sonst
+   * bleibt die Frage ohne Kontext (kein Hinweis darauf, dass es ihn gibt).
+   */
+  private async systemFor(auth: AuthContext, request: PromptRequest): Promise<string> {
+    const relationshipId = request.context?.relationshipId;
+    if (!relationshipId) return systemPrompt;
+    const supplier = await this.suppliers.detail(auth, relationshipId).catch(() => null);
+    if (!supplier) return systemPrompt;
+    return `${systemPrompt}\n\nKontext: Die Person ist auf der Seite des Lieferanten „${supplier.name}“. Fragen zu „diesem Lieferanten“ oder „hier“ beziehen sich auf ihn.`;
+  }
+
   /** Beantwortet eine Frage und meldet Text, Treffer und Sprünge als Ereignisse. */
   async answer(
     auth: AuthContext,
@@ -34,11 +46,12 @@ export class PromptService {
     }));
 
     try {
+      const system = await this.systemFor(auth, request);
       const tools = createPromptTools((name, input) =>
         invokePromptTool(name, input, auth, this.suppliers, emit),
       );
       const result = await this.model.turn({
-        system: systemPrompt,
+        system,
         messages,
         tools,
         invokeTool: (name, input) => invokePromptTool(name, input, auth, this.suppliers, emit),

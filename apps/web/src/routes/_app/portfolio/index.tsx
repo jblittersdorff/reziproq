@@ -1,6 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { PortfolioPage } from '@/features/portfolio/portfolio-page';
+import { createFileRoute, Navigate } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_app/portfolio/')({
-  component: PortfolioPage,
+  component: () => <Navigate to="/lieferanten" search={{ ansicht: 'matrix' }} replace />,
 });

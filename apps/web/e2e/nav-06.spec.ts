@@ -10,11 +10,12 @@ const id = '0190a0a0-0000-7000-8000-000000000001';
 const base = `/lieferanten/${id}`;
 const url = (path: string) => `http://localhost:5174${path}`;
 // Nur Bereiche mit gebauten Unterseiten stehen in der lokalen Leiste (UMB-05).
+// NAV-10: vier Reiter und der Knopf Profil statt der Bereiche aus NAV-06
 const areas = [
-  ['Strategie', 'strategie'],
-  ['Beziehung', 'beziehung'],
-  ['Gemeinsamer Plan', 'plan'],
-  ['Umsetzung', 'umsetzung'],
+  ['Aktivitäten', 'aktivitaeten'],
+  ['Plan', 'plan/vorbereitung'],
+  ['Ergebnisse', 'wirkung/bruecke'],
+  ['Profil', 'strategie/profil'],
 ] as const;
 
 async function signIn(page: Page) {
@@ -79,7 +80,7 @@ async function signIn(page: Page) {
 
 const localBar = (page: Page) => page.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
 
-test('Die Bereiche sind Abschnitte auf dem Überblick; der Sprung lädt die Seite nicht neu (UMB-05)', async ({
+test('NAV-10: Die Reiter führen zu ihren Seiten; der Wechsel lädt die Seite nicht neu', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -93,8 +94,8 @@ test('Die Bereiche sind Abschnitte auf dem Überblick; der Sprung lädt die Seit
   });
   for (const [label, segment] of areas) {
     await localBar(page).getByRole('link', { name: label, exact: true }).click();
-    await expect(page).toHaveURL(url(`${base}#${segment}`));
-    await expect(page.getByRole('region', { name: label })).toBeInViewport();
+    await expect(page).toHaveURL(url(`${base}/${segment}`));
+    await expect(page.locator('#inhalt h1')).toBeVisible();
   }
   expect(await page.evaluate(() => (window as unknown as { nav06?: boolean }).nav06)).toBe(true);
 });
@@ -111,7 +112,7 @@ test('Die lokale Leiste bleibt beim Scrollen sichtbar', async ({ page }) => {
   const after = await bar.boundingBox();
   // Sie steht weiter direkt unter der globalen Leiste.
   expect(after?.y).toBe(before?.y);
-  await expect(bar.getByRole('link', { name: 'Strategie' })).toBeInViewport();
+  await expect(bar.getByRole('link', { name: 'Aktivitäten' })).toBeInViewport();
 });
 
 for (const path of ['', '/strategie', '/strategie/profil', '/beziehung/team']) {

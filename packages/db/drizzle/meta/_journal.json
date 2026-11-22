@@ -617,6 +617,41 @@
       "when": 1795334505404,
       "tag": "0087_paarung_pruefung",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1795351512581,
+      "tag": "0088_nav10_startseite",
+      "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1795351947855,
+      "tag": "0089_nav10_aktivitaeten",
+      "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1795352340913,
+      "tag": "0090_notiz_sicherheit",
+      "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1795352573688,
+      "tag": "0091_notiz_richtlinien",
+      "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1795352658187,
+      "tag": "0092_notiz_ohne_trigger",
+      "breakpoints": true
     }
   ]
 }

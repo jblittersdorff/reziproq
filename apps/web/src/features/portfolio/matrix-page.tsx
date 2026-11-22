@@ -70,11 +70,33 @@ export function spendBySegment(points: PortfolioPoint[], view: MatrixView) {
 
 /** Portfolio › Matrix (SEG-07): alle konsolidierten Lieferanten, Pfeil von Ist zu Soll, Filter in der Adresse. */
 export function MatrixPage() {
+  const search = useSearch({ from: '/_app/portfolio/matrix' });
+  const navigate = useNavigate({ from: '/portfolio/matrix' });
+  return (
+    <MatrixContent
+      search={search}
+      update={(next) => void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true })}
+    />
+  );
+}
+type MatrixFilters = {
+  bu?: string | undefined;
+  wg?: string | undefined;
+  ansicht?: MatrixView | undefined;
+};
+export function MatrixContent({
+  search,
+  update,
+  embedded = false,
+}: {
+  search: MatrixFilters;
+  update: (next: MatrixFilters) => void;
+  embedded?: boolean;
+}) {
   const t = useT();
   const text = t.portfolio.matrix;
   const { locale } = useLocale();
-  const search = useSearch({ from: '/_app/portfolio/matrix' });
-  const navigate = useNavigate({ from: '/portfolio/matrix' });
+  const navigate = useNavigate();
   const query = usePortfolioMatrix({
     businessUnitId: search.bu,
     materialGroupId: search.wg,
@@ -82,11 +104,6 @@ export function MatrixPage() {
   const unitId = useId();
   const groupId = useId();
   const points = query.data?.points ?? [];
-  const update = (next: {
-    bu?: string | undefined;
-    wg?: string | undefined;
-    ansicht?: MatrixView | undefined;
-  }) => void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
   // WG-18: Mit Warengruppe gilt deren Segment; der Umschalter zeigt Ist, Soll oder beides.
   const group = query.data?.materialGroups.find((entry) => entry.id === search.wg) ?? null;
   const view: MatrixView = search.wg ? (search.ansicht ?? 'both') : 'both';
@@ -106,7 +123,9 @@ export function MatrixPage() {
 
   return (
     <>
-      <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
+      {!embedded && (
+        <PagePath trail={[{ label: t.nav.suppliers, href: '/lieferanten' }]} current={text.title} />
+      )}
       <PageHeader
         size="list"
         title={group ? text.titleFiltered(group.name) : text.title}

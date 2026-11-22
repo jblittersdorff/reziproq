@@ -33,7 +33,13 @@ function Shell() {
   return (
     <LocalBarSlotProvider value={localBarSlot}>
       <StageSlotProvider value={stageSlot}>
-        <div className="flex min-h-svh flex-col">
+        <div
+          className={
+            me.data?.permissions.viewBuyerAreas
+              ? 'flex min-h-svh flex-col pb-20 sidebar:pb-0'
+              : 'flex min-h-svh flex-col'
+          }
+        >
           {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
           <a
             href="#inhalt"
@@ -47,7 +53,8 @@ function Shell() {
           <GlobalBar
             label={t.app.navigation}
             brand={t.app.name}
-            brandHref="/start"
+            brandHref="/"
+            buyerTabs={!!me.data?.permissions.viewBuyerAreas}
             items={main}
             actions={actions.map((action) => {
               const Icon = action.icon;
@@ -109,16 +116,19 @@ function useAccountLocale() {
 /** Cmd+K (Mac) oder Strg+K öffnet von jeder Seite die Fragen-Seite, wie Spotlight (PLT-12). */
 function useQuestionsShortcut() {
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        void navigate({ to: '/fragen' });
+        // NAV-10: Auf der Seite eines Lieferanten hat die Frage ihn als Kontext.
+        const lieferant = /^\/lieferanten\/([0-9a-f-]{36})(?:\/|$)/.exec(pathname)?.[1];
+        void navigate({ to: '/fragen', search: lieferant ? { lieferant } : {} });
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [navigate]);
+  }, [navigate, pathname]);
 }
 
 /** Profil, Einstellungen, Menü und die Kundenwahl der Betreiber gehen auch ohne Organisation. */
@@ -141,6 +151,8 @@ function ContentGate() {
   const open = within(alwaysOpen);
 
   // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
+  if (!me.data && within(['/mein-tag', '/uebersicht']))
+    return <Notice>{me.isError ? t.user.failed : t.user.loading}</Notice>;
   if (!me.data || open) return <Outlet />;
 
   if (!me.data.organization) {

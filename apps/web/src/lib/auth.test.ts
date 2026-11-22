@@ -74,7 +74,7 @@ describe('safeReturnTo', () => {
       undefined,
       42,
     ]) {
-      expect(safeReturnTo(value)).toBe('/start');
+      expect(safeReturnTo(value)).toBe('/');
     }
   });
 });

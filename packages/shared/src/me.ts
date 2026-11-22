@@ -5,6 +5,11 @@ import { orgRoles } from './permissions.js';
 export const userLocales = ['de', 'en'] as const;
 export type UserLocale = (typeof userLocales)[number];
 
+export const startPageRequestSchema = z.object({
+  startPage: z.enum(['overview', 'my_day']).nullable(),
+});
+export type StartPageRequest = z.infer<typeof startPageRequestSchema>;
+
 /** PUT /api/me/sprache */
 export const localeRequestSchema = z.object({ locale: z.enum(userLocales) });
 export type LocaleRequest = z.infer<typeof localeRequestSchema>;
@@ -43,6 +48,8 @@ export const meResponseSchema = z.object({
   categoryLabel: z
     .object({ singular: z.string(), plural: z.string() })
     .default({ singular: 'Warengruppe', plural: 'Warengruppen' }),
+  startPage: startPageRequestSchema.shape.startPage.optional(),
+  defaultOverview: z.boolean().optional(),
   permissions: z.object({
     /** Abschnitt „Organisation“ in den Einstellungen: jedes Mitglied einer Organisation (PLT-02). */
     viewOrganizationSettings: z.boolean(),

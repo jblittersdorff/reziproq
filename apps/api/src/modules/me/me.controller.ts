@@ -6,25 +6,29 @@ import {
   loginRequestSchema,
   type MeResponse,
   type PermissionsResponse,
+  type StartPageRequest,
+  startPageRequestSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
+import { Requires } from '../auth/requires.decorator.js';
 import { WithoutOrganization } from '../auth/without-organization.decorator.js';
 import { MeService } from './me.service.js';
 
 // /me gilt auch ohne Organisation: Die Oberfläche zeigt dann den Hinweis (PLT-02).
-@WithoutOrganization()
 @Controller('me')
 export class MeController {
   constructor(@Inject(MeService) private readonly me: MeService) {}
 
+  @WithoutOrganization()
   @Get()
   get(@CurrentUser() auth: AuthContext): Promise<MeResponse> {
     return this.me.syncFromUserinfo(auth);
   }
 
   /** Was die Person darf, als Liste von Aktionen aus can() (PLT-05). */
+  @WithoutOrganization()
   @Get('permissions')
   permissions(@CurrentUser() auth: AuthContext): PermissionsResponse {
     return this.me.permissions(auth);
@@ -34,6 +38,7 @@ export class MeController {
    * Die App meldet hier jede abgeschlossene Anmeldung; legt app_user an und setzt last_login_at.
    * Die Browsersprache gilt nur, solange keine Sprache gespeichert ist (PLT-09).
    */
+  @WithoutOrganization()
   @Post('anmeldung')
   @HttpCode(200)
   login(
@@ -47,7 +52,18 @@ export class MeController {
     });
   }
 
+  @Requires('start.sehen')
+  @Put('startseite')
+  @HttpCode(204)
+  setStartPage(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(startPageRequestSchema)) body: StartPageRequest,
+  ) {
+    return this.me.setStartPage(auth, body.startPage);
+  }
+
   /** Eigene Sprache wählen (PLT-09); jede angemeldete Person darf das, auch ohne Organisation. */
+  @WithoutOrganization()
   @Put('sprache')
   @HttpCode(204)
   async setLocale(

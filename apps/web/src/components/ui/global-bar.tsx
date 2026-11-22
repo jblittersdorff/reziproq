@@ -24,6 +24,7 @@ function GlobalBar({
   actions,
   menuHref,
   menuLabel,
+  buyerTabs = false,
   sticky = true,
   renderLink = defaultRenderLink,
   className,
@@ -41,6 +42,7 @@ function GlobalBar({
   menuLabel: string;
   /** Im Styleguide aus, damit die Beispielleiste nicht über der Seite klebt */
   sticky?: boolean;
+  buyerTabs?: boolean;
   renderLink?: RenderLink;
   className?: string;
 }) {
@@ -70,19 +72,33 @@ function GlobalBar({
             </>
           ),
         })}
-        <ul className="mx-auto hidden flex-wrap items-center gap-0.5 rounded-full bg-line-soft p-1 sidebar:flex">
+        <ul
+          className={cn(
+            'mx-auto hidden flex-wrap items-center gap-0.5 rounded-full bg-line-soft p-1 sidebar:flex',
+            buyerTabs &&
+              'max-sidebar:fixed max-sidebar:inset-x-0 max-sidebar:bottom-0 max-sidebar:grid max-sidebar:grid-cols-4 max-sidebar:rounded-none max-sidebar:border-t max-sidebar:border-line max-sidebar:bg-paper max-sidebar:pb-[max(var(--spacing),env(safe-area-inset-bottom))]',
+          )}
+        >
           {items.map((item) => (
             <li key={item.key}>
               {renderLink({
                 href: item.href,
-                className: linkClass,
+                className: cn(
+                  linkClass,
+                  buyerTabs && 'max-sidebar:justify-center max-sidebar:px-0 max-sidebar:text-xs',
+                ),
                 'aria-current': item.key === activeKey ? 'page' : undefined,
                 children: item.label,
               })}
             </li>
           ))}
         </ul>
-        <ul className="ml-auto hidden items-center gap-2 sidebar:ml-0 sidebar:flex">
+        <ul
+          className={cn(
+            'ml-auto hidden items-center gap-2 sidebar:ml-0 sidebar:flex',
+            buyerTabs && 'flex',
+          )}
+        >
           {actions?.map((action) => (
             <li key={action.key}>
               {renderLink({
@@ -91,6 +107,7 @@ function GlobalBar({
                   ? cn(iconClass, 'p-0.5')
                   : cn(
                       iconClass,
+                      buyerTabs && 'sidebar:w-auto sidebar:gap-2 sidebar:px-3',
                       'text-muted-strong hover:bg-line-soft hover:text-ink aria-[current=page]:bg-card aria-[current=page]:text-ink aria-[current=page]:shadow-toggle',
                     ),
                 'aria-current': action.key === activeKey ? 'page' : undefined,
@@ -103,13 +120,18 @@ function GlobalBar({
                     {action.initials}
                   </span>
                 ) : (
-                  action.icon
+                  <>
+                    {action.icon}
+                    {buyerTabs && (
+                      <span className="hidden text-sm sidebar:inline">{action.label}</span>
+                    )}
+                  </>
                 ),
               })}
             </li>
           ))}
         </ul>
-        <div className="ml-auto sidebar:hidden">
+        <div className={cn('ml-auto sidebar:hidden', buyerTabs && 'hidden')}>
           {renderLink({
             href: menuHref,
             className: cn(iconClass, 'text-muted-strong hover:bg-line-soft hover:text-ink'),

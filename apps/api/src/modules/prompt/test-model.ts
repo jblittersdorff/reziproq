@@ -7,9 +7,19 @@ import type { PromptModel, TurnRequest, TurnResult } from './prompt-model.js';
  * Werkzeuge auf und antwortet danach nur mit Zahlen aus deren Ergebnis.
  */
 export class TestPromptModel implements PromptModel {
-  async turn({ messages, onText, invokeTool }: TurnRequest): Promise<TurnResult> {
+  async turn({ system, messages, onText, invokeTool }: TurnRequest): Promise<TurnResult> {
     const last = messages.at(-1);
     const question = typeof last?.content === 'string' ? last.content : '';
+    // NAV-10: Kontext der Seite („diesem Lieferanten“, „hier“)
+    const context = /Kontext: Die Person ist auf der Seite des Lieferanten „([^“]+)“/.exec(
+      system,
+    )?.[1];
+    if (/diese[mnr]? lieferant|\bhier\b/i.test(question)) {
+      return this.say(
+        context ? `Die Frage bezieht sich auf ${context}.` : 'Welchen Lieferanten meinst du?',
+        onText,
+      );
+    }
     const supplierName = supplierNameInOpenRequest(question);
     const area = areaIn(question);
     if (supplierName && /öffne|geh zu/i.test(question)) {

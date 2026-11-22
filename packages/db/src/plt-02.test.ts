@@ -149,6 +149,7 @@ describe('PLT-02 in der Datenbank', () => {
       'meeting_note',
       'meeting_participant',
       'meeting_snapshot',
+      'note',
       'objective_category',
       'org_setting',
       'organization',
@@ -201,6 +202,7 @@ describe('PLT-02 in der Datenbank', () => {
       'survey_wave',
       'touchpoint',
       'touchpoint_review',
+      'user_setting',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });

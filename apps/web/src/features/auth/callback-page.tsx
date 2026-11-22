@@ -25,7 +25,7 @@ function CallbackState() {
       <AuthFailed
         action={
           <Button variant="outline" asChild>
-            <Link to="/start">{t.auth.backHome}</Link>
+            <Link to="/">{t.auth.backHome}</Link>
           </Button>
         }
       />
@@ -35,7 +35,7 @@ function CallbackState() {
   // Selbst weiterzuleiten würde damit um die Wette laufen und sie überschreiben (PLT-01).
   if (auth.isLoading || loginRunning) return <AuthChecking />;
   // Ohne laufenden Login (z. B. direkt aufgerufen) gibt es hier nichts zu tun.
-  return <Navigate to="/start" replace />;
+  return <Navigate to="/" replace />;
 }
 
 function hasCode(): boolean {

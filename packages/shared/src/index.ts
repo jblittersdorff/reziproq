@@ -17,6 +17,7 @@ export * from './invitations.js';
 export * from './jbp.js';
 export * from './levers.js';
 export * from './master-data.js';
+export * from './activities.js';
 export * from './material-group-analysis.js';
 export * from './material-group-assessment.js';
 export * from './material-group-market.js';

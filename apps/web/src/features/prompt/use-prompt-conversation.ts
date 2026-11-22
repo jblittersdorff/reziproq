@@ -23,7 +23,7 @@ export interface PromptTurn {
  * Gespräch auf der Fragen-Seite. Es lebt nur, solange die Seite offen ist, und wird nirgends
  * gespeichert (PLT-12). Weitere Fragen schicken den bisherigen Verlauf mit.
  */
-export function usePromptConversation() {
+export function usePromptConversation(supplier?: string) {
   const auth = useAuth();
   const [turns, setTurns] = useState<PromptTurn[]>([]);
   const nextId = useRef(1);
@@ -84,6 +84,7 @@ export function usePromptConversation() {
         [...history, { role: 'user', content: question }],
         (event) => apply(id, event),
         controller.signal,
+        supplier ? { relationshipId: supplier } : undefined,
       );
       // Endet der Strom ohne „done“, gilt die Antwort als fehlgeschlagen.
       update(id, (turn) => (turn.status === 'answering' ? { ...turn, status: 'failed' } : turn));

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { StartPage } from '@/features/start/start-page';
+import { EntryPage } from '@/features/start/entry-page';
 
 export const Route = createFileRoute('/_app/start/')({
-  component: StartPage,
+  component: () => <EntryPage bookmark />,
 });

@@ -7,13 +7,11 @@ import { fakeZitadel } from './fake-zitadel.js';
 test.use({ locale: 'de-DE' });
 
 const barTargets = [
-  { name: 'Start', path: '/start' },
+  { name: 'Übersicht', path: '/uebersicht' },
+  { name: 'Mein Tag', path: '/mein-tag' },
   { name: 'Lieferanten', path: '/lieferanten' },
-  // WG-01
   { name: 'Warengruppen', path: '/warengruppen' },
-  { name: 'Portfolio', path: '/portfolio' },
-  { name: 'Wirkung', path: '/wirkung' },
-  { name: 'Fragen', path: '/fragen' },
+  { name: 'Suchen oder Reziproq fragen', path: '/fragen' },
   { name: 'Profil', path: '/profil' },
 ];
 
@@ -23,8 +21,8 @@ const greeting = /^Guten (Morgen|Tag|Abend), Anna\.$/;
 const routes = [
   { path: '/start', title: greeting, empty: 'Heute wartet nichts auf dich.' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
-  { path: '/portfolio', title: 'Portfolio' },
-  { path: '/wirkung', title: 'Wirkung', empty: 'Noch keine Wirkung' },
+  { path: '/portfolio', title: 'Matrix' },
+  { path: '/wirkung', title: 'Übersicht', empty: 'Noch keine Ergebnisse' },
   { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
@@ -137,7 +135,7 @@ test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
   zitadel.session.active = true;
   const state = zitadel.authorizeRequests[0]?.get('state');
   await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
-  await expect(page).toHaveURL(url('/start'));
+  await expect(page).toHaveURL(url('/mein-tag'));
   await expect(
     page.locator('#inhalt').getByRole('heading', { level: 1, name: greeting }),
   ).toBeVisible();
@@ -180,33 +178,14 @@ test.describe('Bei 390 px Breite', () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow, `waagerechte Scrollleiste auf ${route.path}`).toBe(0);
-      // Die Ziele stecken hinter dem Menüknopf.
-      await expect(bar(page).getByRole('link', { name: 'Portfolio' })).toBeHidden();
+      for (const target of barTargets.slice(0, 4)) {
+        await expect(
+          bar(page).getByRole('link', { name: target.name, exact: true }),
+        ).toBeInViewport();
+      }
     }
-
-    await page.goto('/portfolio');
-    await pageSettled(page);
-    await bar(page).getByRole('link', { name: 'Menü öffnen' }).click();
-    await expect(page).toHaveURL(url('/menu'));
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    const fixed = await page.evaluate(
-      () =>
-        [...document.querySelectorAll('*')].filter(
-          (el) => getComputedStyle(el).position === 'fixed',
-        ).length,
-    );
-    expect(fixed).toBe(0);
-    const menu = page.getByRole('navigation', { name: 'Menü' });
-    for (const target of barTargets) {
-      await expect(menu.getByRole('link', { name: target.name })).toBeVisible();
-    }
-    await menu.getByRole('link', { name: 'Wirkung' }).click();
-    await expect(page).toHaveURL(url('/wirkung'));
-    // Zurück führt wieder ins Menü und dann zur Seite davor.
-    await page.goBack();
-    await expect(page).toHaveURL(url('/menu'));
-    await page.goBack();
-    await expect(page).toHaveURL(url('/portfolio'));
+    await bar(page).getByRole('link', { name: 'Mein Tag' }).click();
+    await expect(page).toHaveURL(url('/mein-tag'));
   });
 });
 
@@ -222,8 +201,8 @@ test('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel u
     if (route.empty) await expect(page.locator('#inhalt').getByText(route.empty)).toBeVisible();
   }
   // Die frühere Startseite leitet weiter.
-  await page.goto('/uebersicht');
-  await expect(page).toHaveURL(url('/start'));
+  await page.goto('/wirkung');
+  await expect(page).toHaveURL(url('/uebersicht'));
 });
 
 test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, auch nach Speichern und Abbrechen', async ({
@@ -231,7 +210,7 @@ test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, au
 }) => {
   await signIn(page, { admin: true });
   const path = page.getByRole('navigation', { name: 'Pfad' });
-  const levels = ['/start', '/profil', '/einstellungen', '/einstellungen/organisation'];
+  const levels = ['/mein-tag', '/profil', '/einstellungen', '/einstellungen/organisation'];
 
   const goDown = async () => {
     await page.goto('/start');
@@ -379,5 +358,5 @@ test('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', async ({ page }) => 
     ).toBeVisible();
   }
   await page.getByRole('link', { name: 'Zu Start' }).click();
-  await expect(page).toHaveURL(url('/start'));
+  await expect(page).toHaveURL(url('/mein-tag'));
 });

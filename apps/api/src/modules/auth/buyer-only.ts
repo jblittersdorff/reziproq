@@ -40,4 +40,6 @@ export const buyerOnlyActions: readonly Action[] = [
   'warengruppen.team',
   'warengruppenstrategie.bearbeiten',
   'warengruppen.segmentieren',
+  'aktivitaeten.sehen',
+  'notizen.schreiben',
 ];

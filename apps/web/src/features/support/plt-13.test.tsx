@@ -88,7 +88,7 @@ describe('In einen Kunden wechseln', () => {
     fireEvent.click(within(list).getByRole('button', { name: 'In Zweit-OEM (Demo) wechseln' }));
 
     expect(await screen.findByText(banner('Zweit-OEM (Demo)'))).toBeDefined();
-    await waitFor(() => expect(router.state.location.pathname).toBe('/start'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/mein-tag'));
     await waitFor(() =>
       expect(api.requests.filter((r) => r.url === '/api/me').at(-1)?.customer).toBe('org-2'),
     );

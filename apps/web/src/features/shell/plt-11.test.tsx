@@ -36,13 +36,11 @@ const admin = { ...anna, orgRole: 'admin' as const };
 
 /** Ziele der globalen Leiste: Mitte die vier Hauptziele, rechts Fragen und Profil. */
 const barTargets = [
-  { label: 'Start', path: '/start' },
+  { label: 'Übersicht', path: '/uebersicht' },
+  { label: 'Mein Tag', path: '/mein-tag' },
   { label: 'Lieferanten', path: '/lieferanten' },
-  // WG-01
   { label: 'Warengruppen', path: '/warengruppen' },
-  { label: 'Portfolio', path: '/portfolio' },
-  { label: 'Wirkung', path: '/wirkung' },
-  { label: 'Fragen', path: '/fragen' },
+  { label: 'Suchen oder Reziproq fragen', path: '/fragen' },
   { label: 'Profil', path: '/profil' },
 ];
 
@@ -50,8 +48,8 @@ const barTargets = [
 const routes = [
   { path: '/start', title: 'Guten' },
   { path: '/lieferanten', title: 'Lieferanten' },
-  { path: '/portfolio', title: 'Portfolio' },
-  { path: '/wirkung', title: 'Wirkung' },
+  { path: '/portfolio', title: 'Matrix' },
+  { path: '/wirkung', title: 'Übersicht' },
   { path: '/fragen', title: 'Frag Reziproq' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
@@ -63,14 +61,27 @@ const bar = () => screen.getByRole('navigation', { name: 'Hauptnavigation' });
 
 describe('Nach dem Login landet der Nutzer auf /start', () => {
   it('leitet / und die frühere Übersicht auf /start um', async () => {
-    for (const path of ['/', '/uebersicht']) {
+    for (const path of ['/', '/start']) {
       const router = renderAt(path);
       await screen.findByRole('heading', { level: 1, name: /Guten|Willkommen/ });
-      expect(router.state.location.pathname).toBe('/start');
+      expect(router.state.location.pathname).toBe('/mein-tag');
       tearDownApp();
       setUpApp();
     }
   });
+
+  it.each([
+    [true, null, '/uebersicht'],
+    [true, 'my_day', '/mein-tag'],
+    [false, 'overview', '/uebersicht'],
+  ] as const)(
+    'beachtet Rollenstandard %s und Auswahl %s',
+    async (defaultOverview, startPage, destination) => {
+      api.me = { ...anna, defaultOverview, startPage };
+      const router = renderAt('/');
+      await waitFor(() => expect(router.state.location.pathname).toBe(destination));
+    },
+  );
 
   it.each([
     [8, 'Guten Morgen, Anna.'],
@@ -132,12 +143,9 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
     expect(active.map((candidate) => candidate.getAttribute('aria-label'))).toEqual(['Profil']);
   });
 
-  it('hat auf schmalen Bildschirmen einen Menüknopf zur eigenen Seite /menu', async () => {
-    const router = renderAt('/start');
-    await screen.findByRole('heading', { level: 1 });
-    fireEvent.click(within(bar()).getByRole('link', { name: 'Menü öffnen' }));
+  it('zeigt auch auf der Menüseite dieselben Ziele', async () => {
+    renderAt('/menu');
     await screen.findByRole('heading', { level: 1, name: 'Menü' });
-    expect(router.state.location.pathname).toBe('/menu');
     const menu = screen.getByRole('navigation', { name: 'Menü' });
     expect(
       within(menu)
@@ -152,7 +160,7 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
     renderAt('/profil');
     await screen.findByText('Anna Schmidt');
     const links = within(bar()).getAllByRole('link');
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/start', '/profil', '/menu']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/', '/profil', '/menu']);
   });
 
   it('bietet als erstes Tab-Ziel den Sprung zum Inhalt', async () => {
@@ -174,7 +182,7 @@ describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Tit
     ).toBeDefined();
   });
 
-  it.each([['/wirkung', 'Wirkung', 'Noch keine Wirkung']])(
+  it.each([['/wirkung', 'Übersicht', 'Noch keine Ergebnisse']])(
     '%s zeigt den leeren Zustand und setzt den Tab-Titel',
     async (path, title, empty) => {
       renderAt(path);
@@ -187,8 +195,8 @@ describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Tit
 
 it('/portfolio setzt den Tab-Titel', async () => {
   renderAt('/portfolio');
-  await screen.findByRole('heading', { level: 1, name: 'Portfolio' });
-  expect(document.title).toBe('Portfolio – Reziproq');
+  await screen.findByRole('heading', { level: 1, name: 'Matrix' });
+  expect(document.title).toBe('Matrix – Reziproq');
 });
 
 describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mitglied sieht Organisation', () => {
@@ -272,7 +280,7 @@ describe('Pfad mit Zurück-Pfeil', () => {
 
   it('zeigt auf der Hauptebene keinen Pfad', async () => {
     renderAt('/portfolio');
-    await screen.findByRole('heading', { level: 1, name: 'Portfolio' });
+    await screen.findByRole('heading', { level: 1, name: 'Matrix' });
     expect(screen.queryByRole('navigation', { name: 'Pfad' })).toBeNull();
   });
 });

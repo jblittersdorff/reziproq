@@ -1,6 +1,7 @@
 import type { SupplierCycle } from '@reziproq/shared';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { SearchXIcon } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
 import { Chain } from '@/components/ui/chain';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
@@ -12,8 +13,9 @@ import { routerLink } from '@/features/shell/navigation';
 import { PagePath } from '@/features/shell/page-path';
 import { useSupplier } from '@/features/suppliers/use-supplier';
 import { useT } from '@/lib/i18n';
-import { areaOf, builtAreas, builtPages, sectionHref, workspacePath } from './areas';
+import { workspacePath } from './areas';
 import { CycleAction } from './cycle-action';
+import { type SupplierTab, supplierTabs, tabHref, tabOf, tabPages } from './tabs';
 import { useOverview } from './use-overview';
 import { WorkspaceHead } from './workspace-head';
 
@@ -28,7 +30,7 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   const supplier = useSupplier(relationshipId);
   const overview = useOverview(relationshipId);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const area = areaOf(pathname);
+  const onOverview = pathname.replace(/\/$/, '') === workspacePath(relationshipId);
   const root = { label: t.suppliers.title, href: '/lieferanten' };
 
   if (supplier.notFound) {
@@ -54,19 +56,25 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   }
   if (!supplier.data) return <LoadingState label={t.suppliers.detailLoading} />;
 
-  const items = builtAreas.map((key) => ({
+  // NAV-10: vier Reiter und der Knopf Profil; Unterseiten des aktiven Reiters als Pillen.
+  const { tab, page } = tabOf(pathname);
+  const label = (tabKey: SupplierTab) => t.workspace.tabs[tabKey];
+  const items = supplierTabs.map((key) => ({
     key,
-    label: t.workspace.areas[key],
-    href: sectionHref(relationshipId, key),
+    label: label(key),
+    href: tabHref(relationshipId, key),
   }));
-  // Unterseiten des aktiven Bereichs als Pillen (Designsprache „Lieferanten-Leiste“).
-  const subItems = area
-    ? builtPages(area).map((page) => ({
-        key: page.segment,
-        label: t.workspace.pages[page.key].title,
-        href: `${workspacePath(relationshipId, area)}/${page.segment}`,
-      }))
-    : [];
+  const subItems = tabPages[tab].map((entry) => ({
+    key: entry.path,
+    label: entry.key === 'history' ? t.activities.history : t.workspace.pages[entry.key].title,
+    href: `/lieferanten/${relationshipId}/${entry.path}`,
+  }));
+  const profileLink = routerLink({
+    href: tabHref(relationshipId, 'profile'),
+    className: buttonVariants({ variant: tab === 'profile' ? 'default' : 'secondary' }),
+    'aria-current': tab === 'profile' ? 'page' : undefined,
+    children: label('profile'),
+  });
 
   return (
     <>
@@ -76,18 +84,21 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
           name={supplier.data.name}
           nameIcon={<Monogram name={supplier.data.name} size="lg" ring />}
           nameHref={workspacePath(relationshipId)}
-          subtitle={area && overview.data && <WorkspaceHead head={overview.data.head} size="bar" />}
+          subtitle={
+            !onOverview && overview.data && <WorkspaceHead head={overview.data.head} size="bar" />
+          }
           progress={overview.data?.cycle && <CycleProgress cycle={overview.data.cycle} />}
           items={items}
-          activeKey={area}
+          activeKey={tab === 'profile' ? undefined : tab}
           subItems={subItems}
           subLabel={t.workspace.pagesLabel}
-          activeSubKey={pathname.split('/')[4]}
+          activeSubKey={page?.path}
           action={
             overview.data && (
               <CycleAction relationshipId={relationshipId} overview={overview.data} />
             )
           }
+          navAction={profileLink}
           renderLink={routerLink}
         />
       </InLocalBarSlot>

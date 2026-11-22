@@ -200,6 +200,16 @@ export const permissions: Record<Action, Permission> = {
       'Warengruppenstrategie anlegen und bearbeiten (Lead und Commodity Manager alle Schritte, Einkauf im Team die Schritte 2 bis 9)',
     roles: ['admin', 'member'],
   },
+  'aktivitaeten.sehen': {
+    description:
+      'Aktivitäten eines Lieferanten sehen: Termine, Notizen, Hinweise und Entwürfe von Reziproq (nur Käufer; private Notizen nur die Autorin)',
+    roles: ['admin', 'member', 'viewer'],
+  },
+  'notizen.schreiben': {
+    description:
+      'Notizen zu einem Lieferanten schreiben, für das Team oder nur für sich; ändern und löschen nur die eigenen (nur Käufer)',
+    roles: ['admin', 'member'],
+  },
   'warengruppen.segmentieren': {
     description:
       'Bewertungsrunde je Warengruppe starten und das Segment in der Warengruppe festlegen (Lead, Commodity Manager, Admin)',

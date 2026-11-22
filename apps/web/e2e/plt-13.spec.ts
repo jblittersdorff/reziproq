@@ -74,7 +74,7 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
     'Betreiber-Ansicht: Zweit-OEM (Demo). Alle Zugriffe werden protokolliert.',
   );
   await expect(banner).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/start');
+  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
   expect(seen.at(-1)).toBe(customers[1]?.id);
 
   // Die Ansicht bleibt beim Navigieren bestehen.

@@ -97,8 +97,8 @@ test('LIF-02 Kunden, Arbeitsbereich und Kundenwechsel', async ({ page }, testInf
 
   await page.setViewportSize({ width: 1440, height: 900 });
   const bar = page.getByRole('navigation', { name: 'Arbeitsbereich des Kunden' });
-  // Nur gebaute Bereiche stehen in der Leiste (UMB-05); Wirkung ist seit PNL-07 gebaut.
-  await expect(bar.getByRole('link', { name: 'Wirkung' })).toHaveCount(1);
+  // Nur gebaute Bereiche stehen in der Leiste (UMB-05); Ergebnisse (früher Wirkung) seit PNL-07.
+  await expect(bar.getByRole('link', { name: 'Ergebnisse' })).toHaveCount(1);
   await bar.getByRole('link', { name: 'Gemeinsamer Plan' }).click();
   await expect(page.locator('#inhalt h1')).toHaveText('Gemeinsamer Plan');
   await expect(bar.getByRole('link', { name: 'Strategie' })).toHaveCount(0);

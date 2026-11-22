@@ -1,8 +1,11 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
+import { RequireLogin } from '@/features/auth/require-login';
+import { EntryPage } from '@/features/start/entry-page';
 
-// Nach dem Login und auf der Wurzel landet man auf Start (PLT-11).
 export const Route = createFileRoute('/')({
-  beforeLoad: () => {
-    throw redirect({ to: '/start', replace: true });
-  },
+  component: () => (
+    <RequireLogin>
+      <EntryPage />
+    </RequireLogin>
+  ),
 });

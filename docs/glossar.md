@@ -19,7 +19,8 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 | Zusage | Commitment | workspace.pages.commitments.title |
 | Gemeinsamer Plan | Joint Business Plan | workspace.areas.plan |
 | Spielregeln | Rules of engagement | workspace.pages.rules.title |
-| Wirkung | Impact | nav.impact, workspace.areas.impact |
+| Ergebnisse | Results | nav.impact, workspace.areas.impact, workspace.tabs.results |
+| Aktivitäten | Activities | workspace.tabs.activities, activities.title |
 | Segment | Segment | workspace.head.segment |
 | Segmentierung | Segmentation | workspace.pages.segmentation.title |
 | Sponsor | Sponsor | team.roles.sponsor |

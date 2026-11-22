@@ -58,11 +58,11 @@ export const zitadelSettings = readZitadelSettings(import.meta.env);
  * Nur Pfade dieser App; fremde Adressen wie //example.com würden sonst zum offenen Redirect.
  */
 export function safeReturnTo(value: unknown): string {
-  if (typeof value !== 'string') return '/start';
+  if (typeof value !== 'string') return '/';
   if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) {
-    return '/start';
+    return '/';
   }
-  if (value.startsWith(callbackPath)) return '/start';
+  if (value.startsWith(callbackPath)) return '/';
   return value;
 }
 

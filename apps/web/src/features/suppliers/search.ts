@@ -5,6 +5,8 @@ import { z } from 'zod';
 // /lieferanten?suche=guss&sortierung=name&beendet=1. Ungültige Werte fallen auf den Standard.
 
 export const supplierSearchSchema = z.object({
+  ansicht: z.enum(['matrix', 'runde']).optional().catch(undefined),
+  segmente: z.enum(['ist', 'soll', 'both']).optional().catch(undefined),
   suche: z.string().optional().catch(undefined),
   sortierung: z.enum(['spend', 'name']).optional().catch(undefined),
   beendet: z.literal(1).optional().catch(undefined),

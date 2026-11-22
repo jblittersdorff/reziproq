@@ -123,5 +123,5 @@ test('Zurück führt nach der Lieferantenliste zur Seite davor, nicht durch jede
   await page.getByRole('searchbox').pressSequentially('silesia');
   await expect(page).toHaveURL(/suche=silesia/);
   await page.goBack();
-  await expect(page).toHaveURL('http://localhost:5174/start');
+  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
 });

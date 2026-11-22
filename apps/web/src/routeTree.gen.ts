@@ -15,6 +15,7 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppFragenRouteImport } from './routes/_app/fragen'
+import { Route as AppMeinTagRouteImport } from './routes/_app/mein-tag'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppUebersichtRouteImport } from './routes/_app/uebersicht'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -77,6 +78,7 @@ import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './route
 import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/_app/einstellungen/zielkategorien/neu'
 import { Route as AppKundenIdIndexRouteImport } from './routes/_app/kunden/$id/index'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
+import { Route as AppLieferantenIdAktivitaetenRouteImport } from './routes/_app/lieferanten/$id/aktivitaeten'
 import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfolio/fokus/index'
 import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio/fokus/$id'
 import { Route as AppPortfolioRundenIndexRouteImport } from './routes/_app/portfolio/runden/index'
@@ -283,6 +285,11 @@ const AppSplatRoute = AppSplatRouteImport.update({
 const AppFragenRoute = AppFragenRouteImport.update({
   id: '/fragen',
   path: '/fragen',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMeinTagRoute = AppMeinTagRouteImport.update({
+  id: '/mein-tag',
+  path: '/mein-tag',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMenuRoute = AppMenuRouteImport.update({
@@ -620,6 +627,12 @@ const AppLieferantenIdIndexRoute = AppLieferantenIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppLieferantenIdRouteRoute,
 } as any)
+const AppLieferantenIdAktivitaetenRoute =
+  AppLieferantenIdAktivitaetenRouteImport.update({
+    id: '/aktivitaeten',
+    path: '/aktivitaeten',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppPortfolioFokusIndexRoute = AppPortfolioFokusIndexRouteImport.update({
   id: '/portfolio/fokus/',
   path: '/portfolio/fokus/',
@@ -1696,6 +1709,7 @@ export interface FileRoutesByFullPath {
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/fragen': typeof AppFragenRoute
+  '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -1746,6 +1760,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
+  '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -1942,6 +1957,7 @@ export interface FileRoutesByTo {
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
   '/fragen': typeof AppFragenRoute
+  '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
   '/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -1990,6 +2006,7 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
+  '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -2188,6 +2205,7 @@ export interface FileRoutesById {
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_app/fragen': typeof AppFragenRoute
+  '/_app/mein-tag': typeof AppMeinTagRoute
   '/_app/menu': typeof AppMenuRoute
   '/_app/uebersicht': typeof AppUebersichtRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -2238,6 +2256,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/_app/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
+  '/_app/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/_app/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -2437,6 +2456,7 @@ export interface FileRouteTypes {
     | '/einladung/$token'
     | '/$'
     | '/fragen'
+    | '/mein-tag'
     | '/menu'
     | '/uebersicht'
     | '/auth/callback'
@@ -2487,6 +2507,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
+    | '/lieferanten/$id/aktivitaeten'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
     | '/warengruppen/$id/segmentierung'
@@ -2683,6 +2704,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/$'
     | '/fragen'
+    | '/mein-tag'
     | '/menu'
     | '/uebersicht'
     | '/auth/callback'
@@ -2731,6 +2753,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/zielkategorien/neu'
+    | '/lieferanten/$id/aktivitaeten'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
     | '/warengruppen/$id/segmentierung'
@@ -2928,6 +2951,7 @@ export interface FileRouteTypes {
     | '/einladung/$token'
     | '/_app/$'
     | '/_app/fragen'
+    | '/_app/mein-tag'
     | '/_app/menu'
     | '/_app/uebersicht'
     | '/auth/callback'
@@ -2978,6 +3002,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/leitfragen'
     | '/_app/einstellungen/warengruppen/neu'
     | '/_app/einstellungen/zielkategorien/neu'
+    | '/_app/lieferanten/$id/aktivitaeten'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
     | '/_app/warengruppen/$id/segmentierung'
@@ -3221,6 +3246,13 @@ declare module '@tanstack/react-router' {
       path: '/fragen'
       fullPath: '/fragen'
       preLoaderRoute: typeof AppFragenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mein-tag': {
+      id: '/_app/mein-tag'
+      path: '/mein-tag'
+      fullPath: '/mein-tag'
+      preLoaderRoute: typeof AppMeinTagRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/menu': {
@@ -3655,6 +3687,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/lieferanten/$id/'
       preLoaderRoute: typeof AppLieferantenIdIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/lieferanten/$id/aktivitaeten': {
+      id: '/_app/lieferanten/$id/aktivitaeten'
+      path: '/aktivitaeten'
+      fullPath: '/lieferanten/$id/aktivitaeten'
+      preLoaderRoute: typeof AppLieferantenIdAktivitaetenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/portfolio/fokus/': {
@@ -5083,6 +5122,7 @@ const AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren =
   )
 
 interface AppLieferantenIdRouteRouteChildren {
+  AppLieferantenIdAktivitaetenRoute: typeof AppLieferantenIdAktivitaetenRoute
   AppLieferantenIdIndexRoute: typeof AppLieferantenIdIndexRoute
   AppLieferantenIdStrategieLieferantenplanRouteRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   AppLieferantenIdPlanFreigabeRoute: typeof AppLieferantenIdPlanFreigabeRoute
@@ -5171,6 +5211,7 @@ interface AppLieferantenIdRouteRouteChildren {
 }
 
 const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
+  AppLieferantenIdAktivitaetenRoute: AppLieferantenIdAktivitaetenRoute,
   AppLieferantenIdIndexRoute: AppLieferantenIdIndexRoute,
   AppLieferantenIdStrategieLieferantenplanRouteRoute:
     AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren,
@@ -5333,6 +5374,7 @@ const AppLieferantenIdRouteRouteWithChildren =
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
   AppFragenRoute: typeof AppFragenRoute
+  AppMeinTagRoute: typeof AppMeinTagRoute
   AppMenuRoute: typeof AppMenuRoute
   AppUebersichtRoute: typeof AppUebersichtRoute
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
@@ -5427,6 +5469,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
   AppFragenRoute: AppFragenRoute,
+  AppMeinTagRoute: AppMeinTagRoute,
   AppMenuRoute: AppMenuRoute,
   AppUebersichtRoute: AppUebersichtRoute,
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,

@@ -73,7 +73,7 @@ export function StartPage() {
   const accessToken = auth.user?.access_token ?? '';
   const query = useQuery({ ...startQueryOptions(accessToken), enabled: accessToken !== '' });
 
-  useDocumentTitle(t.start.title);
+  useDocumentTitle(supplierSide ? t.start.title : t.nav.myDay);
 
   const greeting = {
     morning: t.start.greetingMorning,

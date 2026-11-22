@@ -326,7 +326,13 @@ export function BridgePage({
 }
 
 /** /wirkung: Pipeline, Portfolio je BU und Geschäftsjahr, Freigaben, Top-Beziehungen. */
-export function PortfolioImpactPage({ search }: { search: ImpactSearch }) {
+export function PortfolioImpactPage({
+  search,
+  overview = false,
+}: {
+  search: ImpactSearch;
+  overview?: boolean;
+}) {
   const t = useT();
   const text = t.impact.portfolio;
   const canSee = useCan('wirkung.sehen');
@@ -338,7 +344,11 @@ export function PortfolioImpactPage({ search }: { search: ImpactSearch }) {
   });
   return (
     <>
-      <PageHeader size="list" title={text.title} purpose={text.purpose} />
+      <PageHeader
+        size="list"
+        title={overview ? t.nav.overview : text.title}
+        purpose={text.purpose}
+      />
       {!canSee ? (
         <EmptyState
           size="lg"
@@ -381,7 +391,7 @@ function PortfolioContent({
   );
   return (
     <>
-      <ViewControls path="/wirkung" view={view} data={data} />
+      <ViewControls path="/uebersicht" view={view} data={data} />
       <ExportButton
         view={view}
         fiscalYear={view === 'geschaeftsjahr' ? data.fiscalYear : undefined}

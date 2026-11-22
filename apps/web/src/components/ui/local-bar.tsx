@@ -33,6 +33,7 @@ function LocalBar({
   subLabel,
   activeSubKey,
   action,
+  navAction,
   sticky = true,
   renderLink = defaultRenderLink,
   className,
@@ -55,6 +56,8 @@ function LocalBar({
   activeSubKey?: string | undefined;
   /** z. B. der Knopf „Nächster Schritt“ (ZYK-01) */
   action?: React.ReactNode;
+  /** NAV-10: rechts in der klebenden Reiterzeile, z. B. der Knopf Profil */
+  navAction?: React.ReactNode;
   sticky?: boolean;
   renderLink?: RenderLink;
   className?: string;
@@ -94,7 +97,7 @@ function LocalBar({
           data-slot="local-bar-nav"
           className={cn('z-10 border-line border-b bg-card', sticky && 'sticky top-17')}
         >
-          <div className="mx-auto w-full max-w-300 px-4 pt-4 sm:px-12">
+          <div className="mx-auto flex w-full max-w-300 flex-wrap items-end justify-between gap-x-3 px-4 pt-4 sm:px-12">
             <ul className="-mb-px flex flex-wrap gap-x-1">
               {items.map((item) => (
                 <li key={item.key}>
@@ -107,6 +110,7 @@ function LocalBar({
                 </li>
               ))}
             </ul>
+            {navAction && <div className="pb-1.5">{navAction}</div>}
           </div>
         </div>
       </nav>

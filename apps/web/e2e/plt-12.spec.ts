@@ -7,7 +7,8 @@ import { fakeZitadel } from './fake-zitadel.js';
 
 test.use({ locale: 'de-DE' });
 
-const pages = ['/start', '/lieferanten', '/portfolio', '/wirkung', '/profil', '/einstellungen'];
+// NAV-10: die neuen Adressen; die alten leiten weiter und hätten kein eigenes Zurück-Ziel.
+const pages = ['/mein-tag', '/lieferanten', '/uebersicht', '/profil', '/einstellungen'];
 
 async function signIn(page: Page) {
   // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
@@ -96,7 +97,7 @@ test('Das Feld auf Start stellt eine Frage auf /fragen', async ({ page }) => {
   await expect(page).toHaveURL(/http:\/\/localhost:5174\/fragen\?q=/);
   await expect(questions(page).getByText('Hier ist der Link zu Portfolio.')).toBeVisible();
   await page.getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL('http://localhost:5174/portfolio');
+  await expect(page).toHaveURL(/\/lieferanten\?ansicht=matrix$/);
 });
 
 test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen', async ({
@@ -120,7 +121,7 @@ test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen',
   await page.keyboard.press('Enter');
   await expect(questions(page).getByRole('link', { name: 'Bereich öffnen' })).toBeVisible();
   await questions(page).getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL('http://localhost:5174/portfolio');
+  await expect(page).toHaveURL(/\/lieferanten\?ansicht=matrix$/);
 });
 
 for (const width of [1440, 390]) {

@@ -90,7 +90,9 @@ const teamPath = `/lieferanten/${id}/beziehung/team`;
 describe('Team einer Beziehung', () => {
   it('zeigt das Team mit Teamrolle und Funktion; das Profil führt dorthin', async () => {
     const router = renderAt(`/lieferanten/${id}/strategie/profil`);
-    fireEvent.click(await screen.findByRole('link', { name: 'Team' }));
+    // NAV-10: Team steht auch als Pille unter Profil; geklickt wird die Zeile auf der Profilseite.
+    const teamLinks = await screen.findAllByRole('link', { name: 'Team' });
+    fireEvent.click(teamLinks.at(-1) as HTMLElement);
     await waitFor(() => expect(router.state.location.pathname).toBe(teamPath));
     const table = await screen.findByRole('table', { name: 'Unser Team' });
     expect(

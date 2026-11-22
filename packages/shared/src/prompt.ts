@@ -22,6 +22,8 @@ export const promptRequestSchema = z.object({
     .refine((messages) => messages.at(-1)?.role === 'user', {
       message: 'Die letzte Nachricht muss eine Frage sein.',
     }),
+  // NAV-10: Auf der Seite eines Lieferanten bezieht sich die Frage auf ihn.
+  context: z.object({ relationshipId: z.uuid() }).optional(),
 });
 
 export type PromptRequest = z.infer<typeof promptRequestSchema>;

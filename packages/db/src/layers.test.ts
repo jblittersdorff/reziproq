@@ -190,8 +190,9 @@ describe('PLT-04: Drei Datenebenen', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
   const rows = new Map<string, RowMeta>();
 
+  // NAV-10: als Person der eigenen Organisation, damit „anlegen nur als man selbst“ (note) greift
   const session = (who: Viewer) => ({
-    userId: 'test-nutzer',
+    userId: (who.org && orgUsers[who.org]) || 'test-nutzer',
     organizationId: who.org,
     customerOrganizationId: who.customer,
   });

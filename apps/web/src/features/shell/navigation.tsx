@@ -6,10 +6,10 @@ import {
   ChartScatterIcon,
   FactoryIcon,
   HouseIcon,
+  type LucideIcon,
   MessageCircleQuestionIcon,
   ReceiptEuroIcon,
   UserRoundIcon,
-  type LucideIcon,
 } from 'lucide-react';
 import type { NavItem, RenderLink } from '@/components/ui/nav-link';
 import { useMe } from '@/features/auth/use-me';
@@ -19,7 +19,7 @@ import { useT } from '@/lib/i18n';
 // @reziproq/shared, rechts Fragen und Profil. Die Lieferantenseite hat Start, Kunden und Profil
 // (LIF-02). Leiste und Menüseite lesen von hier.
 
-export type NavKey = AreaKey | 'customers' | 'questions' | 'profile';
+export type NavKey = AreaKey | 'overview' | 'myDay' | 'customers' | 'questions' | 'profile';
 
 export interface NavTarget extends NavItem {
   key: NavKey;
@@ -36,6 +36,10 @@ const areaIcons: Record<AreaKey, LucideIcon> = {
 
 /** Welche Adressen zu welchem Ziel gehören; die längste passende gewinnt. */
 const sections: { prefix: string; key: NavKey }[] = [
+  { prefix: '/uebersicht', key: 'overview' },
+  { prefix: '/mein-tag', key: 'myDay' },
+  { prefix: '/portfolio', key: 'suppliers' },
+  { prefix: '/wirkung', key: 'overview' },
   ...areas.map((area) => ({ prefix: area.path, key: area.key })),
   { prefix: '/kunden', key: 'customers' },
   { prefix: '/fragen', key: 'questions' },
@@ -80,7 +84,16 @@ export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
     href: '/profil',
     icon: UserRoundIcon,
   };
-  if (buyer) return { main, actions: [questions, profile] };
+  // NAV-10: vier Hauptpunkte; solange /me lädt, ebenfalls, damit die Leiste nicht springt.
+  if (buyer)
+    return {
+      main: [
+        { key: 'overview', label: t.nav.overview, href: '/uebersicht', icon: ChartScatterIcon },
+        { key: 'myDay', label: t.nav.myDay, href: '/mein-tag', icon: HouseIcon },
+        ...main.filter((target) => target.key === 'suppliers' || target.key === 'materialGroups'),
+      ],
+      actions: [{ ...questions, label: t.nav.searchOrAsk }, profile],
+    };
   // Lieferantenseite (LIF-02): Start, Kunden und Fragen (QS-05: Suche im aktuellen Kunden).
   if (me.data?.permissions.viewCustomers) {
     const customer = /^\/kunden\/([0-9a-f-]{36})(?:\/|$)/.exec(pathname)?.[1];

@@ -1,9 +1,11 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { and, eq, schema } from '@reziproq/db';
 import {
   actions,
   defaultCategoryLabel,
   type MeResponse,
   type PermissionsResponse,
+  type StartPageRequest,
   type UserLocale,
 } from '@reziproq/shared';
 import { AccountStore, TenantDatabase } from '../../common/database.module.js';
@@ -59,6 +61,40 @@ export class MeService {
       isOperator: auth.isOperator,
     };
 
+    const buyerSettings = organization?.buyer
+      ? await this.tenant.run(
+          { userId: auth.userId, organizationId: organization.id },
+          async (tx) => {
+            const [setting] = await tx
+              .select()
+              .from(schema.userSetting)
+              .where(
+                and(
+                  eq(schema.userSetting.userId, auth.userId),
+                  eq(schema.userSetting.orgId, organization.id),
+                ),
+              );
+            const [lead] = await tx
+              .select({ id: schema.materialGroup.id })
+              .from(schema.materialGroup)
+              .where(
+                and(
+                  eq(schema.materialGroup.orgId, organization.id),
+                  eq(schema.materialGroup.active, true),
+                  eq(schema.materialGroup.leadUserId, auth.userId),
+                ),
+              )
+              .limit(1);
+            return {
+              categoryLabel: await readCategoryLabel(tx, organization.id),
+              startPage: setting?.startPage ?? null,
+              defaultOverview: subject.orgRole === 'admin' || Boolean(lead),
+            };
+          },
+          { readOnly: true },
+        )
+      : { categoryLabel: defaultCategoryLabel };
+
     return {
       name: info.name,
       firstName: givenName || firstWord(info.name),
@@ -69,14 +105,7 @@ export class MeService {
       isControlling: subject.isControlling,
       isOperator: subject.isOperator,
       locale: await this.accounts.localeOf(auth.userId),
-      // WG-01: eigene Bezeichnung der Warengruppe, z. B. „Werkstoffgruppe“
-      categoryLabel: organization?.buyer
-        ? await this.tenant.run(
-            { userId: auth.userId, organizationId: organization.id },
-            (tx) => readCategoryLabel(tx, organization.id),
-            { readOnly: true },
-          )
-        : defaultCategoryLabel,
+      ...buyerSettings,
       permissions: {
         viewOrganizationSettings: organization !== null && can(subject, 'organisation.sehen'),
         viewBuyerAreas: organization?.buyer ?? false,
@@ -87,6 +116,28 @@ export class MeService {
         viewCustomers: organization !== null && !organization.buyer && can(subject, 'kunden.sehen'),
       },
     };
+  }
+
+  async setStartPage(auth: AuthContext, page: StartPageRequest['startPage']): Promise<void> {
+    const org = auth.organization;
+    if (!org?.buyer || !can(auth, 'start.sehen')) throw new ForbiddenException();
+    await this.tenant.run({ userId: auth.userId, organizationId: org.id }, async (tx) => {
+      if (page === null) {
+        await tx
+          .delete(schema.userSetting)
+          .where(
+            and(eq(schema.userSetting.orgId, org.id), eq(schema.userSetting.userId, auth.userId)),
+          );
+      } else {
+        await tx
+          .insert(schema.userSetting)
+          .values({ orgId: org.id, userId: auth.userId, startPage: page })
+          .onConflictDoUpdate({
+            target: [schema.userSetting.orgId, schema.userSetting.userId],
+            set: { startPage: page },
+          });
+      }
+    });
   }
 
   /** Eigene Sprache ändern (PLT-09); gilt sofort und bei jedem späteren Login. */

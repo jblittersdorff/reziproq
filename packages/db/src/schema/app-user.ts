@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { boolean, check, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, check, pgTable, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 
 // Eine Person, die sich über Zitadel angemeldet hat. Name und E-Mail kommen vom
@@ -60,5 +60,22 @@ export const appUser = pgTable(
       'app_user_default_function',
       sql`${table.defaultFunction} in ('purchasing', 'quality', 'engineering', 'logistics', 'programs', 'after_sales')`,
     ),
+  ],
+);
+
+export const userSetting = pgTable(
+  'user_setting',
+  {
+    orgId: uuid('org_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => appUser.id, { onDelete: 'cascade' }),
+    startPage: text('start_page', { enum: ['overview', 'my_day'] }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.userId] }),
+    check('user_setting_start_page', sql`${table.startPage} in ('overview', 'my_day')`),
   ],
 );

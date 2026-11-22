@@ -118,7 +118,7 @@ describe('Antworten', () => {
     expect(router.state.location.pathname).toBe('/fragen');
     fireEvent.click(open);
     await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio'));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Portfolio' })).toBeDefined();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Matrix' })).toBeDefined();
   });
 
   it('verlinkt zum Spend der exakt gefundenen Lieferantenbeziehung', async () => {

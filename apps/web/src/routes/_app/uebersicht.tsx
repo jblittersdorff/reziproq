@@ -1,8 +1,15 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { impactViews } from '@reziproq/shared';
+import { createFileRoute } from '@tanstack/react-router';
+import { z } from 'zod';
+import { PortfolioImpactPage } from '@/features/impact/portfolio-pages';
 
-// Frühere Startseite; Lesezeichen führen jetzt zu Start (PLT-11).
+// PNL-10: Wirkung aller Fokuslieferanten; Sicht und Geschäftsjahr in der Adresse.
 export const Route = createFileRoute('/_app/uebersicht')({
-  beforeLoad: () => {
-    throw redirect({ to: '/start', replace: true });
+  validateSearch: z.object({
+    sicht: z.enum(impactViews).optional().catch(undefined),
+    gj: z.coerce.number().int().min(2000).max(2100).optional().catch(undefined),
+  }),
+  component: function Impact() {
+    return <PortfolioImpactPage overview search={Route.useSearch()} />;
   },
 });

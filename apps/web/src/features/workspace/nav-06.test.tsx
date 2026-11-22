@@ -155,37 +155,50 @@ afterEach(tearDownApp);
 const localBar = () => screen.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
 
 describe('Arbeitsbereich eines Lieferanten', () => {
-  it('Die lokale Leiste zeigt nur Bereiche mit gebauten Unterseiten; ein Klick springt zum Abschnitt, ohne Neuladen (UMB-05)', async () => {
+  it('NAV-10: Die Lieferantenleiste zeigt vier Reiter und den Knopf Profil; Unterseiten als Pillen', async () => {
     const router = renderAt(base);
     // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
-    const links = within(localBar()).getAllByRole('listitem');
-    // Wirkung hat seit PNL-01 die Unterseite Initiativen.
-    expect(links.map((item) => item.textContent)).toEqual([
-      'Strategie',
-      'Beziehung',
-      'Gemeinsamer Plan',
-      'Umsetzung',
-      'Wirkung',
+    const tabs = within(localBar()).getAllByRole('listitem');
+    expect(tabs.map((item) => item.textContent)).toEqual([
+      'Überblick',
+      'Aktivitäten',
+      'Plan',
+      'Ergebnisse',
     ]);
     // Der Name steht links in der Leiste und führt zum Überblick.
     expect(within(localBar()).getByRole('link', { name: detail.name }).getAttribute('href')).toBe(
       base,
     );
-    const bar = localBar();
-    for (const [label, segment] of [
-      ['Strategie', 'strategie'],
-      ['Beziehung', 'beziehung'],
-      ['Gemeinsamer Plan', 'plan'],
-      ['Umsetzung', 'umsetzung'],
+    expect(
+      within(localBar()).getByRole('link', { name: 'Überblick' }).getAttribute('aria-current'),
+    ).toBe('page');
+    for (const [label, path] of [
+      ['Aktivitäten', 'aktivitaeten'],
+      ['Plan', 'plan/vorbereitung'],
+      ['Ergebnisse', 'wirkung/bruecke'],
+      ['Profil', 'strategie/profil'],
     ] as const) {
-      const link = within(localBar()).getByRole('link', { name: label });
-      expect(link.getAttribute('href')).toBe(`${base}#${segment}`);
-      fireEvent.click(link);
-      await waitFor(() => expect(router.state.location.hash).toBe(segment));
-      expect(router.state.location.pathname).toBe(base);
+      expect(within(localBar()).getByRole('link', { name: label }).getAttribute('href')).toBe(
+        `${base}/${path}`,
+      );
     }
-    expect(localBar()).toBe(bar);
+    fireEvent.click(within(localBar()).getByRole('link', { name: 'Profil' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/strategie/profil`));
+    const pages = await screen.findByRole('navigation', { name: 'Seiten im Bereich' });
+    expect(
+      within(pages)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual([
+      'Profil',
+      'Spend',
+      'Segmentierung',
+      'Lieferantenplan',
+      'Team',
+      'Spielregeln',
+      'Kontaktpunkte',
+    ]);
   });
 
   it('Der Überblick zeigt je gebautem Bereich einen Abschnitt mit seinen Unterseiten als Zeilen, ohne Release-Hinweis (UMB-05)', async () => {
@@ -212,12 +225,12 @@ describe('Arbeitsbereich eines Lieferanten', () => {
           .map((link) => link.querySelector('span')?.textContent),
       ).toEqual(titles);
     }
-    // Wirkung (PNL-01) ist intern und führt zu den Initiativen.
-    const impact = screen.getByRole('region', { name: 'Wirkung' });
+    // Ergebnisse (PNL-01, NAV-10: früher Wirkung) sind intern und führen zu den Initiativen.
+    const impact = screen.getByRole('region', { name: 'Ergebnisse' });
     expect(impact.querySelector('[data-visibility="internal"]')).not.toBeNull();
     expect(
       within(impact)
-        .getByRole('link', { name: /^Wirkung je Initiative/ })
+        .getByRole('link', { name: /^Ergebnisse je Initiative/ })
         .getAttribute('href'),
     ).toBe(`${base}/wirkung/initiativen`);
     expect(document.body.textContent).not.toMatch(/Kommt (mit|nach) Release/);
@@ -359,9 +372,9 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     for (const page of pages) {
       const router = renderAgain(page.path);
       await screen.findByRole('heading', { level: 1, name: page.title });
-      // In der lokalen Leiste ist der Bereich markiert.
+      // NAV-10: Profil, Spend und Team liegen hinter dem Knopf Profil; er ist markiert.
       expect(
-        within(localBar()).getByRole('link', { name: page.area }).getAttribute('aria-current'),
+        within(localBar()).getByRole('link', { name: 'Profil' }).getAttribute('aria-current'),
       ).toBe('page');
       const path = screen.getByRole('navigation', { name: 'Pfad' });
       expect(

@@ -71,6 +71,7 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     manual: 'Spalte organization_id; nur lesen, Freischaltungen setzt der Betrieb',
   },
+  user_setting: { kind: 'org_private', manual: 'Private Startseite je Person und Organisation' },
   app_user: {
     kind: 'org_private',
     manual: 'Spalte organization_id; dazu sieht jede Person sich selbst, auch ohne Organisation',
@@ -813,6 +814,16 @@ export const layerRegister: Record<string, LayerEntry> = {
       external_item_id: org && probe('material_group_swot_item', org),
       lever_id: org && probe('lever', org),
       reason: 'Probe',
+    }),
+  },
+  // NAV-10: Notizen an Lieferanten; private sieht nur die Autorin (Policy note_private_author)
+  note: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      author_user_id: orgUser,
+      visibility: 'team',
+      kind: 'note',
+      text: 'Probe',
     }),
   },
   relationship_business_unit: {

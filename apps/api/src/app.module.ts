@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { DatabaseModule } from './common/database.module.js';
 import { env } from './config/env.js';
 import { ActionsModule } from './modules/actions/actions.module.js';
+import { ActivitiesModule } from './modules/activities/activities.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CommentsModule } from './modules/comments/comments.module.js';
@@ -74,6 +75,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     HintsModule,
     SearchModule,
     MaterialGroupsModule,
+    ActivitiesModule,
     JbpModule,
     ImpactModule,
     FeedbackModule,

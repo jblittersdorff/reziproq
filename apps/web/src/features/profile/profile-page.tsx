@@ -1,15 +1,18 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeftRightIcon, Building2Icon, LogOutIcon, SettingsIcon } from 'lucide-react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
 import { MasterDataLinks } from '@/features/master-data/links';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
+import { saveStartPage } from '@/lib/api';
 import { signedOut } from '@/lib/auth';
 import { useLocale, useT } from '@/lib/i18n';
 
@@ -22,6 +25,12 @@ export function ProfilePage() {
   const auth = useAuth();
   const me = useMe();
   const { locale } = useLocale();
+  const client = useQueryClient();
+  const startPage = useMutation({
+    mutationFn: (choice: 'overview' | 'my_day' | 'auto') =>
+      saveStartPage(auth.user?.access_token ?? '', choice === 'auto' ? null : choice),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['me'] }),
+  });
   const manageSettings = useCan('einstellungen.verwalten');
 
   return (
@@ -63,6 +72,23 @@ export function ProfilePage() {
           </SettingsGroup>
 
           <SettingsGroup title={t.profile.display}>
+            {me.data.organization && me.data.permissions.viewBuyerAreas && (
+              <SettingsRow label={t.nav.homePage}>
+                <fieldset disabled={startPage.isPending}>
+                  <SegmentedControl<'auto' | 'overview' | 'my_day'>
+                    label={t.nav.homePage}
+                    value={me.data.startPage ?? 'auto'}
+                    onChange={(value) => startPage.mutate(value)}
+                    options={[
+                      { value: 'auto', label: t.nav.roleDefault },
+                      { value: 'overview', label: t.nav.overview },
+                      { value: 'my_day', label: t.nav.myDay },
+                    ]}
+                  />
+                </fieldset>
+                {startPage.isError && <p role="alert">{t.language.failed}</p>}
+              </SettingsRow>
+            )}
             <SettingsLinkRow
               href="/profil/sprache"
               label={t.profile.language}

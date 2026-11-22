@@ -2,7 +2,6 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { TileMetric } from '@/components/ui/tile';
 import { useCan } from '@/features/auth/use-permissions';
-import { PageHeader } from '@/features/shell/page-header';
 import { TileGrid, WorkspaceTile } from '@/features/workspace/workspace-tile';
 import { useT } from '@/lib/i18n';
 import { useCycleStatus } from './cycle-status-page';
@@ -18,7 +17,6 @@ export function PortfolioPage() {
 
   return (
     <>
-      <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />
       ) : !query.data ? (

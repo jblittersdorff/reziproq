@@ -1,7 +1,6 @@
 import { impactViews } from '@reziproq/shared';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { z } from 'zod';
-import { PortfolioImpactPage } from '@/features/impact/portfolio-pages';
 
 // PNL-10: Wirkung aller Fokuslieferanten; Sicht und Geschäftsjahr in der Adresse.
 export const Route = createFileRoute('/_app/wirkung/')({
@@ -9,7 +8,5 @@ export const Route = createFileRoute('/_app/wirkung/')({
     sicht: z.enum(impactViews).optional().catch(undefined),
     gj: z.coerce.number().int().min(2000).max(2100).optional().catch(undefined),
   }),
-  component: function Impact() {
-    return <PortfolioImpactPage search={Route.useSearch()} />;
-  },
+  component: () => <Navigate to="/uebersicht" search={Route.useSearch()} replace />,
 });

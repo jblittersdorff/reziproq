@@ -1,14 +1,10 @@
 import {
-  type CustomLeverRequest,
-  type LeverChoiceRequest,
-  type StrategyAssessment,
-  strategyAssessmentSchema,
-  strategyLeverSchema,
-  type SwotRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
   type ActionStatus,
+  type ActivityFeed,
+  type ActivityFilter,
   type AddAssignment,
   type AnalysisStep,
   type AssignmentRequest,
@@ -17,6 +13,7 @@ import {
   actionItemSchema,
   actionListSchema,
   actionReminderSettingSchema,
+  activityFeedSchema,
   analysisStepSchema,
   assignmentResponseSchema,
   auditResponseSchema,
@@ -34,6 +31,7 @@ import {
   type CreateMeeting,
   type CreateRound,
   type CreateSupplierRequest,
+  type CustomLeverRequest,
   type CycleStatusQuery,
   categoryLabelSchema,
   categorySegmentationSchema,
@@ -101,6 +99,7 @@ import {
   kpiDetailSchema,
   kpiImportPreviewSchema,
   kpiListSchema,
+  type LeverChoiceRequest,
   type MarketAnalysis,
   type MaterialGroupRequest,
   type MergeMaterialGroup,
@@ -116,6 +115,8 @@ import {
   meResponseSchema,
   myActionsSchema,
   myFeedbackSchema,
+  type NotePatch,
+  type NoteRequest,
   nextCyclePreviewSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
@@ -196,9 +197,11 @@ import {
   type StartSurveyWave,
   type StrategicTopicOrder,
   type StrategicTopicRequest,
+  type StrategyAssessment,
   type SubmitSurvey,
   type SurveyKind,
   type SurveySide,
+  type SwotRequest,
   scorecardSettingSchema,
   scorecardViewSchema,
   searchResultsSchema,
@@ -206,7 +209,9 @@ import {
   segmentModelResponseSchema,
   spendOverviewSchema,
   startSchema,
+  strategyAssessmentSchema,
   strategyContextResponseSchema,
+  strategyLeverSchema,
   strategyOverviewSchema,
   strategyStepSchema,
   supplierDetailSchema,
@@ -453,6 +458,25 @@ export async function saveLocale(accessToken: string, locale: UserLocale): Promi
       'content-type': 'application/json',
     },
     body: JSON.stringify({ locale }),
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+}
+export async function saveStartPage(
+  accessToken: string,
+  startPage: 'overview' | 'my_day' | null,
+): Promise<void> {
+  const path = '/me/startseite';
+  const res = await fetch(`/api${path}`, {
+    method: 'PUT',
+    headers: {
+      ...supportHeaders(),
+      authorization: `Bearer ${accessToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ startPage }),
   });
   if (!res.ok) {
     const answer: unknown = await res.json().catch(() => null);
@@ -750,6 +774,63 @@ export const strategyStepQueryOptions = (accessToken: string, strategyId: string
       ),
     retry: retryUnlessDenied,
   });
+
+/** NAV-10: Aktivitäten eines Lieferanten und Notizen */
+export const activitiesQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  filter?: ActivityFilter,
+) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'aktivitaeten', filter ?? 'alles'],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/aktivitaeten${filter ? `?filter=${filter}` : ''}`,
+        activityFeedSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const addNote = (
+  accessToken: string,
+  relationshipId: string,
+  request: NoteRequest,
+): Promise<ActivityFeed> =>
+  sendJson(
+    'POST',
+    `/suppliers/${relationshipId}/notizen`,
+    request,
+    activityFeedSchema,
+    accessToken,
+  );
+
+export const updateNote = (
+  accessToken: string,
+  relationshipId: string,
+  noteId: string,
+  change: NotePatch,
+): Promise<ActivityFeed> =>
+  sendJson(
+    'PATCH',
+    `/suppliers/${relationshipId}/notizen/${noteId}`,
+    change,
+    activityFeedSchema,
+    accessToken,
+  );
+
+export const removeNote = (
+  accessToken: string,
+  relationshipId: string,
+  noteId: string,
+): Promise<ActivityFeed> =>
+  sendJson(
+    'DELETE',
+    `/suppliers/${relationshipId}/notizen/${noteId}`,
+    undefined,
+    activityFeedSchema,
+    accessToken,
+  );
 
 /** WG-10: Bewertung und Hebel in Schritt 6 */
 export const assessmentQueryOptions = (accessToken: string, strategyId: string) =>
@@ -1539,6 +1620,7 @@ export async function streamPrompt(
   messages: PromptRequest['messages'],
   onEvent: (event: PromptEvent) => void,
   signal: AbortSignal,
+  context?: PromptRequest['context'],
 ): Promise<void> {
   const res = await fetch('/api/prompt', {
     method: 'POST',
@@ -1547,7 +1629,7 @@ export async function streamPrompt(
       authorization: `Bearer ${accessToken}`,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify(context ? { messages, context } : { messages }),
     signal,
   });
   if (!res.ok || !res.body) throw new ApiError('/prompt', res.status, await forbiddenCode(res));
