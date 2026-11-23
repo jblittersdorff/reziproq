@@ -76,8 +76,10 @@ describe('demo:setup', () => {
     const meetings = await query<{ created_by_name: string; status: string }>(
       sql`select created_by_name, status from meeting order by starts_at`,
     );
+    // Dazu der QBR in sieben Tagen aus der Demo-Geschichte
     expect(meetings).toEqual([
       { created_by_name: 'OEM 1', status: 'closed' },
+      { created_by_name: 'OEM 1', status: 'planned' },
       { created_by_name: 'OEM 1', status: 'planned' },
     ]);
     // Maßnahmen gehören danach den Konten (QBR-03).
@@ -95,8 +97,37 @@ describe('demo:setup', () => {
     expect(demo[0]?.n).toBe(18);
   });
 
+  it('legt die Demo-Geschichte an: Fokus, Plan, bestätigte Monate, Zusagen, Scorecard, QBR, Ziele', async () => {
+    const count = async (table: string) =>
+      Number(
+        (
+          await query<{ n: string }>(sql`select count(*)::text as n from ${sql.identifier(table)}`)
+        )[0]?.n,
+      );
+    expect(await count('jbp')).toBe(2);
+    expect(await count('initiative')).toBeGreaterThanOrEqual(2);
+    expect(await count('commitment')).toBe(4);
+    expect(await count('scorecard_kpi')).toBe(2);
+    expect(await count('relationship_ebit_target')).toBe(1);
+    const qbr = await query<{ id: string }>(sql`
+      select id from meeting where type = 'quarterly_review' and starts_at::date = current_date + 7
+        and relationship_id in (select id from relationship where supplier_org_id = ${seedSupplierOrg.id}
+          and buyer_org_id = ${seedBuyers.testOem.id})`);
+    expect(qbr).toHaveLength(1);
+    const settings = await query<{ key: string }>(sql`
+      select key from org_setting where org_id = ${seedBuyers.testOem.id} order by key`);
+    expect(settings.map((row) => row.key)).toEqual(
+      expect.arrayContaining(['ai_public_research', 'goal_ebit_year']),
+    );
+  });
+
   it('ein zweiter Lauf ändert nichts mehr', async () => {
     const again = await demoSetup(temp.db, 'development');
-    expect(again).toMatchObject({ removedPeople: 0, removedTestOrganizations: 0 });
+    expect(again).toMatchObject({
+      removedPeople: 0,
+      removedTestOrganizations: 0,
+      story: { created: false },
+    });
+    expect((await query<{ n: string }>(sql`select count(*)::text as n from jbp`))[0]?.n).toBe('2');
   });
 });

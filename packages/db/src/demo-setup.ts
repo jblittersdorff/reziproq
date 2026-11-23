@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
+import { demoStory } from './demo-story.js';
 import { seedBuyers, seedSupplierOrg } from './seed.js';
 
 // pnpm demo:setup: Die lokalen Beispieldaten gehören danach deinen echten Konten statt erfundenen
@@ -12,6 +13,7 @@ export interface DemoSetupResult {
   supplier: { id: string; name: string } | null;
   removedPeople: number;
   removedTestOrganizations: number;
+  story: { created: boolean; relationships: string[] };
 }
 
 /** Testreste erkennt man am Namen: „Präfix 1a2b3c4d“ oder „test-präfix-1a2b3c4d“ aus Tests. */
@@ -226,6 +228,8 @@ export async function demoSetup(
       await tx.execute(sql`delete from app_user where id in ${zweit}`);
       removedPeople += zweit.length;
     }
-    return { buyer, supplier, removedPeople, removedTestOrganizations };
+    // Eine zusammenhängende Geschichte, damit jede Seite Inhalt hat (einmalig)
+    const story = buyer ? await demoStory(tx, buyer) : { created: false, relationships: [] };
+    return { buyer, supplier, removedPeople, removedTestOrganizations, story };
   });
 }

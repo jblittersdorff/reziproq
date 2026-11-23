@@ -4516,6 +4516,7 @@ export const de = {
     outboundNone: 'Nach außen ging nichts.',
     gapsTitle: 'Mit diesen Daten fände er mehr',
     gapMissing: 'fehlt',
+    moreGaps: (count: number) => `${count} weitere Datenlücken`,
     gapsEmpty: 'Keine offenen Datenlücken.',
     gapRequested: 'angefragt',
     requestDraft: (name: string) => `Anfrage an ${name} entwerfen`,

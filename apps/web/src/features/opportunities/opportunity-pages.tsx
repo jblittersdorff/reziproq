@@ -719,16 +719,42 @@ function SidePanels({
         {data.dataGaps.length === 0 ? (
           <p className="px-5.5 pb-5 text-muted-foreground text-sm">{text.gapsEmpty}</p>
         ) : (
-          data.dataGaps.map((gap) => (
-            <GapRow
-              key={gap.id}
-              gap={gap}
-              supplierName={supplierName}
-              canDecide={data.canDecide}
-              relationshipId={relationshipId}
-              onChanged={onChanged}
-            />
-          ))
+          <>
+            {/* Die Lücken, die die meisten Vorlagen blockieren, zuerst; weitere aufklappbar. */}
+            {[...data.dataGaps]
+              .sort((a, b) => b.templatesBlocked.length - a.templatesBlocked.length)
+              .slice(0, 5)
+              .map((gap) => (
+                <GapRow
+                  key={gap.id}
+                  gap={gap}
+                  supplierName={supplierName}
+                  canDecide={data.canDecide}
+                  relationshipId={relationshipId}
+                  onChanged={onChanged}
+                />
+              ))}
+            {data.dataGaps.length > 5 && (
+              <details className="border-line-soft border-t">
+                <summary className="cursor-pointer px-5.5 py-3.5 font-semibold text-sm">
+                  {text.moreGaps(data.dataGaps.length - 5)}
+                </summary>
+                {[...data.dataGaps]
+                  .sort((a, b) => b.templatesBlocked.length - a.templatesBlocked.length)
+                  .slice(5)
+                  .map((gap) => (
+                    <GapRow
+                      key={gap.id}
+                      gap={gap}
+                      supplierName={supplierName}
+                      canDecide={data.canDecide}
+                      relationshipId={relationshipId}
+                      onChanged={onChanged}
+                    />
+                  ))}
+              </details>
+            )}
+          </>
         )}
         {data.canDecide && data.dataGaps.some((gap) => gap.status === 'open') && (
           <p className="border-line-soft border-t px-5.5 py-3.5 text-muted-foreground text-sm">

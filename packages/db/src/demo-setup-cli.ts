@@ -11,6 +11,9 @@ export function reportDemoSetup(result: DemoSetupResult) {
       ? `Lieferant: ${result.supplier.name} ist Admin und Key Account Manager beim Test-Lieferanten.`
       : 'Lieferant: noch kein echtes Konto beim Test-Lieferanten. Einmal anmelden, dann erneut ausführen.',
     `Erfundene Personen entfernt: ${result.removedPeople}. Reste aus Testläufen entfernt: ${result.removedTestOrganizations} Organisationen.`,
+    result.story.created
+      ? `Demo-Geschichte angelegt für ${result.story.relationships.length} Fokuslieferanten (Plan, Initiativen, Zusagen, Scorecard, QBR in 7 Tagen, Ziele).`
+      : 'Demo-Geschichte besteht schon oder ist nicht möglich; nichts geändert.',
   ];
   for (const line of lines) console.log(line);
 }

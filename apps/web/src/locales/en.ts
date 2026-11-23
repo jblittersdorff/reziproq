@@ -4411,6 +4411,7 @@ export const en: Messages = {
     outboundNone: 'Nothing was sent outside.',
     gapsTitle: 'With this data it would find more',
     gapMissing: 'missing',
+    moreGaps: (count: number) => `${count} more data gaps`,
     gapsEmpty: 'No open data gaps.',
     gapRequested: 'requested',
     requestDraft: (name: string) => `Draft a request to ${name}`,
