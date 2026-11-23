@@ -82,10 +82,13 @@ import {
   type EditCaptureItem,
   type EditComment,
   type ExtendRound,
+  type FileMailRequest,
   type FiscalYearSetting,
   type ForbiddenCode,
   type FreezeBaseline,
   feedbackThemesSchema,
+  filedMailBodySchema,
+  fileMailResultSchema,
   financialImportResultSchema,
   fiscalYearSettingSchema,
   focusDetailSchema,
@@ -130,6 +133,7 @@ import {
   kpiImportPreviewSchema,
   kpiListSchema,
   type LeverChoiceRequest,
+  type MailDetectRequest,
   type MarketAnalysis,
   type MaterialGroupRequest,
   type MergeMaterialGroup,
@@ -846,7 +850,7 @@ export const supplierRingsQueryOptions = (accessToken: string, relationshipId: s
 
 const sendNoContent = async (
   accessToken: string,
-  method: 'PUT' | 'POST',
+  method: 'PUT' | 'POST' | 'DELETE',
   path: string,
   body: unknown,
 ) => {
@@ -4017,3 +4021,47 @@ export const detectAddin = (accessToken: string, attendees: string[], subject: s
 
 export const registerAddin = (accessToken: string, input: AddinRegister) =>
   sendJson('POST', '/termine/addin', input, addinRegisteredSchema, accessToken);
+
+/** IN-04: Outlook-Add-in in einer gelesenen Mail */
+export const detectMail = (accessToken: string, input: MailDetectRequest) =>
+  sendJson('POST', '/mails/addin/erkennen', input, addinDetectSchema, accessToken);
+
+/** IN-04: „In Reziproq ablegen“, die API liest genau diese Mail über Microsoft Graph */
+export const fileMail = (accessToken: string, input: FileMailRequest) =>
+  sendJson('POST', '/mails/addin/ablegen', input, fileMailResultSchema, accessToken);
+
+/** IN-04: Text einer abgelegten Mail zum Aufklappen */
+export const filedMailQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  mailId: string,
+) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'mails', mailId],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/mails/${mailId}`, filedMailBodySchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const removeFiledMail = (accessToken: string, relationshipId: string, mailId: string) =>
+  sendNoContent(accessToken, 'DELETE', `/suppliers/${relationshipId}/mails/${mailId}`, {});
+
+/** IN-04: Anhang laden und speichern; nichts wird im Browser aufbewahrt */
+export async function downloadMailAttachment(
+  accessToken: string,
+  relationshipId: string,
+  mailId: string,
+  attachment: { id: string; fileName: string },
+) {
+  const path = `/suppliers/${relationshipId}/mails/${mailId}/anhaenge/${attachment.id}`;
+  const res = await fetch(`/api${path}`, {
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res), null);
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = attachment.fileName;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}

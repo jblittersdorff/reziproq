@@ -32,6 +32,7 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
 const uuid = (n: number) => `0190a0a0-0000-7000-8000-0000000000${String(n).padStart(2, '0')}`;
 const item = (n: number, overrides: Partial<InboundItemView>): InboundItemView => ({
   id: uuid(n),
+  kind: 'meeting',
   source: 'inbound_mail',
   receivedAt: '2026-11-23T08:00:00Z',
   subject: 'Termin',
@@ -74,7 +75,9 @@ const inbox = (): Inbox => ({
       status: 'auto_assigned',
       objectType: 'meeting',
       suggestedType: 'quarterly_review',
-      assigned: [{ relationshipId: uuid(53), name: 'Nordwerk Guss', meetingId: uuid(60) }],
+      assigned: [
+        { relationshipId: uuid(53), name: 'Nordwerk Guss', meetingId: uuid(60), mailId: null },
+      ],
     }),
   ],
   suppliers: [
@@ -125,12 +128,16 @@ describe('IN-03 Neu eingegangen', () => {
       .getByRole('heading', { level: 2, name: 'Heute selbst zugeordnet · 1' })
       .closest('section') as HTMLElement;
     expect(within(today).getByText('QBR Nordwerk Guss')).toBeTruthy();
-    expect(within(today).getByText(/Quartalsreview · Einladung an die Eingangsadresse/)).toBeTruthy();
+    expect(
+      within(today).getByText(/Quartalsreview · Einladung an die Eingangsadresse/),
+    ).toBeTruthy();
   });
 
   it('Speichern ordnet mit Typ zu; Bei beiden legt beide an; Ereignis und Ignorieren', async () => {
     renderAt('/mein-tag/eingang');
-    const first = (await screen.findByText('Abstimmung Musterteile Starrflex')).closest('li') as HTMLElement;
+    const first = (await screen.findByText('Abstimmung Musterteile Starrflex')).closest(
+      'li',
+    ) as HTMLElement;
     expect(((await within(first).findByLabelText('Termintyp')) as HTMLSelectElement).value).toBe(
       'site_visit',
     );
@@ -144,7 +151,9 @@ describe('IN-03 Neu eingegangen', () => {
     const second = screen.getByText('Call Guss Q1').closest('li') as HTMLElement;
     fireEvent.click(within(second).getByRole('button', { name: 'Bei beiden' }));
     await waitFor(() =>
-      expect(sent[1]).toMatchObject({ body: { action: 'assign', relationshipIds: [uuid(51), uuid(52)] } }),
+      expect(sent[1]).toMatchObject({
+        body: { action: 'assign', relationshipIds: [uuid(51), uuid(52)] },
+      }),
     );
     const third = screen.getByText('Lieferantentag 2027').closest('li') as HTMLElement;
     fireEvent.click(within(third).getByRole('button', { name: 'Als Ereignis speichern' }));
@@ -257,7 +266,9 @@ describe('IN-03 Outlook-Add-in', () => {
     expect(await screen.findByText('Erkannter Lieferant')).toBeTruthy();
     expect((screen.getByLabelText('Termintyp') as HTMLSelectElement).value).toBe('jbp');
     fireEvent.click(screen.getByRole('switch', { name: 'Transkript übernehmen' }));
-    fireEvent.click(screen.getByRole('switch', { name: 'Agenda einfügen, sobald das Briefing steht' }));
+    fireEvent.click(
+      screen.getByRole('switch', { name: 'Agenda einfügen, sobald das Briefing steht' }),
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Als Aktivität speichern' }));
     await waitFor(() =>
       expect(sent[0]?.body).toMatchObject({

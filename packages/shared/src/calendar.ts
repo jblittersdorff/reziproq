@@ -14,6 +14,8 @@ export const inboundStatuses = [
 
 export const inboundItemViewSchema = z.object({
   id: z.uuid(),
+  // IN-04: auch weitergeleitete Mails, die noch einem Lieferanten zugeordnet werden
+  kind: z.enum(['meeting', 'mail']),
   source: z.enum(inboundSources),
   receivedAt: z.iso.datetime(),
   subject: z.string(),
@@ -26,9 +28,16 @@ export const inboundItemViewSchema = z.object({
   suggestionReason: z.string().nullable(),
   suggestedType: z.enum(meetingTypes),
   status: z.enum(inboundStatuses),
-  objectType: z.enum(['meeting', 'event']).nullable(),
-  /** Zugeordnete Lieferanten mit Termin */
-  assigned: z.array(z.object({ relationshipId: z.uuid(), name: z.string(), meetingId: z.uuid() })),
+  objectType: z.enum(['meeting', 'event', 'filed_mail']).nullable(),
+  /** Zugeordnete Lieferanten mit Termin bzw. abgelegter Mail */
+  assigned: z.array(
+    z.object({
+      relationshipId: z.uuid(),
+      name: z.string(),
+      meetingId: z.uuid().nullable(),
+      mailId: z.uuid().nullable(),
+    }),
+  ),
 });
 export type InboundItemView = z.infer<typeof inboundItemViewSchema>;
 

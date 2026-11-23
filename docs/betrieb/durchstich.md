@@ -41,7 +41,7 @@ Entra ID › App-Registrierungen › Neue Registrierung:
   - `http://localhost:3000/api/anbindungen/oauth/microsoft/callback` (Teil 2, lokale API)
 - Zertifikate und Geheimnisse › Neuer geheimer Clientschlüssel: **Wert** sofort kopieren.
 - API-Berechtigungen (delegiert, Microsoft Graph): `openid`, `profile`, `email`, `offline_access`,
-  `User.Read`, `Calendars.ReadWrite`. Im Testmandanten **Administratorzustimmung erteilen**.
+  `User.Read`, `Calendars.ReadWrite`, `Mail.Read` (IN-04: nur für „In Reziproq ablegen“). Im Testmandanten **Administratorzustimmung erteilen**.
 
 Notiere **Anwendungs-ID (Client-ID)** und **geheimen Clientschlüssel**.
 

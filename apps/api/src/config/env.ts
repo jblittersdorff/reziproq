@@ -55,6 +55,8 @@ const envSchema = z.object({
   // App-Registrierung aus SSO_ENTRA_CLIENT_ID/SECRET; die API ist unter API_PUBLIC_URL erreichbar
   // (Rückkehr von Microsoft nach der Anmeldung beim Kalender).
   MICROSOFT_PROVIDER: z.preprocess(emptyAsUndefined, z.enum(['fake', 'live']).default('fake')),
+  // IN-04: Ordner für Anhänge abgelegter Mails (lokal); im Betrieb S3 (Block C)
+  FILE_STORE_DIR: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
   API_PUBLIC_URL: z.preprocess(
     emptyAsUndefined,
     z
@@ -109,8 +111,13 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
       throw new Error('Produktionsdaten dürfen nur in einer AWS-EU-Region verarbeitet werden.');
     }
   }
-  if (env.MICROSOFT_PROVIDER === 'live' && (!env.SSO_ENTRA_CLIENT_ID || !env.SSO_ENTRA_CLIENT_SECRET)) {
-    throw new Error('MICROSOFT_PROVIDER=live braucht SSO_ENTRA_CLIENT_ID und SSO_ENTRA_CLIENT_SECRET.');
+  if (
+    env.MICROSOFT_PROVIDER === 'live' &&
+    (!env.SSO_ENTRA_CLIENT_ID || !env.SSO_ENTRA_CLIENT_SECRET)
+  ) {
+    throw new Error(
+      'MICROSOFT_PROVIDER=live braucht SSO_ENTRA_CLIENT_ID und SSO_ENTRA_CLIENT_SECRET.',
+    );
   }
   if (env.IDENTITY_PROVIDER === 'zitadel' && !env.ZITADEL_SERVICE_TOKEN) {
     throw new Error('IDENTITY_PROVIDER=zitadel braucht ZITADEL_SERVICE_TOKEN in der .env.');

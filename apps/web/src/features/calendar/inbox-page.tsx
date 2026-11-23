@@ -68,7 +68,11 @@ export function InboxPage() {
         <>
           <NextStep
             eyebrow={text.nextEyebrow}
-            title={data.open.length > 0 ? text.nextTitle(data.open.length) : text.doneTitle}
+            title={
+              data.open.length > 0
+                ? text.nextTitle(data.open.length, kindOf(data.open))
+                : text.doneTitle
+            }
             text={data.open.length > 0 ? text.nextText : text.doneText}
           />
           {message && <StatusLine message={message.text} tone={message.tone} />}
@@ -115,6 +119,7 @@ export function InboxPage() {
                 <ul className="flex flex-col gap-2 text-sm">
                   <li>{text.howAddin}</li>
                   <li>{text.howMail}</li>
+                  <li>{text.howForward}</li>
                   <li>{text.howCalendar}</li>
                 </ul>
               </section>
@@ -138,6 +143,12 @@ export function InboxPage() {
   );
 }
 
+/** IN-04: Warten nur Termine, nur Mails oder beides? Davon hängt der Text der Zahl ab. */
+function kindOf(items: InboundItemView[]): 'meeting' | 'mail' | 'mixed' {
+  const kinds = new Set(items.map((item) => item.kind));
+  return kinds.size > 1 ? 'mixed' : kinds.has('mail') ? 'mail' : 'meeting';
+}
+
 function OpenItem({
   item,
   suppliers,
@@ -150,7 +161,11 @@ function OpenItem({
   const t = useT();
   const text = t.inbox;
   const format = useFormat();
-  const canEdit = useCan('termine.bearbeiten');
+  // IN-04: Mails legt ab, wer Notizen schreiben darf; Termine, wer Termine bearbeiten darf
+  const isMail = item.kind === 'mail';
+  const canEditMeetings = useCan('termine.bearbeiten');
+  const canFileMails = useCan('notizen.schreiben');
+  const canEdit = isMail ? canFileMails : canEditMeetings;
   const id = useId();
   const [type, setType] = useState<MeetingType>(item.suggestedType);
   const [supplier, setSupplier] = useState(
@@ -173,13 +188,17 @@ function OpenItem({
     <li className="flex flex-col gap-3 border-line-soft border-t py-4 first:border-t-0">
       <div className="flex flex-col gap-1">
         <span className="text-muted-foreground text-chip">
-          {[text.sources[item.source], item.organizer ? text.invitedBy(item.organizer) : null]
-            .filter(Boolean)
-            .join(' · ')}
+          {isMail
+            ? text.forwardedMail
+            : [text.sources[item.source], item.organizer ? text.invitedBy(item.organizer) : null]
+                .filter(Boolean)
+                .join(' · ')}
         </span>
-        <strong className="font-semibold">{item.subject}</strong>
+        <strong className="break-words font-semibold">{item.subject}</strong>
         <span className="text-muted-foreground text-sm">
-          {`${format.dateTime(item.startsAt)} · ${text.attendees(item.attendees)}`}
+          {isMail
+            ? `${text.mailFrom(item.organizer ?? '')} · ${format.dateTime(item.startsAt)}`
+            : `${format.dateTime(item.startsAt)} · ${text.attendees(item.attendees)}`}
         </span>
       </div>
       <div className="flex flex-col gap-1 rounded-md bg-background p-3">
@@ -209,24 +228,26 @@ function OpenItem({
               </NativeSelect>
             </div>
           )}
-          <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1 text-sm">
-            <label htmlFor={`${id}-typ`} className="font-semibold">
-              {text.typeLabel}
-            </label>
-            <NativeSelect
-              id={`${id}-typ`}
-              value={type}
-              onChange={(event) => setType(event.target.value as MeetingType)}
-            >
-              {meetingTypes
-                .filter((entry) => entry !== 'format')
-                .map((entry) => (
-                  <option key={entry} value={entry}>
-                    {t.meetings.types[entry]}
-                  </option>
-                ))}
-            </NativeSelect>
-          </div>
+          {!isMail && (
+            <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1 text-sm">
+              <label htmlFor={`${id}-typ`} className="font-semibold">
+                {text.typeLabel}
+              </label>
+              <NativeSelect
+                id={`${id}-typ`}
+                value={type}
+                onChange={(event) => setType(event.target.value as MeetingType)}
+              >
+                {meetingTypes
+                  .filter((entry) => entry !== 'format')
+                  .map((entry) => (
+                    <option key={entry} value={entry}>
+                      {t.meetings.types[entry]}
+                    </option>
+                  ))}
+              </NativeSelect>
+            </div>
+          )}
         </div>
       )}
       <div className="flex flex-wrap gap-2">
@@ -249,19 +270,21 @@ function OpenItem({
                 {entry.name}
               </Button>
             ))}
-            <Button
-              size="sm"
-              loading={busy === 'both'}
-              onClick={() =>
-                void run('both', {
-                  action: 'assign',
-                  relationshipIds: item.suggestions.map((entry) => entry.relationshipId),
-                  type,
-                })
-              }
-            >
-              {text.both}
-            </Button>
+            {!isMail && (
+              <Button
+                size="sm"
+                loading={busy === 'both'}
+                onClick={() =>
+                  void run('both', {
+                    action: 'assign',
+                    relationshipIds: item.suggestions.map((entry) => entry.relationshipId),
+                    type,
+                  })
+                }
+              >
+                {text.both}
+              </Button>
+            )}
           </>
         )}
         {canEdit &&
@@ -274,10 +297,10 @@ function OpenItem({
                 void run('save', { action: 'assign', relationshipIds: [supplier], type })
               }
             >
-              {text.save}
+              {isMail ? text.fileMail : text.save}
             </Button>
           )}
-        {(item.suggestionKind === 'event' || item.suggestionKind === 'none') && (
+        {!isMail && (item.suggestionKind === 'event' || item.suggestionKind === 'none') && (
           <Button
             variant="outline"
             size="sm"
@@ -329,7 +352,9 @@ function TodayList({ items }: { items: InboundItemView[] }) {
                 <span className="flex min-w-0 flex-1 flex-col">
                   {first ? (
                     routerLink({
-                      href: `/lieferanten/${first.relationshipId}/umsetzung/termine/${first.meetingId}`,
+                      href: first.mailId
+                        ? `/lieferanten/${first.relationshipId}/aktivitaeten#mail-${first.mailId}`
+                        : `/lieferanten/${first.relationshipId}/umsetzung/termine/${first.meetingId}`,
                       className:
                         'truncate font-semibold text-sm text-text no-underline hover:underline',
                       children: item.subject,
@@ -338,13 +363,23 @@ function TodayList({ items }: { items: InboundItemView[] }) {
                     <span className="truncate font-semibold text-sm">{item.subject}</span>
                   )}
                   <span className="text-muted-foreground text-chip">
-                    {[t.meetings.types[item.suggestedType], text.sources[item.source], first?.name]
+                    {[
+                      item.kind === 'mail'
+                        ? text.forwardedMail
+                        : t.meetings.types[item.suggestedType],
+                      item.kind === 'mail' ? null : text.sources[item.source],
+                      first?.name,
+                    ]
                       .filter(Boolean)
                       .join(' · ')}
                   </span>
                 </span>
                 <Badge variant="neutral">
-                  {item.objectType === 'event' ? text.event : text.meeting}
+                  {item.objectType === 'filed_mail'
+                    ? text.mail
+                    : item.objectType === 'event'
+                      ? text.event
+                      : text.meeting}
                 </Badge>
               </li>
             );
@@ -372,7 +407,7 @@ export function InboxTile() {
       <ListCardHeader id="start-eingang" title={text.navTitle} />
       <div className="flex flex-col gap-2 px-5.5 pb-5">
         <p className={cn('text-sm', count === 0 && 'text-muted-foreground')}>
-          {count > 0 ? text.tileCount(count) : text.tileEmpty}
+          {count > 0 ? text.tileCount(count, kindOf(query.data.open)) : text.tileEmpty}
         </p>
         {count > 0 &&
           routerLink({

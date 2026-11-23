@@ -48,7 +48,7 @@ describe('Durchstich: Microsoft 365 echt', () => {
       'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize',
     );
     expect(url.searchParams.get('scope')).toBe(
-      'offline_access openid User.Read Calendars.ReadWrite',
+      'offline_access openid User.Read Calendars.ReadWrite Mail.Read',
     );
     expect(url.searchParams.get('redirect_uri')).toBe(app365.redirectUri);
     const calls = fakeRemote((target) =>

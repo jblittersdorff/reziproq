@@ -79,6 +79,18 @@ export interface InboundDetails {
   organizerEmail: string | null;
   organizerName: string | null;
   attendees: { email: string; name: string | null; response: string | null }[];
+  // IN-04: weitergeleitete Mail, die noch zugeordnet wird (Text ohne HTML, Anhänge in der Ablage).
+  // Nach dem Zuordnen oder Ignorieren wird sie hier gelöscht.
+  mail?: {
+    messageId: string;
+    fromEmail: string;
+    fromName: string | null;
+    toEmails: string[];
+    sentAt: string;
+    bodyText: string;
+    forwardedBy: string;
+    attachments: { fileName: string; mime: string; size: number; fileKey: string | null }[];
+  };
 }
 
 /**
@@ -90,7 +102,9 @@ export const inboundItem = pgTable(
   {
     id: uuid().primaryKey().default(sql`uuidv7()`),
     orgId: orgId(),
-    kind: text({ enum: ['meeting', 'mail'] }).notNull().default('meeting'),
+    kind: text({ enum: ['meeting', 'mail'] })
+      .notNull()
+      .default('meeting'),
     source: text({ enum: ['outlook_addin', 'inbound_mail', 'calendar_sync'] }).notNull(),
     receivedAt: time().notNull().defaultNow(),
     fromEmail: text(),
@@ -110,7 +124,7 @@ export const inboundItem = pgTable(
     assigneeUserId: text(),
     assignedBy: text(),
     assignedAt: time(),
-    objectType: text({ enum: ['meeting', 'event'] }),
+    objectType: text({ enum: ['meeting', 'event', 'filed_mail'] }),
     objectIds: jsonb().$type<string[]>().notNull().default([]),
     registrationId: uuid(),
   },
@@ -119,7 +133,10 @@ export const inboundItem = pgTable(
       'inbound_item_status',
       sql`${table.status} in ('auto_assigned', 'needs_review', 'assigned', 'ignored', 'rejected')`,
     ),
-    check('inbound_item_source', sql`${table.source} in ('outlook_addin', 'inbound_mail', 'calendar_sync')`),
+    check(
+      'inbound_item_source',
+      sql`${table.source} in ('outlook_addin', 'inbound_mail', 'calendar_sync')`,
+    ),
     index('inbound_item_org').on(table.orgId, table.status, table.receivedAt),
     index('inbound_item_uid').on(table.orgId, table.icalUid),
   ],
@@ -144,5 +161,7 @@ export const addinRegistration = pgTable(
     createdAt: time().notNull().defaultNow(),
     matchedMeetingId: uuid(),
   },
-  (table) => [index('addin_registration_match').on(table.orgId, table.organizerEmail, table.startAt)],
+  (table) => [
+    index('addin_registration_match').on(table.orgId, table.organizerEmail, table.startAt),
+  ],
 );

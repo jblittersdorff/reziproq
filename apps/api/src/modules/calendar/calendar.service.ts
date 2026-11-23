@@ -74,6 +74,18 @@ export class CalendarIntakeService implements OnModuleInit {
     @Inject(GRAPH_CLIENT) private readonly graph: GraphClient,
   ) {}
 
+  /** IN-04: weitergeleitete Mails in „Neu eingegangen“ legt der Mail-Dienst ab bzw. verwirft sie */
+  mailDecider:
+    | {
+        assign: (
+          auth: AuthContext,
+          inboundId: string,
+          relationshipId: string,
+        ) => Promise<string | null>;
+        discard: (orgId: string, inboundId: string) => Promise<void>;
+      }
+    | undefined;
+
   onModuleInit() {
     this.handlers.register('calendar_invite', (context, item) => this.fromMail(context, item));
     this.handlers.register('calendar_event', (context, item) => this.fromCalendar(context, item));
@@ -554,7 +566,23 @@ export class CalendarIntakeService implements OnModuleInit {
         const names = new Map(suppliers.rows.map((row) => [row.id, row.name]));
         const meetingRows = await this.meetingsOf(
           tx,
-          today.flatMap((row) => row.objectIds),
+          today.filter((row) => row.objectType === 'meeting').flatMap((row) => row.objectIds),
+        );
+        const mailIds = today
+          .filter((row) => row.objectType === 'filed_mail')
+          .flatMap((row) => row.objectIds);
+        const mailRows = new Map(
+          mailIds.length === 0
+            ? []
+            : (
+                await tx
+                  .select({
+                    id: schema.filedMail.id,
+                    relationshipId: schema.filedMail.relationshipId,
+                  })
+                  .from(schema.filedMail)
+                  .where(inArray(schema.filedMail.id, mailIds))
+              ).map((mail) => [mail.id, mail.relationshipId]),
         );
         const [active] = await tx
           .select({ id: schema.connection.id })
@@ -572,6 +600,7 @@ export class CalendarIntakeService implements OnModuleInit {
           .limit(1);
         const view = (row: InboundRow): InboundItemView => ({
           id: row.id,
+          kind: row.kind,
           source: row.source,
           receivedAt: row.receivedAt.toISOString(),
           subject: row.subject,
@@ -588,14 +617,28 @@ export class CalendarIntakeService implements OnModuleInit {
             : 'other',
           status: row.status,
           objectType: row.objectType,
-          assigned: row.objectIds.flatMap((meetingId) => {
-            const meeting = meetingRows.get(meetingId);
+          assigned: row.objectIds.flatMap((objectId): InboundItemView['assigned'] => {
+            if (row.objectType === 'filed_mail') {
+              const relationshipId = mailRows.get(objectId);
+              return relationshipId
+                ? [
+                    {
+                      relationshipId,
+                      name: names.get(relationshipId) ?? '',
+                      meetingId: null,
+                      mailId: objectId,
+                    },
+                  ]
+                : [];
+            }
+            const meeting = meetingRows.get(objectId);
             return meeting
               ? [
                   {
                     relationshipId: meeting,
                     name: names.get(meeting) ?? '',
-                    meetingId,
+                    meetingId: objectId,
+                    mailId: null,
                   },
                 ]
               : [];
@@ -639,6 +682,36 @@ export class CalendarIntakeService implements OnModuleInit {
       row.ownerUserId === auth.userId ||
       auth.orgRole === 'admin';
     if (!allowed) throw forbidden();
+    // IN-04: Eine weitergeleitete Mail gehört zu genau einem Lieferanten; kein Termin, kein Ereignis
+    if (row.kind === 'mail') {
+      if (!this.mailDecider) throw notFound();
+      if (input.action === 'assign') {
+        const [relationshipId, ...rest] = input.relationshipIds;
+        if (!relationshipId || rest.length > 0) throw forbidden();
+        const mailId = await this.mailDecider.assign(auth, id, relationshipId);
+        await this.tenant.run(session, (tx) =>
+          tx
+            .update(schema.inboundItem)
+            .set({
+              status: 'assigned',
+              assignedBy: auth.userId,
+              assignedAt: new Date(),
+              objectType: 'filed_mail',
+              objectIds: mailId ? [mailId] : [],
+            })
+            .where(eq(schema.inboundItem.id, id)),
+        );
+      } else {
+        await this.mailDecider.discard(orgId, id);
+        await this.tenant.run(session, (tx) =>
+          tx
+            .update(schema.inboundItem)
+            .set({ status: 'ignored', assignedBy: auth.userId, assignedAt: new Date() })
+            .where(eq(schema.inboundItem.id, id)),
+        );
+      }
+      return this.inbox(auth);
+    }
     if (input.action === 'assign') {
       const event: IcsEvent = {
         uid: row.icalUid,

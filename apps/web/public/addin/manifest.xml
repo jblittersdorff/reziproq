@@ -11,7 +11,7 @@
   <ProviderName>Reziproq</ProviderName>
   <DefaultLocale>de-DE</DefaultLocale>
   <DisplayName DefaultValue="Reziproq" />
-  <Description DefaultValue="Termine mit Lieferanten als Aktivität in Reziproq speichern." />
+  <Description DefaultValue="Termine und Mails mit Lieferanten als Aktivität in Reziproq speichern." />
   <IconUrl DefaultValue="APP_URL/favicon.svg" />
   <HighResolutionIconUrl DefaultValue="APP_URL/favicon.svg" />
   <SupportUrl DefaultValue="APP_URL" />
@@ -32,10 +32,18 @@
         <SourceLocation DefaultValue="APP_URL/addin/outlook" />
       </DesktopSettings>
     </Form>
+    <!-- IN-04: gelesene Mail in Reziproq ablegen -->
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="APP_URL/addin/outlook" />
+        <RequestedHeight>450</RequestedHeight>
+      </DesktopSettings>
+    </Form>
   </FormSettings>
   <Permissions>ReadWriteItem</Permissions>
   <Rule xsi:type="RuleCollection" Mode="Or">
     <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit" />
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read" />
   </Rule>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Hosts>
@@ -50,6 +58,28 @@
                   <Supertip>
                     <Title resid="buttonLabel" />
                     <Description resid="buttonTip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon" />
+                    <bt:Image size="32" resid="icon" />
+                    <bt:Image size="80" resid="icon" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpane" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="reziproqMailGroup">
+                <Label resid="groupLabel" />
+                <Control xsi:type="Button" id="reziproqMailButton">
+                  <Label resid="buttonLabel" />
+                  <Supertip>
+                    <Title resid="buttonLabel" />
+                    <Description resid="mailTip" />
                   </Supertip>
                   <Icon>
                     <bt:Image size="16" resid="icon" />
@@ -79,6 +109,7 @@
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="buttonTip" DefaultValue="Termin als Aktivität beim Lieferanten speichern." />
+        <bt:String id="mailTip" DefaultValue="Diese Mail beim Lieferanten in Reziproq ablegen." />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

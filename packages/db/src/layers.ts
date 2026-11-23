@@ -853,7 +853,10 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   sync_job: {
     kind: 'org_private',
-    testValues: ({ probe, org }) => ({ connection_id: probe('connection', org ?? ''), kind: 'probe' }),
+    testValues: ({ probe, org }) => ({
+      connection_id: probe('connection', org ?? ''),
+      kind: 'probe',
+    }),
   },
   sync_event: {
     kind: 'org_private',
@@ -925,6 +928,31 @@ export const layerRegister: Record<string, LayerEntry> = {
       prefix: 'probe',
       hash: `probe-${Math.random().toString(36).slice(2)}`,
       created_by: 'probe',
+    }),
+  },
+  // IN-04: abgelegte Mails; „Nur ich“ sieht nur, wer sie abgelegt hat (filed_mail_private_owner)
+  filed_mail: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      filed_by: orgUser,
+      visibility: 'team',
+      message_id: `<probe-${Math.random().toString(36).slice(2)}@example.com>`,
+      from_email: 'probe@example.com',
+      sent_at: '2026-01-01T08:00:00Z',
+      subject: 'Probe',
+      body_text: 'Probe',
+      source: 'addin',
+    }),
+  },
+  filed_mail_attachment: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      filed_mail_id: org && probe('filed_mail', org),
+      filed_by: orgUser,
+      visibility: 'team',
+      file_name: 'probe.pdf',
+      mime: 'application/pdf',
+      size: 1,
     }),
   },
   // AW-01: Aussage von Reziproq je Person und Seite

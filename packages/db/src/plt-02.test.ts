@@ -118,6 +118,8 @@ describe('PLT-02 in der Datenbank', () => {
       'cycle_setting',
       'data_export',
       'email_log',
+      'filed_mail',
+      'filed_mail_attachment',
       'format_catalog_item',
       'hint',
       'import_batch',

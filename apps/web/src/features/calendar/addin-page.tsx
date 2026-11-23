@@ -1,17 +1,29 @@
-import { type AddinDetect, type MeetingType, meetingTypes } from '@reziproq/shared';
+import {
+  type AddinDetect,
+  type FiledMailVisibility,
+  type FileMailResult,
+  type MeetingType,
+  meetingTypes,
+} from '@reziproq/shared';
 import { useEffect, useId, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Logo } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
-import { detectAddin, registerAddin } from '@/lib/api';
+import { detectAddin, detectMail, fileMail, registerAddin } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
-import { type OutlookAdapter, type OutlookItem, outlookAdapter } from './outlook-adapter';
+import {
+  type OutlookAdapter,
+  type OutlookItem,
+  type OutlookMessage,
+  outlookAdapter,
+} from './outlook-adapter';
 
 /**
  * IN-03 Outlook-Add-in, Aufgabenbereich (nach O-Outlook.dc.html): erkannter Lieferant, Termintyp,
@@ -33,7 +45,7 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
   const accessToken = auth.user?.access_token ?? '';
   const id = useId();
   const [adapter, setAdapter] = useState<OutlookAdapter | null>(given ?? null);
-  const [item, setItem] = useState<OutlookItem | null | undefined>(undefined);
+  const [item, setItem] = useState<OutlookItem | OutlookMessage | null | undefined>(undefined);
   const [detected, setDetected] = useState<AddinDetect | null>(null);
   const [supplier, setSupplier] = useState('');
   const [type, setType] = useState<MeetingType>('other');
@@ -61,7 +73,8 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
     void (async () => {
       const read = await adapter.read().catch(() => null);
       setItem(read);
-      if (!read) return;
+      // IN-04: Eine gelesene Mail erkennt der Mail-Bereich selbst
+      if (!read || read.mode === 'message') return;
       const found = await detectAddin(accessToken, read.attendees, read.subject).catch(() => null);
       setDetected(found);
       if (found) {
@@ -72,7 +85,7 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
   }, [adapter, accessToken]);
 
   const save = async () => {
-    if (!adapter || !item || !supplier) return;
+    if (!adapter || !item || item.mode === 'message' || !supplier) return;
     setBusy(true);
     setMessage(null);
     try {
@@ -112,6 +125,8 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
         <LoadingState label={text.loading} />
       ) : item === null ? (
         <p className="text-muted-foreground text-sm">{text.noItem}</p>
+      ) : item.mode === 'message' ? (
+        <MailPane message={item} accessToken={accessToken} />
       ) : (
         <>
           <div className="flex flex-col gap-1">
@@ -129,7 +144,9 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
             </label>
             <NativeSelect
               id={`${id}-lieferant`}
-              value={supplier} onChange={(event) => setSupplier(event.target.value)}>
+              value={supplier}
+              onChange={(event) => setSupplier(event.target.value)}
+            >
               {candidates.length === 0 && <option value="">–</option>}
               {candidates.map((entry) => (
                 <option key={entry.relationshipId} value={entry.relationshipId}>
@@ -144,7 +161,9 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
             </label>
             <NativeSelect
               id={`${id}-typ`}
-              value={type} onChange={(event) => setType(event.target.value as MeetingType)}>
+              value={type}
+              onChange={(event) => setType(event.target.value as MeetingType)}
+            >
               {meetingTypes
                 .filter((entry) => entry !== 'format')
                 .map((entry) => (
@@ -173,5 +192,113 @@ function AddinPane({ adapter: given }: { adapter?: OutlookAdapter | undefined })
         </>
       )}
     </main>
+  );
+}
+
+/**
+ * IN-04: In einer gelesenen Mail: erkannter Lieferant, Sichtbarkeit, „In Reziproq ablegen“. Erst
+ * der Klick lässt die API genau diese Mail über Microsoft Graph lesen.
+ */
+function MailPane({ message, accessToken }: { message: OutlookMessage; accessToken: string }) {
+  const text = useT().addin;
+  const id = useId();
+  const [detected, setDetected] = useState<AddinDetect | null | undefined>(undefined);
+  const [supplier, setSupplier] = useState('');
+  const [visibility, setVisibility] = useState<FiledMailVisibility>('team');
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<FileMailResult | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    void detectMail(accessToken, { from: message.from, to: message.to, cc: message.cc })
+      .catch(() => null)
+      .then((found) => {
+        setDetected(found);
+        setSupplier(found?.supplier?.relationshipId ?? found?.candidates[0]?.relationshipId ?? '');
+      });
+  }, [accessToken, message]);
+
+  const file = async () => {
+    setBusy(true);
+    setFailed(null);
+    try {
+      setResult(
+        await fileMail(accessToken, {
+          itemId: message.itemId,
+          relationshipId: supplier,
+          visibility,
+        }),
+      );
+    } catch (error) {
+      const status = (error as { status?: number }).status;
+      setFailed(status === 409 ? text.mailNoConnection : text.failed);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (detected === undefined) return <LoadingState label={text.mailLoading} />;
+  const candidates = detected?.candidates ?? [];
+  return (
+    <>
+      <div className="flex flex-col gap-1">
+        <span className="text-muted-foreground text-chip">{text.mailFrom(message.from)}</span>
+        <strong className="break-words font-semibold">{message.subject || '–'}</strong>
+        <span className="text-muted-foreground text-sm">
+          {detected?.supplier ? text.detected : text.noneDetected}
+        </span>
+        {detected?.reason && (
+          <span className="text-muted-foreground text-chip">{detected.reason}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 text-sm">
+        <label htmlFor={`${id}-lieferant`} className="font-semibold">
+          {text.supplierLabel}
+        </label>
+        <NativeSelect
+          id={`${id}-lieferant`}
+          value={supplier}
+          onChange={(event) => setSupplier(event.target.value)}
+        >
+          {candidates.length === 0 && <option value="">–</option>}
+          {candidates.map((entry) => (
+            <option key={entry.relationshipId} value={entry.relationshipId}>
+              {entry.name}
+            </option>
+          ))}
+        </NativeSelect>
+      </div>
+      <SegmentedControl<FiledMailVisibility>
+        label={text.mailVisibility}
+        value={visibility}
+        options={[
+          { value: 'team', label: text.mailVisibilities.team },
+          { value: 'private', label: text.mailVisibilities.private },
+        ]}
+        onChange={setVisibility}
+      />
+      {result && (
+        <StatusLine
+          message={result.created ? text.mailFiled : text.mailAlready}
+          tone={result.created ? 'success' : 'warning'}
+        />
+      )}
+      {result && (
+        <a
+          href={result.href}
+          target="_blank"
+          rel="noreferrer"
+          className="min-h-11 py-2 font-semibold text-petrol text-sm underline"
+        >
+          {text.mailOpen}
+        </a>
+      )}
+      {failed && <StatusLine message={failed} tone="warning" />}
+      <Button loading={busy} disabled={!supplier || Boolean(result)} onClick={() => void file()}>
+        {text.mailSave}
+      </Button>
+      <p className="text-muted-foreground text-chip">{text.mailOnlyThis}</p>
+    </>
   );
 }

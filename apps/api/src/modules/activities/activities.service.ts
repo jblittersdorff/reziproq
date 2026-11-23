@@ -123,6 +123,73 @@ export class ActivitiesService {
       }
     }
 
+    if (want('mails')) {
+      // IN-04: abgelegte Mails; „Nur ich“ liefert die Datenbank nur der ablegenden Person
+      const mails = await tx
+        .select({ mail: schema.filedMail, filer: schema.appUser.name })
+        .from(schema.filedMail)
+        .innerJoin(schema.appUser, eq(schema.appUser.id, schema.filedMail.filedBy))
+        .where(eq(schema.filedMail.relationshipId, relationshipId));
+      const mailIds = mails.map(({ mail }) => mail.id);
+      const attachments =
+        mailIds.length === 0
+          ? []
+          : await tx
+              .select()
+              .from(schema.filedMailAttachment)
+              .where(inArray(schema.filedMailAttachment.filedMailId, mailIds));
+      const draftIds = mails.flatMap(({ mail }) =>
+        mail.summaryDraftId ? [mail.summaryDraftId] : [],
+      );
+      const summaries = new Map(
+        (draftIds.length === 0
+          ? []
+          : await tx
+              .select({
+                id: schema.aiDraft.id,
+                content: schema.aiDraft.content,
+                status: schema.aiDraft.status,
+              })
+              .from(schema.aiDraft)
+              .where(inArray(schema.aiDraft.id, draftIds))
+        )
+          .filter((draft) => draft.status !== 'discarded')
+          .map((draft) => [draft.id, draft.content]),
+      );
+      for (const { mail, filer } of mails) {
+        items.push({
+          id: `mail:${mail.id}`,
+          kind: 'mail',
+          occurredAt: mail.sentAt.toISOString(),
+          actor: { type: 'person', name: filer },
+          title: mail.subject,
+          code: mail.source,
+          meta: mail.fromName ?? mail.fromEmail,
+          href: null,
+          visibility: mail.visibility,
+          pinned: false,
+          mine: mail.filedBy === auth.userId,
+          mail: {
+            id: mail.id,
+            fromEmail: mail.fromEmail,
+            fromName: mail.fromName,
+            sentAt: mail.sentAt.toISOString(),
+            summary: (mail.summaryDraftId && summaries.get(mail.summaryDraftId)) || null,
+            source: mail.source,
+            attachments: attachments
+              .filter((attachment) => attachment.filedMailId === mail.id)
+              .map((attachment) => ({
+                id: attachment.id,
+                fileName: attachment.fileName,
+                mime: attachment.mime,
+                size: attachment.size,
+                stored: attachment.fileKey !== null,
+              })),
+          },
+        });
+      }
+    }
+
     if (want('reziproq')) {
       // Hinweise (FS-01) und Entwürfe von Reziproq stehen mit Reziproq als Akteur.
       const hints = await tx

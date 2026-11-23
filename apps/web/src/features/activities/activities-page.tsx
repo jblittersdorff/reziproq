@@ -3,9 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { LockIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
+import { AiDraft } from '@/components/ui/ai-draft';
 import { Badge } from '@/components/ui/badge';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { FormActions, FormField } from '@/components/ui/form-field';
@@ -19,7 +21,15 @@ import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { useSupplier } from '@/features/suppliers/use-supplier';
-import { activitiesQueryOptions, addNote, removeNote, updateNote } from '@/lib/api';
+import {
+  activitiesQueryOptions,
+  addNote,
+  downloadMailAttachment,
+  filedMailQueryOptions,
+  removeFiledMail,
+  removeNote,
+  updateNote,
+} from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -54,7 +64,7 @@ export function ActivitiesPage({ relationshipId }: { relationshipId: string }) {
             className="self-start"
             label={text.filterLabel}
             value={filter}
-            options={(['all', 'termine', 'notizen', 'reziproq'] as const).map((value) => ({
+            options={(['all', 'termine', 'notizen', 'mails', 'reziproq'] as const).map((value) => ({
               value,
               label: text.filters[value],
             }))}
@@ -78,6 +88,7 @@ export function ActivitiesPage({ relationshipId }: { relationshipId: string }) {
             <LockIcon aria-hidden className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
             <span className="flex flex-col gap-1">
               <strong className="font-semibold">{text.supplierNever}</strong>
+              <span className="text-muted-foreground">{text.mailHowTo}</span>
               <span className="text-muted-foreground">{text.comingWithIntegrations}</span>
             </span>
           </section>
@@ -251,6 +262,9 @@ function Entry({ item, relationshipId }: { item: ActivityItem; relationshipId: s
   const update = useFeedUpdate(relationshipId);
   const noteId = item.id.startsWith('note:') ? item.id.slice(5) : null;
   const reziproq = item.actor.type === 'reziproq';
+  if (item.kind === 'mail' && item.mail) {
+    return <MailEntry item={item} relationshipId={relationshipId} />;
+  }
   const title =
     item.kind === 'hint'
       ? ((t.hints.rules as Record<string, string>)[item.code ?? ''] ?? text.kinds.hint)
@@ -327,6 +341,149 @@ function Entry({ item, relationshipId }: { item: ActivityItem; relationshipId: s
             </>
           )}
         </span>
+      </span>
+    </li>
+  );
+}
+
+/**
+ * IN-04: abgelegte Mail. Zusammenfassung als Entwurf von Reziproq mit der Mail als Quelle, Text
+ * zum Aufklappen (erst dann geladen), Anhänge zum Laden. Löschen nur, wer sie abgelegt hat.
+ */
+function MailEntry({ item, relationshipId }: { item: ActivityItem; relationshipId: string }) {
+  const text = useT().activities;
+  const format = useFormat();
+  const accessToken = useToken();
+  const client = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  const mail = item.mail;
+  const body = useQuery({
+    ...filedMailQueryOptions(accessToken, relationshipId, mail?.id ?? ''),
+    enabled: open && accessToken !== '' && Boolean(mail),
+  });
+  if (!mail) return null;
+  const from = mail.fromName ?? mail.fromEmail;
+  const meta = [
+    text.mail.sources[mail.source],
+    mail.attachments.length > 0 ? text.mail.attachmentCount(mail.attachments.length) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return (
+    <li
+      id={`mail-${mail.id}`}
+      className={cn(
+        'flex items-start gap-3 p-4 text-sm',
+        item.visibility === 'private' && 'border-2 border-line border-dashed',
+      )}
+    >
+      <Monogram name={item.actor.type === 'person' ? item.actor.name : ''} />
+      <span className="flex min-w-0 grow flex-col gap-2">
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground text-chip">
+          <strong className="font-semibold text-ink">{text.kinds.mail}</strong>
+          <span>
+            {item.actor.type === 'person' ? item.actor.name : ''} ·{' '}
+            {format.dateTime(item.occurredAt)}
+          </span>
+          <Badge variant={item.visibility === 'private' ? 'plain' : 'neutral'}>
+            {item.visibility === 'private' && <LockIcon aria-hidden />}
+            {text.visibilityBadge[item.visibility]}
+          </Badge>
+        </span>
+        <span className="break-words font-semibold">{text.mail.title(item.title, from)}</span>
+        {meta && <span className="text-muted-foreground text-chip">{meta}</span>}
+        {mail.summary && (
+          <AiDraft
+            heading={text.mail.summaryHeading}
+            sourcesLabel={text.mail.sourcesLabel}
+            sources={[{ key: mail.id, label: text.mail.sourceThisMail }]}
+            className="p-4"
+          >
+            {mail.summary}
+          </AiDraft>
+        )}
+        {mail.attachments.length > 0 && (
+          <ul aria-label={text.mail.attachments} className="flex min-w-0 flex-wrap gap-2">
+            {mail.attachments.map((attachment) => (
+              <li key={attachment.id} className="min-w-0 max-w-full">
+                {attachment.stored ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="max-w-full"
+                    aria-label={`${attachment.fileName} · ${text.mail.kb(attachment.size)}`}
+                    onClick={() => {
+                      setFailure(null);
+                      void downloadMailAttachment(
+                        accessToken,
+                        relationshipId,
+                        mail.id,
+                        attachment,
+                      ).catch(() => setFailure(text.mail.downloadFailed));
+                    }}
+                  >
+                    <span className="truncate">{attachment.fileName}</span>
+                    <span className="shrink-0">· {text.mail.kb(attachment.size)}</span>
+                  </Button>
+                ) : (
+                  <Badge variant="neutral">
+                    {attachment.fileName} · {text.mail.tooLarge}
+                  </Badge>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {failure && <StatusLine message={failure} tone="warning" />}
+        <span className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-expanded={open}
+            aria-controls={`mail-text-${mail.id}`}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? text.mail.hideText : text.mail.showText}
+          </Button>
+          {item.mine && (
+            <ConfirmButton
+              question={text.mail.removeConfirm}
+              confirmLabel={text.mail.removeYes}
+              cancelLabel={text.mail.cancel}
+              onConfirm={() => {
+                setFailure(null);
+                void removeFiledMail(accessToken, relationshipId, mail.id)
+                  .then(() =>
+                    client.invalidateQueries({
+                      queryKey: ['suppliers', relationshipId, 'aktivitaeten'],
+                    }),
+                  )
+                  .catch(() => setFailure(text.mail.removeFailed));
+              }}
+            >
+              {text.remove}
+            </ConfirmButton>
+          )}
+        </span>
+        {open && (
+          <div id={`mail-text-${mail.id}`} className="flex flex-col gap-2 rounded-md bg-paper p-4">
+            {body.isError ? (
+              <span className="text-muted-foreground">{text.mail.textFailed}</span>
+            ) : !body.data ? (
+              <span className="text-muted-foreground">{text.mail.textLoading}</span>
+            ) : (
+              <>
+                {body.data.toEmails.length > 0 && (
+                  <span className="break-words text-muted-foreground text-chip">
+                    {text.mail.to}: {body.data.toEmails.join(', ')}
+                  </span>
+                )}
+                <p className="whitespace-pre-line break-words">{body.data.bodyText}</p>
+              </>
+            )}
+          </div>
+        )}
       </span>
     </li>
   );

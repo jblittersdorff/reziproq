@@ -7,7 +7,7 @@ import type {
   ProviderItem,
   ProviderToken,
 } from './fake-provider.js';
-import type { GraphClient } from './graph-client.js';
+import type { GraphClient, GraphMessage } from './graph-client.js';
 
 /**
  * Durchstich / IN-03: Microsoft 365 echt. Anmeldung beim Kalender einer Person über OAuth
@@ -18,7 +18,14 @@ import type { GraphClient } from './graph-client.js';
 
 const authority = 'https://login.microsoftonline.com/organizations/oauth2/v2.0';
 const graph = 'https://graph.microsoft.com/v1.0';
-export const microsoftScopes = ['offline_access', 'openid', 'User.Read', 'Calendars.ReadWrite'];
+// IN-04: Mail.Read nur für „In Reziproq ablegen“: gelesen wird genau die eine Mail, auf Klick
+export const microsoftScopes = [
+  'offline_access',
+  'openid',
+  'User.Read',
+  'Calendars.ReadWrite',
+  'Mail.Read',
+];
 
 /** So liegt der Zugang verschlüsselt in connection_secret: beide Tokens, nie einzeln */
 const tokenSchema = z.object({ access: z.string().min(1), refresh: z.string().min(1) });
@@ -221,6 +228,66 @@ export class MicrosoftGraphClient implements GraphClient {
       throw failed();
     }
     if (!response.ok) throw new Error('graph_abgelehnt');
+  }
+
+  /** IN-04: genau eine Mail mit Anhängen, nur nach dem Klick auf „In Reziproq ablegen“ */
+  async getMessage(token: string, messageId: string): Promise<GraphMessage | null> {
+    const id = encodeURIComponent(messageId);
+    const address = z.object({
+      emailAddress: z.object({ address: z.string(), name: z.string().nullable().optional() }),
+    });
+    const message = z
+      .object({
+        internetMessageId: z.string().nullable().optional(),
+        subject: z.string().nullable().optional(),
+        from: address.nullable().optional(),
+        toRecipients: z.array(address).default([]),
+        ccRecipients: z.array(address).default([]),
+        sentDateTime: z.string().nullable().optional(),
+        body: z.object({ contentType: z.string(), content: z.string() }).optional(),
+      })
+      .parse(
+        await this.provider.graphJson(
+          token,
+          `${graph}/me/messages/${id}?$select=internetMessageId,subject,from,toRecipients,ccRecipients,sentDateTime,body`,
+        ),
+      );
+    const attachments = z
+      .object({
+        value: z.array(
+          z.object({
+            '@odata.type': z.string().optional(),
+            name: z.string().nullable().optional(),
+            contentType: z.string().nullable().optional(),
+            size: z.number().int().nonnegative().default(0),
+            contentBytes: z.string().nullable().optional(),
+          }),
+        ),
+      })
+      .parse(await this.provider.graphJson(token, `${graph}/me/messages/${id}/attachments`));
+    if (!message.from || !message.internetMessageId) return null;
+    return {
+      internetMessageId: message.internetMessageId,
+      subject: message.subject ?? '',
+      from: {
+        email: message.from.emailAddress.address,
+        name: message.from.emailAddress.name ?? null,
+      },
+      to: message.toRecipients.map((entry) => entry.emailAddress.address),
+      cc: message.ccRecipients.map((entry) => entry.emailAddress.address),
+      sentAt: message.sentDateTime ?? new Date().toISOString(),
+      body: message.body?.content ?? '',
+      bodyIsHtml: (message.body?.contentType ?? 'html').toLowerCase() === 'html',
+      // Nur Dateien; eingebettete Mails und Verweise werden nicht übernommen
+      attachments: attachments.value
+        .filter((entry) => (entry['@odata.type'] ?? '').endsWith('fileAttachment'))
+        .map((entry) => ({
+          name: entry.name ?? 'Anhang',
+          contentType: entry.contentType ?? 'application/octet-stream',
+          size: entry.size,
+          contentBytes: entry.contentBytes ?? null,
+        })),
+    };
   }
 
   /** Durchstich: nächster Termin der Person, dessen Betreff den Text enthält */

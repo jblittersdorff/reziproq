@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PromptEvent, PromptRequest } from '@reziproq/shared';
+import { ActivitiesService } from '../activities/activities.service.js';
 import { gatewayContext, gatewayProvider, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { SuppliersService } from '../suppliers/suppliers.service.js';
@@ -18,6 +19,7 @@ export class PromptService {
     @Inject(SuppliersService) private readonly suppliers: SuppliersService,
     @Inject(PromptLog) private readonly log: PromptLog,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
+    @Inject(ActivitiesService) private readonly activities: ActivitiesService,
   ) {}
 
   /**
@@ -51,14 +53,15 @@ export class PromptService {
     try {
       const system = await this.systemFor(auth, request);
       const tools = createPromptTools((name, input) =>
-        invokePromptTool(name, input, auth, this.suppliers, emit),
+        invokePromptTool(name, input, auth, this.suppliers, emit, this.activities),
       );
       const context = gatewayContext(auth, 'prompt');
       const turnRequest: TurnRequest = {
         system,
         messages,
         tools,
-        invokeTool: (name, input) => invokePromptTool(name, input, auth, this.suppliers, emit),
+        invokeTool: (name, input) =>
+          invokePromptTool(name, input, auth, this.suppliers, emit, this.activities),
         onText: (delta) => emit({ type: 'text', delta }),
         signal,
       };

@@ -61,6 +61,7 @@ export async function demoStory(
     await demoEarlyWarning(tx, first.id, account, today);
     await demoBriefing(tx, first.id, account);
     await demoInbound(tx, relationships, account, today);
+    await demoMails(tx, relationships, account, today);
     return { created: false, relationships };
   }
 
@@ -318,6 +319,7 @@ export async function demoStory(
   await demoEarlyWarning(tx, first.id, account, today);
   await demoBriefing(tx, first.id, account);
   await demoInbound(tx, relationships, account, today);
+  await demoMails(tx, relationships, account, today);
   return { created: true, relationships };
 }
 
@@ -528,6 +530,133 @@ async function demoInbound(
     suggestedRelationshipIds: relationships.slice(0, 2),
     suggestionKind: 'several',
     suggestionReason: 'Teilnehmer von beiden Lieferanten. Wähle einen oder speichere den Termin bei beiden.',
+    suggestedType: 'other',
+    status: 'needs_review',
+    ownerUserId: account.id,
+    assigneeUserId: account.id,
+  });
+}
+
+/**
+ * IN-04: Zwei abgelegte Mails beim ersten Lieferanten (eine mit Zusammenfassung von Reziproq,
+ * eine weitergeleitete) und eine weitergeleitete Mail ohne erkannten Lieferanten in „Neu
+ * eingegangen“. Anhänge zeigt die Demo nicht, weil die Dateiablage zur API gehört.
+ */
+async function demoMails(
+  tx: Transaction,
+  relationships: string[],
+  account: { id: string; name: string },
+  today: Date,
+) {
+  const [first] = relationships;
+  if (!first) return;
+  const oem = seedBuyers.testOem.id;
+  const messageId = '<demo-kapazitaet-2028@lieferant-eins.example>';
+  const [existing] = await tx
+    .select({ id: schema.filedMail.id })
+    .from(schema.filedMail)
+    .where(and(eq(schema.filedMail.orgId, oem), eq(schema.filedMail.messageId, messageId)));
+  if (existing) return;
+  const sent = addDays(today, -3);
+  sent.setUTCHours(8, 40, 0, 0);
+  const body =
+    'Hallo,\n\nwir planen für 2028 eine zweite Fertigungslinie in Gliwice. Damit steigt unsere Kapazität für eure Gehäuse um 30 Prozent. ' +
+    'Können wir das im nächsten Quartalsreview besprechen?\n\nViele Grüße\nTom Weber';
+  const [mail] = await tx
+    .insert(schema.filedMail)
+    .values({
+      orgId: oem,
+      relationshipId: first,
+      filedBy: account.id,
+      visibility: 'team',
+      messageId,
+      fromEmail: 'tom.weber@lieferant-eins.example',
+      fromName: 'Tom Weber',
+      toEmails: ['einkauf@oem-eins.example'],
+      sentAt: sent,
+      subject: 'Kapazitätsplanung 2028',
+      bodyText: body,
+      source: 'addin',
+    })
+    .returning({ id: schema.filedMail.id });
+  if (!mail) return;
+  const summary =
+    'Der Lieferant plant 2028 eine zweite Fertigungslinie, die Kapazität für die Gehäuse steigt um 30 Prozent. Er möchte den Plan im nächsten Quartalsreview besprechen.';
+  const [draft] = await tx
+    .insert(schema.aiDraft)
+    .values({
+      orgId: oem,
+      relationshipId: null,
+      kind: 'mail_summary',
+      objectType: 'filed_mail',
+      objectId: mail.id,
+      content: summary,
+      claims: [{ key: '1', text: summary }],
+      model: 'reziproq',
+      createdBy: account.id,
+    })
+    .returning({ id: schema.aiDraft.id });
+  if (draft) {
+    await tx.insert(schema.aiSource).values({
+      orgId: oem,
+      draftId: draft.id,
+      claimKey: '1',
+      objectType: 'filed_mail',
+      objectId: mail.id,
+      targetType: 'filed_mail',
+      targetId: mail.id,
+      kind: 'own_data',
+      title: 'Kapazitätsplanung 2028',
+    });
+    await tx
+      .update(schema.filedMail)
+      .set({ summaryDraftId: draft.id })
+      .where(eq(schema.filedMail.id, mail.id));
+  }
+  const forwarded = addDays(today, -1);
+  forwarded.setUTCHours(14, 5, 0, 0);
+  await tx.insert(schema.filedMail).values({
+    orgId: oem,
+    relationshipId: first,
+    filedBy: account.id,
+    visibility: 'team',
+    messageId: '<demo-lieferplan-januar@lieferant-eins.example>',
+    fromEmail: 'disposition@lieferant-eins.example',
+    fromName: null,
+    toEmails: ['einkauf@oem-eins.example'],
+    sentAt: forwarded,
+    subject: 'Lieferplan Januar',
+    bodyText: 'Guten Tag,\n\nim Januar liefern wir 12 Paletten am 8. und 9 Paletten am 22. Januar.\n\nFreundliche Grüße',
+    source: 'forward',
+  });
+  await tx.insert(schema.inboundItem).values({
+    orgId: oem,
+    kind: 'mail',
+    source: 'inbound_mail',
+    fromEmail: null,
+    subject: 'Einladung Fachmesse Kunststoffe',
+    details: {
+      method: 'REQUEST',
+      startsAt: forwarded.toISOString(),
+      endsAt: null,
+      location: null,
+      onlineMeetingUrl: null,
+      organizerEmail: 'info@messe-kunststoffe.example',
+      organizerName: null,
+      attendees: [],
+      mail: {
+        messageId: '<demo-messe@messe-kunststoffe.example>',
+        fromEmail: 'info@messe-kunststoffe.example',
+        fromName: null,
+        toEmails: [],
+        sentAt: forwarded.toISOString(),
+        bodyText: 'Sehr geehrte Damen und Herren,\n\nwir laden Sie zur Fachmesse Kunststoffe ein.',
+        forwardedBy: account.id,
+        attachments: [],
+      },
+    },
+    suggestionKind: 'none',
+    suggestionReason: 'Absender von messe-kunststoffe.example sind noch keinem Lieferanten zugeordnet.',
     suggestedType: 'other',
     status: 'needs_review',
     ownerUserId: account.id,

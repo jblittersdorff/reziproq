@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { filedMailSummarySchema } from './mails.js';
 
 // NAV-10: Aktivitäten eines Lieferanten (früher Notizraum). Eine Sicht über Termine, Notizen,
 // Hinweise (FS-01) und Entwürfe von Reziproq; Mails, Transkripte und Dateien kommen mit den
@@ -6,11 +7,11 @@ import { z } from 'zod';
 
 export const noteVisibilities = ['team', 'private'] as const;
 export const noteKinds = ['note', 'call'] as const;
-export const activityKinds = ['meeting', 'note', 'call', 'hint', 'agent'] as const;
+export const activityKinds = ['meeting', 'note', 'call', 'mail', 'hint', 'agent'] as const;
 export type ActivityKind = (typeof activityKinds)[number];
 
 /** Filter der Aktivitäten; „Alles“ ist der leere Filter. */
-export const activityFilters = ['termine', 'notizen', 'reziproq'] as const;
+export const activityFilters = ['termine', 'notizen', 'mails', 'reziproq'] as const;
 export type ActivityFilter = (typeof activityFilters)[number];
 
 export const activityItemSchema = z.object({
@@ -33,6 +34,8 @@ export const activityItemSchema = z.object({
   pinned: z.boolean(),
   // Die angemeldete Person hat den Eintrag geschrieben und darf ihn ändern
   mine: z.boolean(),
+  // IN-04: abgelegte Mail mit Zusammenfassung und Anhängen
+  mail: filedMailSummarySchema.optional(),
 });
 
 export const activityFeedSchema = z.object({

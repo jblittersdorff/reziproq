@@ -8,6 +8,7 @@ import { signIn } from './route-walk.js';
 const uuid = (n: number) => `0190a0a0-0000-7000-8000-0000000000${String(n).padStart(2, '0')}`;
 const item = (n: number, overrides: Partial<InboundItemView>): InboundItemView => ({
   id: uuid(n),
+  kind: 'meeting',
   source: 'inbound_mail',
   receivedAt: '2026-11-23T08:00:00Z',
   subject: 'Termin',
@@ -57,7 +58,9 @@ const inbox: Inbox = {
       status: 'auto_assigned',
       objectType: 'meeting',
       suggestedType: 'jbp',
-      assigned: [{ relationshipId: uuid(50), name: 'Rheintal Elektronik', meetingId: uuid(60) }],
+      assigned: [
+        { relationshipId: uuid(50), name: 'Rheintal Elektronik', meetingId: uuid(60), mailId: null },
+      ],
     }),
   ],
   suppliers: [

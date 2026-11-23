@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { env } from '../../config/env.js';
+import { ActivitiesModule } from '../activities/activities.module.js';
 import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import { PromptController } from './prompt.controller.js';
@@ -10,7 +11,7 @@ import { RATE_LIMIT, RateLimiter, type RateLimitOptions } from './rate-limiter.j
 import { TestPromptModel } from './test-model.js';
 
 @Module({
-  imports: [SuppliersModule, AiGatewayModule],
+  imports: [SuppliersModule, AiGatewayModule, ActivitiesModule],
   controllers: [PromptController],
   providers: [
     // Testmodell für AI_PROVIDER=test; echte Modelle gibt das Gateway je Aufruf (KI-01).

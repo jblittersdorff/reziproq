@@ -26,3 +26,6 @@ playwright/.cache/
 
 # TanStack Router: lokaler Zwischenstand
 apps/web/.tanstack/
+
+# IN-04: lokale Dateiablage (Anhänge)
+.data/

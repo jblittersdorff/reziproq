@@ -1433,13 +1433,24 @@ export const en: Messages = {
     navTitle: 'New arrivals',
     title: 'New arrivals',
     purpose:
-      'Meetings from Outlook, your calendar and your inbound address. Reziproq assigns clear ones itself; you decide the unclear ones.',
+      'Meetings and forwarded mails from Outlook, your calendar and your inbound addresses. Reziproq assigns clear ones itself; you decide the unclear ones.',
     loading: 'Loading arrivals …',
     failed: 'That did not work. Please try again.',
     nextEyebrow: 'Your next step',
-    nextTitle: (count: number | string) =>
-      `${count} ${count === 1 ? 'meeting waits' : 'meetings wait'} for an assignment`,
-    nextText: 'Afterwards they appear as internal meetings in the supplier’s activities.',
+    nextTitle: (count: number | string, kind: 'meeting' | 'mail' | 'mixed' = 'meeting') =>
+      `${count} ${
+        kind === 'mail'
+          ? count === 1
+            ? 'mail waits'
+            : 'mails wait'
+          : kind === 'mixed'
+            ? 'items wait'
+            : count === 1
+              ? 'meeting waits'
+              : 'meetings wait'
+      } for an assignment`,
+    nextText:
+      'Afterwards they appear in the supplier’s activities: meetings as internal meetings, mails as filed mails.',
     doneTitle: 'Everything assigned',
     doneText: 'New meetings with suppliers appear here as soon as they arrive.',
     openTitle: (count: number | string) => `Assign · ${count}`,
@@ -1451,6 +1462,11 @@ export const en: Messages = {
       outlook_addin: 'From the Outlook add-in',
     } as Record<string, string>,
     invitedBy: (name: string) => `invited by ${name || '–'}`,
+    forwardedMail: 'Forwarded mail',
+    mailFrom: (name: string) => `Mail from ${name || '–'}`,
+    mail: 'Mail',
+    fileMail: 'File',
+    howForward: 'Notes address: forward important mails to notizen@…reziproq.de.',
     attendees: (count: number | string) => `${count} attendees`,
     or: 'or',
     suggestion: 'Suggestion',
@@ -1464,7 +1480,7 @@ export const en: Messages = {
     ignore: 'Ignore',
     meeting: 'Meeting',
     event: 'Event',
-    howTitle: 'How meetings arrive',
+    howTitle: 'How meetings and mails arrive',
     howAddin: 'Outlook add-in: click Reziproq in the meeting.',
     howMail: 'Inbound address: simply invite it to the meeting.',
     howCalendar:
@@ -1472,8 +1488,18 @@ export const en: Messages = {
     privateTitle: 'Private stays private',
     privateText:
       'Reziproq does not store internal meetings without a supplier. Meetings from Outlook are internal: the supplier does not see them.',
-    tileCount: (count: number | string) =>
-      `${count} ${count === 1 ? 'meeting waits' : 'meetings wait'} for you`,
+    tileCount: (count: number | string, kind: 'meeting' | 'mail' | 'mixed' = 'meeting') =>
+      `${count} ${
+        kind === 'mail'
+          ? count === 1
+            ? 'mail waits'
+            : 'mails wait'
+          : kind === 'mixed'
+            ? 'items wait'
+            : count === 1
+              ? 'meeting waits'
+              : 'meetings wait'
+      } for you`,
     tileEmpty: 'Nothing open.',
     tileLink: 'Assign',
     saved: 'Assigned.',
@@ -1494,6 +1520,16 @@ export const en: Messages = {
     saved: 'Saved. Send the invitation now; Reziproq is added as an attendee.',
     failed: 'That did not work. Please try again.',
     preview: 'Preview without Outlook: sample meeting.',
+    mailLoading: 'Recognising the supplier …',
+    mailFrom: (from: string) => `Mail from ${from || '–'}`,
+    mailVisibility: 'Visibility',
+    mailVisibilities: { team: 'Team', private: 'Only me' },
+    mailSave: 'File in Reziproq',
+    mailFiled: "Filed. The mail is in the supplier's activities.",
+    mailAlready: 'This mail is already filed with this supplier.',
+    mailOpen: 'Open in Reziproq',
+    mailNoConnection: 'Connect your mailbox first: Profile › My connections › Microsoft 365.',
+    mailOnlyThis: 'Reziproq reads only this one mail, and only after your click.',
   },
 
   integrations: {
@@ -1672,7 +1708,8 @@ export const en: Messages = {
       } as Record<string, string>,
     },
     inboundTitle: 'Inbound address',
-    inboundHint: 'Invite this address to meetings. Only mails with valid SPF and DKIM from allowed sender domains are accepted.',
+    inboundHint:
+      'Invite this address to meetings. Only mails with valid SPF and DKIM from allowed sender domains are accepted.',
     allowedLabel: 'Allowed sender domains',
     allowedHint: 'One domain per line, e.g. company.com',
     allowedSave: 'Save senders',
@@ -3621,7 +3658,13 @@ export const en: Messages = {
     askPlaceholder: (name: string) => `What has ${name} committed to so far?`,
     askSend: 'Ask',
     filterLabel: 'Filter',
-    filters: { all: 'All', termine: 'Meetings', notizen: 'Notes', reziproq: 'Reziproq' },
+    filters: {
+      all: 'All',
+      termine: 'Meetings',
+      notizen: 'Notes',
+      mails: 'Mails',
+      reziproq: 'Reziproq',
+    },
     pinned: 'Pinned',
     pin: 'Pin',
     unpin: 'Unpin',
@@ -3631,10 +3674,32 @@ export const en: Messages = {
       meeting: 'Meeting',
       note: 'Note',
       call: 'Phone note',
+      mail: 'Mail',
       hint: 'Hint',
       agent: 'Draft',
     },
     reziproq: 'Reziproq',
+    mail: {
+      title: (subject: string, from: string) => `Mail “${subject}” from ${from}`,
+      sources: { addin: 'filed with the add-in', forward: 'forwarded' } as Record<string, string>,
+      attachmentCount: (count: number) => (count === 1 ? '1 attachment' : `${count} attachments`),
+      summaryHeading: 'Summarised by Reziproq',
+      sourcesLabel: 'Source',
+      sourceThisMail: 'This mail',
+      showText: 'Show text',
+      hideText: 'Hide text',
+      textLoading: 'Loading text …',
+      textFailed: 'The text could not be loaded.',
+      to: 'To',
+      attachments: 'Attachments',
+      tooLarge: 'over 25 MB, not stored',
+      downloadFailed: 'The attachment could not be loaded.',
+      removeFailed: 'The mail could not be deleted.',
+      removeConfirm: 'Delete the mail with its text and attachments?',
+      removeYes: 'Delete',
+      cancel: 'Cancel',
+      kb: (size: number) => `${Math.max(1, Math.round(size / 1024))} KB`,
+    },
     meetingSources: {
       outlook_addin: 'from Outlook',
       inbound_mail: 'via the inbound address',
@@ -3651,7 +3716,9 @@ export const en: Messages = {
       string
     >,
     supplierNever: 'The supplier never sees the activities.',
-    comingWithIntegrations: 'Mails, transcripts and files will follow with the integrations.',
+    comingWithIntegrations: 'Transcripts and files will follow with the integrations.',
+    mailHowTo:
+      'File mails with the Outlook add-in or forward them to the notes address (notizen@…reziproq.de).',
   },
   workspace: {
     label: 'Supplier sections',

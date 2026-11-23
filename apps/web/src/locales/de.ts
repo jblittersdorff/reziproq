@@ -1457,13 +1457,25 @@ export const de = {
     navTitle: 'Neu eingegangen',
     title: 'Neu eingegangen',
     purpose:
-      'Termine aus Outlook, deinem Kalender und eurer Eingangsadresse. Eindeutige ordnet Reziproq selbst zu, unklare entscheidest du.',
+      'Termine und weitergeleitete Mails aus Outlook, deinem Kalender und euren Eingangsadressen. Eindeutige ordnet Reziproq selbst zu, unklare entscheidest du.',
     loading: 'Eingänge werden geladen …',
     failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
     nextEyebrow: 'Dein nächster Schritt',
-    nextTitle: (count: number | string) =>
-      `${count} ${count === 1 ? 'Termin wartet' : 'Termine warten'} auf eine Zuordnung`,
-    nextText: 'Danach stehen sie als interne Termine in den Aktivitäten des Lieferanten.',
+    // IN-04: Termine, Mails oder beides (Eingänge)
+    nextTitle: (count: number | string, kind: 'meeting' | 'mail' | 'mixed' = 'meeting') =>
+      `${count} ${
+        kind === 'mail'
+          ? count === 1
+            ? 'Mail wartet'
+            : 'Mails warten'
+          : kind === 'mixed'
+            ? 'Eingänge warten'
+            : count === 1
+              ? 'Termin wartet'
+              : 'Termine warten'
+      } auf eine Zuordnung`,
+    nextText:
+      'Danach stehen sie in den Aktivitäten des Lieferanten: Termine als interne Termine, Mails als abgelegte Mails.',
     doneTitle: 'Alles zugeordnet',
     doneText: 'Neue Termine mit Lieferanten erscheinen hier, sobald sie eingehen.',
     openTitle: (count: number | string) => `Zuordnen · ${count}`,
@@ -1475,6 +1487,12 @@ export const de = {
       outlook_addin: 'Aus dem Outlook-Add-in',
     } as Record<string, string>,
     invitedBy: (name: string) => `eingeladen von ${name || '–'}`,
+    // IN-04: weitergeleitete Mails
+    forwardedMail: 'Weitergeleitete Mail',
+    mailFrom: (name: string) => `Mail von ${name || '–'}`,
+    mail: 'Mail',
+    fileMail: 'Ablegen',
+    howForward: 'Notizadresse: wichtige Mails an notizen@…reziproq.de weiterleiten.',
     attendees: (count: number | string) => `${count} Teilnehmer`,
     or: 'oder',
     suggestion: 'Vorschlag',
@@ -1488,7 +1506,7 @@ export const de = {
     ignore: 'Ignorieren',
     meeting: 'Termin',
     event: 'Ereignis',
-    howTitle: 'Wie Termine ankommen',
+    howTitle: 'Wie Termine und Mails ankommen',
     howAddin: 'Add-in in Outlook: im Termin auf Reziproq klicken.',
     howMail: 'Eingangsadresse: sie einfach zum Termin einladen.',
     howCalendar:
@@ -1496,8 +1514,18 @@ export const de = {
     privateTitle: 'Privat bleibt privat',
     privateText:
       'Interne Termine ohne Lieferant speichert Reziproq nicht. Termine aus Outlook sind intern: Der Lieferant sieht sie nicht.',
-    tileCount: (count: number | string) =>
-      `${count} ${count === 1 ? 'Termin wartet' : 'Termine warten'} auf dich`,
+    tileCount: (count: number | string, kind: 'meeting' | 'mail' | 'mixed' = 'meeting') =>
+      `${count} ${
+        kind === 'mail'
+          ? count === 1
+            ? 'Mail wartet'
+            : 'Mails warten'
+          : kind === 'mixed'
+            ? 'Eingänge warten'
+            : count === 1
+              ? 'Termin wartet'
+              : 'Termine warten'
+      } auf dich`,
     tileEmpty: 'Nichts offen.',
     tileLink: 'Zuordnen',
     saved: 'Zugeordnet.',
@@ -1518,6 +1546,17 @@ export const de = {
     saved: 'Gespeichert. Sende jetzt die Einladung; Reziproq ist als Teilnehmer eingetragen.',
     failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
     preview: 'Vorschau ohne Outlook: Beispieltermin.',
+    // IN-04: gelesene Mail ablegen
+    mailLoading: 'Lieferant wird erkannt …',
+    mailFrom: (from: string) => `Mail von ${from || '–'}`,
+    mailVisibility: 'Sichtbarkeit',
+    mailVisibilities: { team: 'Team', private: 'Nur ich' },
+    mailSave: 'In Reziproq ablegen',
+    mailFiled: 'Abgelegt. Die Mail steht in den Aktivitäten des Lieferanten.',
+    mailAlready: 'Diese Mail liegt bei dem Lieferanten schon ab.',
+    mailOpen: 'In Reziproq öffnen',
+    mailNoConnection: 'Verbinde zuerst dein Postfach: Profil › Meine Verbindungen › Microsoft 365.',
+    mailOnlyThis: 'Reziproq liest nur diese eine Mail, und nur nach deinem Klick.',
   },
 
   integrations: {
@@ -1699,7 +1738,8 @@ export const de = {
       } as Record<string, string>,
     },
     inboundTitle: 'Eingangsadresse',
-    inboundHint: 'Ladet diese Adresse zu Terminen ein. Angenommen werden nur Mails mit gültigem SPF und DKIM von zugelassenen Absender-Domains.',
+    inboundHint:
+      'Ladet diese Adresse zu Terminen ein. Angenommen werden nur Mails mit gültigem SPF und DKIM von zugelassenen Absender-Domains.',
     allowedLabel: 'Zugelassene Absender-Domains',
     allowedHint: 'Eine Domain je Zeile, z. B. firma.de',
     allowedSave: 'Absender speichern',
@@ -3704,7 +3744,13 @@ export const de = {
     askPlaceholder: (name: string) => `Was hat ${name} bisher zugesagt?`,
     askSend: 'Fragen',
     filterLabel: 'Filter',
-    filters: { all: 'Alles', termine: 'Termine', notizen: 'Notizen', reziproq: 'Reziproq' },
+    filters: {
+      all: 'Alles',
+      termine: 'Termine',
+      notizen: 'Notizen',
+      mails: 'Mails',
+      reziproq: 'Reziproq',
+    },
     pinned: 'Angeheftet',
     pin: 'Anheften',
     unpin: 'Lösen',
@@ -3714,10 +3760,36 @@ export const de = {
       meeting: 'Termin',
       note: 'Notiz',
       call: 'Telefonnotiz',
+      mail: 'Mail',
       hint: 'Hinweis',
       agent: 'Entwurf',
     },
     reziproq: 'Reziproq',
+    // IN-04: abgelegte Mails
+    mail: {
+      title: (subject: string, from: string) => `Mail „${subject}“ von ${from}`,
+      sources: { addin: 'abgelegt mit dem Add-in', forward: 'weitergeleitet' } as Record<
+        string,
+        string
+      >,
+      attachmentCount: (count: number) => (count === 1 ? '1 Anhang' : `${count} Anhänge`),
+      summaryHeading: 'Zusammengefasst von Reziproq',
+      sourcesLabel: 'Quelle',
+      sourceThisMail: 'Diese Mail',
+      showText: 'Text anzeigen',
+      hideText: 'Text ausblenden',
+      textLoading: 'Text wird geladen …',
+      textFailed: 'Der Text konnte nicht geladen werden.',
+      to: 'An',
+      attachments: 'Anhänge',
+      tooLarge: 'über 25 MB, nicht gespeichert',
+      downloadFailed: 'Der Anhang konnte nicht geladen werden.',
+      removeFailed: 'Die Mail konnte nicht gelöscht werden.',
+      removeConfirm: 'Mail mit Text und Anhängen löschen?',
+      removeYes: 'Löschen',
+      cancel: 'Abbrechen',
+      kb: (size: number) => `${Math.max(1, Math.round(size / 1024))} KB`,
+    },
     meetingSources: {
       outlook_addin: 'aus Outlook',
       inbound_mail: 'über die Eingangsadresse',
@@ -3735,7 +3807,9 @@ export const de = {
       discarded: 'verworfen',
     } as Record<string, string>,
     supplierNever: 'Der Lieferant sieht die Aktivitäten nie.',
-    comingWithIntegrations: 'Mails, Transkripte und Dateien kommen mit den Anbindungen dazu.',
+    comingWithIntegrations: 'Transkripte und Dateien kommen mit den Anbindungen dazu.',
+    mailHowTo:
+      'Mails legst du mit dem Outlook-Add-in ab oder leitest sie an die Notizadresse weiter (notizen@…reziproq.de).',
   },
   workspace: {
     label: 'Bereiche des Lieferanten',

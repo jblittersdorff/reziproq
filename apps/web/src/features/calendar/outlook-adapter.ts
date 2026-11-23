@@ -1,17 +1,29 @@
 /**
  * IN-03: Zugriff des Add-ins auf den Termin in Bearbeitung (Office.js). Außerhalb von Outlook
  * (Vorschau, Tests) gilt ein Beispieltermin; geschrieben wird dann nichts.
+ * IN-04: In einer gelesenen Mail liefert read() die Mail (Absender, Empfänger, ID für Graph).
  */
 export interface OutlookItem {
+  mode?: 'appointment';
   organizerEmail: string;
   subject: string;
   startAt: string;
   attendees: string[];
 }
 
+export interface OutlookMessage {
+  mode: 'message';
+  subject: string;
+  from: string;
+  to: string[];
+  cc: string[];
+  /** ID der Nachricht für Microsoft Graph (REST v2.0) */
+  itemId: string;
+}
+
 export interface OutlookAdapter {
   preview: boolean;
-  read(): Promise<OutlookItem | null>;
+  read(): Promise<OutlookItem | OutlookMessage | null>;
   /** Eingangsadresse als Teilnehmer setzen und den Termin speichern; gibt die ID des Termins */
   addAttendeeAndSave(email: string): Promise<string | null>;
   /** Hinweis zum Transkript an den Anfang der Einladung */
@@ -41,9 +53,24 @@ type OfficeItem = {
   };
   saveAsync(callback: (result: AsyncResult<string>) => void): void;
 };
+/** Gelesene Mail: Felder sind Werte, keine asynchronen Aufrufe (Office.js, Lesemodus) */
+type OfficeMessage = {
+  itemType: string;
+  itemId: string;
+  subject: string;
+  from?: { emailAddress: string };
+  to?: { emailAddress: string }[];
+  cc?: { emailAddress: string }[];
+};
 type OfficeGlobal = {
   onReady(): Promise<unknown>;
-  context?: { mailbox?: { item?: OfficeItem; userProfile?: { emailAddress: string } } };
+  context?: {
+    mailbox?: {
+      item?: OfficeItem | OfficeMessage;
+      userProfile?: { emailAddress: string };
+      convertToRestId?(itemId: string, version: string): string;
+    };
+  };
 };
 
 const call = <T>(work: (callback: (result: AsyncResult<T>) => void) => void) =>
@@ -86,9 +113,29 @@ export async function outlookAdapter(): Promise<OutlookAdapter> {
   const office = await loadOffice();
   if (!office) return previewAdapter();
   await office.onReady();
-  const item = office.context?.mailbox?.item;
-  if (!item) return previewAdapter();
-  const me = office.context?.mailbox?.userProfile?.emailAddress ?? '';
+  const mailbox = office.context?.mailbox;
+  const current = mailbox?.item;
+  if (!current) return previewAdapter();
+  if ('itemType' in current && current.itemType === 'message') {
+    const message = current;
+    return {
+      preview: false,
+      read: async () => ({
+        mode: 'message',
+        subject: message.subject ?? '',
+        from: message.from?.emailAddress ?? '',
+        to: (message.to ?? []).map((entry) => entry.emailAddress),
+        cc: (message.cc ?? []).map((entry) => entry.emailAddress),
+        itemId: mailbox?.convertToRestId
+          ? mailbox.convertToRestId(message.itemId, 'v2.0')
+          : message.itemId,
+      }),
+      addAttendeeAndSave: async () => null,
+      prependBody: async () => undefined,
+    };
+  }
+  const item = current as OfficeItem;
+  const me = mailbox?.userProfile?.emailAddress ?? '';
   return {
     preview: false,
     async read() {
@@ -100,7 +147,9 @@ export async function outlookAdapter(): Promise<OutlookAdapter> {
           ? call<{ emailAddress: string }[]>((done) => item.optionalAttendees?.getAsync(done))
           : Promise.resolve([]),
         item.organizer
-          ? call<{ emailAddress: string }>((done) => item.organizer?.getAsync(done)).catch(() => null)
+          ? call<{ emailAddress: string }>((done) => item.organizer?.getAsync(done)).catch(
+              () => null,
+            )
           : Promise.resolve(null),
       ]);
       return {
