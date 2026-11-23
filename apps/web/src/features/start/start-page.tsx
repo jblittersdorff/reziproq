@@ -30,6 +30,8 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'agent_approval') return t.start.kind.agent_approval;
   if (item.kind === 'category_review') return t.start.dueCategoryReview(item.supplier);
   if (item.kind === 'category_approval') return t.start.dueCategoryApproval(item.supplier);
+  if (item.kind === 'category_conflict') return t.start.dueCategoryConflict(item.supplier);
+  if (item.kind === 'overall_segment_check') return t.start.dueOverallSegment(item.supplier);
   if (item.kind === 'view_assignment') {
     const views = t.analysis.views as Record<string, string>;
     return t.start.dueViewAssignment((item.detail && views[item.detail]) ?? item.detail ?? '');

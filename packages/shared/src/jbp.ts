@@ -69,6 +69,11 @@ export const jbpPreparationSchema = z.object({
       })
       .nullable(),
   }),
+  /** WG-20: nur beim Käufer; Warengruppen ohne Strategie im Jahr und offene Widersprüche. Warnt, blockiert nicht. */
+  categories: z
+    .object({ withoutStrategy: z.array(z.string()), openConflicts: z.number().int() })
+    .nullable()
+    .optional(),
   updates: z.object({
     buyer: z.object({ text: z.string(), updatedAt: z.string() }).nullable(),
     supplier: z.object({ text: z.string(), updatedAt: z.string() }).nullable(),

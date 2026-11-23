@@ -202,6 +202,7 @@ import {
   type RelevanceOverride,
   type RequestContributions,
   type RequestValidation,
+  type ResolveConflict,
   type ReviewCustomAgent,
   ratingAssignmentListSchema,
   ratingDetailSchema,
@@ -285,6 +286,7 @@ import {
   strategyLeverSchema,
   strategyOverviewSchema,
   strategyStepSchema,
+  supplierCategoriesSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
   supplierMapSchema,
@@ -4570,3 +4572,34 @@ export const approvalSettingsQueryOptions = (accessToken: string) =>
 
 export const saveApprovalSettings = (accessToken: string, value: ApprovalSettings) =>
   sendJson('PUT', '/warengruppen/freigabeweg', value, approvalSettingsViewSchema, accessToken);
+
+/** WG-20 (Schritt 31): Zusammenführung je Lieferant über alle Warengruppen */
+export const supplierCategoriesQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'lieferanten', relationshipId],
+    queryFn: () =>
+      getJson(`/warengruppen/lieferanten/${relationshipId}`, supplierCategoriesSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const resolveCategoryConflict = (
+  accessToken: string,
+  conflictId: string,
+  input: ResolveConflict,
+) =>
+  sendJson(
+    'POST',
+    `/warengruppen/widersprueche/${conflictId}`,
+    input,
+    supplierCategoriesSchema,
+    accessToken,
+  );
+
+export const adoptSegmentProposal = (accessToken: string, relationshipId: string) =>
+  sendJson(
+    'POST',
+    `/warengruppen/lieferanten/${relationshipId}/gesamtsegment`,
+    {},
+    supplierCategoriesSchema,
+    accessToken,
+  );

@@ -153,6 +153,28 @@ export class JbpService {
     return rows.length > 0;
   }
 
+  /** WG-20: Warengruppen des Lieferanten ohne Strategie im laufenden Jahr, offene Widersprüche */
+  private async categoryWarnings(tx: TenantTransaction, relationshipId: string) {
+    const year = new Date().getFullYear();
+    const missing = await tx.execute<{ name: string }>(sql`
+      select g.name from material_group g
+      where g.active and g.id in (
+        select material_group_id from relationship_material_group where relationship_id = ${relationshipId})
+        and not exists (select 1 from material_group_strategy s
+          where s.material_group_id = g.id and s.year = ${year})
+      order by g.name`);
+    const [open] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.materialGroupConflict)
+      .where(
+        and(
+          eq(schema.materialGroupConflict.relationshipId, relationshipId),
+          eq(schema.materialGroupConflict.status, 'open'),
+        ),
+      );
+    return { withoutStrategy: missing.rows.map((row) => row.name), openConflicts: open?.n ?? 0 };
+  }
+
   async preparation(scope: JbpScope): Promise<JbpPreparation> {
     const { tx } = scope;
     const plan = await this.current(tx, scope.relationshipId);
@@ -215,6 +237,9 @@ export class JbpService {
       live,
       ownSide: scope.side,
       buyerHint,
+      // WG-20: nur beim Käufer; warnt bei fehlender Strategie oder offenem Widerspruch
+      categories:
+        scope.side === 'buyer' ? await this.categoryWarnings(tx, scope.relationshipId) : null,
     };
 
     if (!plan) {

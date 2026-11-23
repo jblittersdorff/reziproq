@@ -41,6 +41,8 @@ export const tabPages: Record<SupplierTab, TabPage[]> = {
     { key: 'profile', path: 'strategie/profil' },
     { key: 'spend', path: 'strategie/spend' },
     { key: 'segmentation', path: 'strategie/segmentierung' },
+    // WG-20: Warengruppen des Lieferanten (NAV-10: im Profil nach der Segmentierung)
+    { key: 'categories', path: 'strategie/warengruppen' },
     { key: 'supplierPlan', path: 'strategie/lieferantenplan' },
     { key: 'team', path: 'beziehung/team' },
     { key: 'rules', path: 'beziehung/spielregeln' },

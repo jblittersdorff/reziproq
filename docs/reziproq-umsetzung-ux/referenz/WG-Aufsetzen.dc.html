@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Warengruppe aufsetzen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+h1,h2,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
+.t1{font-size:36px;line-height:1.08;font-weight:600;letter-spacing:-0.03em;text-wrap:balance}
+.t3{font-size:19px;font-weight:600;letter-spacing:-0.015em}
+.muted{color:#5a636b}
+.num{font-variant-numeric:tabular-nums}
+.lbl{font-size:13px;font-weight:600;color:#5a636b}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.ok{background:#e8f1df;color:#2f5f1d}.warn{background:#f8eed6;color:#74500a}.risk{background:#fae6e3;color:#94201a}.n{background:#eceeea;color:#3f4a52}.sh{background:#e1f3ed;color:#0a5c50}.ink{background:#0f1b22;color:#4fd1b4}
+.card{display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:24px;background:#ffffff;box-shadow:0 0 0 1px #0f1b220a}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:0 20px;border-radius:999px;font:600 14px Figtree,system-ui,sans-serif;text-decoration:none;border:0}
+.bp{background:#0b7a6a;color:#ffffff}.bs{background:#ffffff;color:#14181b;box-shadow:inset 0 0 0 1px #dfe2dd}.bm{background:#4fd1b4;color:#0f1b22}
+.hero{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;padding:26px 28px;border-radius:28px;background:#0f1b22;color:#f4f5f2}
+.rings{position:absolute;right:-80px;top:50%;width:360px;height:258px;transform:translateY(-50%);pointer-events:none}
+.go{width:34px;height:34px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:flex;align-items:center;justify-content:center}
+.pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:#3f4a52;font:600 13px Figtree,system-ui,sans-serif;text-decoration:none}
+.pill.on{background:#ffffff;color:#0f1b22;box-shadow:0 1px 2px #0f1b221f}
+.seg{display:inline-flex;flex-wrap:wrap;align-self:flex-start;padding:4px;border-radius:999px;background:#eceeea}
+.cols{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.main{flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.side{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.q{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:q}
+.q li{display:flex;gap:12px;font-size:14px;line-height:1.5;counter-increment:q}
+.q li::before{content:counter(q);width:24px;height:24px;box-sizing:border-box;border-radius:99px;border:2px solid #0b7a6a;color:#0a5c50;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;flex:none}
+.obs{display:block;width:100%;box-sizing:border-box;min-height:132px;padding:14px 16px;border-radius:16px;border:1px solid #7b8389;background:#ffffff;font:400 14px/1.55 Figtree,system-ui,sans-serif;color:#14181b;resize:vertical}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#5a636b;white-space:nowrap}
+td{padding:12px;border-top:1px solid #eceeea;vertical-align:top}
+.bar{height:10px;border-radius:99px;background:#eceeea;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:99px;background:#0b7a6a}
+.mono{width:38px;height:38px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;letter-spacing:.02em;flex:none}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid #eceeea;font-size:14px}
+.ki{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:24px;background:#ffffff;border:2px dashed #0b7a6a}
+.kih{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#0a5c50}
+.src{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;background:#eceeea;color:#3f4a52;font-size:12px;font-weight:600;text-decoration:none}
+.fig{font-family:Outfit,Figtree,sans-serif;font-size:28px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+
+
+/* apple-layer */
+.hero{position:relative;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:#0f1b22;color:#f4f5f2}
+.hero .btn.bm{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;font:600 15px Figtree,system-ui,sans-serif;text-decoration:none;background:#4fd1b4;color:#0f1b22}
+.t1{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:-0.03em}
+.card{border-radius:18px;box-shadow:none!important;padding:20px 22px}
+.hero{border-radius:22px;padding:22px 26px;box-shadow:none}
+.hero .rings{display:none}
+.ki{border:1px solid #cfe5dd!important;background:#fbfdfc;border-radius:18px}
+.chip{padding:3px 9px;font-size:12px}
+.btn.bs{box-shadow:none;background:#e9ece8;color:#14181b}
+.btn.bp{background:#0b7a6a}
+.seg{border-radius:12px;padding:3px;background:#e6e9e5}.seg .pill{border-radius:9px;min-height:34px}
+.pill.on{box-shadow:0 1px 3px #0f1b2222}
+details.fold{display:block;border-radius:16px;background:#ffffff}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 18px;font:500 15px Figtree,system-ui,sans-serif;color:#3f4a52}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary span{flex:1}
+details.fold>summary::after{content:"";width:8px;height:8px;border-right:2px solid #b4bab5;border-bottom:2px solid #b4bab5;transform:rotate(-45deg);margin-right:4px;transition:transform .15s}
+details.fold[open]>summary::after{transform:rotate(45deg)}
+details.fold>.card,details.fold>section,details.fold>div{border-radius:0 0 16px 16px;padding-top:4px}
+details.fold [data-foldh]{display:none}
+.quiet{background:#e9ece8!important;color:#14181b!important}
+.quiet *{color:inherit}
+.quiet p,.quiet span{color:#5a636b!important}
+.quiet h2,.quiet h3,.quiet strong{color:#0f1b22!important}
+@media (max-width:760px){
+.hero{flex-direction:column;align-items:stretch!important;padding:20px}
+.hero>div{flex:none!important}
+.hero .btn{width:100%;box-sizing:border-box;justify-content:center;min-height:50px}
+.hero>div{min-width:0;max-width:100%}
+.t1{font-size:30px}
+}
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it" href="Lieferanten.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it on" href="WG-Uebersicht.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
+
+<dc-import name="GroupBar" hint-size="100%,150px"></dc-import>
+<dc-import name="Flow" flow="Warengruppe" step="Aufsetzen" hint-size="100%,250px"></dc-import>
+<main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-direction:column;gap:8px"><h1 class="t1">Team und Umfang festlegen</h1><p class="muted">Bevor die Strategiearbeit beginnt: wer mitarbeitet und was zur Warengruppe gehört.</p></div>
+  <section class="hero" aria-label="Nächster Schritt"><div style="display:flex;flex-direction:column;gap:4px;flex:1 1 320px"><span style="font-size:13px;color:#4fd1b4;font-weight:600">Als Nächstes · Schritt 6 von 10</span><strong class="dsp" style="font-size:22px;line-height:1.2;font-weight:600;letter-spacing:-0.02em">Hebel für die Bewertung wählen. Freigabe am 09.12.</strong></div><a href="WG-Bewertung.dc.html" class="btn bm">Zur Bewertung</a></section>
+
+  <div class="cols">
+    <div class="main">
+      <section class="card" aria-labelledby="team">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 id="team" class="t3">Team der Warengruppe</h2><a href="E-Formular.dc.html" class="btn bs">Person hinzufügen</a></div>
+        <div class="scroll"><table style="min-width:520px">
+          <thead><tr><th scope="col">Rolle</th><th scope="col">Person</th><th scope="col">Bereich</th><th scope="col">Aufgabe</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip ink">Lead</span></td><td><strong style="font-weight:600">Sara Ost</strong></td><td>BU Antriebe</td><td class="muted">Koordiniert das Team, verantwortet Qualität der Strategie, stellt sie zur Freigabe vor</td></tr>
+            <tr><td><span class="chip sh">Commodity Manager</span></td><td><strong style="font-weight:600">Jonas Feld</strong></td><td>Zentraleinkauf</td><td class="muted">Bringt die Leitungssicht ein, Schnittstelle zum Lieferantenmanagement</td></tr>
+            <tr><td><span class="chip n">Einkauf</span></td><td><strong style="font-weight:600">Paul Hahn</strong></td><td>BU Steuerungen</td><td class="muted">Arbeitet die Strategie mit aus</td></tr>
+            <tr><td><span class="chip n">Einkauf</span></td><td><strong style="font-weight:600">Tom Berg</strong></td><td>BU Service · Region Ost</td><td class="muted">Arbeitet die Strategie mit aus</td></tr>
+            <tr><td><span class="chip n">Fachbereich</span></td><td><strong style="font-weight:600">Ida Roth</strong></td><td>Qualität</td><td class="muted">Wird für die Qualitätssicht eingebunden</td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted" style="font-size:13px">Lead ist in der Regel, wer in der Business Unit mit dem höchsten Umsatz einkauft (Sicht auf 3 bis 5 Jahre).</p>
+      </section>
+      <section class="card" aria-labelledby="pg">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 id="pg" class="t3">Produktgruppen</h2><a href="E-Formular.dc.html" class="btn bs">Produktgruppe hinzufügen</a></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+          <div class="cell"><strong style="font-weight:600">Mehrlagen-Leiterplatten</strong><span class="muted" style="font-size:13px">6 bis 12 Lagen, Standardmaterial. In allen drei Business Units.</span><span><span class="chip n">46 % Umsatz</span></span></div>
+          <div class="cell"><strong style="font-weight:600">Starrflex</strong><span class="muted" style="font-size:13px">Für enge Bauräume. Nur Antriebe und Steuerungen.</span><span><span class="chip n">22 %</span></span></div>
+          <div class="cell"><strong style="font-weight:600">HDI</strong><span class="muted" style="font-size:13px">Hohe Packungsdichte, feine Strukturen. Nur Steuerungen.</span><span><span class="chip n">15 %</span></span></div>
+          <div class="cell"><strong style="font-weight:600">Einlagig</strong><span class="muted" style="font-size:13px">Einfache Schaltungen, auslaufend. Vor allem Service.</span><span><span class="chip n">9 %</span></span></div>
+        </div>
+        <p class="muted" style="font-size:13px">Die Strategie gilt für die ganze Warengruppe, nicht für einzelne Teilenummern. Bei Bedarf könnt ihr sie für ein bis zwei Produktgruppen schärfen.</p>
+      </section>
+    </div>
+<aside class="side" aria-label="Leitfragen und Beobachtung"><details class="fold"><summary><span>Leitfragen</span></summary><section class="card" style="background:#e1f3ed;box-shadow:inset 0 0 0 2px #9fd9c8"><h2 class="t3" style="color:#0a5c50" data-foldh>Leitfragen</h2><ol class="q"><li><span>Wer kauft welche Produktgruppe, in welcher Business Unit und Region?</span></li><li><span>Wer koordiniert als Lead?</span></li><li><span>Ist die Warengruppe so relevant, dass sie einen Commodity Manager braucht?</span></li><li><span>Worin gleichen und unterscheiden sich die Produktgruppen zwischen den Business Units?</span></li></ol></section></details><section class="card"><h2 class="t3">Nächste Meilensteine</h2><div><div class="kv" style="border-top:0"><span>Analysen bestätigt</span><strong style="font-weight:600">14.11.</strong></div><div class="kv"><span>Team-Workshop Bewertung</span><strong style="font-weight:600">21.11.</strong></div><div class="kv"><span>Vorlage Leitungsgremium</span><strong style="font-weight:600">09.12.</strong></div><div class="kv"><span>Erstes Quartals-Review</span><strong style="font-weight:600">15.02.</strong></div></div></section><section class="card"><label for="obs-aufsetzen" class="t3 dsp">Beobachtung und Erklärung</label><p class="muted" style="font-size:13px">Was fällt auf, und was heißt das für die Strategie? Dieser Text geht in die Bewertung ein.</p><textarea id="obs-aufsetzen" class="obs" rows="6">Mehrlagen und Starrflex tragen zwei Drittel des Umsatzes. HDI braucht nur die BU Steuerungen, stellt dort aber die höchsten Anforderungen.</textarea></section></aside>
+  </div>
+</main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="" href="Lieferanten.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="on" href="WG-Uebersicht.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1575}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -21,6 +21,7 @@ import {
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { syncConflicts } from './merge-facts.js';
 import { StrategyService } from './strategy.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -307,23 +308,33 @@ export class AwardsService {
     awardId: string,
     suppliers: ReturnType<typeof awardRequestSchema.parse>['suppliers'],
   ) {
-    await tx
+    const before = await tx
       .delete(schema.materialGroupAwardSupplier)
-      .where(eq(schema.materialGroupAwardSupplier.awardId, awardId));
+      .where(eq(schema.materialGroupAwardSupplier.awardId, awardId))
+      .returning({ relationshipId: schema.materialGroupAwardSupplier.relationshipId });
     const unique = [
       ...new Map(suppliers.map((entry) => [`${entry.kind}:${entry.id}`, entry])).values(),
     ];
-    if (unique.length === 0) return;
-    await tx.insert(schema.materialGroupAwardSupplier).values(
-      unique.map((entry) => ({
-        orgId,
-        strategyId,
-        awardId,
-        relationshipId: entry.kind === 'relationship' ? entry.id : null,
-        candidateId: entry.kind === 'candidate' ? entry.id : null,
-        note: entry.note || null,
-      })),
+    // WG-20: Widersprüche der betroffenen Lieferanten neu abgleichen (vorher und nachher)
+    const affected = new Set(
+      [
+        ...before.map((row) => row.relationshipId),
+        ...unique.filter((entry) => entry.kind === 'relationship').map((entry) => entry.id),
+      ].filter((id): id is string => id !== null),
     );
+    if (unique.length > 0) {
+      await tx.insert(schema.materialGroupAwardSupplier).values(
+        unique.map((entry) => ({
+          orgId,
+          strategyId,
+          awardId,
+          relationshipId: entry.kind === 'relationship' ? entry.id : null,
+          candidateId: entry.kind === 'candidate' ? entry.id : null,
+          note: entry.note || null,
+        })),
+      );
+    }
+    for (const relationshipId of affected) await syncConflicts(tx, orgId, relationshipId);
   }
 
   create(auth: AuthContext, strategyId: string, input: AwardRequest): Promise<AwardPlan> {

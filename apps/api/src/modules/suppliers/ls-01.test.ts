@@ -103,6 +103,10 @@ describe('LS-01 Lieferantenliste', () => {
       model: 'test',
       createdBy: users.a,
     });
+    // Im Messlauf aktuelle Statistiken wie im Betrieb (Autovacuum analysiert nach großen Einfügungen);
+    // sonst plant die Datenbank nach der vorangehenden Testreihe mit veralteten Zahlen. Die Grenze
+    // von 300 ms bleibt unverändert.
+    if (process.env.REZIPROQ_PERF === '1') await db.execute(sql`analyze`);
   }, 120_000);
 
   afterAll(async () => {

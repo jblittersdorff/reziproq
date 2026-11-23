@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Mein Tag</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+.ph{position:relative;width:390px;height:844px;overflow:hidden;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#0f1b22;display:flex;flex-direction:column}
+.scr{flex:1;overflow:hidden;padding:0 16px 120px;display:flex;flex-direction:column;gap:22px}
+.nav{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 8px 0}
+.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:17px;color:#0b7a6a}
+.ico{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;color:#0b7a6a;border:0;background:transparent}
+.lt{font:700 34px/1.1 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22}
+.where{font-size:15px;color:#5a636b}
+.next{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:24px;background:#0f1b22;color:#f4f5f2}
+.next .k{font-size:13px;font-weight:600;color:#4fd1b4;letter-spacing:.01em}
+.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}
+.next p{font-size:15px;line-height:1.45;color:#a9b4b9}
+.cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:16px;border:0;background:#4fd1b4;color:#0f1b22;font:600 17px Figtree,system-ui,sans-serif}
+.cta.p{background:#0b7a6a;color:#ffffff}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sh{padding:0 4px;font-size:13px;font-weight:600;color:#7b8389;text-transform:uppercase;letter-spacing:.04em}
+.grp{display:flex;flex-direction:column;border-radius:16px;background:#ffffff;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;border-top:1px solid #eef0ec;font-size:16px}
+.row:first-child{border-top:0}
+.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .t b{font-weight:600;font-size:16px;color:#0f1b22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t span{font-size:14px;color:#7b8389;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .v{font-size:15px;color:#7b8389;white-space:nowrap}
+.row .v.a{color:#0b7a6a;font-weight:600}
+.chev{color:#c4c8c3;flex:none}
+.av{width:36px;height:36px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;background:#eceeea;color:#3f4a52}
+.dot{width:10px;height:10px;border-radius:99px;flex:none}
+.badge{min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.steps{display:flex;align-items:center;gap:6px;padding:14px;border-radius:16px;background:#ffffff}
+.st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#7b8389;text-align:center}
+.st i{width:26px;height:26px;border-radius:99px;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif;font-style:normal;background:#eceeea;color:#7b8389}
+.st.done i{background:#0b7a6a;color:#fff}
+.st.now{color:#0f1b22;font-weight:700}
+.st.now i{background:#4fd1b4;color:#0f1b22;box-shadow:0 0 0 3px #0f1b22}
+.ln{height:2px;flex:.5;background:#e0e3df;margin-bottom:20px}
+.ln.done{background:#0b7a6a}
+.tab{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 6px 28px;background:#ffffffeb;border-top:1px solid #e0e3df;backdrop-filter:blur(12px)}
+.tb{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;font-size:11px;font-weight:600;color:#9aa1a6}
+.tb.on{color:#0b7a6a}
+.sticky{position:absolute;left:0;right:0;bottom:84px;padding:12px 16px;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}
+.search{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:12px;background:#e6e9e5;color:#7b8389;font-size:16px}
+.segc{display:flex;padding:3px;border-radius:10px;background:#e6e9e5}
+.segc span{flex:1;text-align:center;padding:7px 0;border-radius:8px;font-size:14px;font-weight:600;color:#3f4a52}
+.segc span.on{background:#fff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222}
+.fig{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.more{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:15px;font-weight:600;color:#0b7a6a}
+.acol{max-width:760px;margin:0 auto;padding:28px clamp(16px,4vw,40px) 64px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box;font-family:Figtree,system-ui,sans-serif;color:#0f1b22}
+.sticky{position:static;padding:0;background:none}
+@media (min-width:761px){.next{flex-direction:row;flex-wrap:wrap;align-items:center;padding:24px 28px}.next .k,.next h2,.next p{flex:1 1 100%}.next .cta{width:auto;padding:0 28px}}
+@media (max-width:760px){.acol{padding-top:16px}.sticky{position:sticky;bottom:92px;padding:12px 0;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}}
+.wide{max-width:1200px}
+.uhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.ugrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px}
+.box{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:18px;background:#fff;min-width:0}
+.box h2{font:600 19px/1.25 Outfit,Figtree,sans-serif;letter-spacing:-0.015em}
+.box .k{font-size:13px;font-weight:600;color:#7b8389}
+.box .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid #eef0ec;font-size:14px;font-weight:600;color:#0b7a6a}
+.box .src{font-size:12px;color:#7b8389}
+.hb{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:10px;font-size:14px}
+.hb .tr{position:relative;height:12px;border-radius:99px;background:#eceeea;overflow:hidden}
+.hb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#0b7a6a}
+.hb .tr i.pot{background:#bfe9dc}
+.hb .v{font-variant-numeric:tabular-nums;color:#3f4a52;font-size:13px;white-space:nowrap}
+.qc{--qh:78px;display:flex;align-items:flex-end;gap:14px;height:calc(var(--qh) + 46px);padding-top:6px}
+@media (min-width:761px){.qc{--qh:200px;margin-top:auto}}
+.qc div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:#7b8389}
+.qc b{font:600 13px Figtree,sans-serif;color:#0f1b22}
+.qc span.c{width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:#0b7a6a}
+.split{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:3px}
+.split i{display:block}
+.tl{position:relative;display:flex;gap:10px;overflow-x:auto;padding:6px 2px 4px;scroll-snap-type:x mandatory}
+.tl::before{content:"";position:absolute;left:0;right:0;top:31px;height:2px;background:#e0e3df}
+.ev{position:relative;flex:1 0 116px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#0f1b22}
+.ev .dt{align-self:flex-start;display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 2px #e0e3df;font:600 17px/1 Outfit,sans-serif}
+.ev .dt small{font:600 10px Figtree,sans-serif;color:#7b8389;margin-top:2px}
+.ev.now .dt{background:#0f1b22;color:#4fd1b4;box-shadow:none}.ev.now .dt small{color:#a9b4b9}
+.ev .ty{font-size:12px;font-weight:600}
+.ev b{font-size:14px;font-weight:600;line-height:1.3}
+.ev span.s{font-size:13px;color:#7b8389;line-height:1.3}
+.t-termin{color:#0b7a6a}.t-frist{color:#74500a}.t-risiko{color:#94201a}.t-freigabe{color:#0a5c50}
+.sum .stmt{font:600 20px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22}
+.pts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.pts li{display:flex;align-items:center;gap:12px;min-height:44px;border-top:1px solid #eef0ec;font-size:15px}
+.tag{flex:none;min-width:56px;text-align:center;padding:3px 0;border-radius:99px;font-size:12px;font-weight:600}
+.tag.ok{background:#e8f1df;color:#2f5f1d}.tag.risk{background:#fae6e3;color:#94201a}.tag.warn{background:#f8eed6;color:#74500a}
+.rcol{display:flex;flex-direction:column;gap:22px}
+.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px;align-items:stretch}
+.toprow .next{justify-content:space-between}
+@media (min-width:761px){.toprow .next{flex-direction:column;flex-wrap:nowrap;align-items:stretch;box-sizing:border-box}.toprow .next>*{flex:none!important}.toprow .next .cta{align-self:flex-start;margin-top:auto}}
+@media (min-width:761px){.toprow .r1{order:2}}
+@media (max-width:760px){.tl{margin:0 -16px;padding-left:16px;padding-right:16px}.hb{grid-template-columns:84px 1fr auto}}
+.cock{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+.cock>div{display:flex;flex-direction:column;gap:22px;min-width:0}
+@media (max-width:1100px){.cock{grid-template-columns:1fr}}
+.dl{display:flex;flex-direction:column}
+.dli{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid #eef0ec;text-decoration:none;color:#0f1b22}
+.dli:first-child{border-top:0;padding-top:2px}
+.dli .dt{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;box-shadow:inset 0 0 0 2px #e0e3df;font:600 15px/1 Outfit,sans-serif}
+.dli .dt small{font:600 9px Figtree,sans-serif;color:#7b8389;margin-top:2px}
+.dli .tx{display:flex;flex-direction:column;gap:2px;font-size:14px;min-width:0}
+.dli .tx b{font-size:15px;font-weight:600}
+.dli .tx span{color:#7b8389}
+.chipx{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:#eceeea;color:#3f4a52}
+.chipx.r{background:#fae6e3;color:#94201a}.chipx.w{background:#f8eed6;color:#74500a}.chipx.g{background:#e8f1df;color:#2f5f1d}.chipx.m{background:#e1f3ed;color:#0a5c50}
+.row .v .chipx{font-size:12px}
+.prog{display:flex;align-items:center;gap:10px;font-size:13px;color:#5a636b}
+.prog .tr{width:140px;height:8px;border-radius:99px;background:#e6e9e5;overflow:hidden}.prog .tr i{display:block;height:100%;background:#0b7a6a;border-radius:99px}
+.wgt{display:grid;grid-template-columns:minmax(0,2.2fr) 1fr 1.2fr 1.4fr 1fr 20px;align-items:center;gap:14px;min-height:64px;padding:8px 18px;border-top:1px solid #eef0ec;text-decoration:none;color:#0f1b22;font-size:14px}
+.wgt:first-child{border-top:0}
+.wgt.h{min-height:36px;font-size:12px;font-weight:600;color:#7b8389;background:#fafbf9}
+.wgt .nm{display:flex;align-items:center;gap:12px;min-width:0}.wgt .nm b{font-size:16px;font-weight:600}.wgt .nm .sb{display:block;font-size:13px;color:#7b8389}
+.mini{height:8px;border-radius:99px;background:#e6e9e5;overflow:hidden;position:relative}.mini i{position:absolute;left:0;top:0;bottom:0;background:#0b7a6a;border-radius:99px}.mini i.pot{background:#bfe9dc}
+.cell{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#3f4a52}
+@media (max-width:900px){.wgt{grid-template-columns:minmax(0,1fr) auto 20px}.wgt .hide{display:none}.wgt.h{display:none}}
+.kv2{display:grid;grid-template-columns:1fr;gap:8px}
+.kv2 div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:#f4f5f2}
+.kv2 b{order:2;font:600 19px Outfit,sans-serif;letter-spacing:-0.02em;white-space:nowrap}.kv2 span{font-size:13px;color:#5a636b}
+
+.team{display:flex;flex-wrap:wrap;gap:10px}
+.tm{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:99px;background:#f4f5f2;font-size:13px}
+.tm small{color:#7b8389}
+
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+</style>
+</helmet>
+<div style="background:#f4f5f2">
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it on" href="Main.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it" href="Lieferanten.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
+<main class="acol wide"><header class="uhead"><div style="display:flex;flex-direction:column;gap:4px"><h1 class="lt">Mein Tag</h1><span class="where">Montag, 23. November · Guten Morgen, Jan-Luka</span></div><div class="prog"><span>0 von 3 für heute erledigt</span><span class="tr"><i style="width:4%"></i></span></div></header><div class="cock"><div><section class="next" aria-label="Nächster Schritt"><span class="k">Als Nächstes · überfällig seit 2 Tagen · 2 Min.</span><h2>Liefertreue Oktober für Rheintal erfassen</h2><p>Rheintal hat den Wert geliefert. Er fehlt noch in der Scorecard.</p><a class="cta" href="P-Kennzahl.dc.html">Wert erfassen</a></section><section class="sec"><h2 class="sh">Heute · 2 weitere</h2><div class="grp"><a class="row" href="W-Pruefung.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">RE</span><span class="t"><b>Wirkung „Preis Leiterplatten“ freigeben</b><span>Rheintal · Controlling wartet</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="Termin-Briefing.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">RE</span><span class="t"><b>Briefing JBP Rheintal prüfen</b><span>Agenda bis Fr 27.11. an Rheintal</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section><section class="sec"><h2 class="sh">Von Reziproq vorbereitet · 4 Entwürfe</h2><div class="grp"><a class="row" href="Termin-Briefing.dc.html"><span class="av" style="background:#0f1b22;color:#4fd1b4">RZ</span><span class="t"><b>Briefing JBP Rheintal Elektronik</b><span>3 Ziele, Agenda mit 7 Punkten · heute 06:10</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="Import-Pruefen.dc.html"><span class="av" style="background:#0f1b22;color:#4fd1b4">RZ</span><span class="t"><b>Import prüfen: 38 Zeilen</b><span>tragen 80 % des offenen Spend</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="KI-Wert-Uebersicht.dc.html"><span class="av" style="background:#0f1b22;color:#4fd1b4">RZ</span><span class="t"><b>Neues Wertpotenzial bei Kessler Präzision</b><span>größtes neues Potenzial im Portfolio</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="KI-Lauf.dc.html"><span class="av" style="background:#0f1b22;color:#4fd1b4">RZ</span><span class="t"><b>Marktanalyse Leiterplatten bestätigen</b><span>Schritt 5 der Warengruppenstrategie</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section><section class="sec"><h2 class="sh">Diese Woche · 4</h2><div class="grp"><a class="row" href="P-Scorecard.dc.html"><span class="av" style="">NG</span><span class="t"><b>Scorecard 2027 unterschreiben</b><span>Nordwerk Guss</span></span><span class="v "><span class="chipx">Di 24.11.</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="P-Themen.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">RE</span><span class="t"><b>Zwei Themen für das JBP ergänzen</b><span>Rheintal Elektronik · Gemeinsamer Plan</span></span><span class="v "><span class="chipx">Mi 25.11.</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="PF-Bewerten.dc.html"><span class="av" style="">BL</span><span class="t"><b>Baltic Logistics bewerten</b><span>Bewertungsrunde 2027</span></span><span class="v "><span class="chipx">Do 26.11.</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="U-Massnahmen.dc.html"><span class="av" style="">AK</span><span class="t"><b>Maßnahme zur Lücke Transparenz anlegen</b><span>Alpen Kunststofftechnik · Feedback</span></span><span class="v "><span class="chipx">Fr 27.11.</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section><a class="more" href="Aufgaben.dc.html">Alle 11 Aufgaben</a></div><div><section class="box"><span class="k">Nächste 14 Tage</span><h2>Termine und Fristen</h2><div class="dl"><a class="dli" href="C-Claim.dc.html"><span class="dt">02<small>DEZ</small></span><span class="tx"><b>Claim Rheintal beantworten</b><span>Mi · Lohn- und Energiezuschlag, 186 T€</span></span><span style="margin-left:auto"><span class="chipx w">Frist</span></span></a><a class="dli" href="Termin-Briefing.dc.html"><span class="dt">04<small>DEZ</small></span><span class="tx"><b>JBP Rheintal Elektronik</b><span>Fr 10:00 bis 12:00 · Teams</span></span><span style="margin-left:auto"><span class="chipx m">Briefing</span></span></a><a class="dli" href="WG-Freigabe.dc.html"><span class="dt">09<small>DEZ</small></span><span class="tx"><b>Freigabe Strategie Leiterplatten</b><span>Mi · Leitungsgremium Einkauf</span></span><span style="margin-left:auto"><span class="chipx g">Freigabe</span></span></a><a class="dli" href="U-Termine.dc.html"><span class="dt">10<small>DEZ</small></span><span class="tx"><b>QBR Nordwerk Guss</b><span>Do 14:00</span></span></a></div><a class="foot" href="U-Termine.dc.html">Alle Termine<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section><section class="box"><span class="k">4 Dinge</span><h2>Wartet auf andere</h2><div class="dl" style="gap:0"><a class="dli" href="U-Massnahmen.dc.html"><span class="tx"><b>8D-Bericht Charge 4711</b><span>Nils Ott · Rheintal</span></span><span style="margin-left:auto"><span class="chipx r">überfällig</span></span></a><a class="dli" href="J-Beitraege.dc.html"><span class="tx"><b>Beitrag Machbarkeit Lieferzeit</b><span>Tom Weber · JBP</span></span><span style="margin-left:auto"><span class="chipx ">Fr 27.11.</span></span></a><a class="dli" href="J-Beitraege.dc.html"><span class="tx"><b>Bedarf 2028</b><span>Jonas Feld · JBP</span></span><span style="margin-left:auto"><span class="chipx ">Fr 27.11.</span></span></a><a class="dli" href="P-Zusagen.dc.html"><span class="tx"><b>Zusage Musterteile</b><span>Rheintal</span></span><span style="margin-left:auto"><span class="chipx ">15.12.</span></span></a></div><a class="foot" href="Aufgaben.dc.html">Nachfassen<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section><section class="sec"><div class="grp"><a class="row" href="Aktivitaeten.dc.html"><span class="t"><b>Neu eingegangen</b><span>3 Mails und Termine zuordnen</span></span><span class="v "><span class="chipx m">3</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="Hinweise.dc.html"><span class="t"><b>Hinweise</b><span>7 offen, 1 mit hoher Wirkung</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section></div></div></main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="on" href="Main.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="" href="Lieferanten.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1392}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -53,6 +53,7 @@ import { type AccountOrganization, TenantDatabase } from '../../common/database.
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { analysisStates } from './analysis-states.js';
+import { mergeDueItems } from './merge.service.js';
 import { supplierMapData } from './supplier-map-data.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -1028,6 +1029,7 @@ export class StrategyService {
           ...(await this.assignedViews(auth)),
           ...(await this.openReviews(auth)),
           ...(await this.openApprovals(auth)),
+          ...(await this.run(auth, (tx) => mergeDueItems(tx, auth))),
         ]
       : [];
     if (!can(auth, 'warengruppenstrategie.bearbeiten')) return assigned;

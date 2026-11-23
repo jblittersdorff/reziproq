@@ -174,6 +174,34 @@ function PreparationContent({ place }: { place: MeetingPlace }) {
         </div>
       )}
 
+      {/* WG-20: warnt bei fehlender Warengruppenstrategie oder offenem Widerspruch, blockiert nicht */}
+      {data.categories &&
+        (data.categories.withoutStrategy.length > 0 || data.categories.openConflicts > 0) && (
+          <div
+            role="status"
+            data-slot="category-hint"
+            className="flex flex-wrap items-center gap-3 rounded-lg bg-warning-soft px-4 py-3 text-warning-soft-foreground"
+          >
+            <p className="flex-1">
+              {[
+                data.categories.withoutStrategy.length > 0
+                  ? text.categoriesMissing(data.categories.withoutStrategy.join(', '))
+                  : null,
+                data.categories.openConflicts > 0
+                  ? text.categoriesConflicts(data.categories.openConflicts)
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            </p>
+            {routerLink({
+              href: `/lieferanten/${place.relationshipId}/strategie/warengruppen`,
+              className: buttonVariants({ variant: 'outline', size: 'sm' }),
+              children: text.toCategories,
+            })}
+          </div>
+        )}
+
       {data.meeting && (
         <section aria-labelledby="jbp-termin" className="flex flex-col gap-3">
           <h2 id="jbp-termin" className="font-display font-semibold text-section tracking-section">

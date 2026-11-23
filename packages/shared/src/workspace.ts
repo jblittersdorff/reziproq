@@ -144,6 +144,8 @@ export const supplierOverviewSchema = z.object({
   openDrafts: z.number().int().optional(),
   /** WG-14: Vergaben mit diesem Lieferanten in den nächsten sechs Monaten, nur beim Käufer (privat) */
   upcomingAwards: z.number().int().optional(),
+  /** WG-20: offene Widersprüche zwischen Warengruppen, nur beim Käufer (privat) */
+  openConflicts: z.number().int().optional(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

@@ -35,6 +35,10 @@ export const dueKinds = [
   'category_review',
   // WG-16: Unterschrift oder Freigabe einer Warengruppenstrategie
   'category_approval',
+  // WG-20: Widerspruch zwischen Warengruppen abstimmen (SRO, Leads)
+  'category_conflict',
+  // WG-20: Segment einer Warengruppe neuer als das Gesamtsegment (SRO)
+  'overall_segment_check',
 ] as const;
 
 export const dueItemSchema = z.object({

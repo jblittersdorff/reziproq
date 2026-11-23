@@ -134,10 +134,21 @@ export class OverviewService {
           sql`${schema.materialGroupAward.awardDate} < (${today}::date + interval '6 months')`,
         ),
       );
+    // WG-20: offene Widersprüche zwischen Warengruppen
+    const [conflicts] = await tx
+      .select({ n: sql<number>`count(*)::int` })
+      .from(schema.materialGroupConflict)
+      .where(
+        and(
+          eq(schema.materialGroupConflict.relationshipId, relationshipId),
+          eq(schema.materialGroupConflict.status, 'open'),
+        ),
+      );
     return {
       overdueCommitments: overdue?.n ?? 0,
       openDrafts: drafts?.n ?? 0,
       upcomingAwards: awards?.n ?? 0,
+      openConflicts: conflicts?.n ?? 0,
     };
   }
 

@@ -104,6 +104,7 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
             head={overview.data?.head ?? emptyHead}
             metrics={metrics}
             upcomingAwards={overview.data?.upcomingAwards ?? 0}
+            openConflicts={overview.data?.openConflicts ?? 0}
           />
         ))}
       </div>
@@ -203,6 +204,7 @@ function AreaTile({
   head,
   metrics,
   upcomingAwards,
+  openConflicts,
 }: {
   area: WorkspaceArea;
   relationshipId: string;
@@ -211,6 +213,8 @@ function AreaTile({
   metrics: OverviewMetric[];
   /** WG-14: Vergaben in den nächsten sechs Monaten, nur im privaten Bereich Strategie */
   upcomingAwards: number;
+  /** WG-20: offene Widersprüche zwischen Warengruppen, privat */
+  openConflicts: number;
 }) {
   const t = useT();
   const segment = workspaceAreas.find((entry) => entry.key === area)?.segment ?? area;
@@ -258,6 +262,9 @@ function AreaTile({
         </p>
         {detail && (
           <p className={internal ? 'text-muted-foreground' : 'text-petrol-dark'}>{detail}</p>
+        )}
+        {area === 'strategy' && openConflicts > 0 && (
+          <p className="font-semibold text-text">{t.workspace.openConflicts(openConflicts)}</p>
         )}
         {area === 'strategy' && upcomingAwards > 0 && (
           <p className="text-muted-foreground">{t.workspace.upcomingAwards(upcomingAwards)}</p>

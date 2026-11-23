@@ -194,6 +194,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       'Profil',
       'Spend',
       'Segmentierung',
+      'Warengruppen',
       'Lieferantenplan',
       'Team',
       'Spielregeln',
@@ -204,7 +205,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
   it('Der Überblick zeigt je gebautem Bereich einen Abschnitt mit seinen Unterseiten als Zeilen, ohne Release-Hinweis (UMB-05)', async () => {
     renderAt(base);
     const expected: Record<string, string[]> = {
-      Strategie: ['Segmentierung', 'Lieferantenplan', 'Spend', 'Profil'],
+      Strategie: ['Segmentierung', 'Warengruppen', 'Lieferantenplan', 'Spend', 'Profil'],
       Beziehung: ['Team', 'Spielregeln', 'Feedback', 'Kontaktpunkte'],
       'Gemeinsamer Plan': [
         'Vorbereitung',

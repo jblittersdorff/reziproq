@@ -892,6 +892,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       user_id: orgUser,
     }),
   },
+  // WG-20: Widersprüche je Lieferant zwischen Warengruppen (relationship_id Pflicht)
+  material_group_conflict: {
+    kind: 'org_private',
+    testValues: ({ org }) => ({
+      rule_key: 'concentration',
+      fingerprint: `Probe ${org}`,
+      material_group_ids: '{}',
+    }),
+  },
   material_group_award: {
     kind: 'org_private',
     testValues: ({ org, probe }) => ({

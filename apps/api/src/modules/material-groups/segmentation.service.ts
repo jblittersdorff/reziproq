@@ -20,6 +20,7 @@ import { can } from '../auth/can.js';
 import { typeNames } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { RoundsService } from '../rounds/rounds.service.js';
+import { syncConflicts } from './merge-facts.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -494,6 +495,8 @@ export class CategorySegmentationService {
         version: (latest?.version ?? 0) + 1,
         origin: segmentation ? 'round' : 'manual',
       });
+      // WG-20: Segment geändert, Widersprüche dieses Lieferanten neu abgleichen
+      await syncConflicts(tx, organization.id, relationshipId);
       return this.overviewIn(tx, auth, organization.id, groupId);
     });
   }

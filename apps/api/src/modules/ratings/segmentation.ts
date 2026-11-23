@@ -20,7 +20,8 @@ type Outcome = (
 
 const mean = (numbers: number[]) => numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
 
-function averaged(inputs: SegmentationInput[], criteria: { key: string }[]) {
+/** Mittelwert je Kriterium über die Eingaben; null, wenn eine Eingabe den Wert nicht hat */
+export function averaged(inputs: SegmentationInput[], criteria: { key: string }[]) {
   return criteria.map(({ key }) => {
     const entries = inputs.map((input) => input.values.find((value) => value.criterionKey === key));
     const average = (field: 'ist' | 'soll') => {

@@ -83,6 +83,8 @@ export const en: Messages = {
     dueViewAssignment: (view: string) => `Comment on view: ${view}`,
     dueCategoryReview: (group: string) => `Quarterly review: ${group}`,
     dueCategoryApproval: (group: string) => `Approve strategy: ${group}`,
+    dueCategoryConflict: (supplier: string) => `Agree on a message: ${supplier}`,
+    dueOverallSegment: (supplier: string) => `Review overall segment: ${supplier}`,
     dueSignature: (supplier: string) => `Sign scorecard · ${supplier}`,
     dueReview: (supplier: string) => `Review joint plan · ${supplier}`,
     dueMilestone: (detail: string | null) => (detail ? `Milestone · ${detail}` : 'Milestone'),
@@ -128,6 +130,8 @@ export const en: Messages = {
       view_assignment: 'Comment on an assigned view',
       category_review: 'Quarterly review of the material group',
       category_approval: 'Approval of the material group strategy',
+      category_conflict: 'Conflict between material groups',
+      overall_segment_check: 'Review overall segment',
       hint_rule_review: 'Review a hint rule threshold',
       connection_renew: 'Renew a connection',
       member_review: 'Review a new person',
@@ -2407,6 +2411,98 @@ export const en: Messages = {
   },
   // WG-18: segmentation per category
   // WG-12 (step 27): material group scorecard and quarterly review
+  supplierCategories: {
+    page: 'Material groups',
+    title: (supplier: string) => `${supplier} in your material groups`,
+    purpose:
+      'Each material group rates the supplier on its own. Here the views come together so you meet the supplier with one voice.',
+    loading: 'Loading material groups …',
+    failed: 'The material groups could not be loaded.',
+    empty: 'The supplier is not assigned to a material group and has no spend in one yet.',
+    columns: {
+      group: 'Material group',
+      spend: (year: number) => `Revenue ${year}`,
+      share: 'Share there',
+      ist: 'Current segment',
+      soll: 'Target type',
+      strategy: 'Strategy',
+    },
+    lead: (name: string) => `Lead ${name}`,
+    noLead: 'no lead',
+    total: (supplier: string) => `${supplier} total`,
+    noSegment: 'not decided',
+    ended: 'phased out',
+    noStrategy: 'no strategy yet',
+    strategyState: (year: number, state: string) => `${year} · ${state}`,
+    states: { draft: 'Draft', resubmit: 'Resubmission', approved: 'approved' } as Record<
+      string,
+      string
+    >,
+    qualities: ['weak', 'developing', 'strong'],
+    qualitySpread: (list: string) => `The relationship is experienced differently: ${list}.`,
+    conflictEyebrow: 'Conflict between material groups',
+    conflictTitle: (count: number) =>
+      count === 1 ? 'Agree on one message' : `Agree on ${count} conflicts`,
+    conflictText: 'Agree on one message before the JBP starts.',
+    conflictsTitle: 'Conflicts',
+    rules: {
+      phase_out_vs_growth: (groups: string) =>
+        `${groups}: One material group ends the collaboration, another wants to grow it.`,
+      relationship_mixed: (groups: string) =>
+        `${groups}: The relationship is weak in one material group and strong in another.`,
+      concentration: (groups: string) =>
+        `${groups}: The supplier is to become the largest in more than one material group.`,
+      award_vs_target: (groups: string) =>
+        `${groups}: Possible supplier of an award although their target there is “phase out”.`,
+    } as Record<string, (groups: string) => string>,
+    statuses: { open: 'open', aligned: 'aligned', accepted: 'accepted' } as Record<string, string>,
+    decided: (status: string, name: string, date: string) => `${status} by ${name} on ${date}`,
+    resolve: 'Resolve',
+    resolveTitle: 'Resolve conflict',
+    aligned: 'Aligned',
+    accepted: 'Accepted',
+    alignedNote: 'Note on the agreed message',
+    acceptedNote: 'Reason why you accept it',
+    save: 'Save',
+    cancel: 'Cancel',
+    noConflicts: 'No conflicts between the material groups.',
+    proposalHeading: 'Draft by Reziproq · from the material group ratings',
+    proposalTitle: (name: string) => `Proposal for the overall segment: ${name}`,
+    proposalNone: 'A proposal needs ratings from material groups with spend.',
+    proposalText:
+      'Per criterion the spend-weighted mean of the material group ratings. The decision is made in the segmentation.',
+    proposalSoll: (name: string) => `Target: ${name}`,
+    weight: (group: string, weight: string) => `${group} · weight ${weight}`,
+    skipped: {
+      no_rating: (group: string) => `${group}: no rating, not counted`,
+      no_spend: (group: string) => `${group}: no spend, not counted`,
+    } as Record<string, (group: string) => string>,
+    criteriaTitle: 'Calculation per criterion',
+    criterion: (label: string, ist: string, soll: string) =>
+      `${label}: current ${ist} · target ${soll}`,
+    sources: 'Sources',
+    adopt: 'Adopt proposal',
+    review: 'Review in the segmentation',
+    decidedNow: (ist: string, soll: string) => `Overall segment today: ${ist} · target ${soll}`,
+    merged: 'from the merge',
+    levelsTitle: 'Two levels, two questions',
+    levels: [
+      [
+        'Material group',
+        'What role does the supplier play in this material group? Answer: the segment from the material group rating round, plus the planned target.',
+      ],
+      [
+        'Supplier',
+        'How do we shape the relationship overall? Answer: from all material groups, across all functions.',
+      ],
+    ] as [string, string][],
+    saved: 'Saved.',
+    saveFailed: 'That did not work. Please check the entries.',
+    errors: {
+      note_required: 'Please write a note or a reason.',
+      no_proposal: 'There is no complete proposal yet.',
+    } as Record<string, string>,
+  },
   strategyApproval: {
     loading: 'Loading approval …',
     failed: 'The approval could not be loaded.',
@@ -3620,6 +3716,12 @@ export const en: Messages = {
     missing: 'missing',
     live: 'From their source',
     rules: (type: string) => `Relationship type and rules: ${type}`,
+    categoriesMissing: (groups: string) => `No material group strategy this year: ${groups}.`,
+    categoriesConflicts: (n: number) =>
+      n === 1
+        ? 'One conflict between material groups is open.'
+        : `${n} conflicts between material groups are open.`,
+    toCategories: 'To the material groups',
     planHint: 'The supplier plan is not approved yet. Only you see this note.',
     toPlan: 'Go to supplier plan',
     updates: 'Business updates',
@@ -4316,6 +4418,10 @@ export const en: Messages = {
       'File mails with the Outlook add-in or forward them to the notes address (notizen@…reziproq.de).',
   },
   workspace: {
+    openConflicts: (n: number) =>
+      n === 1
+        ? '1 open conflict between material groups'
+        : `${n} open conflicts between material groups`,
     upcomingAwards: (n: number) =>
       n === 1 ? '1 award in the next six months' : `${n} awards in the next six months`,
     label: 'Supplier sections',
@@ -4501,6 +4607,7 @@ export const en: Messages = {
     failed: 'Header and figures could not be loaded.',
     pages: {
       segmentation: { title: 'Segmentation', text: 'Assessment and current and target segment.' },
+      categories: { title: 'Material groups', text: 'Bring the material group views together.' },
       supplierPlan: { title: 'Supplier plan', text: 'Goals and topics for this supplier.' },
       spend: { title: 'Spend', text: 'Spend per year, visible only to you.' },
       profile: { title: 'Profile', text: 'Master data, your own values and history.' },

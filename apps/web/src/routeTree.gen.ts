@@ -224,6 +224,7 @@ import { Route as AppLieferantenIdStrategieSegmentierungIndexRouteImport } from 
 import { Route as AppLieferantenIdStrategieSpendIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/index'
 import { Route as AppLieferantenIdStrategieSpendEintragRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/$eintrag'
 import { Route as AppLieferantenIdStrategieSpendNeuRouteImport } from './routes/_app/lieferanten/$id/strategie/spend/neu'
+import { Route as AppLieferantenIdStrategieWarengruppenIndexRouteImport } from './routes/_app/lieferanten/$id/strategie/warengruppen/index'
 import { Route as AppLieferantenIdUmsetzungMassnahmenIndexRouteImport } from './routes/_app/lieferanten/$id/umsetzung/massnahmen/index'
 import { Route as AppLieferantenIdUmsetzungMassnahmenActionIdRouteImport } from './routes/_app/lieferanten/$id/umsetzung/massnahmen/$actionId'
 import { Route as AppLieferantenIdUmsetzungMassnahmenNeuRouteImport } from './routes/_app/lieferanten/$id/umsetzung/massnahmen/neu'
@@ -1510,6 +1511,12 @@ const AppLieferantenIdStrategieSpendNeuRoute =
     path: '/strategie/spend/neu',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
+const AppLieferantenIdStrategieWarengruppenIndexRoute =
+  AppLieferantenIdStrategieWarengruppenIndexRouteImport.update({
+    id: '/strategie/warengruppen/',
+    path: '/strategie/warengruppen/',
+    getParentRoute: () => AppLieferantenIdRouteRoute,
+  } as any)
 const AppLieferantenIdUmsetzungMassnahmenIndexRoute =
   AppLieferantenIdUmsetzungMassnahmenIndexRouteImport.update({
     id: '/umsetzung/massnahmen/',
@@ -2055,6 +2062,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   '/lieferanten/$id/strategie/spend/': typeof AppLieferantenIdStrategieSpendIndexRoute
+  '/lieferanten/$id/strategie/warengruppen/': typeof AppLieferantenIdStrategieWarengruppenIndexRoute
   '/lieferanten/$id/umsetzung/massnahmen/': typeof AppLieferantenIdUmsetzungMassnahmenIndexRoute
   '/lieferanten/$id/umsetzung/termine/': typeof AppLieferantenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/wirkung/initiativen/': typeof AppLieferantenIdWirkungInitiativenIndexRoute
@@ -2320,6 +2328,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/strategie/profil': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/lieferanten/$id/strategie/segmentierung': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   '/lieferanten/$id/strategie/spend': typeof AppLieferantenIdStrategieSpendIndexRoute
+  '/lieferanten/$id/strategie/warengruppen': typeof AppLieferantenIdStrategieWarengruppenIndexRoute
   '/lieferanten/$id/umsetzung/massnahmen': typeof AppLieferantenIdUmsetzungMassnahmenIndexRoute
   '/lieferanten/$id/umsetzung/termine': typeof AppLieferantenIdUmsetzungTermineIndexRoute
   '/lieferanten/$id/wirkung/initiativen': typeof AppLieferantenIdWirkungInitiativenIndexRoute
@@ -2591,6 +2600,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/strategie/profil/': typeof AppLieferantenIdStrategieProfilIndexRoute
   '/_app/lieferanten/$id/strategie/segmentierung/': typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   '/_app/lieferanten/$id/strategie/spend/': typeof AppLieferantenIdStrategieSpendIndexRoute
+  '/_app/lieferanten/$id/strategie/warengruppen/': typeof AppLieferantenIdStrategieWarengruppenIndexRoute
   '/_app/lieferanten/$id/umsetzung/massnahmen/': typeof AppLieferantenIdUmsetzungMassnahmenIndexRoute
   '/_app/lieferanten/$id/umsetzung/termine/': typeof AppLieferantenIdUmsetzungTermineIndexRoute
   '/_app/lieferanten/$id/wirkung/initiativen/': typeof AppLieferantenIdWirkungInitiativenIndexRoute
@@ -2862,6 +2872,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/profil/'
     | '/lieferanten/$id/strategie/segmentierung/'
     | '/lieferanten/$id/strategie/spend/'
+    | '/lieferanten/$id/strategie/warengruppen/'
     | '/lieferanten/$id/umsetzung/massnahmen/'
     | '/lieferanten/$id/umsetzung/termine/'
     | '/lieferanten/$id/wirkung/initiativen/'
@@ -3127,6 +3138,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/strategie/profil'
     | '/lieferanten/$id/strategie/segmentierung'
     | '/lieferanten/$id/strategie/spend'
+    | '/lieferanten/$id/strategie/warengruppen'
     | '/lieferanten/$id/umsetzung/massnahmen'
     | '/lieferanten/$id/umsetzung/termine'
     | '/lieferanten/$id/wirkung/initiativen'
@@ -3397,6 +3409,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/strategie/profil/'
     | '/_app/lieferanten/$id/strategie/segmentierung/'
     | '/_app/lieferanten/$id/strategie/spend/'
+    | '/_app/lieferanten/$id/strategie/warengruppen/'
     | '/_app/lieferanten/$id/umsetzung/massnahmen/'
     | '/_app/lieferanten/$id/umsetzung/termine/'
     | '/_app/lieferanten/$id/wirkung/initiativen/'
@@ -4967,6 +4980,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLieferantenIdStrategieSpendNeuRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
+    '/_app/lieferanten/$id/strategie/warengruppen/': {
+      id: '/_app/lieferanten/$id/strategie/warengruppen/'
+      path: '/strategie/warengruppen'
+      fullPath: '/lieferanten/$id/strategie/warengruppen/'
+      preLoaderRoute: typeof AppLieferantenIdStrategieWarengruppenIndexRouteImport
+      parentRoute: typeof AppLieferantenIdRouteRoute
+    }
     '/_app/lieferanten/$id/umsetzung/massnahmen/': {
       id: '/_app/lieferanten/$id/umsetzung/massnahmen/'
       path: '/umsetzung/massnahmen'
@@ -5575,6 +5595,7 @@ interface AppLieferantenIdRouteRouteChildren {
   AppLieferantenIdStrategieProfilIndexRoute: typeof AppLieferantenIdStrategieProfilIndexRoute
   AppLieferantenIdStrategieSegmentierungIndexRoute: typeof AppLieferantenIdStrategieSegmentierungIndexRoute
   AppLieferantenIdStrategieSpendIndexRoute: typeof AppLieferantenIdStrategieSpendIndexRoute
+  AppLieferantenIdStrategieWarengruppenIndexRoute: typeof AppLieferantenIdStrategieWarengruppenIndexRoute
   AppLieferantenIdUmsetzungMassnahmenIndexRoute: typeof AppLieferantenIdUmsetzungMassnahmenIndexRoute
   AppLieferantenIdUmsetzungTermineIndexRoute: typeof AppLieferantenIdUmsetzungTermineIndexRoute
   AppLieferantenIdWirkungInitiativenIndexRoute: typeof AppLieferantenIdWirkungInitiativenIndexRoute
@@ -5703,6 +5724,8 @@ const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
     AppLieferantenIdStrategieSegmentierungIndexRoute,
   AppLieferantenIdStrategieSpendIndexRoute:
     AppLieferantenIdStrategieSpendIndexRoute,
+  AppLieferantenIdStrategieWarengruppenIndexRoute:
+    AppLieferantenIdStrategieWarengruppenIndexRoute,
   AppLieferantenIdUmsetzungMassnahmenIndexRoute:
     AppLieferantenIdUmsetzungMassnahmenIndexRoute,
   AppLieferantenIdUmsetzungTermineIndexRoute:

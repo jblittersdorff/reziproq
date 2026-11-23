@@ -15,6 +15,9 @@ import { MarketController } from './market.controller.js';
 import { MarketService } from './market.service.js';
 import { MaterialGroupsController } from './material-groups.controller.js';
 import { MaterialGroupsService } from './material-groups.service.js';
+import { MergeController } from './merge.controller.js';
+import { MergeService } from './merge.service.js';
+import { MergeWorker } from './merge.worker.js';
 import { ScorecardController } from './scorecard.controller.js';
 import { ScorecardService } from './scorecard.service.js';
 import { ScorecardWorker } from './scorecard.worker.js';
@@ -26,7 +29,7 @@ import { StrategyYearWorker } from './strategy-year.worker.js';
 import { SupplierMapController } from './supplier-map.controller.js';
 import { SupplierMapService } from './supplier-map.service.js';
 
-/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-14, WG-15, WG-16, WG-18 */
+/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-14, WG-15, WG-16, WG-18, WG-20 */
 @Module({
   imports: [AiDraftsModule, RatingsModule, RoundsModule, SuppliersModule],
   // Strategie zuerst: feste Pfade wie /warengruppen/strategien vor /warengruppen/:id
@@ -38,6 +41,7 @@ import { SupplierMapService } from './supplier-map.service.js';
     ScorecardController,
     AwardsController,
     ApprovalController,
+    MergeController,
     SupplierMapController,
     CategorySegmentationController,
     MaterialGroupsController,
@@ -55,6 +59,8 @@ import { SupplierMapService } from './supplier-map.service.js';
     AwardsService,
     ApprovalService,
     StrategyYearWorker,
+    MergeService,
+    MergeWorker,
   ],
   exports: [StrategyService],
 })

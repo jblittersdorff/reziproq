@@ -15,6 +15,7 @@ import {
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { syncConflicts } from './merge-facts.js';
 import { StrategyService } from './strategy.service.js';
 import {
   activeSegmentTypes,
@@ -229,6 +230,8 @@ export class SupplierMapService {
           .values({ orgId: organization.id, strategyId, relationshipId, ...values });
       }
       await this.strategies.touchedIn(tx, access.strategy);
+      // WG-20: Widersprüche dieses Lieferanten neu abgleichen
+      await syncConflicts(tx, organization.id, relationshipId);
       return this.view(tx, auth, organization.id, strategyId);
     });
   }

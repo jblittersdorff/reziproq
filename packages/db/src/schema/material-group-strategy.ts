@@ -776,3 +776,44 @@ export const materialGroupApproval = pgTable(
     index('material_group_approval_user').on(table.userId, table.status),
   ],
 );
+
+/**
+ * WG-20: Widerspruch zwischen Warengruppen je Lieferant (Beziehung). `fingerprint` beschreibt die
+ * Lage; ein abgestimmter oder hingenommener Widerspruch kommt nur mit neuer Lage wieder. Die
+ * Zeilen bleiben als Verlauf stehen.
+ */
+export const materialGroupConflict = pgTable(
+  'material_group_conflict',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    ruleKey: text().notNull(),
+    fingerprint: text().notNull(),
+    materialGroupIds: uuid().array().notNull(),
+    status: text({ enum: ['open', 'aligned', 'accepted'] })
+      .notNull()
+      .default('open'),
+    note: text(),
+    decidedBy: text().references(() => appUser.id),
+    decidedAt: timestamp({ withTimezone: true }),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_conflict_once').on(table.relationshipId, table.ruleKey, table.fingerprint),
+    check(
+      'material_group_conflict_rule',
+      sql`${table.ruleKey} in ('phase_out_vs_growth', 'relationship_mixed', 'concentration', 'award_vs_target')`,
+    ),
+    check('material_group_conflict_status', sql`${table.status} in ('open', 'aligned', 'accepted')`),
+    check(
+      'material_group_conflict_note',
+      sql`${table.status} = 'open' or length(trim(coalesce(${table.note}, ''))) > 0`,
+    ),
+    index('material_group_conflict_relationship').on(table.relationshipId, table.status),
+  ],
+);

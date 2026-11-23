@@ -43,7 +43,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 28 | WG-15 · Supplier Map | 22–23, 26; Ist aus SEG und Spend, Soll-Typ, SRO-Zeilenzugriff; Übergabelink mit WG-20. | M | fertig (23.11.2026; Übergabe an WG-20 und Vorbelegung durch KI-13 folgen) |
 | 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | fertig (23.11.2026; Prüffragen vorbefüllen mit WG-23) |
 | 30 | WG-16 · Freigabe und Versionen | 27–29 und Schritte 2–9; Review und Freigaberollen gemeinsam abnehmen. | L | fertig (23.11.2026; Zusammenfassung entwerfen mit WG-23) |
-| 31 | WG-20 · Zusammenführung und Übergaben | 23, 28–30; SEG, FS-01 und Lieferantenplan; NAV-10-Warengruppenreiter samt LS-Verweisen abschließen. | L | offen |
+| 31 | WG-20 · Zusammenführung und Übergaben | 23, 28–30; SEG, FS-01 und Lieferantenplan; NAV-10-Warengruppenreiter samt LS-Verweisen abschließen. | L | in Arbeit (31a Zusammenführung, Widersprüche, Gesamtsegment fertig 23.11.2026; 31b Übergaben und Einschätzung offen) |
 | 32 | WG-23 · Entwürfe Stufe 1 und 2 (WG-24) | 5–7, 25, 27–31; KI-Fassung WG-23.neu.md. Zielort für Feedback und Umfang von „Fragen“ klären. | L | offen |
 | 33 | KI-13 · Strategie-Autor (K2-b) | 7, 25, 28–32, WG-04–16; Schritt 9 an Soll-Typ und bestätigte SEG-Daten binden. | L | offen |
 | 34 | KI-18 · Dokumente und Fundstellen (K2-c) | 5–7; `pgvector`, Objektspeicher EU über `infra/`, OCR lokal mit `tesseract`. | L | offen |

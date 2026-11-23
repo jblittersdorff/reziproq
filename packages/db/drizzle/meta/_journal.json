@@ -897,6 +897,13 @@
       "when": 1795465066731,
       "tag": "0127_wg16_freigabe",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1795468192858,
+      "tag": "0128_wg20_widersprueche",
+      "breakpoints": true
     }
   ]
 }

@@ -85,6 +85,8 @@ export const de = {
     dueViewAssignment: (view: string) => `Sicht kommentieren: ${view}`,
     dueCategoryReview: (group: string) => `Quartals-Review: ${group}`,
     dueCategoryApproval: (group: string) => `Strategie freigeben: ${group}`,
+    dueCategoryConflict: (supplier: string) => `Botschaft abstimmen: ${supplier}`,
+    dueOverallSegment: (supplier: string) => `Gesamtsegment prüfen: ${supplier}`,
     dueSignature: (supplier: string) => `Scorecard unterschreiben · ${supplier}`,
     dueReview: (supplier: string) => `Gemeinsamen Plan prüfen · ${supplier}`,
     dueMilestone: (detail: string | null) => (detail ? `Meilenstein · ${detail}` : 'Meilenstein'),
@@ -132,6 +134,8 @@ export const de = {
       view_assignment: 'Zugewiesene Sicht kommentieren',
       category_review: 'Quartals-Review der Warengruppe',
       category_approval: 'Freigabe der Warengruppenstrategie',
+      category_conflict: 'Widerspruch zwischen Warengruppen',
+      overall_segment_check: 'Gesamtsegment prüfen',
       hint_rule_review: 'Schwelle einer Hinweisregel prüfen',
       connection_renew: 'Verbindung erneuern',
       member_review: 'Neue Person prüfen',
@@ -2457,6 +2461,100 @@ export const de = {
   },
   // WG-18: Segmentierung je Warengruppe
   // WG-12 (Schritt 27): Scorecard der Warengruppe und Quartals-Review
+  supplierCategories: {
+    page: 'Warengruppen',
+    title: (supplier: string) => `${supplier} in euren Warengruppen`,
+    purpose:
+      'Jede Warengruppe bewertet den Lieferanten für sich. Hier laufen die Sichten zusammen, damit ihr dem Lieferanten mit einer Stimme begegnet.',
+    loading: 'Warengruppen werden geladen …',
+    failed: 'Die Warengruppen konnten nicht geladen werden.',
+    empty: 'Der Lieferant ist noch keiner Warengruppe zugeordnet und hat keinen Spend in einer.',
+    columns: {
+      group: 'Warengruppe',
+      spend: (year: number) => `Umsatz ${year}`,
+      share: 'Anteil dort',
+      ist: 'Segment Ist',
+      soll: 'Soll-Typ',
+      strategy: 'Strategie',
+    },
+    lead: (name: string) => `Lead ${name}`,
+    noLead: 'ohne Lead',
+    total: (supplier: string) => `${supplier} gesamt`,
+    noSegment: 'nicht entschieden',
+    ended: 'beendet',
+    noStrategy: 'noch keine Strategie',
+    strategyState: (year: number, state: string) => `${year} · ${state}`,
+    states: { draft: 'Entwurf', resubmit: 'Wiedervorlage', approved: 'freigegeben' } as Record<
+      string,
+      string
+    >,
+    qualities: ['schwach', 'ausbaufähig', 'stark'],
+    qualitySpread: (list: string) => `Die Beziehung wird unterschiedlich erlebt: ${list}.`,
+    conflictEyebrow: 'Widerspruch zwischen Warengruppen',
+    conflictTitle: (count: number) =>
+      count === 1 ? 'Eine Botschaft abstimmen' : `${count} Widersprüche abstimmen`,
+    conflictText: 'Stimmt eine Botschaft ab, bevor der JBP startet.',
+    conflictsTitle: 'Widersprüche',
+    rules: {
+      phase_out_vs_growth: (groups: string) =>
+        `${groups}: Eine Warengruppe beendet die Zusammenarbeit, eine andere will sie ausbauen.`,
+      relationship_mixed: (groups: string) =>
+        `${groups}: Die Beziehung ist in einer Warengruppe schwach, in einer anderen stark.`,
+      concentration: (groups: string) =>
+        `${groups}: Der Lieferant soll in mehr als einer Warengruppe der größte werden.`,
+      award_vs_target: (groups: string) =>
+        `${groups}: Möglicher Lieferant einer Vergabe, obwohl sein Soll dort „beendet“ ist.`,
+    } as Record<string, (groups: string) => string>,
+    statuses: { open: 'offen', aligned: 'abgestimmt', accepted: 'hingenommen' } as Record<
+      string,
+      string
+    >,
+    decided: (status: string, name: string, date: string) => `${status} von ${name} am ${date}`,
+    resolve: 'Lösen',
+    resolveTitle: 'Widerspruch lösen',
+    aligned: 'Abgestimmt',
+    accepted: 'Hingenommen',
+    alignedNote: 'Notiz zur abgestimmten Botschaft',
+    acceptedNote: 'Begründung, warum ihr es hinnehmt',
+    save: 'Speichern',
+    cancel: 'Abbrechen',
+    noConflicts: 'Keine Widersprüche zwischen den Warengruppen.',
+    proposalHeading: 'Entwurf von Reziproq · aus den Bewertungen der Warengruppen',
+    proposalTitle: (name: string) => `Vorschlag für das Gesamtsegment: ${name}`,
+    proposalNone: 'Für einen Vorschlag fehlen Bewertungen der Warengruppen mit Spend.',
+    proposalText:
+      'Je Kriterium der mit dem Spend gewichtete Mittelwert der Bewertungen aus den Warengruppen. Die Entscheidung fällt in der Segmentierung.',
+    proposalSoll: (name: string) => `Soll: ${name}`,
+    weight: (group: string, weight: string) => `${group} · Gewicht ${weight}`,
+    skipped: {
+      no_rating: (group: string) => `${group}: ohne Bewertung, nicht gezählt`,
+      no_spend: (group: string) => `${group}: ohne Spend, nicht gezählt`,
+    } as Record<string, (group: string) => string>,
+    criteriaTitle: 'Rechenweg je Kriterium',
+    criterion: (label: string, ist: string, soll: string) => `${label}: Ist ${ist} · Soll ${soll}`,
+    sources: 'Quellen',
+    adopt: 'Vorschlag übernehmen',
+    review: 'In der Segmentierung prüfen',
+    decidedNow: (ist: string, soll: string) => `Gesamtsegment heute: ${ist} · Soll ${soll}`,
+    merged: 'aus der Zusammenführung',
+    levelsTitle: 'Zwei Ebenen, zwei Fragen',
+    levels: [
+      [
+        'Warengruppe',
+        'Welche Rolle spielt der Lieferant in dieser Warengruppe? Antwort: das Segment aus der Bewertungsrunde der Warengruppe, dazu das geplante Soll.',
+      ],
+      [
+        'Lieferant',
+        'Wie gestalten wir die Beziehung insgesamt? Antwort: aus allen Warengruppen, über alle Funktionen.',
+      ],
+    ] as [string, string][],
+    saved: 'Gespeichert.',
+    saveFailed: 'Das hat nicht geklappt. Bitte die Angaben prüfen.',
+    errors: {
+      note_required: 'Bitte eine Notiz oder Begründung schreiben.',
+      no_proposal: 'Es gibt noch keinen vollständigen Vorschlag.',
+    } as Record<string, string>,
+  },
   strategyApproval: {
     loading: 'Freigabe wird geladen …',
     failed: 'Die Freigabe konnte nicht geladen werden.',
@@ -3718,6 +3816,12 @@ export const de = {
     missing: 'fehlt',
     live: 'Aus ihrem Ort',
     rules: (type: string) => `Beziehungstyp und Spielregeln: ${type}`,
+    categoriesMissing: (groups: string) => `Ohne Warengruppenstrategie in diesem Jahr: ${groups}.`,
+    categoriesConflicts: (n: number) =>
+      n === 1
+        ? 'Ein Widerspruch zwischen Warengruppen ist offen.'
+        : `${n} Widersprüche zwischen Warengruppen sind offen.`,
+    toCategories: 'Zu den Warengruppen',
     planHint: 'Der Lieferantenplan ist noch nicht freigegeben. Nur ihr seht diesen Hinweis.',
     toPlan: 'Zum Lieferantenplan',
     updates: 'Geschäftsupdates',
@@ -4429,6 +4533,10 @@ export const de = {
       'Mails legst du mit dem Outlook-Add-in ab oder leitest sie an die Notizadresse weiter (notizen@…reziproq.de).',
   },
   workspace: {
+    openConflicts: (n: number) =>
+      n === 1
+        ? '1 offener Widerspruch zwischen Warengruppen'
+        : `${n} offene Widersprüche zwischen Warengruppen`,
     upcomingAwards: (n: number) =>
       n === 1
         ? '1 Vergabe in den nächsten sechs Monaten'
@@ -4619,6 +4727,7 @@ export const de = {
     failed: 'Kennzahlen und Kopf konnten nicht geladen werden.',
     pages: {
       segmentation: { title: 'Segmentierung', text: 'Bewertung und Segment Ist und Soll.' },
+      categories: { title: 'Warengruppen', text: 'Sichten der Warengruppen zusammenführen.' },
       supplierPlan: { title: 'Lieferantenplan', text: 'Ziele und Themen für diesen Lieferanten.' },
       spend: { title: 'Spend', text: 'Spend je Jahr, nur für euch sichtbar.' },
       profile: { title: 'Profil', text: 'Stammdaten, eigene Werte und Verlauf.' },
