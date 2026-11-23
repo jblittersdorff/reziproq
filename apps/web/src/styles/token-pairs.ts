@@ -55,6 +55,9 @@ export const textPairs: [string, string][] = [
   ['on-dark', 'ink'],
   ['on-dark-muted', 'ink'],
   ['on-dark', 'dark-2'],
+  // Website (WEB-01): Phase 1 auf neutraler Fläche, KI-Entwurf auf dunkler Karte
+  ['petrol-dark', 'line-soft'],
+  ['mint', 'dark-2'],
   ['status-neutral-foreground', 'status-neutral'],
   ['status-shared-foreground', 'status-shared'],
   ['status-ink-foreground', 'status-ink'],

@@ -17,3 +17,13 @@ describe('cn mit den Stufen der Designsprache', () => {
     expect(cn('shadow-card', 'shadow-ask')).toBe('shadow-ask');
   });
 });
+
+describe('cn mit den Stufen der Website (WEB-01)', () => {
+  it('behält Größe, Abstand, Radius und Schatten der Website neben Farben', () => {
+    expect(cn('text-site-title', 'text-ink')).toBe('text-site-title text-ink');
+    expect(cn('text-site-lead', 'text-muted-strong')).toBe('text-site-lead text-muted-strong');
+    expect(cn('text-site-hero', 'text-title')).toBe('text-title');
+    expect(cn('rounded-site', 'rounded-site-lg')).toBe('rounded-site-lg');
+    expect(cn('shadow-card', 'shadow-site-frame')).toBe('shadow-site-frame');
+  });
+});

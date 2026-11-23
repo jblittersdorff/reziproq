@@ -48,6 +48,16 @@ Wertpotenziale, Rechenweg, Marktsignale, Datenlücken, interne Vorbereitung, Aus
 Nur was ihr ausdrücklich teilt, zum Beispiel ein übernommenes Thema oder eine gesendete
 Datenanfrage (als Maßnahme), erscheint bei ihm.
 
+## Website (öffentliche Seite)
+
+Starten mit `pnpm website`, dann http://localhost:5180 öffnen (Englisch; Deutsch unter
+http://localhost:5180/de/). Elf Seiten: Start, So funktioniert es, Plattform, Für Lieferanten,
+Sicherheit, Preise (mit Rechner unten auf der Seite), Pilot, Unternehmen, Kontakt, Anmelden,
+Rechtliches. Oben rechts **EN / DE** wechselt zur gleichen Seite in der anderen Sprache.
+**Anmelden** führt zur App (http://localhost:5173). **Kontakt** öffnet dein Mailprogramm mit der
+ausgefüllten Anfrage. Die fertigen statischen Seiten baut `pnpm --filter @reziproq/website build`
+nach `apps/website/dist/client`.
+
 ## Was die Demo noch nicht zeigt
 
 - Feedback-Umfrage und Hantel (keine Umfrage in den Demo-Daten)

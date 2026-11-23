@@ -27,7 +27,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 14 | Anpassung IN-02 · Firmenanmeldung (I1.3) | 12; PLT-01/02, NAV-10; Identitätsmodell und Erstanmeldung klären. | L | fertig (lokal mit Nachbau; Zitadel-Action für den Betrieb offen) |
 | 15 | Anpassung IN-03 · Termine, Zuordnung und Eingang in Mein Tag (I1.4) | 12, 14, 2, 10; QBR-01; privates Terminmodell und Briefingumfang klären. | L | fertig (lokal mit fake; Graph-Abos und Einladen aus Reziproq offen) |
 | 16 | IN-04 · Mails in Aktivitäten (I1.5) | 15, 6–7; Anhänge zunächst privat. Dokumentverknüpfung setzt die ausstehende KI-18 voraus. | M | offen |
-| W | WEB-01 · Website (öffentliche Seite) | Entwurf „Reziproq Website“ in Claude (11 Seiten); Designsprache und Tokens der App; DE und EN; Rechtstexte durch Anwalt vor Go-live. Unabhängig von der App. | L | offen |
+| W | WEB-01 · Website (öffentliche Seite) | Entwurf „Reziproq Website“ in Claude (11 Seiten); Designsprache und Tokens der App; DE und EN; Rechtstexte durch Anwalt vor Go-live. Unabhängig von der App. | L | fertig (23.11.2026) |
 | 17 | IN-06 · Benachrichtigungen (I1.6) | 12, 2, 6, 10, 11b–c, 15; spätere Transkripterinnerung mit 18 abnehmen. | M | offen |
 | 18 | IN-05 · Transkripte (I1.7) | 15, 17, KI-17 (11c); Betriebsvereinbarung, Rohtextrechte und Löschfrist klären. | L | offen |
 | 19 | KI-09 · eigene Agenten (K3) | 7, K1 und erster Pilot; Rechte beim Fremdstart festlegen. | L | offen |

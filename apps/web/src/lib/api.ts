@@ -1,10 +1,4 @@
 import {
-  type AdoptOpportunity,
-  adoptOpportunitySchema,
-  type ChangeAssumptions,
-  valueOpportunitiesSchema,
-  valueOverviewSchema,
-  type SendDataRequest,
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
@@ -12,6 +6,8 @@ import {
   type ActivityFeed,
   type ActivityFilter,
   type AddAssignment,
+  type AddinRegister,
+  type AdoptOpportunity,
   type AiSettings,
   type AnalysisStep,
   type AssignmentRequest,
@@ -21,24 +17,33 @@ import {
   actionListSchema,
   actionReminderSettingSchema,
   activityFeedSchema,
+  addinDetectSchema,
+  addinRegisteredSchema,
+  adoptOpportunitySchema,
   agentDetailSchema,
   agentRunDetailSchema,
   agentsResponseSchema,
   aiSettingsResponseSchema,
   aiUsageSchema,
   analysisStepSchema,
+  apiKeysSchema,
   assignmentResponseSchema,
   auditResponseSchema,
+  type BriefSettings,
   bridgeSchema,
+  briefSettingsSchema,
   businessUnitsResponseSchema,
   type CandidateRequest,
   type CategoryLabel,
   type CategorySegmentation,
+  type ChangeAssumptions,
+  type ColumnMap,
   type CommentObjectType,
   type CommitmentStatus,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
   type CreateAction,
+  type CreateApiKey,
   type CreateJbp,
   type CreateMeeting,
   type CreateRound,
@@ -51,6 +56,7 @@ import {
   commitmentsSchema,
   contributionDetailSchema,
   contributionSuggestionsResponseSchema,
+  createdApiKeySchema,
   createSupplierResponseSchema,
   customerImpactSchema,
   customerListSchema,
@@ -62,6 +68,8 @@ import {
   cycleSettingsResponseSchema,
   cycleStatusSchema,
   type DecideCategorySegment,
+  type DecideImportRows,
+  type DecideInbound,
   type DecideJbp,
   type DecideValidation,
   type DismissHint,
@@ -70,6 +78,8 @@ import {
   deviationExplanationsSchema,
   dueListSchema,
   type EbitGoalRequest,
+  type EditBriefAgenda,
+  type EditCaptureItem,
   type EditComment,
   type ExtendRound,
   type FiscalYearSetting,
@@ -82,39 +92,15 @@ import {
   focusListSchema,
   forbiddenCodes,
   type GoalRequest,
-  type BriefSettings,
-  type ColumnMap,
-  type CreateApiKey,
-  type DecideInbound,
-  type AddinRegister,
-  type SaveSso,
-  type DecideImportRows,
-  type ImportBatchKind,
-  type EditBriefAgenda,
-  type EditCaptureItem,
-  type SaveCapture,
   type HintRuleSettings,
   type HintSettings,
   healthResponseSchema,
   hintListSchema,
   hintRuleSettingsSchema,
-  meetingBriefSchema,
-  meetingCaptureSchema,
-  importBatchListSchema,
-  importBatchSchema,
-  integrationsSchema,
-  inboxSchema,
-  addinDetectSchema,
-  addinRegisteredSchema,
-  ssoHintSchema,
-  ssoOverviewSchema,
-  apiKeysSchema,
-  createdApiKeySchema,
-  myConnectionsSchema,
-  briefSettingsSchema,
   hintSchema,
   hintSettingsSchema,
   type ImpactView,
+  type ImportBatchKind,
   type ImportJbpTopics,
   type ImportPreview,
   type ImportResult,
@@ -125,10 +111,14 @@ import {
   impactDetailSchema,
   impactImportPreviewSchema,
   impactListSchema,
+  importBatchListSchema,
+  importBatchSchema,
   importPreviewSchema,
   importResultSchema,
+  inboxSchema,
   initiativeDetailSchema,
   initiativesSchema,
+  integrationsSchema,
   invitationListSchema,
   jbpApprovalViewSchema,
   jbpPreparationSchema,
@@ -150,10 +140,13 @@ import {
   materialGroupImportResultSchema,
   materialGroupOverviewSchema,
   materialGroupsResponseSchema,
+  meetingBriefSchema,
+  meetingCaptureSchema,
   meetingDetailSchema,
   meetingListSchema,
   meResponseSchema,
   myActionsSchema,
+  myConnectionsSchema,
   myFeedbackSchema,
   type NotePatch,
   type NoteRequest,
@@ -203,6 +196,7 @@ import {
   type SaveAction,
   type SaveAgenda,
   type SaveBenefit,
+  type SaveCapture,
   type SaveComment,
   type SaveCommitment,
   type SaveFinancial,
@@ -224,10 +218,12 @@ import {
   type SaveRuleSet,
   type SaveShare,
   type SaveSpendEntry,
+  type SaveSso,
   type SaveSurveyQuestion,
   type SaveTouchpoint,
   type SavingsReference,
   type ScorecardSetting,
+  type SendDataRequest,
   type SetFocusRequest,
   type SetRoundSuppliers,
   type SetupImpact,
@@ -251,6 +247,8 @@ import {
   segmentationSchema,
   segmentModelResponseSchema,
   spendOverviewSchema,
+  ssoHintSchema,
+  ssoOverviewSchema,
   startSchema,
   strategyAssessmentSchema,
   strategyContextResponseSchema,
@@ -289,6 +287,8 @@ import {
   type UserLocale,
   validationDetailSchema,
   validationListSchema,
+  valueOpportunitiesSchema,
+  valueOverviewSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -3926,7 +3926,13 @@ export const createApiKey = (accessToken: string, input: CreateApiKey) =>
   sendJson('POST', `${integrationsPath}/schluessel`, input, createdApiKeySchema, accessToken);
 
 export const revokeApiKey = (accessToken: string, id: string) =>
-  sendJson('POST', `${integrationsPath}/schluessel/${id}/widerrufen`, {}, apiKeysSchema, accessToken);
+  sendJson(
+    'POST',
+    `${integrationsPath}/schluessel/${id}/widerrufen`,
+    {},
+    apiKeysSchema,
+    accessToken,
+  );
 
 /** IN-02: Führt eine Mail direkt zu Microsoft oder Google? (Anmeldeseite, ohne Login) */
 export async function ssoHint(email: string) {
@@ -3948,9 +3954,19 @@ export const ssoQueryOptions = (accessToken: string) =>
   });
 
 export const saveSso = (accessToken: string, provider: 'entra' | 'google', input: SaveSso) =>
-  sendJson('PUT', `${integrationsPath}/anmeldung/${provider}`, input, ssoOverviewSchema, accessToken);
+  sendJson(
+    'PUT',
+    `${integrationsPath}/anmeldung/${provider}`,
+    input,
+    ssoOverviewSchema,
+    accessToken,
+  );
 
-export const verifySsoDomain = (accessToken: string, provider: 'entra' | 'google', domain: string) =>
+export const verifySsoDomain = (
+  accessToken: string,
+  provider: 'entra' | 'google',
+  domain: string,
+) =>
   sendJson(
     'POST',
     `${integrationsPath}/anmeldung/${provider}/domains/${encodeURIComponent(domain)}/bestaetigen`,
@@ -3991,7 +4007,13 @@ export const saveInboundSettings = (accessToken: string, id: string, allowedDoma
 
 /** IN-03: Outlook-Add-in */
 export const detectAddin = (accessToken: string, attendees: string[], subject: string) =>
-  sendJson('POST', '/termine/addin/erkennen', { attendees, subject }, addinDetectSchema, accessToken);
+  sendJson(
+    'POST',
+    '/termine/addin/erkennen',
+    { attendees, subject },
+    addinDetectSchema,
+    accessToken,
+  );
 
 export const registerAddin = (accessToken: string, input: AddinRegister) =>
   sendJson('POST', '/termine/addin', input, addinRegisteredSchema, accessToken);

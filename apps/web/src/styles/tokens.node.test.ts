@@ -100,6 +100,19 @@ describe('Feste Farben, Schriftgrößen und Abstände nur in der Token-Datei', (
       [],
     );
   });
+
+  // WEB-01: Die Website nutzt dieselben Tokens; für sie gelten dieselben Regeln.
+  it('enthält in apps/website keine festen Werte', () => {
+    const siteRoot = join(webRoot, '../website');
+    const files = [...sourceFiles(join(siteRoot, 'src')), join(siteRoot, 'index.html')];
+    const findings = files.flatMap((file) =>
+      findHardcoded(relative(siteRoot, file), readFileSync(file, 'utf8')),
+    );
+    expect(
+      findings,
+      'Bitte Tailwind-Stufen oder Tokens aus apps/web/src/styles/tokens.css nutzen',
+    ).toEqual([]);
+  });
 });
 
 function readTheme(selector: ':root'): Record<string, string> {

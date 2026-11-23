@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "../../web/src/styles/fonts.css";
+@import "../../web/src/styles/tokens.css";
+
+/* WEB-01: Bausteine der App mit einlesen, damit ihre Klassen in der Website gebaut werden */
+@source "../../web/src/components/ui";
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--background);
+}
