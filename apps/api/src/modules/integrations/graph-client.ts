@@ -5,6 +5,8 @@ import { Injectable } from '@nestjs/common';
  * Graph, delegierte Rechte). Der echte Client kommt mit der Freischaltung von Graph; bis dahin der
  * Nachbau ohne Netzwerk, in dem Tests Termine anlegen und lesen.
  */
+export const GRAPH_CLIENT = Symbol('GRAPH_CLIENT');
+
 export interface GraphClient {
   getEventBody(token: string, eventId: string): Promise<string | null>;
   updateEventBody(token: string, eventId: string, body: string): Promise<void>;

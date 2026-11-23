@@ -61,9 +61,10 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
         'POST /api/v1/batches',
         'GET /api/v1/batches/00000000-0000-7000-8000-000000000000',
         'POST /api/anmeldung/sso',
+        'GET /api/anbindungen/oauth/microsoft/callback',
       ]),
     );
-    expect(routes.filter((r) => r.isPublic)).toHaveLength(10);
+    expect(routes.filter((r) => r.isPublic)).toHaveLength(11);
   });
 
   it('Jede andere Route antwortet ohne Token mit 401', async () => {

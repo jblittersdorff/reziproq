@@ -66,7 +66,7 @@ beforeEach(() => {
   api.me = { ...anna, orgRole: 'admin' };
   api.permissions = actionsFor.admin;
   current = overview();
-  mine = { connections: [], available: ['microsoft365', 'google_workspace'] };
+  mine = { connections: [], available: ['microsoft365', 'google_workspace'], redirectUrl: null };
   sent = [];
   api.handle = (request) => {
     if (request.url.startsWith('/api/einstellungen/anbindungen')) {

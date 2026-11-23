@@ -22,7 +22,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { actorIn } from '../integrations/actor.js';
 import type { ProviderItem } from '../integrations/fake-provider.js';
-import { FakeGraphClient } from '../integrations/graph-client.js';
+import { GRAPH_CLIENT, type GraphClient } from '../integrations/graph-client.js';
 import { IntegrationsService } from '../integrations/integrations.service.js';
 import { type ItemContext, ItemHandlers, type ItemOutcome } from '../integrations/item-handlers.js';
 import { MeetingsService } from '../meetings/meetings.service.js';
@@ -71,7 +71,7 @@ export class CalendarIntakeService implements OnModuleInit {
     @Inject(MeetingsService) private readonly meetings: MeetingsService,
     @Inject(IntegrationsService) private readonly integrations: IntegrationsService,
     @Inject(ItemHandlers) private readonly handlers: ItemHandlers,
-    @Inject(FakeGraphClient) private readonly graph: FakeGraphClient,
+    @Inject(GRAPH_CLIENT) private readonly graph: GraphClient,
   ) {}
 
   onModuleInit() {

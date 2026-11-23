@@ -76,6 +76,8 @@ export const myConnectionsSchema = z.object({
   ),
   /** Anbindungen, die eine Person für sich verbinden kann (Kalender, Outlook-Add-in) */
   available: z.array(z.enum(connectorKeys)),
+  /** Durchstich: Anmeldung beim Anbieter nötig; die App leitet dorthin weiter */
+  redirectUrl: z.string().nullable().default(null),
 });
 export type MyConnections = z.infer<typeof myConnectionsSchema>;
 

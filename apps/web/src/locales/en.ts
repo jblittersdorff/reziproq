@@ -1711,6 +1711,7 @@ export const en: Messages = {
       later: 'follows',
     },
     mine: {
+      connected: 'Connected. Your calendar is now connected to Reziproq.',
       title: 'My connections',
       hint: 'You connect calendar and Outlook add-in for yourself. Others do not see your connection.',
       loading: 'Loading connections …',

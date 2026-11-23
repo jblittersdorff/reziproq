@@ -561,6 +561,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         '/api/v1/batches/00000000-0000-7000-8000-000000000000',
         // IN-02: Anmeldeseite fragt, ob eine Mail direkt zu Microsoft oder Google führt
         '/api/anmeldung/sso',
+        // Durchstich: Rückkehr von der Anmeldung bei Microsoft (signierter state)
+        '/api/anbindungen/oauth/microsoft/callback',
       ]),
     );
   });

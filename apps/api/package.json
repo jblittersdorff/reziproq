@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "rechte": "tsc -p tsconfig.build.json && node dist/rights-cli.js",
     "demo:suppliers": "pnpm build && node dist/modules/suppliers/generate-demo.js",
-    "demo:ki": "pnpm build && node dist/demo-ki-cli.js"
+    "demo:ki": "pnpm build && node dist/demo-ki-cli.js",
+    "durchstich:graph": "pnpm build && node dist/durchstich-cli.js"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "5.0.130",

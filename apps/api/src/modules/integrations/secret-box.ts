@@ -1,4 +1,11 @@
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  hkdfSync,
+  randomBytes,
+  timingSafeEqual,
+} from 'node:crypto';
 
 /**
  * IN-01: Zugangsdaten der Anbindungen, verschlüsselt mit AES-256-GCM. Der Schlüssel kommt aus
@@ -9,6 +16,7 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:cr
 export class SecretBox {
   readonly keyRef: string;
   private readonly key: Buffer;
+  private readonly macKey: Buffer;
 
   constructor(secret: string | undefined) {
     if (secret) {
@@ -19,6 +27,33 @@ export class SecretBox {
     } else {
       this.key = randomBytes(32);
       this.keyRef = 'ephemeral';
+    }
+    this.macKey = Buffer.from(hkdfSync('sha256', this.key, 'reziproq', 'reziproq-state-v1', 32));
+  }
+
+  /** Signierter, zeitlich begrenzter Wert, z. B. der state einer Anmeldung bei Microsoft */
+  sign(payload: Record<string, unknown>, ttlMs: number): string {
+    const body = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + ttlMs })).toString(
+      'base64url',
+    );
+    return `${body}.${createHmac('sha256', this.macKey).update(body).digest('base64url')}`;
+  }
+
+  /** null, wenn Signatur falsch oder abgelaufen */
+  verify(value: string): Record<string, unknown> | null {
+    const [body, mac] = value.split('.');
+    if (!body || !mac) return null;
+    const expected = createHmac('sha256', this.macKey).update(body).digest();
+    const given = Buffer.from(mac, 'base64url');
+    if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
+    try {
+      const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as Record<
+        string,
+        unknown
+      >;
+      return typeof payload.exp === 'number' && payload.exp > Date.now() ? payload : null;
+    } catch {
+      return null;
     }
   }
 

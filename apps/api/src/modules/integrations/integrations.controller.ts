@@ -9,7 +9,9 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -25,7 +27,8 @@ import {
   type MyConnections,
   updatePartsSchema,
 } from '@reziproq/shared';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
+import { env } from '../../config/env.js';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
@@ -150,6 +153,9 @@ export class MyConnectionsController {
     @CurrentUser() auth: AuthContext,
     @Param('key') key: string,
   ): Promise<MyConnections> {
+    // Durchstich: Mit Microsoft echt geht es erst zur Anmeldung bei Microsoft
+    const redirectUrl = this.integrations.startUserAuthorization(auth, key);
+    if (redirectUrl) return { ...(await this.integrations.mine(auth)), redirectUrl };
     await this.integrations.connect(auth, key, { scope: 'user' });
     return this.integrations.mine(auth);
   }
@@ -190,5 +196,28 @@ export class InboundHookController {
     // Dieselbe Antwort für unbekannte Adresse und falsche Signatur
     if (!accepted) throw new UnauthorizedException({ statusCode: 401, code: 'abgelehnt' });
     return { accepted: true };
+  }
+}
+
+/**
+ * Durchstich: Rückkehr von der Anmeldung bei Microsoft (OAuth). Ohne Login der App; der signierte
+ * state nennt Person und Organisation und gilt zehn Minuten. Danach zurück ins Profil.
+ */
+@Controller('anbindungen/oauth/microsoft')
+@Public()
+export class MicrosoftCallbackController {
+  constructor(@Inject(IntegrationsService) private readonly integrations: IntegrationsService) {}
+
+  @Get('callback')
+  async callback(
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Res() response: Response,
+  ) {
+    const ok =
+      typeof code === 'string' &&
+      typeof state === 'string' &&
+      (await this.integrations.completeUserAuthorization(code.slice(0, 4000), state.slice(0, 2000)));
+    response.redirect(`${env.WEB_APP_URL}/profil?verbindung=${ok ? 'ok' : 'fehler'}#verbindungen`);
   }
 }

@@ -21,7 +21,8 @@
     "db:roles": "tsc -p tsconfig.build.json && node dist/roles-cli.js",
     "org:link": "tsc -p tsconfig.build.json && node dist/org-link-cli.js",
     "operator:set": "tsc -p tsconfig.build.json && node dist/operator-cli.js",
-    "demo:setup": "tsc -p tsconfig.build.json && node dist/demo-setup-cli.js"
+    "demo:setup": "tsc -p tsconfig.build.json && node dist/demo-setup-cli.js",
+    "durchstich:pruefen": "tsc -p tsconfig.build.json && node dist/durchstich-cli.js"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",

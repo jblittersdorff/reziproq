@@ -51,6 +51,17 @@ const envSchema = z.object({
   SSO_ENTRA_CLIENT_SECRET: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
   SSO_GOOGLE_CLIENT_ID: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
   SSO_GOOGLE_CLIENT_SECRET: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
+  // IN-03 / Durchstich: Microsoft Graph echt (live) oder Nachbau (fake). live nutzt die
+  // App-Registrierung aus SSO_ENTRA_CLIENT_ID/SECRET; die API ist unter API_PUBLIC_URL erreichbar
+  // (Rückkehr von Microsoft nach der Anmeldung beim Kalender).
+  MICROSOFT_PROVIDER: z.preprocess(emptyAsUndefined, z.enum(['fake', 'live']).default('fake')),
+  API_PUBLIC_URL: z.preprocess(
+    emptyAsUndefined,
+    z
+      .url({ protocol: /^https?$/ })
+      .default('http://localhost:3000')
+      .transform((url) => url.replace(/\/+$/, '')),
+  ),
   WEB_APP_URL: z.preprocess(
     emptyAsUndefined,
     z
@@ -97,6 +108,9 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
     if (env.NODE_ENV === 'production' && !env.AWS_REGION.startsWith('eu-')) {
       throw new Error('Produktionsdaten dürfen nur in einer AWS-EU-Region verarbeitet werden.');
     }
+  }
+  if (env.MICROSOFT_PROVIDER === 'live' && (!env.SSO_ENTRA_CLIENT_ID || !env.SSO_ENTRA_CLIENT_SECRET)) {
+    throw new Error('MICROSOFT_PROVIDER=live braucht SSO_ENTRA_CLIENT_ID und SSO_ENTRA_CLIENT_SECRET.');
   }
   if (env.IDENTITY_PROVIDER === 'zitadel' && !env.ZITADEL_SERVICE_TOKEN) {
     throw new Error('IDENTITY_PROVIDER=zitadel braucht ZITADEL_SERVICE_TOKEN in der .env.');

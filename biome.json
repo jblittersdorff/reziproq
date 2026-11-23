@@ -11,7 +11,8 @@
       "!**/routeTree.gen.ts",
       "!**/drizzle/meta",
       "!.claude/skills",
-      "!docs/**/*.dc.html"
+      "!docs/**/*.dc.html",
+      "!docs/betrieb/zitadel-actions"
     ]
   },
   "formatter": {

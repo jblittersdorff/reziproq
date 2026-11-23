@@ -91,6 +91,8 @@ describe('PLT-02 über die API', () => {
       'GET /api/v1/batches/00000000-0000-7000-8000-000000000000',
       // Hinweis zur Firmenanmeldung auf der Anmeldeseite (IN-02), ohne Login.
       'POST /api/anmeldung/sso',
+      // Rückkehr von der Anmeldung bei Microsoft (Durchstich), ohne Login.
+      'GET /api/anbindungen/oauth/microsoft/callback',
     ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>

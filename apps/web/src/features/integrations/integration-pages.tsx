@@ -968,11 +968,23 @@ export function MyConnectionsSection() {
   const [busy, setBusy] = useState<string | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
 
+  // Durchstich: Rückkehr von der Anmeldung bei Microsoft (?verbindung=ok|fehler)
+  const [returned] = useState(() =>
+    typeof window === 'undefined'
+      ? null
+      : new URLSearchParams(window.location.search).get('verbindung'),
+  );
   const run = async (key: string, work: () => Promise<MyConnections>) => {
     setBusy(key);
     setFailed(null);
     try {
-      client.setQueryData(myConnectionsQueryOptions(accessToken).queryKey, await work());
+      const result = await work();
+      // Mit echtem Anbieter geht es erst zur Anmeldung dort
+      if (result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
+        return;
+      }
+      client.setQueryData(myConnectionsQueryOptions(accessToken).queryKey, result);
     } catch (failure) {
       const code = errorCode(failure);
       setFailed((code && text.errors[code]) || text.failed);
@@ -985,9 +997,12 @@ export function MyConnectionsSection() {
     <div id="verbindungen" className="scroll-mt-24">
       <SettingsGroup title={text.mine.title}>
         <p className="px-4 py-3 text-muted-foreground text-sm">{text.mine.hint}</p>
-        {failed && (
+        {(failed || returned) && (
           <div className="px-4 py-3">
-            <StatusLine message={failed} tone="warning" />
+            <StatusLine
+              message={failed ?? (returned === 'ok' ? text.mine.connected : text.failed)}
+              tone={failed || returned !== 'ok' ? 'warning' : 'success'}
+            />
           </div>
         )}
         {query.isError ? (

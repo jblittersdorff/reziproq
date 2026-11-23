@@ -1739,6 +1739,7 @@ export const de = {
       later: 'folgt',
     },
     mine: {
+      connected: 'Verbunden. Dein Kalender ist jetzt mit Reziproq verbunden.',
       title: 'Meine Verbindungen',
       hint: 'Kalender und Outlook-Add-in verbindest du für dich selbst. Andere sehen deine Verbindung nicht.',
       loading: 'Verbindungen werden geladen …',

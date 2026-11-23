@@ -19,7 +19,8 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { actorIn } from './actor.js';
 import { type ConnectorDefinition, connectorOf, connectors } from './connectors.js';
-import { FakeProvider, type ProviderItem } from './fake-provider.js';
+import { type ConnectorProvider, FakeProvider, type ProviderItem } from './fake-provider.js';
+import { MicrosoftLiveProvider } from './microsoft-provider.js';
 import { IntegrationQueue, type QueuedJob } from './integration-queue.js';
 import { ItemHandlers } from './item-handlers.js';
 import { SecretBox } from './secret-box.js';
@@ -99,6 +100,20 @@ export class IntegrationsService {
   private readonly logger = new Logger(IntegrationsService.name);
   /** Nur die Schicht verschlüsselt und entschlüsselt; Tests lesen hierüber das Webhook-Geheimnis */
   readonly box = new SecretBox(env.CONNECTION_SECRET_KEY);
+  /** Durchstich: Microsoft 365 echt, wenn MICROSOFT_PROVIDER=live; sonst null (Anbieter fake) */
+  readonly microsoftLive: MicrosoftLiveProvider | null =
+    env.MICROSOFT_PROVIDER === 'live' && env.SSO_ENTRA_CLIENT_ID && env.SSO_ENTRA_CLIENT_SECRET
+      ? new MicrosoftLiveProvider({
+          clientId: env.SSO_ENTRA_CLIENT_ID,
+          clientSecret: env.SSO_ENTRA_CLIENT_SECRET,
+          redirectUri: `${env.API_PUBLIC_URL}/api/anbindungen/oauth/microsoft/callback`,
+        })
+      : null;
+
+  /** Anbieter einer Anbindung: echt, wo freigeschaltet, sonst fake */
+  private providerFor(connector: ConnectorDefinition): ConnectorProvider {
+    return connector.key === 'microsoft365' && this.microsoftLive ? this.microsoftLive : this.provider;
+  }
 
   constructor(
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
@@ -228,6 +243,7 @@ export class IntegrationsService {
       available: connectors
         .filter((connector) => connector.personal && connector.stage === 1)
         .map((connector) => connector.key),
+      redirectUrl: null as string | null,
     };
   }
 
@@ -327,7 +343,7 @@ export class IntegrationsService {
         );
       if (existing) throw conflict('schon_verbunden');
     });
-    const granted = await this.provider.authorize(connector);
+    const granted = await this.providerFor(connector).authorize(connector);
     await this.tenant.run(session, async (tx) => {
       const [created] = await tx
         .insert(schema.connection)
@@ -451,9 +467,98 @@ export class IntegrationsService {
             eq(schema.connectionSecret.kind, 'oauth'),
           ),
         );
-      return row ? this.box.open(row.secret.ciphertext, row.secret.keyRef) : null;
+      if (!row) return null;
+      const plain = this.box.open(row.secret.ciphertext, row.secret.keyRef);
+      const connector = connectorOf(connectorKey);
+      // Läuft der Zugang bald ab, vorher erneuern
+      if (plain && connector && row.secret.expiresAt && row.secret.expiresAt.getTime() < Date.now() + 5 * 60_000) {
+        const fresh = await this.providerFor(connector).refresh(connector, plain).catch(() => null);
+        if (!fresh) return null;
+        await tx
+          .update(schema.connectionSecret)
+          .set({
+            ciphertext: this.box.seal(fresh.token),
+            keyRef: this.box.keyRef,
+            expiresAt: fresh.expiresAt,
+            rotatedAt: new Date(),
+          })
+          .where(eq(schema.connectionSecret.id, row.secret.id));
+        return fresh.token;
+      }
+      return plain;
     });
     return token ? work(token) : null;
+  }
+
+  /**
+   * Durchstich: Eigene Verbindung zu Microsoft 365 über die Anmeldung bei Microsoft. Gibt die
+   * Adresse zurück, zu der die App die Person schickt; null, solange der Anbieter fake gilt.
+   */
+  startUserAuthorization(auth: AuthContext, key: string): string | null {
+    const session = this.session(auth);
+    if (key !== 'microsoft365' || !this.microsoftLive) return null;
+    const state = this.box.sign(
+      { o: session.organizationId, u: auth.userId, k: key, n: randomBytes(8).toString('hex') },
+      10 * 60_000,
+    );
+    return this.microsoftLive.authorizeUrl(state);
+  }
+
+  /** Rückkehr von Microsoft: Code tauschen, Verbindung der Person anlegen (eine je Person) */
+  async completeUserAuthorization(code: string, state: string): Promise<boolean> {
+    const payload = this.box.verify(state);
+    const connector = connectorOf('microsoft365');
+    if (!payload || !this.microsoftLive || !connector) return false;
+    const orgId = String(payload.o);
+    const userId = String(payload.u);
+    const granted = await this.microsoftLive.exchangeCode(code).catch(() => null);
+    if (!granted) return false;
+    return this.tenant.run({ userId, organizationId: orgId }, async (tx) => {
+      // Nur wer noch beim Käufer ist, bekommt eine Verbindung
+      const actor = await actorIn(tx, orgId, userId);
+      if (!actor?.organization?.buyer) return false;
+      const previous = await tx
+        .select({ id: schema.connection.id })
+        .from(schema.connection)
+        .where(
+          and(
+            eq(schema.connection.connectorKey, connector.key),
+            eq(schema.connection.scope, 'user'),
+            eq(schema.connection.userId, userId),
+            ne(schema.connection.status, 'revoked'),
+          ),
+        );
+      for (const row of previous) {
+        await tx.delete(schema.connectionSecret).where(eq(schema.connectionSecret.connectionId, row.id));
+        await tx
+          .update(schema.connection)
+          .set({ status: 'revoked', revokedAt: new Date() })
+          .where(eq(schema.connection.id, row.id));
+      }
+      const [created] = await tx
+        .insert(schema.connection)
+        .values({
+          orgId,
+          connectorKey: connector.key,
+          scope: 'user',
+          userId,
+          status: 'active',
+          parts: [...connector.defaultParts],
+          connectedBy: userId,
+        })
+        .returning({ id: schema.connection.id });
+      if (!created) throw new Error('connection_missing');
+      await tx.insert(schema.connectionSecret).values({
+        orgId,
+        connectionId: created.id,
+        kind: 'oauth',
+        ciphertext: this.box.seal(granted.token),
+        keyRef: this.box.keyRef,
+        expiresAt: granted.expiresAt,
+      });
+      await this.log(tx, orgId, created.id, 'out', 'connect', 'applied');
+      return true;
+    });
   }
 
   /** IN-03: Eingangsadresse und zugelassene Absender des Kunden; null ohne aktive Eingangsadresse */
@@ -548,7 +653,7 @@ export class IntegrationsService {
     for (const token of tokens) {
       if (!token) continue;
       // Widerruf beim Anbieter, wo möglich; scheitert er, sind die Zugangsdaten trotzdem gelöscht
-      await this.provider.revoke(connector, token).catch(() => undefined);
+      await this.providerFor(connector).revoke(connector, token).catch(() => undefined);
     }
   }
 
@@ -610,7 +715,7 @@ export class IntegrationsService {
     try {
       items =
         job.items ??
-        (await this.provider.fetch(
+        (await this.providerFor(connector).fetch(
           {
             connector,
             parts: start.connection.parts,
@@ -916,7 +1021,7 @@ export class IntegrationsService {
       const token = this.box.open(secret.ciphertext, secret.keyRef);
       let fresh: Awaited<ReturnType<FakeProvider['refresh']>> | null = null;
       if (connector && token) {
-        fresh = await this.provider.refresh(connector, token).catch(() => null);
+        fresh = await this.providerFor(connector).refresh(connector, token).catch(() => null);
       }
       await this.tenant.run(system, async (tx) => {
         if (!fresh) {

@@ -70,6 +70,11 @@ export class UnavailableSsoProvisioner implements SsoProvisioner {
 
 const idpResponse = z.object({ id: z.string().min(1) });
 const validationResponse = z.object({ token: z.string().min(1) });
+const domainsResponse = z.object({
+  result: z
+    .array(z.object({ domainName: z.string(), isVerified: z.boolean().optional() }))
+    .optional(),
+});
 
 /**
  * Über die Verwaltungsschnittstelle von Zitadel (Management API v1, je Organisation über
@@ -92,6 +97,7 @@ export class ZitadelSsoProvisioner implements SsoProvisioner {
     path: string,
     orgId: string,
     body: unknown,
+    allowStatus: number[] = [],
   ): Promise<unknown> {
     const response = await fetch(`${this.issuer}${path}`, {
       method,
@@ -104,6 +110,7 @@ export class ZitadelSsoProvisioner implements SsoProvisioner {
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(10_000),
     });
+    if (allowStatus.includes(response.status)) return { status: response.status };
     if (!response.ok) {
       // Details nur ins Log, nie an den Browser; der Inhalt kann Zugangsdaten nicht enthalten
       this.logger.error(`Zitadel ${method} ${path} antwortete mit ${response.status}`);
@@ -129,6 +136,12 @@ export class ZitadelSsoProvisioner implements SsoProvisioner {
       isAutoCreation: true,
       isAutoUpdate: true,
     };
+    // Die Organisation braucht eine eigene Login-Richtlinie; ohne sie gilt die der Instanz
+    const policy = { allowUsernamePassword: input.passwordLoginAllowed, allowExternalIdp: true, allowRegister: false };
+    const updated = (await this.call('PUT', '/management/v1/policies/login', orgId, policy, [404])) as {
+      status?: number;
+    };
+    if (updated.status === 404) await this.call('POST', '/management/v1/policies/login', orgId, policy);
     let idpRef = input.idpRef;
     if (!idpRef) {
       const created =
@@ -156,26 +169,26 @@ export class ZitadelSsoProvisioner implements SsoProvisioner {
         ownerType: 'IDP_OWNER_TYPE_ORG',
       });
     }
-    await this.call('PUT', '/management/v1/policies/login', orgId, {
-      allowUsernamePassword: input.passwordLoginAllowed,
-      allowExternalIdp: true,
-      allowRegister: false,
-    });
     return idpRef;
   }
 
   async startDomain(input: { zitadelOrgId: string | null; domain: string }) {
     const orgId = this.org(input.zitadelOrgId);
-    await this.call('POST', '/management/v1/orgs/me/domains', orgId, { domain: input.domain });
-    const generated = validationResponse.parse(
+    await this.call('POST', '/management/v1/orgs/me/domains', orgId, { domain: input.domain }, [409]);
+    // Ohne Domain-Bestätigung in Zitadel (Durchstich) gibt es keinen Eintrag; „Domain bestätigen“
+    // liest dann den Stand aus Zitadel
+    const generated = validationResponse.safeParse(
       await this.call(
         'POST',
         `/management/v1/orgs/me/domains/${encodeURIComponent(input.domain)}/validation/_generate`,
         orgId,
         { type: 'DOMAIN_VALIDATION_TYPE_DNS' },
-      ),
+      ).catch(() => null),
     );
-    return { recordName: `_zitadel-challenge.${input.domain}`, recordValue: generated.token };
+    return {
+      recordName: `_zitadel-challenge.${input.domain}`,
+      recordValue: generated.success ? generated.data.token : '–',
+    };
   }
 
   async confirmDomain(input: { zitadelOrgId: string | null; domain: string }) {
@@ -189,7 +202,15 @@ export class ZitadelSsoProvisioner implements SsoProvisioner {
       );
       return true;
     } catch {
-      return false;
+      // Ist die Bestätigung in Zitadel abgeschaltet (Durchstich mit …onmicrosoft.com), gilt der Stand
+      // der Domain in Zitadel
+      const found = domainsResponse.safeParse(
+        await this.call('POST', '/management/v1/orgs/me/domains/_search', orgId, {}).catch(() => null),
+      );
+      return Boolean(
+        found.success &&
+          found.data.result?.some((entry) => entry.domainName === input.domain && entry.isVerified),
+      );
     }
   }
 }
