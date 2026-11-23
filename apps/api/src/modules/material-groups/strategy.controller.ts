@@ -33,6 +33,8 @@ import { Requires } from '../auth/requires.decorator.js';
 import { StrategyService } from './strategy.service.js';
 
 const yearQuery = new ZodValidationPipe(z.coerce.number().int().min(2000).max(2100).optional());
+// WG-16: eine bestimmte Version lesen (ältere bleiben lesbar)
+const versionQuery = new ZodValidationPipe(z.coerce.number().int().min(1).max(999).optional());
 
 function stepOf(value: string) {
   const step = Number(value);
@@ -172,8 +174,9 @@ export class StrategyController {
     @CurrentUser() auth: AuthContext,
     @Param('id', ParseUUIDPipe) id: string,
     @Query('jahr', yearQuery) year: number | undefined,
+    @Query('version', versionQuery) version: number | undefined,
   ) {
-    return this.strategies.context(auth, id, year ?? strategyYearOf(new Date()));
+    return this.strategies.context(auth, id, year ?? strategyYearOf(new Date()), version);
   }
 
   @Post(':id/strategie')

@@ -5,6 +5,7 @@ import type {
   StrategyContext,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon, XIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ import {
   categoryReviewQueryOptions,
   categoryScorecardQueryOptions,
   holdCategoryReview,
+  newStrategyVersion,
   removeInitiative,
   reportInitiativeProgress,
   saveInitiative,
@@ -504,6 +506,7 @@ export function CategoryReviewPage({ groupId, reviewId }: { groupId: string; rev
   const [summary, setSummary] = useState('');
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const navigate = useNavigate();
   const data = query.data;
   const trail = [
     { label: t.materialGroupsPage.title, href: '/warengruppen' },
@@ -673,7 +676,32 @@ export function CategoryReviewPage({ groupId, reviewId }: { groupId: string; rev
               ) : (
                 <p className="text-muted-foreground text-sm">{text.summaryHint}</p>
               )}
+              {/* WG-16: Anpassen beginnt eine neue Version der Strategie im Entwurf */}
               <p className="text-muted-foreground text-sm">{text.adapt}</p>
+              {data.canHold && (
+                <Button
+                  variant="secondary"
+                  className="self-start"
+                  onClick={async () => {
+                    setFailure(null);
+                    try {
+                      await newStrategyVersion(accessToken, data.strategyId);
+                      await client.invalidateQueries({ queryKey: ['warengruppen'] });
+                      await navigate({
+                        to: '/warengruppen/$id/strategie/$step',
+                        params: { id: groupId, step: '1' },
+                      });
+                    } catch (error) {
+                      const code = (error as { body?: { code?: string } }).body?.code;
+                      setFailure(
+                        (code && t.strategyApproval.errors[code]) || t.strategyApproval.saveFailed,
+                      );
+                    }
+                  }}
+                >
+                  {t.strategyApproval.adapt}
+                </Button>
+              )}
             </section>
           </aside>
         </div>

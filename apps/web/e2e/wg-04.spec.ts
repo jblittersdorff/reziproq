@@ -417,6 +417,94 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-16 (Schritt 30): Freigabe
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/freigabe`, (route) =>
+    route.fulfill({
+      json: {
+        strategyId,
+        year: 2027,
+        version: 1,
+        status: 'draft',
+        canEdit: true,
+        canSubmit: false,
+        blockers: ['summary_unconfirmed'],
+        openSteps: [],
+        relevance: {
+          scores: {},
+          score: 4.2,
+          override: null,
+          overrideReason: null,
+          high: true,
+          canOverride: true,
+        },
+        spend: { amountCents: 820_000_000, currency: 'EUR', high: true },
+        route: 'board',
+        summary: {
+          statusQuo:
+            'Zwei Lieferanten tragen 65 % des Umsatzes, ein dritter ist finanziell kritisch. Ab 2028 wird Kapazität knapp.',
+          targetState:
+            'Kapazität zu 100 % bestätigt bis Q4/2028. Reklamationen von 42 auf 20 ppm. Preisverbesserung 3,5 % im Jahr.',
+          roadmap:
+            'Laminat direkt beziehen (2027). Moldau PCB für Starrflex aufbauen (2028). Ultra-HDI mit Rheintal entwickeln (2030).',
+          status: 'draft',
+          changed: ['roadmap'],
+        },
+        lastSubmittedAt: '2026-10-30T09:00:00Z',
+        changedSinceSubmission: true,
+        approvals: [
+          {
+            id: uuid(71),
+            role: 'lead',
+            userId: 'anna',
+            name: 'Lena Berger',
+            status: 'signed',
+            comment: null,
+            decidedAt: '2026-10-30T09:00:00Z',
+            canDecide: false,
+          },
+          {
+            id: uuid(72),
+            role: 'commodity_manager',
+            userId: 'jonas',
+            name: 'Jonas Feld',
+            status: 'open',
+            comment: null,
+            decidedAt: null,
+            canDecide: false,
+          },
+          {
+            id: uuid(73),
+            role: 'approver',
+            userId: 'ines',
+            name: 'Ines Vogt',
+            status: 'returned',
+            comment: 'Roadmap ohne Termine.',
+            decidedAt: '2026-11-04T09:00:00Z',
+            canDecide: false,
+          },
+        ],
+        versions: [{ id: strategyId, version: 1, status: 'draft' }],
+        canNewVersion: false,
+      },
+    }),
+  );
+  await page.route('**/api/warengruppen/freigabeweg', (route) =>
+    route.fulfill({
+      json: {
+        settings: {
+          relevanceThreshold: 3.5,
+          spendThresholdCents: 500_000_000,
+          routes: { board: ['ines'], head: ['ines'], tandem: [], department: ['jonas'] },
+        },
+        people: [
+          { userId: 'anna', name: 'Lena Berger' },
+          { userId: 'ines', name: 'Ines Vogt' },
+          { userId: 'jonas', name: 'Jonas Feld' },
+        ],
+        canEdit: true,
+      },
+    }),
+  );
   // WG-14 (Schritt 29): Vergabeplan; eigene Kennungen, damit sie keine anderen überschneiden
   const awardUuid = (n: number) =>
     `0190a0a0-0000-7000-8000-0000000001${String(n).padStart(2, '0')}`;
@@ -1057,6 +1145,8 @@ const pages = [
   ],
   ['hebel', '/einstellungen/warengruppen/hebel', 'Hebelkatalog der Warengruppen'],
   ['scorecard', `/warengruppen/${group}/strategie/7`, 'Initiativen in der Scorecard planen'],
+  ['freigabe', `/warengruppen/${group}/strategie/10`, 'Zusammenfassen und freigeben'],
+  ['freigabeweg', '/einstellungen/warengruppen/freigabeweg', 'Freigabeweg der Warengruppen'],
   ['vergaben', `/warengruppen/${group}/strategie/8`, 'Vergaben an der Strategie ausrichten'],
   ['vergabefaehigkeit', '/einstellungen/warengruppen/vergabe', 'Vergabefähigkeit'],
   [

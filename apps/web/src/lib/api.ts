@@ -10,6 +10,7 @@ import {
   type AdoptOpportunity,
   type AiSettings,
   type AnalysisStep,
+  type ApprovalSettings,
   type AssignmentRequest,
   type AwardEligibility,
   type AwardRequest,
@@ -29,6 +30,8 @@ import {
   aiUsageSchema,
   analysisStepSchema,
   apiKeysSchema,
+  approvalSettingsViewSchema,
+  approvalViewSchema,
   assignmentResponseSchema,
   auditResponseSchema,
   awardEligibilitySchema,
@@ -196,6 +199,7 @@ import {
   publicSurveySchema,
   questionListSchema,
   type RaiseMaturity,
+  type RelevanceOverride,
   type RequestContributions,
   type RequestValidation,
   type ReviewCustomAgent,
@@ -260,6 +264,7 @@ import {
   type StrategicTopicRequest,
   type StrategyAssessment,
   type SubmitSurvey,
+  type SummaryRequest,
   type SupplierMapUpdate,
   type SupplierTargetRequest,
   type SurveyKind,
@@ -4506,3 +4511,62 @@ export const awardEligibilityQueryOptions = (accessToken: string) =>
 
 export const saveAwardEligibility = (accessToken: string, value: AwardEligibility) =>
   sendJson('PUT', '/warengruppen/vergabefaehigkeit', value, awardEligibilitySchema, accessToken);
+
+/** WG-16 (Schritt 30): Freigabe der Warengruppenstrategie */
+export const approvalViewQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'freigabe'],
+    queryFn: () =>
+      getJson(`/warengruppen/strategien/${strategyId}/freigabe`, approvalViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+const approvalAction = (
+  accessToken: string,
+  method: 'POST' | 'PUT',
+  path: string,
+  body?: unknown,
+) => sendJson(method, `/warengruppen/${path}`, body ?? {}, approvalViewSchema, accessToken);
+
+export const saveRelevance = (
+  accessToken: string,
+  strategyId: string,
+  scores: Record<string, number>,
+) => approvalAction(accessToken, 'PUT', `strategien/${strategyId}/relevanz`, { scores });
+export const overrideRelevance = (
+  accessToken: string,
+  strategyId: string,
+  input: RelevanceOverride,
+) => approvalAction(accessToken, 'PUT', `strategien/${strategyId}/relevanz/uebersteuern`, input);
+export const saveStrategySummary = (
+  accessToken: string,
+  strategyId: string,
+  input: SummaryRequest,
+) => approvalAction(accessToken, 'PUT', `strategien/${strategyId}/zusammenfassung`, input);
+export const confirmStrategySummary = (accessToken: string, strategyId: string) =>
+  approvalAction(accessToken, 'POST', `strategien/${strategyId}/zusammenfassung/bestaetigen`);
+export const submitStrategy = (accessToken: string, strategyId: string) =>
+  approvalAction(accessToken, 'POST', `strategien/${strategyId}/vorlegen`);
+export const signApproval = (accessToken: string, approvalId: string) =>
+  approvalAction(accessToken, 'POST', `freigaben/${approvalId}/unterschreiben`);
+export const returnApproval = (accessToken: string, approvalId: string, comment: string) =>
+  approvalAction(accessToken, 'POST', `freigaben/${approvalId}/zurueckgeben`, { comment });
+
+export const newStrategyVersion = (accessToken: string, strategyId: string) =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/neue-version`,
+    {},
+    z.object({ id: z.uuid(), version: z.number().int() }),
+    accessToken,
+  );
+
+export const approvalSettingsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'freigabeweg'],
+    queryFn: () => getJson('/warengruppen/freigabeweg', approvalSettingsViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveApprovalSettings = (accessToken: string, value: ApprovalSettings) =>
+  sendJson('PUT', '/warengruppen/freigabeweg', value, approvalSettingsViewSchema, accessToken);

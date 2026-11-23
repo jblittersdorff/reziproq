@@ -376,7 +376,13 @@ export class StrategyService {
     };
   }
 
-  private async latest(tx: TenantTransaction, groupId: string, year: number) {
+  private async latest(
+    tx: TenantTransaction,
+    groupId: string,
+    year: number,
+    version?: number,
+    approvedOnly = false,
+  ) {
     const [row] = await tx
       .select()
       .from(schema.materialGroupStrategy)
@@ -384,6 +390,8 @@ export class StrategyService {
         and(
           eq(schema.materialGroupStrategy.materialGroupId, groupId),
           eq(schema.materialGroupStrategy.year, year),
+          version === undefined ? undefined : eq(schema.materialGroupStrategy.version, version),
+          approvedOnly ? eq(schema.materialGroupStrategy.status, 'approved') : undefined,
         ),
       )
       .orderBy(desc(schema.materialGroupStrategy.version))
@@ -468,15 +476,22 @@ export class StrategyService {
     auth: AuthContext,
     groupId: string,
     year = strategyYearOf(new Date()),
+    version?: number,
   ): Promise<StrategyContextResponse> {
     return this.run(auth, async (tx, org) => {
       const group = await this.group(tx, groupId);
       const role = await this.roleOf(tx, auth, group);
-      const strategy = await this.latest(tx, groupId, year);
-      const visible = strategy && (seesDraft(role) || strategy.status === 'approved');
+      const sees = async (row: StrategyRow) =>
+        seesDraft(role) || row.status === 'approved' || (await this.signs(tx, auth, row));
+      let strategy = await this.latest(tx, groupId, year, version);
+      // WG-16: Ohne Rolle im Team zeigt die Seite die jüngste freigegebene Version, nicht den Entwurf
+      if (!version && strategy && !(await sees(strategy))) {
+        strategy = (await this.latest(tx, groupId, year, undefined, true)) ?? strategy;
+      }
+      const visible = strategy !== null && (await sees(strategy));
       return strategyContextResponseSchema.parse({
         year,
-        context: visible ? await this.contextIn(tx, auth, org, group, strategy) : null,
+        context: visible && strategy ? await this.contextIn(tx, auth, org, group, strategy) : null,
         hidden: Boolean(strategy) && !visible,
         canCreate:
           !strategy &&
@@ -540,8 +555,33 @@ export class StrategyService {
   }
 
   /** Nach einer Änderung in einem Schritt (WG-16): merkt sich die Änderung seit dem Vorlegen. */
+  /** WG-16: Stand der zehn Schritte für die Freigabe */
+  stepStatesIn(tx: TenantTransaction, strategy: StrategyRow, group: GroupRow) {
+    return this.states(tx, strategy, group);
+  }
+
+  /** WG-16: Ist-Spend der Warengruppe im letzten Jahr mit Spend (für den Freigabeweg) */
+  async spendIn(tx: TenantTransaction, orgId: string, groupId: string) {
+    return (await this.facts(tx, orgId)).spendOf(groupId);
+  }
+
   async touchedIn(tx: TenantTransaction, strategy: StrategyRow) {
     await this.touched(tx, strategy);
+  }
+
+  /** WG-16: Die Person hat eine Unterschrift an dieser Strategie (Freigebende, Commodity Manager) */
+  private async signs(tx: TenantTransaction, auth: AuthContext, strategy: StrategyRow) {
+    const [row] = await tx
+      .select({ id: schema.materialGroupApproval.id })
+      .from(schema.materialGroupApproval)
+      .where(
+        and(
+          eq(schema.materialGroupApproval.strategyId, strategy.id),
+          eq(schema.materialGroupApproval.userId, auth.userId),
+        ),
+      )
+      .limit(1);
+    return Boolean(row);
   }
 
   /** Lesen eines Schritts: Entwürfe nur im Team und für Admins (WG-04). */
@@ -549,7 +589,14 @@ export class StrategyService {
     const strategy = await this.strategy(tx, strategyId);
     const group = await this.group(tx, strategy.materialGroupId);
     const role = await this.roleOf(tx, auth, group);
-    if (strategy.status !== 'approved' && !seesDraft(role)) throw notFound();
+    // WG-16: Freigebende lesen den vorgelegten Entwurf, auch ohne Rolle im Team
+    if (
+      strategy.status !== 'approved' &&
+      !seesDraft(role) &&
+      !(await this.signs(tx, auth, strategy))
+    ) {
+      throw notFound();
+    }
     return { strategy, group, role };
   }
 
@@ -635,7 +682,8 @@ export class StrategyService {
       })),
       milestones,
       leadSuggestion,
-      dimensions: goalStep ? await this.dimensions(tx, org.id) : [],
+      // WG-16: Schritt 10 braucht die Namen der Dimensionen für die Relevanz
+      dimensions: goalStep || step === 10 ? await this.dimensions(tx, org.id) : [],
       kpis,
       goals: goals.map(({ goal, dimension }) => ({
         id: goal.id,
@@ -976,7 +1024,11 @@ export class StrategyService {
   async dueItems(auth: AuthContext): Promise<DueItem[]> {
     if (!auth.organization?.buyer) return [];
     const assigned = can(auth, 'warengruppen.sehen')
-      ? [...(await this.assignedViews(auth)), ...(await this.openReviews(auth))]
+      ? [
+          ...(await this.assignedViews(auth)),
+          ...(await this.openReviews(auth)),
+          ...(await this.openApprovals(auth)),
+        ]
       : [];
     if (!can(auth, 'warengruppenstrategie.bearbeiten')) return assigned;
     return [...assigned, ...(await this.openSteps(auth))];
@@ -1016,6 +1068,36 @@ export class StrategyService {
           href: `/warengruppen/${row.group_id}/strategie/${step}`,
         };
       });
+    });
+  }
+
+  /** WG-16: offene Unterschriften der Person in der jüngsten Vorlage einer Strategie */
+  private openApprovals(auth: AuthContext): Promise<DueItem[]> {
+    return this.run(auth, async (tx) => {
+      const rows = await tx.execute<{
+        id: string;
+        group_id: string;
+        group_name: string;
+        year: number;
+        submitted_at: string;
+      }>(sql`
+        select a.id, g.id as group_id, g.name as group_name, s.year,
+          (a.submitted_at::date + 14)::text as submitted_at
+        from material_group_approval a
+        join material_group_strategy s on s.id = a.strategy_id
+        join material_group g on g.id = s.material_group_id
+        where a.user_id = ${auth.userId} and a.status = 'open' and s.status = 'draft'
+          and a.submitted_at = (select max(b.submitted_at) from material_group_approval b
+            where b.strategy_id = a.strategy_id)
+        order by a.submitted_at`);
+      return rows.rows.map((row) => ({
+        id: `approval:${row.id}`,
+        kind: 'category_approval' as const,
+        supplier: row.group_name,
+        detail: String(row.year),
+        dueDate: row.submitted_at,
+        href: `/warengruppen/${row.group_id}/strategie/10`,
+      }));
     });
   }
 

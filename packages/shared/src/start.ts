@@ -33,6 +33,8 @@ export const dueKinds = [
   'view_assignment',
   // WG-12: Quartals-Review einer freigegebenen Warengruppenstrategie (Lead)
   'category_review',
+  // WG-16: Unterschrift oder Freigabe einer Warengruppenstrategie
+  'category_approval',
 ] as const;
 
 export const dueItemSchema = z.object({

@@ -5,6 +5,8 @@ import { RoundsModule } from '../rounds/rounds.module.js';
 import { SuppliersModule } from '../suppliers/suppliers.module.js';
 import { AnalysisController } from './analysis.controller.js';
 import { AnalysisService } from './analysis.service.js';
+import { ApprovalController } from './approval.controller.js';
+import { ApprovalService } from './approval.service.js';
 import { AssessmentController } from './assessment.controller.js';
 import { AssessmentService } from './assessment.service.js';
 import { AwardsController } from './awards.controller.js';
@@ -20,10 +22,11 @@ import { CategorySegmentationController } from './segmentation.controller.js';
 import { CategorySegmentationService } from './segmentation.service.js';
 import { StrategyController } from './strategy.controller.js';
 import { StrategyService } from './strategy.service.js';
+import { StrategyYearWorker } from './strategy-year.worker.js';
 import { SupplierMapController } from './supplier-map.controller.js';
 import { SupplierMapService } from './supplier-map.service.js';
 
-/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-14, WG-15, WG-18 */
+/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-14, WG-15, WG-16, WG-18 */
 @Module({
   imports: [AiDraftsModule, RatingsModule, RoundsModule, SuppliersModule],
   // Strategie zuerst: feste Pfade wie /warengruppen/strategien vor /warengruppen/:id
@@ -34,6 +37,7 @@ import { SupplierMapService } from './supplier-map.service.js';
     AssessmentController,
     ScorecardController,
     AwardsController,
+    ApprovalController,
     SupplierMapController,
     CategorySegmentationController,
     MaterialGroupsController,
@@ -49,6 +53,8 @@ import { SupplierMapService } from './supplier-map.service.js';
     ScorecardWorker,
     SupplierMapService,
     AwardsService,
+    ApprovalService,
+    StrategyYearWorker,
   ],
   exports: [StrategyService],
 })

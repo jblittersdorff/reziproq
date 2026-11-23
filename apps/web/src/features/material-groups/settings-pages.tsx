@@ -1,5 +1,7 @@
 import {
+  type ApprovalSettings,
   type AwardEligibility,
+  approvalRoutes,
   type MaterialGroupImportPreview,
   portalKpiSource,
   type StrategyLever,
@@ -32,6 +34,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
 import {
   ApiError,
+  approvalSettingsQueryOptions,
   awardEligibilityQueryOptions,
   categoryLabelQueryOptions,
   kpiListQueryOptions,
@@ -42,6 +45,7 @@ import {
   parseMaterialGroupImport,
   parseMaterialGroupPreview,
   questionListQueryOptions,
+  saveApprovalSettings,
   saveAwardEligibility,
   saveCategoryLabel,
   saveKpi,
@@ -1123,6 +1127,128 @@ export function AwardEligibilitySettingsPage() {
           {manage && (
             <FormActions>
               <Button type="submit">{text.eligibilitySave}</Button>
+            </FormActions>
+          )}
+        </form>
+      )}
+    </>
+  );
+}
+
+/**
+ * WG-16 (Schritt 30, nach Regeln): Freigabeweg. Admins stellen die Schwellen für Relevanz und
+ * Umsatz und die Freigebenden je Weg ein; alle Eingetragenen eines Wegs unterschreiben.
+ */
+export function ApprovalSettingsPage() {
+  const t = useT();
+  const text = t.strategyApproval;
+  const accessToken = useToken();
+  const queryClient = useQueryClient();
+  const options = approvalSettingsQueryOptions(accessToken);
+  const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const [draft, setDraft] = useState<ApprovalSettings | null>(null);
+  const [spend, setSpend] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const trail = useTrail(text.settingsTitle);
+  const data = query.data;
+  const current = draft ?? data?.settings ?? null;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!current) return;
+    setMessage(null);
+    setFailure(null);
+    try {
+      const value = {
+        ...current,
+        spendThresholdCents:
+          spend === null ? current.spendThresholdCents : Math.round(Number(spend) * 100),
+      };
+      queryClient.setQueryData(options.queryKey, await saveApprovalSettings(accessToken, value));
+      setDraft(null);
+      setSpend(null);
+      setMessage(text.saved);
+    } catch {
+      setFailure(text.saveFailed);
+    }
+  };
+  return (
+    <>
+      {trail}
+      <PageHeader title={text.settingsTitle} purpose={text.settingsPurpose} />
+      {query.isError ? (
+        <ErrorState title={t.strategy.failed} />
+      ) : !data || !current ? (
+        <LoadingState label={t.strategy.loading} />
+      ) : (
+        <form className="flex max-w-4xl flex-col gap-5" onSubmit={submit}>
+          {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+          {failure && <StatusLine message={failure} tone="warning" />}
+          {!data.canEdit && <p className="text-muted-foreground text-sm">{text.adminOnly}</p>}
+          <div className="grid gap-4 rounded-lg bg-card p-5 shadow-card sm:grid-cols-2">
+            <FormField label={text.relevanceThreshold}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  inputMode="decimal"
+                  min={1}
+                  max={6}
+                  step={0.1}
+                  disabled={!data.canEdit}
+                  value={current.relevanceThreshold}
+                  onChange={(event) =>
+                    setDraft({ ...current, relevanceThreshold: Number(event.target.value) })
+                  }
+                />
+              )}
+            </FormField>
+            <FormField label={text.spendThreshold}>
+              {(field) => (
+                <Input
+                  {...field}
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  disabled={!data.canEdit}
+                  value={spend ?? String(current.spendThresholdCents / 100)}
+                  onChange={(event) => {
+                    setSpend(event.target.value);
+                    setDraft(current);
+                  }}
+                />
+              )}
+            </FormField>
+          </div>
+          {approvalRoutes.map((route) => (
+            <div key={route} className="rounded-lg bg-card p-5 shadow-card">
+              {data.canEdit ? (
+                <CheckboxGroup
+                  legend={text.routeNames[route] ?? route}
+                  options={data.people.map((person) => ({
+                    value: person.userId,
+                    label: person.name,
+                  }))}
+                  value={current.routes[route]}
+                  onChange={(value) =>
+                    setDraft({ ...current, routes: { ...current.routes, [route]: value } })
+                  }
+                />
+              ) : (
+                <>
+                  <h2 className="font-semibold">{text.routeNames[route]}</h2>
+                  <p className="text-muted-foreground text-sm">
+                    {current.routes[route]
+                      .map((id) => data.people.find((person) => person.userId === id)?.name ?? id)
+                      .join(', ') || '–'}
+                  </p>
+                </>
+              )}
+            </div>
+          ))}
+          {data.canEdit && (
+            <FormActions>
+              <Button type="submit">{text.settingsSave}</Button>
             </FormActions>
           )}
         </form>

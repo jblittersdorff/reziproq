@@ -869,6 +869,29 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2099-01-01',
     }),
   },
+  // WG-16: Relevanz je Warengruppe und Jahr, Zusammenfassung und Unterschriften je Strategie
+  material_group_relevance: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      material_group_id: org && probe('material_group', org),
+      year: 2099,
+    }),
+  },
+  material_group_summary: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+    }),
+  },
+  material_group_approval: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      submitted_at: new Date('2099-01-01T00:00:00Z'),
+      role: 'approver',
+      user_id: orgUser,
+    }),
+  },
   material_group_award: {
     kind: 'org_private',
     testValues: ({ org, probe }) => ({

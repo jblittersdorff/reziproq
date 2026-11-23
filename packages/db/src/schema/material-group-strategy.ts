@@ -671,3 +671,108 @@ export const materialGroupAwardSupplier = pgTable(
     unique('material_group_award_supplier_candidate').on(table.awardId, table.candidateId),
   ],
 );
+
+/**
+ * WG-16: Strategische Relevanz einer Warengruppe je Jahr. Zehn Einschätzungen 1 bis 6, je
+ * Zieldimension „Wirkung“ und „Risiko“ (Gründer, 23.11.2026); `score` ist ihr Mittelwert. Admins
+ * übersteuern mit Begründung.
+ */
+export const materialGroupRelevance = pgTable(
+  'material_group_relevance',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    materialGroupId: uuid()
+      .notNull()
+      .references(() => materialGroup.id),
+    year: integer().notNull(),
+    scores: jsonb().notNull().default({}),
+    score: numeric({ precision: 3, scale: 2 }),
+    override: text({ enum: ['high', 'low'] }),
+    overrideReason: text(),
+    updatedBy: text().references(() => appUser.id),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_relevance_once').on(table.materialGroupId, table.year),
+    check(
+      'material_group_relevance_override',
+      sql`${table.override} is null or (${table.override} in ('high', 'low') and length(trim(coalesce(${table.overrideReason}, ''))) > 0)`,
+    ),
+  ],
+);
+
+/** WG-16: Zusammenfassung der Strategie in drei Teilen; vorlegen erst, wenn bestätigt */
+export const materialGroupSummary = pgTable(
+  'material_group_summary',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    statusQuo: text().notNull().default(''),
+    targetState: text().notNull().default(''),
+    roadmap: text().notNull().default(''),
+    status: text({ enum: ['draft', 'confirmed'] })
+      .notNull()
+      .default('draft'),
+    /** Stand der drei Teile bei der letzten Vorlage, für „geändert seit der letzten Vorlage“ */
+    submitted: jsonb(),
+    updatedBy: text().references(() => appUser.id),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_summary_once').on(table.strategyId),
+    check('material_group_summary_status', sql`${table.status} in ('draft', 'confirmed')`),
+  ],
+);
+
+/**
+ * WG-16: Unterschrift je Vorlage: Lead, Commodity Manager und Freigebende des Freigabewegs. Alle
+ * Eingestellten unterschreiben (Gründer, 23.11.2026); `submitted_at` ordnet sie einer Vorlage zu.
+ */
+export const materialGroupApproval = pgTable(
+  'material_group_approval',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    submittedAt: timestamp({ withTimezone: true }).notNull(),
+    role: text({ enum: ['lead', 'commodity_manager', 'approver'] }).notNull(),
+    userId: text()
+      .notNull()
+      .references(() => appUser.id),
+    status: text({ enum: ['open', 'signed', 'returned'] })
+      .notNull()
+      .default('open'),
+    comment: text(),
+    decidedAt: timestamp({ withTimezone: true }),
+  },
+  (table) => [
+    unique('material_group_approval_once').on(
+      table.strategyId,
+      table.submittedAt,
+      table.role,
+      table.userId,
+    ),
+    check(
+      'material_group_approval_role',
+      sql`${table.role} in ('lead', 'commodity_manager', 'approver')`,
+    ),
+    check('material_group_approval_status', sql`${table.status} in ('open', 'signed', 'returned')`),
+    check(
+      'material_group_approval_comment',
+      sql`${table.status} <> 'returned' or length(trim(coalesce(${table.comment}, ''))) > 0`,
+    ),
+    index('material_group_approval_user').on(table.userId, table.status),
+  ],
+);

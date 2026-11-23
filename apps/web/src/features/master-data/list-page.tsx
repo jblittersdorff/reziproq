@@ -99,6 +99,11 @@ export function MasterDataListPage({ kind }: { kind: MasterDataKind }) {
                     children: t.strategy.settings.leversTitle,
                   })}
                   {routerLink({
+                    href: `${config.path}/freigabeweg`,
+                    className: buttonVariants({ variant: 'secondary' }),
+                    children: t.strategyApproval.settingsTitle,
+                  })}
+                  {routerLink({
                     href: `${config.path}/vergabe`,
                     className: buttonVariants({ variant: 'secondary' }),
                     children: t.awardPlan.eligibilityTitle,

@@ -241,7 +241,7 @@ export function SupplierMapSection({
         />
       )}
       {!data.restricted && <Distribution data={data} strategyYear={context.strategy.year} />}
-      {!data.restricted && <Matrix data={data} groupId={groupId} />}
+      {!data.restricted && <SupplierMapMatrix data={data} groupId={groupId} />}
     </section>
   );
 }
@@ -554,7 +554,8 @@ function Distribution({ data, strategyYear }: { data: SupplierMap; strategyYear:
   );
 }
 
-function Matrix({ data, groupId }: { data: SupplierMap; groupId: string }) {
+/** Matrix Ist und Soll, auch in der Freigabe (WG-16) */
+export function SupplierMapMatrix({ data, groupId }: { data: SupplierMap; groupId: string }) {
   const t = useT();
   const text = t.supplierMap;
   const { locale } = useLocale();
