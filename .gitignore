@@ -23,3 +23,6 @@ playwright/.cache/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# TanStack Router: lokaler Zwischenstand
+apps/web/.tanstack/

@@ -13,7 +13,10 @@
       "Read(./.env)",
       "Read(./**/.env)",
       "Bash(git push --force *)",
-      "Bash(git push *)",
+      "Bash(git push -f *)",
+      "Bash(git push * --force*)",
+      "Bash(git push origin main*)",
+      "Bash(git push * main)",
       "Bash(gh *)"
     ]
   },

@@ -27,10 +27,12 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 14 | Anpassung IN-02 · Firmenanmeldung (I1.3) | 12; PLT-01/02, NAV-10; Identitätsmodell und Erstanmeldung klären. | L | fertig (lokal mit Nachbau; Zitadel-Action für den Betrieb offen) |
 | 15 | Anpassung IN-03 · Termine, Zuordnung und Eingang in Mein Tag (I1.4) | 12, 14, 2, 10; QBR-01; privates Terminmodell und Briefingumfang klären. | L | fertig (lokal mit fake; Graph-Abos und Einladen aus Reziproq offen) |
 | 16 | IN-04 · Mails in Aktivitäten (I1.5) | 15, 6–7; Anhänge zunächst privat. Dokumentverknüpfung setzt die ausstehende KI-18 voraus. | M | offen |
+| W | WEB-01 · Website (öffentliche Seite) | Entwurf „Reziproq Website“ in Claude (11 Seiten); Designsprache und Tokens der App; DE und EN; Rechtstexte durch Anwalt vor Go-live. Unabhängig von der App. | L | offen |
 | 17 | IN-06 · Benachrichtigungen (I1.6) | 12, 2, 6, 10, 11b–c, 15; spätere Transkripterinnerung mit 18 abnehmen. | M | offen |
 | 18 | IN-05 · Transkripte (I1.7) | 15, 17, KI-17 (11c); Betriebsvereinbarung, Rohtextrechte und Löschfrist klären. | L | offen |
 | 19 | KI-09 · eigene Agenten (K3) | 7, K1 und erster Pilot; Rechte beim Fremdstart festlegen. | L | offen |
 | 20 | Lieferantenmanagement abschließen · NAV-10, AW-01, KI und IN | 9–19; Umfang der fehlenden KI-18 bis KI-23 klären, Lieferantenanteile ggf. vorher spezifizieren und abnehmen; Rechte, bestehende Lieferantenansicht und alle Lieferantenkriterien lokal testen. | M | offen |
+| D | Durchstich · Zitadel-Testorganisation und Microsoft-365-Testmandant echt verbinden | 14, 15, 20; noch ohne AWS. Firmenanmeldung über Entra, Domain bestätigen, Zitadel-Action, ein Termin über Graph. Vorbereitet in `docs/betrieb/durchstich.md`; Prüfung mit `pnpm durchstich:pruefen`. | S | vorbereitet |
 | 21 | Anpassung WG-01 / WG-startdaten · Zuordnung und Startdaten | 20; WG-01 und produktive Seed-Dimensionen vorhanden. Pflichtfeld und Katalog vor Eingriff klären. | M | offen |
 | 22 | Anpassung WG-04 / WG-06 · Rollen im Entwurf und Aktualisierung der Ist-Werte | 20–21; Strategie und Ziele gebaut. | M | offen |
 | 23 | Anpassung WG-18 · Soll-Typ und Segmententscheidung | 20–21; SEG und WG-18 gebaut; Datenhoheit mit WG-15 festlegen. | M | offen |
@@ -50,6 +52,14 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 37 | KI-21 · Verhandlungsvorbereitung (K2-f) | 10, 8, 35, 36. | L | offen |
 | 38 | KI-22 · Quartalsbericht SRM (K2-g) | 6, 11b, PNL, Scorecard, JBP. | M | offen |
 | 39 | KI-23 · Hilfe für Lieferanten (K3-b) | 5–7, erster Pilot; Ebenen und `billed_org_id` vorher prüfen. | L | offen |
+| C1 | Betrieb · AWS EU über OpenTofu (`infra/`): Netz, Datenbank, Server, Speicher, Sicherung, Überwachung | 1–39 | L | offen |
+| C2 | Zitadel produktiv · Firmenanmeldung mit App-Registrierungen und Action | C1, D | M | offen |
+| C3 | Bedrock EU statt Testanbieter · Budgets und Protokoll mit echten Läufen abnehmen | C1 | M | offen |
+| C4 | Microsoft Graph und Google Kalender echt · Abos, Agenda einfügen, Einladen aus Reziproq | C1, D | L | offen |
+| C5 | Maildienst EU · Eingangsadresse (SPF/DKIM), SMTP, Website-Formular | C1 | M | offen |
+| C6 | Pilot-Daten importieren und Abnahme mit echten Konten | C1–C5 | M | offen |
+
+Festlegung des Gründers vom 23.11.2026: Erst die Lösung lokal vollständig bauen (Schritte bis 39), dann Betrieb und echte Anbieter (Block C). Jede Anbindung läuft bis dahin mit dem Anbieter fake. Nach Schritt 20 prüft ein Durchstich (D) die echten Schnittstellen von Zitadel und Microsoft, ohne AWS. Die Website (W) steht als eigener Schritt nach 16. GitHub dient seit 23.11.2026 nur als Sicherung (Push des Arbeitsbranchs, Workflows aus).
 
 Die ersten vier Schritte priorisieren bestehende Seiten. Der Vorschlag trennt ihre Darstellung von der späteren Datenanbindung. Ob diese Teilabnahmen gelten dürfen, ist im Prüfbericht offen. Die Reihenfolge von I1.1 bis I1.7 folgt der Ergänzungsdatei. Import kommt vor Kalender und Mail, Transkripte nach der Mandantenfreigabe zuletzt. Die Stufe 2 mit Slack, Zoom, Gmail-Add-on, SharePoint/Drive, SFTP, SAP S/4HANA, Qualitätsdaten, SCIM, lesender API und Webhooks hat noch keine Bau-Specs.
 

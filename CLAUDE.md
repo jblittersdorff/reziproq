@@ -17,16 +17,18 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 ## Lokaler Betrieb
 
 Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Minuten aufgebraucht).
+GitHub dient seit 23.11.2026 nur als Sicherung; die Workflows sind abgeschaltet (nur von Hand).
 
-- Kein `git push`, in keiner Schreibweise (auch nicht `git -C … push`).
+- `git push` nur auf den aktuellen Arbeitsbranch zu `origin`, nie auf `main`, nie mit `--force`.
 - Kein `gh`, keine Pull Requests, keine Issues, keine Releases, keine Aufrufe der GitHub-API.
+- Workflows nicht wieder einschalten (keine Trigger `push` oder `pull_request` in `.github/`).
 - Kein `git pull` und kein `git fetch`, außer der Gründer bittet darum.
 - Remotes nicht ändern und nicht entfernen.
 - Commits nur lokal, klein und mit klarer Nachricht, auf dem aktuellen Branch.
 - Alles, was bisher die CI geprüft hat, läuft lokal vor jedem Commit: `pnpm check` (Typprüfung,
   Lint, Unit-Tests, RLS- und Cross-Tenant-Tests, E2E-Tests). Ein Commit entsteht nur, wenn alles
   grün ist.
-- Wenn ein Schritt GitHub bräuchte: anhalten und den Gründer fragen.
+- Wenn ein Schritt GitHub darüber hinaus bräuchte: anhalten und den Gründer fragen.
 
 ## Aufbau
 

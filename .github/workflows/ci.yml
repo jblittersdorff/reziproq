@@ -1,8 +1,8 @@
 name: CI
+# Abgeschaltet seit 23.11.2026: Die Actions-Minuten sind aufgebraucht. GitHub dient nur als
+# Sicherung; alle Prüfungen laufen lokal mit `pnpm check` vor jedem Commit. Von Hand startbar.
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 jobs:
   check:
     runs-on: ubuntu-latest
