@@ -34,7 +34,9 @@ export class NotificationBus {
     this.listener = listener;
   }
 
-  /** Nie den Fachvorgang aufhalten: Fehler werden nur protokolliert */
+  private readonly pending = new Set<Promise<void>>();
+
+  /** Sofort zustellen; nur außerhalb einer offenen Transaktion. Fehler werden nur protokolliert. */
   async emit(event: NotificationEvent): Promise<void> {
     if (!this.listener || event.userIds.length === 0) return;
     try {
@@ -42,6 +44,22 @@ export class NotificationBus {
     } catch (error) {
       this.logger.warn(`Benachrichtigung nicht möglich: ${(error as Error).message}`);
     }
+  }
+
+  /**
+   * Aus einer offenen Transaktion heraus: erst zustellen, wenn der Fachvorgang fertig ist. Sonst
+   * hielte der Vorgang seine Verbindung, während die Zustellung weitere braucht (Pool erschöpft).
+   */
+  defer(event: NotificationEvent): void {
+    if (!this.listener || event.userIds.length === 0) return;
+    const work = new Promise<void>((resolve) => setImmediate(resolve)).then(() => this.emit(event));
+    this.pending.add(work);
+    void work.finally(() => this.pending.delete(work));
+  }
+
+  /** Für Tests und das Herunterfahren: warten, bis aufgeschobene Zustellungen fertig sind */
+  async settled(): Promise<void> {
+    while (this.pending.size > 0) await Promise.all([...this.pending]);
   }
 }
 

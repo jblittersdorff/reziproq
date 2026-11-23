@@ -357,7 +357,7 @@ export class HintsService {
             eq(schema.relationshipMember.teamRole, 'sro'),
           ),
         );
-      await this.bus.emit({
+      this.bus.defer({
         orgId,
         userIds: sros.map((row) => row.userId),
         kind: 'hint_high',

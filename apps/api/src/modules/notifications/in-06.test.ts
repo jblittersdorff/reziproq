@@ -198,6 +198,13 @@ describe('IN-06 Benachrichtigungen in Teams und per Mail', () => {
     ]);
   });
 
+  it('aus einer offenen Transaktion wird erst danach zugestellt (aufgeschoben)', async () => {
+    bus.defer(event({ title: 'Aufgeschoben' }));
+    expect(cards()).toHaveLength(0);
+    await bus.settled();
+    expect(cards().map((entry) => entry.card.title)).toEqual(['Aufgeschoben']);
+  });
+
   it('drei Anlässe derselben Art innerhalb von 15 Minuten ergeben eine Karte', async () => {
     for (const minutes of [0, 5, 12]) {
       now = new Date(Date.parse('2026-11-26T09:00:00Z') + minutes * 60_000);

@@ -1103,7 +1103,7 @@ export class MeetingBriefService {
       }).format(new Date(inputs.meeting.startsAt));
       const questions =
         count('internalQuestions') + count('supplierQuestions') + count('expectedQuestions');
-      await this.bus.emit({
+      this.bus.defer({
         orgId: scope.orgId,
         userIds: inputs.team
           .filter((member) => member.teamRole === 'sro')

@@ -417,7 +417,7 @@ export class MeetingCaptureService {
               eq(schema.relationshipMember.teamRole, 'sro'),
             ),
           );
-        await this.bus.emit({
+        this.bus.defer({
           orgId: scope.orgId,
           userIds: sros.map((row) => row.userId).filter((userId) => userId !== auth.userId),
           kind: 'results_ready',
