@@ -17,6 +17,7 @@ import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
+import { HintsAttention } from '@/features/hints/hints-attention';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { startQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
@@ -25,6 +26,14 @@ import { dayTime } from './greeting';
 
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'ai_budget') return t.start.kind.ai_budget;
+  if (item.kind === 'hint_rule_review') {
+    const rules = t.hints.rules;
+    const rule =
+      item.detail && Object.hasOwn(rules, item.detail)
+        ? rules[item.detail as keyof typeof rules]
+        : (item.detail ?? '');
+    return `${t.start.kind.hint_rule_review}: ${rule}`;
+  }
   if (item.kind === 'cycle') {
     const steps = t.workspace.cycle.steps;
     const step =
@@ -170,6 +179,8 @@ export function StartPage() {
             aria-label={t.start.metricsLabel}
             className="flex min-w-0 shrink grow basis-75 flex-col gap-5"
           >
+            {/* KI-16: rechts oben „Wo du handeln musst“ (Main.neu.dc.html) */}
+            {!supplierSide && <HintsAttention />}
             <ListTile data={data} supplierSide={supplierSide} />
             {metrics}
           </aside>

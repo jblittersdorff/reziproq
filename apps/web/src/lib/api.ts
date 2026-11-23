@@ -83,9 +83,11 @@ import {
   focusListSchema,
   forbiddenCodes,
   type GoalRequest,
+  type HintRuleSettings,
   type HintSettings,
   healthResponseSchema,
   hintListSchema,
+  hintRuleSettingsSchema,
   hintSchema,
   hintSettingsSchema,
   type ImpactView,
@@ -2584,6 +2586,26 @@ export const acceptHint = (accessToken: string, hintId: string) =>
 
 export const dismissHint = (accessToken: string, hintId: string, request: DismissHint) =>
   sendJson('POST', `/hinweise/${hintId}/verwerfen`, request, hintSchema, accessToken);
+
+/** KI-16: auf „in Arbeit“ setzen und bewerten */
+export const startHint = (accessToken: string, hintId: string) =>
+  sendJson('POST', `/hinweise/${hintId}/in-arbeit`, undefined, hintSchema, accessToken);
+
+export const rateHint = (accessToken: string, hintId: string, helpful: boolean) =>
+  sendJson('POST', `/hinweise/${hintId}/bewertung`, { helpful }, hintSchema, accessToken);
+
+/** KI-16: Regeln an oder aus, Schwellen, Bewertung je Regel (Einstellungen KI, nur Admins) */
+export const hintRulesQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['hinweise', 'regeln'],
+    queryFn: () => getJson('/hinweise/regeln', hintRuleSettingsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveHintRules = (
+  accessToken: string,
+  request: Pick<HintRuleSettings, 'rules' | 'thresholds'>,
+) => sendJson('PUT', '/hinweise/regeln', request, hintRuleSettingsSchema, accessToken);
 
 export const hintSettingsQueryOptions = (accessToken: string) =>
   queryOptions({

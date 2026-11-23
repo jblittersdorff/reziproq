@@ -21,6 +21,8 @@ export const dueKinds = [
   // WG-04: nächster offener Schritt einer Warengruppenstrategie
   'strategy',
   'ai_budget',
+  // KI-16: Regel oft als nicht hilfreich bewertet, Schwelle prüfen (nur Admins)
+  'hint_rule_review',
 ] as const;
 
 export const dueItemSchema = z.object({

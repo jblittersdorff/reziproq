@@ -16,6 +16,9 @@ import {
   type HintList,
   type HintSettings,
   hintSettingsSchema,
+  hintFeedbackSchema,
+  type HintRuleSettings,
+  saveHintRuleSettingsSchema,
 } from '@reziproq/shared';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -49,6 +52,23 @@ export class HintsController {
     return this.hints.saveSettings(auth, body);
   }
 
+  // KI-16: Regeln an oder aus, Schwellen und Bewertung je Regel
+  @Get('regeln')
+  @Requires('hinweise.einstellen')
+  ruleSettings(@CurrentUser() auth: AuthContext): Promise<HintRuleSettings> {
+    return this.hints.ruleSettingsView(auth);
+  }
+
+  @Put('regeln')
+  @Requires('hinweise.einstellen')
+  saveRuleSettings(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(saveHintRuleSettingsSchema))
+    body: Pick<HintRuleSettings, 'rules' | 'thresholds'>,
+  ): Promise<HintRuleSettings> {
+    return this.hints.saveRuleSettings(auth, body);
+  }
+
   @Get(':id')
   @Requires('hinweise.sehen')
   get(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string): Promise<Hint> {
@@ -60,6 +80,24 @@ export class HintsController {
   @Requires('hinweise.entscheiden')
   accept(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string): Promise<Hint> {
     return this.hints.accept(auth, id);
+  }
+
+  @Post(':id/in-arbeit')
+  @HttpCode(200)
+  @Requires('hinweise.entscheiden')
+  start(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string): Promise<Hint> {
+    return this.hints.start(auth, id);
+  }
+
+  @Post(':id/bewertung')
+  @HttpCode(200)
+  @Requires('hinweise.sehen')
+  rate(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(hintFeedbackSchema)) body: { helpful: boolean },
+  ): Promise<Hint> {
+    return this.hints.rate(auth, id, body.helpful);
   }
 
   @Post(':id/verwerfen')

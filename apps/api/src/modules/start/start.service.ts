@@ -16,7 +16,7 @@ import { can } from '../auth/can.js';
 import { CommentsService } from '../comments/comments.service.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { MyFeedbackService } from '../feedback/my-feedback.service.js';
-import { openHintCount } from '../hints/hint-count.js';
+import { hintRuleReviewDue, openHintCount } from '../hints/hint-count.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
@@ -106,8 +106,19 @@ export class StartService {
       auth.organization?.buyer && auth.orgRole === 'admin'
         ? await this.gateway.budgetDue({ orgId: auth.organization.id, userId: auth.userId })
         : [];
+    // KI-16: Regeln, die oft als nicht hilfreich bewertet werden
+    const organization = auth.organization;
+    const ruleReviews =
+      organization?.buyer && auth.orgRole === 'admin'
+        ? await this.tenant.run(
+            { userId: auth.userId, organizationId: organization.id },
+            (tx) => hintRuleReviewDue(tx, organization.id, new Date().toISOString().slice(0, 10)),
+            { readOnly: true },
+          )
+        : [];
     const items = [
       ...budget,
+      ...ruleReviews,
       ...ratings,
       ...cycles,
       ...contributions,

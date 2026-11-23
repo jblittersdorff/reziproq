@@ -117,6 +117,7 @@ export const en: Messages = {
     metricActions: 'open actions',
     kind: {
       ai_budget: 'Review the monthly AI budget',
+      hint_rule_review: 'Review a hint rule threshold',
       rating: 'Submit rating',
       cycle: 'Cycle step',
       contribution: 'Supplier plan contribution',
@@ -1306,7 +1307,13 @@ export const en: Messages = {
     details: 'Accept or dismiss',
     decided: 'Decided',
     count: (n: number) => (n === 1 ? '1 open hint' : `${n} open hints`),
-    statuses: { open: 'Open', accepted: 'Accepted', dismissed: 'Dismissed' },
+    statuses: {
+      open: 'Open',
+      in_progress: 'In progress',
+      accepted: 'Accepted',
+      dismissed: 'Dismissed',
+      resolved: 'Resolved',
+    },
     rules: {
       segment_spend_only: 'Segment from spend only',
       weak_focus: 'Large supplier automatically in focus',
@@ -1318,6 +1325,11 @@ export const en: Messages = {
       plan_missing: 'Supplier plan missing',
       right_without_obligation: 'Right without obligation',
       buyer_commitments_overdue: 'Buyer commitments overdue',
+      performance_drop: 'Performance slipping',
+      supplier_commitment_overdue: 'Supplier commitment overdue',
+      dependency: 'Dependency',
+      feedback_drop: 'Feedback falling',
+      public_event: 'Public report',
     },
     why: {
       segment_spend_only: () =>
@@ -1343,7 +1355,116 @@ export const en: Messages = {
         d.count === 1
           ? 'One commitment of your side is overdue.'
           : `${d.count ?? '–'} commitments of your side are overdue.`,
+      performance_drop: (d: { kpi?: string; months?: number }) =>
+        `“${d.kpi ?? 'Metric'}” below target for ${d.months ?? '–'} months and getting worse`,
+      supplier_commitment_overdue: (d: { count?: number; days?: number }) =>
+        d.count === 1
+          ? `A supplier commitment is ${d.days ?? '–'} days overdue`
+          : `${d.count ?? '–'} supplier commitments overdue, the oldest for ${d.days ?? '–'} days`,
+      dependency: (d: { group?: string; share?: number }) =>
+        `${d.share ?? '–'} % of material group ${d.group ?? '–'}, no second supplier`,
+      feedback_drop: (d: { before?: string | number; now?: string | number }) =>
+        `Overall feedback score falls from ${d.before ?? '–'} to ${d.now ?? '–'}`,
+      public_event: (d: { event?: string; headline?: string; sources?: number }) =>
+        `Report: ${d.headline ?? '–'} · ${d.sources === 1 ? '1 source' : `${d.sources ?? '–'} sources`}`,
     },
+    severities: { high: 'high', medium: 'medium', low: 'low' },
+    severity: 'Severity',
+    severityOf: (value: string) => `Severity ${value}`,
+    nextSteps: {
+      segment_spend_only: 'Rate segment',
+      weak_focus: 'Justify focus',
+      unexplained_deviation: 'Resolve deviation',
+      too_many_focus: 'Redistribute focus',
+      no_operational_function: 'Complete the team',
+      cadence_missed: 'Plan a meeting',
+      no_feedback: 'Start a wave',
+      plan_missing: 'Request plan',
+      right_without_obligation: 'Check rules of engagement',
+      buyer_commitments_overdue: 'Complete commitment',
+      performance_drop: 'Create action',
+      supplier_commitment_overdue: 'Follow up commitment',
+      dependency: 'Check second supplier',
+      feedback_drop: 'Review supplier',
+      public_event: 'Review supplier',
+    },
+    ruleTexts: {
+      performance_drop: 'Rule: metric below target several months in a row and getting worse.',
+      supplier_commitment_overdue: 'Rule: supplier commitment overdue longer than the threshold.',
+      dependency: 'Rule: high share of material group spend and no second supplier.',
+      feedback_drop: 'Rule: overall feedback score falls against the previous wave.',
+      public_event:
+        'Rule: dated public report on insolvency, plant closure, short-time work, takeover, sanction or recall.',
+    } as Partial<Record<string, string>>,
+    sorted: (n: number) => `${n} open · sorted by impact: severity, spend and segment`,
+    filters: 'Filters',
+    filterMine: 'My relationships',
+    filterSeverity: 'Severity',
+    filterRule: 'Rule',
+    filterGroup: 'Material group',
+    filterStatus: 'Status',
+    filterAll: 'All',
+    filterActive: 'Open and in progress',
+    filterEmpty: 'No hint matches these filters.',
+    footnote:
+      'Every hint comes from a defined rule. Reziproq only writes the explanation. A dismissed hint only returns if the situation gets worse.',
+    focus: 'Focus',
+    openSince: (date: string) => `open since ${date}`,
+    checkedAt: (date: string) => `checked ${date}`,
+    resolvedBecause: (reason: string) => `Resolved: ${reason}`,
+    evidence: 'Evidence',
+    threshold: 'Threshold',
+    period: 'Period',
+    whyMatters: 'Why it matters · Draft by Reziproq',
+    sources: 'Sources',
+    noExplanation: 'Reziproq writes the explanation after the next daily run.',
+    nextStep: 'Next step',
+    nextOpen: 'Open',
+    nextOpenPrefilled: 'Open prefilled action',
+    startWork: 'In progress',
+    started: 'Set to “In progress”.',
+    notRelevant: 'Not relevant',
+    helpfulQuestion: 'Was this hint helpful?',
+    yes: 'Yes',
+    no: 'No',
+    rated: 'Thanks, your rating is saved.',
+    close: 'Close',
+    back: 'Back to the list',
+    panelLabel: (title: string) => `Hint: ${title}`,
+    actTitle: 'Where you need to act',
+    actEmpty: 'Nothing needs your action right now.',
+    attentionNote: 'From defined rules, sorted by urgency. Reziproq writes the explanations.',
+    allHints: 'All hints',
+    supplierHints: 'Open hints',
+    rulesTitle: 'Hints',
+    rulesPurpose:
+      'Switch early-warning rules on or off and set their thresholds. Ratings per rule on the right.',
+    ruleOn: (rule: string) => `${rule} on`,
+    thresholdLabels: {
+      performance_drop: {
+        months: 'Months below target',
+      },
+      supplier_commitment_overdue: {
+        days: 'Overdue after days',
+        highDays: 'High severity after days',
+      },
+      dependency: {
+        share: 'Share of material group spend from (0 to 1)',
+      },
+      feedback_drop: {
+        drop: 'Drop from (0 to 1)',
+      },
+      public_event: {
+        days: 'Report at most days old',
+      },
+    } as Record<string, Record<string, string>>,
+    needsResearch: 'Only works with public research (above).',
+    ratingsTitle: 'Rating per rule',
+    ratingValue: (helpful: number, notHelpful: number) =>
+      `${helpful} helpful · ${notHelpful} not helpful`,
+    ratingsEmpty: 'No ratings yet.',
+    rulesSaved: 'Rules saved.',
+    saveRules: 'Save rules',
     detailTitle: 'Decide on the hint',
     accept: 'Accept',
     acceptHint: 'Creates an internal action for you, due in two weeks.',
@@ -2560,7 +2681,10 @@ export const en: Messages = {
     preReadFailed: 'The PDF could not be created.',
     prep: {
       title: 'Internal preparation by Reziproq',
-      parts: { topics: 'Topics', risks: 'Risks', openPoints: 'Open points' } as Record<string, string>,
+      parts: { topics: 'Topics', risks: 'Risks', openPoints: 'Open points' } as Record<
+        string,
+        string
+      >,
       partHints: {
         topics: 'Three to five topics with reasoning, for you only.',
         risks: 'KPIs behind plan, overdue commitments and feedback gaps.',
@@ -2766,7 +2890,11 @@ export const en: Messages = {
     report: 'Not right',
     reported: 'Thanks, reported.',
     sentencesLabel: 'Three sentences from Reziproq',
-    sentenceKinds: { good: 'What is going well', stuck: 'What is stuck', todo: 'What you should do' } as Record<string, string>,
+    sentenceKinds: {
+      good: 'What is going well',
+      stuck: 'What is stuck',
+      todo: 'What you should do',
+    } as Record<string, string>,
     view: 'View',
     toMyDay: 'Go to My day',
     chanceTitle: 'Biggest opportunity',
@@ -3066,7 +3194,10 @@ export const en: Messages = {
       actions: { title: 'Actions', text: 'Who does what by when.' },
       initiativeImpact: { title: 'Results per initiative', text: 'Lever, P&L line and maturity.' },
       monthly: { title: 'Monthly values', text: 'Plan and actual per month.' },
-      valueOpportunities: { title: 'Value opportunities', text: 'Joint opportunities with calculation.' },
+      valueOpportunities: {
+        title: 'Value opportunities',
+        text: 'Joint opportunities with calculation.',
+      },
       bridge: { title: 'P&L bridge', text: 'From baseline to result.' },
     },
   },
@@ -4324,14 +4455,20 @@ export const en: Messages = {
     rangeNote: 'Euros per year, axis from 0 · low confidence in grey and not in the totals',
     cashLine: (name: string, value: string) => `${name}: ${value} cash`,
     totalsNote: 'Impact types are never added up. Totals include high and medium confidence only.',
-    impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Cost avoidance' } as Record<string, string>,
+    impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Cost avoidance' } as Record<
+      string,
+      string
+    >,
     range: (low: string, high: string) => (low === high ? low : `${low} to ${high}`),
     nothing: 'nothing',
     nextEyebrow: 'Your next step',
     nextFirstRun: 'Start the first run',
-    nextFirstRunText: 'The agent checks all lever templates with your data and, if enabled, the market.',
+    nextFirstRunText:
+      'The agent checks all lever templates with your data and, if enabled, the market.',
     nextReview: (count: number) =>
-      count === 1 ? 'Review one new opportunity' : `Review ${count} new opportunities and adopt the strongest`,
+      count === 1
+        ? 'Review one new opportunity'
+        : `Review ${count} new opportunities and adopt the strongest`,
     nextReviewText: 'The first one has the highest value for you.',
     nextDone: 'All opportunities are decided',
     nextDoneText: 'A new run checks the current state.',
@@ -4344,11 +4481,21 @@ export const en: Messages = {
       'Public research is off. The market was not checked, no market signals were created and nothing left Reziproq.',
     draftHeading: 'Draft by Reziproq',
     fromMarket: 'from the market',
-    status: { new: 'new', adopted: 'in the JBP', realized: 'realised', dismissed: 'dismissed', superseded: 'replaced' } as Record<string, string>,
+    status: {
+      new: 'new',
+      adopted: 'in the JBP',
+      realized: 'realised',
+      dismissed: 'dismissed',
+      superseded: 'replaced',
+    } as Record<string, string>,
     forYou: 'For you',
     forSupplier: (name: string) => `For ${name}`,
     perYear: (impact: string) => `${impact} per year`,
-    confidence: { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' } as Record<string, string>,
+    confidence: {
+      high: 'High confidence',
+      medium: 'Medium confidence',
+      low: 'Low confidence',
+    } as Record<string, string>,
     confidenceReason: {
       fresh_internal: 'All inputs from your data or the supplier, at most twelve months old.',
       template_assumption: 'At least one input is a template assumption.',
@@ -4378,7 +4525,8 @@ export const en: Messages = {
     dismiss: 'Dismiss',
     cancel: 'Cancel',
     adoptTitle: 'This is how the supplier sees the topic',
-    adoptHint: 'Title and description only, without numbers from the calculation and without sources.',
+    adoptHint:
+      'Title and description only, without numbers from the calculation and without sources.',
     topicTitle: 'Title',
     topicDescription: 'Description',
     confirmAdopt: 'Create topic',
@@ -4406,7 +4554,12 @@ export const en: Messages = {
     withoutReason: 'The calculation shows no value for you or the supplier.',
     marketTitle: 'What happens in the market',
     marketHint: 'Public sources from the last 24 months. Each signal has exactly one outcome.',
-    outcome: { opportunity: 'Opportunity', topic: 'Topic, no euro', data_gap: 'Data gap', no_effect: 'no effect' } as Record<string, string>,
+    outcome: {
+      opportunity: 'Opportunity',
+      topic: 'Topic, no euro',
+      data_gap: 'Data gap',
+      no_effect: 'no effect',
+    } as Record<string, string>,
     outbound: (queries: string) => `Sent outside: ${queries}`,
     outboundNone: 'Nothing was sent outside.',
     gapsTitle: 'With this data it would find more',
@@ -4430,7 +4583,8 @@ export const en: Messages = {
       title: 'Value opportunities across all suppliers',
       purpose:
         'What the value finder found with your suppliers, what is already in the JBP and what already has an effect.',
-      lowExcluded: (count: number) => (count === 0 ? '' : `${count} with low confidence not included`),
+      lowExcluded: (count: number) =>
+        count === 0 ? '' : `${count} with low confidence not included`,
       biggestEyebrow: 'Largest new opportunity',
       biggestTitle: (supplier: string, template: string) => `${supplier}: ${template}`,
       biggestText: (range: string, impact: string, confidence: string) =>
@@ -4445,7 +4599,10 @@ export const en: Messages = {
       cashNew: 'Cash new',
       confidence: 'Confidence',
       nextStep: 'Next step',
-      next: { review: 'Review opportunities', in_jbp: 'in the JBP', run: 'Start run' } as Record<string, string>,
+      next: { review: 'Review opportunities', in_jbp: 'in the JBP', run: 'Start run' } as Record<
+        string,
+        string
+      >,
       confidenceShort: { high: 'high', medium: 'medium', low: 'low' } as Record<string, string>,
       empty: 'No value opportunities with your suppliers yet.',
       tableNote: 'The totals above only include opportunities with medium or high confidence.',

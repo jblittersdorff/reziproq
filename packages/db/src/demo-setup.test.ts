@@ -106,7 +106,8 @@ describe('demo:setup', () => {
       );
     expect(await count('jbp')).toBe(2);
     expect(await count('initiative')).toBeGreaterThanOrEqual(2);
-    expect(await count('commitment')).toBe(4);
+    // vier aus der Geschichte, eine überfällige Zusage des Lieferanten für die Frühwarnung (KI-16)
+    expect(await count('commitment')).toBe(5);
     expect(await count('scorecard_kpi')).toBe(2);
     expect(await count('relationship_ebit_target')).toBe(1);
     const qbr = await query<{ id: string }>(sql`

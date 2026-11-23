@@ -13,29 +13,10 @@ import { routerLink } from '@/features/shell/navigation';
 import { useOverview } from '@/features/workspace/use-overview';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
+import { useNarrow } from '@/lib/use-narrow';
 import { cn } from '@/lib/utils';
 
 export const pageSize = 50;
-
-/** Unter 760 px öffnet die Detailleiste als eigene Ansicht mit Zurück (LS-01, kein Popup). */
-/** Umbruchpunkt der Spec (LS-01), keine Gestaltungsgröße; deshalb hier und nicht in den Tokens */
-const narrowBelowPx = 760;
-const narrowQuery = `(max-width: ${narrowBelowPx - 1}px)`;
-
-function useNarrow() {
-  const query = narrowQuery;
-  const [narrow, setNarrow] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia?.(query).matches === true,
-  );
-  useEffect(() => {
-    const media = window.matchMedia?.(narrowQuery);
-    if (!media) return;
-    const onChange = () => setNarrow(media.matches);
-    media.addEventListener('change', onChange);
-    return () => media.removeEventListener('change', onChange);
-  }, []);
-  return narrow;
-}
 
 /** Segment „i-q“ als „Hoher Impact · ausbaufähig“ (kurz) und mit voller Beziehung (lang) */
 export function useSegmentText() {
@@ -317,9 +298,7 @@ function SupplierPanel({
   );
   const group = supplier.topMaterialGroup ?? supplier.primaryMaterialGroup;
   // Der globale Organisationsname bleibt verborgen (PLT-03); „rechtlich“ heißt hier der volle Name.
-  const legal = [supplier.name, supplier.externalRef]
-    .filter(Boolean)
-    .join(' · ');
+  const legal = [supplier.name, supplier.externalRef].filter(Boolean).join(' · ');
 
   const rows = [
     {

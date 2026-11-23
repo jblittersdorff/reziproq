@@ -7,11 +7,13 @@ import { AgentRunner } from './modules/agents/agent-runner.js';
 import { AgentsService } from './modules/agents/agents.service.js';
 import { QbrPrepWorker } from './modules/agents/qbr-prep.worker.js';
 import type { AuthContext } from './modules/auth/auth.guard.js';
+import { HintsService } from './modules/hints/hints.service.js';
 import { OpportunitiesService } from './modules/opportunities/opportunities.service.js';
 
 // pnpm demo:setup, zweiter Teil: Über der Demo-Geschichte laufen die echten Dienste einmal, wie
 // es auch die Person in der App täte – Agent einschalten, Wertpotenzial-Finder je Fokuslieferant,
-// QBR-Vorbereitung für den Termin in sieben Tagen. Nur lokal; mit dem Testanbieter, ohne Netzwerk.
+// QBR-Vorbereitung für den Termin in sieben Tagen, Hinweise mit Frühwarnung. Nur lokal; mit dem
+// Testanbieter, ohne Netzwerk.
 
 // ID des Test-OEM aus packages/db/src/seed.ts (seedBuyers.testOem)
 const testOem = 'de300000-0000-7000-8000-000000000001';
@@ -114,6 +116,22 @@ async function main() {
       started > 0
         ? `QBR-Vorbereitung: ${started} Lauf gestartet und ausgeführt, Aufgabe im Mein Tag.`
         : 'QBR-Vorbereitung: kein neuer Lauf (schon vorbereitet oder kein QBR in sieben Tagen).',
+    );
+
+    // 4. Hinweise mit Frühwarnung (KI-16): Regeln prüfen und Begründungen schreiben, wie der Tagesjob
+    const hints = app.get(HintsService);
+    const result = await tenant.run({ userId: account.id, organizationId: testOem }, async (tx) => {
+      await hints.refresh(tx, testOem);
+      const written = await hints.explain(tx, testOem);
+      const [open] = (
+        await tx.execute<{ count: string }>(sql`
+          select count(*)::text as count from hint
+          where org_id = ${testOem} and status in ('open', 'in_progress')`)
+      ).rows;
+      return { written, open: Number(open?.count ?? 0) };
+    });
+    console.log(
+      `Hinweise: ${result.open} offen, ${result.written} neue Begründungen. Zu sehen unter Mein Tag und /hinweise.`,
     );
   } finally {
     await app.close();

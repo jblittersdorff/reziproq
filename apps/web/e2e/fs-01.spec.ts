@@ -10,6 +10,18 @@ const base = {
   relationshipId,
   supplier: 'Gamma Werkzeugbau KG',
   status: 'open',
+  severity: 'low',
+  score: 0,
+  title: null,
+  evidence: {},
+  explanation: null,
+  suggestedAction: null,
+  feedback: null,
+  lastSeenAt: '2026-11-16T06:30:00Z',
+  resolvedReason: null,
+  isFocus: false,
+  isOwn: true,
+  materialGroup: null,
   reason: null,
   createdAt: '2026-11-16T06:30:00Z',
   decidedAt: null,
@@ -19,6 +31,29 @@ const base = {
   actionHref: null,
 };
 const hints = [
+  {
+    ...base,
+    id: '550e8400-e29b-41d4-a716-446655440090',
+    ruleKey: 'performance_drop',
+    severity: 'high',
+    score: 900,
+    isFocus: true,
+    materialGroup: 'Guss',
+    detail: { kpi: 'Liefertreue', months: 3 },
+    evidence: {
+      metric: 'Liefertreue',
+      values: [
+        { label: '2026-08', value: '91 %' },
+        { label: '2026-09', value: '88 %' },
+        { label: '2026-10', value: '86 %' },
+      ],
+      threshold: 'Ziel 95 %',
+      refs: [{ objectType: 'scorecard_kpi', objectId: 'k1', title: 'Scorecard Liefertreue' }],
+    },
+    explanation:
+      'Gamma liefert seit drei Monaten unter Ziel, im Oktober 86 % statt 95 %. Das trifft die Montage direkt.',
+    href: `/lieferanten/${relationshipId}/umsetzung/massnahmen/neu?hinweis=550e8400-e29b-41d4-a716-446655440090`,
+  },
   {
     ...base,
     id: '550e8400-e29b-41d4-a716-446655440091',
@@ -88,7 +123,7 @@ for (const width of [390, 1440]) {
       await mock(page);
       await page.goto('/hinweise');
       await expect(page.getByRole('heading', { level: 1, name: 'Hinweise prüfen' })).toBeVisible();
-      await expect(page.getByRole('region', { name: 'Gamma Werkzeugbau KG' })).toBeVisible();
+      await expect(page.getByRole('list', { name: 'Hinweise' })).toBeVisible();
       await page.waitForLoadState('networkidle');
       const overflow = () =>
         page.evaluate(
@@ -101,11 +136,21 @@ for (const width of [390, 1440]) {
           fullPage: true,
         });
 
+      // KI-16: Ein Klick öffnet am Schreibtisch die Leiste rechts, auf dem Telefon die eigene Seite.
+      await page.locator('[data-slot="hint-row"]').first().click();
+      await expect(page.getByRole('region', { name: /^Hinweis: / })).toBeVisible();
+      expect(await overflow()).toBe(0);
+      if (process.env.FS01_SHOTS)
+        await page.screenshot({
+          path: `${process.env.FS01_SHOTS}/hinweis-leiste-${width}-${colorScheme}.png`,
+          fullPage: true,
+        });
+
       await page.goto(`/hinweise/${hints[2]?.id}`);
       await expect(
         page.getByRole('heading', { level: 1, name: 'Hinweis entscheiden' }),
       ).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Verwerfen' })).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Nicht relevant' })).toBeDisabled();
       expect(await overflow()).toBe(0);
       if (process.env.FS01_SHOTS)
         await page.screenshot({

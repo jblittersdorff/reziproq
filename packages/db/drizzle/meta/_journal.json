@@ -743,6 +743,13 @@
       "when": 1795418480350,
       "tag": "0105_ki07_vorbereitung",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1795421829530,
+      "tag": "0106_ki16_fruehwarnung",
+      "breakpoints": true
     }
   ]
 }

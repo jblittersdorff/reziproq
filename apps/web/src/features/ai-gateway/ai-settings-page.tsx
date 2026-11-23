@@ -31,6 +31,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useCan } from '@/features/auth/use-permissions';
+import { HintRulesSection } from '@/features/hints/hint-rules-section';
 import { useToken as useAccessToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
@@ -466,6 +467,8 @@ export function AiSettingsPage() {
               )}
             </form>
           )}
+          {/* KI-16: Regeln, Schwellen und Bewertung der Hinweise */}
+          <HintRulesSection />
         </div>
         <div className="flex min-w-0 flex-col gap-5">
           <UsageCard />

@@ -24,6 +24,7 @@ import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { CommentsSection } from '@/features/comments/comments-section';
+import { useHintWhy } from '@/features/hints/hints-pages';
 import {
   apiBase,
   MeetingFrame,
@@ -36,6 +37,7 @@ import { PagePath } from '@/features/shell/page-path';
 import {
   actionListQueryOptions,
   createAction,
+  hintQueryOptions,
   meetingQueryOptions,
   myActionsQueryOptions,
   setActionStatus,
@@ -298,10 +300,13 @@ export interface FeedbackGapSource {
 export function NewActionPage({
   place,
   meetingId,
+  hintId,
   gap,
 }: {
   place: MeetingPlace;
   meetingId?: string;
+  /** KI-16: aus einem Hinweis, Titel und Begründung vorausgefüllt, intern */
+  hintId?: string;
   gap?: FeedbackGapSource;
 }) {
   const text = useT().actions;
@@ -312,7 +317,7 @@ export function NewActionPage({
       current={text.new}
       header={<PageHeader title={text.new} purpose={text.purpose} />}
     >
-      <ActionFormLoader place={place} meetingId={meetingId} gap={gap} />
+      <ActionFormLoader place={place} meetingId={meetingId} hintId={hintId} gap={gap} />
     </MeetingFrame>
   );
 }
@@ -336,11 +341,13 @@ export function EditActionPage({ place, actionId }: { place: MeetingPlace; actio
 function ActionFormLoader({
   place,
   meetingId,
+  hintId,
   actionId,
   gap,
 }: {
   place: MeetingPlace;
   meetingId?: string | undefined;
+  hintId?: string | undefined;
   actionId?: string;
   gap?: FeedbackGapSource | undefined;
 }) {
@@ -350,8 +357,17 @@ function ActionFormLoader({
     ...meetingQueryOptions(query.accessToken, apiBase(place), meetingId ?? ''),
     enabled: query.accessToken !== '' && Boolean(meetingId),
   });
+  const hint = useQuery({
+    ...hintQueryOptions(query.accessToken, hintId ?? ''),
+    enabled: query.accessToken !== '' && Boolean(hintId),
+  });
+  const why = useHintWhy();
   if (query.isError) return <ErrorState title={text.failed} />;
-  if (!query.data || (meetingId && !meeting.data && !meeting.isError)) {
+  if (
+    !query.data ||
+    (meetingId && !meeting.data && !meeting.isError) ||
+    (hintId && !hint.data && !hint.isError)
+  ) {
     return <LoadingState label={text.loading} />;
   }
   const existing = actionId ? query.data.actions.find((entry) => entry.id === actionId) : undefined;
@@ -370,6 +386,9 @@ function ActionFormLoader({
       accessToken={query.accessToken}
       existing={existing}
       gap={gap}
+      {...(hint.data && {
+        prefill: { title: why(hint.data), description: hint.data.explanation ?? '' },
+      })}
       meeting={
         meeting.data
           ? { id: meeting.data.meeting.id, title: meeting.data.meeting.title }
@@ -386,6 +405,7 @@ function ActionForm({
   existing,
   meeting,
   gap,
+  prefill,
 }: {
   place: MeetingPlace;
   list: ActionList;
@@ -393,6 +413,8 @@ function ActionForm({
   existing?: ActionItem | undefined;
   meeting?: { id: string; title: string } | undefined;
   gap?: FeedbackGapSource | undefined;
+  /** KI-16: aus einem Hinweis; die Maßnahme bleibt zunächst intern */
+  prefill?: { title: string; description: string };
 }) {
   const t = useT();
   const text = t.actions;
@@ -400,9 +422,15 @@ function ActionForm({
   const refresh = useRefreshActions();
   const sides = place.side === 'buyer' ? t.meetings.sidesBuyerView : t.meetings.sidesSupplierView;
   const gapLabel = gap ? (t.settings.survey.dimensions[gap.dimension] ?? '') : '';
-  const [title, setTitle] = useState(existing?.title ?? (gap ? text.gapTitle(gapLabel) : ''));
-  const [description, setDescription] = useState(existing?.description ?? '');
-  const [visibility, setVisibility] = useState(existing?.visibility ?? 'shared');
+  const [title, setTitle] = useState(
+    existing?.title ?? (gap ? text.gapTitle(gapLabel) : (prefill?.title ?? '')),
+  );
+  const [description, setDescription] = useState(
+    existing?.description ?? prefill?.description ?? '',
+  );
+  const [visibility, setVisibility] = useState(
+    existing?.visibility ?? (prefill ? 'internal' : 'shared'),
+  );
   const [ownerSide, setOwnerSide] = useState<MeetingSide>(existing?.ownerSide ?? place.side);
   const [ownerUserId, setOwnerUserId] = useState(
     existing?.ownerUserId ?? list.people[0]?.userId ?? '',

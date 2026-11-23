@@ -1,14 +1,14 @@
 import type { OverviewMetric, WorkspaceArea, WorkspaceHead } from '@reziproq/shared';
 import { workspaceAreas } from '@reziproq/shared';
 import { useRouterState } from '@tanstack/react-router';
-import { ChevronRightIcon, LightbulbIcon, StarIcon } from 'lucide-react';
+import { ChevronRightIcon, StarIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { HintsAttention } from '@/features/hints/hints-attention';
 import { SupplierRingsCard } from '@/features/insights/insight-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
@@ -79,6 +79,8 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
           <TypeFigure segment={overview.data.head.segment} />
         </div>
       )}
+      {/* KI-16: offene Hinweise oben im Überblick, nach score */}
+      <HintsAttention relationshipId={relationshipId} limit={3} />
       {overview.isError && <ErrorState title={t.workspace.failed} />}
       {overview.isPending && <LoadingState label={t.workspace.loading} />}
       {overview.data?.cycle && (
@@ -91,16 +93,6 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
       )}
       {/* AW-01: Ringpaar Ergebnisse gegen Ziel und eingehaltene Zusagen */}
       <SupplierRingsCard relationshipId={relationshipId} />
-      {overview.data?.openHints !== undefined && overview.data.openHints > 0 && (
-        <p className="flex flex-wrap items-center gap-2">
-          <LightbulbIcon aria-hidden className="size-4 text-muted-foreground" />
-          {routerLink({
-            href: '/hinweise',
-            className: buttonVariants({ size: 'sm', variant: 'secondary' }),
-            children: t.hints.count(overview.data.openHints),
-          })}
-        </p>
-      )}
       {/* Die Bereiche mit ihren Unterseiten stehen auch, wenn die Kennzahlen nicht laden. */}
       <div className="grid gap-5 md:grid-cols-2">
         {builtAreas.map((area) => (

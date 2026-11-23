@@ -121,6 +121,7 @@ export const de = {
     metricActions: 'offene Maßnahmen',
     kind: {
       ai_budget: 'KI-Monatsbudget prüfen',
+      hint_rule_review: 'Schwelle einer Hinweisregel prüfen',
       rating: 'Bewertung abgeben',
       cycle: 'Zyklus-Schritt',
       contribution: 'Beitrag zum Lieferantenplan',
@@ -1329,7 +1330,13 @@ export const de = {
     details: 'Annehmen oder verwerfen',
     decided: 'Entschieden',
     count: (n: number) => (n === 1 ? '1 offener Hinweis' : `${n} offene Hinweise`),
-    statuses: { open: 'Offen', accepted: 'Angenommen', dismissed: 'Verworfen' },
+    statuses: {
+      open: 'Offen',
+      in_progress: 'In Arbeit',
+      accepted: 'Angenommen',
+      dismissed: 'Verworfen',
+      resolved: 'Erledigt',
+    },
     rules: {
       segment_spend_only: 'Segment nur aus Spend',
       weak_focus: 'Großlieferant automatisch Fokus',
@@ -1341,6 +1348,11 @@ export const de = {
       plan_missing: 'Lieferantenplan fehlt',
       right_without_obligation: 'Recht ohne Pflicht',
       buyer_commitments_overdue: 'Zusagen des Käufers überfällig',
+      performance_drop: 'Leistung kippt',
+      supplier_commitment_overdue: 'Zusage des Lieferanten überfällig',
+      dependency: 'Abhängigkeit',
+      feedback_drop: 'Feedback fällt',
+      public_event: 'Öffentliche Meldung',
     },
     why: {
       segment_spend_only: () =>
@@ -1366,7 +1378,120 @@ export const de = {
         d.count === 1
           ? 'Eine Zusage eurer Seite ist überfällig.'
           : `${d.count ?? '–'} Zusagen eurer Seite sind überfällig.`,
+      performance_drop: (d: { kpi?: string; months?: number }) =>
+        `„${d.kpi ?? 'Kennzahl'}“ seit ${d.months ?? '–'} Monaten unter Ziel und schlechter werdend`,
+      supplier_commitment_overdue: (d: { count?: number; days?: number }) =>
+        d.count === 1
+          ? `Eine Zusage des Lieferanten ist ${d.days ?? '–'} Tage überfällig`
+          : `${d.count ?? '–'} Zusagen des Lieferanten überfällig, die älteste seit ${d.days ?? '–'} Tagen`,
+      dependency: (d: { group?: string; share?: number }) =>
+        `${d.share ?? '–'} % der Warengruppe ${d.group ?? '–'}, kein zweiter Lieferant`,
+      feedback_drop: (d: { before?: string | number; now?: string | number }) =>
+        `Gesamtwert des Feedbacks fällt von ${d.before ?? '–'} auf ${d.now ?? '–'}`,
+      public_event: (d: { event?: string; headline?: string; sources?: number }) =>
+        `Meldung: ${d.headline ?? '–'} · ${d.sources === 1 ? '1 Quelle' : `${d.sources ?? '–'} Quellen`}`,
     },
+    severities: { high: 'hoch', medium: 'mittel', low: 'niedrig' },
+    severity: 'Schwere',
+    severityOf: (value: string) => `Schwere ${value}`,
+    nextSteps: {
+      segment_spend_only: 'Segment bewerten',
+      weak_focus: 'Fokus begründen',
+      unexplained_deviation: 'Abweichung klären',
+      too_many_focus: 'Fokus verteilen',
+      no_operational_function: 'Team ergänzen',
+      cadence_missed: 'Termin planen',
+      no_feedback: 'Welle starten',
+      plan_missing: 'Plan anfordern',
+      right_without_obligation: 'Spielregeln prüfen',
+      buyer_commitments_overdue: 'Zusage erledigen',
+      performance_drop: 'Maßnahme anlegen',
+      supplier_commitment_overdue: 'Zusage nachfassen',
+      dependency: 'Zweitlieferant prüfen',
+      feedback_drop: 'Lieferant prüfen',
+      public_event: 'Lieferant prüfen',
+    },
+    ruleTexts: {
+      performance_drop:
+        'Regel: Kennzahl mehrere Monate in Folge unter Ziel und schlechter werdend.',
+      supplier_commitment_overdue:
+        'Regel: Zusage des Lieferanten länger überfällig als die Schwelle.',
+      dependency: 'Regel: hoher Anteil am Spend der Warengruppe und kein zweiter Lieferant.',
+      feedback_drop: 'Regel: Gesamtwert des Feedbacks fällt gegenüber der vorigen Welle.',
+      public_event:
+        'Regel: öffentliche Meldung zu Insolvenz, Werksschließung, Kurzarbeit, Übernahme, Sanktion oder Rückruf, mit Datum.',
+    } as Partial<Record<string, string>>,
+    sorted: (n: number) =>
+      `${n === 1 ? '1 offen' : `${n} offen`} · sortiert nach Wirkung: Schwere, Spend und Segment`,
+    filters: 'Filter',
+    filterMine: 'Meine Beziehungen',
+    filterSeverity: 'Schwere',
+    filterRule: 'Regel',
+    filterGroup: 'Warengruppe',
+    filterStatus: 'Stand',
+    filterAll: 'Alle',
+    filterActive: 'Offen und in Arbeit',
+    filterEmpty: 'Kein Hinweis passt zu diesen Filtern.',
+    footnote:
+      'Jeder Hinweis kommt aus einer festen Regel. Reziproq schreibt nur die Begründung. Ein verworfener Hinweis kommt erst wieder, wenn die Lage schlimmer wird.',
+    focus: 'Fokus',
+    openSince: (date: string) => `offen seit ${date}`,
+    checkedAt: (date: string) => `geprüft ${date}`,
+    resolvedBecause: (reason: string) => `Erledigt: ${reason}`,
+    evidence: 'Beleg',
+    threshold: 'Schwelle',
+    period: 'Zeitraum',
+    whyMatters: 'Warum es zählt · Entwurf von Reziproq',
+    sources: 'Quellen',
+    noExplanation: 'Die Begründung schreibt Reziproq nach dem nächsten täglichen Lauf.',
+    nextStep: 'Nächster Schritt',
+    nextOpen: 'Öffnen',
+    nextOpenPrefilled: 'Maßnahme vorausgefüllt öffnen',
+    startWork: 'In Arbeit',
+    started: 'Auf „In Arbeit“ gesetzt.',
+    notRelevant: 'Nicht relevant',
+    helpfulQuestion: 'War dieser Hinweis hilfreich?',
+    yes: 'Ja',
+    no: 'Nein',
+    rated: 'Danke, die Bewertung ist gespeichert.',
+    close: 'Schließen',
+    back: 'Zurück zur Liste',
+    panelLabel: (title: string) => `Hinweis: ${title}`,
+    actTitle: 'Wo du handeln musst',
+    actEmpty: 'Gerade musst du nirgends handeln.',
+    attentionNote:
+      'Aus festen Regeln, sortiert nach Dringlichkeit. Begründungen schreibt Reziproq.',
+    allHints: 'Alle Hinweise',
+    supplierHints: 'Offene Hinweise',
+    rulesTitle: 'Hinweise',
+    rulesPurpose:
+      'Regeln der Frühwarnung an- oder ausschalten und ihre Schwellen setzen. Rechts die Bewertungen je Regel.',
+    ruleOn: (rule: string) => `${rule} an`,
+    thresholdLabels: {
+      performance_drop: {
+        months: 'Monate unter Ziel',
+      },
+      supplier_commitment_overdue: {
+        days: 'Überfällig ab Tagen',
+        highDays: 'Schwere hoch ab Tagen',
+      },
+      dependency: {
+        share: 'Anteil am Spend der Warengruppe ab (0 bis 1)',
+      },
+      feedback_drop: {
+        drop: 'Rückgang ab (0 bis 1)',
+      },
+      public_event: {
+        days: 'Meldung höchstens Tage alt',
+      },
+    } as Record<string, Record<string, string>>,
+    needsResearch: 'Wirkt nur mit öffentlicher Recherche (oben).',
+    ratingsTitle: 'Bewertung je Regel',
+    ratingValue: (helpful: number, notHelpful: number) =>
+      `${helpful} hilfreich · ${notHelpful} nicht hilfreich`,
+    ratingsEmpty: 'Noch keine Bewertungen.',
+    rulesSaved: 'Regeln gespeichert.',
+    saveRules: 'Regeln speichern',
     detailTitle: 'Hinweis entscheiden',
     accept: 'Annehmen',
     acceptHint: 'Erzeugt eine interne Maßnahme für dich, fällig in zwei Wochen.',
@@ -2626,7 +2751,10 @@ export const de = {
     preReadFailed: 'Das PDF konnte nicht erzeugt werden.',
     prep: {
       title: 'Interne Vorbereitung von Reziproq',
-      parts: { topics: 'Themen', risks: 'Risiken', openPoints: 'Offene Punkte' } as Record<string, string>,
+      parts: { topics: 'Themen', risks: 'Risiken', openPoints: 'Offene Punkte' } as Record<
+        string,
+        string
+      >,
       partHints: {
         topics: 'Drei bis fünf Themen mit Begründung, nur für euch.',
         risks: 'Kennzahlen hinter Plan, überfällige Zusagen und Feedback-Lücken.',
@@ -2836,7 +2964,11 @@ export const de = {
     report: 'Stimmt nicht',
     reported: 'Danke, gemeldet.',
     sentencesLabel: 'Drei Sätze von Reziproq',
-    sentenceKinds: { good: 'Was gut läuft', stuck: 'Was hakt', todo: 'Was ihr tun solltet' } as Record<string, string>,
+    sentenceKinds: {
+      good: 'Was gut läuft',
+      stuck: 'Was hakt',
+      todo: 'Was ihr tun solltet',
+    } as Record<string, string>,
     view: 'Ansehen',
     toMyDay: 'Zu Mein Tag',
     chanceTitle: 'Größte Chance',
@@ -4429,14 +4561,20 @@ export const de = {
     rangeNote: 'Euro im Jahr, Achse ab 0 · Sicherheit niedrig grau und nicht in den Summen',
     cashLine: (name: string, value: string) => `${name}: ${value} Cash`,
     totalsNote: 'Wirkungsarten werden nie addiert. Summen nur mit Sicherheit hoch und mittel.',
-    impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Kostenvermeidung' } as Record<string, string>,
+    impact: { ebit: 'EBIT', cash: 'Cash', cost_avoidance: 'Kostenvermeidung' } as Record<
+      string,
+      string
+    >,
     range: (low: string, high: string) => (low === high ? low : `${low} bis ${high}`),
     nothing: 'nichts',
     nextEyebrow: 'Dein nächster Schritt',
     nextFirstRun: 'Den ersten Lauf starten',
-    nextFirstRunText: 'Der Agent prüft alle Hebel-Vorlagen mit euren Daten und, wenn eingeschaltet, dem Marktumfeld.',
+    nextFirstRunText:
+      'Der Agent prüft alle Hebel-Vorlagen mit euren Daten und, wenn eingeschaltet, dem Marktumfeld.',
     nextReview: (count: number) =>
-      count === 1 ? 'Ein neues Potenzial prüfen' : `${count} neue Potenziale prüfen und die stärksten übernehmen`,
+      count === 1
+        ? 'Ein neues Potenzial prüfen'
+        : `${count} neue Potenziale prüfen und die stärksten übernehmen`,
     nextReviewText: 'Das erste hat den höchsten Wert für euch.',
     nextDone: 'Alle Potenziale sind entschieden',
     nextDoneText: 'Ein neuer Lauf prüft mit dem aktuellen Stand.',
@@ -4449,13 +4587,24 @@ export const de = {
       'Öffentliche Recherche ist aus. Das Marktumfeld wurde nicht geprüft, es entstehen keine Marktsignale und nichts geht nach außen.',
     draftHeading: 'Entwurf von Reziproq',
     fromMarket: 'aus dem Marktumfeld',
-    status: { new: 'neu', adopted: 'im JBP', realized: 'realisiert', dismissed: 'verworfen', superseded: 'ersetzt' } as Record<string, string>,
+    status: {
+      new: 'neu',
+      adopted: 'im JBP',
+      realized: 'realisiert',
+      dismissed: 'verworfen',
+      superseded: 'ersetzt',
+    } as Record<string, string>,
     forYou: 'Für euch',
     forSupplier: (name: string) => `Für ${name}`,
     perYear: (impact: string) => `${impact} im Jahr`,
-    confidence: { high: 'Sicherheit hoch', medium: 'Sicherheit mittel', low: 'Sicherheit niedrig' } as Record<string, string>,
+    confidence: {
+      high: 'Sicherheit hoch',
+      medium: 'Sicherheit mittel',
+      low: 'Sicherheit niedrig',
+    } as Record<string, string>,
     confidenceReason: {
-      fresh_internal: 'Alle Eingaben aus euren Daten oder vom Lieferanten, höchstens zwölf Monate alt.',
+      fresh_internal:
+        'Alle Eingaben aus euren Daten oder vom Lieferanten, höchstens zwölf Monate alt.',
       template_assumption: 'Mindestens eine Eingabe ist eine Annahme der Vorlage.',
       independent_public_sources: 'Werte aus zwei unabhängigen öffentlichen Quellen.',
       extrapolation: 'Hochgerechnet aus einem Teil der Daten.',
@@ -4511,7 +4660,12 @@ export const de = {
     withoutReason: 'Die Rechnung ergibt keinen Wert für euch oder den Lieferanten.',
     marketTitle: 'Was im Markt passiert',
     marketHint: 'Öffentliche Quellen der letzten 24 Monate. Jedes Signal hat genau ein Ergebnis.',
-    outcome: { opportunity: 'Potenzial', topic: 'Thema, kein Euro', data_gap: 'Datenlücke', no_effect: 'ohne Wirkung' } as Record<string, string>,
+    outcome: {
+      opportunity: 'Potenzial',
+      topic: 'Thema, kein Euro',
+      data_gap: 'Datenlücke',
+      no_effect: 'ohne Wirkung',
+    } as Record<string, string>,
     outbound: (queries: string) => `Nach außen ging: ${queries}`,
     outboundNone: 'Nach außen ging nichts.',
     gapsTitle: 'Mit diesen Daten fände er mehr',
@@ -4551,7 +4705,10 @@ export const de = {
       cashNew: 'Cash neu',
       confidence: 'Sicherheit',
       nextStep: 'Nächster Schritt',
-      next: { review: 'Potenziale prüfen', in_jbp: 'im JBP', run: 'Lauf starten' } as Record<string, string>,
+      next: { review: 'Potenziale prüfen', in_jbp: 'im JBP', run: 'Lauf starten' } as Record<
+        string,
+        string
+      >,
       confidenceShort: { high: 'hoch', medium: 'mittel', low: 'niedrig' } as Record<string, string>,
       empty: 'Noch keine Wertpotenziale bei euren Lieferanten.',
       tableNote: 'Die Summen oben enthalten nur Potenziale mit Sicherheit mittel oder hoch.',

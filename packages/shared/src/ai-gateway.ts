@@ -19,6 +19,8 @@ export const aiFeatureClasses = {
   value_opportunity: 'standard',
   // AW-01, NAV-10: Aussagen der Auswertungsseiten
   insight_summary: 'standard',
+  // KI-16: Begründung eines Hinweises
+  hint_explanation: 'small',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];

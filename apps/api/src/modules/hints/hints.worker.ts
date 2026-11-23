@@ -32,9 +32,11 @@ export class HintsWorker implements OnModuleInit, OnApplicationShutdown {
   async runDaily(): Promise<number> {
     const organizations = await this.store.hintOrganizations();
     for (const orgId of organizations) {
-      await this.tenant.run({ userId: systemUser, organizationId: orgId }, (tx) =>
-        this.hints.refresh(tx, orgId),
-      );
+      await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
+        await this.hints.refresh(tx, orgId);
+        // KI-16: danach schreibt der Agent die Begründungen neuer und geänderter Hinweise
+        await this.hints.explain(tx, orgId);
+      });
     }
     return organizations.length;
   }

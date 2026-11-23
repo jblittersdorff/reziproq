@@ -57,7 +57,10 @@ export async function demoStory(
     .select({ id: schema.jbp.id })
     .from(schema.jbp)
     .where(eq(schema.jbp.relationshipId, first.id));
-  if (existing) return { created: false, relationships };
+  if (existing) {
+    await demoEarlyWarning(tx, first.id, account, today);
+    return { created: false, relationships };
+  }
 
   const who = { createdBy: account.id, createdByName: account.name };
   const year = today.getUTCFullYear();
@@ -310,5 +313,76 @@ export async function demoStory(
       approvedAt: today,
     })
     .onConflictDoNothing();
+  await demoEarlyWarning(tx, first.id, account, today);
   return { created: true, relationships };
+}
+
+/**
+ * KI-16: Frühwarnung sichtbar machen, auch in einer schon angelegten Geschichte. Die Liefertreue des
+ * Test-Lieferanten liegt drei Monate in Folge unter Ziel und fällt; eine Zusage des Lieferanten ist
+ * drei Wochen überfällig. Ergänzt nur, was fehlt; ein zweiter Aufruf ändert nichts.
+ */
+async function demoEarlyWarning(
+  tx: Transaction,
+  relationshipId: string,
+  account: { id: string; name: string },
+  today: Date,
+) {
+  const oem = seedBuyers.testOem.id;
+  const [kpi] = await tx
+    .select({ id: schema.scorecardKpi.id, scorecardId: schema.scorecardKpi.scorecardId })
+    .from(schema.scorecardKpi)
+    .where(
+      and(
+        eq(schema.scorecardKpi.relationshipId, relationshipId),
+        eq(schema.scorecardKpi.name, 'Liefertreue'),
+      ),
+    );
+  if (kpi) {
+    const existing = await tx
+      .select({ period: schema.kpiValue.period })
+      .from(schema.kpiValue)
+      .where(eq(schema.kpiValue.kpiId, kpi.id));
+    const values = ['89', '91', '93'];
+    for (const [index, value] of values.entries()) {
+      const month = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1 - index, 1));
+      const period = isoDay(month);
+      if (existing.some((row) => row.period === period)) continue;
+      await tx.insert(schema.kpiValue).values({
+        relationshipId,
+        ownerOrgId: oem,
+        kpiId: kpi.id,
+        period,
+        value,
+        source: 'manual',
+        enteredBy: account.id,
+        enteredByName: account.name,
+      });
+    }
+  }
+  const title = 'Liefertreue-Bericht des Vormonats';
+  const [plan] = await tx
+    .select({ id: schema.jbp.id })
+    .from(schema.jbp)
+    .where(eq(schema.jbp.relationshipId, relationshipId));
+  const [present] = await tx
+    .select({ id: schema.commitment.id })
+    .from(schema.commitment)
+    .where(
+      and(eq(schema.commitment.relationshipId, relationshipId), eq(schema.commitment.title, title)),
+    );
+  if (plan && !present) {
+    await tx.insert(schema.commitment).values({
+      relationshipId,
+      ownerOrgId: oem,
+      jbpId: plan.id,
+      side: 'supplier',
+      title,
+      ownerName: 'Key Account',
+      dueOn: isoDay(addDays(today, -21)),
+      status: 'open',
+      createdBy: account.id,
+      createdByName: account.name,
+    });
+  }
 }

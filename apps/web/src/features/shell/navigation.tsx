@@ -129,6 +129,11 @@ function RouterAnchor({ href, children, ...props }: Parameters<RenderLink>[0]) {
           return;
         event.preventDefault();
         // Ein Abschnitt wie /lieferanten/<id>#strategie (UMB-05) geht als hash mit.
+        // Mit Suchteil wie /hinweise?hinweis=<id> (KI-16) liest der Router das ganze href.
+        if (href.includes('?')) {
+          void router.navigate({ href });
+          return;
+        }
         const [to = href, hash] = href.split('#');
         void router.navigate({ to, ...(hash ? { hash } : {}) });
       }}

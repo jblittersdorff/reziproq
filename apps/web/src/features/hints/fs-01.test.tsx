@@ -21,7 +21,7 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
   zitadelSettings: { issuer: 'https://zitadel.test', clientId: 'web-client' },
 }));
 
-// FS-01 für die Oberfläche: Liste nach Lieferant mit „warum“ und „Beheben“, Annehmen,
+// FS-01 für die Oberfläche: Liste mit „warum“ und nächstem Schritt (seit KI-16 nach score), Annehmen,
 // Verwerfen nur mit Begründung, Schwellwert nur für Admins.
 
 const relationshipId = '550e8400-e29b-41d4-a716-446655440010';
@@ -32,6 +32,18 @@ const planHint = {
   supplier: 'Lieferant 1',
   detail: {},
   status: 'open',
+  severity: 'low',
+  score: 0,
+  title: null,
+  evidence: {},
+  explanation: null,
+  suggestedAction: null,
+  feedback: null,
+  lastSeenAt: '2026-11-16T06:30:00Z',
+  resolvedReason: null,
+  isFocus: false,
+  isOwn: true,
+  materialGroup: null,
   reason: null,
   createdAt: '2026-11-16T06:30:00Z',
   decidedAt: null,
@@ -106,19 +118,24 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('FS-01 Hinweise', () => {
-  it('zeigt die Hinweise nach Lieferant mit Satz, warum, und „Beheben“', async () => {
+  it('zeigt die Hinweise mit Satz, warum, Lieferant und nächstem Schritt (seit KI-16 nach score)', async () => {
     renderAt('/hinweise');
     expect(await screen.findByRole('heading', { level: 1, name: 'Hinweise prüfen' })).toBeTruthy();
-    const supplier = await screen.findByRole('region', { name: 'Lieferant 1' });
-    expect(within(supplier).getByText('Lieferantenplan fehlt')).toBeTruthy();
-    expect(within(supplier).getByRole('link', { name: 'Beheben' }).getAttribute('href')).toBe(
-      `/lieferanten/${relationshipId}/lieferantenplan`,
-    );
-    const organization = screen.getByRole('region', { name: 'Ganze Organisation' });
+    const list = await screen.findByRole('list', { name: 'Hinweise' });
+    const plan = within(list)
+      .getByText(/Das Joint Business Planning ist am/)
+      .closest('li') as HTMLElement;
+    expect(within(plan).getByText('Lieferant 1 · Lieferantenplan fehlt')).toBeTruthy();
     expect(
-      within(organization).getByText(
-        'Anna Berg betreut 9 Fokuslieferanten, eingestellt sind höchstens 8.',
-      ),
+      within(plan)
+        .getByRole('link', { name: /^Plan anfordern/ })
+        .getAttribute('href'),
+    ).toBe(`/lieferanten/${relationshipId}/lieferantenplan`);
+    expect(
+      within(list).getByText('Anna Berg betreut 9 Fokuslieferanten, eingestellt sind höchstens 8.'),
+    ).toBeTruthy();
+    expect(
+      within(list).getByText('Ganze Organisation · Zu viele Fokuslieferanten je SRO'),
     ).toBeTruthy();
   });
 
@@ -138,7 +155,7 @@ describe('FS-01 Hinweise', () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Annehmen' })).toBeNull();
-    const dismiss = screen.getByRole('button', { name: 'Verwerfen' }) as HTMLButtonElement;
+    const dismiss = screen.getByRole('button', { name: 'Nicht relevant' }) as HTMLButtonElement;
     expect(dismiss.disabled).toBe(true);
     fireEvent.change(screen.getByLabelText('Begründung'), {
       target: { value: 'Anna übernimmt zwei Fokuslieferanten nur übergangsweise.' },
