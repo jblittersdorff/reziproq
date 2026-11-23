@@ -3,6 +3,25 @@ import { z } from 'zod';
 // AW-01, NAV-10: Beleg der Auswertungsseiten aus bestehenden Daten. Aussagen von Reziproq,
 // Chancen und Risiken kommen mit KI-04, KI-11 und KI-16.
 
+/**
+ * Aussage von Reziproq (AW-01): nur gezeigt, wenn jede Zahl darin in den Fakten der Seite steht;
+ * sonst null und die Seite zeigt nur den Beleg. Je Person gespeichert (F3).
+ */
+export const insightStatementSchema = z.object({
+  id: z.uuid(),
+  headline: z.string(),
+  body: z.string(),
+  sources: z.array(z.object({ key: z.string(), label: z.string(), href: z.string().optional() })),
+});
+export type InsightStatement = z.infer<typeof insightStatementSchema>;
+
+/** NAV-10: drei Sätze der Übersicht; ohne Kandidat fehlt der Satz */
+export const overviewSentenceSchema = z.object({
+  kind: z.enum(['good', 'stuck', 'todo']),
+  text: z.string(),
+  href: z.string(),
+});
+
 /** Übersicht: Ringpaar, Zeilenliste; nur vom Controlling bestätigte Ergebnisse zählen als gesichert. */
 export const overviewInsightSchema = z.object({
   fiscalYear: z.number().int(),
@@ -16,6 +35,8 @@ export const overviewInsightSchema = z.object({
   inProgress: z.object({ lowCents: z.number().int(), highCents: z.number().int() }),
   // Cash getrennt vom EBIT, nie addiert
   cashCents: z.number().int(),
+  statement: insightStatementSchema.nullable().optional(),
+  sentences: z.array(overviewSentenceSchema).max(3).optional(),
 });
 
 /** Lieferant: außen gesichert gegen freigegebenes Ziel, innen Zusagen rechtzeitig eingehalten. */
@@ -46,6 +67,7 @@ export const supplierRingsSchema = z.object({
     })
     .nullable()
     .optional(),
+  statement: insightStatementSchema.nullable().optional(),
 });
 
 export const ebitGoalRequestSchema = z.object({

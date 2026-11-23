@@ -5,6 +5,7 @@ import {
   type EbitGoalRequest,
   fiscalYearOf,
   fiscalYearRange,
+  type OpportunityTemplateKey,
   type OverviewInsight,
   overviewInsightSchema,
   type SupplierRings,
@@ -12,8 +13,14 @@ import {
   supplierRingsSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
+import {
+  type InsightFact,
+  InsightSummaryService,
+  type SentenceCandidate,
+} from '../ai-gateway/insight-summary.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { templateTitles } from '../opportunities/templates.js';
 import { ImpactService } from './impact.service.js';
 import {
   factsOf,
@@ -53,6 +60,35 @@ async function isLead(tx: TenantTransaction, userId: string, relationshipId?: st
   return rows.length > 0;
 }
 
+const euro = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 0,
+});
+/** Betrag für Aussagen; dieselbe Schreibweise steht in den Fakten */
+const money = (cents: number) => euro.format(Math.round(cents / 100));
+const percent = (share: number) => `${Math.round(share * 100)}\u00a0%`;
+
+/** Namen der Lieferanten der Organisation, wie die Liste sie zeigt */
+async function supplierNames(tx: TenantTransaction, orgId: string) {
+  const rows = await tx
+    .select({
+      id: schema.relationship.id,
+      name: sql<string>`coalesce(${schema.relationshipSide.displayName}, ${schema.organization.name})`,
+    })
+    .from(schema.relationship)
+    .innerJoin(schema.organization, eq(schema.organization.id, schema.relationship.supplierOrgId))
+    .leftJoin(
+      schema.relationshipSide,
+      and(
+        eq(schema.relationshipSide.relationshipId, schema.relationship.id),
+        eq(schema.relationshipSide.orgId, orgId),
+      ),
+    )
+    .where(eq(schema.relationship.buyerOrgId, orgId));
+  return new Map(rows.map((row) => [row.id, row.name]));
+}
+
 /**
  * AW-01: Beleg der Übersicht und des Lieferanten-Überblicks aus den bestehenden Daten (PNL,
  * JBP, Zusagen). Ohne Ziel gibt es keinen äußeren Ring; EBIT und Cash werden nie addiert.
@@ -63,6 +99,7 @@ export class InsightsService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(ImpactService) private readonly impact: ImpactService,
     @Inject(PortfolioService) private readonly portfolio: PortfolioService,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
   ) {}
 
   private async goals(tx: TenantTransaction, orgId: string): Promise<Record<string, number>> {
@@ -78,46 +115,218 @@ export class InsightsService {
   overview(auth: AuthContext, requestedYear?: number): Promise<OverviewInsight> {
     const organization = auth.organization;
     if (!organization?.buyer || !can(auth, 'wirkung.sehen')) throw forbidden();
-    return this.tenant.run(
-      { userId: auth.userId, organizationId: organization.id },
-      async (tx) => {
-        const startMonth = await this.portfolio.startMonth(tx, organization.id);
-        const today = new Date().toISOString().slice(0, 10);
-        const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
-        const [from, to] = fiscalYearRange(fiscalYear, startMonth);
-        const focus = await focusRelationships(tx, organization.id);
-        const ids = focus.map((entry) => entry.id);
-        const facts = await factsOf(tx, ids, true);
-        const counted = facts.filter((fact) => !fact.excluded && fact.effectType);
-        const open = counted.filter((fact) => fact.effectType === 'ebit' && fact.maturity < 5);
-        const plan = (list: InitiativeFacts[]) =>
-          list.reduce((sum, fact) => sum + amountInRange(fact.values, from, to), 0);
-        const approvedJbp = ids.length
-          ? await tx
-              .selectDistinct({ id: schema.jbp.relationshipId })
-              .from(schema.jbp)
-              .where(
-                and(inArray(schema.jbp.relationshipId, ids), eq(schema.jbp.status, 'approved')),
-              )
-          : [];
-        const goal = (await this.goals(tx, organization.id))[String(fiscalYear)] ?? null;
-        return overviewInsightSchema.parse({
-          fiscalYear,
-          currency: 'EUR',
-          securedEbitCents: securedIn(facts, from, to),
-          goalEbitCents: goal,
-          canSetGoal: auth.orgRole === 'admin' || (await isLead(tx, auth.userId)),
-          focusTotal: focus.length,
-          focusWithApprovedJbp: approvedJbp.length,
-          inProgress: {
-            lowCents: plan(open.filter((fact) => fact.maturity >= 3)),
-            highCents: plan(open),
-          },
-          cashCents: plan(counted.filter((fact) => fact.effectType === 'cash')),
-        });
+    return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
+      const startMonth = await this.portfolio.startMonth(tx, organization.id);
+      const today = new Date().toISOString().slice(0, 10);
+      const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
+      const [from, to] = fiscalYearRange(fiscalYear, startMonth);
+      const focus = await focusRelationships(tx, organization.id);
+      const ids = focus.map((entry) => entry.id);
+      const facts = await factsOf(tx, ids, true);
+      const counted = facts.filter((fact) => !fact.excluded && fact.effectType);
+      const open = counted.filter((fact) => fact.effectType === 'ebit' && fact.maturity < 5);
+      const plan = (list: InitiativeFacts[]) =>
+        list.reduce((sum, fact) => sum + amountInRange(fact.values, from, to), 0);
+      const approvedJbp = ids.length
+        ? await tx
+            .selectDistinct({ id: schema.jbp.relationshipId })
+            .from(schema.jbp)
+            .where(and(inArray(schema.jbp.relationshipId, ids), eq(schema.jbp.status, 'approved')))
+        : [];
+      const goal = (await this.goals(tx, organization.id))[String(fiscalYear)] ?? null;
+      const secured = securedIn(facts, from, to);
+      const canSetGoal = auth.orgRole === 'admin' || (await isLead(tx, auth.userId));
+      const inProgress = {
+        lowCents: plan(open.filter((fact) => fact.maturity >= 3)),
+        highCents: plan(open),
+      };
+      const insight = await this.overviewInsight(tx, auth, {
+        fiscalYear,
+        from,
+        to,
+        facts,
+        secured,
+        goal,
+        canSetGoal,
+        focusIds: ids,
+        approvedIds: approvedJbp.map((row) => row.id),
+        inProgress,
+      });
+      return overviewInsightSchema.parse({
+        statement: insight.statement,
+        sentences: insight.sentences,
+        fiscalYear,
+        currency: 'EUR',
+        securedEbitCents: secured,
+        goalEbitCents: goal,
+        canSetGoal,
+        focusTotal: focus.length,
+        focusWithApprovedJbp: approvedJbp.length,
+        inProgress,
+        cashCents: plan(counted.filter((fact) => fact.effectType === 'cash')),
+      });
+    });
+  }
+
+  /**
+   * NAV-10: Aussage und drei Sätze der Übersicht. Kandidaten wählt der Code; Reziproq formuliert,
+   * jede Zahl und jeder Name muss in den Fakten stehen.
+   */
+  private async overviewInsight(
+    tx: TenantTransaction,
+    auth: AuthContext,
+    input: {
+      fiscalYear: number;
+      from: string;
+      to: string;
+      facts: InitiativeFacts[];
+      secured: number;
+      goal: number | null;
+      canSetGoal: boolean;
+      focusIds: string[];
+      approvedIds: string[];
+      inProgress: { lowCents: number; highCents: number };
+    },
+  ) {
+    const orgId = auth.organization?.id as string;
+    const names = await supplierNames(tx, orgId);
+    const source = 'Impact-Ledger, vom Controlling bestätigt';
+    const facts: InsightFact[] = [
+      { key: 'secured', label: 'Gesichert EBIT', display: money(input.secured), source },
+      {
+        key: 'focus',
+        label: 'Fokuslieferanten mit freigegebenem JBP',
+        display: `${input.approvedIds.length} von ${input.focusIds.length}`,
+        source: 'Gemeinsame Pläne',
       },
-      { readOnly: true },
-    );
+      {
+        key: 'inProgress',
+        label: 'In Umsetzung',
+        display: `${money(input.inProgress.lowCents)} bis ${money(input.inProgress.highCents)}`,
+        source: 'Initiativen',
+      },
+    ];
+    const share = input.goal ? input.secured / input.goal : null;
+    if (input.goal && share !== null) {
+      facts.push(
+        {
+          key: 'goal',
+          label: `Jahresziel ${input.fiscalYear}`,
+          display: money(input.goal),
+          source,
+        },
+        { key: 'share', label: 'Anteil am Jahresziel', display: percent(share), source },
+        {
+          key: 'missing',
+          label: 'Fehlt bis zum Jahresziel',
+          display: money(Math.max(0, input.goal - input.secured)),
+          source,
+        },
+      );
+    }
+
+    // Was gut läuft: der Lieferant mit dem höchsten gesicherten Beitrag
+    const byRelationship = new Map<string, number>();
+    for (const fact of input.facts) {
+      if (fact.effectType !== 'ebit' || fact.excluded) continue;
+      const value = fact.realizedValues
+        .filter((entry) => entry.month >= input.from && entry.month <= input.to)
+        .reduce((sum, entry) => sum + entry.valueCents, 0);
+      byRelationship.set(
+        fact.relationshipId,
+        (byRelationship.get(fact.relationshipId) ?? 0) + value,
+      );
+    }
+    const [bestId, bestValue] = [...byRelationship.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+    const sentences: SentenceCandidate[] = [];
+    const actions: string[] = [];
+    if (bestId && bestValue && bestValue > 0) {
+      const name = names.get(bestId) ?? '';
+      facts.push(
+        { key: 'bestName', label: 'Größter Beitrag', display: name, source },
+        { key: 'bestValue', label: `Beitrag ${name}`, display: money(bestValue), source },
+      );
+      const goalShare = input.goal ? percent(bestValue / input.goal) : null;
+      if (goalShare) {
+        facts.push({
+          key: 'bestShare',
+          label: `Anteil ${name} am Ziel`,
+          display: goalShare,
+          source,
+        });
+      }
+      sentences.push({
+        kind: 'good',
+        fallback: goalShare
+          ? `${name} trägt ${money(bestValue)} bei, ${goalShare} des Jahresziels.`
+          : `${name} trägt mit ${money(bestValue)} am meisten zum gesicherten EBIT bei.`,
+        href: `/lieferanten/${bestId}/wirkung/bruecke`,
+      });
+    }
+
+    // Was hakt: das größte offene Potenzial bei einem Fokuslieferanten ohne freigegebenen JBP
+    const blocked = input.focusIds.filter((id) => !input.approvedIds.includes(id));
+    const [stuck] = blocked.length
+      ? await tx
+          .select()
+          .from(schema.valueOpportunity)
+          .where(
+            and(
+              eq(schema.valueOpportunity.orgId, orgId),
+              eq(schema.valueOpportunity.status, 'new'),
+              inArray(schema.valueOpportunity.confidence, ['high', 'medium']),
+              inArray(schema.valueOpportunity.relationshipId, blocked),
+            ),
+          )
+          .orderBy(desc(schema.valueOpportunity.buyerHighCents))
+          .limit(1)
+      : [];
+    if (stuck) {
+      const name = names.get(stuck.relationshipId) ?? '';
+      const range = `${money(stuck.buyerLowCents)} bis ${money(stuck.buyerHighCents)}`;
+      facts.push(
+        {
+          key: 'stuckName',
+          label: 'Potenzial ohne freigegebenen JBP',
+          display: name,
+          source: 'Wertpotenziale',
+        },
+        { key: 'stuckRange', label: `Potenzial ${name}`, display: range, source: 'Wertpotenziale' },
+      );
+      sentences.push({
+        kind: 'stuck',
+        fallback: `Bei ${name} wartet ein Potenzial von ${range} EBIT, der JBP ist noch nicht freigegeben.`,
+        href: `/lieferanten/${stuck.relationshipId}/wirkung/wertpotenziale`,
+      });
+      actions.push(`den JBP mit ${name} freigeben`);
+    }
+    if (!input.goal && input.canSetGoal) actions.push('das Jahresziel festlegen');
+    if (actions.length > 0) {
+      sentences.push({
+        kind: 'todo',
+        fallback: `Als Nächstes: ${actions.slice(0, 2).join(' und ')}.`,
+        href: '/mein-tag',
+      });
+    }
+
+    const headline =
+      share !== null
+        ? `Gesichert sind ${percent(share)} des Jahresziels.`
+        : `Gesichert sind ${money(input.secured)} EBIT.`;
+    const body =
+      share !== null && input.goal
+        ? `Bis zum Ende des Geschäftsjahrs fehlen ${money(Math.max(0, input.goal - input.secured))}. ${input.approvedIds.length} von ${input.focusIds.length} Fokuslieferanten haben einen freigegebenen JBP.`
+        : `${input.approvedIds.length} von ${input.focusIds.length} Fokuslieferanten haben einen freigegebenen JBP. In Umsetzung sind ${money(input.inProgress.lowCents)} bis ${money(input.inProgress.highCents)}.`;
+    return this.summaries.summarize(tx, auth, {
+      pageKey: 'overview',
+      scopeType: 'org',
+      scopeId: null,
+      period: String(input.fiscalYear),
+      facts,
+      fallback: { headline, body },
+      sentences,
+      knownNames: [...names.values()],
+    });
   }
 
   /** Jahresziel EBIT je Geschäftsjahr; Admin oder Lead (vorläufig zu F2). */
@@ -190,7 +399,63 @@ export class InsightsService {
         )
         .orderBy(desc(schema.valueOpportunity.buyerLowCents))
         .limit(1);
+      const secured = securedIn(facts, from, to);
+      const kept = due.filter((row) => row.status === 'kept').length;
+      const approvedTarget = target?.approvedAt ? target.ebitTargetCents : null;
+      const names = await supplierNames(tx, scope.orgId);
+      const name = names.get(relationshipId) ?? '';
+      const source = 'Impact-Ledger, vom Controlling bestätigt';
+      const insightFacts: InsightFact[] = [
+        { key: 'name', label: 'Lieferant', display: name, source: 'Lieferant' },
+        { key: 'secured', label: 'Gesichert EBIT', display: money(secured), source },
+        {
+          key: 'commitments',
+          label: 'Zusagen rechtzeitig eingehalten',
+          display: `${kept} von ${due.length}`,
+          source: 'Zusagen im JBP',
+        },
+      ];
+      if (approvedTarget) {
+        insightFacts.push(
+          { key: 'target', label: `Ziel ${fiscalYear}`, display: money(approvedTarget), source },
+          {
+            key: 'share',
+            label: 'Anteil am Ziel',
+            display: percent(secured / approvedTarget),
+            source,
+          },
+        );
+      }
+      const chanceText = chance
+        ? `${templateTitles[chance.templateKey as OpportunityTemplateKey] ?? chance.title} mit ${money(chance.buyerLowCents)} bis ${money(chance.buyerHighCents)} EBIT`
+        : null;
+      if (chance && chanceText) {
+        insightFacts.push({
+          key: 'chance',
+          label: 'Größte Chance',
+          display: chanceText,
+          source: 'Wertpotenziale',
+        });
+      }
+      const insight = await this.summaries.summarize(tx, auth, {
+        pageKey: 'supplier_overview',
+        scopeType: 'relationship',
+        scopeId: relationshipId,
+        period: String(fiscalYear),
+        facts: insightFacts,
+        fallback: {
+          headline: approvedTarget
+            ? `Mit ${name} sind ${percent(secured / approvedTarget)} des Ziels gesichert.`
+            : `Mit ${name} sind ${money(secured)} EBIT gesichert.`,
+          body: [
+            `${kept} von ${due.length} fälligen Zusagen wurden rechtzeitig eingehalten.`,
+            ...(chanceText ? [`Die größte Chance ist ${chanceText}.`] : []),
+          ].join(' '),
+        },
+        knownNames: [...names.values()],
+      });
       return supplierRingsSchema.parse({
+        statement: insight.statement,
         chance: chance
           ? {
               opportunityId: chance.id,
@@ -203,7 +468,7 @@ export class InsightsService {
           : null,
         fiscalYear,
         currency: 'EUR',
-        securedEbitCents: securedIn(facts, from, to),
+        securedEbitCents: secured,
         target: target
           ? {
               ebitTargetCents: target.ebitTargetCents,
@@ -213,7 +478,7 @@ export class InsightsService {
           : null,
         commitments: {
           due: due.length,
-          keptOnTime: due.filter((row) => row.status === 'kept').length,
+          keptOnTime: kept,
         },
         canPropose: scope.auth.orgRole === 'admin' || scope.teamRole === 'sro',
         canApprove:

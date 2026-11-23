@@ -22,6 +22,7 @@ import {
   valueOverviewQueryOptions,
 } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
+import { Statement } from './statement';
 import { formatMoney } from '@/lib/money';
 
 function useAmount() {
@@ -152,6 +153,7 @@ export function OverviewPage() {
       />
       <div className="flex flex-col gap-6">
         {saved && <StatusLine message={text.goalSaved} onHidden={() => setSaved(false)} />}
+        <Statement statement={data.statement} />
         <EvidenceCard title={text.evidenceTitle(secured, goal)} source={text.evidenceSource}>
           <GoalRings
             result={{
@@ -194,6 +196,24 @@ export function OverviewPage() {
             />
           )}
         </EvidenceCard>
+        {(data.sentences?.length ?? 0) > 0 && (
+          <section aria-label={text.sentencesLabel} className="grid gap-3 sm:grid-cols-3">
+            {data.sentences?.map((sentence) => (
+              <Tile key={sentence.kind} className="gap-2">
+                <span className="font-semibold text-muted-foreground text-sm">
+                  {text.sentenceKinds[sentence.kind]}
+                </span>
+                <p>{sentence.text}</p>
+                {routerLink({
+                  href: sentence.href,
+                  className:
+                    'mt-auto self-start font-semibold text-primary text-sm underline-offset-4 hover:underline',
+                  children: sentence.kind === 'todo' ? text.toMyDay : text.view,
+                })}
+              </Tile>
+            ))}
+          </section>
+        )}
         <ListCard aria-label={text.rowsLabel}>
           <EvidenceRow
             href="/uebersicht/ergebnisse"
@@ -256,6 +276,7 @@ export function SupplierRingsCard({ relationshipId }: { relationshipId: string }
   const chance = data.chance;
   return (
     <>
+      <Statement statement={data.statement} />
       <EvidenceCard
         title={text.supplierEvidence(amount(data.securedEbitCents, data.currency))}
         source={text.supplierSource(data.fiscalYear)}

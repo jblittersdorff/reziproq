@@ -1,3 +1,4 @@
+import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
 import { Module } from '@nestjs/common';
 import { CustomersModule } from '../customers/customers.module.js';
 import { EmailModule } from '../email/email.module.js';
@@ -22,7 +23,7 @@ import { ValidationService } from './validation.service.js';
 
 /** GuV-Wirkung (PNL-01 ff.) und der Beleg der Auswertungen (AW-01). */
 @Module({
-  imports: [EmailModule, CustomersModule],
+  imports: [EmailModule, CustomersModule, AiGatewayModule],
   controllers: [
     ImpactController,
     ImpactSharingController,

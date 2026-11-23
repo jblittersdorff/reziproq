@@ -729,6 +729,13 @@
       "when": 1795390485562,
       "tag": "0103_ki11_annahmen",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1795416799912,
+      "tag": "0104_aw01_aussagen",
+      "breakpoints": true
     }
   ]
 }

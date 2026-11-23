@@ -77,6 +77,56 @@ describe('AW-01 Übersicht', () => {
     expect(questions).toHaveLength(3);
   });
 
+  it('zeigt die Aussage von Reziproq mit Quellen und drei Sätze; „Stimmt nicht“ meldet sie', async () => {
+    const reports: string[] = [];
+    const handle = api.handle;
+    overview = {
+      ...overview,
+      statement: {
+        id: '0190a0a0-0000-7000-8000-0000000000ff',
+        headline: 'Gesichert sind 69 % des Jahresziels.',
+        body: 'Bis zum Ende des Geschäftsjahrs fehlen 188.000 €.',
+        sources: [{ key: 'ledger', label: 'Impact-Ledger, vom Controlling bestätigt' }],
+      },
+      sentences: [
+        {
+          kind: 'good',
+          text: 'Rheintal trägt 120.000 € bei, 20 % des Jahresziels.',
+          href: '/lieferanten/x/wirkung/bruecke',
+        },
+        {
+          kind: 'stuck',
+          text: 'Bei Kessler wartet ein Potenzial von 210.000 € bis 320.000 € EBIT.',
+          href: '/lieferanten/y/wirkung/wertpotenziale',
+        },
+        { kind: 'todo', text: 'Als Nächstes: den JBP mit Kessler freigeben.', href: '/mein-tag' },
+      ],
+    };
+    api.handle = (request) => {
+      if (request.url.endsWith('/stimmt-nicht')) {
+        reports.push(request.url);
+        return new Response(null, { status: 204 });
+      }
+      return handle?.(request);
+    };
+    renderAt('/uebersicht');
+    expect(
+      await screen.findByRole('heading', { name: 'Gesichert sind 69 % des Jahresziels.' }),
+    ).toBeTruthy();
+    expect(screen.getByText('Zusammengefasst von Reziproq')).toBeTruthy();
+    const cards = screen.getByRole('region', { name: 'Drei Sätze von Reziproq' });
+    expect(within(cards).getByText('Was gut läuft')).toBeTruthy();
+    expect(within(cards).getByText('Was hakt')).toBeTruthy();
+    expect(within(cards).getByRole('link', { name: 'Zu Mein Tag' }).getAttribute('href')).toBe(
+      '/mein-tag',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Stimmt nicht' }));
+    await waitFor(() =>
+      expect(reports).toEqual(['/api/aussagen/0190a0a0-0000-7000-8000-0000000000ff/stimmt-nicht']),
+    );
+    expect(await screen.findByText('Danke, gemeldet.')).toBeTruthy();
+  });
+
   it('ohne Jahresziel erscheint kein äußerer Ring; Admin oder Lead legt es fest', async () => {
     overview = { ...overview, goalEbitCents: null };
     renderAt('/uebersicht');
@@ -185,7 +235,9 @@ describe('AW-01 Lieferant · Überblick', () => {
       return undefined;
     };
     renderAt(`/lieferanten/${id}`);
-    expect(await screen.findByRole('heading', { name: 'Preisgleitklausel nach Index' })).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { name: 'Preisgleitklausel nach Index' }),
+    ).toBeTruthy();
     expect(screen.getByText('Größte Chance')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Wertpotenzial ansehen' }).getAttribute('href')).toBe(
       `/lieferanten/${id}/wirkung/wertpotenziale#potenzial-0190a0a0-0000-7000-8000-0000000000aa`,

@@ -4,6 +4,7 @@ import { overviewInsightSchema, supplierRingsSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 
 // Tests zu docs/specs/AW-01.md in der API: Ringpaar der Übersicht und des Lieferanten aus
 // bestehenden Daten. Gesichert nur vom Controlling bestätigt, kein äußerer Ring ohne Ziel, der
@@ -188,6 +189,8 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
   afterAll(async () => {
     const orgIds = Object.values(orgs);
     await db.execute(sql`delete from value_opportunity where org_id in ${orgIds}`);
+    await db.execute(sql`delete from insight_summary where org_id in ${orgIds}`);
+    await db.execute(sql`delete from model_call where org_id in ${orgIds}`);
     await db.execute(sql`delete from relationship_ebit_target where org_id in ${orgIds}`);
     await db.execute(sql`delete from org_setting where org_id in ${orgIds}`);
     await db.execute(sql`delete from commitment where relationship_id in ${Object.values(rel)}`);
@@ -291,6 +294,86 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
       low: 5_000_000,
       high: 10_000_000,
       confidence: 'high',
+    });
+  });
+
+  it('die Aussage nennt nur Zahlen aus den Fakten; die drei Sätze folgen der Regel', async () => {
+    // Der Admin hat in dieser Stunde schon eine Aussage mit anderen Fakten: dann nur der Beleg.
+    expect((await overview()).statement).toBeNull();
+    const data = await overview(users.sro);
+    // Jahresziel 60.000 €, gesichert 30.000 € (aus dem Test davor)
+    expect(data.statement?.headline).toBe('Gesichert sind 50\u00a0% des Jahresziels.');
+    expect(data.statement?.body).toMatch(/fehlen 30\.000\s€/);
+    const kinds = (data.sentences ?? []).map((entry) => entry.kind);
+    expect(kinds).toContain('good');
+    expect(data.sentences?.find((entry) => entry.kind === 'good')?.text).toMatch(
+      new RegExp(`^AW01-A ${run} trägt 30\\.000\\s€ bei, 50\\s% des Jahresziels\\.$`),
+    );
+    // Rheintal B hat keinen freigegebenen JBP, aber kein Potenzial: kein Satz „Was hakt“
+    expect(kinds).not.toContain('stuck');
+  });
+
+  it('ändern sich die Fakten nicht, entsteht keine neue Aussage; je Person eine eigene', async () => {
+    const calls = async () =>
+      (
+        await db.execute<{ n: string }>(
+          sql`select count(*)::text as n from model_call where org_id = ${orgs.oem} and feature = 'insight_summary'`,
+        )
+      ).rows[0]?.n;
+    const before = await calls();
+    const first = await overview(users.sro);
+    expect(await calls()).toBe(before);
+    expect((await overview(users.sro)).statement?.id).toBe(first.statement?.id);
+    const lead = await overview(users.lead);
+    expect(lead.statement?.id).not.toBe(first.statement?.id);
+    // „Stimmt nicht“ nur für die eigene Aussage
+    const id = first.statement?.id as string;
+    expect((await call(users.lead, 'POST', `/aussagen/${id}/stimmt-nicht`)).status).toBe(404);
+    expect((await call(users.sro, 'POST', `/aussagen/${id}/stimmt-nicht`)).status).toBe(204);
+  });
+
+  it('eine Aussage mit einer Zahl, die nicht in den Fakten steht, wird unterdrückt', async () => {
+    const service = testApp.app.get(InsightSummaryService);
+    service.testModelText = () =>
+      JSON.stringify({
+        headline: 'Gesichert sind 77 % des Ziels.',
+        body: 'Das liegt an 12345 Euro.',
+      });
+    try {
+      expect((await overview(users.member)).statement).toBeNull();
+      const [row] = (
+        await db.execute<{ status: string }>(
+          sql`select status from insight_summary where org_id = ${orgs.oem} and user_id = ${users.member}`,
+        )
+      ).rows;
+      expect(row?.status).toBe('suppressed');
+    } finally {
+      service.testModelText = undefined;
+    }
+  });
+
+  it('„Was hakt“ nennt das größte Potenzial ohne freigegebenen JBP, „Was ihr tun solltet“ die Handlung', async () => {
+    await db.insert(schema.valueOpportunity).values({
+      orgId: orgs.oem,
+      relationshipId: rel.b,
+      templateKey: 'index_clause',
+      templateVersion: 1,
+      title: 'Preisgleitklausel nach Index',
+      reason: 'Test',
+      impactType: 'ebit',
+      buyerLowCents: 1_000_000,
+      buyerHighCents: 2_000_000,
+      confidence: 'medium',
+      confidenceReason: 'test',
+      inputs: {},
+    });
+    const sentences = (await overview()).sentences ?? [];
+    expect(sentences.find((entry) => entry.kind === 'stuck')?.text).toMatch(
+      new RegExp(`^Bei AW01-B ${run} wartet ein Potenzial von 10\\.000\\s€ bis 20\\.000\\s€ EBIT`),
+    );
+    expect(sentences.find((entry) => entry.kind === 'todo')).toMatchObject({
+      text: `Als Nächstes: den JBP mit AW01-B ${run} freigeben.`,
+      href: '/mein-tag',
     });
   });
 

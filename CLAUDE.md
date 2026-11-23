@@ -6,7 +6,7 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 ## Befehle
 
 - pnpm dev: alles lokal starten
-- pnpm check: vor jedem Commit alles, was die CI prüft (Typprüfung, Lint, Migration, Rollen, Unit-,
+- pnpm check: vor jedem Commit alles, was die CI prüft (Typprüfung, Lint, Migration, Rollen, Unit-, Zeitmessung LS-01,
   RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
   pnpm test, pnpm test:e2e
 - pnpm --filter @reziproq/db db:generate / db:migrate: Migrationen

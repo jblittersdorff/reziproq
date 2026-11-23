@@ -1,4 +1,16 @@
-import { Body, Controller, ForbiddenException, Get, Inject, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Inject,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { and, auditedChange, desc, eq, schema, sql } from '@reziproq/db';
 import {
   type AiSettings,
@@ -16,6 +28,7 @@ import { can } from '../auth/can.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { aiSettingKeys, readAiSettings } from './ai-settings.js';
+import { InsightSummaryService } from './insight-summary.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 
@@ -52,7 +65,10 @@ export class AiSettingsController {
           settings: await readAiSettings(tx, organization.id),
           euOnly: true as const,
           canEdit: auth.orgRole === 'admin',
-          segmentTypes: types.map((type) => ({ key: `${type.impact}-${type.quality}`, name: type.name })),
+          segmentTypes: types.map((type) => ({
+            key: `${type.impact}-${type.quality}`,
+            name: type.name,
+          })),
         };
       },
       { readOnly: true },
@@ -153,5 +169,26 @@ export class AiUsageController {
       },
       { readOnly: true },
     );
+  }
+}
+
+/** AW-01: „Stimmt nicht“ zu einer Aussage; nur die eigene Aussage der Person. */
+@Controller('aussagen')
+export class InsightReportController {
+  constructor(
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
+  ) {}
+
+  @Post(':id/stimmt-nicht')
+  @Requires('wirkung.sehen')
+  @HttpCode(204)
+  async report(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    const organization = buyerOrganization(auth);
+    const found = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      (tx) => this.summaries.report(tx, auth, id),
+    );
+    if (!found) throw new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
   }
 }

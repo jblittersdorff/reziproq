@@ -140,3 +140,14 @@ Alle in den Specs namentlich verlangten Seitenvorlagen sind im Referenzordner vo
 ## Lokale Kontrolle
 
 Die 31 Statuszeilen, Ablageziele und relativen Berichtslinks wurden geprüft. Die abgelegten HTML-Arbeitskopien sind bytegleich mit ihren jeweiligen Eingangsdateien. Bei zwei Vorlagen (Main und Lieferanten) meldet Git Leerraum auf je einer Leerzeile aus dem Originalexport. Der lokale Lauf von `pnpm check` endete erfolgreich, mit 2.769 bestandenen Tests, einem übersprungenen Test und 134 bestandenen Browser-Tests. Diese Tests prüfen den gebauten Stand; die neuen Abnahmekriterien sind Planungsgrundlage.
+
+## Entscheidungen des Gründers (23.11.2026)
+
+- **F3:** Ein Agent `insight_summary` für alle Seiten, neu bei geänderten Fakten, höchstens einmal je
+  Stunde; je Person gespeichert. Die Übersicht hat drei Sätze, alle anderen Seiten höchstens zwei
+  Karten.
+- **F6 (nur KI-07):** Vorerst nur QBR sieben Tage vorher; ein neuer Lauf ersetzt nur den offenen
+  Entwurf desselben Termins. Weitere Termintypen kommen mit IN-03. Die übrigen Fragen aus F6
+  (Terminmodell, Add-in) bleiben offen.
+- **F7:** Jeweils die vorsichtigste Stufe; `user_assumption` und eigene Daten älter als zwölf Monate
+  ergeben `low`.

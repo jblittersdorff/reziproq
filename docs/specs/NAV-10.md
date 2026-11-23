@@ -139,10 +139,10 @@ Je Kriterium ein Test.
 - [x] Ein Lead landet nach der Anmeldung in der Übersicht, ein SRO in Mein Tag. Eine geänderte Startseite gilt ab der nächsten Anmeldung (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/shell/plt-11.test.tsx`).
 - [x] Jede alte Adresse aus der Tabelle leitet auf die neue weiter.
 - [x] Gesichert enthält nur vom Controlling bestätigte Ergebnisse. EBIT und Cash stehen getrennt, keine Summe über Wirkungsarten.
-- [ ] Die drei Sätze folgen der Regel. Ohne Kandidat fehlt die Karte, statt leer zu erscheinen.
-- [ ] Eine Aussage mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt.
+- [x] Die drei Sätze folgen der Regel. Ohne Kandidat fehlt die Karte, statt leer zu erscheinen.
+- [x] Eine Aussage mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt.
 - [x] Ohne Jahresziel erscheint kein äußerer Ring.
-- [ ] Die Übersicht zeigt eine Aussage, ein Ringpaar, drei Sätze, drei Zeilen und drei Fragevorschläge.
+- [x] Die Übersicht zeigt eine Aussage, ein Ringpaar, drei Sätze, drei Zeilen und drei Fragevorschläge.
 - [ ] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keinem Highlight und keiner Matrix.
 - [x] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten des Lieferanten als Eintrag von Reziproq mit Verweis (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`; bis KI-04 mit den bestehenden Entwürfen aus `ai_draft`, Abnahme mit `agent_run` in Schritt 9 der Warteschlange).
 - [x] Eine private Notiz sieht nur ihre Autorin, auch kein Admin (`apps/api/src/modules/activities/nav-10.test.ts`; Zeilensicherheit `note_private_author`).
@@ -192,7 +192,12 @@ Prüfbericht stehen aus; wo nötig, gilt die unten genannte vorläufige Wahl.
 - `/agenten` leitet auf `/einstellungen/ki/agenten`; Mein Tag verlinkt die Agenten nicht mehr
   (die Entwürfe stehen je Lieferant unter Aktivitäten, Filter Reziproq).
 - Die Übersicht zeigt Wertpotenziale als dritte Zeile (KI-11), sobald es welche gibt.
-- Offen bis zur Entscheidung F3: Aussage von Reziproq, die drei Sätze und ihre Speicherung.
+- Aussage und drei Sätze (Entscheidung F3 vom 23.11.2026): ein Dienst `insight_summary` statt eines
+  eigenen `overview_summary`, je Person gespeichert. Was gut läuft: der Lieferant mit dem höchsten
+  gesicherten Beitrag; Was hakt: das größte offene Potenzial bei einem Fokuslieferanten ohne
+  freigegebenen JBP (Hinweise mit `score` kommen mit KI-16); Was ihr tun solltet: bis zu zwei
+  Handlungen daraus. Die Sätze aus der Vorlage im Code gelten, wenn der Text von Reziproq die
+  Prüfung nicht besteht.
 
 ## Nicht Teil dieser Funktion
 

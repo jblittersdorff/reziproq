@@ -5,7 +5,6 @@ import { ListCard, ListCardHeader, ListRow, ListRowText } from '@/components/ui/
 import { LoadingState } from '@/components/ui/loading-state';
 import { NextStep, NextStepArrow } from '@/components/ui/next-step';
 import { RangeBars } from '@/components/ui/range-bars';
-import { Tile } from '@/components/ui/tile';
 import {
   Table,
   TableBody,
@@ -14,6 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tile } from '@/components/ui/tile';
+import { Statement } from '@/features/insights/statement';
 import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -72,6 +73,7 @@ export function ValueOverviewPage() {
       {header}
       <div className="grid items-start gap-5 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-5 lg:col-span-2">
+          <Statement statement={data.statement} />
           <Totals data={data} note={overview.lowExcluded(data.counts.lowExcluded)} />
           <NextStep
             eyebrow={overview.biggestEyebrow}

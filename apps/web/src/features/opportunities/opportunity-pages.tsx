@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { Tile } from '@/components/ui/tile';
+import { Statement } from '@/features/insights/statement';
 import { useToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
@@ -815,6 +816,7 @@ export function ValueOpportunitiesPage({ relationshipId }: { relationshipId: str
                     ? text.lastRun(format.date(data.lastRun.finishedAt))
                     : text.noRun}
                 </p>
+                <Statement statement={data.statement} />
                 {running && <StatusLine message={text.running} />}
                 {message && (
                   <StatusLine

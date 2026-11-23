@@ -124,6 +124,7 @@ describe('PLT-02 in der Datenbank', () => {
       'initiative_topic',
       'initiative_validation',
       'initiative_value',
+      'insight_summary',
       'invitation',
       'jbp',
       'jbp_approval',

@@ -2811,6 +2811,13 @@ export const de = {
   // Arbeitsbereich eines Lieferanten (NAV-06)
   // AW-01, NAV-10: Beleg der Übersicht und des Lieferanten
   insights: {
+    summarized: 'Zusammengefasst von Reziproq',
+    report: 'Stimmt nicht',
+    reported: 'Danke, gemeldet.',
+    sentencesLabel: 'Drei Sätze von Reziproq',
+    sentenceKinds: { good: 'Was gut läuft', stuck: 'Was hakt', todo: 'Was ihr tun solltet' } as Record<string, string>,
+    view: 'Ansehen',
+    toMyDay: 'Zu Mein Tag',
     chanceTitle: 'Größte Chance',
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} bis ${high}`} ${impact} im Jahr · ${confidence}`,
@@ -4382,6 +4389,7 @@ export const de = {
       pre_read: 'Pre-Read',
       market_analysis: 'Marktanalyse',
       value_opportunity: 'Wertpotenziale',
+      insight_summary: 'Aussagen',
     } as Record<string, string>,
   },
   opportunities: {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { insightStatementSchema } from './insights.js';
 import { leverValueSchema } from './levers.js';
 
 export const opportunityConfidences = ['low', 'medium', 'high'] as const;
@@ -156,6 +157,7 @@ export const valueOpportunitiesSchema = z.object({
   signals: z.array(marketSignalSchema),
   dataGaps: z.array(valueDataGapSchema),
   outbound: z.array(z.object({ text: z.string(), sentAt: z.iso.datetime() })),
+  statement: insightStatementSchema.nullable().optional(),
 });
 export type ValueOpportunities = z.infer<typeof valueOpportunitiesSchema>;
 
@@ -217,6 +219,7 @@ export const valueOverviewSchema = z.object({
   dataGaps: z.array(
     z.object({ dataKey: z.string(), description: z.string(), suppliers: z.number().int() }),
   ),
+  statement: insightStatementSchema.nullable().optional(),
 });
 export type ValueOverview = z.infer<typeof valueOverviewSchema>;
 

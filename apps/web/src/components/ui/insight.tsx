@@ -12,11 +12,14 @@ export function InsightHeading({
   headline,
   explanation,
   sources,
+  action,
 }: {
   attribution: string;
   headline: string | null;
   explanation: string;
   sources: DraftSource[];
+  /** z. B. „Stimmt nicht“ */
+  action?: ReactNode;
 }) {
   if (!headline || !sources.length) return null;
   return (
@@ -33,6 +36,7 @@ export function InsightHeading({
         {sources.map((source) => (
           <SourcePill key={source.key} source={source} />
         ))}
+        {action}
       </div>
     </header>
   );

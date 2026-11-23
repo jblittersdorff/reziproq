@@ -9,9 +9,11 @@ import {
   valueOverviewSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
+import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { syncRealized } from './realized.js';
+import { valueStatement } from './statement.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const rank: Record<OpportunityConfidence, number> = { low: 0, medium: 1, high: 2 };
@@ -31,7 +33,10 @@ const sum = (rows: Row[]) =>
  */
 @Injectable()
 export class OpportunityOverviewService {
-  constructor(@Inject(TenantDatabase) private readonly tenant: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
+  ) {}
 
   overview(auth: AuthContext): Promise<ValueOverview> {
     const organization = auth.organization;
@@ -140,7 +145,18 @@ export class OpportunityOverviewService {
           where g.org_id = ${organization.id} and g.status in ('open', 'requested')
           group by g.data_key order by count(distinct g.relationship_id) desc, g.data_key limit 5`);
 
+      const ebitNew = range('ebit', 'new');
+      const cashNew = range('cash', 'new');
+      const statement = await valueStatement(this.summaries, tx, auth, {
+        pageKey: 'value_all',
+        scopeId: null,
+        newCount: fresh.length,
+        adoptedCount: rows.filter((row) => row.status === 'adopted').length,
+        ebitNew: ebitNew.high > 0 ? ebitNew : null,
+        cashNew: cashNew.high > 0 ? cashNew : null,
+      });
       return valueOverviewSchema.parse({
+        statement,
         counts: {
           new: fresh.length,
           adopted: rows.filter((row) => row.status === 'adopted').length,

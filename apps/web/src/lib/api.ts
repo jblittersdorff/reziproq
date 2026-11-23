@@ -3606,3 +3606,7 @@ export const discardDataRequest = (accessToken: string, relationshipId: string, 
     valueOpportunitiesSchema,
     accessToken,
   );
+
+/** AW-01: „Stimmt nicht“ zu einer Aussage von Reziproq */
+export const reportStatement = (accessToken: string, id: string) =>
+  sendNoContent(accessToken, 'POST', `/aussagen/${id}/stimmt-nicht`, {});

@@ -2741,6 +2741,13 @@ export const en: Messages = {
   // Supplier workspace (NAV-06)
   // AW-01, NAV-10: evidence for the overview and the supplier
   insights: {
+    summarized: 'Summarised by Reziproq',
+    report: 'Not right',
+    reported: 'Thanks, reported.',
+    sentencesLabel: 'Three sentences from Reziproq',
+    sentenceKinds: { good: 'What is going well', stuck: 'What is stuck', todo: 'What you should do' } as Record<string, string>,
+    view: 'View',
+    toMyDay: 'Go to My day',
     chanceTitle: 'Biggest opportunity',
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} to ${high}`} ${impact} per year · ${confidence}`,
@@ -4277,6 +4284,7 @@ export const en: Messages = {
       pre_read: 'Pre-read',
       market_analysis: 'Market analysis',
       value_opportunity: 'Value opportunities',
+      insight_summary: 'Statements',
     } as Record<string, string>,
   },
   opportunities: {

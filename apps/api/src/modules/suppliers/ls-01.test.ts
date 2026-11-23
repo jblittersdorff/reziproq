@@ -120,23 +120,28 @@ describe('LS-01 Lieferantenliste', () => {
     await testApp.close();
   }, 120_000);
 
-  it('die Liste lädt für 2.000 Lieferanten in unter 300 ms', async () => {
-    const auth = await token(users.a);
-    await testApp.get('/api/suppliers', auth); // aufwärmen
-    // Schnellste von drei Messungen: in pnpm check laufen alle Testdateien parallel, ein einzelner
-    // Aufruf misst dann die Last der anderen Tests mit, nicht die Liste.
-    let elapsed = Number.POSITIVE_INFINITY;
-    let res = await testApp.get('/api/suppliers', auth);
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const started = performance.now();
-      res = await testApp.get('/api/suppliers', auth);
-      elapsed = Math.min(elapsed, performance.now() - started);
-    }
-    expect(res.status).toBe(200);
-    const body = suppliersResponseSchema.parse(await res.json());
-    expect(body.suppliers).toHaveLength(2000);
-    expect(elapsed).toBeLessThan(300);
-  });
+  // Die Zeitmessung läuft allein im Schritt test:perf von pnpm check (REZIPROQ_PERF=1), nicht neben
+  // 230 parallelen Testdateien, deren Last sie sonst mitmisst.
+  it.skipIf(process.env.REZIPROQ_PERF !== '1')(
+    'die Liste lädt für 2.000 Lieferanten in unter 300 ms',
+    async () => {
+      const auth = await token(users.a);
+      await testApp.get('/api/suppliers', auth); // aufwärmen
+      // Schnellste von drei Messungen: in pnpm check laufen alle Testdateien parallel, ein einzelner
+      // Aufruf misst dann die Last der anderen Tests mit, nicht die Liste.
+      let elapsed = Number.POSITIVE_INFINITY;
+      let res = await testApp.get('/api/suppliers', auth);
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const started = performance.now();
+        res = await testApp.get('/api/suppliers', auth);
+        elapsed = Math.min(elapsed, performance.now() - started);
+      }
+      expect(res.status).toBe(200);
+      const body = suppliersResponseSchema.parse(await res.json());
+      expect(body.suppliers).toHaveLength(2000);
+      expect(elapsed).toBeLessThan(300);
+    },
+  );
 
   it('liefert Hauptwarengruppe nach Spend und SRO, aber nie den globalen Organisationsnamen', async () => {
     const body = suppliersResponseSchema.parse(

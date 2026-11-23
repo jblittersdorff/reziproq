@@ -826,6 +826,19 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // AW-01: Aussage von Reziproq je Person und Seite
+  insight_summary: {
+    kind: 'org_private',
+    testValues: {
+      user_id: 'probe',
+      page_key: 'overview',
+      scope_type: 'org',
+      period: '2026',
+      facts: '[]',
+      facts_hash: 'probe',
+      status: 'suppressed',
+    },
+  },
   // KI-11: Wertpotenziale, Marktsignale und Datenlücken je Beziehung, nur die eigene Organisation
   value_opportunity: {
     kind: 'org_private',

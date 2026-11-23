@@ -35,6 +35,7 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { env } from '../../config/env.js';
 import { readAiSettings } from '../ai-gateway/ai-settings.js';
 import { BudgetExhaustedError } from '../ai-gateway/gateway-errors.js';
+import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import { valueOpportunityAudit } from '../audit/audited-objects.js';
@@ -65,6 +66,7 @@ import {
   templateTitles,
 } from './templates.js';
 import { syncRealized } from './realized.js';
+import { valueStatement } from './statement.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -129,6 +131,7 @@ export class OpportunitiesService {
     @Inject(JbpTopicsService) private readonly topics: JbpTopicsService,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
     @Inject(ActionsService) private readonly actions: ActionsService,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
   ) {}
 
   private scope<T>(
@@ -804,7 +807,18 @@ export class OpportunitiesService {
           adopted: sum(impactType, 'adopted'),
           realized: sum(impactType, 'realized'),
         }));
+      const ebitNew = totals.find((total) => total.impactType === 'ebit')?.new;
+      const cashNew = totals.find((total) => total.impactType === 'cash')?.new;
+      const statement = await valueStatement(this.summaries, tx, scope.auth, {
+        pageKey: 'supplier_value',
+        scopeId: relationshipId,
+        newCount: rows.filter((row) => row.status === 'new').length,
+        adoptedCount: rows.filter((row) => row.status === 'adopted').length,
+        ebitNew: ebitNew && ebitNew.high > 0 ? ebitNew : null,
+        cashNew: cashNew && cashNew.high > 0 ? cashNew : null,
+      });
       return valueOpportunitiesSchema.parse({
+        statement,
         researchEnabled: settings.publicResearch,
         canRun: decide,
         canDecide: decide,
