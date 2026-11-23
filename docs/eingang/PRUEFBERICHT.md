@@ -151,3 +151,45 @@ Die 31 Statuszeilen, Ablageziele und relativen Berichtslinks wurden geprüft. Di
   (Terminmodell, Add-in) bleiben offen.
 - **F7:** Jeweils die vorsichtigste Stufe; `user_assumption` und eigene Daten älter als zwölf Monate
   ergeben `low`.
+
+## Nachtrag: KI-Paket vom 23.11.2026 (`eingang/reziproq-specs-ki-3`)
+
+Eingang: neue Specs KI-15 bis KI-23, überarbeitete KI-01, KI-03, KI-04, KI-07, KI-08, KI-09, KI-11,
+KI-13, WG-23, dazu Vorlagen, Glossar, Rechte und Umsetzungsplan. Eingeordnet in `docs/specs/`,
+`docs/design/referenz/`, `glossar.md`, `rechte.md` und die Warteschlange. In schon gebauten Specs
+bleiben Abschnitt „Umsetzung“ und erfüllte Kriterien erhalten.
+
+| Spec | Befund | Bezug |
+|---|---|---|
+| KI-01, KI-03, KI-08, KI-09, KI-13 | Kleinigkeit: Modellklasse `embed` (ab K2), Mein Tag statt Start, Adressen `/agenten/…`. Gebautes bleibt gültig. | F13 |
+| KI-04 | Konflikt: Hauptnavigation mit Punkt **Agenten** unter `/agenten`; NAV-10 hat vier Hauptpunkte und Agenten nur über Einstellungen › KI (gebaut, getestet). | F13 |
+| KI-11 | Konflikt in Adressen: Wertpotenziale unter `/lieferanten/<id>/plan/wertpotenziale` (erster Reiter im Plan) und `/wirkung/wertpotenziale`; NAV-10 leitet `/wirkung` auf `/uebersicht`, gebaut ist Ergebnisse › Wertpotenziale und `/uebersicht/wertpotenziale`. Neu und ohne Konflikt: Seite im Aufbau von AW-01 plus Detailseite je Potenzial (`KI-Wert-Detail`). | F13 |
+| KI-07 | Neue Fassung „Termin-Briefing“: alle wichtigen Termintypen mit Vorlauf, acht Teile, Agenda mit Zeiten und Teilnehmern, Fragen an das Team, Prüfsumme der Eingaben, Outlook-Einladung. Ersetzt die heute gebaute QBR-Vorbereitung und die Entscheidung F6 für KI-07. Termintypen Verhandlung, Werksbesuch/Audit, Eskalation fehlen im Modul Termine und werden ergänzt. Agent `qbr_prep` wird zu `meeting_brief`. | – |
+| KI-15 | Konflikt im Datenmodell: setzt eine Tabelle `supplier` und `category_id` voraus. Im Bestand sind Lieferanten Organisationen mit Beziehung, Warengruppen heißen `material_group`. PLT-07 hat schon einen Import mit Vorschau und Übernahme; KI-15 soll ihn laut Ergänzung erweitern. | F4, F12, F15 |
+| KI-16 | OK: erweitert `hint` aus FS-01 statt einer zweiten Tabelle; `public_event` nur mit Testanbieter der Websuche. | – |
+| KI-17 | OK: `meeting_capture` neu; braucht die Ziele aus KI-07 (neue Fassung). Dateien als DOCX oder PDF brauchen einen Speicher (wie KI-18). | – |
+| KI-18 | Infrastruktur: `pgvector`, Objektspeicher in der EU (lokal Ordner oder MinIO), OCR mit `tesseract`. In AWS nur über `infra/` mit OpenTofu. | – |
+| KI-19 bis KI-22 | Bauen auf KI-15 und KI-18 bzw. auf der Warengruppenstrategie; nach den Warengruppen (K2). | F15 |
+| KI-23 | Läufe des Lieferanten mit `billed_org_id` des Käufers; die Tabellen sind `org_private` der Lieferantenorganisation. Vor dem Bau Ebenen und Budgetzuordnung prüfen (K3). | – |
+| WG-23 | Ersetzt `WG-23.md`: Entwürfe aus KI-03, Einstellungen aus KI-01. `WG-23.neu.md` und `WG-23.neu2.md` aus dem Warengruppen-Paket bleiben zum Abgleich liegen. | F5, F8 |
+| Vorlagen | `Header`, `SupplierBar`, `Fragen`, `Main` aus dem KI-Paket (21./22.11.) zeigen die alte Navigation (Start, Portfolio, Wirkung, Agenten). Für die gebaute Oberfläche gelten die neueren `.neu`-Fassungen aus dem Navigationspaket. Neu: `Hinweise`, `Import-Pruefen`. | F13 |
+
+Offene Entscheidungen aus diesem Paket:
+
+13. **F13 · Navigation der KI-Specs.** Die KI-Specs und ihre Vorlagen sind vor NAV-10 entstanden
+    (Hauptpunkt Agenten, `/wirkung/…`, Wertpotenziale im Plan). Gilt NAV-10 (vier Hauptpunkte,
+    Agenten unter Einstellungen › KI, Wertpotenziale unter Ergebnisse) und die KI-Specs werden auf
+    diese Adressen abgebildet? Oder bekommt Agenten einen fünften Hauptpunkt und Wertpotenziale
+    wandern in den Plan? Vorschlag: NAV-10 gilt, die Inhalte der KI-Specs bleiben unverändert.
+14. **F14 · Datenmodell Import (KI-15).** `supplier` und `category_id` gibt es nicht. Vorschlag:
+    Lieferant = Organisation mit Beziehung des Käufers, Warengruppe = `material_group`; Alias und
+    Regeln je Käufer; der bestehende Import aus PLT-07 wird erweitert (Vorschau, Prüfung, Übernahme
+    als Stapel). Hängt mit F4 (Kurzname, Fremdwährung) und F12 (gemeinsamer Stapel) zusammen.
+
+Entschieden am 23.11.2026:
+
+- **F13:** NAV-10 gilt. Die Inhalte der KI-Specs werden auf die Adressen von NAV-10 abgebildet:
+  Agenten unter Einstellungen › KI, Wertpotenziale unter Ergebnisse und `/uebersicht/wertpotenziale`.
+- **F14:** KI-15 wird auf den Bestand abgebildet: Lieferant = Organisation mit Beziehung des Käufers,
+  Warengruppe = `material_group`, Alias und Regeln je Käufer; der Import aus PLT-07 wird erweitert.
+

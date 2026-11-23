@@ -141,6 +141,8 @@ describe('LS-01 Lieferantenliste', () => {
       expect(body.suppliers).toHaveLength(2000);
       expect(elapsed).toBeLessThan(300);
     },
+    // Fünf Abfragen mit je 2.000 Zeilen; die Grenze von 300 ms gilt für die schnellste.
+    30_000,
   );
 
   it('liefert Hauptwarengruppe nach Spend und SRO, aber nie den globalen Organisationsnamen', async () => {

@@ -27,14 +27,14 @@
   </div>
 </header>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["Start","Warengruppen","Lieferanten","Portfolio","Wirkung","Kunden","Keine"],"default":"Start"},"side":{"editor":"enum","options":["buyer","supplier"],"default":"buyer"},"$preview":{"width":1440,"height":68}}'>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["Start","Warengruppen","Lieferanten","Portfolio","Wirkung","Agenten","Kunden","Keine"],"default":"Start"},"side":{"editor":"enum","options":["buyer","supplier"],"default":"buyer"},"$preview":{"width":1440,"height":68}}'>
 class Component extends DCLogic {
   renderVals() {
     const active = this.props.active ?? 'Start';
     const supplier = (this.props.side ?? 'buyer') === 'supplier';
     const links = supplier
       ? [['Start', 'K-Start.dc.html'], ['Kunden', 'K-Arbeitsbereich.dc.html']]
-      : [['Start', 'Main.dc.html'], ['Warengruppen', 'WG-Uebersicht.dc.html'], ['Lieferanten', 'Lieferanten.dc.html'], ['Portfolio', 'PF-Portfolio.dc.html'], ['Wirkung', 'W-Uebersicht.dc.html']];
+      : [['Start', 'Main.dc.html'], ['Warengruppen', 'WG-Uebersicht.dc.html'], ['Lieferanten', 'Lieferanten.dc.html'], ['Portfolio', 'PF-Portfolio.dc.html'], ['Wirkung', 'W-Uebersicht.dc.html'], ['Agenten', 'KI-Agenten.dc.html']];
     const base = 'display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;text-decoration:none;font-size:14px;';
     return {
       items: links.map(([label, href]) => ({

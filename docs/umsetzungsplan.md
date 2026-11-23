@@ -2,7 +2,7 @@
 
 ## Warteschlange vom 22.11.2026
 
-Dies ist die einzige aktive Reihenfolge. Die Spalte Abhängigkeiten nennt fachliche Voraussetzungen. Ein Verweis auf eine spätere Lieferung schränkt den Umfang des frühen Schritts ein. Wo eine Entscheidung fehlt, ist nur der davon unabhängige Teil einplanbar. Die vollständige Abnahme bleibt am genannten Folgeschritt. Entscheidungen und Spezifikationsfassungen stehen im [Prüfbericht](eingang/PRUEFBERICHT.md).
+Dies ist die einzige aktive Reihenfolge. Das KI-Paket vom 23.11.2026 ist eingeplant (Schritte 10, 11a–c, 34–39; Prüfbericht, Nachtrag). Die Spalte Abhängigkeiten nennt fachliche Voraussetzungen. Ein Verweis auf eine spätere Lieferung schränkt den Umfang des frühen Schritts ein. Wo eine Entscheidung fehlt, ist nur der davon unabhängige Teil einplanbar. Die vollständige Abnahme bleibt am genannten Folgeschritt. Entscheidungen und Spezifikationsfassungen stehen im [Prüfbericht](eingang/PRUEFBERICHT.md).
 
 Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PNL-11, Block R und Block K sowie die erste Designsprache. WG-01, WG-04, WG-06, WG-18, WG-07, WG-09 und WG-10 bauten in dieser Reihenfolge darauf auf (Migrationen 0080–0087). Diese Schritte behalten ihren Platz in der Historie. In der Warteschlange steht nur neue Arbeit. Bei fehlenden Specs ist die Größe eine vorläufige Schätzung. S bezeichnet eine begrenzte Änderung, M eine modulübergreifende Anpassung und L mehrere Daten-, Rechte- oder Oberflächenänderungen.
 
@@ -17,10 +17,10 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 7 | KI-04 · Agenten, Werkzeuge und Läufe | 5–6. Systemvorlagen im Code, Aktivierung und Versionen je Organisation. Manueller QBR-Lauf mit Quellenrechten, Rückfragen, Budgets und Fortsetzung. Teilläufe werden bei der Budgetprüfung berücksichtigt. Ihre fachliche Auslösung bleibt offen. QBR-Zeitplan und fachliche Erweiterung in 10. Eigene Agenten in 19. | L | manueller Systemlauf fertig |
 | 8 | KI-11 · Wertpotenziale | 7. JBP, Impact-Ledger und SEG. Bei mehreren zutreffenden Sicherheitsregeln gilt die niedrigste Stufe. Vorhandene Rechenregeln prüfen, Websuche in K1 mit fake. | L | fertig (Marktumfeld lokal mit Testquellen, 23.11.2026) |
 | 9 | Anpassung NAV-10 / LS-01 / AW-01 · Agentenläufe, Entwürfe, Aussagen und Potenziale anschließen | 2–4, 6–8; Zusammenfassung und Rechte für aggregierte Fakten klären. | M | fertig (Risiko-Karte mit KI-16, Aussagen für Gesichert, Feedback, Scorecard offen) |
-| 10 | Anpassung KI-07 · QBR-Vorbereitung | 7; Termine, QBR-07, Scorecard, PUL und PNL; interne Vorbereitung und explizite Agendaübernahme. | M | fertig (nur QBR, F6, 23.11.2026) |
-| 11a | KI-15 · gemeinsamer Datei- und API-Import | Spec fehlt; fachliches Modell und Übernahmeregeln mit PLT-07 klären. | L | offen |
-| 11b | KI-16 · Hinweise und Priorisierung | Spec fehlt; auf FS-01 und vorhandenen Hinweisen aufbauen. | M | offen |
-| 11c | KI-17 · Ergebnisse nach dem Termin | Spec fehlt; KI-03/04, QBR-01 und KI-07 als fachliche Schnittstellen prüfen. | L | offen |
+| 10 | Anpassung KI-07 · Termin-Briefing (neue Fassung vom 23.11.2026) | 7, 11b; Termine um Verhandlung, Werksbesuch/Audit, Eskalation ergänzen; Agent `qbr_prep` → `meeting_brief`; Outlook-Einladung mit IN-03. | L | QBR-Vorbereitung (frühere Fassung) fertig; Termin-Briefing offen, nach 11b |
+| 11a | KI-15 · Import und Zuordnung | 5, 7, WG-01; erweitert den Import aus PLT-07; `pg_trgm`; Datenmodell nach F14. | L | offen (F14 entschieden: auf Bestand abbilden) |
+| 11b | KI-16 · Hinweise mit Frühwarnung | 7, FS-01; erweitert `hint`, „Wo du handeln musst“ in Mein Tag; `public_event` nur mit Testanbieter. | M | offen |
+| 11c | KI-17 · Ergebnisse nach dem Termin | 10 (Ziele aus dem Briefing), QBR-01; `meeting_capture`; Dateien erst mit Speicher (KI-18). | L | offen |
 | 11d | Anpassung NAV-10 / AW-01 · Hinweise anschließen | 9, 11b; Risiko und nächste Handlung mit freigegebenen Bewertungsregeln abnehmen. | M | offen |
 | 12 | IN-01 · Integrationsschicht (I1.1) | 5, 7; Domänendienste, can() und Jobs; alle Anbindungen lokal mit fake. | L | offen |
 | 13 | IN-07 · Import-API (I1.2) | 12 und KI-15 (11a); gemeinsamer Stapel für Datei und API. | L | offen |
@@ -44,6 +44,12 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 31 | WG-20 · Zusammenführung und Übergaben | 23, 28–30; SEG, FS-01 und Lieferantenplan; NAV-10-Warengruppenreiter samt LS-Verweisen abschließen. | L | offen |
 | 32 | WG-23 · Entwürfe Stufe 1 und 2 (WG-24) | 5–7, 25, 27–31; KI-Fassung WG-23.neu.md. Zielort für Feedback und Umfang von „Fragen“ klären. | L | offen |
 | 33 | KI-13 · Strategie-Autor (K2-b) | 7, 25, 28–32, WG-04–16; Schritt 9 an Soll-Typ und bestätigte SEG-Daten binden. | L | offen |
+| 34 | KI-18 · Dokumente und Fundstellen (K2-c) | 5–7; `pgvector`, Objektspeicher EU über `infra/`, OCR lokal mit `tesseract`. | L | offen |
+| 35 | KI-19 · Vertragsleck (K2-d) | 34, 11a; Bestellzeilen und Gutschriften als neue Importarten. | L | offen |
+| 36 | KI-20 · Szenarien (K2-e) | 8, 11b, WG-16. | L | offen |
+| 37 | KI-21 · Verhandlungsvorbereitung (K2-f) | 10, 8, 35, 36. | L | offen |
+| 38 | KI-22 · Quartalsbericht SRM (K2-g) | 6, 11b, PNL, Scorecard, JBP. | M | offen |
+| 39 | KI-23 · Hilfe für Lieferanten (K3-b) | 5–7, erster Pilot; Ebenen und `billed_org_id` vorher prüfen. | L | offen |
 
 Die ersten vier Schritte priorisieren bestehende Seiten. Der Vorschlag trennt ihre Darstellung von der späteren Datenanbindung. Ob diese Teilabnahmen gelten dürfen, ist im Prüfbericht offen. Die Reihenfolge von I1.1 bis I1.7 folgt der Ergänzungsdatei. Import kommt vor Kalender und Mail, Transkripte nach der Mandantenfreigabe zuletzt. Die Stufe 2 mit Slack, Zoom, Gmail-Add-on, SharePoint/Drive, SFTP, SAP S/4HANA, Qualitätsdaten, SCIM, lesender API und Webhooks hat noch keine Bau-Specs.
 
