@@ -23,6 +23,8 @@ export const aiFeatureClasses = {
   hint_explanation: 'small',
   // KI-17: Ergebnisse aus den Notizen nach einem Termin
   meeting_capture: 'standard',
+  // KI-15: Spalten, Lieferanten und Warengruppen beim Import vorschlagen
+  import_assist: 'small',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];

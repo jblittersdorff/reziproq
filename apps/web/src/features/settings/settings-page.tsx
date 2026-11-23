@@ -8,6 +8,7 @@ import {
   DatabaseIcon,
   LightbulbIcon,
   ReceiptEuroIcon,
+  UploadIcon,
   UserCogIcon,
 } from 'lucide-react';
 import { SettingsGroup, SettingsLinkRow } from '@/components/ui/settings-group';
@@ -78,6 +79,15 @@ export function SettingsPage() {
               label={t.settings.survey.navTitle}
               description={t.settings.survey.navHint}
               icon={<ClipboardListIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
+          {permissions.viewBuyerAreas && manageSettings && (
+            <SettingsLinkRow
+              href="/einstellungen/daten/import"
+              label={t.importBatches.navTitle}
+              description={t.importBatches.navHint}
+              icon={<UploadIcon aria-hidden />}
               renderLink={routerLink}
             />
           )}

@@ -92,6 +92,8 @@ import { Route as AppWarengruppenIdSegmentierungRouteImport } from './routes/_ap
 import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
 import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
+import { Route as AppEinstellungenDatenImportIndexRouteImport } from './routes/_app/einstellungen/daten/import/index'
+import { Route as AppEinstellungenDatenImportBatchIdRouteImport } from './routes/_app/einstellungen/daten/import/$batchId'
 import { Route as AppEinstellungenFragebogenKindIndexRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/index'
 import { Route as AppEinstellungenFragebogenKindQuestionKeyRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/$questionKey'
 import { Route as AppEinstellungenFragebogenKindNeuRouteImport } from './routes/_app/einstellungen/fragebogen/$kind/neu'
@@ -709,6 +711,18 @@ const AppEinstellungenBusinessUnitsIdBearbeitenRoute =
   AppEinstellungenBusinessUnitsIdBearbeitenRouteImport.update({
     id: '/einstellungen/business-units/$id/bearbeiten',
     path: '/einstellungen/business-units/$id/bearbeiten',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenDatenImportIndexRoute =
+  AppEinstellungenDatenImportIndexRouteImport.update({
+    id: '/einstellungen/daten/import/',
+    path: '/einstellungen/daten/import/',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenDatenImportBatchIdRoute =
+  AppEinstellungenDatenImportBatchIdRouteImport.update({
+    id: '/einstellungen/daten/import/$batchId',
+    path: '/einstellungen/daten/import/$batchId',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenFragebogenKindIndexRoute =
@@ -1839,6 +1853,7 @@ export interface FileRoutesByFullPath {
   '/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
   '/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
   '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
@@ -1873,6 +1888,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
   '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
+  '/einstellungen/daten/import/': typeof AppEinstellungenDatenImportIndexRoute
   '/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/ki/agenten/': typeof AppEinstellungenKiAgentenIndexRoute
   '/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
@@ -2092,6 +2108,7 @@ export interface FileRoutesByTo {
   '/warengruppen/$id': typeof AppWarengruppenIdIndexRoute
   '/wirkung/freigaben': typeof AppWirkungFreigabenIndexRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
   '/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
   '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
@@ -2126,6 +2143,7 @@ export interface FileRoutesByTo {
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
   '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
+  '/einstellungen/daten/import': typeof AppEinstellungenDatenImportIndexRoute
   '/einstellungen/fragebogen/$kind': typeof AppEinstellungenFragebogenKindIndexRoute
   '/einstellungen/ki/agenten': typeof AppEinstellungenKiAgentenIndexRoute
   '/einstellungen/spielregeln/formate': typeof AppEinstellungenSpielregelnFormateIndexRoute
@@ -2351,6 +2369,7 @@ export interface FileRoutesById {
   '/_app/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  '/_app/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/_app/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
   '/_app/einstellungen/fragebogen/$kind/neu': typeof AppEinstellungenFragebogenKindNeuRoute
   '/_app/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
@@ -2385,6 +2404,7 @@ export interface FileRoutesById {
   '/_app/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/_app/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
   '/_app/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
+  '/_app/einstellungen/daten/import/': typeof AppEinstellungenDatenImportIndexRoute
   '/_app/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
   '/_app/einstellungen/ki_/agenten/': typeof AppEinstellungenKiAgentenIndexRoute
   '/_app/einstellungen/spielregeln/formate/': typeof AppEinstellungenSpielregelnFormateIndexRoute
@@ -2610,6 +2630,7 @@ export interface FileRouteTypes {
     | '/wirkung/freigaben/'
     | '/lieferanten/$id/strategie/lieferantenplan'
     | '/einstellungen/business-units/$id/bearbeiten'
+    | '/einstellungen/daten/import/$batchId'
     | '/einstellungen/fragebogen/$kind/$questionKey'
     | '/einstellungen/fragebogen/$kind/neu'
     | '/einstellungen/fragebogen/$kind/vorschau'
@@ -2644,6 +2665,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
     | '/warengruppen/$id/strategie/$step'
+    | '/einstellungen/daten/import/'
     | '/einstellungen/fragebogen/$kind/'
     | '/einstellungen/ki/agenten/'
     | '/einstellungen/spielregeln/formate/'
@@ -2863,6 +2885,7 @@ export interface FileRouteTypes {
     | '/warengruppen/$id'
     | '/wirkung/freigaben'
     | '/einstellungen/business-units/$id/bearbeiten'
+    | '/einstellungen/daten/import/$batchId'
     | '/einstellungen/fragebogen/$kind/$questionKey'
     | '/einstellungen/fragebogen/$kind/neu'
     | '/einstellungen/fragebogen/$kind/vorschau'
@@ -2897,6 +2920,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
     | '/warengruppen/$id/strategie/$step'
+    | '/einstellungen/daten/import'
     | '/einstellungen/fragebogen/$kind'
     | '/einstellungen/ki/agenten'
     | '/einstellungen/spielregeln/formate'
@@ -3121,6 +3145,7 @@ export interface FileRouteTypes {
     | '/_app/wirkung/freigaben/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan'
     | '/_app/einstellungen/business-units/$id/bearbeiten'
+    | '/_app/einstellungen/daten/import/$batchId'
     | '/_app/einstellungen/fragebogen/$kind/$questionKey'
     | '/_app/einstellungen/fragebogen/$kind/neu'
     | '/_app/einstellungen/fragebogen/$kind/vorschau'
@@ -3155,6 +3180,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/runden/$id/name'
     | '/_app/portfolio/runden/$id/pruefen'
     | '/_app/warengruppen/$id/strategie/$step'
+    | '/_app/einstellungen/daten/import/'
     | '/_app/einstellungen/fragebogen/$kind/'
     | '/_app/einstellungen/ki_/agenten/'
     | '/_app/einstellungen/spielregeln/formate/'
@@ -3886,6 +3912,20 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/business-units/$id/bearbeiten'
       fullPath: '/einstellungen/business-units/$id/bearbeiten'
       preLoaderRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/daten/import/': {
+      id: '/_app/einstellungen/daten/import/'
+      path: '/einstellungen/daten/import'
+      fullPath: '/einstellungen/daten/import/'
+      preLoaderRoute: typeof AppEinstellungenDatenImportIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/daten/import/$batchId': {
+      id: '/_app/einstellungen/daten/import/$batchId'
+      path: '/einstellungen/daten/import/$batchId'
+      fullPath: '/einstellungen/daten/import/$batchId'
+      preLoaderRoute: typeof AppEinstellungenDatenImportBatchIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/fragebogen/$kind/': {
@@ -5602,6 +5642,7 @@ interface AppRouteChildren {
   AppWarengruppenIdIndexRoute: typeof AppWarengruppenIdIndexRoute
   AppWirkungFreigabenIndexRoute: typeof AppWirkungFreigabenIndexRoute
   AppEinstellungenBusinessUnitsIdBearbeitenRoute: typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
+  AppEinstellungenDatenImportBatchIdRoute: typeof AppEinstellungenDatenImportBatchIdRoute
   AppEinstellungenFragebogenKindQuestionKeyRoute: typeof AppEinstellungenFragebogenKindQuestionKeyRoute
   AppEinstellungenFragebogenKindNeuRoute: typeof AppEinstellungenFragebogenKindNeuRoute
   AppEinstellungenFragebogenKindVorschauRoute: typeof AppEinstellungenFragebogenKindVorschauRoute
@@ -5624,6 +5665,7 @@ interface AppRouteChildren {
   AppPortfolioRundenIdNameRoute: typeof AppPortfolioRundenIdNameRoute
   AppPortfolioRundenIdPruefenRoute: typeof AppPortfolioRundenIdPruefenRoute
   AppWarengruppenIdStrategieStepRoute: typeof AppWarengruppenIdStrategieStepRoute
+  AppEinstellungenDatenImportIndexRoute: typeof AppEinstellungenDatenImportIndexRoute
   AppEinstellungenFragebogenKindIndexRoute: typeof AppEinstellungenFragebogenKindIndexRoute
   AppEinstellungenKiAgentenIndexRoute: typeof AppEinstellungenKiAgentenIndexRoute
   AppEinstellungenSpielregelnFormateIndexRoute: typeof AppEinstellungenSpielregelnFormateIndexRoute
@@ -5718,6 +5760,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppWirkungFreigabenIndexRoute: AppWirkungFreigabenIndexRoute,
   AppEinstellungenBusinessUnitsIdBearbeitenRoute:
     AppEinstellungenBusinessUnitsIdBearbeitenRoute,
+  AppEinstellungenDatenImportBatchIdRoute:
+    AppEinstellungenDatenImportBatchIdRoute,
   AppEinstellungenFragebogenKindQuestionKeyRoute:
     AppEinstellungenFragebogenKindQuestionKeyRoute,
   AppEinstellungenFragebogenKindNeuRoute:
@@ -5756,6 +5800,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioRundenIdNameRoute: AppPortfolioRundenIdNameRoute,
   AppPortfolioRundenIdPruefenRoute: AppPortfolioRundenIdPruefenRoute,
   AppWarengruppenIdStrategieStepRoute: AppWarengruppenIdStrategieStepRoute,
+  AppEinstellungenDatenImportIndexRoute: AppEinstellungenDatenImportIndexRoute,
   AppEinstellungenFragebogenKindIndexRoute:
     AppEinstellungenFragebogenKindIndexRoute,
   AppEinstellungenKiAgentenIndexRoute: AppEinstellungenKiAgentenIndexRoute,

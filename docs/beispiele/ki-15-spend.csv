@@ -1,0 +1,8 @@
+Lieferantennummer;Name;Ort;Land;USt-IdNr;Buchungsdatum;Betrag;Währung;Materialgruppe;Text
+4711093;RHEINTAL ELEKTRONIK GMBH & CO KG;Speyer;DE;;15.03.2025;312400,00;EUR;Z-LP;Leiterplatten 4-lagig Elektronik
+4802211;Silesia Guss sp. z o.o. Oddzial Gliwice;Gliwice;PL;;20.03.2025;188900,00;EUR;Z-GU;Gussteile Aluminium Guss
+4802212;Silesia Gus;Gliwice;PL;;02.04.2025;45000,00;EUR;Z-GU;Gussteile Eisen
+5100001;Nordwind Kunststoffwerk;Ulm;DE;;01.04.2025;80000,00;EUR;;Kunststoffgehäuse
+5100002;Pearl River Components Ltd.;Shenzhen;CN;;12.05.2025;22800,00;EUR;;Frachtkosten Express
+5100003;Pearl River Components Ltd.;Shenzhen;CN;;14.05.2025;96300,00;CNY;Z-EL;Steckverbinder
+5100004;Rheintal Elektronik GmbH;Speyer;DE;;01.06.2025;;EUR;Z-LP;Leiterplatten Muster

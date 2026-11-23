@@ -179,8 +179,21 @@ export class SuppliersService {
    */
   async create(auth: AuthContext, input: CreateSupplierRequest): Promise<CreateSupplierResponse> {
     const organization = this.editor(auth);
+    return this.run(auth, organization, (tx) => this.createIn(tx, auth, input));
+  }
+
+  /**
+   * Lieferant anlegen in einer laufenden Transaktion der Käufer-Session, z. B. beim Übernehmen
+   * eines Imports (KI-15). Dieselben Prüfungen wie beim Anlegen von Hand.
+   */
+  async createIn(
+    tx: TenantTransaction,
+    auth: AuthContext,
+    input: CreateSupplierRequest,
+  ): Promise<CreateSupplierResponse> {
+    const organization = this.editor(auth);
     const request = createSupplierRequestSchema.parse(input);
-    return this.run(auth, organization, async (tx) => {
+    {
       const actor = await actorOf(tx, auth, organization.id);
       const found = await tx.execute<{ id: string; existed: boolean }>(sql`
         select id::text, existed from app_lieferant_finden_oder_anlegen(
@@ -260,7 +273,7 @@ export class SuppliersService {
         });
       }
       return { relationshipId, linked: supplier.existed };
-    });
+    }
   }
 
   /** Stammdaten, eigene Werte, Status und Spend je Jahr eines Lieferanten. */

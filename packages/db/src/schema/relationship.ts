@@ -14,6 +14,7 @@ import {
   unique,
   uniqueIndex,
   uuid,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 import { appUser, userFunctions } from './app-user.js';
 import { businessUnit, materialGroup, materialGroupProductGroup } from './master-data.js';
@@ -72,6 +73,8 @@ export const relationshipSide = pgTable(
     focusReason: text(),
     focusSetBy: text().references(() => appUser.id),
     focusSetAt: timestamp({ withTimezone: true }),
+    // KI-15: Konzernverbund aus Sicht dieser Seite; entsteht nur nach Bestätigung durch einen Menschen
+    parentRelationshipId: uuid().references((): AnyPgColumn => relationship.id),
   },
   (table) => [unique('relationship_side_je_seite').on(table.relationshipId, table.orgId)],
 );

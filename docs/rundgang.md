@@ -1,6 +1,6 @@
 # Rundgang: Was ist gebaut und wo sehe ich es
 
-Stand 23.11.2026, nach Schritt 10 (KI-07), 11b (KI-16) und 11c (KI-17) der Warteschlange ([umsetzungsplan.md](umsetzungsplan.md)).
+Stand 23.11.2026, nach Schritt 10 (KI-07), 11a (KI-15), 11b (KI-16) und 11c (KI-17) der Warteschlange ([umsetzungsplan.md](umsetzungsplan.md)).
 Diese Datei wird mit jedem Schritt fortgeschrieben.
 
 ## Vorbereitung
@@ -34,6 +34,7 @@ kommen aus festen Testquellen.
 | Lieferant › Ergebnisse › **Wertpotenziale**                 | Preisgleitklausel nach Index: Wert für euch, Wirkung für den Lieferanten, Sicherheit mit Grund, Rechenweg (aufklappen). Annahmen ändern, Als Thema ins JBP übernehmen, Verwerfen. Rechts: was geprüft wurde, Marktsignale mit Ergebnis, was nach außen ging, Datenlücken mit „Anfrage entwerfen“.                           |
 | **Wertpotenziale über alle** (`/uebersicht/wertpotenziale`) | Summen je Wirkungsart, größtes Potenzial, Spannen-Balken und Tabelle je Lieferant, häufigste Hebel, Signale und Datenlücken.                                                                                                                                                                                                |
 | Profil › Einstellungen › **KI und Agenten**                 | Verarbeitung nur in der EU, öffentliche Recherche, Budget je Monat und Lauf, Segmente für den monatlichen Wertpotenzial-Lauf, Annahmen der Hebel-Vorlagen, Verbrauch des Monats. Abschnitt **Hinweise**: Regeln an oder aus, Schwellen, Bewertung je Regel. Abschnitt **Termin-Briefing**: Vorlauf je Termintyp. Darunter die Agenten mit Läufen und Protokoll.                                                                                             |
+| Profil › Einstellungen › **Daten importieren** (`/einstellungen/daten/import`) | Spend oder Lieferantenstamm als CSV oder Excel hochladen, z. B. `docs/beispiele/ki-15-spend.csv`. Spalten bestätigen, dann Prüfen: sicher zugeordnet, zur Prüfung, Fehler (Fremdwährung, leerer Betrag). Vorschläge mit Ähnlichkeit und Begründung, Übernehmen, Anderer Lieferant, Neu anlegen, Warengruppe. Jede Entscheidung wird ein Alias oder eine Regel. Übernehmen, danach Datenqualität und Rückgängig (30 Tage). |
 
 ## Als Lieferant (Lieferant 1)
 
@@ -46,5 +47,4 @@ Datenanfrage (als Maßnahme), erscheint bei ihm.
 
 - Feedback-Umfrage und Hantel (keine Umfrage in den Demo-Daten)
 - Anbindungen (Schritt 12, in Arbeit)
-- Import mit Prüfung und Zuordnung (KI-15, nächster Schritt 11a)
 - Anpassungen der Warengruppen (Schritte 21 bis 33, nach dem Lieferantenmanagement)

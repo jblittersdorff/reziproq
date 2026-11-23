@@ -1099,6 +1099,43 @@ export const layerRegister: Record<string, LayerEntry> = {
     manual:
       'Protokoll des Betreiber-Zugangs nur für den Betrieb, über die Session nie lesbar (UMB-01)',
   },
+  // KI-15: Import und Zuordnung, je Käufer privat
+  import_batch: {
+    kind: 'org_private',
+    testValues: {
+      kind: 'spend',
+      file_name: 'probe.csv',
+      file_hash: 'probe',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    },
+  },
+  import_row: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      batch_id: org && probe('import_batch', org),
+      row_no: 1,
+      raw: {},
+      status: 'review',
+    }),
+  },
+  supplier_alias: {
+    kind: 'org_private',
+    // Mehrere Probe-Zeilen je Organisation: jede mit eigener Nummer (Nummer je Quellsystem eindeutig)
+    testValues: () => ({
+      external_number: `probe-${Math.random().toString(36).slice(2)}`,
+      created_by: 'demo-test-oem-1',
+    }),
+  },
+  category_rule: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      material_group_id: org && probe('material_group', org),
+      field: 'account',
+      pattern: `probe-${Math.random().toString(36).slice(2)}`,
+      created_by: 'demo-test-oem-1',
+    }),
+  },
 };
 
 /** Tabellen, deren Policies aus app_apply_layer stammen; für sie laufen alle Ebenen-Prüfungen. */

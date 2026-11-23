@@ -83,6 +83,9 @@ import {
   forbiddenCodes,
   type GoalRequest,
   type BriefSettings,
+  type ColumnMap,
+  type DecideImportRows,
+  type ImportBatchKind,
   type EditBriefAgenda,
   type EditCaptureItem,
   type SaveCapture,
@@ -93,6 +96,8 @@ import {
   hintRuleSettingsSchema,
   meetingBriefSchema,
   meetingCaptureSchema,
+  importBatchListSchema,
+  importBatchSchema,
   briefSettingsSchema,
   hintSchema,
   hintSettingsSchema,
@@ -3779,6 +3784,66 @@ export const shareCaptureProtocol = (
     meetingCaptureSchema,
     accessToken,
   );
+
+/** KI-15: Import und Zuordnung (Einstellungen › Daten › Import) */
+const importsPath = '/einstellungen/importe';
+
+export const importBatchesQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['importe'],
+    queryFn: () => getJson(importsPath, importBatchListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const importBatchQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['importe', id],
+    queryFn: () => getJson(`${importsPath}/${id}`, importBatchSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export async function uploadImportBatch(accessToken: string, kind: ImportBatchKind, file: File) {
+  const form = new FormData();
+  form.append('file', file);
+  const path = `${importsPath}?art=${kind}`;
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const answer: unknown = await res.json().catch(() => null);
+    throw new ApiError(path, res.status, undefined, answer);
+  }
+  return importBatchSchema.parse(await res.json());
+}
+
+export const saveImportColumns = (accessToken: string, id: string, columnMap: ColumnMap) =>
+  sendJson('PUT', `${importsPath}/${id}/spalten`, { columnMap }, importBatchSchema, accessToken);
+
+export const importBatchAction = (
+  accessToken: string,
+  id: string,
+  action: 'verarbeiten' | 'uebernehmen' | 'rueckgaengig' | 'verwerfen',
+) => sendJson('POST', `${importsPath}/${id}/${action}`, {}, importBatchSchema, accessToken);
+
+export const decideImportRows = (accessToken: string, id: string, request: DecideImportRows) =>
+  sendJson('POST', `${importsPath}/${id}/entscheiden`, request, importBatchSchema, accessToken);
+
+/** Fehlerzeilen eines Imports als CSV herunterladen (mit Anmeldung) */
+export async function downloadImportErrors(accessToken: string, id: string): Promise<void> {
+  const path = `${importsPath}/${id}/fehler.csv`;
+  const res = await fetch(`/api${path}`, {
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res));
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'reziproq-import-fehler.csv';
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
 
 /** KI-07: Vorlauf je Termintyp (Einstellungen KI, nur Admins) */
 export const briefSettingsQueryOptions = (accessToken: string) =>

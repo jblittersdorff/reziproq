@@ -17,6 +17,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { HintsModule } from './modules/hints/hints.module.js';
+import { ImportsModule } from './modules/imports/imports.module.js';
 import { ImpactModule } from './modules/impact/impact.module.js';
 import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { JbpModule } from './modules/jbp/jbp.module.js';
@@ -79,6 +80,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     DataExportModule,
     PdfExportsModule,
     HintsModule,
+    ImportsModule,
     SearchModule,
     MaterialGroupsModule,
     ActivitiesModule,

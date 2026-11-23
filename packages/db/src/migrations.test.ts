@@ -57,6 +57,8 @@ describe('Migrationen', () => {
       'focus_reason',
       'focus_set_by',
       'focus_set_at',
+      // KI-15: Konzernverbund aus Sicht dieser Seite
+      'parent_relationship_id',
     ]);
     expect(await columns('cycle')).toEqual([
       'id',
