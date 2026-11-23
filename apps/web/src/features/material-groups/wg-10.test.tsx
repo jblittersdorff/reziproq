@@ -224,4 +224,68 @@ describe('WG-10 Bewertung und Hebel', () => {
       }),
     );
   });
+  it('Schritt 26: ein Vorschlag von Reziproq steht gestrichelt mit „Vorschlag prüfen“ und „Verwerfen“', async () => {
+    assessment = {
+      ...assessment,
+      choices: [
+        ...assessment.choices,
+        {
+          id: uuid(41),
+          internalItemId: uuid(21),
+          externalItemId: uuid(22),
+          leverId: uuid(51),
+          reason: 'Moldau PCB als zweite Quelle aufbauen.',
+          status: 'proposed',
+        },
+      ],
+    };
+    renderAt(`/warengruppen/${group}/strategie/6`);
+    const row = await screen.findByRole('listitem', { name: 'W1 · O1' });
+    expect(within(row).getByText('Vorschlag von Reziproq')).toBeTruthy();
+    // Der Katalog markiert den vorgeschlagenen Hebel
+    expect(screen.getByText(/Neue Lieferanten einführen · vorgeschlagen/)).toBeTruthy();
+    fireEvent.click(within(row).getByRole('button', { name: 'Vorschlag verwerfen: W1 · O1' }));
+    await waitFor(() =>
+      expect(sent.at(-1)).toMatchObject({
+        method: 'PATCH',
+        url: `/api/warengruppen/strategien/${strategyId}/paarungen/${uuid(41)}`,
+        body: { status: 'dismissed', leverId: uuid(51) },
+      }),
+    );
+    fireEvent.click(within(row).getByRole('button', { name: 'Vorschlag prüfen: W1 · O1' }));
+    expect(await screen.findByDisplayValue('Moldau PCB als zweite Quelle aufbauen.')).toBeTruthy();
+  });
+
+  it('Schritt 26: Admins pflegen den Hebelkatalog in den Einstellungen', async () => {
+    api.me = { ...anna, orgRole: 'admin' };
+    api.permissions = actionsFor.admin;
+    const handle = api.handle;
+    api.handle = (request) => {
+      if (request.url === '/api/warengruppen/hebel' && request.method === 'GET')
+        return Response.json({ levers: assessment.levers });
+      if (request.url === '/api/warengruppen/kennzahlen')
+        return Response.json({ dimensions: assessment.dimensions, kpis: [] });
+      if (request.url.startsWith('/api/warengruppen/hebel/') && request.method === 'PATCH') {
+        sent.push(request);
+        return Response.json({ ...assessment.levers[0], ...(request.body as object) });
+      }
+      return handle?.(request);
+    };
+    renderAt('/einstellungen/warengruppen/hebel');
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Hebelkatalog der Warengruppen' }),
+    ).toBeTruthy();
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Deaktivieren: Second-Level Buying' }),
+    );
+    await waitFor(() =>
+      expect(sent.at(-1)).toMatchObject({
+        method: 'PATCH',
+        url: `/api/warengruppen/hebel/${uuid(50)}`,
+        body: { active: false },
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Bearbeiten: Neue Lieferanten einführen' }));
+    expect(await screen.findByDisplayValue('Neue Lieferanten einführen')).toBeTruthy();
+  });
 });

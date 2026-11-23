@@ -180,6 +180,60 @@ describe('WG-10 Bewertung und Hebel', () => {
     expect(await stepState()).toBe('done');
   });
 
+  it('Schritt 26: ein Vorschlag wird mit Begründung gewählt oder verworfen', async () => {
+    const { items, levers, choices } = await assessment();
+    const proposal = choices.find((choice) => choice.status === 'proposed');
+    if (!proposal) throw new Error('Vorschlag fehlt');
+    const body = {
+      internalItemId: proposal.internalItemId,
+      externalItemId: proposal.externalItemId,
+      leverId: proposal.leverId,
+    };
+    // Übernehmen verlangt eine Begründung
+    expect(
+      (
+        await call(users.lead, 'PATCH', `${base()}/paarungen/${proposal.id}`, {
+          ...body,
+          status: 'chosen',
+          reason: '',
+        })
+      ).status,
+    ).toBe(400);
+    const dismissed = strategyAssessmentSchema.parse(
+      (
+        await call(users.lead, 'PATCH', `${base()}/paarungen/${proposal.id}`, {
+          ...body,
+          status: 'dismissed',
+        })
+      ).body,
+    );
+    expect(dismissed.choices.find((choice) => choice.id === proposal.id)?.status).toBe('dismissed');
+    expect(items.length).toBeGreaterThan(0);
+    expect(levers.length).toBeGreaterThan(0);
+  });
+
+  it('Schritt 26: den Hebelkatalog pflegen nur Admins; ausgeschaltete Hebel bleiben in Paarungen lesbar', async () => {
+    const { levers } = await assessment();
+    const lever = levers.find((entry) => entry.name === 'Preise verhandeln');
+    if (!lever) throw new Error('Hebel fehlt');
+    expect(
+      (await call(users.lead, 'PATCH', `/warengruppen/hebel/${lever.id}`, { active: false }))
+        .status,
+    ).toBe(403);
+    const changed = await call(users.adminA, 'PATCH', `/warengruppen/hebel/${lever.id}`, {
+      description: 'Preise nach Markt-, Mengen- oder Leistungskriterien anpassen.',
+      dimensions: ['cost', 'supply'],
+      active: false,
+    });
+    expect(changed.status).toBe(200);
+    expect(changed.body).toMatchObject({ dimensions: ['cost', 'supply'], active: false });
+    const list = (await call(users.lead, 'GET', '/warengruppen/hebel')).body as {
+      levers: { id: string; active: boolean }[];
+    };
+    expect(list.levers.find((entry) => entry.id === lever.id)?.active).toBe(false);
+    await call(users.adminA, 'PATCH', `/warengruppen/hebel/${lever.id}`, { active: true });
+  });
+
   it('ein eigener Hebel bei Kunde A erscheint nicht bei Kunde B', async () => {
     const missing = await call(users.lead, 'POST', '/warengruppen/hebel', {
       name: 'Rezyklat-Programm',

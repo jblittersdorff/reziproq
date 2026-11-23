@@ -1,11 +1,15 @@
-import { type MaterialGroupImportPreview, portalKpiSource } from '@reziproq/shared';
+import {
+  type MaterialGroupImportPreview,
+  portalKpiSource,
+  type StrategyLever,
+} from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
-import { FormActions, FormField } from '@/components/ui/form-field';
+import { CheckboxGroup, FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -18,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import { useCan } from '@/features/auth/use-permissions';
 import { useToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
@@ -26,6 +31,7 @@ import {
   ApiError,
   categoryLabelQueryOptions,
   kpiListQueryOptions,
+  leverCatalogQueryOptions,
   materialGroupDetailQueryOptions,
   materialGroupOverviewQueryOptions,
   mergeMaterialGroup,
@@ -36,6 +42,7 @@ import {
   saveKpi,
   saveQuestion,
   splitMaterialGroup,
+  updateLever,
   uploadMaterialGroups,
 } from '@/lib/api';
 import { flash } from '@/lib/flash';
@@ -870,5 +877,181 @@ export function QuestionSettingsPage() {
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * WG-10 (Schritt 26, nach Regeln): Hebelkatalog pflegen. Admins ändern Name, Beschreibung und
+ * Zieldimensionen (die erste ist die Hauptwirkung) und schalten Hebel ein oder aus.
+ */
+export function LeverSettingsPage() {
+  const t = useT();
+  const text = t.strategy.settings;
+  const accessToken = useToken();
+  const manage = useCan('stammdaten.verwalten');
+  const queryClient = useQueryClient();
+  const options = leverCatalogQueryOptions(accessToken);
+  const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const kpis = useQuery({ ...kpiListQueryOptions(accessToken), enabled: accessToken !== '' });
+  const [editing, setEditing] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const trail = useTrail(text.leversTitle);
+  const dimensions = kpis.data?.dimensions ?? [];
+  const dimensionName = (key: string) => dimensions.find((entry) => entry.key === key)?.name ?? key;
+  const run = async (
+    id: string,
+    change: { name?: string; description?: string; dimensions?: string[]; active?: boolean },
+  ) => {
+    setMessage(null);
+    setFailure(null);
+    try {
+      const saved = await updateLever(accessToken, id, change);
+      queryClient.setQueryData(options.queryKey, (current) =>
+        current
+          ? { levers: current.levers.map((entry) => (entry.id === id ? saved : entry)) }
+          : current,
+      );
+      setMessage(text.leverSaved);
+      return true;
+    } catch {
+      setFailure(t.strategy.failedSave);
+      return false;
+    }
+  };
+  return (
+    <>
+      {trail}
+      <PageHeader title={text.leversTitle} purpose={text.leversPurpose} />
+      {query.isError ? (
+        <ErrorState title={t.strategy.failed} />
+      ) : !query.data ? (
+        <LoadingState label={t.strategy.loading} />
+      ) : (
+        <div className="flex max-w-4xl flex-col gap-4">
+          {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+          {failure && <StatusLine message={failure} tone="warning" />}
+          <ul className="divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card">
+            {query.data.levers.map((lever) => (
+              <li key={lever.id} className="flex flex-col gap-3 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <span className="flex min-w-0 flex-1 basis-64 flex-col gap-0.5">
+                    <span className="font-medium">
+                      {lever.name}
+                      {lever.custom ? ` · ${text.leverOwn}` : ''}
+                    </span>
+                    <span className="text-muted-foreground text-sm">{lever.description}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {text.leverDimensions}: {lever.dimensions.map(dimensionName).join(', ')}
+                    </span>
+                  </span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Badge variant={lever.active ? 'success' : 'neutral'}>
+                      {lever.active ? text.active : text.inactive}
+                    </Badge>
+                    {manage && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          aria-label={text.leverEdit(lever.name)}
+                          onClick={() => setEditing(editing === lever.id ? null : lever.id)}
+                        >
+                          {text.editQuestion}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          aria-label={`${lever.active ? text.deactivate : text.activate}: ${lever.name}`}
+                          onClick={() => void run(lever.id, { active: !lever.active })}
+                        >
+                          {lever.active ? text.deactivate : text.activate}
+                        </Button>
+                      </>
+                    )}
+                  </span>
+                </div>
+                {editing === lever.id && (
+                  <LeverForm
+                    lever={lever}
+                    dimensions={dimensions}
+                    onSave={async (change) => {
+                      if (await run(lever.id, change)) setEditing(null);
+                    }}
+                    onCancel={() => setEditing(null)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </>
+  );
+}
+
+function LeverForm({
+  lever,
+  dimensions,
+  onSave,
+  onCancel,
+}: {
+  lever: StrategyLever;
+  dimensions: { key: string; name: string }[];
+  onSave: (change: { name: string; description: string; dimensions: string[] }) => void;
+  onCancel: () => void;
+}) {
+  const t = useT();
+  const text = t.strategy.settings;
+  const [name, setName] = useState(lever.name);
+  const [description, setDescription] = useState(lever.description);
+  const [chosen, setChosen] = useState<string[]>(lever.dimensions);
+  return (
+    <form
+      className="flex flex-col gap-3 rounded-md bg-paper p-4"
+      onSubmit={(event: FormEvent) => {
+        event.preventDefault();
+        if (name.trim() && chosen.length > 0)
+          onSave({ name: name.trim(), description: description.trim(), dimensions: chosen });
+      }}
+    >
+      <FormField label={text.name}>
+        {(field) => (
+          <Input
+            {...field}
+            required
+            maxLength={120}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        )}
+      </FormField>
+      <FormField label={text.description}>
+        {(field) => (
+          <Textarea
+            {...field}
+            rows={2}
+            maxLength={500}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        )}
+      </FormField>
+      <CheckboxGroup
+        legend={text.leverDimensions}
+        options={dimensions.map((entry) => ({ value: entry.key, label: entry.name }))}
+        value={chosen}
+        onChange={setChosen}
+      />
+      <p className="text-muted-foreground text-sm">{text.leverDimensionsHint}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" disabled={!name.trim() || chosen.length === 0}>
+          {text.save}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onCancel}>
+          {t.assessment.cancel}
+        </Button>
+      </div>
+    </form>
   );
 }

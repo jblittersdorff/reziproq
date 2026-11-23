@@ -187,7 +187,7 @@ function SwotField({
         <h2 id={headingId} className="font-semibold text-lg">
           {text.types[type]}
         </h2>
-        <span className="text-muted-foreground text-xs">{text.typeHints[type]}</span>
+        <span className="text-chip text-muted-foreground">{text.typeHints[type]}</span>
       </div>
       {save.failure && <StatusLine message={save.failure} tone="warning" />}
       {items.length === 0 ? (
@@ -206,12 +206,12 @@ function SwotField({
                   item.status === 'draft' && 'border-2 border-petrol border-dashed',
                 )}
               >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-line-soft font-semibold text-xs">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-line-soft font-semibold text-chip">
                   {item.code}
                 </span>
                 <span className="flex min-w-0 grow flex-col">
                   <span>{item.text}</span>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-chip text-muted-foreground">
                     {[
                       originKey && text.origins[originKey]
                         ? text.from(text.origins[originKey] ?? '')
@@ -385,22 +385,66 @@ function ChoicesSection({
                 aria-label={pairing(choice)}
                 className={cn(
                   'flex flex-wrap items-start gap-x-4 gap-y-2 py-3 text-sm',
-                  choice.status !== 'chosen' && 'text-muted-foreground',
+                  choice.status === 'dismissed' && 'text-muted-foreground',
+                  // Vorschlag von Reziproq (KI-08): gestrichelt Petrol, wird geprüft oder verworfen
+                  choice.status === 'proposed' &&
+                    'my-1 rounded-md border-2 border-petrol border-dashed px-3',
                 )}
               >
+                {choice.status === 'proposed' && (
+                  <span className="basis-full font-semibold text-petrol-dark text-chip">
+                    {text.proposalHeading}
+                  </span>
+                )}
                 <span className="flex size-auto min-w-16 shrink-0 font-semibold">
                   {pairing(choice)}
                 </span>
                 <span className="flex min-w-0 grow basis-64 flex-col gap-1">
                   <strong className="font-semibold">{lever?.name ?? '–'}</strong>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-chip text-muted-foreground">
                     {text.effect}: {lever?.dimensions.map(dimensionName).join(', ')}
                   </span>
                   <span>{choice.reason || '–'}</span>
                 </span>
                 <span className="flex shrink-0 flex-wrap items-center gap-1">
-                  <span className="font-semibold">{text.statuses[choice.status]}</span>
-                  {canEdit && (
+                  {choice.status !== 'proposed' && (
+                    <span className="font-semibold">{text.statuses[choice.status]}</span>
+                  )}
+                  {canEdit && choice.status === 'proposed' && (
+                    <>
+                      <Button
+                        size="sm"
+                        aria-label={text.reviewProposal(pairing(choice))}
+                        onClick={() => setEditing(choice)}
+                      >
+                        {text.reviewShort}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        aria-label={text.dismissProposal(pairing(choice))}
+                        onClick={() =>
+                          void save.run((token) =>
+                            saveLeverChoice(
+                              token,
+                              strategyId,
+                              {
+                                internalItemId: choice.internalItemId,
+                                externalItemId: choice.externalItemId,
+                                leverId: choice.leverId,
+                                reason: choice.reason,
+                                status: 'dismissed',
+                              },
+                              choice.id,
+                            ),
+                          )
+                        }
+                      >
+                        {text.dismissShort}
+                      </Button>
+                    </>
+                  )}
+                  {canEdit && choice.status !== 'proposed' && (
                     <>
                       <Button
                         size="sm"
@@ -428,7 +472,7 @@ function ChoicesSection({
           })}
         </ul>
       )}
-      <p className="text-muted-foreground text-xs">{text.pairingHint}</p>
+      <p className="text-chip text-muted-foreground">{text.pairingHint}</p>
     </section>
   );
 }
@@ -588,6 +632,9 @@ function CatalogSection({
   const chosen = new Set(
     data.choices.filter((choice) => choice.status === 'chosen').map((choice) => choice.leverId),
   );
+  const proposed = new Set(
+    data.choices.filter((choice) => choice.status === 'proposed').map((choice) => choice.leverId),
+  );
   const active = data.levers.filter((entry) => entry.active);
   return (
     <section
@@ -603,10 +650,16 @@ function CatalogSection({
       <ul className="flex flex-wrap gap-2">
         {active.map((entry) => (
           <li key={entry.id}>
-            <Badge variant={chosen.has(entry.id) ? 'success' : 'neutral'} title={entry.description}>
+            <Badge
+              variant={
+                chosen.has(entry.id) ? 'success' : proposed.has(entry.id) ? 'selected' : 'neutral'
+              }
+              title={entry.description}
+            >
               {chosen.has(entry.id) && <CheckIcon aria-hidden />}
               {entry.name}
               {chosen.has(entry.id) && <span className="sr-only"> ({text.chosenMark})</span>}
+              {!chosen.has(entry.id) && proposed.has(entry.id) && ` · ${text.proposedMark}`}
               {entry.custom && ` · ${text.custom}`}
             </Badge>
           </li>

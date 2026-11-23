@@ -1022,6 +1022,25 @@ export const removeLeverChoice = (accessToken: string, strategyId: string, choic
 export const addCustomLever = (accessToken: string, request: CustomLeverRequest) =>
   sendJson('POST', '/warengruppen/hebel', request, strategyLeverSchema, accessToken);
 
+/** WG-10 (Schritt 26): Hebelkatalog pflegen (Admins) */
+export const leverCatalogQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'hebel'],
+    queryFn: () =>
+      getJson(
+        '/warengruppen/hebel',
+        z.object({ levers: z.array(strategyLeverSchema) }),
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const updateLever = (
+  accessToken: string,
+  id: string,
+  change: { name?: string; description?: string; dimensions?: string[]; active?: boolean },
+) => sendJson('PATCH', `/warengruppen/hebel/${id}`, change, strategyLeverSchema, accessToken);
+
 /** WG-09: Marktanalyse in Schritt 5 */
 export const marketQueryOptions = (accessToken: string, strategyId: string) =>
   queryOptions({

@@ -78,6 +78,7 @@ import { Route as AppEinstellungenSegmentmodellGrenzenRouteImport } from './rout
 import { Route as AppEinstellungenSpielregelnIndexRouteImport } from './routes/_app/einstellungen/spielregeln/index'
 import { Route as AppEinstellungenWarengruppenIndexRouteImport } from './routes/_app/einstellungen/warengruppen/index'
 import { Route as AppEinstellungenWarengruppenBezeichnungRouteImport } from './routes/_app/einstellungen/warengruppen/bezeichnung'
+import { Route as AppEinstellungenWarengruppenHebelRouteImport } from './routes/_app/einstellungen/warengruppen/hebel'
 import { Route as AppEinstellungenWarengruppenImportRouteImport } from './routes/_app/einstellungen/warengruppen/import'
 import { Route as AppEinstellungenWarengruppenKennzahlenRouteImport } from './routes/_app/einstellungen/warengruppen/kennzahlen'
 import { Route as AppEinstellungenWarengruppenLeitfragenRouteImport } from './routes/_app/einstellungen/warengruppen/leitfragen'
@@ -638,6 +639,12 @@ const AppEinstellungenWarengruppenBezeichnungRoute =
   AppEinstellungenWarengruppenBezeichnungRouteImport.update({
     id: '/einstellungen/warengruppen/bezeichnung',
     path: '/einstellungen/warengruppen/bezeichnung',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenWarengruppenHebelRoute =
+  AppEinstellungenWarengruppenHebelRouteImport.update({
+    id: '/einstellungen/warengruppen/hebel',
+    path: '/einstellungen/warengruppen/hebel',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenWarengruppenImportRoute =
@@ -1870,6 +1877,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/segmentmodell/gewichte': typeof AppEinstellungenSegmentmodellGewichteRoute
   '/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
+  '/einstellungen/warengruppen/hebel': typeof AppEinstellungenWarengruppenHebelRoute
   '/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
   '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
@@ -2132,6 +2140,7 @@ export interface FileRoutesByTo {
   '/einstellungen/segmentmodell/gewichte': typeof AppEinstellungenSegmentmodellGewichteRoute
   '/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
+  '/einstellungen/warengruppen/hebel': typeof AppEinstellungenWarengruppenHebelRoute
   '/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
   '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
@@ -2398,6 +2407,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/segmentmodell/gewichte': typeof AppEinstellungenSegmentmodellGewichteRoute
   '/_app/einstellungen/segmentmodell/grenzen': typeof AppEinstellungenSegmentmodellGrenzenRoute
   '/_app/einstellungen/warengruppen/bezeichnung': typeof AppEinstellungenWarengruppenBezeichnungRoute
+  '/_app/einstellungen/warengruppen/hebel': typeof AppEinstellungenWarengruppenHebelRoute
   '/_app/einstellungen/warengruppen/import': typeof AppEinstellungenWarengruppenImportRoute
   '/_app/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/_app/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
@@ -2665,6 +2675,7 @@ export interface FileRouteTypes {
     | '/einstellungen/segmentmodell/gewichte'
     | '/einstellungen/segmentmodell/grenzen'
     | '/einstellungen/warengruppen/bezeichnung'
+    | '/einstellungen/warengruppen/hebel'
     | '/einstellungen/warengruppen/import'
     | '/einstellungen/warengruppen/kennzahlen'
     | '/einstellungen/warengruppen/leitfragen'
@@ -2927,6 +2938,7 @@ export interface FileRouteTypes {
     | '/einstellungen/segmentmodell/gewichte'
     | '/einstellungen/segmentmodell/grenzen'
     | '/einstellungen/warengruppen/bezeichnung'
+    | '/einstellungen/warengruppen/hebel'
     | '/einstellungen/warengruppen/import'
     | '/einstellungen/warengruppen/kennzahlen'
     | '/einstellungen/warengruppen/leitfragen'
@@ -3192,6 +3204,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/segmentmodell/gewichte'
     | '/_app/einstellungen/segmentmodell/grenzen'
     | '/_app/einstellungen/warengruppen/bezeichnung'
+    | '/_app/einstellungen/warengruppen/hebel'
     | '/_app/einstellungen/warengruppen/import'
     | '/_app/einstellungen/warengruppen/kennzahlen'
     | '/_app/einstellungen/warengruppen/leitfragen'
@@ -3891,6 +3904,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/warengruppen/bezeichnung'
       fullPath: '/einstellungen/warengruppen/bezeichnung'
       preLoaderRoute: typeof AppEinstellungenWarengruppenBezeichnungRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/warengruppen/hebel': {
+      id: '/_app/einstellungen/warengruppen/hebel'
+      path: '/einstellungen/warengruppen/hebel'
+      fullPath: '/einstellungen/warengruppen/hebel'
+      preLoaderRoute: typeof AppEinstellungenWarengruppenHebelRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/warengruppen/import': {
@@ -5741,6 +5761,7 @@ interface AppRouteChildren {
   AppEinstellungenSegmentmodellGewichteRoute: typeof AppEinstellungenSegmentmodellGewichteRoute
   AppEinstellungenSegmentmodellGrenzenRoute: typeof AppEinstellungenSegmentmodellGrenzenRoute
   AppEinstellungenWarengruppenBezeichnungRoute: typeof AppEinstellungenWarengruppenBezeichnungRoute
+  AppEinstellungenWarengruppenHebelRoute: typeof AppEinstellungenWarengruppenHebelRoute
   AppEinstellungenWarengruppenImportRoute: typeof AppEinstellungenWarengruppenImportRoute
   AppEinstellungenWarengruppenKennzahlenRoute: typeof AppEinstellungenWarengruppenKennzahlenRoute
   AppEinstellungenWarengruppenLeitfragenRoute: typeof AppEinstellungenWarengruppenLeitfragenRoute
@@ -5854,6 +5875,8 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenSegmentmodellGrenzenRoute,
   AppEinstellungenWarengruppenBezeichnungRoute:
     AppEinstellungenWarengruppenBezeichnungRoute,
+  AppEinstellungenWarengruppenHebelRoute:
+    AppEinstellungenWarengruppenHebelRoute,
   AppEinstellungenWarengruppenImportRoute:
     AppEinstellungenWarengruppenImportRoute,
   AppEinstellungenWarengruppenKennzahlenRoute:

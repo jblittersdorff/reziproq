@@ -38,7 +38,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 23 | Anpassung WG-18 · Soll-Typ und Segmententscheidung | 20–21; SEG und WG-18 gebaut; Datenhoheit mit WG-15 festlegen. Festgelegt am 23.11.2026: ein Soll in der Segmententscheidung, die Supplier Map schreibt mit; käuferprivat; `/portfolio?warengruppe=` filtert die Matrix. | M | fertig (23.11.2026) |
 | 24 | Anpassung WG-07 · Zuweisung von Sichten und Kostenzugriff | 22–23; bestehende Analysen und RLS. Erledigt: Funktion ohne Kostensicht (F9); Sichten zuweisen und kommentieren, Aufgabe in Mein Tag. | M | fertig (23.11.2026) |
 | 25 | Anpassung WG-09 / KI-08 · Marktanalyse als Agent (K2-a) | 7, 20, 24; WG-09 und WG-10 gebaut; sechs Kräfte, Vorschläge und Quellen unter den Rechten des Teams. | L | fertig (23.11.2026) |
-| 26 | Anpassung WG-10 · Hebelkatalog und vorgeschlagene Paarungen | 21, 24–25; bestehende Bewertung und Katalogpflege. | M | offen |
+| 26 | Anpassung WG-10 · Hebelkatalog und vorgeschlagene Paarungen | 21, 24–25; bestehende Bewertung und Katalogpflege. Erledigt: Pflegeseite Hebelkatalog, Vorschläge prüfen oder verwerfen, Katalog markiert Vorschläge. | M | fertig (23.11.2026) |
 | 27 | WG-12 · Scorecard und Quartalsreview | 22, 26; Abnahme von Review nach Freigabe mit WG-16. | M | offen |
 | 28 | WG-15 · Supplier Map | 22–23, 26; Ist aus SEG und Spend, Soll-Typ, SRO-Zeilenzugriff; Übergabelink mit WG-20. | M | offen |
 | 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | offen |

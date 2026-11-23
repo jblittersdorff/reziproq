@@ -417,6 +417,32 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-10 (Schritt 26): Hebelkatalog in den Einstellungen
+  await page.route('**/api/warengruppen/hebel', (route) =>
+    route.fulfill({
+      json: {
+        levers: [
+          leverOf(41, 'Second-Level Buying', ['cost', 'supply']),
+          leverOf(42, 'Neue Lieferanten einführen', ['supply', 'cost', 'technology']),
+          { ...leverOf(43, 'Bedarfe bündeln', ['cost']), active: false },
+        ],
+      },
+    }),
+  );
+  await page.route('**/api/warengruppen/kennzahlen', (route) =>
+    route.fulfill({
+      json: {
+        dimensions: [
+          { key: 'supply', name: 'Versorgung' },
+          { key: 'quality', name: 'Qualität' },
+          { key: 'cost', name: 'Kosten' },
+          { key: 'technology', name: 'Technologie' },
+          { key: 'sustainability', name: 'Nachhaltigkeit' },
+        ],
+        kpis: [],
+      },
+    }),
+  );
   // WG-09: Marktanalyse
   const source = {
     id: uuid(95),
@@ -736,6 +762,7 @@ const pages = [
     `/warengruppen/${group}/strategie/6`,
     'Hebel für die strategische Bewertung wählen',
   ],
+  ['hebel', '/einstellungen/warengruppen/hebel', 'Hebelkatalog der Warengruppen'],
   [
     'segmentierung',
     `/warengruppen/${group}/segmentierung`,
