@@ -201,3 +201,8 @@ Entschieden am 23.11.2026:
   ein neues Datum für eine Zusage im freigegebenen Plan wird abgelehnt. Soll stattdessen eine Zusage
   aus einem Termin auch nach der Freigabe in den Plan dürfen, ohne neue Version?
 
+- **F12 · Import (vorläufig umgesetzt mit IN-07).** Ein gemeinsamer Stapel für Datei und API
+  (`import_batch` mit `source`). `idempotency_key` gilt je Schlüssel 24 Stunden; Teilaufrufe mit
+  `batch_id` nur vom selben Schlüssel. Ein Monat Spend aus einer neueren Lieferung ersetzt den Monat
+  älterer Lieferungen derselben Herkunft, auch wenn sie mit einem anderen Schlüssel desselben Kunden
+  kamen. Lesen dürfen Schlüssel nur ihre eigenen Lieferungen. Soll das so bleiben?

@@ -9,23 +9,15 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  and,
-  desc,
-  eq,
-  inArray,
-  ne,
-  schema,
-  sql,
-  type TenantTransaction,
-} from '@reziproq/db';
-import type { DueItem, Integrations, OrgRole } from '@reziproq/shared';
+import { and, desc, eq, inArray, ne, schema, sql, type TenantTransaction } from '@reziproq/db';
+import type { DueItem, Integrations } from '@reziproq/shared';
 import { z } from 'zod';
 import { IntegrationStore, TenantDatabase } from '../../common/database.module.js';
 import { env } from '../../config/env.js';
 import { ActivitiesService } from '../activities/activities.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { actorIn } from './actor.js';
 import { type ConnectorDefinition, connectorOf, connectors } from './connectors.js';
 import { FakeProvider, type ProviderItem } from './fake-provider.js';
 import { IntegrationQueue, type QueuedJob } from './integration-queue.js';
@@ -505,7 +497,7 @@ export class IntegrationsService {
         connection: row.connection,
         token: secret ? this.box.open(secret.ciphertext, secret.keyRef) : null,
         relationships: relationships.rows,
-        actor: await this.actorIn(tx, job.orgId, row.connection.connectedBy),
+        actor: await actorIn(tx, job.orgId, row.connection.connectedBy),
       };
     });
     if (!start) return;
@@ -617,41 +609,6 @@ export class IntegrationsService {
     }
   }
 
-  /** Die verbindende Person mit ihrer heutigen Rolle; null, wenn sie nicht mehr dazugehört. */
-  private async actorIn(
-    tx: TenantTransaction,
-    orgId: string,
-    userId: string,
-  ): Promise<AuthContext | null> {
-    const [person] = await tx
-      .select({ orgRole: schema.appUser.orgRole, isControlling: schema.appUser.isControlling })
-      .from(schema.appUser)
-      .where(and(eq(schema.appUser.id, userId), eq(schema.appUser.organizationId, orgId)));
-    const [organization] = await tx
-      .select({ name: schema.organization.name, country: schema.organization.country })
-      .from(schema.organization)
-      .where(eq(schema.organization.id, orgId));
-    const [buyer] = await tx
-      .select({ feature: schema.organizationFeature.feature })
-      .from(schema.organizationFeature)
-      .where(
-        and(
-          eq(schema.organizationFeature.organizationId, orgId),
-          eq(schema.organizationFeature.feature, 'buyer'),
-        ),
-      );
-    if (!person || !organization) return null;
-    return {
-      userId,
-      accessToken: '',
-      orgRole: person.orgRole as OrgRole,
-      isControlling: person.isControlling,
-      isOperator: false,
-      tokenRoles: [],
-      organization: { id: orgId, ...organization, buyer: Boolean(buyer) },
-    };
-  }
-
   private async fail(job: QueuedJob, connectionId: string, reason: string) {
     await this.tenant.run({ userId: systemUser, organizationId: job.orgId }, async (tx) => {
       await tx
@@ -694,6 +651,48 @@ export class IntegrationsService {
       .values({ orgId, connectionId, direction, kind, status, ...extra })
       // Zwei Jobs mit demselben Element: nur eines gilt als übernommen
       .onConflictDoNothing();
+  }
+
+  /**
+   * IN-07: Eine Lieferung über die Import-API erscheint auf der Seite Anbindungen als Abgleich der
+   * Import-API, mit Zeilen und Fehlern. Ohne verbundene Import-API bleibt es beim Import.
+   */
+  async recordDelivery(
+    orgId: string,
+    counts: { itemsIn: number; itemsOk: number; itemsFailed: number },
+  ): Promise<void> {
+    await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
+      const [connection] = await tx
+        .select({ id: schema.connection.id })
+        .from(schema.connection)
+        .where(
+          and(
+            eq(schema.connection.connectorKey, 'import_api'),
+            eq(schema.connection.scope, 'org'),
+            eq(schema.connection.status, 'active'),
+          ),
+        );
+      if (!connection) return;
+      const now = new Date();
+      await tx.insert(schema.syncJob).values({
+        orgId,
+        connectionId: connection.id,
+        kind: 'delivery',
+        status: 'done',
+        ...counts,
+        startedAt: now,
+        finishedAt: now,
+      });
+      await this.log(
+        tx,
+        orgId,
+        connection.id,
+        'in',
+        'delivery',
+        counts.itemsFailed > 0 ? 'failed' : 'applied',
+        counts.itemsFailed > 0 ? { reason: 'zeilen_mit_fehler' } : {},
+      );
+    });
   }
 
   // ---------------------------------------------------------------- Webhooks

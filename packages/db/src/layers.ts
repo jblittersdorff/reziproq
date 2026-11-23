@@ -872,6 +872,16 @@ export const layerRegister: Record<string, LayerEntry> = {
       secret_ref: '0190a0a0-0000-7000-8000-000000000001',
     }),
   },
+  // IN-07: Schlüssel der Import-API, je Organisation
+  api_key: {
+    kind: 'org_private',
+    testValues: () => ({
+      name: 'Probe',
+      prefix: 'probe',
+      hash: `probe-${Math.random().toString(36).slice(2)}`,
+      created_by: 'probe',
+    }),
+  },
   // AW-01: Aussage von Reziproq je Person und Seite
   insight_summary: {
     kind: 'org_private',
@@ -1152,6 +1162,16 @@ export const layerRegister: Record<string, LayerEntry> = {
       row_no: 1,
       raw: {},
       status: 'review',
+    }),
+  },
+  // IN-07: Spend je Monat aus der Import-API
+  spend_period: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      period: '2026-01',
+      amount_cents: 1,
+      delivery_id: '0190a0a0-0000-7000-8000-000000000001',
+      batch_id: org && probe('import_batch', org),
     }),
   },
   supplier_alias: {

@@ -1,4 +1,11 @@
-import type { Integrations, MyConnections } from '@reziproq/shared';
+import {
+  type ApiKeys,
+  type ApiObjectType,
+  apiObjectTypes,
+  type Integrations,
+  type MyConnections,
+  supportedApiObjectTypes,
+} from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckIcon } from 'lucide-react';
 import { useId, useState } from 'react';
@@ -6,6 +13,8 @@ import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
+import { CheckboxGroup, FormField } from '@/components/ui/form-field';
+import { Input } from '@/components/ui/input';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Monogram } from '@/components/ui/monogram';
@@ -14,15 +23,19 @@ import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/features/shell/page-header';
+import { routerLink } from '@/features/shell/navigation';
 import { PagePath } from '@/features/shell/page-path';
 import {
   ApiError,
+  apiKeysQueryOptions,
   connectIntegration,
+  createApiKey,
   connectMine,
   disconnectMine,
   integrationAction,
   integrationsQueryOptions,
   myConnectionsQueryOptions,
+  revokeApiKey,
   saveIntegrationParts,
 } from '@/lib/api';
 import { useFormat } from '@/lib/format';
@@ -403,6 +416,7 @@ function ManagePanel({
           )}
         </div>
       )}
+      {connector.key === 'import_api' && <ApiKeysSection />}
       <div className="flex flex-col gap-2">
         <span className="font-semibold text-sm">{text.lastJobTitle}</span>
         <span className="text-muted-foreground text-sm">
@@ -437,6 +451,165 @@ function ManagePanel({
         </ConfirmButton>
       </div>
     </div>
+  );
+}
+
+/**
+ * IN-07: Schlüssel der Import-API. Erzeugen mit Name und Objektarten, der Schlüssel steht einmal im
+ * Klartext; Liste mit letzter Nutzung und Widerrufen; letzte Lieferung mit Link in den Import.
+ */
+function ApiKeysSection() {
+  const t = useT();
+  const text = t.integrations.apiKeys;
+  const format = useFormat();
+  const accessToken = useAccessToken();
+  const client = useQueryClient();
+  const query = useQuery({ ...apiKeysQueryOptions(accessToken), enabled: accessToken !== '' });
+  const [name, setName] = useState('');
+  const [scopes, setScopes] = useState<ApiObjectType[]>([...supportedApiObjectTypes]);
+  const [secret, setSecret] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const store = (value: ApiKeys) =>
+    client.setQueryData(apiKeysQueryOptions(accessToken).queryKey, value);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setFailed(false);
+    try {
+      const created = await createApiKey(accessToken, { name, scopes });
+      store(created);
+      setSecret(created.secret);
+      setCopied(false);
+      setName('');
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const supported = supportedApiObjectTypes as readonly string[];
+  const last = query.data?.lastDelivery ?? null;
+
+  return (
+    <section aria-labelledby="api-schluessel" className="flex flex-col gap-3">
+      <h3 id="api-schluessel" className="font-semibold text-sm">
+        {text.title}
+      </h3>
+      <p className="text-muted-foreground text-sm">{text.hint}</p>
+      <a href="/api/v1/openapi.json" className="self-start font-semibold text-sm">
+        {text.docs}
+      </a>
+      {last && (
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span>
+            {text.lastDelivery(format.dateTime(last.createdAt), last.rowsTotal, last.rowsError)}
+          </span>
+          {routerLink({
+            href: `/einstellungen/daten/import/${last.batchId}`,
+            className: 'font-semibold',
+            children: text.openDelivery,
+          })}
+        </p>
+      )}
+      {secret && (
+        <div role="status" className="flex flex-col gap-2 rounded-md bg-card p-3">
+          <strong className="text-sm">{text.secretTitle}</strong>
+          <code className="break-all text-sm">{secret}</code>
+          <span className="text-muted-foreground text-sm">{text.secretHint}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              void navigator.clipboard?.writeText(secret).then(() => setCopied(true));
+            }}
+          >
+            {text.copy}
+          </Button>
+          {copied && <span className="text-sm">{text.copied}</span>}
+        </div>
+      )}
+      {query.isError ? (
+        <ErrorState title={t.integrations.failed} />
+      ) : !query.data ? (
+        <LoadingState label={t.integrations.loading} />
+      ) : query.data.keys.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{text.empty}</p>
+      ) : (
+        <ul className="flex flex-col divide-y divide-line-soft rounded-md bg-card px-3">
+          {query.data.keys.map((key) => (
+            <li key={key.id} className="flex flex-col gap-2 py-3">
+              <span className="flex flex-wrap items-center gap-2">
+                <strong className="text-sm">{key.name}</strong>
+                <code className="text-muted-foreground text-sm">{`${key.prefix}…`}</code>
+                {key.revokedAt && <Badge variant="plain">{text.revoked}</Badge>}
+              </span>
+              <span className="flex flex-wrap gap-1.5">
+                {key.scopes.map((scope) => (
+                  <Badge key={scope} variant="neutral">
+                    {text.types[scope] ?? scope}
+                  </Badge>
+                ))}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {key.lastUsedAt ? text.lastUsed(format.dateTime(key.lastUsedAt)) : text.neverUsed}
+              </span>
+              {!key.revokedAt && (
+                <div className="flex">
+                  <ConfirmButton
+                    question={text.revokeQuestion}
+                    confirmLabel={text.revokeConfirm}
+                    cancelLabel={t.integrations.cancel}
+                    onConfirm={() => {
+                      void revokeApiKey(accessToken, key.id).then(store, () => setFailed(true));
+                    }}
+                  >
+                    {text.revoke}
+                  </ConfirmButton>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-3">
+        <FormField label={text.nameLabel}>
+          {(field) => (
+            <Input
+              {...field}
+              value={name}
+              maxLength={80}
+              placeholder={text.namePlaceholder}
+              onChange={(event) => setName(event.target.value)}
+            />
+          )}
+        </FormField>
+        <CheckboxGroup<ApiObjectType>
+          legend={text.scopesLabel}
+          value={scopes}
+          onChange={setScopes}
+          options={apiObjectTypes.map((type) => ({
+            value: type,
+            label: supported.includes(type)
+              ? (text.types[type] ?? type)
+              : `${text.types[type] ?? type} (${text.later})`,
+          }))}
+        />
+        {failed && <StatusLine message={t.integrations.failed} tone="warning" />}
+        <Button
+          type="submit"
+          variant="outline"
+          className="self-start"
+          loading={busy}
+          disabled={name.trim() === '' || scopes.length === 0}
+        >
+          {text.create}
+        </Button>
+      </form>
+    </section>
   );
 }
 

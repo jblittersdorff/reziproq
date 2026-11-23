@@ -164,7 +164,11 @@ export function ImportsPage() {
                     children: (
                       <>
                         <span className="flex min-w-0 flex-col">
-                          <span className="truncate font-semibold">{batch.fileName}</span>
+                          <span className="flex min-w-0 items-center gap-2">
+                            <span className="truncate font-semibold">{batch.fileName}</span>
+                            {/* IN-07: Lieferung über die Import-API statt Datei */}
+                            {batch.source === 'api' && <Badge variant="neutral">{text.sourceApi}</Badge>}
+                          </span>
                           <span className="text-muted-foreground">
                             {`${text.kinds[batch.kind]} · ${text.rows(batch.rowsTotal)} · ${format.date(batch.createdAt)}`}
                           </span>

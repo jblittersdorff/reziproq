@@ -1295,6 +1295,7 @@ export const en: Messages = {
 
   // FS-01 Hints
   importBatches: {
+    sourceApi: 'API',
     navTitle: 'Import data',
     navHint: 'Supplier master and spend from the ERP',
     title: 'Import data',
@@ -1532,6 +1533,7 @@ export const en: Messages = {
         token_refresh: 'access renewed',
         webhook: 'inbound',
         note: 'note',
+        delivery: 'delivery',
       } as Record<string, string>,
       statuses: {
         applied: 'applied',
@@ -1552,6 +1554,7 @@ export const en: Messages = {
       inhalt_ungueltig: 'Content not readable.',
       erneuern_fehlgeschlagen: 'The provider did not renew the access.',
       getrennt: 'Disconnected.',
+      zeilen_mit_fehler: 'Rows with errors; details are in the delivery.',
     } as Record<string, string>,
     errors: {
       schon_verbunden: 'This integration is already connected.',
@@ -1559,6 +1562,40 @@ export const en: Messages = {
       kommt_spaeter: 'This integration comes in stage 2.',
       nicht_aktiv: 'The connection is not active. Please connect again.',
     } as Record<string, string>,
+    apiKeys: {
+      title: 'API keys',
+      hint: 'Your middleware delivers supplier master data and spend with a key. Today Reziproq takes over these two object types; the others follow.',
+      docs: 'API description (OpenAPI)',
+      empty: 'No key yet.',
+      nameLabel: 'Name',
+      namePlaceholder: 'e.g. ERP middleware',
+      scopesLabel: 'Allowed object types',
+      create: 'Create key',
+      secretTitle: 'New key, visible only now',
+      secretHint: 'Copy the key and store it in your middleware. Reziproq only keeps a checksum.',
+      copy: 'Copy key',
+      copied: 'Key copied.',
+      lastUsed: (date: string) => `last used ${date || '–'}`,
+      neverUsed: 'not used yet',
+      revoked: 'revoked',
+      revoke: 'Revoke',
+      revokeQuestion: 'Deliveries with this key will be rejected afterwards. Revoke?',
+      revokeConfirm: 'Yes, revoke',
+      lastDelivery: (date: string, rows: number | string, errors: number | string) =>
+        `Last delivery ${date || '–'} · ${rows} rows · ${errors} with errors`,
+      openDelivery: 'View delivery',
+      types: {
+        supplier: 'Supplier master data',
+        category_map: 'Category mapping',
+        spend: 'Spend',
+        order_line: 'Order lines',
+        goods_receipt: 'Goods receipts',
+        credit_note: 'Credit notes',
+        contract: 'Contracts',
+        quality_notification: 'Quality notifications',
+      } as Record<string, string>,
+      later: 'follows',
+    },
     mine: {
       title: 'My connections',
       hint: 'You connect calendar and Outlook add-in for yourself. Others do not see your connection.',

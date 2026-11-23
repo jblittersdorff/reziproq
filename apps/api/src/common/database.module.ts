@@ -256,6 +256,33 @@ export class IntegrationStore {
     return row ? { orgId: row.org_id, connectionId: row.connection_id } : null;
   }
 
+  /** IN-07: Schlüssel der Import-API zum Hash; nur IDs, Objektarten und Widerruf (drizzle/0113) */
+  async apiKey(hash: string): Promise<{
+    id: string;
+    orgId: string;
+    scopes: string[];
+    createdBy: string;
+    revoked: boolean;
+  } | null> {
+    const result = await this.db.execute<{
+      id: string;
+      org_id: string;
+      scopes: string[];
+      created_by: string;
+      revoked_at: string | null;
+    }>(sql`select id::text, org_id::text, scopes, created_by, revoked_at from app_api_key(${hash})`);
+    const row = result.rows[0];
+    return row
+      ? {
+          id: row.id,
+          orgId: row.org_id,
+          scopes: row.scopes,
+          createdBy: row.created_by,
+          revoked: row.revoked_at !== null,
+        }
+      : null;
+  }
+
   async organizations(): Promise<string[]> {
     const result = await this.db.execute<{ org_id: string }>(
       sql`select org_id::text from app_connection_orgs()`,

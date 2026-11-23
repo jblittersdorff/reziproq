@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ActivitiesModule } from '../activities/activities.module.js';
+import { ApiKeysService } from './api-keys.service.js';
 import { FakeProvider } from './fake-provider.js';
 import { IntegrationQueue } from './integration-queue.js';
 import {
@@ -14,7 +15,13 @@ import { IntegrationsWorker } from './integrations.worker.js';
 @Module({
   imports: [ActivitiesModule],
   controllers: [IntegrationsController, MyConnectionsController, InboundHookController],
-  providers: [FakeProvider, IntegrationQueue, IntegrationsService, IntegrationsWorker],
-  exports: [IntegrationsService],
+  providers: [
+    FakeProvider,
+    IntegrationQueue,
+    IntegrationsService,
+    IntegrationsWorker,
+    ApiKeysService,
+  ],
+  exports: [IntegrationsService, ApiKeysService],
 })
 export class IntegrationsModule {}

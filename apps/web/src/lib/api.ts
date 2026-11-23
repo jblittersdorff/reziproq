@@ -84,6 +84,7 @@ import {
   type GoalRequest,
   type BriefSettings,
   type ColumnMap,
+  type CreateApiKey,
   type DecideImportRows,
   type ImportBatchKind,
   type EditBriefAgenda,
@@ -99,6 +100,8 @@ import {
   importBatchListSchema,
   importBatchSchema,
   integrationsSchema,
+  apiKeysSchema,
+  createdApiKeySchema,
   myConnectionsSchema,
   briefSettingsSchema,
   hintSchema,
@@ -3894,3 +3897,17 @@ export const connectMine = (accessToken: string, key: string) =>
 
 export const disconnectMine = (accessToken: string, id: string) =>
   sendJson('POST', `${myConnectionsPath}/${id}/trennen`, {}, myConnectionsSchema, accessToken);
+
+/** IN-07: Schlüssel der Import-API (Einstellungen › Anbindungen › Import-API) */
+export const apiKeysQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['anbindungen', 'schluessel'],
+    queryFn: () => getJson(`${integrationsPath}/schluessel`, apiKeysSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const createApiKey = (accessToken: string, input: CreateApiKey) =>
+  sendJson('POST', `${integrationsPath}/schluessel`, input, createdApiKeySchema, accessToken);
+
+export const revokeApiKey = (accessToken: string, id: string) =>
+  sendJson('POST', `${integrationsPath}/schluessel/${id}/widerrufen`, {}, apiKeysSchema, accessToken);

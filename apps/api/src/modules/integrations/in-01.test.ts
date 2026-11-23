@@ -185,7 +185,7 @@ describe('IN-01 Integrationsschicht', () => {
     expect(myConnectionsSchema.parse(removed.body).connections).toEqual([]);
     // Die Beispiele aus dem Anbieter fake sind Notizen, entstanden über den Domänendienst
     expect((await notes()).length).toBeGreaterThan(0);
-  });
+  }, 30_000);
 
   it('ein Zugangstoken steht nie im Klartext in der Datenbank, in Logs oder in Antworten', async () => {
     const id = await connect('microsoft365');

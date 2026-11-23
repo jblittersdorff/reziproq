@@ -85,6 +85,10 @@ describe('PLT-02 über die API', () => {
       'POST /api/umfrage/00000000-0000-7000-8000-000000000000',
       // Der Eingang für Webhooks ebenso (IN-01); ohne gültige Signatur 401.
       'POST /api/anbindungen/eingang/00000000-0000-7000-8000-000000000000',
+      // Die Import-API meldet sich mit API-Schlüssel an, nicht mit Login (IN-07); ohne ihn 401.
+      'GET /api/v1/openapi.json',
+      'POST /api/v1/batches',
+      'GET /api/v1/batches/00000000-0000-7000-8000-000000000000',
     ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>

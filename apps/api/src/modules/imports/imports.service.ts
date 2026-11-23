@@ -47,6 +47,11 @@ const conflict = (code: string) => new ConflictException({ statusCode: 409, code
 
 type BatchRow = typeof schema.importBatch.$inferSelect;
 type RowRecord = typeof schema.importRow.$inferSelect;
+type PeriodLine = typeof schema.spendPeriod.$inferSelect;
+interface SpendUndo {
+  id: string;
+  before: { amountCents: number; currency: string; source: string } | null;
+}
 
 interface Supplier {
   relationshipId: string;
@@ -186,6 +191,7 @@ export class ImportsService {
       createdByName: row.createdByName,
       createdAt: row.createdAt.toISOString(),
       committedAt: row.committedAt?.toISOString() ?? null,
+      source: row.source,
     };
   }
 
@@ -897,16 +903,20 @@ export class ImportsService {
     await this.tenant.run(session, async (tx) => {
       const batch = await this.batchRow(tx, session.organizationId, id);
       if (batch.status !== 'review') throw conflict('nicht_in_pruefung');
-      const [twin] = await tx
-        .select({ id: schema.importBatch.id })
-        .from(schema.importBatch)
-        .where(
-          and(
-            eq(schema.importBatch.orgId, session.organizationId),
-            eq(schema.importBatch.fileHash, batch.fileHash),
-            eq(schema.importBatch.status, 'committed'),
-          ),
-        );
+      // Dieselbe Datei nur einmal; Lieferungen der API ersetzen stattdessen Monate (IN-07)
+      const [twin] =
+        batch.source !== 'file'
+          ? []
+          : await tx
+              .select({ id: schema.importBatch.id })
+              .from(schema.importBatch)
+              .where(
+                and(
+                  eq(schema.importBatch.orgId, session.organizationId),
+                  eq(schema.importBatch.fileHash, batch.fileHash),
+                  eq(schema.importBatch.status, 'committed'),
+                ),
+              );
       if (twin) throw conflict('datei_schon_uebernommen');
       const rows = await tx
         .select()
@@ -917,10 +927,8 @@ export class ImportsService {
         relationships: [] as string[],
         aliases: [] as string[],
         parents: [] as string[],
-        spend: [] as {
-          id: string;
-          before: { amountCents: number; currency: string; source: string } | null;
-        }[],
+        spend: [] as SpendUndo[],
+        periods: { inserted: [] as string[], deleted: [] as PeriodLine[] },
       };
       // Neue Lieferanten: gleiche Nummer bzw. gleicher Name und Land werden ein Lieferant.
       const created = new Map<string, string>();
@@ -984,7 +992,9 @@ export class ImportsService {
           .returning({ id: schema.supplierAlias.id });
         if (alias) undo.aliases.push(alias.id);
       }
-      if (batch.kind === 'spend') {
+      if (batch.kind === 'spend' && batch.source === 'api') {
+        await this.commitApiSpend(tx, batch, rows, undo);
+      } else if (batch.kind === 'spend') {
         // Summe je Lieferant, Jahr und Warengruppe; Zeilen ohne Lieferant bleiben offen.
         const sums = new Map<
           string,
@@ -1006,51 +1016,7 @@ export class ImportsService {
           entry.cents += n.amountCents;
           sums.set(key, entry);
         }
-        for (const entry of sums.values()) {
-          const [existing] = await tx
-            .select()
-            .from(schema.relationshipSpend)
-            .where(
-              and(
-                eq(schema.relationshipSpend.relationshipId, entry.relationshipId),
-                eq(schema.relationshipSpend.year, entry.year),
-                eq(schema.relationshipSpend.kind, 'actual'),
-                sql`${schema.relationshipSpend.businessUnitId} is null`,
-                sql`${schema.relationshipSpend.productGroupId} is null`,
-                entry.groupId
-                  ? eq(schema.relationshipSpend.materialGroupId, entry.groupId)
-                  : sql`${schema.relationshipSpend.materialGroupId} is null`,
-              ),
-            );
-          if (existing) {
-            undo.spend.push({
-              id: existing.id,
-              before: {
-                amountCents: existing.amountCents,
-                currency: existing.currency,
-                source: existing.source,
-              },
-            });
-            await tx
-              .update(schema.relationshipSpend)
-              .set({ amountCents: entry.cents, currency: 'EUR', source: 'import' })
-              .where(eq(schema.relationshipSpend.id, existing.id));
-          } else {
-            const [row] = await tx
-              .insert(schema.relationshipSpend)
-              .values({
-                relationshipId: entry.relationshipId,
-                year: entry.year,
-                amountCents: entry.cents,
-                currency: 'EUR',
-                source: 'import',
-                kind: 'actual',
-                materialGroupId: entry.groupId,
-              })
-              .returning({ id: schema.relationshipSpend.id });
-            if (row) undo.spend.push({ id: row.id, before: null });
-          }
-        }
+        for (const entry of sums.values()) await this.writeYearly(tx, entry, undo.spend);
       }
       await tx
         .update(schema.importBatch)
@@ -1064,6 +1030,206 @@ export class ImportsService {
    * Rückgängig machen, 30 Tage lang: Spend auf den Stand davor, gelernte Aliasse des Übernehmens
    * entfernen, neu angelegte Lieferanten löschen. Hängen an ihnen schon Folgedaten, geht es nicht.
    */
+  /** Jahressumme je Lieferant und Warengruppe setzen; der alte Wert steht in undo (Rückgängig). */
+  private async writeYearly(
+    tx: TenantTransaction,
+    entry: { relationshipId: string; year: number; groupId: string | null; cents: number },
+    undo: SpendUndo[],
+  ) {
+    const [existing] = await tx
+      .select()
+      .from(schema.relationshipSpend)
+      .where(
+        and(
+          eq(schema.relationshipSpend.relationshipId, entry.relationshipId),
+          eq(schema.relationshipSpend.year, entry.year),
+          eq(schema.relationshipSpend.kind, 'actual'),
+          sql`${schema.relationshipSpend.businessUnitId} is null`,
+          sql`${schema.relationshipSpend.productGroupId} is null`,
+          entry.groupId
+            ? eq(schema.relationshipSpend.materialGroupId, entry.groupId)
+            : sql`${schema.relationshipSpend.materialGroupId} is null`,
+        ),
+      );
+    if (existing) {
+      undo.push({
+        id: existing.id,
+        before: {
+          amountCents: existing.amountCents,
+          currency: existing.currency,
+          source: existing.source,
+        },
+      });
+      await tx
+        .update(schema.relationshipSpend)
+        .set({ amountCents: entry.cents, currency: 'EUR', source: 'import' })
+        .where(eq(schema.relationshipSpend.id, existing.id));
+    } else {
+      const [row] = await tx
+        .insert(schema.relationshipSpend)
+        .values({
+          relationshipId: entry.relationshipId,
+          year: entry.year,
+          amountCents: entry.cents,
+          currency: 'EUR',
+          source: 'import',
+          kind: 'actual',
+          materialGroupId: entry.groupId,
+        })
+        .returning({ id: schema.relationshipSpend.id });
+      if (row) undo.push({ id: row.id, before: null });
+    }
+  }
+
+  /**
+   * IN-07: Spend aus der API je Monat. Eine Lieferung ersetzt die Monate älterer Lieferungen;
+   * kam für einen Monat schon eine neuere Lieferung, ändert diese ihn nicht mehr. Danach stimmen die
+   * Jahressummen der betroffenen Lieferanten wieder mit der Summe der Monate.
+   */
+  private async commitApiSpend(
+    tx: TenantTransaction,
+    batch: BatchRow,
+    rows: RowRecord[],
+    undo: { spend: SpendUndo[]; periods: { inserted: string[]; deleted: PeriodLine[] } },
+  ) {
+    const deliveryId = batch.deliveryId ?? batch.id;
+    const lines = new Map<
+      string,
+      { relationshipId: string; period: string; groupId: string | null; cents: number }
+    >();
+    for (const row of rows) {
+      const n = row.normalized as unknown as NormalizedRow;
+      const period = row.raw.period;
+      if (row.status !== 'ok' || !row.relationshipId || n.amountCents === null || !period) continue;
+      const groupId =
+        row.categoryMethod !== null || row.materialGroupId ? row.materialGroupId : null;
+      const key = `${row.relationshipId}|${period}|${groupId ?? ''}`;
+      const line = lines.get(key) ?? {
+        relationshipId: row.relationshipId,
+        period,
+        groupId,
+        cents: 0,
+      };
+      line.cents += n.amountCents;
+      lines.set(key, line);
+    }
+    const periods = [...new Set([...lines.values()].map((line) => line.period))];
+    if (periods.length === 0) return;
+    const source = and(
+      eq(schema.spendPeriod.orgId, batch.orgId),
+      eq(schema.spendPeriod.source, 'api'),
+      inArray(schema.spendPeriod.period, periods),
+    );
+    const newer = await tx
+      .select({ period: schema.spendPeriod.period })
+      .from(schema.spendPeriod)
+      .where(and(source, sql`${schema.spendPeriod.deliveryId} > ${deliveryId}`));
+    const blocked = new Set(newer.map((row) => row.period));
+    const active = periods.filter((period) => !blocked.has(period));
+    if (active.length === 0) return;
+    const deleted = await tx
+      .delete(schema.spendPeriod)
+      .where(
+        and(
+          eq(schema.spendPeriod.orgId, batch.orgId),
+          eq(schema.spendPeriod.source, 'api'),
+          inArray(schema.spendPeriod.period, active),
+          sql`${schema.spendPeriod.deliveryId} < ${deliveryId}`,
+        ),
+      )
+      .returning();
+    undo.periods.deleted.push(...deleted);
+    const affected = new Map<
+      string,
+      { relationshipId: string; year: number; groupId: string | null }
+    >();
+    const touch = (relationshipId: string, period: string, groupId: string | null) =>
+      affected.set(`${relationshipId}|${period.slice(0, 4)}|${groupId ?? ''}`, {
+        relationshipId,
+        year: Number(period.slice(0, 4)),
+        groupId,
+      });
+    for (const line of deleted) touch(line.relationshipId, line.period, line.materialGroupId);
+    for (const line of lines.values()) {
+      if (!active.includes(line.period)) continue;
+      const [created] = await tx
+        .insert(schema.spendPeriod)
+        .values({
+          orgId: batch.orgId,
+          relationshipId: line.relationshipId,
+          period: line.period,
+          materialGroupId: line.groupId,
+          amountCents: line.cents,
+          currency: 'EUR',
+          source: 'api',
+          deliveryId,
+          batchId: batch.id,
+        })
+        .returning({ id: schema.spendPeriod.id });
+      if (created) undo.periods.inserted.push(created.id);
+      touch(line.relationshipId, line.period, line.groupId);
+    }
+    for (const entry of affected.values()) {
+      const [sum] = await tx
+        .execute<{ cents: string }>(sql`
+          select coalesce(sum(amount_cents), 0)::text as cents from spend_period
+          where relationship_id = ${entry.relationshipId} and source = 'api'
+            and period like ${`${entry.year}-%`}
+            and material_group_id is not distinct from ${entry.groupId}::uuid`)
+        .then((result) => result.rows);
+      await this.writeYearly(tx, { ...entry, cents: Number(sum?.cents ?? 0) }, undo.spend);
+    }
+  }
+
+  /**
+   * IN-07: Zeilen, die bei einer Lieferung der API zur Prüfung stehen, wandern in eine eigene
+   * Lieferung derselben Herkunft. So blockieren sie die Übernahme der übrigen Zeilen nicht.
+   */
+  async splitOpenRows(auth: AuthContext, id: string): Promise<string | null> {
+    const session = this.session(auth);
+    if (!this.isAdmin(auth)) throw forbidden();
+    return this.tenant.run(session, async (tx) => {
+      const batch = await this.batchRow(tx, session.organizationId, id);
+      if (batch.status !== 'review') throw conflict('nicht_in_pruefung');
+      const open = await tx
+        .select({ id: schema.importRow.id })
+        .from(schema.importRow)
+        .where(and(eq(schema.importRow.batchId, id), eq(schema.importRow.status, 'review')));
+      if (open.length === 0) return null;
+      const [follow] = await tx
+        .insert(schema.importBatch)
+        .values({
+          orgId: session.organizationId,
+          kind: batch.kind,
+          fileName: batch.fileName,
+          fileHash: `${batch.fileHash}:pruefung`,
+          headers: batch.headers,
+          columnMap: batch.columnMap,
+          suggestedMap: batch.suggestedMap,
+          status: 'review',
+          rowsTotal: open.length,
+          createdBy: batch.createdBy,
+          createdByName: batch.createdByName,
+          source: batch.source,
+          apiKeyId: batch.apiKeyId,
+          deliveryId: batch.deliveryId ?? batch.id,
+        })
+        .returning({ id: schema.importBatch.id });
+      if (!follow) throw notFound();
+      await tx
+        .update(schema.importRow)
+        .set({ batchId: follow.id })
+        .where(and(eq(schema.importRow.batchId, id), eq(schema.importRow.status, 'review')));
+      await this.recount(tx, follow.id, 'review');
+      await this.recount(tx, id, 'review');
+      await tx
+        .update(schema.importBatch)
+        .set({ rowsTotal: batch.rowsTotal - open.length })
+        .where(eq(schema.importBatch.id, id));
+      return follow.id;
+    });
+  }
+
   async revert(auth: AuthContext, id: string) {
     const session = this.session(auth);
     if (!this.isAdmin(auth)) throw forbidden();
@@ -1076,11 +1242,18 @@ export class ImportsService {
       const undo = (batch.undo ?? {}) as {
         relationships?: string[];
         aliases?: string[];
-        spend?: {
-          id: string;
-          before: { amountCents: number; currency: string; source: string } | null;
-        }[];
+        spend?: SpendUndo[];
+        periods?: { inserted: string[]; deleted: PeriodLine[] };
       };
+      // IN-07: Monate dieser Lieferung entfernen, die ersetzten wiederherstellen
+      if ((undo.periods?.inserted ?? []).length > 0) {
+        await tx
+          .delete(schema.spendPeriod)
+          .where(inArray(schema.spendPeriod.id, undo.periods?.inserted ?? []));
+      }
+      for (const line of undo.periods?.deleted ?? []) {
+        await tx.insert(schema.spendPeriod).values(line).onConflictDoNothing();
+      }
       for (const entry of undo.spend ?? []) {
         if (entry.before) {
           await tx

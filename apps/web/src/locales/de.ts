@@ -1318,6 +1318,7 @@ export const de = {
   // JBP-01 Vorbereitung des Joint Business Planning
   // FS-01 Hinweise
   importBatches: {
+    sourceApi: 'API',
     navTitle: 'Daten importieren',
     navHint: 'Lieferantenstamm und Spend aus dem ERP',
     title: 'Daten importieren',
@@ -1557,6 +1558,7 @@ export const de = {
         token_refresh: 'Zugang erneuert',
         webhook: 'Eingang',
         note: 'Notiz',
+        delivery: 'Lieferung',
       } as Record<string, string>,
       statuses: {
         applied: 'übernommen',
@@ -1577,6 +1579,7 @@ export const de = {
       inhalt_ungueltig: 'Inhalt nicht lesbar.',
       erneuern_fehlgeschlagen: 'Der Anbieter hat den Zugang nicht erneuert.',
       getrennt: 'Getrennt.',
+      zeilen_mit_fehler: 'Zeilen mit Fehler; Details stehen in der Lieferung.',
     } as Record<string, string>,
     errors: {
       schon_verbunden: 'Diese Anbindung ist schon verbunden.',
@@ -1584,6 +1587,40 @@ export const de = {
       kommt_spaeter: 'Diese Anbindung kommt in Stufe 2.',
       nicht_aktiv: 'Die Verbindung ist nicht aktiv. Bitte neu verbinden.',
     } as Record<string, string>,
+    apiKeys: {
+      title: 'API-Schlüssel',
+      hint: 'Eure Middleware liefert mit einem Schlüssel Lieferantenstamm und Spend. Heute übernimmt Reziproq diese beiden Objektarten; die anderen folgen.',
+      docs: 'API-Beschreibung (OpenAPI)',
+      empty: 'Noch kein Schlüssel.',
+      nameLabel: 'Name',
+      namePlaceholder: 'z. B. ERP-Middleware',
+      scopesLabel: 'Erlaubte Objektarten',
+      create: 'Schlüssel erzeugen',
+      secretTitle: 'Neuer Schlüssel, nur jetzt sichtbar',
+      secretHint: 'Kopiere den Schlüssel und hinterlege ihn in eurer Middleware. Reziproq speichert ihn nur als Prüfsumme.',
+      copy: 'Schlüssel kopieren',
+      copied: 'Schlüssel kopiert.',
+      lastUsed: (date: string) => `zuletzt genutzt ${date || '–'}`,
+      neverUsed: 'noch nicht genutzt',
+      revoked: 'widerrufen',
+      revoke: 'Widerrufen',
+      revokeQuestion: 'Lieferungen mit diesem Schlüssel werden danach abgelehnt. Widerrufen?',
+      revokeConfirm: 'Ja, widerrufen',
+      lastDelivery: (date: string, rows: number | string, errors: number | string) =>
+        `Letzte Lieferung ${date || '–'} · ${rows} Zeilen · ${errors} mit Fehler`,
+      openDelivery: 'Lieferung ansehen',
+      types: {
+        supplier: 'Lieferantenstamm',
+        category_map: 'Warengruppen-Zuordnung',
+        spend: 'Spend',
+        order_line: 'Bestellzeilen',
+        goods_receipt: 'Wareneingänge',
+        credit_note: 'Gutschriften',
+        contract: 'Verträge',
+        quality_notification: 'Qualitätsmeldungen',
+      } as Record<string, string>,
+      later: 'folgt',
+    },
     mine: {
       title: 'Meine Verbindungen',
       hint: 'Kalender und Outlook-Add-in verbindest du für dich selbst. Andere sehen deine Verbindung nicht.',

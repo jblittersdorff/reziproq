@@ -1,0 +1,27 @@
+{
+  "object_type": "spend",
+  "idempotency_key": "beispiel-1",
+  "rows": [
+    {
+      "supplier_external_number": "<eure Lieferantennummer>",
+      "period": "2025-01",
+      "amount": "1037.07",
+      "currency": "EUR",
+      "material_group": "<ERP-Materialgruppe>"
+    },
+    {
+      "supplier_external_number": "<eure Lieferantennummer>",
+      "period": "2025-02",
+      "amount": "1074.14",
+      "currency": "EUR",
+      "material_group": "<ERP-Materialgruppe>"
+    },
+    {
+      "supplier_external_number": "<eure Lieferantennummer>",
+      "period": "2025-03",
+      "amount": "1111.21",
+      "currency": "EUR",
+      "material_group": "<ERP-Materialgruppe>"
+    }
+  ]
+}

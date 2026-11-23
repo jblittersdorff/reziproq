@@ -13,8 +13,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
+  type ApiKeys,
   type ConnectRequest,
+  type CreateApiKey,
+  type CreatedApiKey,
   connectRequestSchema,
+  createApiKeySchema,
   type Integrations,
   type MyConnections,
   updatePartsSchema,
@@ -25,12 +29,42 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Public } from '../auth/public.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
+import { ApiKeysService } from './api-keys.service.js';
 import { IntegrationsService, signatureHeader } from './integrations.service.js';
 
 /** IN-01 Einstellungen › Anbindungen: nur Admins, nur beim Käufer. */
 @Controller('einstellungen/anbindungen')
 export class IntegrationsController {
-  constructor(@Inject(IntegrationsService) private readonly integrations: IntegrationsService) {}
+  constructor(
+    @Inject(IntegrationsService) private readonly integrations: IntegrationsService,
+    @Inject(ApiKeysService) private readonly keys: ApiKeysService,
+  ) {}
+
+  /** IN-07: Schlüssel der Import-API */
+  @Get('schluessel')
+  @Requires('einstellungen.verwalten')
+  apiKeys(@CurrentUser() auth: AuthContext): Promise<ApiKeys> {
+    return this.keys.list(auth);
+  }
+
+  @Post('schluessel')
+  @Requires('einstellungen.verwalten')
+  createKey(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(createApiKeySchema)) body: CreateApiKey,
+  ): Promise<CreatedApiKey> {
+    return this.keys.create(auth, body);
+  }
+
+  @Post('schluessel/:id/widerrufen')
+  @HttpCode(200)
+  @Requires('einstellungen.verwalten')
+  revokeKey(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ApiKeys> {
+    return this.keys.revoke(auth, id);
+  }
 
   @Get()
   @Requires('einstellungen.verwalten')

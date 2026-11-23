@@ -76,6 +76,7 @@ const batch = (overrides: Partial<ImportBatch> = {}): ImportBatch => ({
   createdByName: 'Anna Berg',
   createdAt: '2026-11-23T08:12:00Z',
   committedAt: null,
+  source: 'file',
   headers: ['Lieferantennummer', 'Name', 'Betrag'],
   sample: [{ Lieferantennummer: '4711', Name: 'Rheintal', Betrag: '1000,00' }],
   columnMap: { externalNumber: 'Lieferantennummer', name: 'Name', amount: 'Betrag' },

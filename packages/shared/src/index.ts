@@ -54,6 +54,7 @@ export * from './ai-drafts.js';
 export * from './hints.js';
 export * from './meeting-brief.js';
 export * from './meeting-capture.js';
+export * from './import-api.js';
 export * from './import-batch.js';
 export * from './search.js';
 export * from './ai-gateway.js';

@@ -143,6 +143,8 @@ export const importBatchSummarySchema = z.object({
   createdByName: z.string(),
   createdAt: z.iso.datetime({ offset: true }),
   committedAt: z.iso.datetime({ offset: true }).nullable(),
+  /** IN-07: Datei oder Lieferung über die Import-API */
+  source: z.enum(['file', 'api']).default('file'),
 });
 export type ImportBatchSummary = z.infer<typeof importBatchSummarySchema>;
 

@@ -136,3 +136,24 @@ export const inboundHook = pgTable(
   },
   (table) => [unique('inbound_hook_token').on(table.pathToken)],
 );
+
+/**
+ * IN-07: Technischer Zugang für die Import-API. Der Schlüssel wird einmal angezeigt und nur als
+ * Hash (SHA-256) gespeichert; scopes sind die erlaubten Objektarten. org_private.
+ */
+export const apiKey = pgTable(
+  'api_key',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: orgId(),
+    name: text().notNull(),
+    prefix: text().notNull(),
+    hash: text().notNull(),
+    scopes: jsonb().$type<string[]>().notNull().default([]),
+    createdBy: text().notNull(),
+    createdAt: time().notNull().defaultNow(),
+    lastUsedAt: time(),
+    revokedAt: time(),
+  },
+  (table) => [unique('api_key_hash').on(table.hash), index('api_key_org').on(table.orgId)],
+);
