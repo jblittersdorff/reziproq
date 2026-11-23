@@ -1,3 +1,5 @@
+import { QbrPrepController } from './qbr-prep.controller.js';
+import { QbrPrepService } from './qbr-prep.service.js';
 import { Module } from '@nestjs/common';
 import { ActionsLiveSource } from '../actions/action-sources.js';
 import { AiDraftsModule } from '../ai-drafts/ai-drafts.module.js';
@@ -17,6 +19,7 @@ import { PreReadDraftService } from './pre-read-draft.service.js';
 @Module({
   imports: [AiDraftsModule, CustomersModule, PrintModule],
   controllers: [
+    QbrPrepController,
     BuyerMeetingsController,
     SupplierMeetingsController,
     BuyerPreReadController,
@@ -26,6 +29,7 @@ import { PreReadDraftService } from './pre-read-draft.service.js';
   providers: [
     MeetingsService,
     PreReadDraftService,
+    QbrPrepService,
     {
       provide: MEETING_LIVE_SOURCES,
       useValue: [
@@ -36,6 +40,6 @@ import { PreReadDraftService } from './pre-read-draft.service.js';
       ],
     },
   ],
-  exports: [MeetingsService, PreReadDraftService],
+  exports: [MeetingsService, PreReadDraftService, QbrPrepService],
 })
 export class MeetingsModule {}

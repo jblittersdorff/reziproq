@@ -1,4 +1,5 @@
 import {
+  qbrPrepSchema,
   type AdoptOpportunity,
   adoptOpportunitySchema,
   type ChangeAssumptions,
@@ -3610,3 +3611,48 @@ export const discardDataRequest = (accessToken: string, relationshipId: string, 
 /** AW-01: „Stimmt nicht“ zu einer Aussage von Reziproq */
 export const reportStatement = (accessToken: string, id: string) =>
   sendNoContent(accessToken, 'POST', `/aussagen/${id}/stimmt-nicht`, {});
+
+/** KI-07: interne QBR-Vorbereitung eines Termins */
+const prepPath = (relationshipId: string, meetingId: string) =>
+  `/suppliers/${relationshipId}/termine/${meetingId}/vorbereitung`;
+
+export const qbrPrepQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+) =>
+  queryOptions({
+    queryKey: ['termine', meetingId, 'vorbereitung'],
+    queryFn: () => getJson(prepPath(relationshipId, meetingId), qbrPrepSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const decideQbrPrep = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  draftId: string,
+  decision: 'uebernehmen' | 'verwerfen',
+) =>
+  sendJson(
+    'POST',
+    `${prepPath(relationshipId, meetingId)}/${draftId}/${decision}`,
+    {},
+    qbrPrepSchema,
+    accessToken,
+  );
+
+export const addPrepTopicToAgenda = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  draftId: string,
+  claimKey: string,
+) =>
+  sendJson(
+    'POST',
+    `${prepPath(relationshipId, meetingId)}/${draftId}/agenda`,
+    { claimKey },
+    qbrPrepSchema,
+    accessToken,
+  );

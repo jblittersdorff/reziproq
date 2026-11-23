@@ -17,7 +17,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 7 | KI-04 · Agenten, Werkzeuge und Läufe | 5–6. Systemvorlagen im Code, Aktivierung und Versionen je Organisation. Manueller QBR-Lauf mit Quellenrechten, Rückfragen, Budgets und Fortsetzung. Teilläufe werden bei der Budgetprüfung berücksichtigt. Ihre fachliche Auslösung bleibt offen. QBR-Zeitplan und fachliche Erweiterung in 10. Eigene Agenten in 19. | L | manueller Systemlauf fertig |
 | 8 | KI-11 · Wertpotenziale | 7. JBP, Impact-Ledger und SEG. Bei mehreren zutreffenden Sicherheitsregeln gilt die niedrigste Stufe. Vorhandene Rechenregeln prüfen, Websuche in K1 mit fake. | L | fertig (Marktumfeld lokal mit Testquellen, 23.11.2026) |
 | 9 | Anpassung NAV-10 / LS-01 / AW-01 · Agentenläufe, Entwürfe, Aussagen und Potenziale anschließen | 2–4, 6–8; Zusammenfassung und Rechte für aggregierte Fakten klären. | M | fertig (Risiko-Karte mit KI-16, Aussagen für Gesichert, Feedback, Scorecard offen) |
-| 10 | Anpassung KI-07 · QBR-Vorbereitung | 7; Termine, QBR-07, Scorecard, PUL und PNL; interne Vorbereitung und explizite Agendaübernahme. | M | offen |
+| 10 | Anpassung KI-07 · QBR-Vorbereitung | 7; Termine, QBR-07, Scorecard, PUL und PNL; interne Vorbereitung und explizite Agendaübernahme. | M | fertig (nur QBR, F6, 23.11.2026) |
 | 11a | KI-15 · gemeinsamer Datei- und API-Import | Spec fehlt; fachliches Modell und Übernahmeregeln mit PLT-07 klären. | L | offen |
 | 11b | KI-16 · Hinweise und Priorisierung | Spec fehlt; auf FS-01 und vorhandenen Hinweisen aufbauen. | M | offen |
 | 11c | KI-17 · Ergebnisse nach dem Termin | Spec fehlt; KI-03/04, QBR-01 und KI-07 als fachliche Schnittstellen prüfen. | L | offen |

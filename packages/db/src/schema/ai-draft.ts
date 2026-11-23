@@ -30,6 +30,10 @@ export const aiDraftKinds = [
   'market_analysis',
   // KI-11: Anfrage an den Lieferanten zu einer Datenlücke (object_type value_data_gap)
   'data_request',
+  // KI-07: interne QBR-Vorbereitung je Termin (object_type meeting)
+  'qbr_topics',
+  'qbr_risks',
+  'qbr_open_points',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
@@ -61,7 +65,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_run').on(table.orgId, table.runId),

@@ -736,6 +736,13 @@
       "when": 1795416799912,
       "tag": "0104_aw01_aussagen",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1795418480350,
+      "tag": "0105_ki07_vorbereitung",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,8 @@ export default defineProject({
     name: 'api',
     // Feste Testwerte haben Vorrang vor der .env; die Tests brauchen keine Verbindung zu Zitadel.
     env: {
+      // Kleine Pools: alle Testdateien laufen parallel mit eigener App (max_connections 100).
+      DATABASE_POOL_MAX: '4',
       ZITADEL_ISSUER: 'https://zitadel.test',
       ZITADEL_PROJECT_ID: 'test-project',
       // Die CI setzt DATABASE_URL selbst; lokal die Datenbank aus docker-compose.yml.

@@ -1,3 +1,5 @@
+import { ActionsModule } from '../actions/actions.module.js';
+import { QbrPrepWorker } from './qbr-prep.worker.js';
 import { Module } from '@nestjs/common';
 import { ActivitiesModule } from '../activities/activities.module.js';
 import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
@@ -13,6 +15,7 @@ import { AgentsWorker } from './agents.worker.js';
 
 @Module({
   imports: [
+    ActionsModule,
     AiGatewayModule,
     MeetingsModule,
     ActivitiesModule,
@@ -21,6 +24,6 @@ import { AgentsWorker } from './agents.worker.js';
     SuppliersModule,
   ],
   controllers: [AgentsController],
-  providers: [AgentRunner, AgentTools, AgentsService, AgentsWorker],
+  providers: [AgentRunner, AgentTools, AgentsService, AgentsWorker, QbrPrepWorker],
 })
 export class AgentsModule {}

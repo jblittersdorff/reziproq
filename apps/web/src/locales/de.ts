@@ -2624,6 +2624,27 @@ export const de = {
     preReadPdf: 'Pre-Read als PDF',
     protocolPdf: 'Protokoll als PDF',
     preReadFailed: 'Das PDF konnte nicht erzeugt werden.',
+    prep: {
+      title: 'Interne Vorbereitung von Reziproq',
+      parts: { topics: 'Themen', risks: 'Risiken', openPoints: 'Offene Punkte' } as Record<string, string>,
+      partHints: {
+        topics: 'Drei bis fünf Themen mit Begründung, nur für euch.',
+        risks: 'Kennzahlen hinter Plan, überfällige Zusagen und Feedback-Lücken.',
+        openPoints: 'Zusagen beider Seiten mit Fälligkeit bis zum Termin.',
+      } as Record<string, string>,
+      draftOf: (date: string) => `Entwurf vom ${date}`,
+      accepted: 'übernommen',
+      sources: 'Quellen',
+      accept: 'Übernehmen',
+      discard: 'Verwerfen',
+      acceptedNote: 'Übernommen. Nur ihr seht es.',
+      discardedNote: 'Verworfen.',
+      toAgenda: (title: string) => `In die Agenda: ${title}`,
+      addedNote: 'In der geteilten Agenda. Der Lieferant sieht nur den Titel.',
+      rerun: 'Neu vorbereiten',
+      running: 'Reziproq bereitet vor. Die Entwürfe erscheinen hier, sobald der Lauf fertig ist.',
+      empty: 'Noch keine Vorbereitung. Sieben Tage vor dem Termin bereitet Reziproq ihn vor.',
+    },
     summaryDraft: {
       title: 'Zusammenfassung für den Pre-Read',
       intro:

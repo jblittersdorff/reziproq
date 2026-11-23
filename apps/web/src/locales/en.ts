@@ -2558,6 +2558,27 @@ export const en: Messages = {
     preReadPdf: 'Pre-read as PDF',
     protocolPdf: 'Minutes as PDF',
     preReadFailed: 'The PDF could not be created.',
+    prep: {
+      title: 'Internal preparation by Reziproq',
+      parts: { topics: 'Topics', risks: 'Risks', openPoints: 'Open points' } as Record<string, string>,
+      partHints: {
+        topics: 'Three to five topics with reasoning, for you only.',
+        risks: 'KPIs behind plan, overdue commitments and feedback gaps.',
+        openPoints: 'Commitments of both sides due by the meeting.',
+      } as Record<string, string>,
+      draftOf: (date: string) => `Draft of ${date}`,
+      accepted: 'adopted',
+      sources: 'Sources',
+      accept: 'Adopt',
+      discard: 'Dismiss',
+      acceptedNote: 'Adopted. Only you see it.',
+      discardedNote: 'Dismissed.',
+      toAgenda: (title: string) => `Add to agenda: ${title}`,
+      addedNote: 'In the shared agenda. The supplier sees the title only.',
+      rerun: 'Prepare again',
+      running: 'Reziproq is preparing. The drafts appear here once the run is done.',
+      empty: 'No preparation yet. Reziproq prepares the meeting seven days before.',
+    },
     summaryDraft: {
       title: 'Summary for the pre-read',
       intro:

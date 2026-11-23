@@ -304,6 +304,49 @@ export class AgentsService {
     return this.detail(auth, run.id);
   }
 
+  /**
+   * KI-07: Zeitplan-Lauf sieben Tage vor einem QBR im Namen des SRO. Genau ein Lauf je Termin;
+   * ist der Agent ausgeschaltet oder läuft schon einer, entsteht keiner. Liefert die Lauf-ID.
+   */
+  async startScheduled(auth: AuthContext, input: { relationshipId: string; meetingId: string }) {
+    const session = this.scope(auth);
+    await this.tools.assertContext(auth, { ...input, isTest: false });
+    const ticket = randomUUID();
+    const runId = await this.tenant.run(session, async (tx) => {
+      const def = await this.builtin(tx, session.organizationId);
+      if (!def.enabled) return null;
+      const [existing] = await tx
+        .select({ id: agentRun.id })
+        .from(agentRun)
+        .where(
+          and(
+            eq(agentRun.orgId, session.organizationId),
+            eq(agentRun.contextId, input.meetingId),
+            eq(agentRun.trigger, 'schedule'),
+          ),
+        );
+      if (existing) return null;
+      const [run] = await tx
+        .insert(agentRun)
+        .values({
+          orgId: session.organizationId,
+          agentVersionId: def.version.id,
+          actingUserId: auth.userId,
+          startedBy: auth.userId,
+          trigger: 'schedule',
+          contextType: 'meeting',
+          contextId: input.meetingId,
+          contextRelationshipId: input.relationshipId,
+          jobTicket: ticket,
+        })
+        .returning({ id: agentRun.id });
+      return run?.id ?? null;
+    });
+    if (!runId) return null;
+    await this.enqueue({ orgId: session.organizationId, userId: auth.userId, runId, ticket });
+    return runId;
+  }
+
   private async enqueue(job: AgentJob) {
     try {
       await this.worker.enqueue(job);

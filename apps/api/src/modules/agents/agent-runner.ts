@@ -8,6 +8,7 @@ import { BudgetExhaustedError } from '../ai-gateway/gateway-errors.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { PreReadDraftService } from '../meetings/pre-read-draft.service.js';
+import { QbrPrepService } from '../meetings/qbr-prep.service.js';
 import { AgentTools } from './agent-tools.js';
 import {
   qbrAnswerSchema,
@@ -72,6 +73,7 @@ export class AgentRunner {
     @Inject(AgentTools) private readonly tools: AgentTools,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
     @Inject(PreReadDraftService) private readonly drafts: PreReadDraftService,
+    @Inject(QbrPrepService) private readonly prep: QbrPrepService,
   ) {}
 
   private session(job: AgentJob) {
@@ -370,6 +372,8 @@ export class AgentRunner {
       summary,
       'qbr_prep',
     );
+    // KI-07: Themen, Risiken und offene Punkte aus der Datenbank, je als Entwurf mit Quelle
+    await this.prep.saveAgentDrafts(actor, context.relationshipId, context.meetingId, job.runId);
     return { draftId };
   }
 }

@@ -14,6 +14,8 @@ export default defineProject({
     testTimeout: 30_000,
     hookTimeout: 60_000,
     env: {
+      // Kleine Pools wie in apps/api: viele Testdateien laufen parallel (max_connections 100).
+      DATABASE_POOL_MAX: '3',
       // Die CI setzt DATABASE_URL selbst; lokal die Datenbank aus docker-compose.yml.
       // Tests legen darauf eigene Datenbanken an und löschen sie wieder.
       DATABASE_URL:
