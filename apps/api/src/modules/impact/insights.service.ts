@@ -5,6 +5,7 @@ import {
   type EbitGoalRequest,
   fiscalYearOf,
   fiscalYearRange,
+  hintDetailSchema,
   type OpportunityTemplateKey,
   type OverviewInsight,
   overviewInsightSchema,
@@ -299,6 +300,36 @@ export class InsightsService {
         href: `/lieferanten/${stuck.relationshipId}/wirkung/wertpotenziale`,
       });
       actions.push(`den JBP mit ${name} freigeben`);
+    } else if (can(auth, 'hinweise.sehen')) {
+      // Sonst der offene Hinweis mit dem höchsten score, den die Person sieht (KI-16, NAV-10)
+      const [hint] = await tx
+        .execute<{
+          id: string;
+          relationship_id: string;
+          title: string;
+          suggested_action: string | null;
+        }>(sql`
+        select h.id, h.relationship_id, h.title, h.suggested_action from hint h
+        where h.org_id = ${orgId} and h.status in ('open', 'in_progress')
+          and h.relationship_id is not null and h.title is not null
+          and (${auth.orgRole === 'admin'} or exists (
+            select 1 from relationship_member m where m.relationship_id = h.relationship_id
+              and m.org_id = ${orgId} and m.user_id = ${auth.userId}))
+        order by h.score desc, h.created_at desc limit 1`)
+        .then((result) => result.rows);
+      if (hint) {
+        const name = names.get(hint.relationship_id) ?? '';
+        facts.push(
+          { key: 'riskName', label: 'Größtes Risiko bei', display: name, source: 'Hinweise' },
+          { key: 'riskTitle', label: 'Größtes Risiko', display: hint.title, source: 'Hinweise' },
+        );
+        sentences.push({
+          kind: 'stuck',
+          fallback: `Bei ${name}: ${hint.title.replace(/[.\s]+$/, '')}.`,
+          href: `/hinweise?hinweis=${hint.id}`,
+        });
+        if (hint.suggested_action) actions.push(`bei ${name}: ${hint.suggested_action}`);
+      }
     }
     if (!input.goal && input.canSetGoal) actions.push('das Jahresziel festlegen');
     if (actions.length > 0) {
@@ -399,6 +430,29 @@ export class InsightsService {
         )
         .orderBy(desc(schema.valueOpportunity.buyerLowCents))
         .limit(1);
+      // AW-01: Größtes Risiko, nur für Personen, die die Hinweise dieser Beziehung sehen (KI-16)
+      const seesHints =
+        can(auth, 'hinweise.sehen') && (auth.orgRole === 'admin' || scope.teamRole !== null);
+      const [risk] = seesHints
+        ? await tx
+            .select({
+              id: schema.hint.id,
+              ruleKey: schema.hint.ruleKey,
+              detail: schema.hint.detail,
+              severity: schema.hint.severity,
+              title: schema.hint.title,
+            })
+            .from(schema.hint)
+            .where(
+              and(
+                eq(schema.hint.orgId, scope.orgId),
+                eq(schema.hint.relationshipId, relationshipId),
+                inArray(schema.hint.status, ['open', 'in_progress']),
+              ),
+            )
+            .orderBy(desc(schema.hint.score), desc(schema.hint.createdAt))
+            .limit(1)
+        : [];
       const secured = securedIn(facts, from, to);
       const kept = due.filter((row) => row.status === 'kept').length;
       const approvedTarget = target?.approvedAt ? target.ebitTargetCents : null;
@@ -456,6 +510,14 @@ export class InsightsService {
       });
       return supplierRingsSchema.parse({
         statement: insight.statement,
+        risk: risk
+          ? {
+              hintId: risk.id,
+              ruleKey: risk.ruleKey,
+              detail: hintDetailSchema.parse(risk.detail ?? {}),
+              severity: risk.severity,
+            }
+          : null,
         chance: chance
           ? {
               opportunityId: chance.id,

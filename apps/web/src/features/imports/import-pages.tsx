@@ -387,10 +387,7 @@ function ColumnStep({
           </thead>
           <tbody>
             {batch.sample.map((row) => (
-              <tr
-                key={JSON.stringify(row)}
-                className="border-line-soft border-t"
-              >
+              <tr key={JSON.stringify(row)} className="border-line-soft border-t">
                 {batch.headers.map((header) => (
                   <td key={header} className="whitespace-nowrap px-3 py-2">
                     {row[header] ?? ''}

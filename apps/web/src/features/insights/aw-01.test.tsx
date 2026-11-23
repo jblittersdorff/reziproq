@@ -243,4 +243,48 @@ describe('AW-01 Lieferant · Überblick', () => {
       `/lieferanten/${id}/wirkung/wertpotenziale#potenzial-0190a0a0-0000-7000-8000-0000000000aa`,
     );
   });
+
+  it('die Karte „Größtes Risiko“ zeigt den Hinweis mit Schwere und führt zu ihm (KI-16)', async () => {
+    const data = {
+      ...rings(null),
+      risk: {
+        hintId: '0190a0a0-0000-7000-8000-0000000000bb',
+        ruleKey: 'performance_drop' as const,
+        detail: { kpi: 'Liefertreue', months: 3 },
+        severity: 'high' as const,
+      },
+    };
+    api.handle = (request) => {
+      if (request.url === `/api/suppliers/${id}/ergebnisse/ringe`) return Response.json(data);
+      if (request.url === `/api/suppliers/${id}`) {
+        return Response.json({
+          relationshipId: id,
+          name: 'Rheintal Elektronik GmbH',
+          organizationName: 'Rheintal Elektronik GmbH',
+          country: 'DE',
+          vatId: null,
+          duns: null,
+          externalRef: null,
+          notes: null,
+          status: 'active',
+          createdAt: '2026-10-01T08:00:00Z',
+          endedAt: null,
+          spend: [],
+          permissions: { edit: true, editTeam: true },
+        });
+      }
+      return undefined;
+    };
+    renderAt(`/lieferanten/${id}`);
+    expect(
+      await screen.findByRole('heading', {
+        name: '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter werdend',
+      }),
+    ).toBeTruthy();
+    expect(screen.getByText('Größtes Risiko')).toBeTruthy();
+    expect(screen.getByText('hoch')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Zum Hinweis' }).getAttribute('href')).toBe(
+      '/hinweise?hinweis=0190a0a0-0000-7000-8000-0000000000bb',
+    );
+  });
 });

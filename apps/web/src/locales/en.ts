@@ -3248,6 +3248,8 @@ export const en: Messages = {
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} to ${high}`} ${impact} per year · ${confidence}`,
     chanceLink: 'View value opportunity',
+    riskTitle: 'Biggest risk',
+    riskLink: 'Open hint',
     overviewTitle: 'Overview',
     overviewPurpose: (year: number) => `What we achieved in fiscal year ${year}, with evidence.`,
     loading: 'Loading overview …',

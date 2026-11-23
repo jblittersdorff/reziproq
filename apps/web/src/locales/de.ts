@@ -3327,6 +3327,8 @@ export const de = {
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} bis ${high}`} ${impact} im Jahr · ${confidence}`,
     chanceLink: 'Wertpotenzial ansehen',
+    riskTitle: 'Größtes Risiko',
+    riskLink: 'Zum Hinweis',
     overviewTitle: 'Übersicht',
     overviewPurpose: (year: number) => `Was wir im Geschäftsjahr ${year} erreicht haben, belegt.`,
     loading: 'Übersicht wird geladen …',

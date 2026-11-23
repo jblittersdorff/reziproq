@@ -187,6 +187,7 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
   });
 
   afterAll(async () => {
+    await db.execute(sql`delete from hint where org_id = ${orgs.oem}`);
     const orgIds = Object.values(orgs);
     await db.execute(sql`delete from value_opportunity where org_id in ${orgIds}`);
     await db.execute(sql`delete from insight_summary where org_id in ${orgIds}`);
@@ -297,6 +298,45 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     });
   });
 
+  it('die Karte „Größtes Risiko“ nimmt den offenen Hinweis mit dem höchsten score; ohne Hinweis fehlt sie', async () => {
+    expect((await rings()).risk ?? null).toBeNull();
+    const hint = (score: number, title: string, status: 'open' | 'dismissed' = 'open') => ({
+      orgId: orgs.oem,
+      relationshipId: rel.a,
+      ruleKey: 'performance_drop' as const,
+      fingerprint: `${score}`,
+      detail: { kpi: 'Liefertreue', months: 3 },
+      status,
+      ...(status === 'dismissed' ? { reason: 'Test' } : {}),
+      severity: 'high' as const,
+      score,
+      title,
+    });
+    await db
+      .insert(schema.hint)
+      .values([
+        hint(400, '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter'),
+        hint(900, 'Verworfen und darum kein Risiko', 'dismissed'),
+        hint(100, 'Kleiner Hinweis'),
+      ]);
+    expect((await rings()).risk).toMatchObject({
+      ruleKey: 'performance_drop',
+      severity: 'high',
+      detail: { kpi: 'Liefertreue', months: 3 },
+    });
+    // Wer nicht im Team ist und kein Admin, sieht das Risiko nicht
+    expect((await rings(users.member)).risk ?? null).toBeNull();
+    // Ohne blockiertes Potenzial nennt „Was hakt“ den Hinweis mit dem höchsten score
+    const sentences = (await overview()).sentences ?? [];
+    const stuck = sentences.find((entry) => entry.kind === 'stuck');
+    expect(stuck?.text).toBe(
+      `Bei AW01-A ${run}: „Liefertreue“ seit 3 Monaten unter Ziel und schlechter.`,
+    );
+    expect(stuck?.href).toMatch(/^\/hinweise\?hinweis=/);
+    // Die folgenden Tests prüfen die Sätze ohne Hinweise.
+    await db.execute(sql`delete from hint where org_id = ${orgs.oem}`);
+  });
+
   it('die Aussage nennt nur Zahlen aus den Fakten; die drei Sätze folgen der Regel', async () => {
     // Der Admin hat in dieser Stunde schon eine Aussage mit anderen Fakten: dann nur der Beleg.
     expect((await overview()).statement).toBeNull();
@@ -343,7 +383,7 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
       expect((await overview(users.member)).statement).toBeNull();
       const [row] = (
         await db.execute<{ status: string }>(
-          sql`select status from insight_summary where org_id = ${orgs.oem} and user_id = ${users.member}`,
+          sql`select status from insight_summary where org_id = ${orgs.oem} and user_id = ${users.member} and page_key = 'overview'`,
         )
       ).rows;
       expect(row?.status).toBe('suppressed');

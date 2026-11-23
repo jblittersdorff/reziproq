@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { StatusLine } from '@/components/ui/status-line';
 import { Tile } from '@/components/ui/tile';
 import { useToken } from '@/features/ratings/use-rating';
+import { SeverityBadge, useHintWhy } from '@/features/hints/hint-panel';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import {
@@ -256,6 +257,7 @@ export function OverviewPage() {
  * innen Zusagen, die im Geschäftsjahr fällig waren und rechtzeitig eingehalten wurden.
  */
 export function SupplierRingsCard({ relationshipId }: { relationshipId: string }) {
+  const hintWhy = useHintWhy();
   const t = useT();
   const text = t.insights;
   const accessToken = useToken();
@@ -274,6 +276,7 @@ export function SupplierRingsCard({ relationshipId }: { relationshipId: string }
     client.invalidateQueries({ queryKey: ['suppliers', relationshipId, 'ringe'] });
 
   const chance = data.chance;
+  const risk = data.risk ?? null;
   return (
     <>
       <Statement statement={data.statement} />
@@ -342,30 +345,55 @@ export function SupplierRingsCard({ relationshipId }: { relationshipId: string }
           />
         )}
       </EvidenceCard>
-      {chance && (
-        <Tile className="gap-2" aria-labelledby="groesste-chance">
-          <span className="font-semibold text-muted-foreground text-sm">{text.chanceTitle}</span>
-          <h2
-            id="groesste-chance"
-            className="font-display font-semibold text-section tracking-section"
-          >
-            {t.opportunities.templates[chance.templateKey] ?? chance.templateKey}
-          </h2>
-          <p className="tabular-nums">
-            {text.chanceValue(
-              amount(chance.low, data.currency),
-              amount(chance.high, data.currency),
-              t.opportunities.impact[chance.impactType] ?? '',
-              t.opportunities.confidence[chance.confidence] ?? '',
-            )}
-          </p>
-          {routerLink({
-            href: `/lieferanten/${relationshipId}/wirkung/wertpotenziale#potenzial-${chance.opportunityId}`,
-            className:
-              'self-start font-semibold text-primary text-sm underline-offset-4 hover:underline',
-            children: text.chanceLink,
-          })}
-        </Tile>
+      {(chance || risk) && (
+        <div className="flex flex-wrap items-stretch gap-3">
+          {chance && (
+            <Tile className="min-w-0 grow basis-64 gap-2" aria-labelledby="groesste-chance">
+              <span className="font-semibold text-muted-foreground text-sm">
+                {text.chanceTitle}
+              </span>
+              <h2
+                id="groesste-chance"
+                className="font-display font-semibold text-section tracking-section"
+              >
+                {t.opportunities.templates[chance.templateKey] ?? chance.templateKey}
+              </h2>
+              <p className="tabular-nums">
+                {text.chanceValue(
+                  amount(chance.low, data.currency),
+                  amount(chance.high, data.currency),
+                  t.opportunities.impact[chance.impactType] ?? '',
+                  t.opportunities.confidence[chance.confidence] ?? '',
+                )}
+              </p>
+              {routerLink({
+                href: `/lieferanten/${relationshipId}/wirkung/wertpotenziale#potenzial-${chance.opportunityId}`,
+                className:
+                  'self-start font-semibold text-primary text-sm underline-offset-4 hover:underline',
+                children: text.chanceLink,
+              })}
+            </Tile>
+          )}
+          {/* AW-01, KI-16: Größtes Risiko, der offene Hinweis mit dem höchsten score */}
+          {risk && (
+            <Tile className="min-w-0 grow basis-64 gap-2" aria-labelledby="groesstes-risiko">
+              <span className="font-semibold text-muted-foreground text-sm">{text.riskTitle}</span>
+              <h2
+                id="groesstes-risiko"
+                className="font-display font-semibold text-section tracking-section"
+              >
+                {hintWhy({ ruleKey: risk.ruleKey, detail: risk.detail })}
+              </h2>
+              <SeverityBadge hint={risk} />
+              {routerLink({
+                href: `/hinweise?hinweis=${risk.hintId}`,
+                className:
+                  'self-start font-semibold text-primary text-sm underline-offset-4 hover:underline',
+                children: text.riskLink,
+              })}
+            </Tile>
+          )}
+        </div>
       )}
     </>
   );

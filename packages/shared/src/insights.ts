@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { allHintRuleKeys, hintDetailSchema, hintSeverities } from './hints.js';
 
 // AW-01, NAV-10: Beleg der Auswertungsseiten aus bestehenden Daten. Aussagen von Reziproq,
 // Chancen und Risiken kommen mit KI-04, KI-11 und KI-16.
@@ -64,6 +65,17 @@ export const supplierRingsSchema = z.object({
       low: z.number().int(),
       high: z.number().int(),
       confidence: z.enum(['high', 'medium']),
+    })
+    .nullable()
+    .optional(),
+  // AW-01, KI-16: Größtes Risiko, der offene Hinweis mit dem höchsten score der Beziehung; ohne
+  // Kandidat null und die Karte fehlt. Nur für Personen, die Hinweise dieser Beziehung sehen.
+  risk: z
+    .object({
+      hintId: z.uuid(),
+      ruleKey: z.enum(allHintRuleKeys),
+      detail: hintDetailSchema,
+      severity: z.enum(hintSeverities),
     })
     .nullable()
     .optional(),
