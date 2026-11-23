@@ -71,7 +71,9 @@ abstract class CommentsEndpoints {
     @Param('objectId', ParseUUIDPipe) objectId: string,
     @Body(new ZodValidationPipe(saveCommentSchema)) body: SaveComment,
   ): Promise<CommentList> {
-    return this.run(auth, id, (scope) => this.comments.create(scope, parseType(type), objectId, body));
+    return this.run(auth, id, (scope) =>
+      this.comments.create(scope, parseType(type), objectId, body),
+    );
   }
 
   @Put(':type/:objectId/:commentId')
@@ -98,7 +100,9 @@ abstract class CommentsEndpoints {
     @Param('objectId', ParseUUIDPipe) objectId: string,
     @Param('commentId', ParseUUIDPipe) commentId: string,
   ): Promise<CommentList> {
-    return this.run(auth, id, (scope) => this.comments.remove(scope, parseType(type), objectId, commentId));
+    return this.run(auth, id, (scope) =>
+      this.comments.remove(scope, parseType(type), objectId, commentId),
+    );
   }
 }
 

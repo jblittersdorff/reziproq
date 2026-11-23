@@ -59,6 +59,7 @@ export async function demoStory(
     .where(eq(schema.jbp.relationshipId, first.id));
   if (existing) {
     await demoEarlyWarning(tx, first.id, account, today);
+    await demoBriefing(tx, first.id, account);
     return { created: false, relationships };
   }
 
@@ -314,7 +315,54 @@ export async function demoStory(
     })
     .onConflictDoNothing();
   await demoEarlyWarning(tx, first.id, account, today);
+  await demoBriefing(tx, first.id, account);
   return { created: true, relationships };
+}
+
+/**
+ * KI-07: Der Quartalsreview in sieben Tagen bekommt Dauer und Teilnehmer beider Seiten, damit das
+ * Termin-Briefing eine Agenda mit Zeiten und „Wer führt“ zeigt. Ergänzt nur, was fehlt.
+ */
+async function demoBriefing(
+  tx: Transaction,
+  relationshipId: string,
+  account: { id: string; name: string },
+) {
+  const oem = seedBuyers.testOem.id;
+  const [qbr] = await tx
+    .select({ id: schema.meeting.id })
+    .from(schema.meeting)
+    .where(
+      and(
+        eq(schema.meeting.relationshipId, relationshipId),
+        eq(schema.meeting.type, 'quarterly_review'),
+        eq(schema.meeting.status, 'planned'),
+      ),
+    )
+    .orderBy(desc(schema.meeting.startsAt))
+    .limit(1);
+  if (!qbr) return;
+  const present = await tx
+    .select({ id: schema.meetingParticipant.id })
+    .from(schema.meetingParticipant)
+    .where(eq(schema.meetingParticipant.meetingId, qbr.id));
+  if (present.length > 0) return;
+  await tx.update(schema.meeting).set({ durationMinutes: 90 }).where(eq(schema.meeting.id, qbr.id));
+  const participant = (name: string, ownerOrgId: string, position: number) => ({
+    meetingId: qbr.id,
+    relationshipId,
+    ownerOrgId,
+    visibility: 'shared' as const,
+    name,
+    position,
+  });
+  await tx
+    .insert(schema.meetingParticipant)
+    .values([
+      participant(account.name, oem, 1),
+      participant('Key Account', seedSupplierOrg.id, 1),
+      participant('Qualitätsleitung', seedSupplierOrg.id, 2),
+    ]);
 }
 
 /**

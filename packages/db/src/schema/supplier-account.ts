@@ -1,5 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { check, index, integer, pgTable, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  index,
+  integer,
+  pgTable,
+  smallint,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { relationship } from './relationship.js';
 
 // LIF-03: Eigene Sicht des Lieferanten auf einen Kunden. Lieferantenprivat: Der Käufer sieht weder
@@ -25,7 +34,10 @@ export const supplierAccountPlan = pgTable(
       'supplier_account_plan_importance',
       sql`${table.customerImportance} is null or ${table.customerImportance} between 1 and 5`,
     ),
-    check('supplier_account_plan_summary', sql`${table.summary} is null or length(${table.summary}) <= 4000`),
+    check(
+      'supplier_account_plan_summary',
+      sql`${table.summary} is null or length(${table.summary}) <= 4000`,
+    ),
     check(
       'supplier_account_plan_view',
       sql`${table.ownViewOfCustomer} is null or length(${table.ownViewOfCustomer}) <= 4000`,

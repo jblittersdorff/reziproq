@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table';
 import { useCan } from '@/features/auth/use-permissions';
 import { HintRulesSection } from '@/features/hints/hint-rules-section';
+import { BriefSettingsSection } from '@/features/meetings/brief-settings-section';
 import { useToken as useAccessToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
@@ -469,6 +470,8 @@ export function AiSettingsPage() {
           )}
           {/* KI-16: Regeln, Schwellen und Bewertung der Hinweise */}
           <HintRulesSection />
+          {/* KI-07: Vorlauf des Termin-Briefings je Termintyp */}
+          <BriefSettingsSection />
         </div>
         <div className="flex min-w-0 flex-col gap-5">
           <UsageCard />

@@ -7,7 +7,9 @@ describe('WG-01 eigene Bezeichnung der Warengruppe', () => {
   it('ersetzt Einzahl, Mehrzahl und Zusammensetzungen', () => {
     expect(applyCategoryLabel('Warengruppen anlegen', label)).toBe('Werkstoffgruppen anlegen');
     expect(applyCategoryLabel('Neue Warengruppe', label)).toBe('Neue Werkstoffgruppe');
-    expect(applyCategoryLabel('Haupt-Warengruppe ändern', label)).toBe('Haupt-Werkstoffgruppe ändern');
+    expect(applyCategoryLabel('Haupt-Warengruppe ändern', label)).toBe(
+      'Haupt-Werkstoffgruppe ändern',
+    );
     expect(applyCategoryLabel('Warengruppenstrategie', label)).toBe('Werkstoffgruppenstrategie');
   });
 

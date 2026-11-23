@@ -5,7 +5,13 @@ import { z } from 'zod';
 export const ruleKinds = ['right', 'obligation'] as const;
 export const ruleGroups = ['cost', 'protection', 'collaboration', 'growth'] as const;
 export const formatLevels = ['executive', 'management', 'operational'] as const;
-export const formatCadences = ['monthly', 'quarterly', 'semiannual', 'annual', 'on_demand'] as const;
+export const formatCadences = [
+  'monthly',
+  'quarterly',
+  'semiannual',
+  'annual',
+  'on_demand',
+] as const;
 
 export type RuleKind = (typeof ruleKinds)[number];
 export type RuleGroup = (typeof ruleGroups)[number];

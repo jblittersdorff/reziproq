@@ -5,14 +5,14 @@ import { AppModule } from './app.module.js';
 import { AccountStore, TenantDatabase } from './common/database.module.js';
 import { AgentRunner } from './modules/agents/agent-runner.js';
 import { AgentsService } from './modules/agents/agents.service.js';
-import { QbrPrepWorker } from './modules/agents/qbr-prep.worker.js';
+import { MeetingBriefWorker } from './modules/agents/meeting-brief.worker.js';
 import type { AuthContext } from './modules/auth/auth.guard.js';
 import { HintsService } from './modules/hints/hints.service.js';
 import { OpportunitiesService } from './modules/opportunities/opportunities.service.js';
 
 // pnpm demo:setup, zweiter Teil: Über der Demo-Geschichte laufen die echten Dienste einmal, wie
 // es auch die Person in der App täte – Agent einschalten, Wertpotenzial-Finder je Fokuslieferant,
-// QBR-Vorbereitung für den Termin in sieben Tagen, Hinweise mit Frühwarnung. Nur lokal; mit dem
+// Termin-Briefing für den Termin in sieben Tagen, Hinweise mit Frühwarnung. Nur lokal; mit dem
 // Testanbieter, ohne Netzwerk.
 
 // ID des Test-OEM aus packages/db/src/seed.ts (seedBuyers.testOem)
@@ -66,12 +66,12 @@ async function main() {
       tokenRoles: [],
     };
 
-    // 1. QBR-Vorbereitung einschalten
+    // 1. Termin-Briefing einschalten
     const agents = app.get(AgentsService);
     const list = await agents.list(auth);
     const agent = list.agents[0];
     if (agent && !agent.enabled) await agents.setEnabled(auth, agent.id, true);
-    console.log('Agent QBR-Vorbereitung ist eingeschaltet.');
+    console.log('Agent Termin-Briefing ist eingeschaltet.');
 
     // 2. Wertpotenzial-Finder je Fokuslieferant
     for (const entry of focus) {
@@ -87,8 +87,8 @@ async function main() {
       }
     }
 
-    // 3. QBR-Vorbereitung für Termine in sieben Tagen, wie der Tagesjob, und gleich ausführen
-    const started = await app.get(QbrPrepWorker).runDaily([testOem]);
+    // 3. Termin-Briefing für Termine im Vorlauf ihres Typs, wie der Job, und gleich ausführen
+    const started = await app.get(MeetingBriefWorker).runDue([testOem]);
     const runs = await tenant.run(
       { userId: account.id, organizationId: testOem },
       async (tx) =>
@@ -114,8 +114,8 @@ async function main() {
     }
     console.log(
       started > 0
-        ? `QBR-Vorbereitung: ${started} Lauf gestartet und ausgeführt, Aufgabe im Mein Tag.`
-        : 'QBR-Vorbereitung: kein neuer Lauf (schon vorbereitet oder kein QBR in sieben Tagen).',
+        ? `Termin-Briefing: ${started} Lauf gestartet und ausgeführt, Aufgabe im Mein Tag.`
+        : 'Termin-Briefing: kein neuer Lauf (schon vorbereitet oder kein Termin im Vorlauf).',
     );
 
     // 4. Hinweise mit Frühwarnung (KI-16): Regeln prüfen und Begründungen schreiben, wie der Tagesjob

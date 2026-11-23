@@ -48,7 +48,9 @@ export const initiative = pgTable(
     endsOn: date().notNull(),
     status: text({ enum: initiativeStatuses }).notNull().default('planned'),
     // PNL-01: Woher die Initiative kommt; vom Lieferanten angelegt ist sie eine Lieferantenidee.
-    source: text({ enum: ['jbp', 'action', 'supplier_idea'] }).notNull().default('jbp'),
+    source: text({ enum: ['jbp', 'action', 'supplier_idea'] })
+      .notNull()
+      .default('jbp'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -141,7 +143,9 @@ export const commitment = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),
@@ -183,7 +187,9 @@ export const scorecard = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     jbpId: uuid()
       .notNull()
       .references(() => jbp.id, { onDelete: 'cascade' }),
@@ -209,7 +215,9 @@ export const scorecardKpi = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     scorecardId: uuid()
       .notNull()
       .references(() => scorecard.id, { onDelete: 'cascade' }),
@@ -249,7 +257,9 @@ export const scorecardSignature = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     scorecardId: uuid()
       .notNull()
       .references(() => scorecard.id, { onDelete: 'cascade' }),
@@ -279,7 +289,9 @@ export const kpiValue = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     kpiId: uuid()
       .notNull()
       .references(() => scorecardKpi.id, { onDelete: 'cascade' }),
@@ -310,9 +322,6 @@ export const scorecardSetting = pgTable(
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check(
-      'scorecard_setting_tolerance',
-      sql`${table.tolerancePercent} between 0 and 50`,
-    ),
+    check('scorecard_setting_tolerance', sql`${table.tolerancePercent} between 0 and 50`),
   ],
 );

@@ -1,5 +1,4 @@
 import {
-  qbrPrepSchema,
   type AdoptOpportunity,
   adoptOpportunitySchema,
   type ChangeAssumptions,
@@ -83,11 +82,15 @@ import {
   focusListSchema,
   forbiddenCodes,
   type GoalRequest,
+  type BriefSettings,
+  type EditBriefAgenda,
   type HintRuleSettings,
   type HintSettings,
   healthResponseSchema,
   hintListSchema,
   hintRuleSettingsSchema,
+  meetingBriefSchema,
+  briefSettingsSchema,
   hintSchema,
   hintSettingsSchema,
   type ImpactView,
@@ -3634,22 +3637,18 @@ export const discardDataRequest = (accessToken: string, relationshipId: string, 
 export const reportStatement = (accessToken: string, id: string) =>
   sendNoContent(accessToken, 'POST', `/aussagen/${id}/stimmt-nicht`, {});
 
-/** KI-07: interne QBR-Vorbereitung eines Termins */
-const prepPath = (relationshipId: string, meetingId: string) =>
-  `/suppliers/${relationshipId}/termine/${meetingId}/vorbereitung`;
+/** KI-07: Termin-Briefing eines Termins, nur beim Käufer */
+const briefPath = (relationshipId: string, meetingId: string) =>
+  `/suppliers/${relationshipId}/termine/${meetingId}/briefing`;
 
-export const qbrPrepQueryOptions = (
-  accessToken: string,
-  relationshipId: string,
-  meetingId: string,
-) =>
+export const briefQueryOptions = (accessToken: string, relationshipId: string, meetingId: string) =>
   queryOptions({
-    queryKey: ['termine', meetingId, 'vorbereitung'],
-    queryFn: () => getJson(prepPath(relationshipId, meetingId), qbrPrepSchema, accessToken),
+    queryKey: ['termine', meetingId, 'briefing'],
+    queryFn: () => getJson(briefPath(relationshipId, meetingId), meetingBriefSchema, accessToken),
     retry: retryUnlessDenied,
   });
 
-export const decideQbrPrep = (
+export const decideBrief = (
   accessToken: string,
   relationshipId: string,
   meetingId: string,
@@ -3658,23 +3657,47 @@ export const decideQbrPrep = (
 ) =>
   sendJson(
     'POST',
-    `${prepPath(relationshipId, meetingId)}/${draftId}/${decision}`,
+    `${briefPath(relationshipId, meetingId)}/${draftId}/${decision}`,
     {},
-    qbrPrepSchema,
+    meetingBriefSchema,
     accessToken,
   );
 
-export const addPrepTopicToAgenda = (
+export const editBriefAgenda = (
   accessToken: string,
   relationshipId: string,
   meetingId: string,
-  draftId: string,
-  claimKey: string,
+  request: EditBriefAgenda,
+) =>
+  sendJson(
+    'PUT',
+    `${briefPath(relationshipId, meetingId)}/agenda`,
+    request,
+    meetingBriefSchema,
+    accessToken,
+  );
+
+export const sendBriefQuestion = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  key: string,
 ) =>
   sendJson(
     'POST',
-    `${prepPath(relationshipId, meetingId)}/${draftId}/agenda`,
-    { claimKey },
-    qbrPrepSchema,
+    `${briefPath(relationshipId, meetingId)}/fragen/${encodeURIComponent(key)}/senden`,
+    {},
+    meetingBriefSchema,
     accessToken,
   );
+
+/** KI-07: Vorlauf je Termintyp (Einstellungen KI, nur Admins) */
+export const briefSettingsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['einstellungen', 'termin-briefing'],
+    queryFn: () => getJson('/einstellungen/termin-briefing', briefSettingsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveBriefSettings = (accessToken: string, request: BriefSettings) =>
+  sendJson('PUT', '/einstellungen/termin-briefing', request, briefSettingsSchema, accessToken);

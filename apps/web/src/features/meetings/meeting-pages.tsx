@@ -1,4 +1,10 @@
-import type { MeetingDetail, MeetingSide, MeetingSummary, MeetingType } from '@reziproq/shared';
+import {
+  defaultMeetingMinutes,
+  type MeetingDetail,
+  type MeetingSide,
+  type MeetingSummary,
+  type MeetingType,
+} from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { CalendarDaysIcon, FileDownIcon, PlusIcon } from 'lucide-react';
@@ -13,6 +19,7 @@ import { FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
@@ -23,6 +30,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
 import { SupplierFrame } from '@/features/suppliers/supplier-frame';
 import {
+  briefQueryOptions,
   closeMeeting,
   createMeeting,
   downloadPreRead,
@@ -32,13 +40,14 @@ import {
   saveMeetingAgenda,
   saveMeetingNote,
   saveMeetingProtocol,
+  supplierQueryOptions,
   updateMeeting,
 } from '@/lib/api';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
+import { MeetingBriefPanel } from './meeting-brief';
 import { PreReadSummary } from './pre-read-summary';
-import { QbrPrepPanel } from './qbr-prep-panel';
 
 // QBR-01a: Termine für beide Seiten. Der Käufer arbeitet unter /lieferanten/<id>/umsetzung/termine,
 // der Lieferant unter /kunden/<beziehung>/umsetzung/termine; die API unterscheidet genauso.
@@ -291,7 +300,15 @@ export function NewMeetingPage({ place }: { place: MeetingPlace }) {
   );
 }
 
-const standardTypes: MeetingType[] = ['quarterly_review', 'strategy_dialogue', 'jbp', 'other'];
+const standardTypes: MeetingType[] = [
+  'quarterly_review',
+  'strategy_dialogue',
+  'jbp',
+  'negotiation',
+  'site_visit',
+  'escalation',
+  'other',
+];
 
 function NewMeetingForm({ place }: { place: MeetingPlace }) {
   const t = useT();
@@ -303,6 +320,7 @@ function NewMeetingForm({ place }: { place: MeetingPlace }) {
   const [choice, setChoice] = useState<string>('quarterly_review');
   const [title, setTitle] = useState(text.types.quarterly_review);
   const [startsAt, setStartsAt] = useState('');
+  const [duration, setDuration] = useState(String(defaultMeetingMinutes));
   const [location, setLocation] = useState('');
   const [participants, setParticipants] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -331,6 +349,9 @@ function NewMeetingForm({ place }: { place: MeetingPlace }) {
     const next: Record<string, string> = {};
     if (title.trim() === '') next.title = text.required;
     if (startsAt === '') next.startsAt = text.required;
+    const minutes = Number(duration);
+    if (!Number.isInteger(minutes) || minutes < 15 || minutes > 600)
+      next.duration = text.durationInvalid;
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     const format = formats.find((entry) => entry.id === choice);
@@ -341,6 +362,7 @@ function NewMeetingForm({ place }: { place: MeetingPlace }) {
         ruleSetItemId: format ? format.id : null,
         title: title.trim(),
         startsAt: new Date(startsAt).toISOString(),
+        durationMinutes: Number(duration),
         location: location.trim() || null,
         participants: participants
           .split('\n')
@@ -400,6 +422,20 @@ function NewMeetingForm({ place }: { place: MeetingPlace }) {
             type="datetime-local"
             value={startsAt}
             onChange={(event) => setStartsAt(event.target.value)}
+          />
+        )}
+      </FormField>
+      <FormField label={text.duration} hint={text.durationHint} error={errors.duration}>
+        {(field) => (
+          <Input
+            {...field}
+            type="number"
+            inputMode="numeric"
+            min={15}
+            max={600}
+            step={5}
+            value={duration}
+            onChange={(event) => setDuration(event.target.value)}
           />
         )}
       </FormField>
@@ -552,6 +588,16 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
   const [message, hideMessage] = useFlash();
   // Abschließen bleibt auf dieser Seite; die Rückmeldung steht deshalb hier (NAV-04).
   const [closedMessage, setClosedMessage] = useState<string | null>(null);
+  // KI-07: beim Käufer zwei Reiter, Vorbereitung (Briefing) und Agenda (wie der Lieferant sie sieht)
+  const [tab, setTab] = useState<'prep' | 'agenda' | null>(null);
+  const supplier = useQuery({
+    ...supplierQueryOptions(query.accessToken, place.relationshipId),
+    enabled: query.accessToken !== '' && place.side === 'buyer',
+  });
+  const brief = useQuery({
+    ...briefQueryOptions(query.accessToken, place.relationshipId, meetingId),
+    enabled: query.accessToken !== '' && place.side === 'buyer',
+  });
   if (query.isError) {
     return (
       <>
@@ -572,11 +618,29 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
     query.data;
   const { live, canClose } = query.data;
   const base = `${webBase(place)}/${meetingId}`;
+  // Vor dem Termin beginnt der Käufer bei der Vorbereitung, danach bei der Agenda mit Protokoll.
+  // Gibt es schon ein Briefing, beginnt der Käufer vor dem Termin bei der Vorbereitung.
+  const hasBrief = Object.values(brief.data?.parts ?? {}).some(
+    (part) => part.draft !== null || part.accepted !== null,
+  );
+  const shownTab =
+    place.side !== 'buyer'
+      ? 'agenda'
+      : (tab ??
+        (hasBrief && meeting.status === 'planned' && new Date(meeting.startsAt) > new Date()
+          ? 'prep'
+          : 'agenda'));
   return (
     <>
       <PageHeader
         title={meeting.title}
-        purpose={[dateTime(meeting.startsAt), meeting.location].filter(Boolean).join(' · ')}
+        purpose={[
+          dateTime(meeting.startsAt),
+          text.brief.minutes(meeting.durationMinutes),
+          meeting.location,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
         badge={
           <Badge variant={meeting.status === 'closed' ? 'success' : 'neutral'}>
             {text.statuses[meeting.status]}
@@ -611,125 +675,143 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
       {meeting.status !== 'closed' && (
         <PreReadSummary base={apiBase(place)} side={place.side} meetingId={meetingId} />
       )}
-      {place.side === 'buyer' &&
-        meeting.type === 'quarterly_review' &&
-        meeting.status !== 'closed' && (
-          <QbrPrepPanel
-            relationshipId={apiBase(place).slice(apiBase(place).lastIndexOf('/') + 1)}
-            meetingId={meetingId}
-          />
-        )}
-      <Section
-        id="termin-agenda"
-        title={text.agenda}
-        editHref={canContribute ? `${base}/agenda` : undefined}
-      >
-        {agenda.length === 0 ? (
-          <p className="text-muted-foreground">{text.agendaEmpty}</p>
-        ) : (
-          <ol className="flex list-decimal flex-col gap-2 pl-5">
-            {agenda.map((item) => (
-              <li key={item.id}>
-                <span className="flex flex-wrap items-center gap-2">
-                  {item.title}
-                  <SideBadge place={place} side={item.side} />
-                </span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </Section>
-      {live.sections.length > 0 && (
-        <Section
-          id="termin-live"
-          title={live.frozenAt ? text.liveFrozen(dateTime(live.frozenAt)) : text.live}
-        >
-          {live.sections.map((section) => (
-            <div key={section.key} data-live={section.key} className="flex flex-col gap-2">
-              <h3 className="font-medium">{text.liveSections[section.key] ?? section.key}</h3>
-              <ul className="overflow-hidden rounded-lg bg-card shadow-card">
-                {section.items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-4 border-line-soft border-b px-5 py-3 last:border-b-0"
-                  >
-                    <span className="flex-1">{item.title}</span>
-                    <span className="text-muted-foreground text-sm">
-                      {[
-                        item.status &&
-                          (section.key === 'actions' && item.status in t.actions.statuses
-                            ? t.actions.statuses[item.status as keyof typeof t.actions.statuses]
-                            : section.key === 'commitments'
-                              ? (t.jbp.commitments.statuses[item.status] ?? item.status)
-                              : section.key === 'scorecard'
-                                ? (t.jbp.scorecard.tracks[item.status] ?? item.status)
-                                : section.key === 'initiatives' &&
-                                    item.status in t.jbp.initiatives.statuses
-                                  ? t.jbp.initiatives.statuses[
-                                      item.status as keyof typeof t.jbp.initiatives.statuses
-                                    ]
-                                  : item.status),
-                        item.detail,
-                        item.dueDate && t.actions.due(format.date(item.dueDate)),
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
+      {place.side === 'buyer' && (
+        <SegmentedControl
+          label={text.brief.tabsLabel}
+          value={shownTab}
+          options={[
+            { value: 'prep', label: text.brief.tabPrep },
+            { value: 'agenda', label: text.brief.tabAgenda },
+          ]}
+          onChange={setTab}
+          className="self-start"
+        />
+      )}
+      {shownTab === 'prep' ? (
+        <MeetingBriefPanel
+          relationshipId={place.relationshipId}
+          meetingId={meetingId}
+          supplier={supplier.data?.name ?? text.brief.sideYou}
+          meetingDay={meeting.startsAt}
+        />
+      ) : (
+        <>
+          <Section
+            id="termin-agenda"
+            title={text.agenda}
+            editHref={canContribute ? `${base}/agenda` : undefined}
+          >
+            {agenda.length === 0 ? (
+              <p className="text-muted-foreground">{text.agendaEmpty}</p>
+            ) : (
+              <ol className="flex list-decimal flex-col gap-2 pl-5">
+                {agenda.map((item) => (
+                  <li key={item.id}>
+                    <span className="flex flex-wrap items-center gap-2">
+                      {item.title}
+                      <SideBadge place={place} side={item.side} />
                     </span>
+                    {item.detail && (
+                      <span className="block text-muted-foreground text-sm">{item.detail}</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Section>
+          {live.sections.length > 0 && (
+            <Section
+              id="termin-live"
+              title={live.frozenAt ? text.liveFrozen(dateTime(live.frozenAt)) : text.live}
+            >
+              {live.sections.map((section) => (
+                <div key={section.key} data-live={section.key} className="flex flex-col gap-2">
+                  <h3 className="font-medium">{text.liveSections[section.key] ?? section.key}</h3>
+                  <ul className="overflow-hidden rounded-lg bg-card shadow-card">
+                    {section.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-center gap-4 border-line-soft border-b px-5 py-3 last:border-b-0"
+                      >
+                        <span className="flex-1">{item.title}</span>
+                        <span className="text-muted-foreground text-sm">
+                          {[
+                            item.status &&
+                              (section.key === 'actions' && item.status in t.actions.statuses
+                                ? t.actions.statuses[item.status as keyof typeof t.actions.statuses]
+                                : section.key === 'commitments'
+                                  ? (t.jbp.commitments.statuses[item.status] ?? item.status)
+                                  : section.key === 'scorecard'
+                                    ? (t.jbp.scorecard.tracks[item.status] ?? item.status)
+                                    : section.key === 'initiatives' &&
+                                        item.status in t.jbp.initiatives.statuses
+                                      ? t.jbp.initiatives.statuses[
+                                          item.status as keyof typeof t.jbp.initiatives.statuses
+                                        ]
+                                      : item.status),
+                            item.detail,
+                            item.dueDate && t.actions.due(format.date(item.dueDate)),
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </Section>
+          )}
+          {canContribute &&
+            routerLink({
+              href: `${actionsPath(place)}/neu?termin=${meetingId}`,
+              className: `${buttonVariants({ variant: 'outline' })} self-start`,
+              children: t.actions.fromMeeting,
+            })}
+          <Section
+            id="termin-protokoll"
+            title={text.protocol}
+            editHref={canContribute ? `${base}/protokoll` : undefined}
+          >
+            {meeting.protocol ? (
+              <p className="whitespace-pre-line">{meeting.protocol}</p>
+            ) : (
+              <p className="text-muted-foreground">{text.protocolEmpty}</p>
+            )}
+            <h3 className="font-medium">{text.decisions}</h3>
+            {decisions.length === 0 ? (
+              <p className="text-muted-foreground">{text.decisionsEmpty}</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {decisions.map((decision) => (
+                  <li key={decision.id} className="flex flex-wrap items-center gap-2">
+                    {decision.text}
+                    <SideBadge place={place} side={decision.side} />
                   </li>
                 ))}
               </ul>
-            </div>
-          ))}
-        </Section>
-      )}
-      {canContribute &&
-        routerLink({
-          href: `${actionsPath(place)}/neu?termin=${meetingId}`,
-          className: `${buttonVariants({ variant: 'outline' })} self-start`,
-          children: t.actions.fromMeeting,
-        })}
-      <Section
-        id="termin-protokoll"
-        title={text.protocol}
-        editHref={canContribute ? `${base}/protokoll` : undefined}
-      >
-        {meeting.protocol ? (
-          <p className="whitespace-pre-line">{meeting.protocol}</p>
-        ) : (
-          <p className="text-muted-foreground">{text.protocolEmpty}</p>
-        )}
-        <h3 className="font-medium">{text.decisions}</h3>
-        {decisions.length === 0 ? (
-          <p className="text-muted-foreground">{text.decisionsEmpty}</p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {decisions.map((decision) => (
-              <li key={decision.id} className="flex flex-wrap items-center gap-2">
-                {decision.text}
-                <SideBadge place={place} side={decision.side} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
-      <Section
-        id="termin-notiz"
-        title={text.note}
-        badge={<VisibilityBadge visibility="internal" label={text.internal} />}
-        editHref={canContribute ? `${base}/notiz` : undefined}
-      >
-        {note ? (
-          <p className="whitespace-pre-line">{note}</p>
-        ) : (
-          <p className="text-muted-foreground">{text.noteEmpty}</p>
-        )}
-      </Section>
-      {canClose && (
-        <CloseMeeting
-          place={place}
-          meetingId={meetingId}
-          onClosed={() => setClosedMessage(text.closed)}
-        />
+            )}
+          </Section>
+          <Section
+            id="termin-notiz"
+            title={text.note}
+            badge={<VisibilityBadge visibility="internal" label={text.internal} />}
+            editHref={canContribute ? `${base}/notiz` : undefined}
+          >
+            {note ? (
+              <p className="whitespace-pre-line">{note}</p>
+            ) : (
+              <p className="text-muted-foreground">{text.noteEmpty}</p>
+            )}
+          </Section>
+          {canClose && (
+            <CloseMeeting
+              place={place}
+              meetingId={meetingId}
+              onClosed={() => setClosedMessage(text.closed)}
+            />
+          )}
+        </>
       )}
     </>
   );
@@ -896,6 +978,7 @@ function EditForm({
   const owner = detail.meeting.ownerSide === place.side;
   const [title, setTitle] = useState(detail.meeting.title);
   const [startsAt, setStartsAt] = useState(toLocalInput(detail.meeting.startsAt));
+  const [duration, setDuration] = useState(String(detail.meeting.durationMinutes));
   const [location, setLocation] = useState(detail.meeting.location ?? '');
   const [participants, setParticipants] = useState(
     detail.participants
@@ -930,6 +1013,7 @@ function EditForm({
         await updateMeeting(accessToken, base, id, {
           title: title.trim(),
           startsAt: new Date(startsAt).toISOString(),
+          durationMinutes: Math.min(600, Math.max(15, Number(duration) || defaultMeetingMinutes)),
           location: location.trim() || null,
           participants: clean(participants.split('\n')),
         });
@@ -980,6 +1064,20 @@ function EditForm({
                 type="datetime-local"
                 value={startsAt}
                 onChange={(event) => setStartsAt(event.target.value)}
+              />
+            )}
+          </FormField>
+          <FormField label={text.duration} hint={text.durationHint}>
+            {(field) => (
+              <Input
+                {...field}
+                type="number"
+                inputMode="numeric"
+                min={15}
+                max={600}
+                step={5}
+                value={duration}
+                onChange={(event) => setDuration(event.target.value)}
               />
             )}
           </FormField>

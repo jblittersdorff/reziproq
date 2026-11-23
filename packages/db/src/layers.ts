@@ -862,7 +862,8 @@ export const layerRegister: Record<string, LayerEntry> = {
       title: 'Probe',
       summary: 'Probe',
       direction: 'neutral',
-      sources: '[{"title":"Probe","url":"https://example.test","publishedOn":"2026-01-01","excerpt":"Probe"}]',
+      sources:
+        '[{"title":"Probe","url":"https://example.test","publishedOn":"2026-01-01","excerpt":"Probe"}]',
       outcome: 'no_effect',
       outcome_reason: 'Probe',
     },

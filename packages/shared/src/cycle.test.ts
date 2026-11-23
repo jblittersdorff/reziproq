@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  calculateCycleDeadlines,
-  defaultCycleSettings,
-  offsetCycleDate,
-} from './cycle.js';
+import { calculateCycleDeadlines, defaultCycleSettings, offsetCycleDate } from './cycle.js';
 
 describe('ZYK-02 Fristen', () => {
   it('berechnet Standardfristen in Kalenderwochen relativ zum JBP-Termin', () => {

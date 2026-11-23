@@ -104,6 +104,7 @@ beforeEach(() => {
           type: 'quarterly_review',
           title: 'Quartalsreview Q3',
           startsAt: '2099-03-15T09:00:00Z',
+          durationMinutes: 60,
           location: null,
           status: 'planned',
           ownerSide: 'buyer',

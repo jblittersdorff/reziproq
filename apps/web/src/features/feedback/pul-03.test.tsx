@@ -173,9 +173,7 @@ describe('PUL-03 Auswertung in der Oberfläche', () => {
     expect(rows[0]?.textContent).toContain('Lücke 0,9');
     // AW-01: nur Lücken ab 0,5 sind markiert
     for (const row of rows) {
-      const gap = Number(
-        (row.textContent?.match(/Lücke (\d+,\d+)/)?.[1] ?? '0').replace(',', '.'),
-      );
+      const gap = Number((row.textContent?.match(/Lücke (\d+,\d+)/)?.[1] ?? '0').replace(',', '.'));
       expect(row.querySelector('[data-gap="marked"]') !== null).toBe(gap >= 0.5);
     }
   });

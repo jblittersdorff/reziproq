@@ -8,9 +8,15 @@ export const meetingTypes = [
   'quarterly_review',
   'strategy_dialogue',
   'jbp',
+  // KI-07: Termintypen mit eigenem Vorlauf für das Briefing
+  'negotiation',
+  'site_visit',
+  'escalation',
   'format',
   'other',
 ] as const;
+/** Dauer eines Termins in Minuten, wenn nichts angegeben ist */
+export const defaultMeetingMinutes = 60;
 export const meetingStatuses = ['planned', 'held', 'closed'] as const;
 export const meetingSides = ['buyer', 'supplier'] as const;
 export type MeetingType = (typeof meetingTypes)[number];
@@ -67,6 +73,18 @@ export const agendaTemplates: Record<MeetingType, { de: string[]; en: string[] }
       'Scorecard',
     ],
   },
+  negotiation: {
+    de: ['Begrüßung und Ziel', 'Stand und Angebote', 'Verhandlungspunkte', 'Vereinbarungen'],
+    en: ['Welcome and goal', 'Status and offers', 'Points to negotiate', 'Agreements'],
+  },
+  site_visit: {
+    de: ['Begrüßung und Rundgang', 'Qualität und Befunde', 'Maßnahmen', 'Nächste Schritte'],
+    en: ['Welcome and tour', 'Quality and findings', 'Actions', 'Next steps'],
+  },
+  escalation: {
+    de: ['Lage und Auswirkung', 'Ursachen', 'Sofortmaßnahmen', 'Zusagen und nächste Schritte'],
+    en: ['Situation and impact', 'Causes', 'Immediate actions', 'Commitments and next steps'],
+  },
   format: {
     de: ['Begrüßung und Ziel', 'Themen', 'Vereinbarungen und nächste Schritte'],
     en: ['Welcome and goal', 'Topics', 'Agreements and next steps'],
@@ -82,6 +100,8 @@ export const meetingSummarySchema = z.object({
   type: z.enum(meetingTypes),
   title: z.string(),
   startsAt: z.iso.datetime({ offset: true }),
+  /** KI-07: Dauer in Minuten; die Agenda des Briefings füllt sie genau */
+  durationMinutes: z.number().int(),
   location: z.string().nullable(),
   status: z.enum(meetingStatuses),
   ownerSide: z.enum(meetingSides),
@@ -128,7 +148,15 @@ export const meetingDetailSchema = z.object({
     createdByName: z.string(),
   }),
   participants: z.array(z.object({ ...ownedRow, name: z.string() })),
-  agenda: z.array(z.object({ ...ownedRow, title: z.string(), position: z.number().int() })),
+  agenda: z.array(
+    z.object({
+      ...ownedRow,
+      title: z.string(),
+      /** KI-07: Dauer, wer führt und Fragen aus dem geteilten Briefing */
+      detail: z.string().nullable(),
+      position: z.number().int(),
+    }),
+  ),
   decisions: z.array(z.object({ ...ownedRow, text: z.string(), position: z.number().int() })),
   /** Interne Notiz der eigenen Organisation; die andere Seite sieht sie nie */
   note: z.string().nullable(),
@@ -158,6 +186,7 @@ export const createMeetingSchema = z
     ruleSetItemId: z.uuid().nullable(),
     title,
     startsAt: z.iso.datetime({ offset: true }),
+    durationMinutes: z.number().int().min(15).max(600).default(defaultMeetingMinutes),
     location: z.string().trim().max(300).nullable(),
     participants: z.array(z.string().trim().min(1).max(120)).max(30),
     locale: z.enum(['de', 'en']).default('de'),
@@ -172,6 +201,8 @@ export const updateMeetingSchema = z
   .object({
     title,
     startsAt: z.iso.datetime({ offset: true }),
+    /** Fehlt die Dauer, bleibt die bisherige */
+    durationMinutes: z.number().int().min(15).max(600).optional(),
     location: z.string().trim().max(300).nullable(),
     participants: z.array(z.string().trim().min(1).max(120)).max(30),
   })

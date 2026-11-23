@@ -145,8 +145,12 @@ describe('KI-04 Systemagent und Läufe', () => {
     expect(outcome.run).toMatchObject({ status: 'done', stepsUsed: 4 });
     expect(outcome.draftHref).toContain(meetingId);
     expect(outcome.steps.map((step) => step.key)).toEqual(['plan', 'read', 'model', 'draft']);
-    const drafts = await db.select().from(schema.aiDraft).where(eq(schema.aiDraft.runId, id));
+    // QBR-07: genau ein Entwurf für den Pre-Read; dazu die Teile des Termin-Briefings (KI-07)
+    const all = await db.select().from(schema.aiDraft).where(eq(schema.aiDraft.runId, id));
+    const drafts = all.filter((draft) => draft.kind === 'pre_read');
     expect(drafts).toHaveLength(1);
+    expect(all.filter((draft) => draft.kind.startsWith('brief_')).length).toBeGreaterThan(0);
+    expect(all.every((draft) => draft.orgId === orgs.buyer)).toBe(true);
     expect(drafts[0]).toMatchObject({
       orgId: orgs.buyer,
       objectId: meetingId,
@@ -163,7 +167,9 @@ describe('KI-04 Systemagent und Läufe', () => {
       'commitments',
       'initiatives',
       'meetingDay',
+      'meetingType',
       'scorecardItems',
+      'situation',
     ]);
     expect(read?.detail?.supplier).toMatchObject({ teamNotes: 0 });
     expect((await call(users.member, 'POST', `${path}/${agentId}/starten`, request)).status).toBe(
@@ -177,7 +183,8 @@ describe('KI-04 Systemagent und Läufe', () => {
   it('zeigt einen Testlauf allein der startenden Person und speichert keinen Entwurf', async () => {
     const id = await start(true);
     await process(id);
-    expect((await detail(id)).testResult).toContain('Quartalsreview');
+    // Der Testanbieter übernimmt die Sätze zur Lage aus der Datenbank (KI-07)
+    expect((await detail(id)).testResult).toContain('hinter Plan');
     expect((await call(users.admin, 'GET', `${path}/laeufe/${id}`)).status).toBe(404);
     expect(await db.select().from(schema.aiDraft).where(eq(schema.aiDraft.runId, id))).toEqual([]);
   });
@@ -306,6 +313,11 @@ describe('KI-04 Systemagent und Läufe', () => {
   });
 
   it('zeigt Admins nach Entzug des Quellenzugriffs nur Laufmetadaten', async () => {
+    // Ohne geänderte Eingaben startet kein neuer Lauf (KI-07); die Dauer ist eine Eingabe.
+    await db
+      .update(schema.meeting)
+      .set({ durationMinutes: 90 })
+      .where(eq(schema.meeting.id, meetingId));
     const id = await start();
     await process(id);
     expect((await detail(id, users.admin)).detailsAllowed).toBe(true);

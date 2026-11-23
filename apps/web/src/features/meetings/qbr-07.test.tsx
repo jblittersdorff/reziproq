@@ -44,6 +44,7 @@ const open = (): MeetingDetail => ({
     type: 'quarterly_review',
     title: 'Quartalsreview Q1',
     startsAt: '2099-03-15T09:00:00Z',
+    durationMinutes: 60,
     location: 'Werk Nord',
     status: 'planned',
     ownerSide: 'buyer',

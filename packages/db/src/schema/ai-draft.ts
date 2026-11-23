@@ -36,6 +36,15 @@ export const aiDraftKinds = [
   'qbr_open_points',
   // KI-16: Begründung eines Hinweises (object_type hint)
   'hint_explanation',
+  // KI-07 Termin-Briefing: acht Teile je Termin (object_type meeting), Inhalt als JSON
+  'brief_situation',
+  'brief_goals',
+  'brief_agenda',
+  'brief_internal_questions',
+  'brief_supplier_questions',
+  'brief_expected_questions',
+  'brief_risks',
+  'brief_open_points',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
@@ -67,7 +76,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_run').on(table.orgId, table.runId),

@@ -1,75 +1,213 @@
 {
   "rules": [
-    { "key": "price_agreement", "kind": "right", "group": "cost", "counterpart": "open_costs", "minImpactLevel": 3,
+    {
+      "key": "price_agreement",
+      "kind": "right",
+      "group": "cost",
+      "counterpart": "open_costs",
+      "minImpactLevel": 3,
       "title": "Mehrjährige Preisvereinbarung mit Gleitklausel",
-      "description": "Preise gelten über mehrere Jahre und passen sich vereinbarten Indizes an." },
-    { "key": "open_costs", "kind": "obligation", "group": "cost", "counterpart": "price_agreement", "minImpactLevel": 3,
+      "description": "Preise gelten über mehrere Jahre und passen sich vereinbarten Indizes an."
+    },
+    {
+      "key": "open_costs",
+      "kind": "obligation",
+      "group": "cost",
+      "counterpart": "price_agreement",
+      "minImpactLevel": 3,
       "title": "Offene Kostenstruktur für vereinbarte Teile",
-      "description": "Der Lieferant legt die Kostenbestandteile der vereinbarten Teile offen." },
-    { "key": "cost_workshops", "kind": "right", "group": "cost", "counterpart": "productivity_offer", "minImpactLevel": 2,
+      "description": "Der Lieferant legt die Kostenbestandteile der vereinbarten Teile offen."
+    },
+    {
+      "key": "cost_workshops",
+      "kind": "right",
+      "group": "cost",
+      "counterpart": "productivity_offer",
+      "minImpactLevel": 2,
       "title": "Gemeinsame Kostenworkshops",
-      "description": "Beide Seiten suchen regelmäßig gemeinsam nach Einsparungen." },
-    { "key": "productivity_offer", "kind": "obligation", "group": "cost", "counterpart": "cost_workshops", "minImpactLevel": 2,
+      "description": "Beide Seiten suchen regelmäßig gemeinsam nach Einsparungen."
+    },
+    {
+      "key": "productivity_offer",
+      "kind": "obligation",
+      "group": "cost",
+      "counterpart": "cost_workshops",
+      "minImpactLevel": 2,
       "title": "Jährliches Produktivitätsangebot",
-      "description": "Der Lieferant macht jedes Jahr ein konkretes Angebot zur Produktivität." },
-    { "key": "demand_outlook", "kind": "right", "group": "protection", "counterpart": "capacity_commitment", "minImpactLevel": 2,
+      "description": "Der Lieferant macht jedes Jahr ein konkretes Angebot zur Produktivität."
+    },
+    {
+      "key": "demand_outlook",
+      "kind": "right",
+      "group": "protection",
+      "counterpart": "capacity_commitment",
+      "minImpactLevel": 2,
       "title": "Längerer Bedarfsausblick",
-      "description": "Der Lieferant erhält eine Vorschau auf den Bedarf über einen längeren Zeitraum." },
-    { "key": "capacity_commitment", "kind": "obligation", "group": "protection", "counterpart": "demand_outlook", "minImpactLevel": 2,
+      "description": "Der Lieferant erhält eine Vorschau auf den Bedarf über einen längeren Zeitraum."
+    },
+    {
+      "key": "capacity_commitment",
+      "kind": "obligation",
+      "group": "protection",
+      "counterpart": "demand_outlook",
+      "minImpactLevel": 2,
       "title": "Verbindliche Kapazitätszusage",
-      "description": "Der Lieferant sichert die benötigte Kapazität verbindlich zu." },
-    { "key": "program_changes", "kind": "right", "group": "protection", "counterpart": "risk_warning", "minImpactLevel": 1,
+      "description": "Der Lieferant sichert die benötigte Kapazität verbindlich zu."
+    },
+    {
+      "key": "program_changes",
+      "kind": "right",
+      "group": "protection",
+      "counterpart": "risk_warning",
+      "minImpactLevel": 1,
       "title": "Frühe Information über Programmänderungen",
-      "description": "Änderungen an Programmen und Stückzahlen erfährt der Lieferant früh." },
-    { "key": "risk_warning", "kind": "obligation", "group": "protection", "counterpart": "program_changes", "minImpactLevel": 1,
+      "description": "Änderungen an Programmen und Stückzahlen erfährt der Lieferant früh."
+    },
+    {
+      "key": "risk_warning",
+      "kind": "obligation",
+      "group": "protection",
+      "counterpart": "program_changes",
+      "minImpactLevel": 1,
       "title": "Frühwarnung bei Lieferrisiken",
-      "description": "Der Lieferant meldet absehbare Lieferrisiken sofort." },
-    { "key": "executive_access", "kind": "right", "group": "collaboration", "counterpart": "executive_contact", "minImpactLevel": 3,
+      "description": "Der Lieferant meldet absehbare Lieferrisiken sofort."
+    },
+    {
+      "key": "executive_access",
+      "kind": "right",
+      "group": "collaboration",
+      "counterpart": "executive_contact",
+      "minImpactLevel": 3,
       "title": "Zugang zur Geschäftsleitung",
-      "description": "Der Lieferant hat einen direkten Draht zur Geschäftsleitung des Kunden." },
-    { "key": "executive_contact", "kind": "obligation", "group": "collaboration", "counterpart": "executive_access", "minImpactLevel": 3,
+      "description": "Der Lieferant hat einen direkten Draht zur Geschäftsleitung des Kunden."
+    },
+    {
+      "key": "executive_contact",
+      "kind": "obligation",
+      "group": "collaboration",
+      "counterpart": "executive_access",
+      "minImpactLevel": 3,
       "title": "Fester Ansprechpartner auf Geschäftsleitungsebene",
-      "description": "Der Lieferant benennt eine feste Person aus seiner Geschäftsleitung." },
-    { "key": "fast_approvals", "kind": "right", "group": "collaboration", "counterpart": "mutual_feedback", "minImpactLevel": 1,
+      "description": "Der Lieferant benennt eine feste Person aus seiner Geschäftsleitung."
+    },
+    {
+      "key": "fast_approvals",
+      "kind": "right",
+      "group": "collaboration",
+      "counterpart": "mutual_feedback",
+      "minImpactLevel": 1,
       "title": "Schnellere Freigabeprozesse",
-      "description": "Freigaben für den Lieferanten laufen auf einem verkürzten Weg." },
-    { "key": "mutual_feedback", "kind": "obligation", "group": "collaboration", "counterpart": "fast_approvals", "minImpactLevel": 1,
+      "description": "Freigaben für den Lieferanten laufen auf einem verkürzten Weg."
+    },
+    {
+      "key": "mutual_feedback",
+      "kind": "obligation",
+      "group": "collaboration",
+      "counterpart": "fast_approvals",
+      "minImpactLevel": 1,
       "title": "Teilnahme am beidseitigen Feedback",
-      "description": "Der Lieferant nimmt regelmäßig am gegenseitigen Feedback teil." },
-    { "key": "early_involvement", "kind": "right", "group": "growth", "counterpart": "innovation_first", "minImpactLevel": 2,
+      "description": "Der Lieferant nimmt regelmäßig am gegenseitigen Feedback teil."
+    },
+    {
+      "key": "early_involvement",
+      "kind": "right",
+      "group": "growth",
+      "counterpart": "innovation_first",
+      "minImpactLevel": 2,
       "title": "Frühe Einbindung in neue Entwicklungen",
-      "description": "Der Lieferant ist von Anfang an in neue Entwicklungsprojekte eingebunden." },
-    { "key": "innovation_first", "kind": "obligation", "group": "growth", "counterpart": "early_involvement", "minImpactLevel": 2,
+      "description": "Der Lieferant ist von Anfang an in neue Entwicklungsprojekte eingebunden."
+    },
+    {
+      "key": "innovation_first",
+      "kind": "obligation",
+      "group": "growth",
+      "counterpart": "early_involvement",
+      "minImpactLevel": 2,
       "title": "Innovationen zuerst anbieten",
-      "description": "Neue Lösungen bietet der Lieferant diesem Kunden zuerst an." },
-    { "key": "technology_roadmap", "kind": "right", "group": "growth", "counterpart": "joint_investment", "minImpactLevel": 3,
+      "description": "Neue Lösungen bietet der Lieferant diesem Kunden zuerst an."
+    },
+    {
+      "key": "technology_roadmap",
+      "kind": "right",
+      "group": "growth",
+      "counterpart": "joint_investment",
+      "minImpactLevel": 3,
       "title": "Einblick in die Technologie-Roadmap",
-      "description": "Der Lieferant sieht die Technologieplanung des Kunden." },
-    { "key": "joint_investment", "kind": "obligation", "group": "growth", "counterpart": "technology_roadmap", "minImpactLevel": 3,
+      "description": "Der Lieferant sieht die Technologieplanung des Kunden."
+    },
+    {
+      "key": "joint_investment",
+      "kind": "obligation",
+      "group": "growth",
+      "counterpart": "technology_roadmap",
+      "minImpactLevel": 3,
       "title": "Investition in gemeinsame Entwicklungsziele",
-      "description": "Der Lieferant investiert in die gemeinsam vereinbarten Entwicklungsziele." }
+      "description": "Der Lieferant investiert in die gemeinsam vereinbarten Entwicklungsziele."
+    }
   ],
   "formats": [
-    { "key": "strategy_dialog", "level": "executive", "cadence": "annual", "minImpactLevel": 3, "forQualityLevels": [],
+    {
+      "key": "strategy_dialog",
+      "level": "executive",
+      "cadence": "annual",
+      "minImpactLevel": 3,
+      "forQualityLevels": [],
       "name": "Strategiedialog der Geschäftsleitungen",
-      "purpose": "Die Geschäftsleitungen stimmen Richtung und Ziele der Partnerschaft ab." },
-    { "key": "quarterly_review", "level": "management", "cadence": "quarterly", "minImpactLevel": 2, "forQualityLevels": [],
+      "purpose": "Die Geschäftsleitungen stimmen Richtung und Ziele der Partnerschaft ab."
+    },
+    {
+      "key": "quarterly_review",
+      "level": "management",
+      "cadence": "quarterly",
+      "minImpactLevel": 2,
+      "forQualityLevels": [],
       "name": "Quartalsreview",
-      "purpose": "Leistung, Maßnahmen und Risiken des Quartals gemeinsam bewerten." },
-    { "key": "joint_business_planning", "level": "management", "cadence": "annual", "minImpactLevel": 3, "forQualityLevels": [],
+      "purpose": "Leistung, Maßnahmen und Risiken des Quartals gemeinsam bewerten."
+    },
+    {
+      "key": "joint_business_planning",
+      "level": "management",
+      "cadence": "annual",
+      "minImpactLevel": 3,
+      "forQualityLevels": [],
       "name": "Joint Business Planning",
-      "purpose": "Den gemeinsamen Plan für das kommende Jahr erarbeiten." },
-    { "key": "mutual_feedback", "level": "management", "cadence": "semiannual", "minImpactLevel": 1, "forQualityLevels": [],
+      "purpose": "Den gemeinsamen Plan für das kommende Jahr erarbeiten."
+    },
+    {
+      "key": "mutual_feedback",
+      "level": "management",
+      "cadence": "semiannual",
+      "minImpactLevel": 1,
+      "forQualityLevels": [],
       "name": "Beidseitiges Feedback",
-      "purpose": "Beide Seiten sagen sich offen, was gut läuft und was besser werden muss." },
-    { "key": "innovation_day", "level": "operational", "cadence": "annual", "minImpactLevel": 2, "forQualityLevels": [],
+      "purpose": "Beide Seiten sagen sich offen, was gut läuft und was besser werden muss."
+    },
+    {
+      "key": "innovation_day",
+      "level": "operational",
+      "cadence": "annual",
+      "minImpactLevel": 2,
+      "forQualityLevels": [],
       "name": "Innovationstag",
-      "purpose": "Der Lieferant zeigt neue Technologien und Ideen." },
-    { "key": "value_chain_workshop", "level": "operational", "cadence": "on_demand", "minImpactLevel": 2, "forQualityLevels": [],
+      "purpose": "Der Lieferant zeigt neue Technologien und Ideen."
+    },
+    {
+      "key": "value_chain_workshop",
+      "level": "operational",
+      "cadence": "on_demand",
+      "minImpactLevel": 2,
+      "forQualityLevels": [],
       "name": "Workshop zur Wertschöpfungskette",
-      "purpose": "Abläufe über beide Unternehmen hinweg gemeinsam verbessern." },
-    { "key": "relationship_restart", "level": "management", "cadence": "on_demand", "minImpactLevel": 1, "forQualityLevels": [1],
+      "purpose": "Abläufe über beide Unternehmen hinweg gemeinsam verbessern."
+    },
+    {
+      "key": "relationship_restart",
+      "level": "management",
+      "cadence": "on_demand",
+      "minImpactLevel": 1,
+      "forQualityLevels": [1],
       "name": "Neustart der Beziehung",
-      "purpose": "Eine schwierige Zusammenarbeit klären und neu aufsetzen." }
+      "purpose": "Eine schwierige Zusammenarbeit klären und neu aufsetzen."
+    }
   ]
 }

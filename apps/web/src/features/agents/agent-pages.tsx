@@ -144,9 +144,8 @@ function StartForm({ id, token }: { id: string; token: string }) {
     ...meetingListQueryOptions(token, `/suppliers/${relationshipId}`),
     enabled: relationshipId !== '' && token !== '',
   });
-  const qbrs = [...(meetings.data?.upcoming ?? []), ...(meetings.data?.past ?? [])].filter(
-    (meeting) => meeting.type === 'quarterly_review',
-  );
+  // KI-07: Das Termin-Briefing bereitet jeden Termin mit Lieferant vor, nicht nur den QBR.
+  const qbrs = [...(meetings.data?.upcoming ?? []), ...(meetings.data?.past ?? [])];
   const run = useMutation({
     mutationFn: (isTest: boolean) => startAgent(token, id, { relationshipId, meetingId, isTest }),
     onSuccess: ({ run }) =>

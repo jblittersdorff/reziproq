@@ -75,7 +75,10 @@ export const hint = pgTable(
       sql`${table.status} in ('open', 'in_progress', 'accepted', 'dismissed', 'resolved')`,
     ),
     check('hint_severity', sql`${table.severity} in ('high', 'medium', 'low')`),
-    check('hint_feedback', sql`${table.feedback} is null or ${table.feedback} in ('helpful', 'not_helpful')`),
+    check(
+      'hint_feedback',
+      sql`${table.feedback} is null or ${table.feedback} in ('helpful', 'not_helpful')`,
+    ),
     // Verwerfen verlangt eine Begründung.
     check(
       'hint_reason',

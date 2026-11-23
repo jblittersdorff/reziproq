@@ -567,183 +567,117 @@
     {
       "name": "Wertschöpfungskette durchleuchten",
       "description": "Die gesamte Kette transparent machen, Kostentreiber finden, Maßnahmen ableiten",
-      "dimensions": [
-        "cost",
-        "supply"
-      ]
+      "dimensions": ["cost", "supply"]
     },
     {
       "name": "Wertschöpfungskette neu gestalten",
       "description": "Anteile von Eigenfertigung und Zukauf verändern, um Effizienz zu steigern oder Risiko zu senken",
-      "dimensions": [
-        "cost",
-        "supply"
-      ]
+      "dimensions": ["cost", "supply"]
     },
     {
       "name": "Neue Produktionstechnologien einführen",
       "description": "Andere Fertigungsverfahren einsetzen",
-      "dimensions": [
-        "technology",
-        "cost",
-        "quality"
-      ]
+      "dimensions": ["technology", "cost", "quality"]
     },
     {
       "name": "Materialeinsatz reduzieren oder ändern",
       "description": "Teure Materialien ersetzen oder verringern, für Kosten oder Nachhaltigkeit",
-      "dimensions": [
-        "cost",
-        "sustainability"
-      ]
+      "dimensions": ["cost", "sustainability"]
     },
     {
       "name": "Anforderungen auf Marktstandard begrenzen",
       "description": "Spezifikationen auf gängige Standards zurückführen, um Komplexität und Kosten zu senken",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Effizienzprogramme beim Lieferanten",
       "description": "Gemeinsam Prozesse und Produktivität beim Lieferanten verbessern",
-      "dimensions": [
-        "cost",
-        "quality"
-      ]
+      "dimensions": ["cost", "quality"]
     },
     {
       "name": "Lieferanten integrieren",
       "description": "Rückwärtsintegration durch Übernahme",
-      "dimensions": [
-        "supply",
-        "technology"
-      ]
+      "dimensions": ["supply", "technology"]
     },
     {
       "name": "Neue Lieferanten einführen",
       "description": "Neue Anbieter zusätzlich oder als Ersatz aufnehmen",
-      "dimensions": [
-        "supply",
-        "cost",
-        "technology"
-      ]
+      "dimensions": ["supply", "cost", "technology"]
     },
     {
       "name": "Wettbewerbsrelevante Informationen austauschen",
       "description": "Technologien, Bedarfe, Prognosen und Marktanforderungen offen teilen",
-      "dimensions": [
-        "technology",
-        "supply"
-      ]
+      "dimensions": ["technology", "supply"]
     },
     {
       "name": "Volumen bei weniger Lieferanten bündeln",
       "description": "Zahl der Lieferanten senken, Größenvorteile nutzen",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Bedarfe bündeln",
       "description": "Bedarfe über Standorte, Business Units oder Regionen zusammenfassen",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Volumen in der bestehenden Basis umverteilen",
       "description": "Anteile zwischen vorhandenen Lieferanten verschieben",
-      "dimensions": [
-        "cost",
-        "supply",
-        "quality"
-      ]
+      "dimensions": ["cost", "supply", "quality"]
     },
     {
       "name": "Preise verhandeln",
       "description": "Preise nach Markt-, Mengen- oder Leistungskriterien anpassen",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Second-Level Buying",
       "description": "Unterbaugruppen oder Rohmaterial direkt einkaufen, um kritische Stufen zu umgehen",
-      "dimensions": [
-        "cost",
-        "supply"
-      ]
+      "dimensions": ["cost", "supply"]
     },
     {
       "name": "Verbands- und Interessenarbeit verstärken",
       "description": "Auf Regeln und Standards einwirken",
-      "dimensions": [
-        "technology",
-        "sustainability"
-      ]
+      "dimensions": ["technology", "sustainability"]
     },
     {
       "name": "Mehr aus Niedrigkostenländern beziehen",
       "description": "Volumen in günstigere Regionen verlagern",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Lieferkettenkosten senken",
       "description": "Zölle, Routen, Verpackung und Verwaltung optimieren",
-      "dimensions": [
-        "cost",
-        "supply",
-        "sustainability"
-      ]
+      "dimensions": ["cost", "supply", "sustainability"]
     },
     {
       "name": "Verträge erweitern",
       "description": "Flexible Vertragsmodelle wie Rahmenverträge für Preise, Mengen, Bedingungen",
-      "dimensions": [
-        "supply",
-        "cost"
-      ]
+      "dimensions": ["supply", "cost"]
     },
     {
       "name": "Gain-Sharing",
       "description": "Lieferanten an Einsparungen aus ihren Verbesserungen beteiligen",
-      "dimensions": [
-        "cost",
-        "technology"
-      ]
+      "dimensions": ["cost", "technology"]
     },
     {
       "name": "Zahlungsziele anpassen",
       "description": "Fristen verlängern oder verkürzen, um Liquidität zu steuern",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Preismodelle erweitern",
       "description": "Zum Beispiel Preisgleitklauseln oder feste Marge",
-      "dimensions": [
-        "cost"
-      ]
+      "dimensions": ["cost"]
     },
     {
       "name": "Gezielter Kauf außerhalb der regulären Kanäle",
       "description": "Regelkonform alternative Wege nutzen, kurzfristig für Kosten oder Versorgung",
-      "dimensions": [
-        "supply",
-        "cost"
-      ]
+      "dimensions": ["supply", "cost"]
     },
     {
       "name": "Kollaboration oder Joint Venture",
       "description": "Partnerschaft oder gemeinsames Unternehmen, etwa für Technologieentwicklung",
-      "dimensions": [
-        "technology",
-        "supply"
-      ]
+      "dimensions": ["technology", "supply"]
     }
   ]
 }

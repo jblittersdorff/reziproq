@@ -47,7 +47,10 @@ export const materialGroupStrategy = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    check('material_group_strategy_status', sql`${table.status} in ('draft', 'resubmit', 'approved')`),
+    check(
+      'material_group_strategy_status',
+      sql`${table.status} in ('draft', 'resubmit', 'approved')`,
+    ),
     check('material_group_strategy_year', sql`${table.year} between 2000 and 2100`),
     unique('material_group_strategy_once').on(table.materialGroupId, table.year, table.version),
     index('material_group_strategy_org').on(table.orgId, table.year),
@@ -134,7 +137,11 @@ export const materialGroupKpi = pgTable(
     active: boolean().notNull().default(true),
   },
   (table) => [
-    uniqueIndex('material_group_kpi_name').on(table.orgId, table.dimension, sql`lower(${table.name})`),
+    uniqueIndex('material_group_kpi_name').on(
+      table.orgId,
+      table.dimension,
+      sql`lower(${table.name})`,
+    ),
   ],
 );
 
@@ -167,10 +174,7 @@ export const materialGroupGoal = pgTable(
       'material_group_goal_deferred',
       sql`not ${table.deferred} or length(trim(coalesce(${table.deferredReason}, ''))) > 0`,
     ),
-    check(
-      'material_group_goal_text',
-      sql`${table.deferred} or length(trim(${table.text})) > 0`,
-    ),
+    check('material_group_goal_text', sql`${table.deferred} or length(trim(${table.text})) > 0`),
     check(
       'material_group_goal_quarter',
       sql`${table.targetQuarter} is null or ${table.targetQuarter} between 1 and 4`,
@@ -330,7 +334,9 @@ export const materialGroupSwotItem = pgTable(
     text: text().notNull(),
     originStep: integer(),
     originView: text(),
-    status: text({ enum: ['draft', 'confirmed'] }).notNull().default('confirmed'),
+    status: text({ enum: ['draft', 'confirmed'] })
+      .notNull()
+      .default('confirmed'),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -364,7 +370,10 @@ export const strategyLever = pgTable(
   },
   (table) => [
     check('lever_name', sql`length(trim(${table.name})) > 0`),
-    check('lever_custom_reason', sql`not ${table.custom} or length(trim(coalesce(${table.reason}, ''))) > 0`),
+    check(
+      'lever_custom_reason',
+      sql`not ${table.custom} or length(trim(coalesce(${table.reason}, ''))) > 0`,
+    ),
     uniqueIndex('lever_name_once').on(table.orgId, sql`lower(${table.name})`),
   ],
 );

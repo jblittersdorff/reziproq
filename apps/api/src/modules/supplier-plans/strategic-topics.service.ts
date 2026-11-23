@@ -98,15 +98,13 @@ export class StrategicTopicsService {
           .values({ relationshipId, planId, title: input.title, reason: input.reason, priority })
           .returning({ id: schema.strategicTopic.id });
         if (!created) throw new Error('Thema konnte nicht angelegt werden');
-        await tx
-          .insert(schema.strategicTopicObjective)
-          .values(
-            objectiveIds.map((objectiveId) => ({
-              relationshipId,
-              topicId: created.id,
-              objectiveId,
-            })),
-          );
+        await tx.insert(schema.strategicTopicObjective).values(
+          objectiveIds.map((objectiveId) => ({
+            relationshipId,
+            topicId: created.id,
+            objectiveId,
+          })),
+        );
         return {
           objectId: created.id,
           relationshipId,

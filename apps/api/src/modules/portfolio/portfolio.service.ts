@@ -171,7 +171,10 @@ export class PortfolioService {
       return {
         suppliers: suppliers.length,
         focusTotal: focus.length,
-        openDecisions: Object.values(open.groups).reduce((sum, group) => sum + (group?.length ?? 0), 0),
+        openDecisions: Object.values(open.groups).reduce(
+          (sum, group) => sum + (group?.length ?? 0),
+          0,
+        ),
         focus: focus.slice(0, 5).map((supplier) => ({
           id: supplier.relationshipId,
           name: supplier.name,

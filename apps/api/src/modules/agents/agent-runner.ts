@@ -8,14 +8,14 @@ import { BudgetExhaustedError } from '../ai-gateway/gateway-errors.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { PreReadDraftService } from '../meetings/pre-read-draft.service.js';
-import { QbrPrepService } from '../meetings/qbr-prep.service.js';
+import { MeetingBriefService } from '../meetings/meeting-brief.service.js';
 import { AgentTools } from './agent-tools.js';
 import {
   qbrAnswerSchema,
   qbrContextSchema,
   qbrInputsSchema,
   qbrModelResultSchema,
-  qbrPreparation,
+  meetingBrief,
 } from './system-agents.js';
 
 export interface AgentJob {
@@ -73,7 +73,7 @@ export class AgentRunner {
     @Inject(AgentTools) private readonly tools: AgentTools,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
     @Inject(PreReadDraftService) private readonly drafts: PreReadDraftService,
-    @Inject(QbrPrepService) private readonly prep: QbrPrepService,
+    @Inject(MeetingBriefService) private readonly brief: MeetingBriefService,
   ) {}
 
   private session(job: AgentJob) {
@@ -126,7 +126,7 @@ export class AgentRunner {
       if (!version) throw new Halt('failed');
       const settings = await readAiSettings(tx, job.orgId);
       const extra = settings.agentBudgetOverrides.find(
-        (entry) => entry.agentKey === qbrPreparation.key,
+        (entry) => entry.agentKey === meetingBrief.key,
       );
       const budget = Math.min(
         extra?.budgetRunCents ?? settings.budgetRunCents,
@@ -242,9 +242,9 @@ export class AgentRunner {
     try {
       if (
         !entry.version ||
-        entry.version.outputTarget !== qbrPreparation.outputTarget ||
+        entry.version.outputTarget !== meetingBrief.outputTarget ||
         entry.version.tools.some((key) => !this.tools.keys().includes(key)) ||
-        entry.version.tools.join(',') !== qbrPreparation.tools.join(',') ||
+        entry.version.tools.join(',') !== meetingBrief.tools.join(',') ||
         entry.run.contextType !== 'meeting'
       )
         throw new Halt('failed');
@@ -287,7 +287,7 @@ export class AgentRunner {
         summary = answer.data.summary;
       }
       await this.step(job, 'draft', (actor) =>
-        this.publish(job, entry.run, actor, context, summary),
+        this.publish(job, entry.run, actor, context, summary, facts.meeting.meetingType),
       );
       await this.finish(job, 'done');
     } catch (error) {
@@ -318,8 +318,11 @@ export class AgentRunner {
       },
       async (model) => {
         if (!model) {
+          // Testanbieter: übernimmt die Sätze zur Lage unverändert
           const value = JSON.stringify({
-            summary: `Für den Quartalsreview am ${facts.meeting.meetingDay} sind ${facts.meeting.agendaItems} Agendapunkte erfasst. Zu prüfen sind ${facts.meeting.actions} offene Maßnahmen und ${facts.meeting.commitments} Zusagen.`,
+            summary:
+              facts.meeting.situation.join(' ') ||
+              `Für den Termin am ${facts.meeting.meetingDay} sind ${facts.meeting.agendaItems} Agendapunkte erfasst.`,
           });
           return {
             value,
@@ -359,21 +362,32 @@ export class AgentRunner {
     actor: AuthContext,
     context: ReturnType<typeof qbrContextSchema.parse>,
     summary: string,
+    meetingType: string,
   ) {
     if (run.isTest) {
       await this.tools.qbrFacts.read(actor, context);
       return { summary };
     }
-    const draftId = await this.drafts.saveAgentDraft(
+    // QBR-07: Beim Quartalsreview steht die Zusammenfassung weiter im Pre-Read.
+    const draftId =
+      meetingType === 'quarterly_review'
+        ? await this.drafts.saveAgentDraft(
+            actor,
+            context.relationshipId,
+            context.meetingId,
+            job.runId,
+            summary,
+            'meeting_brief',
+          )
+        : null;
+    // KI-07: die acht Teile des Briefings aus der Datenbank, je als Entwurf mit Quelle
+    await this.brief.saveAgentDrafts(
       actor,
       context.relationshipId,
       context.meetingId,
       job.runId,
       summary,
-      'qbr_prep',
     );
-    // KI-07: Themen, Risiken und offene Punkte aus der Datenbank, je als Entwurf mit Quelle
-    await this.prep.saveAgentDrafts(actor, context.relationshipId, context.meetingId, job.runId);
     return { draftId };
   }
 }

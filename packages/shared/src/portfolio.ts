@@ -41,7 +41,12 @@ export const portfolioMatrixSchema = z.object({
 });
 
 // WG-18: category_newer: Die Gesamtentscheidung ist älter als die jüngste in einer Warengruppe.
-export const openReasons = ['ratings_open', 'not_consolidated', 'deviation', 'category_newer'] as const;
+export const openReasons = [
+  'ratings_open',
+  'not_consolidated',
+  'deviation',
+  'category_newer',
+] as const;
 
 export const openItemSchema = z.object({
   relationshipId: z.uuid(),

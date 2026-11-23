@@ -148,26 +148,22 @@ export class PreReadDraftService {
         .select({ id: schema.meeting.id })
         .from(schema.meeting)
         .where(
-          and(
-            eq(schema.meeting.id, meetingId),
-            eq(schema.meeting.relationshipId, relationshipId),
-            eq(schema.meeting.type, 'quarterly_review'),
-          ),
+          and(eq(schema.meeting.id, meetingId), eq(schema.meeting.relationshipId, relationshipId)),
         );
       if (!row) throw notFound();
     });
   }
 
-  /** KI-04: Nur berechtigte Käufer erhalten Fakten zur Vorbereitung des Quartalsreviews. */
+  /** KI-04, KI-07: Nur berechtigte Käufer erhalten Fakten zur Vorbereitung eines Termins. */
   agentFacts(auth: AuthContext, relationshipId: string, meetingId: string) {
     return this.meetings.buyer(auth, relationshipId, async (scope) => {
       if (!this.canDraft(scope)) throw forbidden();
       const detail = await this.meetings.detail(scope, meetingId);
-      if (detail.meeting.type !== 'quarterly_review') throw notFound();
       const count = (key: string) =>
         detail.live.sections.find((section) => section.key === key)?.items.length ?? 0;
       return {
         meetingDay: detail.meeting.startsAt.slice(0, 10),
+        meetingType: detail.meeting.type,
         agendaItems: detail.agenda.length,
         actions: count('actions'),
         commitments: count('commitments'),

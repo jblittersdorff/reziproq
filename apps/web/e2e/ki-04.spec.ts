@@ -4,7 +4,7 @@ import { id, signIn } from './route-walk.js';
 const path = '/einstellungen/ki/agenten';
 const run = {
   id,
-  agentName: 'QBR-Vorbereitung',
+  agentName: 'Termin-Briefing',
   version: 1,
   status: 'done',
   isTest: false,
@@ -28,7 +28,7 @@ for (const width of [390, 1440]) {
     await page.route('**/api/ki/agenten', (route) =>
       route.fulfill({
         json: {
-          agents: [{ id, key: 'qbr_prep', enabled: true, version: 1, runCount: 1 }],
+          agents: [{ id, key: 'meeting_brief', enabled: true, version: 2, runCount: 1 }],
           recentRuns: [run],
           nextRunId: id,
           canManage: true,

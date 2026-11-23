@@ -25,7 +25,9 @@ const sharedColumns = () => ({
   ownerOrgId: uuid()
     .notNull()
     .references(() => organization.id),
-  visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+  visibility: text({ enum: ['internal', 'shared'] })
+    .notNull()
+    .default('shared'),
 });
 
 export const meeting = pgTable(
@@ -33,13 +35,28 @@ export const meeting = pgTable(
   {
     id: uuid().primaryKey().default(sql`uuidv7()`),
     ...sharedColumns(),
-    type: text({ enum: ['quarterly_review', 'strategy_dialogue', 'jbp', 'format', 'other'] }).notNull(),
+    type: text({
+      enum: [
+        'quarterly_review',
+        'strategy_dialogue',
+        'jbp',
+        'negotiation',
+        'site_visit',
+        'escalation',
+        'format',
+        'other',
+      ],
+    }).notNull(),
     // Format aus den Spielregeln (PLB-03); geteilte Tabelle auf geteilte Tabelle.
     ruleSetItemId: uuid().references(() => ruleSetItem.id, { onDelete: 'set null' }),
     title: text().notNull(),
     startsAt: timestamp({ withTimezone: true }).notNull(),
+    // KI-07: Dauer in Minuten; die Agenda des Briefings füllt sie genau
+    durationMinutes: integer().notNull().default(60),
     location: text(),
-    status: text({ enum: ['planned', 'held', 'closed'] }).notNull().default('planned'),
+    status: text({ enum: ['planned', 'held', 'closed'] })
+      .notNull()
+      .default('planned'),
     protocol: text(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
@@ -48,8 +65,9 @@ export const meeting = pgTable(
   (table) => [
     check(
       'meeting_type',
-      sql`${table.type} in ('quarterly_review', 'strategy_dialogue', 'jbp', 'format', 'other')`,
+      sql`${table.type} in ('quarterly_review', 'strategy_dialogue', 'jbp', 'negotiation', 'site_visit', 'escalation', 'format', 'other')`,
     ),
+    check('meeting_duration', sql`${table.durationMinutes} between 15 and 600`),
     check('meeting_status', sql`${table.status} in ('planned', 'held', 'closed')`),
     check('meeting_title', sql`length(trim(${table.title})) between 1 and 200`),
     index('meeting_relationship').on(table.relationshipId, table.startsAt),
@@ -79,6 +97,8 @@ export const meetingAgendaItem = pgTable(
       .references(() => meeting.id, { onDelete: 'cascade' }),
     ...sharedColumns(),
     title: text().notNull(),
+    // KI-07: Zeit, wer führt und Fragen an die andere Seite aus dem geteilten Briefing
+    detail: text(),
     position: integer().notNull(),
     linkedObjectType: text(),
     linkedObjectId: uuid(),

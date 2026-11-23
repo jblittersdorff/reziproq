@@ -234,6 +234,7 @@ export class MeetingsService {
       type: row.type,
       title: row.title,
       startsAt: row.startsAt.toISOString(),
+      durationMinutes: row.durationMinutes,
       location: row.location,
       status: row.status,
       ownerSide: this.sideOf(scope, row.ownerOrgId),
@@ -346,6 +347,7 @@ export class MeetingsService {
           ruleSetItemId: input.ruleSetItemId,
           title: input.title,
           startsAt: new Date(input.startsAt),
+          durationMinutes: input.durationMinutes,
           location: input.location,
           createdBy: scope.auth.userId,
           createdByName: actor.name,
@@ -428,6 +430,7 @@ export class MeetingsService {
         side: this.sideOf(scope, row.ownerOrgId),
         own: own(row.ownerOrgId),
         title: row.title,
+        detail: row.detail,
         position: row.position,
       })),
       decisions: order(decisions).map((row) => ({
@@ -466,7 +469,12 @@ export class MeetingsService {
       auditedChange(tx, actor, meetingAudit, async () => {
         await tx
           .update(schema.meeting)
-          .set({ title: input.title, startsAt: new Date(input.startsAt), location: input.location })
+          .set({
+            title: input.title,
+            startsAt: new Date(input.startsAt),
+            durationMinutes: input.durationMinutes ?? meeting.durationMinutes,
+            location: input.location,
+          })
           .where(eq(schema.meeting.id, meetingId));
         await tx
           .delete(schema.meetingParticipant)
@@ -500,6 +508,39 @@ export class MeetingsService {
       }),
     );
     return this.detail(scope, meetingId);
+  }
+
+  /**
+   * KI-07: Agenda aus dem übernommenen Briefing teilen. Ersetzt die eigenen Punkte, mit Zeit,
+   * Dauer, wer führt und den Fragen an die andere Seite als Zusatz; die der anderen Seite bleiben.
+   */
+  async saveAgendaWithDetail(
+    scope: MeetingScope,
+    meetingId: string,
+    items: { title: string; detail: string | null }[],
+  ): Promise<void> {
+    await this.contribute(scope, meetingId);
+    const { tx } = scope;
+    await guarded(async () => {
+      await tx
+        .delete(schema.meetingAgendaItem)
+        .where(
+          and(
+            eq(schema.meetingAgendaItem.meetingId, meetingId),
+            eq(schema.meetingAgendaItem.ownerOrgId, scope.orgId),
+          ),
+        );
+      if (items.length > 0) {
+        await tx.insert(schema.meetingAgendaItem).values(
+          items.map((item, index) => ({
+            ...this.base(scope, meetingId),
+            title: item.title,
+            detail: item.detail || null,
+            position: index + 1,
+          })),
+        );
+      }
+    });
   }
 
   /** Eigene Agendapunkte ersetzen; die der anderen Seite bleiben, wie sie sind. */

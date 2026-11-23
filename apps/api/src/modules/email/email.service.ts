@@ -15,7 +15,9 @@ export class EmailService {
     const notification = {
       ...parsed,
       title: applyCategoryLabel(parsed.title, label),
-      ...(parsed.message === undefined ? {} : { message: applyCategoryLabel(parsed.message, label) }),
+      ...(parsed.message === undefined
+        ? {}
+        : { message: applyCategoryLabel(parsed.message, label) }),
     };
     return {
       template: notification.template,

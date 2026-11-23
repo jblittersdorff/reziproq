@@ -32,9 +32,13 @@ export const ruleSet = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('internal'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('internal'),
     version: integer().notNull(),
-    status: text({ enum: ['draft', 'approved', 'shared'] }).notNull().default('draft'),
+    status: text({ enum: ['draft', 'approved', 'shared'] })
+      .notNull()
+      .default('draft'),
     targetImpactLevel: smallint().notNull(),
     targetQualityLevel: smallint().notNull(),
     typeName: text().notNull(),
@@ -76,7 +80,9 @@ export const ruleSetItem = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('internal'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('internal'),
     kind: text({ enum: ['right', 'obligation', 'format'] }).notNull(),
     group: text({ enum: ['cost', 'protection', 'collaboration', 'growth'] }),
     title: jsonb().$type<CatalogText>().notNull(),
@@ -147,7 +153,9 @@ export const relationshipTarget = pgTable(
     ownerOrgId: uuid()
       .notNull()
       .references(() => organization.id),
-    visibility: text({ enum: ['internal', 'shared'] }).notNull().default('shared'),
+    visibility: text({ enum: ['internal', 'shared'] })
+      .notNull()
+      .default('shared'),
     typeName: text().notNull(),
     typeDescription: text().notNull(),
     ruleSetId: uuid()

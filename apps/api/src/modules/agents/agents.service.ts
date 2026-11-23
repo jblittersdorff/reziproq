@@ -13,13 +13,14 @@ import { readAiSettings } from '../ai-gateway/ai-settings.js';
 import { ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { MeetingBriefService } from '../meetings/meeting-brief.service.js';
 import { type AgentJob, runCostCents } from './agent-runner.js';
 import { AgentTools } from './agent-tools.js';
 import { AgentsWorker } from './agents.worker.js';
 import {
   qbrAnswerSchema,
   qbrContextSchema,
-  qbrPreparation,
+  meetingBrief,
   qbrQuestionSchema,
   resumable,
 } from './system-agents.js';
@@ -61,6 +62,7 @@ export class AgentsService {
     @Inject(AgentsWorker) private readonly worker: AgentsWorker,
     @Inject(AgentTools) private readonly tools: AgentTools,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
+    @Inject(MeetingBriefService) private readonly brief: MeetingBriefService,
   ) {}
 
   private scope(auth: AuthContext) {
@@ -70,7 +72,7 @@ export class AgentsService {
   }
 
   private async builtin(tx: TenantTransaction, orgId: string) {
-    const template = qbrPreparation;
+    const template = meetingBrief;
     await tx
       .insert(agent)
       .values({
@@ -96,6 +98,7 @@ export class AgentsService {
         instructions: template.instructions,
         tools: [...template.tools],
         trigger: template.trigger,
+        schedule: template.schedule,
         outputTarget: template.outputTarget,
         reviewerRule: template.reviewerRule,
         modelClass: template.modelClass,
@@ -191,7 +194,7 @@ export class AgentsService {
         agents: [
           {
             id: def.instance.id,
-            key: qbrPreparation.key,
+            key: meetingBrief.key,
             enabled: def.enabled,
             version: def.version.version,
             runCount: await this.summaryCount(tx, auth, session.organizationId, def.instance.id),
@@ -221,7 +224,7 @@ export class AgentsService {
       return {
         agent: {
           id,
-          key: qbrPreparation.key,
+          key: meetingBrief.key,
           version: def.version.version,
           enabled: def.enabled,
           runCount: await this.summaryCount(tx, auth, session.organizationId, id),
@@ -274,10 +277,34 @@ export class AgentsService {
     await this.tools.assertContext(auth, input);
     await this.monthGate(session);
     const ticket = randomUUID();
+    // KI-07: Ohne Änderung der Eingaben startet kein neuer Lauf.
+    const checksum = input.isTest
+      ? null
+      : await this.brief.checksumFor(auth, input.relationshipId, input.meetingId);
     const [run] = await this.tenant.run(session, async (tx) => {
       const def = await this.builtin(tx, session.organizationId);
       if (def.instance.id !== agentId) throw notFound();
       if (!def.enabled) throw conflict('agent_ausgeschaltet');
+      if (checksum) {
+        const [last] = await tx
+          .select({ status: agentRun.status, checksum: agentRun.inputChecksum })
+          .from(agentRun)
+          .where(
+            and(
+              eq(agentRun.orgId, session.organizationId),
+              eq(agentRun.contextId, input.meetingId),
+              eq(agentRun.isTest, false),
+            ),
+          )
+          .orderBy(desc(agentRun.createdAt), desc(agentRun.id))
+          .limit(1);
+        if (last && ['queued', 'running', 'waiting_input'].includes(last.status)) {
+          throw conflict('lauf_aktiv');
+        }
+        if (last?.status === 'done' && last.checksum === checksum) {
+          throw conflict('briefing_aktuell');
+        }
+      }
       return tx
         .insert(agentRun)
         .values({
@@ -291,6 +318,7 @@ export class AgentsService {
           contextRelationshipId: input.relationshipId,
           isTest: input.isTest,
           jobTicket: ticket,
+          inputChecksum: checksum,
         })
         .returning({ id: agentRun.id });
     });
@@ -305,27 +333,40 @@ export class AgentsService {
   }
 
   /**
-   * KI-07: Zeitplan-Lauf sieben Tage vor einem QBR im Namen des SRO. Genau ein Lauf je Termin;
-   * ist der Agent ausgeschaltet oder läuft schon einer, entsteht keiner. Liefert die Lauf-ID.
+   * KI-07: Zeitplan-Lauf im Vorlauf des Termintyps im Namen des SRO. Ein Lauf je Termin; erneut nur,
+   * wenn sich Zeit, Dauer oder Teilnehmer geändert haben. Ist der Agent ausgeschaltet oder läuft
+   * schon einer, entsteht keiner. Liefert die Lauf-ID.
    */
   async startScheduled(auth: AuthContext, input: { relationshipId: string; meetingId: string }) {
     const session = this.scope(auth);
     await this.tools.assertContext(auth, { ...input, isTest: false });
     const ticket = randomUUID();
+    const checksum = await this.brief.checksumFor(auth, input.relationshipId, input.meetingId);
+    const meetingPart = checksum.split(':')[0] ?? '';
     const runId = await this.tenant.run(session, async (tx) => {
       const def = await this.builtin(tx, session.organizationId);
       if (!def.enabled) return null;
-      const [existing] = await tx
-        .select({ id: agentRun.id })
+      const earlier = await tx
+        .select({ status: agentRun.status, checksum: agentRun.inputChecksum })
         .from(agentRun)
         .where(
           and(
             eq(agentRun.orgId, session.organizationId),
             eq(agentRun.contextId, input.meetingId),
-            eq(agentRun.trigger, 'schedule'),
+            eq(agentRun.isTest, false),
           ),
         );
-      if (existing) return null;
+      if (
+        earlier.some(
+          (run) =>
+            ['queued', 'running', 'waiting_input'].includes(run.status) ||
+            // Läufe ohne Prüfsumme stammen aus der früheren QBR-Vorbereitung und zählen nicht.
+            (run.status !== 'failed' &&
+              run.checksum !== null &&
+              run.checksum.split(':')[0] === meetingPart),
+        )
+      )
+        return null;
       const [run] = await tx
         .insert(agentRun)
         .values({
@@ -338,6 +379,7 @@ export class AgentsService {
           contextId: input.meetingId,
           contextRelationshipId: input.relationshipId,
           jobTicket: ticket,
+          inputChecksum: checksum,
         })
         .returning({ id: agentRun.id });
       return run?.id ?? null;

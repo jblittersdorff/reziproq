@@ -56,7 +56,13 @@ export type OpportunityTemplateKey = (typeof opportunityTemplateKeys)[number];
 
 export const opportunityImpactTypes = ['ebit', 'cash', 'cost_avoidance'] as const;
 export type OpportunityImpactType = (typeof opportunityImpactTypes)[number];
-export const opportunityStatuses = ['new', 'adopted', 'dismissed', 'superseded', 'realized'] as const;
+export const opportunityStatuses = [
+  'new',
+  'adopted',
+  'dismissed',
+  'superseded',
+  'realized',
+] as const;
 export const marketSignalKinds = [
   'raw_material',
   'market_capacity',
@@ -74,7 +80,13 @@ export const opportunityStepSchema = z.object({
   unit: z.enum(['cents', 'quantity', 'rate', 'index']),
   low: z.string(),
   high: z.string(),
-  source: z.enum(['own_data', 'supplier_input', 'public_source', 'template_assumption', 'user_assumption']),
+  source: z.enum([
+    'own_data',
+    'supplier_input',
+    'public_source',
+    'template_assumption',
+    'user_assumption',
+  ]),
   citations: z.array(marketCitationSchema),
   editable: z.boolean(),
 });
@@ -105,7 +117,12 @@ export const marketSignalSchema = z.object({
   summary: z.string(),
   direction: z.enum(['relief', 'burden', 'neutral']),
   sources: z.array(
-    z.object({ title: z.string(), url: z.string(), publishedOn: z.iso.date(), excerpt: z.string() }),
+    z.object({
+      title: z.string(),
+      url: z.string(),
+      publishedOn: z.iso.date(),
+      excerpt: z.string(),
+    }),
   ),
   outcome: z.enum(marketSignalOutcomes),
   outcomeReason: z.string(),
@@ -214,7 +231,9 @@ export const valueOverviewSchema = z.object({
       nextStep: z.enum(['review', 'in_jbp', 'run']),
     }),
   ),
-  levers: z.array(z.object({ templateKey: z.enum(opportunityTemplateKeys), count: z.number().int() })),
+  levers: z.array(
+    z.object({ templateKey: z.enum(opportunityTemplateKeys), count: z.number().int() }),
+  ),
   signals: z.array(z.object({ title: z.string(), suppliers: z.number().int() })),
   dataGaps: z.array(
     z.object({ dataKey: z.string(), description: z.string(), suppliers: z.number().int() }),
@@ -256,6 +275,9 @@ export const valueAssumptionSchema = z
     high: leverValueSchema,
   })
   .strict()
-  .refine((value) => Number(value.low) >= 0 && Number(value.high) <= 1 && Number(value.low) <= Number(value.high))
+  .refine(
+    (value) =>
+      Number(value.low) >= 0 && Number(value.high) <= 1 && Number(value.low) <= Number(value.high),
+  )
   .refine((value) => Boolean(templateAssumptionDefaults[value.templateKey]?.[value.field]));
 export type ValueAssumption = z.infer<typeof valueAssumptionSchema>;

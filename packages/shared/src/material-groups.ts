@@ -28,8 +28,11 @@ const capitalize = (value: string) =>
  * „material group(s)“ durch die Bezeichnung des Kunden. Ohne eigene Bezeichnung bleibt der Text.
  */
 export function applyCategoryLabel(text: string, label: CategoryLabel | null | undefined): string {
-  if (!label || (label.singular === defaultCategoryLabel.singular &&
-      label.plural === defaultCategoryLabel.plural)) {
+  if (
+    !label ||
+    (label.singular === defaultCategoryLabel.singular &&
+      label.plural === defaultCategoryLabel.plural)
+  ) {
     return text;
   }
   const pairs: [string, string][] = [
@@ -110,7 +113,9 @@ export const materialGroupDetailSchema = z.object({
     commodityManager: person.nullable(),
   }),
   parent: z.object({ id: z.uuid(), name: z.string() }).nullable(),
-  children: z.array(z.object({ id: z.uuid(), name: z.string(), code: z.string(), active: z.boolean() })),
+  children: z.array(
+    z.object({ id: z.uuid(), name: z.string(), code: z.string(), active: z.boolean() }),
+  ),
   productGroups: z.array(productGroupSchema),
   members: z.array(categoryTeamMemberSchema),
   suppliers: z.array(

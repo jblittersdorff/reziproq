@@ -159,19 +159,3 @@ export const acceptPreReadSchema = z
   })
   .strict();
 export type AcceptPreRead = z.infer<typeof acceptPreReadSchema>;
-
-/** KI-07: interne QBR-Vorbereitung je Termin, nur Käufer; je Teil der offene und der übernommene Entwurf */
-const prepPartSchema = z.object({
-  draft: aiDraftSchema.nullable(),
-  accepted: aiDraftSchema.nullable(),
-});
-export const qbrPrepSchema = z.object({
-  canDraft: z.boolean(),
-  topics: prepPartSchema,
-  risks: prepPartSchema,
-  openPoints: prepPartSchema,
-});
-export type QbrPrep = z.infer<typeof qbrPrepSchema>;
-
-/** Ein übernommenes Thema ausdrücklich in die geteilte Agenda bringen */
-export const prepAgendaSchema = z.object({ claimKey: z.string().min(1).max(10) }).strict();

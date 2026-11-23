@@ -30,7 +30,7 @@ export type AgentRun = z.infer<typeof agentRunSchema>;
 
 export const agentDefinitionSchema = z.object({
   id: z.uuid(),
-  key: z.literal('qbr_prep'),
+  key: z.literal('meeting_brief'),
   enabled: z.boolean(),
   version: z.number().int(),
   runCount: z.number().int().nonnegative(),

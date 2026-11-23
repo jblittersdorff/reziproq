@@ -8,6 +8,7 @@ import { readAiSettings } from '../ai-gateway/ai-settings.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { WavesService } from '../feedback/waves.service.js';
+import { MeetingBriefService } from '../meetings/meeting-brief.service.js';
 import { PreReadDraftService } from '../meetings/pre-read-draft.service.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { SuppliersService } from '../suppliers/suppliers.service.js';
@@ -27,6 +28,7 @@ const fakeReference = {
 export class AgentTools {
   constructor(
     @Inject(PreReadDraftService) private readonly preReads: PreReadDraftService,
+    @Inject(MeetingBriefService) private readonly brief: MeetingBriefService,
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(SuppliersService) private readonly suppliers: SuppliersService,
     @Inject(RatingsService) private readonly ratings: RatingsService,
@@ -59,7 +61,10 @@ export class AgentTools {
       this.buyer(auth);
       if (!can(auth, 'termine.sehen')) throw new ForbiddenException();
       const { relationshipId, meetingId } = qbrContextSchema.parse(input);
-      return qbrFactsSchema.parse(await this.preReads.agentFacts(auth, relationshipId, meetingId));
+      return qbrFactsSchema.parse({
+        ...(await this.preReads.agentFacts(auth, relationshipId, meetingId)),
+        situation: await this.brief.situationFor(auth, relationshipId, meetingId),
+      });
     },
   };
 

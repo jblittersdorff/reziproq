@@ -750,6 +750,13 @@
       "when": 1795421829530,
       "tag": "0106_ki16_fruehwarnung",
       "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1795424382992,
+      "tag": "0107_ki07_termin_briefing",
+      "breakpoints": true
     }
   ]
 }

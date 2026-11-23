@@ -47,6 +47,7 @@ const summary = {
   type: 'quarterly_review' as const,
   title: 'Quartalsreview Q1',
   startsAt: '2099-03-15T09:00:00.000Z',
+  durationMinutes: 60,
   location: 'Werk Nord',
   status: 'planned' as const,
   ownerSide: 'buyer' as const,
@@ -55,8 +56,22 @@ const meeting = (own: boolean): MeetingDetail => ({
   meeting: { ...summary, protocol: 'Liefertreue bei 97 %.', createdByName: 'Sara Ost' },
   participants: [{ id: uuid(1), side: 'buyer', own, name: 'Sara Ost' }],
   agenda: [
-    { id: uuid(2), side: 'buyer', own, title: 'Rückblick auf das Quartal', position: 1 },
-    { id: uuid(3), side: 'supplier', own: !own, title: 'Neue Kapazitäten', position: 1 },
+    {
+      id: uuid(2),
+      side: 'buyer',
+      own,
+      title: 'Rückblick auf das Quartal',
+      detail: null,
+      position: 1,
+    },
+    {
+      id: uuid(3),
+      side: 'supplier',
+      own: !own,
+      title: 'Neue Kapazitäten',
+      detail: null,
+      position: 1,
+    },
   ],
   decisions: [
     { id: uuid(4), side: 'buyer', own, text: 'Kapazität bis April abstimmen', position: 1 },

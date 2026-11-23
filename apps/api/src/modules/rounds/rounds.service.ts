@@ -693,7 +693,8 @@ export class RoundsService {
     },
   ): Promise<string> {
     if (input.dueDate < today()) throw pastDue();
-    if (!input.slots.length) throw fail(400, 'no_assignments', 'Wähle mindestens einen Lieferanten.');
+    if (!input.slots.length)
+      throw fail(400, 'no_assignments', 'Wähle mindestens einen Lieferanten.');
     const [model] = await tx
       .select({ version: schema.segmentModel.version })
       .from(schema.segmentModel)

@@ -26,8 +26,8 @@
 
   /* Schrift (Designsprache „Zwei Kreise“): Figtree für Text und Bedienelemente, Outfit 600 für
      Titel, große Zahlen und Monogramme. Beide liefert die App selbst aus (styles/fonts.css). */
-  --font-family-sans: 'Figtree', system-ui, -apple-system, sans-serif;
-  --font-family-display: 'Outfit', 'Figtree', system-ui, sans-serif;
+  --font-family-sans: "Figtree", system-ui, -apple-system, sans-serif;
+  --font-family-display: "Outfit", "Figtree", system-ui, sans-serif;
   /* Stufen der Designsprache: Chip 12, Klein 13, Text 15, Abschnitt klein 19, Abschnitt 22,
      Kennzahl 28, Titel Arbeitsseite 36, Titel 42, Titel groß 46 */
   --font-size-chip: 0.75rem;

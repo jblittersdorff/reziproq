@@ -25,7 +25,10 @@ export const cycleSettingsSchema = z
   .superRefine((settings, context) => {
     const steps = new Set(settings.map(({ step }) => step));
     if (steps.size !== cycleScheduleSteps.length) {
-      context.addIssue({ code: 'custom', message: 'Jeder Zyklusschritt muss genau einmal vorkommen.' });
+      context.addIssue({
+        code: 'custom',
+        message: 'Jeder Zyklusschritt muss genau einmal vorkommen.',
+      });
     }
   });
 

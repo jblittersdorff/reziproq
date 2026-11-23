@@ -67,7 +67,10 @@ export const valueOpportunity = pgTable(
     decidedAt: time(),
   },
   (table) => [
-    check('value_opportunity_impact', sql`${table.impactType} in ('ebit', 'cash', 'cost_avoidance')`),
+    check(
+      'value_opportunity_impact',
+      sql`${table.impactType} in ('ebit', 'cash', 'cost_avoidance')`,
+    ),
     check('value_opportunity_confidence', sql`${table.confidence} in ('high', 'medium', 'low')`),
     check(
       'value_opportunity_status',
@@ -124,7 +127,10 @@ export const valueMarketSignal = pgTable(
       'value_market_signal_outcome',
       sql`${table.outcome} in ('opportunity', 'topic', 'data_gap', 'no_effect')`,
     ),
-    check('value_market_signal_direction', sql`${table.direction} in ('relief', 'burden', 'neutral')`),
+    check(
+      'value_market_signal_direction',
+      sql`${table.direction} in ('relief', 'burden', 'neutral')`,
+    ),
     check('value_market_signal_sources', sql`jsonb_array_length(${table.sources}) > 0`),
     index('value_market_signal_relationship').on(table.relationshipId, table.observedAt),
   ],
@@ -142,7 +148,9 @@ export const valueDataGap = pgTable(
     description: text().notNull(),
     templatesBlocked: jsonb().$type<string[]>().notNull(),
     signalId: uuid(),
-    status: text({ enum: ['open', 'requested', 'closed'] }).notNull().default('open'),
+    status: text({ enum: ['open', 'requested', 'closed'] })
+      .notNull()
+      .default('open'),
     createdAt: time().notNull().defaultNow(),
   },
   (table) => [

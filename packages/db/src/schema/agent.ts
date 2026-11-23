@@ -153,6 +153,8 @@ export const agentRun = pgTable(
     cancelRequestedAt: time(),
     jobTicket: uuid(),
     inputText: text(),
+    // KI-07: Prüfsumme über die gelesenen Objekte; gleiche Eingaben starten keinen neuen Lauf
+    inputChecksum: text(),
   },
   (table) => [
     unique('agent_run_org_id').on(table.orgId, table.id),

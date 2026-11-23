@@ -1,27 +1,44 @@
-import { type AgentRun, maxPreReadWords, moneySchema, wordCount } from '@reziproq/shared';
+import {
+  type AgentRun,
+  maxPreReadWords,
+  meetingTypes,
+  moneySchema,
+  wordCount,
+} from '@reziproq/shared';
 import { z } from 'zod';
 
 /** Versionsnummer erhöhen, wenn sich Aufgabe, Werkzeug oder Ausgabe der Vorlage ändern. */
-export const qbrPreparation = {
-  key: 'qbr_prep',
-  version: 1,
-  name: 'QBR-Vorbereitung',
+/**
+ * KI-07 Termin-Briefing (früher „QBR-Vorbereitung“, Schlüssel qbr_prep): bereitet wichtige Termine
+ * vor. Zahlen und Zeiten rechnet der Code; das Modell formuliert nur die Lage aus den Sätzen, die es
+ * bekommt.
+ */
+export const meetingBrief = {
+  key: 'meeting_brief',
+  version: 2,
+  name: 'Termin-Briefing',
   description:
-    'Bereitet den Quartalsreview anhand der sichtbaren Kennzahlen und offenen Punkte vor.',
-  instructions: 'Fasse ausschließlich die übergebenen, strukturierten Terminfakten knapp zusammen.',
+    'Bereitet wichtige Termine mit einem Lieferanten vor: Lage, Ziele, Agenda, Fragen, Risiken, offene Punkte.',
+  instructions:
+    'Formuliere die Lage vor dem Termin in höchstens drei Sätzen. Verwende nur die übergebenen Sätze unter "situation" und keine anderen Zahlen. Schlage nichts vor, was nicht in den Sätzen steht.',
   tools: ['qbr_facts', 'supplier_context'],
-  outputTarget: 'pre_read',
+  outputTarget: 'meeting_brief',
   reviewerRule: 'sro',
   modelClass: 'standard',
   budgetCents: 200,
-  maxSteps: 8,
-  trigger: 'manual',
+  maxSteps: 40,
+  trigger: 'schedule',
+  /** Der Job prüft alle 15 Minuten, welche Termine im Vorlauf ihres Typs liegen. */
+  schedule: '*/15 * * * *',
 } as const;
 
 export const qbrContextSchema = z.object({ relationshipId: z.uuid(), meetingId: z.uuid() });
 export const qbrFactsSchema = z
   .object({
     meetingDay: z.iso.date(),
+    meetingType: z.enum(meetingTypes),
+    /** KI-07: Sätze zur Lage aus der Datenbank; das Modell darf nur sie umformulieren */
+    situation: z.array(z.string().max(600)).max(3),
     agendaItems: z.number().int().nonnegative(),
     actions: z.number().int().nonnegative(),
     commitments: z.number().int().nonnegative(),
