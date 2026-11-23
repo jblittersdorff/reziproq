@@ -2649,6 +2649,9 @@ export const de = {
       actual: 'Ist',
       targetNextYear: 'Soll Folgejahr',
       targetFinal: 'Soll zum Zieldatum',
+      fromPortal: (month: string) => `aus dem Portal, Stand ${month}`,
+      portalActual: (value: string, month: string) =>
+        `Ist ${value} aus den Scorecards der Lieferanten, Stand ${month}. Das Portal aktualisiert ihn.`,
       quarter: 'Quartal',
       year: 'Jahr',
       defer: 'Diese Kennzahl zurückstellen',
@@ -2678,6 +2681,13 @@ export const de = {
       inactive: 'Inaktiv',
       deactivate: 'Deaktivieren',
       activate: 'Aktivieren',
+      fromScorecards: 'Ist aus den Scorecards',
+      manualActual: 'Ist von Hand',
+      portalSource: 'Ist aus dem Portal',
+      switchToScorecards: (name: string) => `Ist aus den Scorecards der Lieferanten: ${name}`,
+      switchToManual: (name: string) => `Ist von Hand eintragen: ${name}`,
+      sourceHint:
+        'Ist aus den Scorecards: Mittelwert der jüngsten Werte gleichnamiger Kennzahlen in den Scorecards der Lieferanten der Warengruppe.',
       save: 'Speichern',
       saved: 'Gespeichert.',
       questionsTitle: 'Leitfragen der Warengruppen',

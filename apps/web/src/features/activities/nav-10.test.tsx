@@ -131,6 +131,13 @@ describe('NAV-10 Navigation', () => {
       expect(router.state.location.search).toMatchObject({ ansicht: 'matrix' });
   });
 
+  it('WG-18: /portfolio?warengruppe=<id> führt zur Matrix mit Filter Warengruppe', async () => {
+    const group = '0190a0a0-0000-7000-8000-000000000077';
+    const router = renderAt(`/portfolio?warengruppe=${group}`);
+    await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));
+    expect(router.state.location.search).toMatchObject({ ansicht: 'matrix', wg: group });
+  });
+
   it('⌘K auf der Seite eines Lieferanten öffnet Fragen mit dem Lieferanten als Kontext', async () => {
     const router = renderAt(`${base}/aktivitaeten`);
     await screen.findByRole('heading', { level: 1, name: 'Aktivitäten' });

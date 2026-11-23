@@ -10,7 +10,7 @@ import {
   strategyStepSchema,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { deleteRelationships } from '../../testing/relationships.js';
+import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // Tests zu docs/specs/WG-04.md (Strategie und Ablauf) und WG-06.md (Ziele der Warengruppe).
@@ -107,11 +107,16 @@ describe('WG-04 Strategie und Ablauf, WG-06 Ziele der Warengruppe', () => {
     await db.execute(sql`delete from material_group_strategy where org_id in ${orgIds}`);
     await db.execute(sql`delete from material_group_kpi where org_id in ${orgIds}`);
     await db.execute(sql`delete from material_group_question where org_id in ${orgIds}`);
+    await db.execute(sql`delete from kpi_value where owner_org_id in ${orgIds}`);
+    await db.execute(sql`delete from scorecard_kpi where owner_org_id in ${orgIds}`);
+    await db.execute(sql`delete from scorecard where owner_org_id in ${orgIds}`);
+    await db.execute(sql`delete from jbp where owner_org_id in ${orgIds}`);
     await deleteRelationships(db, orgIds);
     await db.execute(sql`delete from objective_category where org_id in ${orgIds}`);
     await db.execute(sql`delete from app_user where organization_id in ${orgIds}`);
     await db.execute(sql`delete from organization_feature where organization_id in ${orgIds}`);
     await db.execute(sql`delete from organization where id in ${orgIds}`);
+    await db.execute(sql`delete from organization where name like ${`WG06-S% ${run}`}`);
     await testApp.close();
   });
 
@@ -349,6 +354,107 @@ describe('WG-04 Strategie und Ablauf, WG-06 Ziele der Warengruppe', () => {
         actual: 82,
         targetFinal: 100,
       });
+    });
+
+    it('Liegt im Portal ein Ist-Wert vor, zeigt das Ziel ihn; ohne Portalquelle trägt das Team ihn ein', async () => {
+      const kpiId = await kpiOf('quality');
+      const kpi = kpiListSchema
+        .parse((await call(users.lead, 'GET', '/warengruppen/kennzahlen')).body)
+        .kpis.find((entry) => entry.id === kpiId);
+      if (!kpi) throw new Error('Kennzahl fehlt');
+      const goal = async () => (await step(2)).goals.find((entry) => entry.kpiId === kpiId);
+      // Ohne Portalquelle: der eingetragene Wert
+      expect(await goal()).toMatchObject({ actual: 82, actualSource: 'manual' });
+      expect(
+        (
+          await call(users.admin, 'PATCH', `/warengruppen/kennzahlen/${kpiId}`, {
+            dimension: kpi.dimension,
+            name: kpi.name,
+            source: 'scorecard',
+          })
+        ).status,
+      ).toBe(200);
+      // Quelle gesetzt, aber noch kein Wert im Portal: weiter von Hand
+      expect(await goal()).toMatchObject({ actual: 82, actualSource: 'manual' });
+      // Zwei Lieferanten der Warengruppe mit gleichnamiger Scorecard-Kennzahl
+      for (const [index, latest] of [94, 86].entries()) {
+        const supplierOrg = randomUUID();
+        const relationshipId = randomUUID();
+        await db
+          .insert(schema.organization)
+          .values({ id: supplierOrg, name: `WG06-S${index} ${run}` });
+        await insertRelationships(db, [
+          { id: relationshipId, buyer: orgs.a, supplier: supplierOrg },
+        ]);
+        await db
+          .insert(schema.relationshipMaterialGroup)
+          .values({ relationshipId, materialGroupId: group, isPrimary: true });
+        const [plan] = await db
+          .insert(schema.jbp)
+          .values({
+            relationshipId,
+            ownerOrgId: orgs.a,
+            status: 'approved',
+            createdBy: users.lead,
+            createdByName: 'Lead',
+          })
+          .returning({ id: schema.jbp.id });
+        const [card] = await db
+          .insert(schema.scorecard)
+          .values({ relationshipId, ownerOrgId: orgs.a, jbpId: plan?.id as string })
+          .returning({ id: schema.scorecard.id });
+        const [row] = await db
+          .insert(schema.scorecardKpi)
+          .values({
+            relationshipId,
+            ownerOrgId: orgs.a,
+            scorecardId: card?.id as string,
+            name: ` ${kpi.name.toUpperCase()} `,
+            unit: '%',
+            direction: 'higher',
+            target: '95',
+            targetDate: '2027-12-31',
+            ownerSide: 'buyer',
+            ownerName: 'Lead',
+            benefitFor: 'both',
+          })
+          .returning({ id: schema.scorecardKpi.id });
+        for (const [period, value] of [
+          ['2026-01-01', 70],
+          [index === 0 ? '2026-03-01' : '2026-02-01', latest],
+        ] as const) {
+          await db.insert(schema.kpiValue).values({
+            relationshipId,
+            ownerOrgId: orgs.a,
+            kpiId: row?.id as string,
+            period,
+            value: String(value),
+            source: 'manual',
+            enteredBy: users.lead,
+            enteredByName: 'Lead',
+          });
+        }
+      }
+      expect(await goal()).toMatchObject({
+        actual: 90,
+        actualSource: 'portal',
+        actualAsOf: '2026-03-01',
+      });
+      // Ändern ohne Ist-Wert überschreibt den eingetragenen Wert nicht
+      const current = await goal();
+      const changed = await call(
+        users.buyer,
+        'PATCH',
+        `/warengruppen/strategien/${strategyId}/ziele/${current?.id}`,
+        { kpiId, text: 'Qualität halten', targetFinal: 100 },
+      );
+      expect(changed.status).toBe(200);
+      const [stored] = (
+        await db.execute<{ actual: string | null }>(
+          sql`select actual::text from material_group_goal where id = ${current?.id}`,
+        )
+      ).rows;
+      expect(Number(stored?.actual)).toBe(82);
     });
 
     it('Eine neue Kennzahl bei Kunde A erscheint nicht bei Kunde B', async () => {

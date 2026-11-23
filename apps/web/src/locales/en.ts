@@ -2591,6 +2591,9 @@ export const en: Messages = {
       actual: 'Actual',
       targetNextYear: 'Target next year',
       targetFinal: 'Target at due date',
+      fromPortal: (month: string) => `from the portal, as of ${month}`,
+      portalActual: (value: string, month: string) =>
+        `Actual ${value} from the suppliers' scorecards, as of ${month}. The portal updates it.`,
       quarter: 'Quarter',
       year: 'Year',
       defer: 'Defer this KPI',
@@ -2620,6 +2623,13 @@ export const en: Messages = {
       inactive: 'Inactive',
       deactivate: 'Deactivate',
       activate: 'Activate',
+      fromScorecards: 'Actual from scorecards',
+      manualActual: 'Actual entered manually',
+      portalSource: 'Actual from the portal',
+      switchToScorecards: (name: string) => `Actual from the suppliers' scorecards: ${name}`,
+      switchToManual: (name: string) => `Enter actual manually: ${name}`,
+      sourceHint:
+        "Actual from scorecards: average of the latest values of KPIs with the same name in the scorecards of the material group's suppliers.",
       save: 'Save',
       saved: 'Saved.',
       questionsTitle: 'Guiding questions of the material groups',

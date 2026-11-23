@@ -154,6 +154,8 @@ beforeEach(() => {
         dimension: 'supply',
         text: 'Kapazität für den Anlauf 2028 absichern',
         actual: 82,
+        actualSource: 'manual',
+        actualAsOf: null,
         targetNextYear: 90,
         targetFinal: 100,
         targetQuarter: 4,
@@ -183,6 +185,13 @@ beforeEach(() => {
     ) {
       sent.push(request);
       return Response.json(step2, { status: 201 });
+    }
+    if (
+      request.url.startsWith(`/api/warengruppen/strategien/${strategyId}/ziele/`) &&
+      request.method === 'PATCH'
+    ) {
+      sent.push(request);
+      return Response.json(step2);
     }
     return undefined;
   };
@@ -272,5 +281,30 @@ describe('WG-06 Ziele der Warengruppe', () => {
         deferredReason: 'Daten noch nicht belastbar',
       }),
     );
+  });
+  it('WG-06: ein Ist aus dem Portal steht mit Stand in der Tabelle und ist im Formular nicht änderbar', async () => {
+    step2 = {
+      ...step2,
+      goals: step2.goals.map((goal) => ({
+        ...goal,
+        actual: 90,
+        actualSource: 'portal' as const,
+        actualAsOf: '2026-03-01',
+      })),
+    };
+    renderAt(`/warengruppen/${group}/strategie/2`);
+    expect(await screen.findByText('aus dem Portal, Stand März 2026')).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Bearbeiten: Kapazität für den Anlauf 2028 absichern' }),
+    );
+    expect(
+      await screen.findByText(
+        'Ist 90 % aus den Scorecards der Lieferanten, Stand März 2026. Das Portal aktualisiert ihn.',
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByLabelText('Ist')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ziel speichern' }));
+    await waitFor(() => expect(sent[0]?.body).toBeDefined());
+    expect(sent[0]?.body).not.toHaveProperty('actual');
   });
 });

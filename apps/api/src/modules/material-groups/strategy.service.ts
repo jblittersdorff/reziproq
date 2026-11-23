@@ -27,6 +27,7 @@ import {
   kpiListSchema,
   kpiRequestSchema,
   type MilestoneRequest,
+  portalKpiSource,
   questionListSchema,
   type SaveNote,
   type StepState,
@@ -551,6 +552,9 @@ export class StrategyService {
           .where(eq(schema.materialGroupGoal.strategyId, strategy.id))
           .orderBy(asc(schema.materialGroupGoal.createdAt))
       : [];
+    const portal = goalStep
+      ? await this.portalActuals(tx, strategy.materialGroupId, kpis)
+      : new Map<string, { value: number; asOf: string }>();
     return strategyStepSchema.parse({
       step,
       questions,
@@ -569,7 +573,13 @@ export class StrategyService {
         kpiId: goal.kpiId,
         dimension,
         text: goal.text,
-        actual: toNumber(goal.actual),
+        ...(portal.has(goal.kpiId)
+          ? {
+              actual: portal.get(goal.kpiId)?.value ?? null,
+              actualSource: 'portal' as const,
+              actualAsOf: portal.get(goal.kpiId)?.asOf ?? null,
+            }
+          : { actual: toNumber(goal.actual), actualSource: 'manual' as const, actualAsOf: null }),
         targetNextYear: toNumber(goal.targetNextYear),
         targetFinal: toNumber(goal.targetFinal),
         targetQuarter: goal.targetQuarter,
@@ -578,6 +588,37 @@ export class StrategyService {
         deferredReason: goal.deferredReason,
       })),
     });
+  }
+
+  /**
+   * WG-06: Ist-Werte aus dem Portal. Für Kennzahlen mit Quelle „scorecard“ der Mittelwert der
+   * jüngsten Werte gleichnamiger Scorecard-Kennzahlen bei den Lieferanten der Warengruppe, gelesen
+   * unter der Session der Person (Zeilensicherheit). Berechnet beim Lesen, also nie älter als der
+   * letzte eingetragene Monat; ohne Wert bleibt der Ist-Wert von Hand.
+   */
+  private async portalActuals(
+    tx: TenantTransaction,
+    groupId: string,
+    kpis: { id: string; name: string; source: string | null }[],
+  ) {
+    const result = new Map<string, { value: number; asOf: string }>();
+    for (const kpi of kpis.filter((entry) => entry.source === portalKpiSource)) {
+      const rows = await tx.execute<{ value: string | null; as_of: string | null }>(sql`
+        with latest as (
+          select distinct on (k.id) v.value, v.period
+          from scorecard_kpi k
+          join kpi_value v on v.kpi_id = k.id
+          join relationship_material_group m on m.relationship_id = k.relationship_id
+          where m.material_group_id = ${groupId}
+            and lower(trim(k.name)) = lower(trim(${kpi.name}))
+          order by k.id, v.period desc, v.entered_at desc
+        )
+        select round(avg(value), 4)::text as value, max(period)::text as as_of from latest`);
+      const [row] = rows.rows;
+      if (row?.value && row.as_of)
+        result.set(kpi.id, { value: Number(row.value), asOf: row.as_of });
+    }
+    return result;
   }
 
   /** WG-04: Einkauf im Team aus der Business Unit mit dem höchsten Umsatz dieser Warengruppe */
@@ -704,7 +745,8 @@ export class StrategyService {
     return {
       kpiId: goal.kpiId,
       text: goal.text,
-      actual: decimal(goal.actual),
+      // Ohne Angabe bleibt der Ist-Wert, wie er ist (Ist aus dem Portal wird nicht überschrieben)
+      actual: goal.actual === undefined ? undefined : decimal(goal.actual),
       targetNextYear: decimal(goal.targetNextYear),
       targetFinal: decimal(goal.targetFinal),
       targetQuarter: goal.targetQuarter ?? null,

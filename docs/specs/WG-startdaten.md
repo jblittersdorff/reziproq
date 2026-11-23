@@ -194,7 +194,7 @@ Kurzfristig 1 Jahr, mittelfristig 2 bis 3 Jahre, langfristig 4 bis 5 Jahre.
 
 ## Hebelkatalog (`lever`)
 
-Die Spalte `dimensions` nennt die Zieldimensionen, die ein Hebel beeinflusst (Vorschlag vom 16.11.2026, vom Gründer zu bestätigen). Die erste ist die Hauptwirkung.
+Die Spalte `dimensions` nennt die Zieldimensionen, die ein Hebel beeinflusst. Vorschlag vom 16.11.2026, vom Gründer am 23.11.2026 bestätigt. Die erste ist die Hauptwirkung. Seed und diese Tabelle gleicht `packages/db/src/wg-startdaten.test.ts` ab.
 
 | Hebel | Beschreibung | Dimensionen |
 |---|---|---|
@@ -222,11 +222,9 @@ Die Spalte `dimensions` nennt die Zieldimensionen, die ein Hebel beeinflusst (Vo
 | Gezielter Kauf außerhalb der regulären Kanäle | Regelkonform alternative Wege nutzen, kurzfristig für Kosten oder Versorgung | Lieferkette, Kosten |
 | Kollaboration oder Joint Venture | Partnerschaft oder gemeinsames Unternehmen, etwa für Technologieentwicklung | Technologie, Lieferkette |
 
-## Beziehung (`relationship_mode`)
+## Beziehung
 
-| Wert | Bedeutung |
-|---|---|
-| kollaborativ | Partnerschaftlich, mit dem Ziel gemeinsamer Wertschöpfung |
-| neutral | Sachlich, ohne strategische Tiefe |
-| konfrontativ | Durchsetzung eigener Interessen, hoher Verhandlungsdruck |
-| unterschiedlich | Je Business Unit oder Abteilung verschieden |
+Keine eigenen Werte. Die Beziehungsqualität ist Teil des Segments aus SEG (Business Impact ×
+Beziehungsqualität). Übernommen aus der Lieferung vom 22.11.2026 (Schritt 21); die früheren vier
+Werte (kollaborativ, neutral, konfrontativ, unterschiedlich) gibt es nicht mehr. Der Code nutzte sie
+nie; WG-15 gleicht sein Feld mit seinem eigenen Schritt an.

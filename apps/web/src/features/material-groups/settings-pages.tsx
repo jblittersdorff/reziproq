@@ -1,4 +1,4 @@
-import type { MaterialGroupImportPreview } from '@reziproq/shared';
+import { type MaterialGroupImportPreview, portalKpiSource } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
@@ -614,6 +614,7 @@ export function KpiSettingsPage() {
         <div className="flex max-w-4xl flex-col gap-6">
           {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
           {failure && <StatusLine message={failure} tone="warning" />}
+          <p className="text-muted-foreground text-sm">{text.sourceHint}</p>
           {data.dimensions.map((dimension) => (
             <section
               key={dimension.key}
@@ -641,9 +642,43 @@ export function KpiSettingsPage() {
                         )}
                       </span>
                       <span className="flex flex-wrap items-center gap-2">
+                        {kpi.source === portalKpiSource && (
+                          <Badge variant="selected">{text.portalSource}</Badge>
+                        )}
                         <Badge variant={kpi.active ? 'success' : 'neutral'}>
                           {kpi.active ? text.active : text.inactive}
                         </Badge>
+                        {manage && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            aria-label={
+                              kpi.source === portalKpiSource
+                                ? text.switchToManual(kpi.name)
+                                : text.switchToScorecards(kpi.name)
+                            }
+                            onClick={() =>
+                              void run(() =>
+                                saveKpi(
+                                  accessToken,
+                                  {
+                                    dimension: kpi.dimension as 'cost',
+                                    name: kpi.name,
+                                    description: kpi.description,
+                                    unit: kpi.unit,
+                                    source: kpi.source === portalKpiSource ? null : portalKpiSource,
+                                    active: kpi.active,
+                                  },
+                                  kpi.id,
+                                ),
+                              )
+                            }
+                          >
+                            {kpi.source === portalKpiSource
+                              ? text.manualActual
+                              : text.fromScorecards}
+                          </Button>
+                        )}
                         {manage && (
                           <Button
                             size="sm"

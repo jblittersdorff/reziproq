@@ -788,12 +788,23 @@ function GoalsStep({
   const text = t.strategy.goals;
   const { locale } = useLocale();
   const save = useStepSave(context, 2);
-  const [form, setForm] = useState<{ goal: GoalRequest; id?: string } | null>(null);
+  // WG-06: Kommt der Ist-Wert aus dem Portal, steht er nur zur Anzeige im Formular
+  const [form, setForm] = useState<{
+    goal: GoalRequest;
+    id?: string;
+    portal?: { value: number | null; asOf: string | null };
+  } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
   const kpi = (id: string) => content.kpis.find((entry) => entry.id === id);
   const dimensionName = (key: string) =>
     content.dimensions.find((entry) => entry.key === key)?.name ?? key;
+  const month = (date: string | null) =>
+    date
+      ? new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
+          new Date(`${date}T00:00:00`),
+        )
+      : '';
   const value = (amount: number | null, unit: string | null | undefined) =>
     amount === null ? '–' : unit === '%' ? `${number.format(amount)} %` : number.format(amount);
   const ordered = content.dimensions.flatMap((dimension) =>
@@ -829,10 +840,14 @@ function GoalsStep({
   const edit = (goal: StrategyGoal) =>
     setForm({
       id: goal.id,
+      ...(goal.actualSource === 'portal'
+        ? { portal: { value: goal.actual, asOf: goal.actualAsOf } }
+        : {}),
       goal: {
         kpiId: goal.kpiId,
         text: goal.text,
-        actual: goal.actual,
+        // Ist aus dem Portal wird nicht mitgeschickt, der eingetragene Wert bleibt
+        actual: goal.actualSource === 'portal' ? undefined : goal.actual,
         targetNextYear: goal.targetNextYear,
         targetFinal: goal.targetFinal,
         targetQuarter: goal.targetQuarter,
@@ -918,6 +933,11 @@ function GoalsStep({
                         <TableCell>{kpi(goal.kpiId)?.name}</TableCell>
                         <TableCell className="text-right tabular-nums">
                           {value(goal.actual, unit)}
+                          {goal.actualSource === 'portal' && (
+                            <span className="block text-muted-foreground text-sm">
+                              {text.fromPortal(month(goal.actualAsOf))}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
                           {value(goal.targetNextYear, unit)}
@@ -1032,7 +1052,16 @@ function GoalsStep({
                 )}
               </FormField>
               <div className="flex flex-wrap gap-3">
-                {numberField('actual', text.actual)}
+                {form.portal ? (
+                  <p className="basis-full text-muted-foreground text-sm">
+                    {text.portalActual(
+                      value(form.portal.value, kpi(form.goal.kpiId)?.unit),
+                      month(form.portal.asOf),
+                    )}
+                  </p>
+                ) : (
+                  numberField('actual', text.actual)
+                )}
                 {numberField('targetNextYear', text.targetNextYear)}
                 {numberField('targetFinal', text.targetFinal)}
               </div>

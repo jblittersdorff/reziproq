@@ -144,6 +144,10 @@ export const strategyGoalSchema = z.object({
   dimension: z.string(),
   text: z.string(),
   actual: decimal,
+  /** WG-06: Ist aus dem Portal (Scorecards der Lieferanten) oder von Hand eingetragen */
+  actualSource: z.enum(['manual', 'portal']).default('manual'),
+  /** Monat des jüngsten Portalwerts */
+  actualAsOf: z.string().nullable().default(null),
   targetNextYear: decimal,
   targetFinal: decimal,
   targetQuarter: z.number().int().min(1).max(4).nullable(),
@@ -219,6 +223,10 @@ export const goalRequestSchema = z
     path: ['text'],
   });
 export type GoalRequest = z.input<typeof goalRequestSchema>;
+
+/** WG-06: Quelle des Ist-Werts einer Kennzahl. „scorecard“: Mittelwert der jüngsten Werte
+ * gleichnamiger Scorecard-Kennzahlen bei den Lieferanten der Warengruppe; leer: von Hand. */
+export const portalKpiSource = 'scorecard';
 
 export const kpiRequestSchema = z
   .object({
