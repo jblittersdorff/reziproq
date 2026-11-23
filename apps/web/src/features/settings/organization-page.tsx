@@ -111,9 +111,13 @@ function OrganizationDetails() {
               </TableCell>
               <TableCell className="text-muted-foreground">{member.email}</TableCell>
               <TableCell>
-                <Badge variant={member.orgRole === 'admin' ? 'selected' : 'neutral'}>
-                  {t.roles[member.orgRole]}
-                </Badge>
+                <span className="flex flex-wrap gap-1.5">
+                  <Badge variant={member.orgRole === 'admin' ? 'selected' : 'neutral'}>
+                    {t.roles[member.orgRole]}
+                  </Badge>
+                  {/* IN-02: über die Firmen-Domain angelegt, noch nicht freigegeben */}
+                  {member.approvalPending && <Badge variant="warning">{t.settings.pendingBadge}</Badge>}
+                </span>
               </TableCell>
               <TableCell>{member.isControlling ? t.roles.controlling : '–'}</TableCell>
             </TableRow>

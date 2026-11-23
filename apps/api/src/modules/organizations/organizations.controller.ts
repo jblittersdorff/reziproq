@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, Put } from '@nestjs/common';
 import {
   type OrganizationMember,
   type OrganizationResponse,
@@ -26,6 +26,14 @@ export class OrganizationsController {
   @Requires('organisation.sehen')
   member(@CurrentUser() auth: AuthContext, @Param('id') id: string): Promise<OrganizationMember> {
     return this.organizations.member(auth, id);
+  }
+
+  /** IN-02: neue Person aus der Firmen-Domain freigeben, nur Admin. */
+  @Post('mitglieder/:id/freigeben')
+  @HttpCode(200)
+  @Requires('rollen.aendern')
+  approve(@CurrentUser() auth: AuthContext, @Param('id') id: string): Promise<OrganizationMember> {
+    return this.organizations.approve(auth, id);
   }
 
   /** Rolle, Controlling und Standardfunktion ändern (PLT-05), nur Admin. */

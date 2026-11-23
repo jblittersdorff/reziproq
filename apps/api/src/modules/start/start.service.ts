@@ -18,6 +18,7 @@ import { CustomersService } from '../customers/customers.service.js';
 import { MyFeedbackService } from '../feedback/my-feedback.service.js';
 import { hintRuleReviewDue, openHintCount } from '../hints/hint-count.js';
 import { IntegrationsService } from '../integrations/integrations.service.js';
+import { OrganizationService } from '../organizations/organization.service.js';
 import { ValidationService } from '../impact/validation.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
@@ -68,6 +69,7 @@ export class StartService {
     @Inject(StrategyService) private readonly strategies: StrategyService,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
     @Inject(IntegrationsService) private readonly integrations: IntegrationsService,
+    @Inject(OrganizationService) private readonly organizations: OrganizationService,
   ) {}
 
   /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
@@ -120,9 +122,12 @@ export class StartService {
         : [];
     // IN-01: Verbindungen mit Fehler, etwa wenn das Erneuern der Zugangsdaten scheiterte
     const connections = await this.integrations.dueItems(auth);
+    // IN-02: neue Personen aus der Firmen-Domain, die auf Freigabe warten
+    const memberReviews = await this.organizations.dueItems(auth);
     const items = [
       ...budget,
       ...connections,
+      ...memberReviews,
       ...ruleReviews,
       ...ratings,
       ...cycles,

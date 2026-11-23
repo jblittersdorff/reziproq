@@ -41,6 +41,9 @@ export const de = {
   },
 
   auth: {
+    emailLabel: 'Deine Mail',
+    continue: 'Weiter',
+    emailHint: 'Gehört deine Mail zu einer Firma mit Microsoft- oder Google-Anmeldung, geht es direkt dorthin.',
     welcome: 'Melde dich mit deinem Firmenkonto an, um deine Lieferantenbeziehungen zu öffnen.',
     signIn: 'Anmelden',
     checking: 'Anmeldung wird geprüft …',
@@ -123,6 +126,7 @@ export const de = {
       ai_budget: 'KI-Monatsbudget prüfen',
       hint_rule_review: 'Schwelle einer Hinweisregel prüfen',
       connection_renew: 'Verbindung erneuern',
+      member_review: 'Neue Person prüfen',
       rating: 'Bewertung abgeben',
       cycle: 'Zyklus-Schritt',
       contribution: 'Beitrag zum Lieferantenplan',
@@ -859,6 +863,11 @@ export const de = {
     memberControlling: 'Controlling',
     memberEdit: (name: string) => `${name} bearbeiten`,
     memberTitle: 'Rolle und Funktion',
+    pendingBadge: 'wartet auf Freigabe',
+    approveTitle: 'Neue Person prüfen',
+    approveText: 'Diese Person hat sich über die Firmen-Domain angemeldet. Prüfe Rolle und Funktion, dann gib sie frei. Bis dahin sieht sie nichts.',
+    approve: 'Freigeben',
+    approved: 'Freigegeben.',
     memberPurpose: 'Die Rolle bestimmt, was die Person in Reziproq darf.',
     roleHint: 'Admin verwaltet alles, Nutzer arbeitet fachlich, Leser liest nur.',
     controllingLabel: 'Controlling',
@@ -1587,6 +1596,34 @@ export const de = {
       kommt_spaeter: 'Diese Anbindung kommt in Stufe 2.',
       nicht_aktiv: 'Die Verbindung ist nicht aktiv. Bitte neu verbinden.',
     } as Record<string, string>,
+    sso: {
+      title: 'Anmeldung über das Firmenkonto',
+      hintEntra: 'Personen deiner Organisation melden sich mit ihrem Microsoft-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
+      hintGoogle: 'Personen deiner Organisation melden sich mit ihrem Google-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
+      tenantLabel: 'Mandanten-ID (Entra ID)',
+      hostedDomainLabel: 'Google-Domain',
+      domainsLabel: 'Domains',
+      domainsHint: 'Eine Domain je Zeile, z. B. firma.de',
+      roleLabel: 'Standardrolle neuer Personen',
+      passwordOnlyEntra: 'Nur noch über Microsoft anmelden',
+      passwordOnlyGoogle: 'Nur noch über Google anmelden',
+      passwordOnlyHint: 'Anmeldung mit Passkey oder Passwort ist dann für Mails eurer Domains aus.',
+      save: 'Anmeldung speichern',
+      saved: 'Gespeichert.',
+      statusActive: 'aktiv',
+      statusDraft: 'Domain bestätigen',
+      verified: 'bestätigt',
+      unverified: 'nicht bestätigt',
+      record: (name: string, value: string) => `TXT-Eintrag ${name || '–'} mit dem Wert ${value || '–'}`,
+      verify: 'Domain bestätigen',
+      verifyFailed: 'Der DNS-Eintrag wurde noch nicht gefunden. Das kann bis zu einer Stunde dauern.',
+      errors: {
+        mandant_fehlt: 'Bitte trage die Mandanten-ID ein.',
+        domain_fehlt: 'Bitte trage die Google-Domain ein.',
+        sso_nicht_verfuegbar: 'Die Anmeldung über diesen Anbieter ist in dieser Umgebung nicht eingerichtet.',
+        organisation_ohne_zitadel: 'Deine Organisation ist noch nicht mit der Anmeldung verknüpft.',
+      } as Record<string, string>,
+    },
     apiKeys: {
       title: 'API-Schlüssel',
       hint: 'Eure Middleware liefert mit einem Schlüssel Lieferantenstamm und Spend. Heute übernimmt Reziproq diese beiden Objektarten; die anderen folgen.',
@@ -4688,6 +4725,17 @@ export const de = {
   },
 
   organization: {
+    // IN-02: über die Firmen-Domain angelegt, wartet auf Freigabe
+    pendingApproval:
+      'Willkommen! Ein Admin deiner Organisation prüft gerade deinen Zugang. Danach siehst du deine Lieferanten.',
+    signInRejected: {
+      nur_sso: 'Deine Organisation meldet sich nur noch über ihr Firmenkonto an. Bitte melde dich ab und wähle Microsoft oder Google.',
+      falscher_mandant: 'Dieses Microsoft-Konto gehört nicht zum Firmenkonto deiner Organisation.',
+      falsche_domain: 'Dieses Google-Konto gehört nicht zur Domain deiner Organisation.',
+      domain_nicht_bestaetigt: 'Die Domain deiner Mail ist bei Reziproq noch nicht bestätigt. Wende dich an deinen Admin.',
+      sso_nicht_eingerichtet: 'Die Anmeldung über diesen Anbieter ist für deine Organisation nicht eingerichtet.',
+      identitaet_vergeben: 'Dieses Firmenkonto gehört schon zu einer anderen Person in Reziproq.',
+    } as Record<string, string>,
     missing:
       'Deine Organisation ist noch nicht freigeschaltet. Wende dich an deinen Ansprechpartner.',
     // PLT-02: Organisation ohne Feature buyer; die Lieferantenansicht kommt mit Release 0.2.

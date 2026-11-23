@@ -85,3 +85,59 @@ export const connectRequestSchema = z
 export type ConnectRequest = z.infer<typeof connectRequestSchema>;
 
 export const updatePartsSchema = z.object({ parts: z.array(z.string().min(1).max(40)).max(10) }).strict();
+
+// IN-02 Anmeldung über Microsoft und Google
+
+export const ssoProviders = ['entra', 'google'] as const;
+export type SsoProvider = (typeof ssoProviders)[number];
+
+export const ssoDomainSchema = z.object({
+  domain: z.string(),
+  /** DNS-Eintrag (TXT) zur Bestätigung */
+  recordName: z.string(),
+  recordValue: z.string(),
+  verifiedAt: z.iso.datetime().nullable(),
+});
+
+export const ssoSettingsSchema = z.object({
+  provider: z.enum(ssoProviders),
+  tenantId: z.string().nullable(),
+  hostedDomain: z.string().nullable(),
+  domains: z.array(ssoDomainSchema),
+  defaultRole: z.enum(['admin', 'member', 'viewer']),
+  passwordLoginAllowed: z.boolean(),
+  status: z.enum(['draft', 'active']),
+});
+export type SsoSettings = z.infer<typeof ssoSettingsSchema>;
+
+export const ssoOverviewSchema = z.object({
+  entra: ssoSettingsSchema.nullable(),
+  google: ssoSettingsSchema.nullable(),
+});
+export type SsoOverview = z.infer<typeof ssoOverviewSchema>;
+
+const domainName = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(/^(?=.{3,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/, 'domain');
+
+export const saveSsoSchema = z
+  .object({
+    tenantId: z.string().trim().min(1).max(100).nullable().default(null),
+    hostedDomain: domainName.nullable().default(null),
+    domains: z.array(domainName).min(1).max(20),
+    defaultRole: z.enum(['admin', 'member', 'viewer']).default('viewer'),
+    passwordLoginAllowed: z.boolean().default(true),
+  })
+  .strict();
+export type SaveSso = z.input<typeof saveSsoSchema>;
+
+/** Anmeldeseite: führt eine Mail zu Microsoft oder Google? */
+export const ssoHintRequestSchema = z.object({ email: z.email() }).strict();
+export const ssoHintSchema = z.object({
+  provider: z.enum(ssoProviders).nullable(),
+  /** Scope für Zitadel, der direkt zum Anbieter führt */
+  scope: z.string().nullable(),
+});
+export type SsoHint = z.infer<typeof ssoHintSchema>;

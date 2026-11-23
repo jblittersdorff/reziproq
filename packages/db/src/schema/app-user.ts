@@ -45,6 +45,8 @@ export const appUser = pgTable(
     // Zusatzrolle Controlling, kombinierbar mit jeder Rolle; gibt später GuV-Wirkungen frei (PNL-06).
     isControlling: boolean('is_controlling').notNull().default(false),
     defaultFunction: text('default_function', { enum: userFunctions }),
+    // IN-02: über die Firmen-Domain angelegt; sieht nichts, bis ein Admin sie freigibt
+    approvalPending: boolean('approval_pending').notNull().default(false),
     // Wann die Rollen einmalig aus dem Zitadel-Token übernommen wurden; danach zählt nur die Datenbank.
     rolesImportedAt: timestamp('roles_imported_at', { withTimezone: true }),
     // Betreiber-Team von Reziproq (UMB-01); gesetzt nur per pnpm operator:set, nie über die API.

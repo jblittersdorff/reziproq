@@ -45,6 +45,12 @@ const envSchema = z.object({
   // zitadel nutzt die Verwaltungsschnittstelle mit dem Token eines Dienstkontos.
   IDENTITY_PROVIDER: z.preprocess(emptyAsUndefined, z.enum(['fake', 'zitadel']).default('fake')),
   ZITADEL_SERVICE_TOKEN: z.preprocess(emptyAsUndefined, z.string().min(20).optional()),
+  // IN-02: App-Registrierungen von Reziproq bei Microsoft und Google, über die Zitadel je Kunde
+  // föderiert. Nur mit IDENTITY_PROVIDER=zitadel nötig; Werte nur aus der Umgebung.
+  SSO_ENTRA_CLIENT_ID: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
+  SSO_ENTRA_CLIENT_SECRET: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
+  SSO_GOOGLE_CLIENT_ID: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
+  SSO_GOOGLE_CLIENT_SECRET: z.preprocess(emptyAsUndefined, z.string().min(1).optional()),
   WEB_APP_URL: z.preprocess(
     emptyAsUndefined,
     z

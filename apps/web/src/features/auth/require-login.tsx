@@ -2,7 +2,7 @@ import { useRouterState } from '@tanstack/react-router';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
-import { signedOut, signInState, zitadelSettings } from '@/lib/auth';
+import { oidcScope, signedOut, signInState, zitadelSettings } from '@/lib/auth';
 import { restoreWhenReady, takeDraft } from '@/lib/draft';
 import { useT } from '@/lib/i18n';
 import { AuthChecking, AuthFailed, AuthNotConfigured, AuthPage, SignIn } from './auth-states';
@@ -52,9 +52,15 @@ function AuthGate({ children }: { children: ReactNode }) {
     void auth.signinRedirect({ state: signInState(here) });
   }, [needsLogin, auth, here]);
 
-  const signIn = () => {
+  // IN-02: Mit Mail aus einer Domain mit Firmenanmeldung geht es direkt zu Microsoft oder Google
+  // (Zitadel-Scope für den Anbieter); sonst zur Anmeldung von Zitadel wie bisher.
+  const signIn = (hint?: { email: string; scope: string | null }) => {
     signedOut.clear();
-    void auth.signinRedirect({ state: signInState(here) });
+    void auth.signinRedirect({
+      state: signInState(here),
+      ...(hint?.email ? { login_hint: hint.email } : {}),
+      ...(hint?.scope ? { scope: `${oidcScope} ${hint.scope}` } : {}),
+    });
   };
 
   // Bis die Anmeldung abgeschlossen ist, nur der ruhige Ladezustand, nie Inhalte. Ist schon jemand
@@ -70,7 +76,7 @@ function AuthGate({ children }: { children: ReactNode }) {
     return (
       <AuthPage>
         {auth.error ? (
-          <AuthFailed action={<Button onClick={signIn}>{t.auth.retry}</Button>} />
+          <AuthFailed action={<Button onClick={() => signIn()}>{t.auth.retry}</Button>} />
         ) : (
           <SignIn onSignIn={signIn} />
         )}

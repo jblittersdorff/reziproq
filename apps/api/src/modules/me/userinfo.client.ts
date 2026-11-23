@@ -9,6 +9,16 @@ const userinfoSchema = z.object({
   email: z.email(),
   // Organisation des Nutzers in Zitadel; mit Scope urn:zitadel:iam:user:resourceowner (PLT-02).
   'urn:zitadel:iam:user:resourceowner:id': z.string().min(1).optional(),
+  // IN-02: Anmeldung über Microsoft oder Google. Eine Zitadel-Action ergänzt Anbieter, Subject und
+  // Mandant (Entra, tid) bzw. hd (Google) aus dem Token des Anbieters; fehlt bei Passkey/Passwort.
+  'urn:reziproq:idp': z
+    .object({
+      provider: z.enum(['entra', 'google']),
+      subject: z.string().min(1).max(200),
+      tenant: z.string().max(100).optional(),
+      hd: z.string().max(253).optional(),
+    })
+    .optional(),
 });
 
 export type Userinfo = z.infer<typeof userinfoSchema>;

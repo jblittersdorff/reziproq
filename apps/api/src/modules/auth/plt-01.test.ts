@@ -48,7 +48,7 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
     );
   });
 
-  it('Öffentlich sind nur GET /health, der Einladungslink (LIF-01a), der Link zur Umfrage (PUL-02b) der Eingang für Webhooks (IN-01, mit Signatur) und die Import-API (IN-07, mit API-Schlüssel)', () => {
+  it('Öffentlich sind nur GET /health, der Einladungslink (LIF-01a), der Link zur Umfrage (PUL-02b) der Eingang für Webhooks (IN-01, mit Signatur) die Import-API (IN-07, mit API-Schlüssel) und der Hinweis zur Firmenanmeldung (IN-02)', () => {
     expect(routes.filter((r) => r.isPublic).map((r) => `${r.method} ${r.path}`)).toEqual(
       expect.arrayContaining([
         'GET /api/health',
@@ -60,9 +60,10 @@ describe('PLT-01: Zugriff auf die API nur mit gültigem Token', () => {
         'GET /api/v1/openapi.json',
         'POST /api/v1/batches',
         'GET /api/v1/batches/00000000-0000-7000-8000-000000000000',
+        'POST /api/anmeldung/sso',
       ]),
     );
-    expect(routes.filter((r) => r.isPublic)).toHaveLength(9);
+    expect(routes.filter((r) => r.isPublic)).toHaveLength(10);
   });
 
   it('Jede andere Route antwortet ohne Token mit 401', async () => {

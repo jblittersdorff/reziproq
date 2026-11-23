@@ -872,6 +872,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       secret_ref: '0190a0a0-0000-7000-8000-000000000001',
     }),
   },
+  // IN-02: Anmeldung über Microsoft und Google, je Organisation
+  org_sso: {
+    kind: 'org_private',
+    testValues: { provider: 'google', hosted_domain: 'probe.example', updated_by: 'probe' },
+  },
+  user_identity: {
+    kind: 'global',
+    manual: 'Externe Identität je Person; nur die Anmelde-Funktionen lesen und schreiben (IN-02)',
+  },
   // IN-07: Schlüssel der Import-API, je Organisation
   api_key: {
     kind: 'org_private',

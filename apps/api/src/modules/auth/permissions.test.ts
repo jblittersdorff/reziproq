@@ -533,7 +533,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     });
   });
 
-  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health, /me, der Einladungslink, der Link zur Umfrage, der Eingang für Webhooks und die Import-API.', () => {
+  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health, /me, der Einladungslink, der Link zur Umfrage, der Eingang für Webhooks, die Import-API und der Hinweis zur Firmenanmeldung.', () => {
     const routes = discoverRoutes(testApp.app);
     expect(routes.length).toBeGreaterThan(10);
     const unchecked = routes
@@ -559,6 +559,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         '/api/v1/openapi.json',
         '/api/v1/batches',
         '/api/v1/batches/00000000-0000-7000-8000-000000000000',
+        // IN-02: Anmeldeseite fragt, ob eine Mail direkt zu Microsoft oder Google führt
+        '/api/anmeldung/sso',
       ]),
     );
   });

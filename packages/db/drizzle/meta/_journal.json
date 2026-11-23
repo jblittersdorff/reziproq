@@ -799,6 +799,20 @@
       "when": 1795431895621,
       "tag": "0113_in07_import_api",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795433328099,
+      "tag": "0114_in02_firmenanmeldung",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1795434144318,
+      "tag": "0115_in02_alte_aufrufe",
+      "breakpoints": true
     }
   ]
 }

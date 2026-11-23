@@ -13,6 +13,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { buyerOnlyActions } from '../auth/buyer-only.js';
 import { can } from '../auth/can.js';
 import { readCategoryLabel } from '../material-groups/category-label.js';
+import { SsoGate } from '../sso/sso-gate.js';
 import { UserinfoClient } from './userinfo.client.js';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class MeService {
     @Inject(UserinfoClient) private readonly userinfo: UserinfoClient,
     @Inject(AccountStore) private readonly accounts: AccountStore,
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
+    @Inject(SsoGate) private readonly sso: SsoGate,
   ) {}
 
   /**
@@ -40,6 +42,8 @@ export class MeService {
     if (info.sub !== auth.userId) throw new UnauthorizedException();
 
     const givenName = info.given_name || null;
+    // IN-02: Anmeldung über Microsoft oder Google prüfen, bevor die Person angelegt wird
+    const sso = await this.sso.check(auth.userId, info);
     await this.accounts.syncUser({
       userId: auth.userId,
       name: info.name,
@@ -49,19 +53,26 @@ export class MeService {
       login,
       tokenRoles: auth.tokenRoles,
       browserLocale: login ? browserLocale : null,
+      sso,
     });
     // Der Guard kannte nur den Stand vor dem Abgleich; die Betreiber-Ansicht bleibt beim Kunden.
     const membership = auth.supportOrganization
       ? null
       : await this.accounts.membershipOf(auth.userId);
     const organization = auth.supportOrganization ?? membership?.organization ?? null;
+    // IN-02: Wer auf Freigabe wartet, hat noch keine Rolle und sieht nichts
+    const pendingApproval = !auth.supportOrganization && (membership?.approvalPending ?? false);
     const subject = {
-      orgRole: auth.supportOrganization ? ('viewer' as const) : (membership?.orgRole ?? null),
+      orgRole: auth.supportOrganization
+        ? ('viewer' as const)
+        : pendingApproval
+          ? null
+          : (membership?.orgRole ?? null),
       isControlling: membership?.isControlling ?? false,
       isOperator: auth.isOperator,
     };
 
-    const buyerSettings = organization?.buyer
+    const buyerSettings = organization?.buyer && !pendingApproval
       ? await this.tenant.run(
           { userId: auth.userId, organizationId: organization.id },
           async (tx) => {
@@ -104,11 +115,12 @@ export class MeService {
       orgRole: subject.orgRole,
       isControlling: subject.isControlling,
       isOperator: subject.isOperator,
+      pendingApproval,
       locale: await this.accounts.localeOf(auth.userId),
       ...buyerSettings,
       permissions: {
         viewOrganizationSettings: organization !== null && can(subject, 'organisation.sehen'),
-        viewBuyerAreas: organization?.buyer ?? false,
+        viewBuyerAreas: (organization?.buyer ?? false) && !pendingApproval,
         // Lieferanten nur mit Käuferfunktionen und Rolle; so fragt die Oberfläche gar nicht erst an.
         viewSuppliers: (organization?.buyer ?? false) && can(subject, 'lieferanten.sehen'),
         switchCustomer: can(subject, 'kunden.wechseln'),

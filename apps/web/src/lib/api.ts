@@ -85,6 +85,7 @@ import {
   type BriefSettings,
   type ColumnMap,
   type CreateApiKey,
+  type SaveSso,
   type DecideImportRows,
   type ImportBatchKind,
   type EditBriefAgenda,
@@ -100,6 +101,8 @@ import {
   importBatchListSchema,
   importBatchSchema,
   integrationsSchema,
+  ssoHintSchema,
+  ssoOverviewSchema,
   apiKeysSchema,
   createdApiKeySchema,
   myConnectionsSchema,
@@ -317,7 +320,15 @@ async function getJson<T extends z.ZodType>(
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
     },
   });
-  if (!res.ok) throw new ApiError(path, res.status, await forbiddenCode(res));
+  if (!res.ok) {
+    if (res.status !== 403) throw new ApiError(path, res.status);
+    // Bei 403 die Antwort mitgeben, damit die Oberfläche den Grund zeigt (z. B. IN-02 nur_sso)
+    const answer: unknown = await res
+      .clone()
+      .json()
+      .catch(() => null);
+    throw new ApiError(path, res.status, await forbiddenCode(res), answer);
+  }
   return schema.parse(await res.json());
 }
 
@@ -3911,3 +3922,43 @@ export const createApiKey = (accessToken: string, input: CreateApiKey) =>
 
 export const revokeApiKey = (accessToken: string, id: string) =>
   sendJson('POST', `${integrationsPath}/schluessel/${id}/widerrufen`, {}, apiKeysSchema, accessToken);
+
+/** IN-02: Führt eine Mail direkt zu Microsoft oder Google? (Anmeldeseite, ohne Login) */
+export async function ssoHint(email: string) {
+  const res = await fetch('/api/anmeldung/sso', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) return { provider: null, scope: null };
+  return ssoHintSchema.parse(await res.json());
+}
+
+/** IN-02: Anmeldung über Microsoft und Google (Einstellungen › Anbindungen) */
+export const ssoQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['anbindungen', 'anmeldung'],
+    queryFn: () => getJson(`${integrationsPath}/anmeldung`, ssoOverviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveSso = (accessToken: string, provider: 'entra' | 'google', input: SaveSso) =>
+  sendJson('PUT', `${integrationsPath}/anmeldung/${provider}`, input, ssoOverviewSchema, accessToken);
+
+export const verifySsoDomain = (accessToken: string, provider: 'entra' | 'google', domain: string) =>
+  sendJson(
+    'POST',
+    `${integrationsPath}/anmeldung/${provider}/domains/${encodeURIComponent(domain)}/bestaetigen`,
+    {},
+    ssoOverviewSchema,
+    accessToken,
+  );
+
+export const approveMember = (accessToken: string, id: string) =>
+  sendJson(
+    'POST',
+    `/organisation/mitglieder/${encodeURIComponent(id)}/freigeben`,
+    {},
+    organizationMemberSchema,
+    accessToken,
+  );

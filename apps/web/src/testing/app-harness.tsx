@@ -37,6 +37,7 @@ export const anna: MeResponse = {
   orgRole: 'member',
   isControlling: false,
   isOperator: false,
+  pendingApproval: false,
   locale: 'de',
   categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
   permissions: {
@@ -178,6 +179,7 @@ export const sampleOrganization: OrganizationResponse = {
       orgRole: 'member',
       isControlling: false,
       defaultFunction: null,
+      approvalPending: false,
     },
     {
       id: 'ben',
@@ -186,6 +188,7 @@ export const sampleOrganization: OrganizationResponse = {
       orgRole: 'admin',
       isControlling: true,
       defaultFunction: 'quality',
+      approvalPending: false,
     },
   ],
 };
@@ -244,7 +247,13 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   api.requests.push({ url, customer: headers.get('x-reziproq-support-org') });
   if (url === '/api/health') return Response.json({ status: 'ok' });
   // Der Einladungslink ist öffentlich (LIF-01a): ohne Token, nur über eigene Antworten des Tests.
-  if (!authorized && !url.startsWith('/api/einladungen/') && !url.startsWith('/api/umfrage/')) {
+  if (
+    !authorized &&
+    !url.startsWith('/api/einladungen/') &&
+    !url.startsWith('/api/umfrage/') &&
+    // IN-02: Hinweis zur Firmenanmeldung auf der Anmeldeseite, ohne Login
+    !url.startsWith('/api/anmeldung/')
+  ) {
     return Response.json({ statusCode: 401 }, { status: 401 });
   }
   const own = api.handle?.({

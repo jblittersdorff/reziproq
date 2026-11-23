@@ -40,6 +40,8 @@ export const meResponseSchema = z.object({
   orgRole: z.enum(orgRoles).nullable().default(null),
   /** Zusatzrolle Controlling (PLT-05) */
   isControlling: z.boolean().default(false),
+  /** IN-02: über die Firmen-Domain angelegt, wartet auf Freigabe durch einen Admin */
+  pendingApproval: z.boolean().default(false),
   /** Betreiber-Team von Reziproq (PLT-13); bis UMB-01 aus dem Zitadel-Token */
   isOperator: z.boolean().default(false),
   /** Gespeicherte Sprache (PLT-09); ohne gespeicherte Sprache Deutsch. */

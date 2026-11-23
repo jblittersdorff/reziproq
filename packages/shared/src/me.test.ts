@@ -10,6 +10,7 @@ const ada = {
   orgRole: null,
   isControlling: false,
   isOperator: true,
+  pendingApproval: false,
   locale: 'en',
   categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
   permissions: {

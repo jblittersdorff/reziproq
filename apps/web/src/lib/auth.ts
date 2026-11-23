@@ -26,6 +26,11 @@ export const callbackPath = '/auth/callback';
  * offline_access liefert einen Refresh Token, mit dem die App das Access Token vor Ablauf im
  * Hintergrund erneuert. Nach einem Neuladen holt eine kurze Weiterleitung zu Zitadel die Sitzung.
  */
+// Projektrollen ins Token (PLT-13) und die Zitadel-Organisation des Nutzers für die Zuordnung
+// zur Organisation beim Login (PLT-02).
+export const oidcScope =
+  'openid profile email offline_access urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner';
+
 export function oidcConfig({
   settings,
   origin,
@@ -41,10 +46,7 @@ export function oidcConfig({
     redirect_uri: `${origin}${callbackPath}`,
     post_logout_redirect_uri: origin,
     response_type: 'code',
-    // Projektrollen ins Token (PLT-13) und die Zitadel-Organisation des Nutzers für die Zuordnung
-    // zur Organisation beim Login (PLT-02).
-    scope:
-      'openid profile email offline_access urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner',
+    scope: oidcScope,
     userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
     automaticSilentRenew: true,
     onSigninCallback,

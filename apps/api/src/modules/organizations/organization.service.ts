@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { and, asc, auditedChange, eq, schema, type TenantTransaction } from '@reziproq/db';
 import type {
+  DueItem,
   OrganizationMember,
   OrganizationResponse,
   UpdateMemberRequest,
@@ -112,6 +113,62 @@ export class OrganizationService {
       throw error;
     }
   }
+
+  /**
+   * IN-02: Neue Person aus der Firmen-Domain freigeben. Erst danach gelten ihre Rolle und can().
+   * Nur Admins (Policy app_user_rollen_aendern), mit internem Verlauf.
+   */
+  async approve(auth: AuthContext, userId: string): Promise<OrganizationMember> {
+    const organization = this.required(auth);
+    return this.run(auth, organization, async (tx) => {
+      const before = await memberOf(tx, organization.id, userId);
+      if (!before.approvalPending) return before;
+      const actor = await actorOf(tx, auth, organization.id);
+      await auditedChange(tx, actor, userRoleAudit, async () => {
+        await tx
+          .update(schema.appUser)
+          .set({ approvalPending: false })
+          .where(eq(schema.appUser.id, userId));
+        return {
+          objectId: userId,
+          relationshipId: null,
+          action: 'updated',
+          before: { approval_pending: true },
+          after: { approval_pending: false },
+          result: undefined,
+        };
+      });
+      return memberOf(tx, organization.id, userId);
+    });
+  }
+
+  /** IN-02: Aufgabe „Neue Person prüfen“ für Admins, je wartender Person */
+  async dueItems(auth: AuthContext): Promise<DueItem[]> {
+    const organization = auth.organization;
+    if (!organization || auth.orgRole !== 'admin') return [];
+    const waiting = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      (tx) =>
+        tx
+          .select({ id: schema.appUser.id, name: schema.appUser.name, createdAt: schema.appUser.createdAt })
+          .from(schema.appUser)
+          .where(
+            and(
+              eq(schema.appUser.organizationId, organization.id),
+              eq(schema.appUser.approvalPending, true),
+            ),
+          ),
+      { readOnly: true },
+    );
+    return waiting.map((person) => ({
+      id: `member-review-${person.id}`,
+      kind: 'member_review' as const,
+      supplier: '',
+      detail: person.name,
+      dueDate: person.createdAt.toISOString().slice(0, 10),
+      href: `/einstellungen/organisation/${encodeURIComponent(person.id)}`,
+    }));
+  }
 }
 
 const memberColumns = {
@@ -121,6 +178,7 @@ const memberColumns = {
   orgRole: schema.appUser.orgRole,
   isControlling: schema.appUser.isControlling,
   defaultFunction: schema.appUser.defaultFunction,
+  approvalPending: schema.appUser.approvalPending,
 };
 
 function membersOf(tx: TenantTransaction, organizationId: string) {

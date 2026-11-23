@@ -4,6 +4,8 @@ import {
   apiObjectTypes,
   type Integrations,
   type MyConnections,
+  type SsoOverview,
+  type SsoProvider,
   supportedApiObjectTypes,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
 import { CheckboxGroup, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
+import { Textarea } from '@/components/ui/textarea';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Monogram } from '@/components/ui/monogram';
@@ -37,6 +41,9 @@ import {
   myConnectionsQueryOptions,
   revokeApiKey,
   saveIntegrationParts,
+  saveSso,
+  ssoQueryOptions,
+  verifySsoDomain,
 } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -417,6 +424,8 @@ function ManagePanel({
         </div>
       )}
       {connector.key === 'import_api' && <ApiKeysSection />}
+      {connector.key === 'microsoft365' && <SsoSection provider="entra" />}
+      {connector.key === 'google_workspace' && <SsoSection provider="google" />}
       <div className="flex flex-col gap-2">
         <span className="font-semibold text-sm">{text.lastJobTitle}</span>
         <span className="text-muted-foreground text-sm">
@@ -451,6 +460,203 @@ function ManagePanel({
         </ConfirmButton>
       </div>
     </div>
+  );
+}
+
+/**
+ * IN-02: Anmeldung über das Firmenkonto (Microsoft Entra ID oder Google Workspace): Mandant bzw.
+ * Domain, Domains mit DNS-Eintrag und „Domain bestätigen“, Standardrolle, „Nur noch über …“.
+ */
+function SsoSection({ provider }: { provider: SsoProvider }) {
+  const t = useT();
+  const text = t.integrations.sso;
+  const accessToken = useAccessToken();
+  const client = useQueryClient();
+  const query = useQuery({ ...ssoQueryOptions(accessToken), enabled: accessToken !== '' });
+  const current = query.data?.[provider] ?? null;
+  const [form, setForm] = useState<{
+    target: string;
+    domains: string;
+    defaultRole: 'admin' | 'member' | 'viewer';
+    ssoOnly: boolean;
+  } | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; tone: 'success' | 'warning' } | null>(
+    null,
+  );
+  const values = form ?? {
+    target: (provider === 'entra' ? current?.tenantId : current?.hostedDomain) ?? '',
+    domains: current?.domains.map((entry) => entry.domain).join('\n') ?? '',
+    defaultRole: current?.defaultRole ?? 'viewer',
+    ssoOnly: current ? !current.passwordLoginAllowed : false,
+  };
+  const update = (change: Partial<typeof values>) => setForm({ ...values, ...change });
+  const store = (value: SsoOverview) =>
+    client.setQueryData(ssoQueryOptions(accessToken).queryKey, value);
+  const fail = (failure: unknown) => {
+    const code = errorCode(failure);
+    setMessage({ text: (code && text.errors[code]) || t.integrations.failed, tone: 'warning' });
+  };
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setBusy('save');
+    setMessage(null);
+    try {
+      store(
+        await saveSso(accessToken, provider, {
+          tenantId: provider === 'entra' ? values.target.trim() || null : null,
+          hostedDomain: provider === 'google' ? values.target.trim() || null : null,
+          domains: values.domains
+            .split(/[\s,;]+/)
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean),
+          defaultRole: values.defaultRole,
+          passwordLoginAllowed: !values.ssoOnly,
+        }),
+      );
+      setForm(null);
+      setMessage({ text: text.saved, tone: 'success' });
+    } catch (failure) {
+      fail(failure);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const verify = async (domain: string) => {
+    setBusy(domain);
+    setMessage(null);
+    try {
+      const result = await verifySsoDomain(accessToken, provider, domain);
+      store(result);
+      if (!result[provider]?.domains.find((entry) => entry.domain === domain)?.verifiedAt) {
+        setMessage({ text: text.verifyFailed, tone: 'warning' });
+      }
+    } catch (failure) {
+      fail(failure);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const ids = { target: `${provider}-sso-ziel`, only: `${provider}-sso-nur` };
+
+  return (
+    <section aria-labelledby={`${provider}-sso`} className="flex flex-col gap-3">
+      <h3 id={`${provider}-sso`} className="flex flex-wrap items-center gap-2 font-semibold text-sm">
+        {text.title}
+        {current && (
+          <Badge variant={current.status === 'active' ? 'success' : 'warning'}>
+            {current.status === 'active' ? text.statusActive : text.statusDraft}
+          </Badge>
+        )}
+      </h3>
+      <p className="text-muted-foreground text-sm">
+        {provider === 'entra' ? text.hintEntra : text.hintGoogle}
+      </p>
+      {query.isError ? (
+        <ErrorState title={t.integrations.failed} />
+      ) : !query.data ? (
+        <LoadingState label={t.integrations.loading} />
+      ) : (
+        <>
+          {current && current.domains.length > 0 && (
+            <ul className="flex flex-col divide-y divide-line-soft rounded-md bg-card px-3">
+              {current.domains.map((entry) => (
+                <li key={entry.domain} className="flex flex-col gap-2 py-3">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <strong className="break-all text-sm">{entry.domain}</strong>
+                    <Badge variant={entry.verifiedAt ? 'success' : 'neutral'}>
+                      {entry.verifiedAt ? text.verified : text.unverified}
+                    </Badge>
+                  </span>
+                  {!entry.verifiedAt && (
+                    <>
+                      <code className="break-all text-muted-foreground text-sm">
+                        {text.record(entry.recordName, entry.recordValue)}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="self-start"
+                        loading={busy === entry.domain}
+                        onClick={() => void verify(entry.domain)}
+                      >
+                        {text.verify}
+                      </Button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {message && <StatusLine message={message.text} tone={message.tone} />}
+          <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-3">
+            <FormField label={provider === 'entra' ? text.tenantLabel : text.hostedDomainLabel}>
+              {(field) => (
+                <Input
+                  {...field}
+                  value={values.target}
+                  maxLength={253}
+                  onChange={(event) => update({ target: event.target.value })}
+                />
+              )}
+            </FormField>
+            <FormField label={text.domainsLabel} hint={text.domainsHint}>
+              {(field) => (
+                <Textarea
+                  {...field}
+                  rows={2}
+                  value={values.domains}
+                  onChange={(event) => update({ domains: event.target.value })}
+                />
+              )}
+            </FormField>
+            <FormField label={text.roleLabel}>
+              {(field) => (
+                <NativeSelect
+                  {...field}
+                  value={values.defaultRole}
+                  onChange={(event) =>
+                    update({ defaultRole: event.target.value as typeof values.defaultRole })
+                  }
+                >
+                  {(['viewer', 'member', 'admin'] as const).map((role) => (
+                    <option key={role} value={role}>
+                      {t.roles[role]}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+            </FormField>
+            <div className="flex items-start gap-3">
+              <Switch
+                id={ids.only}
+                checked={values.ssoOnly}
+                onCheckedChange={(checked) => update({ ssoOnly: checked })}
+                aria-describedby={`${ids.only}-hinweis`}
+              />
+              <span className="flex flex-col gap-1">
+                <label htmlFor={ids.only} className="text-base">
+                  {provider === 'entra' ? text.passwordOnlyEntra : text.passwordOnlyGoogle}
+                </label>
+                <span id={`${ids.only}-hinweis`} className="text-muted-foreground text-sm">
+                  {text.passwordOnlyHint}
+                </span>
+              </span>
+            </div>
+            <Button
+              type="submit"
+              variant="outline"
+              className="self-start"
+              loading={busy === 'save'}
+              disabled={!values.target.trim() || !values.domains.trim()}
+            >
+              {text.save}
+            </Button>
+          </form>
+        </>
+      )}
+    </section>
   );
 }
 

@@ -19,6 +19,7 @@ import { HealthModule } from './modules/health/health.module.js';
 import { HintsModule } from './modules/hints/hints.module.js';
 import { ImportsModule } from './modules/imports/imports.module.js';
 import { IntegrationsModule } from './modules/integrations/integrations.module.js';
+import { SsoModule } from './modules/sso/sso.module.js';
 import { ImpactModule } from './modules/impact/impact.module.js';
 import { InvitationsModule } from './modules/invitations/invitations.module.js';
 import { JbpModule } from './modules/jbp/jbp.module.js';
@@ -83,6 +84,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     HintsModule,
     ImportsModule,
     IntegrationsModule,
+    SsoModule,
     SearchModule,
     MaterialGroupsModule,
     ActivitiesModule,

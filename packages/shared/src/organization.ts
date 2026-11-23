@@ -10,6 +10,8 @@ export const organizationMemberSchema = z.object({
   orgRole: z.enum(orgRoles),
   isControlling: z.boolean(),
   defaultFunction: z.enum(userFunctions).nullable(),
+  /** IN-02: über die Firmen-Domain angelegt, wartet auf Freigabe */
+  approvalPending: z.boolean().default(false),
 });
 
 export const organizationResponseSchema = z.object({

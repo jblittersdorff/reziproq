@@ -192,6 +192,11 @@ Entschieden am 23.11.2026:
   Agenten unter Einstellungen › KI, Wertpotenziale unter Ergebnisse und `/uebersicht/wertpotenziale`.
 - **F14:** KI-15 wird auf den Bestand abgebildet: Lieferant = Organisation mit Beziehung des Käufers,
   Warengruppe = `material_group`, Alias und Regeln je Käufer; der Import aus PLT-07 wird erweitert.
+- **F10 (23.11.2026):** Entra und Google föderieren über den bestehenden Zitadel-Issuer; Reziproq
+  richtet Anbieter, Domains und Passwort-Regel über die Zitadel-Schnittstelle ein und prüft beim
+  Anmelden Mandant, `hd`, bestätigte Domain und Anbieter + Subject (`user_identity`). Neue Personen
+  aus der Domain bekommen die Standardrolle, sehen aber nichts, bis ein Admin sie freigibt
+  („Neue Person prüfen“).
 
 ## Offene Frage aus der Umsetzung (23.11.2026)
 

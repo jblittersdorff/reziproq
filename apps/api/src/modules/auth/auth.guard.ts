@@ -108,8 +108,9 @@ export class AuthGuard implements CanActivate {
     } else {
       const membership = await this.accounts.membershipOf(auth.userId);
       auth.organization = membership?.organization ?? null;
-      auth.orgRole = membership?.orgRole ?? null;
-      auth.isControlling = membership?.isControlling ?? false;
+      // IN-02: über die Firmen-Domain angelegt und noch nicht freigegeben: keine Rolle, also kein can()
+      auth.orgRole = membership?.approvalPending ? null : (membership?.orgRole ?? null);
+      auth.isControlling = membership?.approvalPending ? false : (membership?.isControlling ?? false);
     }
 
     // Ohne Organisation nur /me und der Betreiber-Zugang (PLT-02).

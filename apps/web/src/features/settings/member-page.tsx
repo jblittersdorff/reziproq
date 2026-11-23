@@ -9,13 +9,14 @@ import { ErrorState } from '@/components/ui/error-state';
 import { FormActions, FormField } from '@/components/ui/form-field';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { NextStep } from '@/components/ui/next-step';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { AuditHistory } from '@/features/audit/audit-history';
 import { useCan } from '@/features/auth/use-permissions';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
-import { ApiError, memberQueryOptions, updateMember } from '@/lib/api';
+import { ApiError, approveMember, memberQueryOptions, updateMember } from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 
@@ -57,6 +58,9 @@ export function MemberPage({ userId }: { userId: string }) {
     <>
       <PagePath trail={trail} current={member.data.name} />
       <PageHeader title={member.data.name} purpose={t.settings.memberPurpose} />
+      {member.data.approvalPending && (
+        <ApproveMember member={member.data} accessToken={accessToken} />
+      )}
       <MemberForm member={member.data} accessToken={accessToken} />
       <section aria-labelledby="mitglied-verlauf" className="flex flex-col gap-4">
         <h2 id="mitglied-verlauf" className="font-semibold text-lg">
@@ -65,6 +69,46 @@ export function MemberPage({ userId }: { userId: string }) {
         <AuditHistory objectType="app_user_role" objectId={member.data.id} />
       </section>
     </>
+  );
+}
+
+/**
+ * IN-02: Neue Person aus der Firmen-Domain prüfen. Tinte-Karte mit genau einer Hauptaktion; bis zur
+ * Freigabe sieht die Person nichts (can() im Backend).
+ */
+function ApproveMember({ member, accessToken }: { member: OrganizationMember; accessToken: string }) {
+  const t = useT();
+  const queryClient = useQueryClient();
+  const canChange = useCan('rollen.aendern');
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const approve = async () => {
+    setBusy(true);
+    setFailed(false);
+    try {
+      const approved = await approveMember(accessToken, member.id);
+      queryClient.setQueryData(memberQueryOptions(accessToken, member.id).queryKey, approved);
+      await queryClient.invalidateQueries({ queryKey: ['organisation'] });
+      await queryClient.invalidateQueries({ queryKey: ['start'] });
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <NextStep
+      eyebrow={t.settings.pendingBadge}
+      title={t.settings.approveTitle}
+      text={failed ? t.settings.memberFailed : t.settings.approveText}
+      {...(canChange && {
+        action: (
+          <Button variant="mint" size="hero" loading={busy} onClick={() => void approve()}>
+            {t.settings.approve}
+          </Button>
+        ),
+      })}
+    />
   );
 }
 

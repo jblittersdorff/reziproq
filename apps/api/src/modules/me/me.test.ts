@@ -60,6 +60,7 @@ describe('GET /api/me', () => {
       orgRole: null,
       isControlling: false,
       isOperator: false,
+      pendingApproval: false,
       // Ohne gespeicherte Sprache Deutsch (PLT-09).
       locale: 'de',
       // WG-01: ohne Organisation die Vorgabe

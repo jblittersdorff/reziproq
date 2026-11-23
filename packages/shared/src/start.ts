@@ -25,6 +25,8 @@ export const dueKinds = [
   'hint_rule_review',
   // IN-01: Verbindung mit Fehler, etwa wenn das Erneuern der Zugangsdaten scheiterte
   'connection_renew',
+  // IN-02: neue Person aus der Firmen-Domain prüfen und freigeben (nur Admins)
+  'member_review',
 ] as const;
 
 export const dueItemSchema = z.object({

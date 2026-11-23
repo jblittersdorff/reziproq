@@ -60,6 +60,12 @@ export interface AccountSync {
   tokenRoles: readonly string[];
   /** Browsersprache beim Login; gilt nur, solange keine Sprache gespeichert ist (PLT-09). */
   browserLocale: UserLocale | null;
+  /** IN-02: Anmeldung über die Firmen-Domain; nur beim Anlegen einer neuen Person wirksam */
+  sso?: {
+    defaultRole: OrgRole;
+    pending: boolean;
+    identity: { provider: 'entra' | 'google'; subject: string };
+  } | null | undefined;
 }
 
 /** Organisation einer Person mit ihrer Rolle darin (PLT-05). */
@@ -67,6 +73,18 @@ export interface AccountMembership {
   organization: AccountOrganization;
   orgRole: OrgRole;
   isControlling: boolean;
+  /** IN-02: über die Firmen-Domain angelegt und noch nicht von einem Admin freigegeben */
+  approvalPending: boolean;
+}
+
+/** IN-02: Anmeldung über Microsoft oder Google einer Organisation */
+export interface OrganizationSso {
+  provider: 'entra' | 'google';
+  tenantId: string | null;
+  hostedDomain: string | null;
+  domains: string[];
+  defaultRole: OrgRole;
+  passwordLoginAllowed: boolean;
 }
 
 /**
@@ -80,8 +98,54 @@ export class AccountStore {
   async syncUser(user: AccountSync): Promise<void> {
     await this.db.execute(sql`select app_nutzer_synchronisieren(
       ${user.userId}, ${user.name}, ${user.givenName}, ${user.email}, ${user.zitadelOrgId},
-      ${user.login}, ${`{${user.tokenRoles.join(',')}}`}::text[], ${user.browserLocale}
+      ${user.login}, ${`{${user.tokenRoles.join(',')}}`}::text[], ${user.browserLocale},
+      ${user.sso?.defaultRole ?? null}, ${user.sso?.pending ?? null},
+      ${user.sso?.identity.provider ?? null}, ${user.sso?.identity.subject ?? null}
     )`);
+  }
+
+  /** IN-02: aktive Anmeldung über Microsoft oder Google zur Zitadel-Organisation der Person */
+  async ssoOfOrganization(zitadelOrgId: string): Promise<OrganizationSso[]> {
+    const result = await this.db.execute<{
+      provider: 'entra' | 'google';
+      tenant_id: string | null;
+      hosted_domain: string | null;
+      domains: string[];
+      default_role: OrgRole;
+      password_login_allowed: boolean;
+    }>(sql`select * from app_sso_der_organisation(${zitadelOrgId})`);
+    return result.rows.map((row) => ({
+      provider: row.provider,
+      tenantId: row.tenant_id,
+      hostedDomain: row.hosted_domain,
+      domains: row.domains,
+      defaultRole: row.default_role,
+      passwordLoginAllowed: row.password_login_allowed,
+    }));
+  }
+
+  /** IN-02: Anmeldung über Microsoft oder Google für eine bestätigte Domain (Anmeldeseite, Sperre) */
+  async ssoOfDomain(
+    domain: string,
+  ): Promise<{ provider: 'entra' | 'google'; passwordLoginAllowed: boolean; idpRef: string | null }[]> {
+    const result = await this.db.execute<{
+      provider: 'entra' | 'google';
+      password_login_allowed: boolean;
+      idp_ref: string | null;
+    }>(sql`select * from app_sso_der_domain(${domain})`);
+    return result.rows.map((row) => ({
+      provider: row.provider,
+      passwordLoginAllowed: row.password_login_allowed,
+      idpRef: row.idp_ref,
+    }));
+  }
+
+  /** IN-02: Person zu einer externen Identität (Anbieter + Subject) */
+  async identityOwner(provider: string, subject: string): Promise<string | null> {
+    const result = await this.db.execute<{ owner: string | null }>(
+      sql`select app_identitaet(${provider}, ${subject}) as owner`,
+    );
+    return result.rows[0]?.owner ?? null;
   }
 
   /** Gespeicherte Sprache (PLT-09); ohne gespeicherte Sprache Deutsch. */
@@ -99,14 +163,19 @@ export class AccountStore {
 
   async membershipOf(userId: string): Promise<AccountMembership | null> {
     const result = await this.db.execute<
-      AccountOrganization & { org_role: OrgRole; is_controlling: boolean }
+      AccountOrganization & { org_role: OrgRole; is_controlling: boolean; approval_pending: boolean }
     >(
-      sql`select id, name, country, buyer, org_role, is_controlling from app_organisation_des_nutzers(${userId})`,
+      sql`select id, name, country, buyer, org_role, is_controlling, approval_pending from app_organisation_des_nutzers(${userId})`,
     );
     const row = result.rows[0];
     if (!row) return null;
-    const { org_role, is_controlling, ...organization } = row;
-    return { organization, orgRole: org_role, isControlling: is_controlling };
+    const { org_role, is_controlling, approval_pending, ...organization } = row;
+    return {
+      organization,
+      orgRole: org_role,
+      isControlling: is_controlling,
+      approvalPending: approval_pending,
+    };
   }
 
   /** Betreiber-Team von Reziproq (UMB-01): nur das Flag in der Datenbank zählt. */

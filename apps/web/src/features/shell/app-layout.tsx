@@ -4,6 +4,7 @@ import { GlobalBar } from '@/components/ui/global-bar';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { SupportBanner } from '@/features/support/support-banner';
+import { ApiError } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { LocalBarSlotProvider } from './local-bar-slot';
 import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
@@ -150,6 +151,11 @@ function ContentGate() {
     paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   const open = within(alwaysOpen);
 
+  // IN-02: Anmeldung über das Firmenkonto abgelehnt (falscher Mandant, nur SSO …): klarer Hinweis
+  const rejection =
+    me.error instanceof ApiError ? (me.error.body as { code?: string } | null)?.code : undefined;
+  const rejected = rejection ? t.organization.signInRejected[rejection] : undefined;
+  if (rejected) return <Notice>{rejected}</Notice>;
   // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
   if (!me.data && within(['/mein-tag', '/uebersicht']))
     return <Notice>{me.isError ? t.user.failed : t.user.loading}</Notice>;
@@ -162,6 +168,8 @@ function ContentGate() {
       </Notice>
     );
   }
+  // IN-02: über die Firmen-Domain angelegt; bis zur Freigabe nur dieser Hinweis
+  if (me.data.pendingApproval) return <Notice>{t.organization.pendingApproval}</Notice>;
   if (!me.data.permissions.viewBuyerAreas) {
     // Lieferantenseite (LIF-02): Start und Kunden; Käuferadressen zeigen einen klaren Hinweis.
     if (me.data.permissions.viewCustomers && within(supplierPaths)) return <Outlet />;
