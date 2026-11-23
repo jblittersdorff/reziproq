@@ -450,7 +450,41 @@ async function mock(page: Page) {
         confirmedCount: 2,
         researchedAt: '2026-11-14T09:00:00Z',
         sourceCount: 4,
-        publicResearch: false,
+        publicResearch: true,
+        // KI-08: Protokoll des letzten Laufs
+        run: {
+          id: uuid(97),
+          status: 'done',
+          createdAt: '2026-11-14T09:00:00Z',
+          startedBy: 'Lena Berger',
+          publicResearch: true,
+          steps: [
+            'plan',
+            'own_data',
+            'public_sources',
+            'forces',
+            'check',
+            'implications',
+            'drafts',
+          ].map((key) => ({ key, status: 'done' })),
+          ownSources: ['Interne Analyse · Volumen', 'Spend 2025 der Warengruppe'],
+          publicSources: [
+            {
+              title: 'Kupferindex Monatsstand',
+              url: 'https://index-one.example.test/kupfer',
+              publisher: 'Index One',
+              publishedOn: '2026-10-14',
+            },
+          ],
+          discardedSources: [{ title: 'Marktbericht Leiterplatten 2022', reason: 'too_old' }],
+          outbound: [
+            { text: 'Leiterplatten Marktentwicklung', sentAt: '2026-11-14T09:00:01Z' },
+            { text: 'Leiterplatten Rohstoffpreise', sentAt: '2026-11-14T09:00:02Z' },
+          ],
+          blockedQueries: 0,
+          discardedPoints: [{ text: 'Die Kapazität wird ab 2028 knapp.', reason: 'not_supported' }],
+          created: { forces: 6, opportunities: 1, threats: 1, levers: 2 },
+        },
         synthesisDraft: {
           id: uuid(96),
           text: 'Die Macht der Lieferanten und knappe Kapazität ab 2028 sind das größte Risiko.',
@@ -716,6 +750,7 @@ for (const width of [390, 1440]) {
     for (const [name, path, title] of pages) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
+      if (name === 'markt') await page.getByText('Was Reziproq gemacht hat').click();
       await page.waitForLoadState('networkidle');
       expect(
         await page.evaluate(

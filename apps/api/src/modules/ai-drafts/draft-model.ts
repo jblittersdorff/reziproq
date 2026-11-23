@@ -83,8 +83,29 @@ export class TestDraftModel implements DraftModel {
 
   async write(request: DraftRequest): Promise<string> {
     TestDraftModel.requests.push(request);
+    if (request.prompt.startsWith('Implikationen:')) {
+      // KI-08: je eine Chance und ein Risiko mit Quelle und Hebelvorschlag
+      return JSON.stringify({
+        items: [
+          {
+            type: 'threat',
+            text: 'Wenige Lieferanten tragen den Umsatz; fällt einer aus, wird die Versorgung knapp.',
+            sources: ['Q1'],
+            lever: 'Neue Lieferanten einführen',
+          },
+          {
+            type: 'opportunity',
+            text: 'Umsatz bei weniger Lieferanten bündeln stärkt die Verhandlungsposition.',
+            sources: ['Q1'],
+            lever: 'Volumen bei weniger Lieferanten bündeln',
+          },
+        ],
+      });
+    }
     if (request.prompt.startsWith('Marktkräfte:')) {
       // WG-09: sechs Kräfte; je Kraft ein Punkt ohne gültige Quelle, den Reziproq verwerfen muss.
+      // KI-08: dazu ein Punkt, den seine Quelle nicht stützt, und mit Recherche ein öffentlicher.
+      const publicSource = /^(Q\d+) \[öffentlich\]/m.exec(request.prompt)?.[1];
       const forces = [
         'supplier_power',
         'customer_power',
@@ -104,8 +125,20 @@ export class TestDraftModel implements DraftModel {
               text: `Zwei Lieferanten tragen den größten Teil des Umsatzes (${force}).`,
               sources: ['Q1'],
             },
-            { text: 'Die Kapazität wird ab 2028 knapp.', sources: ['Q1', 'Q2'] },
+            {
+              text: 'Wenige Lieferanten tragen den Umsatz der Warengruppe.',
+              sources: ['Q1', 'Q2'],
+            },
             { text: 'Eine Aussage ohne Beleg.', sources: ['Q99'] },
+            { text: 'Die Kapazität wird ab 2028 knapp.', sources: ['Q1'] },
+            ...(publicSource
+              ? [
+                  {
+                    text: 'Der Kupferindex liegt unter dem Stand bei Preisfestlegung.',
+                    sources: [publicSource],
+                  },
+                ]
+              : []),
           ],
         })),
         synthesis: 'Die Macht der Lieferanten und knappe Kapazität sind das größte Risiko.',

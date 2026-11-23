@@ -2227,12 +2227,50 @@ export const de = {
     headNone: 'Noch kein Entwurf',
     progress: (confirmed: number, waiting: number) =>
       `${confirmed} von 6 Kräften bestätigt${waiting > 0 ? `, ${waiting} warten auf euch` : ''}`,
-    basis: (sources: number) =>
-      `Grundlage: eure Analysen und eigene Daten, ${sources} ${sources === 1 ? 'Quelle' : 'Quellen'}. Öffentliche Recherche ist aus. Jede Aussage nennt ihre Quelle. Ohne eure Bestätigung geht nichts in die Bewertung.`,
+    basis: (sources: number, publicResearch: boolean) =>
+      `Grundlage: eure Analysen und eigene Daten${publicResearch ? ' sowie öffentliche Quellen' : ''}, ${sources} ${sources === 1 ? 'Quelle' : 'Quellen'}. ${publicResearch ? '' : 'Öffentliche Recherche ist aus. '}Jede Aussage nennt ihre Quelle. Ohne eure Bestätigung geht nichts in die Bewertung.`,
     basisNone:
       'Reziproq entwirft die Einschätzung aus euren Analysen. Ihr könnt jede Kraft auch von Hand ausfüllen.',
     research: 'Neu recherchieren',
-    requestDraft: 'Entwurf anfordern',
+    requestDraft: 'Recherche starten',
+    running: 'Recherche läuft …',
+    protocol: 'Was Reziproq gemacht hat',
+    protocolSummary: (date: string, name: string | null) =>
+      `Lauf vom ${date}${name ? ` · gestartet von ${name}` : ''}`,
+    runSteps: {
+      plan: 'Suchfragen festlegen',
+      own_data: 'Eigene Daten lesen',
+      public_sources: 'Öffentliche Quellen suchen',
+      forces: 'Sechs Kräfte einschätzen',
+      check: 'Aussagen gegen Quellen prüfen',
+      implications: 'Chancen, Risiken und Hebel ableiten',
+      drafts: 'Entwürfe anlegen',
+    } as Record<string, string>,
+    stepStatus: { running: 'läuft', done: 'fertig', failed: 'fehlgeschlagen' } as Record<
+      string,
+      string
+    >,
+    ownSources: 'Eigene Daten',
+    publicSources: 'Öffentliche Quellen',
+    noPublic: 'Keine öffentlichen Quellen: Recherche ist aus.',
+    discardedSources: 'Verworfene Quellen',
+    sourceReasons: { too_old: 'älter als 24 Monate', undated: 'ohne Datum' } as Record<
+      string,
+      string
+    >,
+    outbound: 'Was nach außen ging',
+    noOutbound: 'Nichts.',
+    blocked: (n: number) =>
+      n === 1
+        ? '1 Suchfrage nicht gesendet: Sie enthielt Zahlen aus euren Daten.'
+        : `${n} Suchfragen nicht gesendet: Sie enthielten Zahlen aus euren Daten.`,
+    discardedPoints: 'Verworfene Aussagen',
+    pointReasons: {
+      no_source: 'ohne gültige Quelle',
+      not_supported: 'Quelle stützt die Aussage nicht',
+    } as Record<string, string>,
+    created: (opportunities: number, threats: number, levers: number) =>
+      `Angelegt: sechs Kräfte, ${opportunities} ${opportunities === 1 ? 'Chance' : 'Chancen'}, ${threats} ${threats === 1 ? 'Risiko' : 'Risiken'} und ${levers} ${levers === 1 ? 'Hebelvorschlag' : 'Hebelvorschläge'} in Schritt 6.`,
     noSources:
       'Ohne Analysen und Spend hat Reziproq keine Grundlage. Füllt die Kräfte von Hand aus.',
     draftFailed: 'Der Entwurf ist nicht gelungen. Bitte später noch einmal versuchen.',

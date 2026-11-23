@@ -2,6 +2,7 @@ import {
   type MarketAnalysis,
   type MarketForce,
   type MarketForceKey,
+  type MarketRun,
   marketForceKeys,
   marketForceQuestionKey,
   marketSynthesisQuestionKey,
@@ -118,7 +119,7 @@ export function MarketSection({
             {text.progress(data.confirmedCount, waiting)}
           </h2>
           <p className="text-muted-foreground text-sm">
-            {data.researchedAt ? text.basis(data.sourceCount) : text.basisNone}
+            {data.researchedAt ? text.basis(data.sourceCount, data.publicResearch) : text.basisNone}
           </p>
         </div>
         {canEdit && (
@@ -130,12 +131,19 @@ export function MarketSection({
             {data.researchedAt ? text.research : text.requestDraft}
           </Button>
         )}
+        {save.busy && (
+          <p role="status" className="basis-full text-muted-foreground text-sm">
+            {text.running}
+          </p>
+        )}
         {save.failure && (
           <div className="basis-full">
             <StatusLine message={save.failure} tone="warning" />
           </div>
         )}
       </section>
+
+      {data.run && <RunProtocol run={data.run} />}
 
       <ul className="grid gap-4 lg:grid-cols-2">
         {marketForceKeys.map((force) => (
@@ -534,5 +542,106 @@ function ForceForm({
         </Button>
       </FormActions>
     </form>
+  );
+}
+
+/**
+ * KI-08: Protokoll des letzten Laufs (Schicht 3, aufklappbar, nach Regeln): alle sieben Schritte
+ * mit Stand als Text, eigene und öffentliche Quellen, verworfene Quellen und Aussagen mit Grund
+ * und „Was nach außen ging“. Daten der Kostensicht stehen nie darin.
+ */
+function RunProtocol({ run }: { run: MarketRun }) {
+  const text = useT().market;
+  const format = useFormat();
+  return (
+    <details className="rounded-lg bg-card p-5 shadow-card">
+      <summary className="flex min-h-11 cursor-pointer flex-col justify-center">
+        <span className="font-semibold">{text.protocol}</span>
+        <span className="text-muted-foreground text-sm">
+          {text.protocolSummary(format.dateTime(run.createdAt), run.startedBy)}
+        </span>
+      </summary>
+      <div className="mt-4 flex flex-col gap-5 text-sm">
+        <ol className="flex flex-col gap-1">
+          {run.steps.map((entry, index) => (
+            <li key={entry.key} className="flex flex-wrap justify-between gap-2">
+              <span>
+                {index + 1}. {text.runSteps[entry.key]}
+              </span>
+              <span className="text-muted-foreground">{text.stepStatus[entry.status]}</span>
+            </li>
+          ))}
+        </ol>
+        <p>{text.created(run.created.opportunities, run.created.threats, run.created.levers)}</p>
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold">{text.ownSources}</h3>
+          <ul className="list-disc pl-5">
+            {run.ownSources.map((title) => (
+              <li key={title}>{title}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold">{text.publicSources}</h3>
+          {run.publicSources.length === 0 ? (
+            <p className="text-muted-foreground">{text.noPublic}</p>
+          ) : (
+            <ul className="list-disc pl-5">
+              {run.publicSources.map((source) => (
+                <li key={source.url} className="break-words">
+                  <a href={source.url} className="text-petrol underline" rel="noreferrer">
+                    {source.title}
+                  </a>{' '}
+                  · {source.publisher} · {format.date(source.publishedOn)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {run.discardedSources.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <h3 className="font-semibold">{text.discardedSources}</h3>
+            <ul className="list-disc pl-5">
+              {run.discardedSources.map((source) => (
+                <li key={source.title}>
+                  {source.title} · {text.sourceReasons[source.reason]}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {run.discardedPoints.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <h3 className="font-semibold">{text.discardedPoints}</h3>
+            <ul className="list-disc pl-5">
+              {[...new Map(run.discardedPoints.map((point) => [point.text, point])).values()].map(
+                (point) => (
+                  <li key={point.text}>
+                    {point.text} · {text.pointReasons[point.reason]}
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        )}
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold">{text.outbound}</h3>
+          {run.outbound.length === 0 ? (
+            <p className="text-muted-foreground">{text.noOutbound}</p>
+          ) : (
+            <ul className="list-disc pl-5">
+              {run.outbound.map((entry) => (
+                <li key={`${entry.text}-${entry.sentAt}`} className="break-words">
+                  {entry.text}
+                </li>
+              ))}
+            </ul>
+          )}
+          {run.blockedQueries > 0 && (
+            <p className="text-muted-foreground">{text.blocked(run.blockedQueries)}</p>
+          )}
+        </div>
+      </div>
+    </details>
   );
 }

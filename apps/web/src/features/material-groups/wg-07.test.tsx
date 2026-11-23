@@ -126,7 +126,15 @@ beforeEach(() => {
         comments: [],
         canComment: false,
       },
-      { view: 'technology', state: 'open', data: { technologies: [] }, updatedAt: null, assignees: [], comments: [], canComment: false },
+      {
+        view: 'technology',
+        state: 'open',
+        data: { technologies: [] },
+        updatedAt: null,
+        assignees: [],
+        comments: [],
+        canComment: false,
+      },
     ],
     computed: {
       currency: 'EUR',
@@ -270,7 +278,15 @@ describe('WG-07 Analysen', () => {
           comments: [],
           canComment: false,
         },
-        { view: 'footprint', state: 'open', data: { recipients: [] }, updatedAt: null, assignees: [], comments: [], canComment: false },
+        {
+          view: 'footprint',
+          state: 'open',
+          data: { recipients: [] },
+          updatedAt: null,
+          assignees: [],
+          comments: [],
+          canComment: false,
+        },
       ],
       candidates: [
         {

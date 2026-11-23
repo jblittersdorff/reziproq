@@ -2183,12 +2183,47 @@ export const en: Messages = {
     headNone: 'No draft yet',
     progress: (confirmed: number, waiting: number) =>
       `${confirmed} of 6 forces confirmed${waiting > 0 ? `, ${waiting} waiting for you` : ''}`,
-    basis: (sources: number) =>
-      `Based on your analyses and own data, ${sources} ${sources === 1 ? 'source' : 'sources'}. Public research is off. Every statement names its source. Nothing goes into the assessment without your confirmation.`,
+    basis: (sources: number, publicResearch: boolean) =>
+      `Based on your analyses and own data${publicResearch ? ' and public sources' : ''}, ${sources} ${sources === 1 ? 'source' : 'sources'}. ${publicResearch ? '' : 'Public research is off. '}Every statement names its source. Nothing goes into the assessment without your confirmation.`,
     basisNone:
       'Reziproq drafts the assessment from your analyses. You can also fill in each force by hand.',
     research: 'Research again',
-    requestDraft: 'Request draft',
+    requestDraft: 'Start research',
+    running: 'Research in progress …',
+    protocol: 'What Reziproq did',
+    protocolSummary: (date: string, name: string | null) =>
+      `Run of ${date}${name ? ` · started by ${name}` : ''}`,
+    runSteps: {
+      plan: 'Set search queries',
+      own_data: 'Read own data',
+      public_sources: 'Search public sources',
+      forces: 'Assess six forces',
+      check: 'Check statements against sources',
+      implications: 'Derive opportunities, threats and levers',
+      drafts: 'Create drafts',
+    } as Record<string, string>,
+    stepStatus: { running: 'running', done: 'done', failed: 'failed' } as Record<string, string>,
+    ownSources: 'Own data',
+    publicSources: 'Public sources',
+    noPublic: 'No public sources: research is off.',
+    discardedSources: 'Discarded sources',
+    sourceReasons: { too_old: 'older than 24 months', undated: 'undated' } as Record<
+      string,
+      string
+    >,
+    outbound: 'What went outside',
+    noOutbound: 'Nothing.',
+    blocked: (n: number) =>
+      n === 1
+        ? '1 search query not sent: it contained numbers from your data.'
+        : `${n} search queries not sent: they contained numbers from your data.`,
+    discardedPoints: 'Discarded statements',
+    pointReasons: {
+      no_source: 'no valid source',
+      not_supported: 'source does not support the statement',
+    } as Record<string, string>,
+    created: (opportunities: number, threats: number, levers: number) =>
+      `Created: six forces, ${opportunities} ${opportunities === 1 ? 'opportunity' : 'opportunities'}, ${threats} ${threats === 1 ? 'threat' : 'threats'} and ${levers} ${levers === 1 ? 'lever proposal' : 'lever proposals'} in step 6.`,
     noSources:
       'Without analyses and spend Reziproq has nothing to go on. Fill in the forces by hand.',
     draftFailed: 'The draft did not work. Please try again later.',

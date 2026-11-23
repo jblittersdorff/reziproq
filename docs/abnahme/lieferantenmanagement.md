@@ -116,7 +116,7 @@ Infrastruktur voraus. Ihr Umfang ist geklärt; sie bleiben in der Reihenfolge de
 
 | Spec | Titel | Schritt |
 |---|---|---|
-| KI-08 | Agent Marktanalyse | Schritt 25 (setzt Warengruppen voraus) |
+| KI-08 | Agent Marktanalyse | fertig in Schritt 25 (`apps/api/src/modules/material-groups/ki-08.test.ts`) |
 | KI-13 | Strategie-Autor | Schritt 33 (Strategie-Autor, Warengruppen) |
 | KI-18 | Dokumente und Fundstellen | Schritt 34 |
 | KI-19 | Vertragsleck | Schritt 35 |

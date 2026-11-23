@@ -55,6 +55,57 @@ export const marketForceSchema = assessmentSchema.extend({
   proposal: assessmentSchema.nullable(),
 });
 
+/** KI-08: Schritte des Laufs der Marktanalyse */
+export const marketRunStepKeys = [
+  'plan',
+  'own_data',
+  'public_sources',
+  'forces',
+  'check',
+  'implications',
+  'drafts',
+] as const;
+
+/**
+ * KI-08: Protokoll des letzten Laufs. Eigene Daten ohne Kostensicht; „Was nach außen ging“ sind nur
+ * die gesendeten Suchanfragen. Verworfene Quellen und Aussagen stehen mit Grund im Protokoll.
+ */
+export const marketRunSchema = z.object({
+  id: z.uuid(),
+  status: z.string(),
+  createdAt: z.string(),
+  startedBy: z.string().nullable(),
+  publicResearch: z.boolean(),
+  steps: z.array(
+    z.object({ key: z.enum(marketRunStepKeys), status: z.enum(['running', 'done', 'failed']) }),
+  ),
+  ownSources: z.array(z.string()),
+  publicSources: z.array(
+    z.object({
+      title: z.string(),
+      url: z.string(),
+      publisher: z.string(),
+      publishedOn: z.string(),
+    }),
+  ),
+  discardedSources: z.array(
+    z.object({ title: z.string(), reason: z.enum(['too_old', 'undated']) }),
+  ),
+  outbound: z.array(z.object({ text: z.string(), sentAt: z.string() })),
+  /** Suchanfragen, die der Filter nicht gesendet hat (Zahlen aus eigenen Daten) */
+  blockedQueries: z.number().int(),
+  discardedPoints: z.array(
+    z.object({ text: z.string(), reason: z.enum(['no_source', 'not_supported']) }),
+  ),
+  created: z.object({
+    forces: z.number().int(),
+    opportunities: z.number().int(),
+    threats: z.number().int(),
+    levers: z.number().int(),
+  }),
+});
+export type MarketRun = z.infer<typeof marketRunSchema>;
+
 export const marketAnalysisSchema = z.object({
   canEdit: z.boolean(),
   forces: z.array(marketForceSchema),
@@ -64,6 +115,8 @@ export const marketAnalysisSchema = z.object({
   // Ohne öffentliche Recherche arbeitet Reziproq nur mit eigenen Daten (WG-23).
   publicResearch: z.boolean(),
   synthesisDraft: z.object({ id: z.uuid(), text: z.string() }).nullable(),
+  /** KI-08: letzter Lauf der Marktanalyse mit Protokoll */
+  run: marketRunSchema.nullable().default(null),
 });
 
 /** Von Hand ausfüllen oder anpassen: zwei bis drei Begründungspunkte, ohne Quelle erlaubt */
@@ -86,6 +139,20 @@ export const marketDraftOutputSchema = z.object({
     }),
   ),
   synthesis: z.string().default(''),
+});
+
+/** KI-08: Implikationen des Modells: Chancen und Risiken mit Quellen und Hebelvorschlag */
+export const marketImplicationsOutputSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        type: z.enum(['opportunity', 'threat']),
+        text: z.string().min(1),
+        sources: z.array(z.string()),
+        lever: z.string().nullable().default(null),
+      }),
+    )
+    .max(8),
 });
 
 export type MarketForce = z.infer<typeof marketForceSchema>;

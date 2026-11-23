@@ -104,6 +104,7 @@ beforeEach(() => {
     sourceCount: 2,
     publicResearch: false,
     synthesisDraft: { id: uuid(50), text: 'Die Macht der Lieferanten ist das größte Risiko.' },
+    run: null,
     forces: [
       {
         force: 'supplier_power',
@@ -194,7 +195,7 @@ describe('WG-09 Marktanalyse', () => {
       sourceCount: 0,
     };
     renderAt(`/warengruppen/${group}/strategie/5`);
-    expect(await screen.findByRole('button', { name: 'Entwurf anfordern' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Recherche starten' })).toBeTruthy();
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Von Hand ausfüllen' })[5] as HTMLElement,
     );
@@ -220,5 +221,56 @@ describe('WG-09 Marktanalyse', () => {
         },
       }),
     );
+  });
+  it('KI-08: das Protokoll zeigt Schritte, Quellen, Verworfenes und was nach außen ging', async () => {
+    market = {
+      ...market,
+      publicResearch: true,
+      run: {
+        id: uuid(60),
+        status: 'done',
+        createdAt: '2026-11-23T09:00:00Z',
+        startedBy: 'Lena Berger',
+        publicResearch: true,
+        steps: (
+          [
+            'plan',
+            'own_data',
+            'public_sources',
+            'forces',
+            'check',
+            'implications',
+            'drafts',
+          ] as const
+        ).map((key) => ({ key, status: 'done' as const })),
+        ownSources: ['Interne Analyse · Volumen', 'Spend 2025 der Warengruppe'],
+        publicSources: [
+          {
+            title: 'Kupferindex Monatsstand',
+            url: 'https://index-one.example.test/kupfer',
+            publisher: 'Index One',
+            publishedOn: '2026-10-23',
+          },
+        ],
+        discardedSources: [{ title: 'Marktbericht 2022', reason: 'too_old' }],
+        outbound: [{ text: 'Leiterplatten Marktentwicklung', sentAt: '2026-11-23T09:00:01Z' }],
+        blockedQueries: 1,
+        discardedPoints: [{ text: 'Die Kapazität wird ab 2028 knapp.', reason: 'not_supported' }],
+        created: { forces: 6, opportunities: 1, threats: 1, levers: 2 },
+      },
+    };
+    renderAt(`/warengruppen/${group}/strategie/5`);
+    expect(await screen.findByText('Was Reziproq gemacht hat')).toBeTruthy();
+    expect(screen.getByText(/sowie öffentliche Quellen/)).toBeTruthy();
+    expect(screen.getByText('5. Aussagen gegen Quellen prüfen')).toBeTruthy();
+    expect(
+      screen.getByText('Die Kapazität wird ab 2028 knapp. · Quelle stützt die Aussage nicht'),
+    ).toBeTruthy();
+    expect(screen.getByText('Marktbericht 2022 · älter als 24 Monate')).toBeTruthy();
+    expect(screen.getByText('Leiterplatten Marktentwicklung')).toBeTruthy();
+    expect(
+      screen.getByText('1 Suchfrage nicht gesendet: Sie enthielt Zahlen aus euren Daten.'),
+    ).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Kupferindex Monatsstand' })).toBeTruthy();
   });
 });
