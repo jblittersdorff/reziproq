@@ -155,6 +155,7 @@ import {
   type NotePatch,
   type NoteRequest,
   nextCyclePreviewSchema,
+  notificationPrefsSchema,
   type ObjectiveCategoryRequest,
   objectiveCategoriesResponseSchema,
   objectiveCategoryRequestSchema,
@@ -214,6 +215,8 @@ import {
   type SaveMeetingNote,
   type SaveMilestone,
   type SaveNote,
+  type SaveNotificationOrg,
+  type SaveNotificationPrefs,
   type SavePnlLine,
   type SaveProtocol,
   type SaveRating,
@@ -4065,3 +4068,29 @@ export async function downloadMailAttachment(
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+
+/** IN-06: Profil › Benachrichtigungen */
+export const notificationPrefsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['profil', 'benachrichtigungen'],
+    queryFn: () => getJson('/profil/benachrichtigungen', notificationPrefsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveNotificationPrefs = (accessToken: string, input: SaveNotificationPrefs) =>
+  sendJson('PUT', '/profil/benachrichtigungen', input, notificationPrefsSchema, accessToken);
+
+export const linkTeams = (accessToken: string) =>
+  sendJson('POST', '/profil/benachrichtigungen/teams', {}, notificationPrefsSchema, accessToken);
+
+export const unlinkTeams = (accessToken: string) =>
+  sendJson('DELETE', '/profil/benachrichtigungen/teams', {}, notificationPrefsSchema, accessToken);
+
+export const saveNotificationOrganization = (accessToken: string, input: SaveNotificationOrg) =>
+  sendJson(
+    'PUT',
+    '/profil/benachrichtigungen/organisation',
+    input,
+    notificationPrefsSchema,
+    accessToken,
+  );

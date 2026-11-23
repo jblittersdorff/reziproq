@@ -40,6 +40,7 @@ export * from './meeting-brief.js';
 export * from './meeting-capture.js';
 export * from './meetings.js';
 export * from './money.js';
+export * from './notifications.js';
 export * from './next-cycle.js';
 export * from './opportunities.js';
 export * from './organization.js';

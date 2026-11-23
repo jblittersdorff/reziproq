@@ -31,6 +31,7 @@ import {
   type SurveyDimension,
   withStartTimes,
 } from '@reziproq/shared';
+import { NotificationBus } from '../../common/notification-bus.js';
 import { ActionsService } from '../actions/actions.service.js';
 import {
   createBuyerDraft,
@@ -151,6 +152,7 @@ export class MeetingBriefService {
   constructor(
     @Inject(MeetingsService) private readonly meetings: MeetingsService,
     @Inject(ActionsService) private readonly actions: ActionsService,
+    @Inject(NotificationBus) private readonly bus: NotificationBus,
   ) {}
 
   private canDecide(scope: MeetingScope) {
@@ -1086,6 +1088,34 @@ export class MeetingBriefService {
           result.claims,
         );
       }
+      // IN-06: „Briefing fertig“ an den SRO; nur Zahlen, keine Inhalte (Ziele bleiben privat)
+      const count = (part: BriefPart) => {
+        const data = (parts[part] as PartResult<BriefPart> | undefined)?.data as
+          | Record<string, unknown>
+          | undefined;
+        const list = data && Object.values(data).find((value) => Array.isArray(value));
+        return Array.isArray(list) ? list.length : 0;
+      };
+      const day = new Intl.DateTimeFormat('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        timeZone: 'Europe/Berlin',
+      }).format(new Date(inputs.meeting.startsAt));
+      const questions =
+        count('internalQuestions') + count('supplierQuestions') + count('expectedQuestions');
+      await this.bus.emit({
+        orgId: scope.orgId,
+        userIds: inputs.team
+          .filter((member) => member.teamRole === 'sro')
+          .map((member) => member.userId),
+        kind: 'brief_ready',
+        objectType: 'meeting',
+        objectId: meetingId,
+        title: `${inputs.meeting.title} am ${day}.: Briefing steht`,
+        line: `${count('goals')} Ziele, Agenda mit ${count('agenda')} Punkten, ${questions} offene Fragen`,
+        href: `/lieferanten/${relationshipId}/umsetzung/termine/${meetingId}`,
+        relationshipId,
+      });
     });
   }
 

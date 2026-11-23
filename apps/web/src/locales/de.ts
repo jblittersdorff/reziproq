@@ -673,6 +673,65 @@ export const de = {
   },
 
   // Sprache (PLT-09)
+  // IN-06: Profil › Benachrichtigungen
+  notifications: {
+    title: 'Benachrichtigungen',
+    purpose: 'Was in Mein Tag wichtig ist, in Teams oder per Mail. Wenig, aber das Richtige.',
+    linkDescription: 'Teams und Mail, Ruhezeiten',
+    loading: 'Einstellungen werden geladen …',
+    failed: 'Die Einstellungen konnten nicht geladen werden.',
+    saveFailed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    saved: 'Gespeichert.',
+    save: 'Speichern',
+    teamsTitle: 'Teams',
+    teamsLinked: 'Verbunden: Reziproq schreibt dir als persönlicher Bot.',
+    teamsNotLinked: 'Noch nicht verbunden.',
+    teamsUnavailable:
+      'Eure Organisation hat die Teams-App noch nicht freigeschaltet. Bis dahin kommt alles per Mail.',
+    teamsLink: 'Teams verbinden',
+    teamsUnlink: 'Teams trennen',
+    kindsTitle: 'Wann wir uns melden',
+    kindsHint: 'Ohne Teams gilt die Einstellung für Teams auch für Mail.',
+    channelTeams: 'Teams',
+    channelMail: 'Mail',
+    modes: { now: 'Sofort', digest: 'Zusammenfassung', off: 'Aus' },
+    kinds: {
+      hint_high: 'Hinweis mit hoher Schwere',
+      brief_ready: 'Briefing fertig',
+      results_ready: 'Ergebnisse nach dem Termin',
+      commitment_due: 'Zusage fällig oder überfällig',
+      inbound_review: 'Neu eingegangen zur Zuordnung',
+      meeting_reminder: 'Erinnerung zu Terminen',
+      digest: 'Zusammenfassung des Tages (08:00)',
+    },
+    digestMailHint: 'Per Mail nur, wenn Teams aus ist.',
+    quietTitle: 'Ruhezeiten',
+    quietHint:
+      'In den Ruhezeiten schreiben wir nichts, außer Erinnerungen zu Terminen. Was anfällt, steht in der Zusammenfassung.',
+    quietFrom: 'Von',
+    quietTo: 'Bis',
+    quietWeekend: 'Am Wochenende ruhig',
+    rulesTitle: 'Unsere Regeln',
+    rules: [
+      'Mehrere Anlässe derselben Art innerhalb von 15 Minuten kommen in einer Nachricht.',
+      'Höchstens 6 Sofort-Nachrichten am Tag, alles Weitere in der Zusammenfassung.',
+      'Mails enthalten nur Titel und Link, nie Ziele, Beträge oder Notizen „Nur ich“.',
+    ],
+    orgTitle: 'Für eure Organisation',
+    orgTeams: 'Teams-App freigeschaltet',
+    orgTeamsHint:
+      'Erst in Microsoft 365 für die Organisation bereitstellen, dann hier einschalten.',
+    orgMail: 'Benachrichtigungen per Mail',
+    recentTitle: 'Zuletzt',
+    recentEmpty: 'Noch keine Benachrichtigungen.',
+    statuses: {
+      sent: 'gesendet',
+      queued: 'für die Zusammenfassung vorgemerkt',
+      failed: 'fehlgeschlagen',
+      suppressed: 'nicht gesendet',
+    },
+  },
+
   language: {
     title: 'Sprache',
     purpose: 'In welcher Sprache du Reziproq siehst, auf jedem Gerät.',

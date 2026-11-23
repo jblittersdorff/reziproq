@@ -18,6 +18,7 @@ import {
   type SaveCapture,
 } from '@reziproq/shared';
 import { generateText } from 'ai';
+import { NotificationBus } from '../../common/notification-bus.js';
 import { ActionsService } from '../actions/actions.service.js';
 import { draftDecision } from '../ai-drafts/evidence.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
@@ -71,6 +72,7 @@ export class MeetingCaptureService {
     @Inject(ActionsService) private readonly actions: ActionsService,
     @Inject(JbpCommitmentsService) private readonly commitments: JbpCommitmentsService,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
+    @Inject(NotificationBus) private readonly bus: NotificationBus,
   ) {}
 
   private canDecide(scope: MeetingScope) {
@@ -369,6 +371,7 @@ export class MeetingCaptureService {
         accepted.map((item) => `${item.kind}|${item.quote}|${item.goalKey ?? ''}`),
       );
       const sourceTitle = `Notizen vom ${ctx.meetingDay.slice(8, 10)}.${ctx.meetingDay.slice(5, 7)}.`;
+      let created = 0;
       for (const item of items) {
         if (seen.has(`${item.kind}|${item.quote}|${item.goalKey ?? ''}`)) continue;
         const [draft] = await scope.tx
@@ -399,6 +402,31 @@ export class MeetingCaptureService {
           targetId: meetingId,
           kind: 'own_data',
           title: sourceTitle,
+        });
+        created += 1;
+      }
+      // IN-06: „Ergebnisse fertig“ an den SRO, wenn jemand anderes die Notizen ausgewertet hat
+      if (created > 0) {
+        const sros = await scope.tx
+          .select({ userId: schema.relationshipMember.userId })
+          .from(schema.relationshipMember)
+          .where(
+            and(
+              eq(schema.relationshipMember.relationshipId, relationshipId),
+              eq(schema.relationshipMember.orgId, scope.orgId),
+              eq(schema.relationshipMember.teamRole, 'sro'),
+            ),
+          );
+        await this.bus.emit({
+          orgId: scope.orgId,
+          userIds: sros.map((row) => row.userId).filter((userId) => userId !== auth.userId),
+          kind: 'results_ready',
+          objectType: 'meeting',
+          objectId: meetingId,
+          title: `${meeting.title}: ${created} Ergebnisse zum Übernehmen`,
+          line: null,
+          href: `/lieferanten/${relationshipId}/umsetzung/termine/${meetingId}`,
+          relationshipId,
         });
       }
       return this.view(scope, meetingId);

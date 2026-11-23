@@ -11,6 +11,9 @@ export const emailTemplates = [
   'mention',
   // QS-03: Gesamtexport fertig; Dateiname als Titel, Ablauf als Frist, Link zur Einstellungsseite
   'export_ready',
+  // IN-06: Benachrichtigung (Titel und Link) und Zusammenfassung des Tages
+  'notification',
+  'digest',
 ] as const;
 export const emailTemplateSchema = z.enum(emailTemplates);
 export const emailLocaleSchema = z.enum(['de', 'en']);

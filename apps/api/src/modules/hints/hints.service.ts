@@ -19,12 +19,12 @@ import {
 } from '@reziproq/db';
 import {
   type AnyHintRuleKey,
-  earlyWarningRuleKeys,
-  type HintRuleSettings,
-  type HintEvidence,
   type DismissHint,
+  earlyWarningRuleKeys,
   type Hint,
+  type HintEvidence,
   type HintList,
+  type HintRuleSettings,
   type HintSettings,
   hintDetailSchema,
   hintEvidenceSchema,
@@ -33,13 +33,14 @@ import {
 } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
+import { NotificationBus } from '../../common/notification-bus.js';
 import { env } from '../../config/env.js';
+import { createBuyerDraft, ownDraftSource } from '../ai-drafts/evidence.js';
+import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
 import { actionInternalAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
-import { createBuyerDraft, ownDraftSource } from '../ai-drafts/evidence.js';
-import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
 import {
   evaluateEarlyWarning,
@@ -143,6 +144,7 @@ export class HintsService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(PortfolioService) private readonly portfolio: PortfolioService,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
+    @Inject(NotificationBus) private readonly bus: NotificationBus,
   ) {}
 
   private buyer(auth: AuthContext) {
@@ -272,6 +274,12 @@ export class HintsService {
     const now = new Date();
     const active = (row: HintRow) => row.status === 'open' || row.status === 'in_progress';
     const seen = new Set<string>();
+    const highHints: {
+      id: string;
+      relationshipId: string;
+      title: string;
+      supplier: string | null;
+    }[] = [];
     for (const finding of findings) {
       const key = identity(finding.ruleKey, finding.relationshipId, finding.subject);
       seen.add(key);
@@ -317,13 +325,48 @@ export class HintsService {
         continue;
       }
       // Neue oder geänderte Lage: ein neuer offener Hinweis, auch nach Verwerfen.
-      await tx.insert(schema.hint).values({
+      const [created] = await tx
+        .insert(schema.hint)
+        .values({
+          orgId,
+          relationshipId: finding.relationshipId,
+          ruleKey: finding.ruleKey,
+          fingerprint,
+          ...values,
+          firstSeenAt: now,
+        })
+        .returning({ id: schema.hint.id });
+      // IN-06: Hinweis mit hoher Schwere an den SRO des Lieferanten
+      if (created && finding.severity === 'high' && finding.relationshipId) {
+        highHints.push({
+          id: created.id,
+          relationshipId: finding.relationshipId,
+          title: finding.title ?? 'Neuer Hinweis mit hoher Schwere',
+          supplier: relation?.name ?? null,
+        });
+      }
+    }
+    for (const hint of highHints) {
+      const sros = await tx
+        .select({ userId: schema.relationshipMember.userId })
+        .from(schema.relationshipMember)
+        .where(
+          and(
+            eq(schema.relationshipMember.relationshipId, hint.relationshipId),
+            eq(schema.relationshipMember.orgId, orgId),
+            eq(schema.relationshipMember.teamRole, 'sro'),
+          ),
+        );
+      await this.bus.emit({
         orgId,
-        relationshipId: finding.relationshipId,
-        ruleKey: finding.ruleKey,
-        fingerprint,
-        ...values,
-        firstSeenAt: now,
+        userIds: sros.map((row) => row.userId),
+        kind: 'hint_high',
+        objectType: 'hint',
+        objectId: hint.id,
+        title: hint.title,
+        line: hint.supplier,
+        href: '/hinweise',
+        relationshipId: hint.relationshipId,
       });
     }
     // KI-16: Lage behoben: offene Hinweise werden resolved, nicht gelöscht.

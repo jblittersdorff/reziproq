@@ -18,6 +18,7 @@ import {
   meetingTypes,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
+import { NotificationBus } from '../../common/notification-bus.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { actorIn } from '../integrations/actor.js';
@@ -72,6 +73,7 @@ export class CalendarIntakeService implements OnModuleInit {
     @Inject(IntegrationsService) private readonly integrations: IntegrationsService,
     @Inject(ItemHandlers) private readonly handlers: ItemHandlers,
     @Inject(GRAPH_CLIENT) private readonly graph: GraphClient,
+    @Inject(NotificationBus) private readonly bus: NotificationBus,
   ) {}
 
   /** IN-04: weitergeleitete Mails in „Neu eingegangen“ legt der Mail-Dienst ab bzw. verwirft sie */
@@ -423,9 +425,22 @@ export class CalendarIntakeService implements OnModuleInit {
           registrationId: registration?.id ?? null,
         })
         .returning({ id: schema.inboundItem.id });
-      return row?.id ?? null;
+      return row ? { id: row.id, assignee } : null;
     });
-    return { status: 'applied', objectType: 'inbound_item', objectId: id };
+    // IN-06: „Neu eingegangen“ an die Person, die zuordnen soll
+    if (id?.assignee) {
+      await this.bus.emit({
+        orgId,
+        userIds: [id.assignee],
+        kind: 'inbound_review',
+        objectType: 'inbound_item',
+        objectId: id.id,
+        title: `Neu eingegangen: ${event.summary.slice(0, 160) || '–'}`,
+        line: null,
+        href: '/mein-tag/eingang',
+      });
+    }
+    return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };
   }
 
   private reasonFor(matches: Match[], fromAddin: boolean) {

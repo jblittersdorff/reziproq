@@ -49,6 +49,7 @@ import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
 import { Route as AppPortfolioZyklenRouteImport } from './routes/_app/portfolio/zyklen'
 import { Route as AppProfilIndexRouteImport } from './routes/_app/profil/index'
+import { Route as AppProfilBenachrichtigungenRouteImport } from './routes/_app/profil/benachrichtigungen'
 import { Route as AppProfilSpracheRouteImport } from './routes/_app/profil/sprache'
 import { Route as AppStartIndexRouteImport } from './routes/_app/start/index'
 import { Route as AppStartFaelligRouteImport } from './routes/_app/start/faellig'
@@ -475,6 +476,12 @@ const AppProfilIndexRoute = AppProfilIndexRouteImport.update({
   path: '/profil/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfilBenachrichtigungenRoute =
+  AppProfilBenachrichtigungenRouteImport.update({
+    id: '/profil/benachrichtigungen',
+    path: '/profil/benachrichtigungen',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppProfilSpracheRoute = AppProfilSpracheRouteImport.update({
   id: '/profil/sprache',
   path: '/profil/sprache',
@@ -1820,6 +1827,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
+  '/profil/benachrichtigungen': typeof AppProfilBenachrichtigungenRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2079,6 +2087,7 @@ export interface FileRoutesByTo {
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
+  '/profil/benachrichtigungen': typeof AppProfilBenachrichtigungenRoute
   '/profil/sprache': typeof AppProfilSpracheRoute
   '/start/faellig': typeof AppStartFaelligRoute
   '/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2342,6 +2351,7 @@ export interface FileRoutesById {
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/_app/portfolio/offen': typeof AppPortfolioOffenRoute
   '/_app/portfolio/zyklen': typeof AppPortfolioZyklenRoute
+  '/_app/profil/benachrichtigungen': typeof AppProfilBenachrichtigungenRoute
   '/_app/profil/sprache': typeof AppProfilSpracheRoute
   '/_app/start/faellig': typeof AppStartFaelligRoute
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
@@ -2606,6 +2616,7 @@ export interface FileRouteTypes {
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
+    | '/profil/benachrichtigungen'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -2865,6 +2876,7 @@ export interface FileRouteTypes {
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
+    | '/profil/benachrichtigungen'
     | '/profil/sprache'
     | '/start/faellig'
     | '/start/massnahmen'
@@ -3127,6 +3139,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/matrix'
     | '/_app/portfolio/offen'
     | '/_app/portfolio/zyklen'
+    | '/_app/profil/benachrichtigungen'
     | '/_app/profil/sprache'
     | '/_app/start/faellig'
     | '/_app/start/massnahmen'
@@ -3649,6 +3662,13 @@ declare module '@tanstack/react-router' {
       path: '/profil'
       fullPath: '/profil/'
       preLoaderRoute: typeof AppProfilIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profil/benachrichtigungen': {
+      id: '/_app/profil/benachrichtigungen'
+      path: '/profil/benachrichtigungen'
+      fullPath: '/profil/benachrichtigungen'
+      preLoaderRoute: typeof AppProfilBenachrichtigungenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profil/sprache': {
@@ -5655,6 +5675,7 @@ interface AppRouteChildren {
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
   AppPortfolioOffenRoute: typeof AppPortfolioOffenRoute
   AppPortfolioZyklenRoute: typeof AppPortfolioZyklenRoute
+  AppProfilBenachrichtigungenRoute: typeof AppProfilBenachrichtigungenRoute
   AppProfilSpracheRoute: typeof AppProfilSpracheRoute
   AppStartFaelligRoute: typeof AppStartFaelligRoute
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
@@ -5761,6 +5782,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
   AppPortfolioOffenRoute: AppPortfolioOffenRoute,
   AppPortfolioZyklenRoute: AppPortfolioZyklenRoute,
+  AppProfilBenachrichtigungenRoute: AppProfilBenachrichtigungenRoute,
   AppProfilSpracheRoute: AppProfilSpracheRoute,
   AppStartFaelligRoute: AppStartFaelligRoute,
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,

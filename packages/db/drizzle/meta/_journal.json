@@ -841,6 +841,13 @@
       "when": 1795445503323,
       "tag": "0119_in04_mails",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1795446969404,
+      "tag": "0120_in06_benachrichtigungen",
+      "breakpoints": true
     }
   ]
 }

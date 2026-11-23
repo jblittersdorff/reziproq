@@ -63,6 +63,8 @@ export const outboxEvent = pgTable(
         'survey',
         'mention',
         'export_ready',
+        'notification',
+        'digest',
       ],
     }),
     emailLocale: text({ enum: ['de', 'en'] }),
@@ -88,7 +90,7 @@ export const outboxEvent = pgTable(
         (${table.emailTemplate} IS NOT NULL
           AND ${table.emailTemplate} IN (
             'invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation', 'survey',
-            'mention', 'export_ready'
+            'mention', 'export_ready', 'notification', 'digest'
           )
           AND ${table.emailLocale} IS NOT NULL
           AND ${table.emailLocale} IN ('de', 'en')

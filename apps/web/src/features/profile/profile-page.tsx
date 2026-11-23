@@ -96,6 +96,15 @@ export function ProfilePage() {
               value={locale === 'en' ? 'English' : 'Deutsch'}
               renderLink={routerLink}
             />
+            {/* IN-06: Benachrichtigungen in Teams und per Mail, nur beim Käufer */}
+            {me.data.organization && me.data.permissions.viewBuyerAreas && (
+              <SettingsLinkRow
+                href="/profil/benachrichtigungen"
+                label={t.notifications.title}
+                value={t.notifications.linkDescription}
+                renderLink={routerLink}
+              />
+            )}
           </SettingsGroup>
 
           {/* IN-01: eigene Verbindungen (Kalender, Outlook-Add-in), nur beim Käufer */}

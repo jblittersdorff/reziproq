@@ -22,6 +22,7 @@ import {
 import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
 import { FILE_STORE, type FileStore } from '../../common/file-store.js';
+import { NotificationBus } from '../../common/notification-bus.js';
 import { createBuyerDraft, ownDraftSource } from '../ai-drafts/evidence.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -80,6 +81,7 @@ export class MailsService implements OnModuleInit {
     @Inject(CalendarIntakeService) private readonly intake: CalendarIntakeService,
     @Inject(GRAPH_CLIENT) private readonly graph: GraphClient,
     @Inject(FILE_STORE) private readonly files: FileStore,
+    @Inject(NotificationBus) private readonly bus: NotificationBus,
   ) {}
 
   onModuleInit() {
@@ -505,9 +507,22 @@ export class MailsService implements OnModuleInit {
           assigneeUserId: assignee,
         })
         .returning({ id: schema.inboundItem.id });
-      return row?.id ?? null;
+      return row ? { id: row.id, assignee } : null;
     });
-    return { status: 'applied', objectType: 'inbound_item', objectId: id };
+    // IN-06: „Neu eingegangen“ an die Person, die zuordnen soll
+    if (id) {
+      await this.bus.emit({
+        orgId,
+        userIds: [id.assignee],
+        kind: 'inbound_review',
+        objectType: 'inbound_item',
+        objectId: id.id,
+        title: `Neu eingegangen: ${mail.subject.slice(0, 160) || '–'}`,
+        line: null,
+        href: '/mein-tag/eingang',
+      });
+    }
+    return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };
   }
 
   /** „Neu eingegangen“ → Lieferant: die Mail wird mit den Rechten der entscheidenden Person abgelegt */

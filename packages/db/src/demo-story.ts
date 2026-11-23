@@ -62,6 +62,7 @@ export async function demoStory(
     await demoBriefing(tx, first.id, account);
     await demoInbound(tx, relationships, account, today);
     await demoMails(tx, relationships, account, today);
+    await demoNotifications(tx, relationships, account, today);
     return { created: false, relationships };
   }
 
@@ -320,6 +321,7 @@ export async function demoStory(
   await demoBriefing(tx, first.id, account);
   await demoInbound(tx, relationships, account, today);
   await demoMails(tx, relationships, account, today);
+  await demoNotifications(tx, relationships, account, today);
   return { created: true, relationships };
 }
 
@@ -529,7 +531,8 @@ async function demoInbound(
     },
     suggestedRelationshipIds: relationships.slice(0, 2),
     suggestionKind: 'several',
-    suggestionReason: 'Teilnehmer von beiden Lieferanten. Wähle einen oder speichere den Termin bei beiden.',
+    suggestionReason:
+      'Teilnehmer von beiden Lieferanten. Wähle einen oder speichere den Termin bei beiden.',
     suggestedType: 'other',
     status: 'needs_review',
     ownerUserId: account.id,
@@ -626,7 +629,8 @@ async function demoMails(
     toEmails: ['einkauf@oem-eins.example'],
     sentAt: forwarded,
     subject: 'Lieferplan Januar',
-    bodyText: 'Guten Tag,\n\nim Januar liefern wir 12 Paletten am 8. und 9 Paletten am 22. Januar.\n\nFreundliche Grüße',
+    bodyText:
+      'Guten Tag,\n\nim Januar liefern wir 12 Paletten am 8. und 9 Paletten am 22. Januar.\n\nFreundliche Grüße',
     source: 'forward',
   });
   await tx.insert(schema.inboundItem).values({
@@ -656,10 +660,67 @@ async function demoMails(
       },
     },
     suggestionKind: 'none',
-    suggestionReason: 'Absender von messe-kunststoffe.example sind noch keinem Lieferanten zugeordnet.',
+    suggestionReason:
+      'Absender von messe-kunststoffe.example sind noch keinem Lieferanten zugeordnet.',
     suggestedType: 'other',
     status: 'needs_review',
     ownerUserId: account.id,
     assigneeUserId: account.id,
   });
+}
+
+/**
+ * IN-06: zwei Benachrichtigungen unter Profil › Benachrichtigungen › Zuletzt: eine gesendete Mail
+ * zum Briefing und ein Hinweis, der für die Zusammenfassung vorgemerkt ist.
+ */
+async function demoNotifications(
+  tx: Transaction,
+  relationships: string[],
+  account: { id: string; name: string },
+  today: Date,
+) {
+  const [first] = relationships;
+  if (!first) return;
+  const oem = seedBuyers.testOem.id;
+  const [existing] = await tx
+    .select({ id: schema.notification.id })
+    .from(schema.notification)
+    .where(and(eq(schema.notification.orgId, oem), eq(schema.notification.userId, account.id)))
+    .limit(1);
+  if (existing) return;
+  const sent = addDays(today, -1);
+  sent.setUTCHours(8, 0, 0, 0);
+  await tx.insert(schema.notification).values([
+    {
+      orgId: oem,
+      userId: account.id,
+      channel: 'mail',
+      kind: 'brief_ready',
+      objectType: 'relationship',
+      objectId: first,
+      bundleKey: `${account.id}:mail:brief_ready`,
+      delivery: 'now',
+      status: 'sent',
+      title: 'Quartalsreview: Briefing steht',
+      line: '3 Ziele, Agenda mit 6 Punkten, 8 offene Fragen',
+      href: `/lieferanten/${first}/umsetzung/termine`,
+      sentAt: sent,
+      createdAt: sent,
+    },
+    {
+      orgId: oem,
+      userId: account.id,
+      channel: 'mail',
+      kind: 'hint_high',
+      objectType: 'relationship',
+      objectId: first,
+      bundleKey: `${account.id}:mail:hint_high`,
+      delivery: 'digest',
+      status: 'queued',
+      title: 'Liefertreue unter dem Zielwert',
+      line: null,
+      href: '/hinweise',
+      createdAt: today,
+    },
+  ]);
 }

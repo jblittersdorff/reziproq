@@ -28,11 +28,14 @@ function SettingsRow({
   label,
   description,
   htmlFor,
+  wide = false,
   children,
 }: {
   label: string;
   description?: string;
   htmlFor?: string;
+  /** Breitere rechte Spalte, z. B. für zwei Auswahlfelder nebeneinander (IN-06) */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -43,7 +46,9 @@ function SettingsRow({
         </label>
         {description && <p className="text-muted-foreground text-sm">{description}</p>}
       </div>
-      <div className="flex shrink-0 sm:w-64 sm:justify-end">{children}</div>
+      <div className={cn('flex shrink-0 sm:justify-end', wide ? 'sm:w-96' : 'sm:w-64')}>
+        {children}
+      </div>
     </div>
   );
 }

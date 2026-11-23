@@ -50,6 +50,19 @@ const copy = {
       deadline: 'Frist',
       link: 'Vorgang öffnen',
     },
+    // IN-06: nur Titel und Link, nie private Inhalte
+    notification: {
+      subject: 'Reziproq',
+      body: 'In Reziproq wartet etwas auf dich.',
+      deadline: 'Frist',
+      link: 'In Reziproq öffnen',
+    },
+    digest: {
+      subject: 'Dein Tag in Reziproq',
+      body: 'Das Wichtigste für heute, kurz zusammengefasst.',
+      deadline: 'Stand',
+      link: 'Mein Tag öffnen',
+    },
   },
   en: {
     invitation: {
@@ -99,6 +112,18 @@ const copy = {
       body: 'The following item needs your attention.',
       deadline: 'Due date',
       link: 'Open item',
+    },
+    notification: {
+      subject: 'Reziproq',
+      body: 'Something is waiting for you in Reziproq.',
+      deadline: 'Due date',
+      link: 'Open in Reziproq',
+    },
+    digest: {
+      subject: 'Your day in Reziproq',
+      body: 'The most important things for today, in brief.',
+      deadline: 'As of',
+      link: 'Open My day',
     },
   },
 } as const;

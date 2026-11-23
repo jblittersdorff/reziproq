@@ -40,7 +40,9 @@ export interface OutboxEmailPayload {
     | 'supplier_invitation'
     | 'survey'
     | 'mention'
-    | 'export_ready';
+    | 'export_ready'
+    | 'notification'
+    | 'digest';
   locale: 'de' | 'en';
   recipient: string;
   firstName?: string;

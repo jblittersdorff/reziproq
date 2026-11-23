@@ -955,6 +955,39 @@ export const layerRegister: Record<string, LayerEntry> = {
       size: 1,
     }),
   },
+  // IN-06: Benachrichtigungen; Einstellungen und Teams-Verbindung nur für die Person selbst
+  notification_pref: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      user_id: orgUser,
+      channel: 'mail',
+      kind: `hint_high`,
+      mode: 'now',
+    }),
+  },
+  notification_channel: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      user_id: orgUser,
+      channel: 'teams',
+      conversation_ref: 'probe',
+    }),
+  },
+  notification: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      user_id: orgUser,
+      channel: 'mail',
+      kind: 'hint_high',
+      object_type: 'hint',
+      object_id: 'probe',
+      bundle_key: 'probe',
+      delivery: 'now',
+      status: 'queued',
+      title: 'Probe',
+      href: '/hinweise',
+    }),
+  },
   // AW-01: Aussage von Reziproq je Person und Seite
   insight_summary: {
     kind: 'org_private',
