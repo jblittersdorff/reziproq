@@ -188,7 +188,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 self-start whitespace-nowrap rounded-full px-3 py-1 font-semibold text-sm',
+        'inline-flex max-w-full items-center gap-1.5 self-start text-balance rounded-full px-3 py-1 font-semibold text-sm',
         styles[tone],
         className,
       )}

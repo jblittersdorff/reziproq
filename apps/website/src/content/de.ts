@@ -34,6 +34,7 @@ export const de: Content = {
     demo: 'Demo buchen',
     language: 'Sprache',
     menu: 'Menü',
+    closeMenu: 'Menü schließen',
   },
   footer: {
     claim: 'Wir helfen Unternehmen, das Beste aus jedem Lieferanten herauszuholen.',

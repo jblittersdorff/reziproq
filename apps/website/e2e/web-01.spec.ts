@@ -61,3 +61,24 @@ test('ein Wechsel im Menü lädt die Seite nicht neu; Zurück zeigt die vorige S
     'noch da',
   );
 });
+
+test('auf Telefonbreite öffnet „Menü“ die Seiten untereinander und schließt nach der Wahl', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto(pathOf('home', 'de'));
+  await expect(page.getByRole('navigation', { name: 'Hauptnavigation' })).toBeHidden();
+  await page.getByRole('button', { name: 'Menü' }).click();
+  const menu = page.getByRole('navigation', { name: 'Menü' });
+  await expect(menu.getByRole('link')).toHaveCount(5);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    ),
+  ).toBe(0);
+  if (process.env.WEB01_SHOTS)
+    await page.screenshot({ path: `${process.env.WEB01_SHOTS}/menu-open-390.png` });
+  await menu.getByRole('link', { name: 'Preise' }).click();
+  await expect(page).toHaveURL(new RegExp(`${pathOf('pricing', 'de')}$`));
+  await expect(page.getByRole('navigation', { name: 'Menü' })).toHaveCount(0);
+});

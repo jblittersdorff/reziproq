@@ -261,3 +261,27 @@ describe('Navigation ohne Neuladen', () => {
     expect(internalTarget(outside, origin)).toBeNull();
   });
 });
+
+describe('Menü auf kleinen Bildschirmen', () => {
+  it('klappt die Seiten untereinander auf; ein Seitenwechsel und Esc schließen es', () => {
+    window.history.replaceState(null, '', pathOf('home', 'de'));
+    renderDom(<Site initial={{ page: 'home', locale: 'de' }} />);
+    const button = screen.getByRole('button', { name: de.nav.menu });
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('navigation', { name: de.nav.menu })).toBeNull();
+    fireEvent.click(button);
+    const menu = screen.getByRole('navigation', { name: de.nav.menu });
+    expect(within(menu).getAllByRole('link')).toHaveLength(5);
+    expect(
+      screen.getByRole('button', { name: de.nav.closeMenu }).getAttribute('aria-expanded'),
+    ).toBe('true');
+    // Seitenwechsel ohne Neuladen schließt das Menü
+    expect(fireEvent.click(within(menu).getByRole('link', { name: de.nav.pricing }))).toBe(false);
+    expect(window.location.pathname).toBe(pathOf('pricing', 'de'));
+    expect(screen.queryByRole('navigation', { name: de.nav.menu })).toBeNull();
+    // Esc schließt
+    fireEvent.click(screen.getByRole('button', { name: de.nav.menu }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('navigation', { name: de.nav.menu })).toBeNull();
+  });
+});

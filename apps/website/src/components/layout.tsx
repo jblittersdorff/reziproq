@@ -1,4 +1,6 @@
+import { MenuIcon, XIcon } from 'lucide-react';
 import type * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Logo } from '@/components/ui/brand-mark';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -8,9 +10,14 @@ import { Wrap } from './site';
 
 const navPages: PageKey[] = ['howItWorks', 'platform', 'suppliers', 'security', 'pricing'];
 
-/** Kopf: Logo, Navigation als Pillen, Sprache, Anmelden, Demo buchen */
+/**
+ * Kopf: Logo, Navigation als Pillen, Sprache, Anmelden, Demo buchen. Unter 1280 px ein Knopf
+ * „Menü“, der die Seiten untereinander aufklappt (im Seitenfluss, kein Popup). Nach einem
+ * Seitenwechsel und mit Esc schließt das Menü.
+ */
 export function SiteHeader() {
   const { text, locale, page, href } = useSite();
+  const [open, setOpen] = useState(false);
   const labels: Record<string, string> = {
     howItWorks: text.nav.howItWorks,
     platform: text.nav.platform,
@@ -18,60 +25,76 @@ export function SiteHeader() {
     security: text.nav.security,
     pricing: text.nav.pricing,
   };
+  // biome-ignore lint/correctness/useExhaustiveDependencies: schließt bei jedem Seitenwechsel
+  useEffect(() => setOpen(false), [page, locale]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  const pageLink = (target: PageKey, stacked = false) => (
+    <a
+      key={target}
+      href={href(target)}
+      aria-current={target === page ? 'page' : undefined}
+      className={cn(
+        'inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-4 text-base no-underline',
+        stacked && 'w-full',
+        target === page
+          ? 'bg-card font-semibold text-ink shadow-toggle'
+          : 'font-medium text-muted-strong hover:text-ink',
+      )}
+    >
+      {labels[target]}
+    </a>
+  );
+  const languages = (
+    <nav aria-label={text.nav.language} className="flex items-center font-semibold text-sm">
+      <a
+        href={pathOf(page, 'en')}
+        lang="en"
+        aria-current={locale === 'en' ? 'true' : undefined}
+        className={cn(
+          'inline-flex min-h-11 items-center px-2 no-underline',
+          locale === 'en' ? 'text-ink' : 'text-muted-foreground',
+        )}
+      >
+        EN
+      </a>
+      <span aria-hidden className="text-ring-open">
+        /
+      </span>
+      <a
+        href={pathOf(page, 'de')}
+        lang="de"
+        aria-current={locale === 'de' ? 'true' : undefined}
+        className={cn(
+          'inline-flex min-h-11 items-center px-2 no-underline',
+          locale === 'de' ? 'text-ink' : 'text-muted-foreground',
+        )}
+      >
+        DE
+      </a>
+    </nav>
+  );
   return (
     <header className="border-line border-b bg-background">
-      <Wrap className="flex min-h-21 flex-wrap items-center gap-x-6 gap-y-3 py-3.5">
+      <Wrap className="flex min-h-21 items-center gap-x-6 py-3.5">
         <a href={href('home')} aria-label={text.nav.home} className="text-ink no-underline">
           <Logo name="Reziproq" />
         </a>
         <nav
           aria-label={text.nav.main}
-          className="order-3 flex w-full flex-wrap gap-0.5 rounded-full bg-line-soft p-1 lg:order-none lg:mx-auto lg:w-auto"
+          className="mx-auto hidden gap-0.5 rounded-full bg-line-soft p-1 xl:flex"
         >
-          {navPages.map((target) => (
-            <a
-              key={target}
-              href={href(target)}
-              aria-current={target === page ? 'page' : undefined}
-              className={cn(
-                'inline-flex min-h-11 items-center rounded-full px-4 text-base no-underline',
-                target === page
-                  ? 'bg-card font-semibold text-ink shadow-toggle'
-                  : 'font-medium text-muted-strong hover:text-ink',
-              )}
-            >
-              {labels[target]}
-            </a>
-          ))}
+          {navPages.map((target) => pageLink(target))}
         </nav>
-        <div className="ml-auto flex flex-wrap items-center gap-2 lg:ml-0">
-          <nav aria-label={text.nav.language} className="flex items-center font-semibold text-sm">
-            <a
-              href={pathOf(page, 'en')}
-              lang="en"
-              aria-current={locale === 'en' ? 'true' : undefined}
-              className={cn(
-                'inline-flex min-h-11 items-center px-2 no-underline',
-                locale === 'en' ? 'text-ink' : 'text-muted-foreground',
-              )}
-            >
-              EN
-            </a>
-            <span aria-hidden className="text-ring-open">
-              /
-            </span>
-            <a
-              href={pathOf(page, 'de')}
-              lang="de"
-              aria-current={locale === 'de' ? 'true' : undefined}
-              className={cn(
-                'inline-flex min-h-11 items-center px-2 no-underline',
-                locale === 'de' ? 'text-ink' : 'text-muted-foreground',
-              )}
-            >
-              DE
-            </a>
-          </nav>
+        <div className="hidden shrink-0 items-center gap-2 xl:flex">
+          {languages}
           <a
             href={href('login')}
             className={cn(buttonVariants({ variant: 'ghost' }), 'text-base no-underline')}
@@ -82,7 +105,38 @@ export function SiteHeader() {
             {text.nav.demo}
           </a>
         </div>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="website-menu"
+          onClick={() => setOpen((value) => !value)}
+          className={cn(buttonVariants({ variant: 'secondary' }), 'ml-auto text-base xl:hidden')}
+        >
+          {open ? <XIcon aria-hidden /> : <MenuIcon aria-hidden />}
+          {open ? text.nav.closeMenu : text.nav.menu}
+        </button>
       </Wrap>
+      {open && (
+        <div id="website-menu" className="border-line border-t xl:hidden">
+          <Wrap className="flex flex-col gap-4 py-4">
+            <nav aria-label={text.nav.menu} className="flex flex-col gap-1">
+              {navPages.map((target) => pageLink(target, true))}
+            </nav>
+            <div className="flex flex-wrap items-center gap-2">
+              {languages}
+              <a
+                href={href('login')}
+                className={cn(buttonVariants({ variant: 'secondary' }), 'text-base no-underline')}
+              >
+                {text.nav.login}
+              </a>
+              <a href={href('contact')} className={cn(buttonVariants(), 'text-base no-underline')}>
+                {text.nav.demo}
+              </a>
+            </div>
+          </Wrap>
+        </div>
+      )}
     </header>
   );
 }

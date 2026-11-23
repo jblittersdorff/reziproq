@@ -61,6 +61,13 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 
 Festlegung des Gründers vom 23.11.2026: Erst die Lösung lokal vollständig bauen (Schritte bis 39), dann Betrieb und echte Anbieter (Block C). Jede Anbindung läuft bis dahin mit dem Anbieter fake. Nach Schritt 20 prüft ein Durchstich (D) die echten Schnittstellen von Zitadel und Microsoft, ohne AWS. Die Website (W) steht als eigener Schritt nach 16. GitHub dient seit 23.11.2026 nur als Sicherung (Push des Arbeitsbranchs, Workflows aus).
 
+Neue Festlegung des Gründers vom 23.11.2026 (abends, ersetzt „erst alles bis 39 lokal“): Release 1.0
+(Lieferantenmanagement) geht zuerst in einen Pilotbetrieb. Reihenfolge: Durchstich D (Gründer richtet
+Microsoft-365-Testmandant und Zitadel-Zugang ein) → C1 schlank (Testumgebung AWS EU über OpenTofu) →
+C2, C3, C5 (Zitadel produktiv, Bedrock, Maildienst) → Pilot mit Release 1.0 (C6). Parallel laufen die
+Schritte 27–33 (Warengruppenmanagement) weiter; danach 34–39 und C4 (Kalender und Mail echt). Was
+Zugänge oder Kosten braucht, wartet auf den Gründer; bis dahin geht die lokale Arbeit weiter.
+
 Die ersten vier Schritte priorisieren bestehende Seiten. Der Vorschlag trennt ihre Darstellung von der späteren Datenanbindung. Ob diese Teilabnahmen gelten dürfen, ist im Prüfbericht offen. Die Reihenfolge von I1.1 bis I1.7 folgt der Ergänzungsdatei. Import kommt vor Kalender und Mail, Transkripte nach der Mandantenfreigabe zuletzt. Die Stufe 2 mit Slack, Zoom, Gmail-Add-on, SharePoint/Drive, SFTP, SAP S/4HANA, Qualitätsdaten, SCIM, lesender API und Webhooks hat noch keine Bau-Specs.
 
 K1 läuft lokal mit `fake` für Modelle und Websuche. Für reale Läufe ist `bedrock_eu` vorgesehen, Zugangsdaten kommen aus der Umgebung. Für KI-11 gelten die konfigurierten SEG-Typen und die vorhandenen PNL-Hebelversionen. KI-09 setzt den ersten Pilot voraus. Die Paketnummern K1–K3 und I1 bezeichnen hier Pakete; die externe Release-Nummer für Warengruppen ist offen. Die Warengruppen-Vorlagen, Tabellenzuordnungen und die noch zu bestätigenden Hebeldimensionen stehen im Prüfbericht.

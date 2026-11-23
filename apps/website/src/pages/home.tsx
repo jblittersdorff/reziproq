@@ -159,7 +159,8 @@ export function HomePage() {
                   <BrandMark />
                   Reziproq
                 </span>
-                <span className="mx-auto flex flex-wrap gap-0.5 rounded-full bg-line-soft p-0.5 text-sm">
+                {/* Auf schmalen Bildschirmen nur die Marke: die Leiste der App bräche sonst um */}
+                <span className="mx-auto hidden gap-0.5 rounded-full bg-line-soft p-0.5 text-sm md:flex">
                   {product.tabs.map((tab, index) => (
                     <span
                       key={tab}
@@ -174,7 +175,7 @@ export function HomePage() {
                     </span>
                   ))}
                 </span>
-                <span className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-muted-strong text-sm shadow-inset-line">
+                <span className="hidden items-center gap-2 rounded-full bg-card px-3 py-1.5 text-muted-strong text-sm shadow-inset-line lg:flex">
                   {product.ask}
                   <span className="rounded-sm bg-background px-1.5 font-semibold text-chip text-muted-foreground">
                     ⌘K

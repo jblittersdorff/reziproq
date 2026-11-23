@@ -97,3 +97,11 @@ springt nach oben oder zum Anker und setzt den Fokus auf den Inhalt. Zurück und
 funktionieren. Strg- oder Cmd-Klick, neue Tabs, Downloads, „Anmelden“ (App) und fremde Adressen lädt
 der Browser wie gewohnt. Tests: `apps/website/src/web-01.test.tsx`, `apps/website/e2e/web-01.spec.ts`.
 
+## Menü auf kleinen Bildschirmen (23.11.2026)
+
+Unter 1280 px Breite zeigt der Kopf statt der Leiste einen Knopf „Menü“. Er klappt die Seiten
+untereinander auf, dazu Sprache, Anmelden und Demo buchen, im Seitenfluss ohne Popup. Ein
+Seitenwechsel und Esc schließen das Menü. Vorher brach die Leiste auf Telefon und Tablet innerhalb
+ihrer Pille um. Das Etikett über dem Titel der Startseite bricht auf schmalen Bildschirmen um, statt
+abgeschnitten zu werden; die nachgebaute App-Leiste in der Produktansicht zeigt dort nur die Marke.
+

@@ -33,6 +33,7 @@ export const en = {
     demo: 'Book a demo',
     language: 'Language',
     menu: 'Menu',
+    closeMenu: 'Close menu',
   },
   footer: {
     claim: 'Helping companies bring out the best in every supplier.',
