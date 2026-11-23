@@ -101,6 +101,7 @@ export class ActivitiesService {
           startsAt: schema.meeting.startsAt,
           location: schema.meeting.location,
           createdByName: schema.meeting.createdByName,
+          source: schema.meeting.source,
         })
         .from(schema.meeting)
         .where(eq(schema.meeting.relationshipId, relationshipId));
@@ -111,7 +112,8 @@ export class ActivitiesService {
           occurredAt: meeting.startsAt.toISOString(),
           actor: { type: 'person', name: meeting.createdByName },
           title: meeting.title,
-          code: null,
+          // IN-03: Herkunft „aus Outlook“, „aus dem Kalender“ …
+          code: meeting.source === 'reziproq' ? null : meeting.source,
           meta: meeting.location,
           href: `/lieferanten/${relationshipId}/umsetzung/termine/${meeting.id}`,
           visibility: 'team',

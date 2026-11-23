@@ -152,6 +152,156 @@ export class MeetingsService {
     return this.detail(scope, meetingId);
   }
 
+  /**
+   * IN-03: Wer erfahren will, dass eine Agenda geteilt wurde (die Agenda geht dann in Outlook in den
+   * markierten Block der Einladung). Fehler dort ändern nichts am Termin.
+   */
+  agendaListener:
+    | ((input: {
+        orgId: string;
+        meetingId: string;
+        items: { title: string; detail: string | null }[];
+      }) => Promise<void>)
+    | null = null;
+
+  async notifyAgendaShared(
+    scope: MeetingScope,
+    meetingId: string,
+    items: { title: string; detail: string | null }[],
+  ) {
+    if (scope.side !== 'buyer' || !this.agendaListener) return;
+    await this.agendaListener({ orgId: scope.orgId, meetingId, items }).catch(() => undefined);
+  }
+
+  /**
+   * IN-03: Termin aus Outlook, Eingangsadresse oder Kalender. Intern (Entscheidung F6): der Lieferant
+   * sieht ihn nicht. Anlegen darf nur, wer bei diesem Lieferanten Termine anlegen darf (canEdit).
+   */
+  async createFromCalendar(
+    scope: MeetingScope,
+    input: {
+      type: MeetingRow['type'];
+      title: string;
+      startsAt: Date;
+      durationMinutes: number;
+      location: string | null;
+      source: MeetingRow['source'];
+      icalUid: string | null;
+      sequence: number;
+      organizerEmail: string | null;
+      onlineMeetingUrl: string | null;
+      briefOptIn: boolean;
+      transcriptOptIn: boolean;
+      insertAgenda: boolean;
+      externalIds: Record<string, string>;
+      attendees: {
+        email: string;
+        name: string | null;
+        side: 'buyer' | 'supplier' | 'unknown';
+        userId: string | null;
+        response: string | null;
+      }[];
+    },
+  ): Promise<string> {
+    if (!scope.canEdit) throw forbidden();
+    const { tx } = scope;
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    return auditedChange(tx, actor, meetingAudit, async () => {
+      const [row] = await tx
+        .insert(schema.meeting)
+        .values({
+          relationshipId: scope.relationshipId,
+          ownerOrgId: scope.orgId,
+          visibility: 'internal',
+          type: input.type,
+          title: input.title.slice(0, 200) || 'Termin',
+          startsAt: input.startsAt,
+          durationMinutes: Math.min(600, Math.max(15, input.durationMinutes)),
+          location: input.location?.slice(0, 500) ?? null,
+          createdBy: scope.auth.userId,
+          createdByName: actor.name,
+          source: input.source,
+          icalUid: input.icalUid,
+          sequence: input.sequence,
+          organizerEmail: input.organizerEmail,
+          onlineMeetingUrl: input.onlineMeetingUrl,
+          briefOptIn: input.briefOptIn,
+          transcriptOptIn: input.transcriptOptIn,
+          insertAgenda: input.insertAgenda,
+          externalIds: input.externalIds,
+        })
+        .returning({ id: schema.meeting.id });
+      if (!row) throw new Error('Termin nicht angelegt');
+      if (input.attendees.length > 0) {
+        await tx.insert(schema.meetingAttendee).values(
+          input.attendees.slice(0, 200).map((attendee) => ({
+            orgId: scope.orgId,
+            meetingId: row.id,
+            relationshipId: scope.relationshipId,
+            ...attendee,
+          })),
+        );
+      }
+      return {
+        objectId: row.id,
+        relationshipId: scope.relationshipId,
+        action: 'created' as const,
+        after: { title: input.title, starts_at: input.startsAt.toISOString(), source: input.source },
+        result: row.id,
+      };
+    });
+  }
+
+  /**
+   * IN-03: Änderung aus dem Kalender über UID und SEQUENCE: eine höhere SEQUENCE aktualisiert,
+   * CANCEL sagt ab. Gilt für alle Termine dieser UID beim Käufer (bei „Bei beiden“ mehrere).
+   */
+  async calendarUpdate(
+    orgId: string,
+    uid: string,
+    change: {
+      sequence: number;
+      cancel: boolean;
+      title: string;
+      startsAt: Date;
+      durationMinutes: number;
+      location: string | null;
+      onlineMeetingUrl: string | null;
+    },
+  ): Promise<string[]> {
+    return this.tenant.run({ userId: 'system:kalender', organizationId: orgId }, async (tx) => {
+      const rows = await tx
+        .select()
+        .from(schema.meeting)
+        .where(and(eq(schema.meeting.ownerOrgId, orgId), eq(schema.meeting.icalUid, uid)));
+      const changed: string[] = [];
+      for (const row of rows) {
+        if (row.status === 'closed' || row.status === 'cancelled') continue;
+        if (change.cancel) {
+          await tx
+            .update(schema.meeting)
+            .set({ status: 'cancelled', sequence: Math.max(row.sequence, change.sequence) })
+            .where(eq(schema.meeting.id, row.id));
+          changed.push(row.id);
+        } else if (change.sequence > row.sequence) {
+          await tx
+            .update(schema.meeting)
+            .set({
+              title: change.title.slice(0, 200) || row.title,
+              startsAt: change.startsAt,
+              durationMinutes: Math.min(600, Math.max(15, change.durationMinutes)),
+              location: change.location,
+              onlineMeetingUrl: change.onlineMeetingUrl,
+              sequence: change.sequence,
+            })
+            .where(eq(schema.meeting.id, row.id));
+          changed.push(row.id);
+        }
+      }
+      return changed;
+    });
+  }
+
   /** Käuferseite: eigene Beziehung; ändern Admin oder wer im Team ist, nie mit Teamrolle Leser. */
   buyer<T>(auth: AuthContext, relationshipId: string, work: (scope: MeetingScope) => Promise<T>) {
     const organization = auth.organization;

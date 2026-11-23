@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IN-03: Manifest des Outlook-Add-ins. Die Admins des Kunden stellen es zentral in Microsoft 365
+     bereit. APP_URL durch die Adresse der App ersetzen (z. B. https://app.reziproq.de). -->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+  xsi:type="MailApp">
+  <Id>6f3b8a5e-2c41-4d7a-9b1e-7d2f0c5a9e31</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Reziproq</ProviderName>
+  <DefaultLocale>de-DE</DefaultLocale>
+  <DisplayName DefaultValue="Reziproq" />
+  <Description DefaultValue="Termine mit Lieferanten als Aktivität in Reziproq speichern." />
+  <IconUrl DefaultValue="APP_URL/favicon.svg" />
+  <HighResolutionIconUrl DefaultValue="APP_URL/favicon.svg" />
+  <SupportUrl DefaultValue="APP_URL" />
+  <AppDomains>
+    <AppDomain>APP_URL</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox" />
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.8" />
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="APP_URL/addin/outlook" />
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit" />
+  </Rule>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="reziproqGroup">
+                <Label resid="groupLabel" />
+                <Control xsi:type="Button" id="reziproqButton">
+                  <Label resid="buttonLabel" />
+                  <Supertip>
+                    <Title resid="buttonLabel" />
+                    <Description resid="buttonTip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon" />
+                    <bt:Image size="32" resid="icon" />
+                    <bt:Image size="80" resid="icon" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="taskpane" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon" DefaultValue="APP_URL/favicon.svg" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="taskpane" DefaultValue="APP_URL/addin/outlook" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="groupLabel" DefaultValue="Reziproq" />
+        <bt:String id="buttonLabel" DefaultValue="Reziproq" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="buttonTip" DefaultValue="Termin als Aktivität beim Lieferanten speichern." />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

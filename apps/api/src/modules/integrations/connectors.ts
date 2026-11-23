@@ -8,7 +8,7 @@ import type { ConnectorKey } from '@reziproq/shared';
  */
 
 /** Elemente, die eine Anbindung liefert, und der Domänendienst, über den sie entstehen */
-export type ItemKind = 'note';
+export type ItemKind = 'note' | 'calendar_invite' | 'calendar_event';
 
 export interface ConnectorDefinition {
   key: ConnectorKey;
@@ -39,10 +39,10 @@ export const connectors: readonly ConnectorDefinition[] = [
     parts: ['login', 'calendar', 'outlook', 'teams', 'transcripts'],
     defaultParts: ['login', 'calendar'],
     personal: true,
-    scopes: ['openid', 'Calendars.Read', 'Mail.ReadBasic'],
+    scopes: ['openid', 'Calendars.Read', 'Calendars.ReadWrite', 'Mail.ReadBasic'],
     secretKind: 'oauth',
     webhook: true,
-    items: ['note'],
+    items: ['note', 'calendar_event'],
     retentionDays: 30,
   },
   {
@@ -55,7 +55,7 @@ export const connectors: readonly ConnectorDefinition[] = [
     scopes: [],
     secretKind: 'webhook_secret',
     webhook: true,
-    items: ['note'],
+    items: ['note', 'calendar_invite'],
     retentionDays: 30,
   },
   {
@@ -68,7 +68,7 @@ export const connectors: readonly ConnectorDefinition[] = [
     scopes: ['openid', 'calendar.readonly'],
     secretKind: 'oauth',
     webhook: true,
-    items: ['note'],
+    items: ['note', 'calendar_event'],
     retentionDays: 30,
   },
   {

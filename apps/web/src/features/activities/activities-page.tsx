@@ -262,7 +262,10 @@ function Entry({ item, relationshipId }: { item: ActivityItem; relationshipId: s
       ? (text.draftStatuses[item.meta ?? ''] ?? null)
       : item.kind === 'hint'
         ? ((t.hints.statuses as Record<string, string>)[item.meta ?? ''] ?? null)
-        : item.meta;
+        : item.kind === 'meeting' && item.code
+          ? // IN-03: Herkunft des Termins, z. B. „aus Outlook“
+            [text.meetingSources[item.code] ?? null, item.meta].filter(Boolean).join(' · ')
+          : item.meta;
   return (
     <li
       className={cn(

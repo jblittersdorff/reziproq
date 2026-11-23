@@ -40,6 +40,7 @@ import {
   integrationsQueryOptions,
   myConnectionsQueryOptions,
   revokeApiKey,
+  saveInboundSettings,
   saveIntegrationParts,
   saveSso,
   ssoQueryOptions,
@@ -423,6 +424,7 @@ function ManagePanel({
           )}
         </div>
       )}
+      {connector.key === 'inbound_mail' && <InboundMailSection connection={connection} />}
       {connector.key === 'import_api' && <ApiKeysSection />}
       {connector.key === 'microsoft365' && <SsoSection provider="entra" />}
       {connector.key === 'google_workspace' && <SsoSection provider="google" />}
@@ -460,6 +462,91 @@ function ManagePanel({
         </ConfirmButton>
       </div>
     </div>
+  );
+}
+
+/**
+ * IN-03: Eingangsadresse mit Kopieren und die zugelassenen Absender-Domains. Nur Mails dieser
+ * Domains mit gültigem SPF und DKIM werden angenommen.
+ */
+function InboundMailSection({ connection }: { connection: ConnectionView }) {
+  const t = useT();
+  const text = t.integrations;
+  const accessToken = useAccessToken();
+  const client = useQueryClient();
+  const [domains, setDomains] = useState(connection.allowedDomains.join('\n'));
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ text: string; tone: 'success' | 'warning' } | null>(
+    null,
+  );
+  const [copied, setCopied] = useState(false);
+  const fieldId = useId();
+  const save = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setMessage(null);
+    try {
+      client.setQueryData(
+        integrationsQueryOptions(accessToken).queryKey,
+        await saveInboundSettings(
+          accessToken,
+          connection.id,
+          domains
+            .split(/[\s,;]+/)
+            .map((entry) => entry.trim().toLowerCase())
+            .filter(Boolean),
+        ),
+      );
+      setMessage({ text: text.saved, tone: 'success' });
+    } catch {
+      setMessage({ text: text.failed, tone: 'warning' });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const address = connection.inboundAddress;
+  return (
+    <section aria-labelledby={`${fieldId}-titel`} className="flex flex-col gap-3">
+      <h3 id={`${fieldId}-titel`} className="font-semibold text-sm">
+        {text.inboundTitle}
+      </h3>
+      <p className="text-muted-foreground text-sm">{text.inboundHint}</p>
+      {address && (
+        <div className="flex flex-wrap items-center gap-2">
+          <code className="break-all rounded-md bg-card px-3 py-2 text-sm">{address}</code>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              void navigator.clipboard?.writeText(address).then(() => setCopied(true));
+            }}
+          >
+            {text.copy}
+          </Button>
+          {copied && (
+            <span role="status" className="text-sm">
+              {text.copied}
+            </span>
+          )}
+        </div>
+      )}
+      <form onSubmit={(event) => void save(event)} className="flex flex-col gap-3">
+        <FormField label={text.allowedLabel} hint={text.allowedHint}>
+          {(field) => (
+            <Textarea
+              {...field}
+              rows={2}
+              value={domains}
+              onChange={(event) => setDomains(event.target.value)}
+            />
+          )}
+        </FormField>
+        {message && <StatusLine message={message.text} tone={message.tone} />}
+        <Button type="submit" variant="outline" className="self-start" loading={busy}>
+          {text.allowedSave}
+        </Button>
+      </form>
+    </section>
   );
 }
 

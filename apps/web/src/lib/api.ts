@@ -85,6 +85,8 @@ import {
   type BriefSettings,
   type ColumnMap,
   type CreateApiKey,
+  type DecideInbound,
+  type AddinRegister,
   type SaveSso,
   type DecideImportRows,
   type ImportBatchKind,
@@ -101,6 +103,9 @@ import {
   importBatchListSchema,
   importBatchSchema,
   integrationsSchema,
+  inboxSchema,
+  addinDetectSchema,
+  addinRegisteredSchema,
   ssoHintSchema,
   ssoOverviewSchema,
   apiKeysSchema,
@@ -3962,3 +3967,31 @@ export const approveMember = (accessToken: string, id: string) =>
     organizationMemberSchema,
     accessToken,
   );
+
+/** IN-03: Mein Tag › Neu eingegangen */
+export const inboxQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['mein-tag', 'eingang'],
+    queryFn: () => getJson('/mein-tag/eingang', inboxSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const decideInbound = (accessToken: string, id: string, input: DecideInbound) =>
+  sendJson('POST', `/mein-tag/eingang/${id}/entscheiden`, input, inboxSchema, accessToken);
+
+/** IN-03: Eingangsadresse, zugelassene Absender-Domains (nur Admins) */
+export const saveInboundSettings = (accessToken: string, id: string, allowedDomains: string[]) =>
+  sendJson(
+    'PUT',
+    `${integrationsPath}/${id}/einstellungen`,
+    { allowedDomains },
+    integrationsSchema,
+    accessToken,
+  );
+
+/** IN-03: Outlook-Add-in */
+export const detectAddin = (accessToken: string, attendees: string[], subject: string) =>
+  sendJson('POST', '/termine/addin/erkennen', { attendees, subject }, addinDetectSchema, accessToken);
+
+export const registerAddin = (accessToken: string, input: AddinRegister) =>
+  sendJson('POST', '/termine/addin', input, addinRegisteredSchema, accessToken);

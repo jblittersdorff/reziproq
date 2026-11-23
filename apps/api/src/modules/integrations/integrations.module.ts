@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ActivitiesModule } from '../activities/activities.module.js';
 import { ApiKeysService } from './api-keys.service.js';
 import { FakeProvider } from './fake-provider.js';
+import { FakeGraphClient } from './graph-client.js';
+import { ItemHandlers } from './item-handlers.js';
 import { IntegrationQueue } from './integration-queue.js';
 import {
   InboundHookController,
@@ -21,7 +23,9 @@ import { IntegrationsWorker } from './integrations.worker.js';
     IntegrationsService,
     IntegrationsWorker,
     ApiKeysService,
+    ItemHandlers,
+    FakeGraphClient,
   ],
-  exports: [IntegrationsService, ApiKeysService],
+  exports: [IntegrationsService, ApiKeysService, ItemHandlers, FakeGraphClient],
 })
 export class IntegrationsModule {}

@@ -26,6 +26,9 @@ export const connectionViewSchema = z.object({
   connectedAt: z.iso.datetime(),
   /** Nur für Webhook-Anbindungen: die Adresse, an die der Anbieter sendet (ohne Geheimnis) */
   hookPath: z.string().nullable(),
+  /** IN-03: Eingangsadresse und zugelassene Absender-Domains (nur Eingangsadresse) */
+  inboundAddress: z.string().nullable().default(null),
+  allowedDomains: z.array(z.string()).default([]),
   lastJob: z
     .object({
       status: z.enum(['queued', 'running', 'done', 'failed']),

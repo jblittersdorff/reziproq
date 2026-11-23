@@ -17,7 +17,8 @@ export const meetingTypes = [
 ] as const;
 /** Dauer eines Termins in Minuten, wenn nichts angegeben ist */
 export const defaultMeetingMinutes = 60;
-export const meetingStatuses = ['planned', 'held', 'closed'] as const;
+// IN-03: abgesagt kommt aus Outlook oder dem Kalender (METHOD:CANCEL)
+export const meetingStatuses = ['planned', 'held', 'closed', 'cancelled'] as const;
 export const meetingSides = ['buyer', 'supplier'] as const;
 export type MeetingType = (typeof meetingTypes)[number];
 export type MeetingSide = (typeof meetingSides)[number];

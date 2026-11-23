@@ -1267,6 +1267,8 @@ export class MeetingBriefService {
         .join(' · '),
     }));
     await this.meetings.saveAgendaWithDetail(scope, meetingId, items);
+    // IN-03: „Agenda einfügen“ schreibt sie in den markierten Block der Einladung in Outlook
+    await this.meetings.notifyAgendaShared(scope, meetingId, items);
   }
 
   private async latestPart(scope: MeetingScope, meetingId: string, part: BriefPart) {

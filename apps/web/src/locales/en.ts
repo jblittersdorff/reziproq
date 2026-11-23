@@ -42,7 +42,8 @@ export const en: Messages = {
   auth: {
     emailLabel: 'Your email',
     continue: 'Continue',
-    emailHint: 'If your email belongs to a company with Microsoft or Google sign-in, you go straight there.',
+    emailHint:
+      'If your email belongs to a company with Microsoft or Google sign-in, you go straight there.',
     welcome: 'Sign in with your company account to open your supplier relationships.',
     signIn: 'Sign in',
     checking: 'Checking sign-in …',
@@ -848,7 +849,8 @@ export const en: Messages = {
     memberTitle: 'Role and function',
     pendingBadge: 'awaiting approval',
     approveTitle: 'Review a new person',
-    approveText: 'This person signed in via the company domain. Check role and function, then approve. Until then they see nothing.',
+    approveText:
+      'This person signed in via the company domain. Check role and function, then approve. Until then they see nothing.',
     approve: 'Approve',
     approved: 'Approved.',
     memberPurpose: 'The role defines what the person may do in Reziproq.',
@@ -1427,6 +1429,73 @@ export const en: Messages = {
       file_too_large: 'The file is larger than 10 MB.',
     } as Record<string, string>,
   },
+  inbox: {
+    navTitle: 'New arrivals',
+    title: 'New arrivals',
+    purpose:
+      'Meetings from Outlook, your calendar and your inbound address. Reziproq assigns clear ones itself; you decide the unclear ones.',
+    loading: 'Loading arrivals …',
+    failed: 'That did not work. Please try again.',
+    nextEyebrow: 'Your next step',
+    nextTitle: (count: number | string) =>
+      `${count} ${count === 1 ? 'meeting waits' : 'meetings wait'} for an assignment`,
+    nextText: 'Afterwards they appear as internal meetings in the supplier’s activities.',
+    doneTitle: 'Everything assigned',
+    doneText: 'New meetings with suppliers appear here as soon as they arrive.',
+    openTitle: (count: number | string) => `Assign · ${count}`,
+    todayTitle: (count: number | string) => `Assigned automatically today · ${count}`,
+    todayEmpty: 'Nothing yet today.',
+    sources: {
+      inbound_mail: 'Invitation to the inbound address',
+      calendar_sync: 'From your calendar',
+      outlook_addin: 'From the Outlook add-in',
+    } as Record<string, string>,
+    invitedBy: (name: string) => `invited by ${name || '–'}`,
+    attendees: (count: number | string) => `${count} attendees`,
+    or: 'or',
+    suggestion: 'Suggestion',
+    noneTitle: 'No supplier recognised yet',
+    eventTitle: 'No single supplier',
+    typeLabel: 'Meeting type',
+    supplierLabel: 'Supplier',
+    save: 'Save',
+    both: 'For both',
+    asEvent: 'Save as event',
+    ignore: 'Ignore',
+    meeting: 'Meeting',
+    event: 'Event',
+    howTitle: 'How meetings arrive',
+    howAddin: 'Outlook add-in: click Reziproq in the meeting.',
+    howMail: 'Inbound address: simply invite it to the meeting.',
+    howCalendar:
+      'Calendar: meetings with supplier attendees are suggested, never taken over unasked.',
+    privateTitle: 'Private stays private',
+    privateText:
+      'Reziproq does not store internal meetings without a supplier. Meetings from Outlook are internal: the supplier does not see them.',
+    tileCount: (count: number | string) =>
+      `${count} ${count === 1 ? 'meeting waits' : 'meetings wait'} for you`,
+    tileEmpty: 'Nothing open.',
+    tileLink: 'Assign',
+    saved: 'Assigned.',
+  },
+
+  addin: {
+    title: 'Reziproq',
+    loading: 'Reading the meeting …',
+    noItem: 'Open a meeting in Outlook to save it as an activity.',
+    detected: 'Recognised supplier',
+    noneDetected: 'No supplier recognised. Choose one.',
+    supplierLabel: 'Supplier',
+    typeLabel: 'Meeting type',
+    brief: 'Prepare briefing',
+    transcript: 'Take over transcript',
+    insertAgenda: 'Insert agenda once the briefing is ready',
+    save: 'Save as activity',
+    saved: 'Saved. Send the invitation now; Reziproq is added as an attendee.',
+    failed: 'That did not work. Please try again.',
+    preview: 'Preview without Outlook: sample meeting.',
+  },
+
   integrations: {
     navTitle: 'Integrations',
     navHint: 'Microsoft 365, inbound address, import API and more',
@@ -1573,8 +1642,10 @@ export const en: Messages = {
     } as Record<string, string>,
     sso: {
       title: 'Sign-in with the company account',
-      hintEntra: 'People of your organisation sign in with their Microsoft account. New people from your domains are created at first sign-in and wait for approval.',
-      hintGoogle: 'People of your organisation sign in with their Google account. New people from your domains are created at first sign-in and wait for approval.',
+      hintEntra:
+        'People of your organisation sign in with their Microsoft account. New people from your domains are created at first sign-in and wait for approval.',
+      hintGoogle:
+        'People of your organisation sign in with their Google account. New people from your domains are created at first sign-in and wait for approval.',
       tenantLabel: 'Tenant ID (Entra ID)',
       hostedDomainLabel: 'Google domain',
       domainsLabel: 'Domains',
@@ -1589,7 +1660,8 @@ export const en: Messages = {
       statusDraft: 'verify domain',
       verified: 'verified',
       unverified: 'not verified',
-      record: (name: string, value: string) => `TXT record ${name || '–'} with value ${value || '–'}`,
+      record: (name: string, value: string) =>
+        `TXT record ${name || '–'} with value ${value || '–'}`,
       verify: 'Verify domain',
       verifyFailed: 'The DNS record was not found yet. This can take up to an hour.',
       errors: {
@@ -1599,6 +1671,11 @@ export const en: Messages = {
         organisation_ohne_zitadel: 'Your organisation is not yet linked to sign-in.',
       } as Record<string, string>,
     },
+    inboundTitle: 'Inbound address',
+    inboundHint: 'Invite this address to meetings. Only mails with valid SPF and DKIM from allowed sender domains are accepted.',
+    allowedLabel: 'Allowed sender domains',
+    allowedHint: 'One domain per line, e.g. company.com',
+    allowedSave: 'Save senders',
     apiKeys: {
       title: 'API keys',
       hint: 'Your middleware delivers supplier master data and spend with a key. Today Reziproq takes over these two object types; the others follow.',
@@ -2964,7 +3041,12 @@ export const en: Messages = {
       format: 'Format from the rules of engagement',
       other: 'Other meeting',
     },
-    statuses: { planned: 'Planned', held: 'Held', closed: 'Closed' },
+    statuses: {
+      planned: 'Planned',
+      held: 'Held',
+      closed: 'Closed',
+      cancelled: 'Cancelled',
+    },
     next: 'Next meeting',
     nextOpen: 'Prepare',
     ownerSide: { buyer: 'Created by the customer', supplier: 'Created by the supplier' },
@@ -3552,6 +3634,11 @@ export const en: Messages = {
       agent: 'Draft',
     },
     reziproq: 'Reziproq',
+    meetingSources: {
+      outlook_addin: 'from Outlook',
+      inbound_mail: 'via the inbound address',
+      calendar_sync: 'from the calendar',
+    } as Record<string, string>,
     agentTitles: {
       deviation_explanation: 'Reziproq drafted explanations for diverging ratings',
       feedback_themes: 'Reziproq summarised the themes from the feedback comments',
@@ -4624,10 +4711,13 @@ export const en: Messages = {
     pendingApproval:
       'Welcome! An admin of your organisation is reviewing your access. Afterwards you will see your suppliers.',
     signInRejected: {
-      nur_sso: 'Your organisation only signs in with its company account. Please sign out and choose Microsoft or Google.',
-      falscher_mandant: 'This Microsoft account does not belong to your organisation’s company account.',
+      nur_sso:
+        'Your organisation only signs in with its company account. Please sign out and choose Microsoft or Google.',
+      falscher_mandant:
+        'This Microsoft account does not belong to your organisation’s company account.',
       falsche_domain: 'This Google account does not belong to your organisation’s domain.',
-      domain_nicht_bestaetigt: 'The domain of your email is not yet verified in Reziproq. Please contact your admin.',
+      domain_nicht_bestaetigt:
+        'The domain of your email is not yet verified in Reziproq. Please contact your admin.',
       sso_nicht_eingerichtet: 'Sign-in with this provider is not set up for your organisation.',
       identitaet_vergeben: 'This company account already belongs to another person in Reziproq.',
     } as Record<string, string>,

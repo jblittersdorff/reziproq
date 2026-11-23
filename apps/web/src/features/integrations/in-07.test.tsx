@@ -44,6 +44,8 @@ const overview: Integrations = {
         connectedByName: 'Anna Berg',
         connectedAt: '2026-11-18T08:00:00Z',
         hookPath: null,
+        inboundAddress: null,
+        allowedDomains: [],
         lastJob: null,
       },
     },

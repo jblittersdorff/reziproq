@@ -14,6 +14,8 @@ const connection = (n: number, parts: string[], failed = 0) => ({
   connectedByName: 'Lena Berger',
   connectedAt: '2026-11-18T08:00:00Z',
   hookPath: '/api/anbindungen/eingang/Jx3kq9VwB2nT7sLpR4mYc8dHfA1uZ6eG',
+  inboundAddress: null,
+  allowedDomains: [],
   lastJob: {
     status: 'done' as const,
     itemsIn: 3,

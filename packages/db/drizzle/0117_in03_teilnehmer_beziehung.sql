@@ -1,0 +1,2 @@
+ALTER TABLE "meeting_attendee" ADD COLUMN "relationship_id" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "meeting_attendee" ADD CONSTRAINT "meeting_attendee_relationship_id_relationship_id_fk" FOREIGN KEY ("relationship_id") REFERENCES "public"."relationship"("id") ON DELETE cascade ON UPDATE no action;

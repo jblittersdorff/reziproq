@@ -43,7 +43,8 @@ export const de = {
   auth: {
     emailLabel: 'Deine Mail',
     continue: 'Weiter',
-    emailHint: 'Gehört deine Mail zu einer Firma mit Microsoft- oder Google-Anmeldung, geht es direkt dorthin.',
+    emailHint:
+      'Gehört deine Mail zu einer Firma mit Microsoft- oder Google-Anmeldung, geht es direkt dorthin.',
     welcome: 'Melde dich mit deinem Firmenkonto an, um deine Lieferantenbeziehungen zu öffnen.',
     signIn: 'Anmelden',
     checking: 'Anmeldung wird geprüft …',
@@ -865,7 +866,8 @@ export const de = {
     memberTitle: 'Rolle und Funktion',
     pendingBadge: 'wartet auf Freigabe',
     approveTitle: 'Neue Person prüfen',
-    approveText: 'Diese Person hat sich über die Firmen-Domain angemeldet. Prüfe Rolle und Funktion, dann gib sie frei. Bis dahin sieht sie nichts.',
+    approveText:
+      'Diese Person hat sich über die Firmen-Domain angemeldet. Prüfe Rolle und Funktion, dann gib sie frei. Bis dahin sieht sie nichts.',
     approve: 'Freigeben',
     approved: 'Freigegeben.',
     memberPurpose: 'Die Rolle bestimmt, was die Person in Reziproq darf.',
@@ -1451,6 +1453,73 @@ export const de = {
       file_too_large: 'Die Datei ist größer als 10 MB.',
     } as Record<string, string>,
   },
+  inbox: {
+    navTitle: 'Neu eingegangen',
+    title: 'Neu eingegangen',
+    purpose:
+      'Termine aus Outlook, deinem Kalender und eurer Eingangsadresse. Eindeutige ordnet Reziproq selbst zu, unklare entscheidest du.',
+    loading: 'Eingänge werden geladen …',
+    failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    nextEyebrow: 'Dein nächster Schritt',
+    nextTitle: (count: number | string) =>
+      `${count} ${count === 1 ? 'Termin wartet' : 'Termine warten'} auf eine Zuordnung`,
+    nextText: 'Danach stehen sie als interne Termine in den Aktivitäten des Lieferanten.',
+    doneTitle: 'Alles zugeordnet',
+    doneText: 'Neue Termine mit Lieferanten erscheinen hier, sobald sie eingehen.',
+    openTitle: (count: number | string) => `Zuordnen · ${count}`,
+    todayTitle: (count: number | string) => `Heute selbst zugeordnet · ${count}`,
+    todayEmpty: 'Heute noch nichts.',
+    sources: {
+      inbound_mail: 'Einladung an die Eingangsadresse',
+      calendar_sync: 'Aus deinem Kalender',
+      outlook_addin: 'Aus dem Outlook-Add-in',
+    } as Record<string, string>,
+    invitedBy: (name: string) => `eingeladen von ${name || '–'}`,
+    attendees: (count: number | string) => `${count} Teilnehmer`,
+    or: 'oder',
+    suggestion: 'Vorschlag',
+    noneTitle: 'Noch kein Lieferant erkannt',
+    eventTitle: 'Kein einzelner Lieferant',
+    typeLabel: 'Termintyp',
+    supplierLabel: 'Lieferant',
+    save: 'Speichern',
+    both: 'Bei beiden',
+    asEvent: 'Als Ereignis speichern',
+    ignore: 'Ignorieren',
+    meeting: 'Termin',
+    event: 'Ereignis',
+    howTitle: 'Wie Termine ankommen',
+    howAddin: 'Add-in in Outlook: im Termin auf Reziproq klicken.',
+    howMail: 'Eingangsadresse: sie einfach zum Termin einladen.',
+    howCalendar:
+      'Kalender: Termine mit Teilnehmern von Lieferanten werden vorgeschlagen, nie ungefragt übernommen.',
+    privateTitle: 'Privat bleibt privat',
+    privateText:
+      'Interne Termine ohne Lieferant speichert Reziproq nicht. Termine aus Outlook sind intern: Der Lieferant sieht sie nicht.',
+    tileCount: (count: number | string) =>
+      `${count} ${count === 1 ? 'Termin wartet' : 'Termine warten'} auf dich`,
+    tileEmpty: 'Nichts offen.',
+    tileLink: 'Zuordnen',
+    saved: 'Zugeordnet.',
+  },
+
+  addin: {
+    title: 'Reziproq',
+    loading: 'Termin wird gelesen …',
+    noItem: 'Öffne einen Termin in Outlook, um ihn als Aktivität zu speichern.',
+    detected: 'Erkannter Lieferant',
+    noneDetected: 'Kein Lieferant erkannt. Wähle einen aus.',
+    supplierLabel: 'Lieferant',
+    typeLabel: 'Termintyp',
+    brief: 'Briefing vorbereiten',
+    transcript: 'Transkript übernehmen',
+    insertAgenda: 'Agenda einfügen, sobald das Briefing steht',
+    save: 'Als Aktivität speichern',
+    saved: 'Gespeichert. Sende jetzt die Einladung; Reziproq ist als Teilnehmer eingetragen.',
+    failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    preview: 'Vorschau ohne Outlook: Beispieltermin.',
+  },
+
   integrations: {
     navTitle: 'Anbindungen',
     navHint: 'Microsoft 365, Eingangsadresse, Import-API und mehr',
@@ -1598,8 +1667,10 @@ export const de = {
     } as Record<string, string>,
     sso: {
       title: 'Anmeldung über das Firmenkonto',
-      hintEntra: 'Personen deiner Organisation melden sich mit ihrem Microsoft-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
-      hintGoogle: 'Personen deiner Organisation melden sich mit ihrem Google-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
+      hintEntra:
+        'Personen deiner Organisation melden sich mit ihrem Microsoft-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
+      hintGoogle:
+        'Personen deiner Organisation melden sich mit ihrem Google-Konto an. Neue Personen aus euren Domains werden beim ersten Anmelden angelegt und warten auf Freigabe.',
       tenantLabel: 'Mandanten-ID (Entra ID)',
       hostedDomainLabel: 'Google-Domain',
       domainsLabel: 'Domains',
@@ -1614,16 +1685,24 @@ export const de = {
       statusDraft: 'Domain bestätigen',
       verified: 'bestätigt',
       unverified: 'nicht bestätigt',
-      record: (name: string, value: string) => `TXT-Eintrag ${name || '–'} mit dem Wert ${value || '–'}`,
+      record: (name: string, value: string) =>
+        `TXT-Eintrag ${name || '–'} mit dem Wert ${value || '–'}`,
       verify: 'Domain bestätigen',
-      verifyFailed: 'Der DNS-Eintrag wurde noch nicht gefunden. Das kann bis zu einer Stunde dauern.',
+      verifyFailed:
+        'Der DNS-Eintrag wurde noch nicht gefunden. Das kann bis zu einer Stunde dauern.',
       errors: {
         mandant_fehlt: 'Bitte trage die Mandanten-ID ein.',
         domain_fehlt: 'Bitte trage die Google-Domain ein.',
-        sso_nicht_verfuegbar: 'Die Anmeldung über diesen Anbieter ist in dieser Umgebung nicht eingerichtet.',
+        sso_nicht_verfuegbar:
+          'Die Anmeldung über diesen Anbieter ist in dieser Umgebung nicht eingerichtet.',
         organisation_ohne_zitadel: 'Deine Organisation ist noch nicht mit der Anmeldung verknüpft.',
       } as Record<string, string>,
     },
+    inboundTitle: 'Eingangsadresse',
+    inboundHint: 'Ladet diese Adresse zu Terminen ein. Angenommen werden nur Mails mit gültigem SPF und DKIM von zugelassenen Absender-Domains.',
+    allowedLabel: 'Zugelassene Absender-Domains',
+    allowedHint: 'Eine Domain je Zeile, z. B. firma.de',
+    allowedSave: 'Absender speichern',
     apiKeys: {
       title: 'API-Schlüssel',
       hint: 'Eure Middleware liefert mit einem Schlüssel Lieferantenstamm und Spend. Heute übernimmt Reziproq diese beiden Objektarten; die anderen folgen.',
@@ -1634,7 +1713,8 @@ export const de = {
       scopesLabel: 'Erlaubte Objektarten',
       create: 'Schlüssel erzeugen',
       secretTitle: 'Neuer Schlüssel, nur jetzt sichtbar',
-      secretHint: 'Kopiere den Schlüssel und hinterlege ihn in eurer Middleware. Reziproq speichert ihn nur als Prüfsumme.',
+      secretHint:
+        'Kopiere den Schlüssel und hinterlege ihn in eurer Middleware. Reziproq speichert ihn nur als Prüfsumme.',
       copy: 'Schlüssel kopieren',
       copied: 'Schlüssel kopiert.',
       lastUsed: (date: string) => `zuletzt genutzt ${date || '–'}`,
@@ -3035,7 +3115,12 @@ export const de = {
       format: 'Format aus den Spielregeln',
       other: 'Anderer Termin',
     },
-    statuses: { planned: 'Geplant', held: 'Stattgefunden', closed: 'Abgeschlossen' },
+    statuses: {
+      planned: 'Geplant',
+      held: 'Stattgefunden',
+      closed: 'Abgeschlossen',
+      cancelled: 'Abgesagt',
+    },
     next: 'Nächster Termin',
     nextOpen: 'Vorbereiten',
     ownerSide: { buyer: 'Vom Kunden angelegt', supplier: 'Vom Lieferanten angelegt' },
@@ -3632,6 +3717,11 @@ export const de = {
       agent: 'Entwurf',
     },
     reziproq: 'Reziproq',
+    meetingSources: {
+      outlook_addin: 'aus Outlook',
+      inbound_mail: 'über die Eingangsadresse',
+      calendar_sync: 'aus dem Kalender',
+    } as Record<string, string>,
     agentTitles: {
       deviation_explanation: 'Reziproq hat Erklärungen für abweichende Bewertungen entworfen',
       feedback_themes: 'Reziproq hat die Themen aus den Freitexten des Feedbacks zusammengefasst',
@@ -4729,11 +4819,14 @@ export const de = {
     pendingApproval:
       'Willkommen! Ein Admin deiner Organisation prüft gerade deinen Zugang. Danach siehst du deine Lieferanten.',
     signInRejected: {
-      nur_sso: 'Deine Organisation meldet sich nur noch über ihr Firmenkonto an. Bitte melde dich ab und wähle Microsoft oder Google.',
+      nur_sso:
+        'Deine Organisation meldet sich nur noch über ihr Firmenkonto an. Bitte melde dich ab und wähle Microsoft oder Google.',
       falscher_mandant: 'Dieses Microsoft-Konto gehört nicht zum Firmenkonto deiner Organisation.',
       falsche_domain: 'Dieses Google-Konto gehört nicht zur Domain deiner Organisation.',
-      domain_nicht_bestaetigt: 'Die Domain deiner Mail ist bei Reziproq noch nicht bestätigt. Wende dich an deinen Admin.',
-      sso_nicht_eingerichtet: 'Die Anmeldung über diesen Anbieter ist für deine Organisation nicht eingerichtet.',
+      domain_nicht_bestaetigt:
+        'Die Domain deiner Mail ist bei Reziproq noch nicht bestätigt. Wende dich an deinen Admin.',
+      sso_nicht_eingerichtet:
+        'Die Anmeldung über diesen Anbieter ist für deine Organisation nicht eingerichtet.',
       identitaet_vergeben: 'Dieses Firmenkonto gehört schon zu einer anderen Person in Reziproq.',
     } as Record<string, string>,
     missing:

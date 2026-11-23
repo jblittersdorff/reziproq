@@ -21,6 +21,7 @@ import { actorIn } from './actor.js';
 import { type ConnectorDefinition, connectorOf, connectors } from './connectors.js';
 import { FakeProvider, type ProviderItem } from './fake-provider.js';
 import { IntegrationQueue, type QueuedJob } from './integration-queue.js';
+import { ItemHandlers } from './item-handlers.js';
 import { SecretBox } from './secret-box.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -44,12 +45,30 @@ const hookPayloadSchema = z.object({
         kind: z.string().min(1).max(40),
         relationshipId: z.uuid().nullable().default(null),
         text: z.string().max(5000).default(''),
+        // IN-03: Absender, SPF/DKIM und iCalendar-Teil einer Einladung
+        data: z.record(z.string(), z.unknown()).optional(),
       }),
     )
     .max(500),
 });
 
 export const signatureHeader = 'x-reziproq-signature';
+
+/** IN-03: Eingangsadresse eines Kunden, z. B. termine@nordwind-antriebe.reziproq.de */
+export function inboundAddressOf(name: string): string {
+  const slug =
+    name
+      .toLocaleLowerCase('de')
+      .replaceAll('ä', 'ae')
+      .replaceAll('ö', 'oe')
+      .replaceAll('ü', 'ue')
+      .replaceAll('ß', 'ss')
+      .replace(/\b(gmbh|ag|se|kg|co|demo)\b/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40) || 'kunde';
+  return `termine@${slug}.reziproq.de`;
+}
 
 /** Signatur eines Webhooks: HMAC-SHA256 über den Rohinhalt, hex, mit Präfix sha256= */
 export function signPayload(secret: string, body: Buffer | string): string {
@@ -87,6 +106,7 @@ export class IntegrationsService {
     @Inject(ActivitiesService) private readonly activities: ActivitiesService,
     @Inject(FakeProvider) private readonly provider: FakeProvider,
     @Inject(IntegrationQueue) private readonly queue: IntegrationQueue,
+    @Inject(ItemHandlers) private readonly handlers: ItemHandlers,
   ) {
     if (this.box.keyRef === 'ephemeral' && env.NODE_ENV !== 'test') {
       this.logger.warn(
@@ -253,6 +273,11 @@ export class IntegrationsService {
             connectedByName: people.find((person) => person.id === row.connectedBy)?.name ?? '',
             connectedAt: row.connectedAt.toISOString(),
             hookPath: hook ? `/api/anbindungen/eingang/${hook.token}` : null,
+            inboundAddress:
+              typeof row.settings.address === 'string' ? (row.settings.address as string) : null,
+            allowedDomains: Array.isArray(row.settings.allowedDomains)
+              ? (row.settings.allowedDomains as string[])
+              : [],
             lastJob: job
               ? {
                   status: job.status,
@@ -313,6 +338,11 @@ export class IntegrationsService {
           userId,
           status: 'active',
           parts,
+          // IN-03: Eingangsadresse je Kunde; zugelassene Absender pflegt der Admin
+          settings:
+            connector.key === 'inbound_mail'
+              ? { address: inboundAddressOf(auth.organization?.name ?? ''), allowedDomains: [] }
+              : {},
           connectedBy: auth.userId,
         })
         .returning({ id: schema.connection.id });
@@ -378,6 +408,74 @@ export class IntegrationsService {
         .update(schema.connection)
         .set({ parts: [...new Set(parts)] })
         .where(eq(schema.connection.id, id));
+    });
+  }
+
+  /** IN-03: zugelassene Absender-Domains der Eingangsadresse (nur Admins) */
+  async updateInboundSettings(auth: AuthContext, id: string, allowedDomains: string[]): Promise<void> {
+    const session = this.session(auth);
+    await this.tenant.run(session, async (tx) => {
+      const row = await this.ownConnection(tx, auth, id);
+      if (row.connectorKey !== 'inbound_mail') throw badRequest('keine_eingangsadresse');
+      await tx
+        .update(schema.connection)
+        .set({ settings: { ...row.settings, allowedDomains: [...new Set(allowedDomains)] } })
+        .where(eq(schema.connection.id, id));
+    });
+  }
+
+  /**
+   * IN-03: Zugang einer Person zu ihrem Kalender (persönliche Verbindung), z. B. um die Agenda in
+   * den Termin zu schreiben. null ohne aktive Verbindung. Der Klartext bleibt in der Schicht.
+   */
+  async withUserToken<T>(
+    orgId: string,
+    userId: string,
+    connectorKey: string,
+    work: (token: string) => Promise<T>,
+  ): Promise<T | null> {
+    const token = await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
+      const [row] = await tx
+        .select({ secret: schema.connectionSecret })
+        .from(schema.connection)
+        .innerJoin(
+          schema.connectionSecret,
+          eq(schema.connectionSecret.connectionId, schema.connection.id),
+        )
+        .where(
+          and(
+            eq(schema.connection.connectorKey, connectorKey),
+            eq(schema.connection.scope, 'user'),
+            eq(schema.connection.userId, userId),
+            eq(schema.connection.status, 'active'),
+            eq(schema.connectionSecret.kind, 'oauth'),
+          ),
+        );
+      return row ? this.box.open(row.secret.ciphertext, row.secret.keyRef) : null;
+    });
+    return token ? work(token) : null;
+  }
+
+  /** IN-03: Eingangsadresse und zugelassene Absender des Kunden; null ohne aktive Eingangsadresse */
+  async inboundMailOf(orgId: string): Promise<{ address: string; allowedDomains: string[] } | null> {
+    return this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
+      const [row] = await tx
+        .select({ settings: schema.connection.settings })
+        .from(schema.connection)
+        .where(
+          and(
+            eq(schema.connection.connectorKey, 'inbound_mail'),
+            eq(schema.connection.scope, 'org'),
+            eq(schema.connection.status, 'active'),
+          ),
+        );
+      if (!row || typeof row.settings.address !== 'string') return null;
+      return {
+        address: row.settings.address,
+        allowedDomains: Array.isArray(row.settings.allowedDomains)
+          ? (row.settings.allowedDomains as string[])
+          : [],
+      };
     });
   }
 
@@ -486,8 +584,10 @@ export class IntegrationsService {
             ),
           ),
         );
-      const relationships = await tx.execute<{ id: string; name: string }>(sql`
-        select r.id, coalesce(s.display_name, o.name) as name
+      const relationships = await tx.execute<{ id: string; name: string; domains: string[] }>(sql`
+        select r.id, coalesce(s.display_name, o.name) as name,
+          array(select distinct d.domain from supplier_domain d
+            where d.relationship_id = r.id and d.org_id = ${job.orgId} order by d.domain) as domains
         from relationship r
         join organization o on o.id = r.supplier_org_id
         left join relationship_side s on s.relationship_id = r.id and s.org_id = ${job.orgId}
@@ -511,7 +611,12 @@ export class IntegrationsService {
       items =
         job.items ??
         (await this.provider.fetch(
-          { connector, parts: start.connection.parts, relationships: start.relationships },
+          {
+            connector,
+            parts: start.connection.parts,
+            personal: start.connection.scope === 'user',
+            relationships: start.relationships,
+          },
           start.token,
         ));
     } catch (error) {
@@ -535,7 +640,7 @@ export class IntegrationsService {
         break;
       }
       counts.itemsIn += 1;
-      const outcome = await this.applyItem(job, start.connection.id, connector, start.actor, item);
+      const outcome = await this.applyItem(job, start.connection, connector, start.actor, item);
       if (outcome === 'failed') counts.itemsFailed += 1;
       else counts.itemsOk += 1;
       await this.tenant.run(system, (tx) =>
@@ -551,11 +656,12 @@ export class IntegrationsService {
 
   private async applyItem(
     job: QueuedJob,
-    connectionId: string,
+    connection: ConnectionRow,
     connector: ConnectorDefinition,
     actor: AuthContext | null,
     item: ProviderItem,
   ): Promise<'applied' | 'ignored' | 'failed'> {
+    const connectionId = connection.id;
     const system = { userId: systemUser, organizationId: job.orgId };
     const known = await this.tenant.run(system, async (tx) => {
       const [row] = await tx
@@ -572,7 +678,7 @@ export class IntegrationsService {
       return Boolean(row);
     });
     const record = (
-      status: 'applied' | 'ignored' | 'failed',
+      status: 'applied' | 'ignored' | 'rejected' | 'failed',
       reason: string | null,
       objectId: string | null = null,
     ) =>
@@ -592,6 +698,29 @@ export class IntegrationsService {
     if (!connector.items.includes(item.kind as ConnectorDefinition['items'][number])) {
       await record('ignored', 'nicht_abgebildet');
       return 'ignored';
+    }
+    // Andere Elementarten bildet der Fachbereich ab, der sie angemeldet hat (IN-03: Termine)
+    const handler = item.kind === 'note' ? undefined : this.handlers.get(item.kind);
+    if (handler) {
+      try {
+        const outcome = await handler(
+          {
+            orgId: job.orgId,
+            connectionId,
+            connectorKey: connector.key,
+            scope: connection.scope,
+            userId: connection.userId,
+            settings: connection.settings,
+            actor,
+          },
+          item,
+        );
+        await record(outcome.status, outcome.reason ?? null, outcome.objectId ?? null);
+        return outcome.status === 'failed' ? 'failed' : outcome.status === 'applied' ? 'applied' : 'ignored';
+      } catch (error) {
+        await record('failed', reasonOf(error));
+        return 'failed';
+      }
     }
     try {
       if (!actor) throw new Error('person_fehlt');

@@ -18,6 +18,7 @@ import { Route as AppAgentenRouteImport } from './routes/_app/agenten'
 import { Route as AppFragenRouteImport } from './routes/_app/fragen'
 import { Route as AppMeinTagRouteImport } from './routes/_app/mein-tag'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
+import { Route as AddinOutlookRouteImport } from './routes/addin/outlook'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as EinladungTokenRouteRouteImport } from './routes/einladung/$token/route'
 import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
@@ -42,6 +43,7 @@ import { Route as AppLieferantenIndexRouteImport } from './routes/_app/lieferant
 import { Route as AppLieferantenIdRouteRouteImport } from './routes/_app/lieferanten/$id/route'
 import { Route as AppLieferantenImportierenRouteImport } from './routes/_app/lieferanten/importieren'
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
+import { Route as AppMeinTagEingangRouteImport } from './routes/_app/mein-tag_/eingang'
 import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
 import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/matrix'
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
@@ -313,6 +315,11 @@ const AppMenuRoute = AppMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AppRoute,
 } as any)
+const AddinOutlookRoute = AddinOutlookRouteImport.update({
+  id: '/addin/outlook',
+  path: '/addin/outlook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -436,6 +443,11 @@ const AppLieferantenImportierenRoute =
 const AppLieferantenNeuRoute = AppLieferantenNeuRouteImport.update({
   id: '/lieferanten/neu',
   path: '/lieferanten/neu',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMeinTagEingangRoute = AppMeinTagEingangRouteImport.update({
+  id: '/mein-tag_/eingang',
+  path: '/mein-tag/eingang',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioIndexRoute = AppPortfolioIndexRouteImport.update({
@@ -1786,6 +1798,7 @@ export interface FileRoutesByFullPath {
   '/fragen': typeof AppFragenRoute
   '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
+  '/addin/outlook': typeof AddinOutlookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
@@ -1803,6 +1816,7 @@ export interface FileRoutesByFullPath {
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
+  '/mein-tag/eingang': typeof AppMeinTagEingangRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2045,6 +2059,7 @@ export interface FileRoutesByTo {
   '/fragen': typeof AppFragenRoute
   '/mein-tag': typeof AppMeinTagRoute
   '/menu': typeof AppMenuRoute
+  '/addin/outlook': typeof AddinOutlookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
@@ -2060,6 +2075,7 @@ export interface FileRoutesByTo {
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
+  '/mein-tag/eingang': typeof AppMeinTagEingangRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2304,6 +2320,7 @@ export interface FileRoutesById {
   '/_app/fragen': typeof AppFragenRoute
   '/_app/mein-tag': typeof AppMeinTagRoute
   '/_app/menu': typeof AppMenuRoute
+  '/addin/outlook': typeof AddinOutlookRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
@@ -2321,6 +2338,7 @@ export interface FileRoutesById {
   '/_app/hinweise/$id': typeof AppHinweiseIdRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
+  '/_app/mein-tag_/eingang': typeof AppMeinTagEingangRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/_app/portfolio/offen': typeof AppPortfolioOffenRoute
   '/_app/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2566,6 +2584,7 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/mein-tag'
     | '/menu'
+    | '/addin/outlook'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/kunden/$id'
@@ -2583,6 +2602,7 @@ export interface FileRouteTypes {
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
+    | '/mein-tag/eingang'
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
@@ -2825,6 +2845,7 @@ export interface FileRouteTypes {
     | '/fragen'
     | '/mein-tag'
     | '/menu'
+    | '/addin/outlook'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/betreiber/kunden'
@@ -2840,6 +2861,7 @@ export interface FileRouteTypes {
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
+    | '/mein-tag/eingang'
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
@@ -3083,6 +3105,7 @@ export interface FileRouteTypes {
     | '/_app/fragen'
     | '/_app/mein-tag'
     | '/_app/menu'
+    | '/addin/outlook'
     | '/auth/callback'
     | '/umfrage/$token'
     | '/_app/kunden/$id'
@@ -3100,6 +3123,7 @@ export interface FileRouteTypes {
     | '/_app/hinweise/$id'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
+    | '/_app/mein-tag_/eingang'
     | '/_app/portfolio/matrix'
     | '/_app/portfolio/offen'
     | '/_app/portfolio/zyklen'
@@ -3340,6 +3364,7 @@ export interface RootRouteChildren {
   DesignRoute: typeof DesignRoute
   StyleguideRoute: typeof StyleguideRoute
   EinladungTokenRouteRoute: typeof EinladungTokenRouteRouteWithChildren
+  AddinOutlookRoute: typeof AddinOutlookRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   UmfrageTokenRoute: typeof UmfrageTokenRoute
 }
@@ -3408,6 +3433,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/menu'
       preLoaderRoute: typeof AppMenuRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/addin/outlook': {
+      id: '/addin/outlook'
+      path: '/addin/outlook'
+      fullPath: '/addin/outlook'
+      preLoaderRoute: typeof AddinOutlookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -3575,6 +3607,13 @@ declare module '@tanstack/react-router' {
       path: '/lieferanten/neu'
       fullPath: '/lieferanten/neu'
       preLoaderRoute: typeof AppLieferantenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/mein-tag_/eingang': {
+      id: '/_app/mein-tag_/eingang'
+      path: '/mein-tag/eingang'
+      fullPath: '/mein-tag/eingang'
+      preLoaderRoute: typeof AppMeinTagEingangRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/portfolio/': {
@@ -5612,6 +5651,7 @@ interface AppRouteChildren {
   AppHinweiseIdRoute: typeof AppHinweiseIdRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
+  AppMeinTagEingangRoute: typeof AppMeinTagEingangRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
   AppPortfolioOffenRoute: typeof AppPortfolioOffenRoute
   AppPortfolioZyklenRoute: typeof AppPortfolioZyklenRoute
@@ -5717,6 +5757,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHinweiseIdRoute: AppHinweiseIdRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
+  AppMeinTagEingangRoute: AppMeinTagEingangRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
   AppPortfolioOffenRoute: AppPortfolioOffenRoute,
   AppPortfolioZyklenRoute: AppPortfolioZyklenRoute,
@@ -5859,6 +5900,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignRoute: DesignRoute,
   StyleguideRoute: StyleguideRoute,
   EinladungTokenRouteRoute: EinladungTokenRouteRouteWithChildren,
+  AddinOutlookRoute: AddinOutlookRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   UmfrageTokenRoute: UmfrageTokenRoute,
 }

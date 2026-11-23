@@ -35,6 +35,8 @@ const connection = (n: number, parts: string[], failed = 0) => ({
   connectedByName: 'Anna Berg',
   connectedAt: '2026-11-18T08:00:00Z',
   hookPath: '/api/anbindungen/eingang/abc',
+  inboundAddress: null,
+  allowedDomains: [],
   lastJob: { status: 'done' as const, itemsIn: 3, itemsOk: 3 - failed, itemsFailed: failed, finishedAt: '2026-11-23T05:00:00Z' },
 });
 const overview = (overrides: Partial<Integrations> = {}): Integrations => ({

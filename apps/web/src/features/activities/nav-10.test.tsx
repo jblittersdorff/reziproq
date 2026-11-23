@@ -163,6 +163,30 @@ describe('NAV-10 Navigation', () => {
 });
 
 describe('NAV-10 Aktivitäten', () => {
+  it('IN-03: ein Termin aus Outlook steht im Verlauf mit „aus Outlook“', async () => {
+    feed = {
+      ...feed,
+      items: [
+        {
+          id: 'meeting:3',
+          kind: 'meeting',
+          occurredAt: '2026-12-09T13:00:00Z',
+          actor: { type: 'person', name: 'Ida Roth' },
+          title: 'Abstimmung Musterteile',
+          code: 'outlook_addin',
+          meta: 'Teams',
+          href: `${base}/umsetzung/termine/m3`,
+          visibility: 'team',
+          pinned: false,
+          mine: false,
+        },
+      ],
+    };
+    renderAt(`${base}/aktivitaeten`);
+    expect(await screen.findByText('Abstimmung Musterteile')).toBeTruthy();
+    expect(screen.getByText('aus Outlook · Teams')).toBeTruthy();
+  });
+
   it('der Verlauf zeigt private Notizen als „nur ich“ und Einträge von Reziproq mit Verweis', async () => {
     renderAt(`${base}/aktivitaeten`);
     expect(await screen.findByText('Tom wirkt beim Thema Kupfer offen.')).toBeTruthy();

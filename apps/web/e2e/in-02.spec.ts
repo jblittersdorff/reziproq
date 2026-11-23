@@ -22,6 +22,8 @@ const overview: Integrations = {
         connectedByName: 'Lena Berger',
         connectedAt: '2026-11-18T08:00:00Z',
         hookPath: null,
+        inboundAddress: null,
+        allowedDomains: [],
         lastJob: null,
       },
     },

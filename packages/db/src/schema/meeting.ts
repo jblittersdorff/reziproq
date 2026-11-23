@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   index,
   integer,
@@ -54,13 +55,25 @@ export const meeting = pgTable(
     // KI-07: Dauer in Minuten; die Agenda des Briefings füllt sie genau
     durationMinutes: integer().notNull().default(60),
     location: text(),
-    status: text({ enum: ['planned', 'held', 'closed'] })
+    status: text({ enum: ['planned', 'held', 'closed', 'cancelled'] })
       .notNull()
       .default('planned'),
     protocol: text(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // IN-03: Herkunft und Kalenderdaten; Termine aus Outlook und Kalender sind intern (F6)
+    source: text({ enum: ['reziproq', 'outlook_addin', 'inbound_mail', 'calendar_sync'] })
+      .notNull()
+      .default('reziproq'),
+    icalUid: text(),
+    externalIds: jsonb().$type<Record<string, string>>().notNull().default({}),
+    organizerEmail: text(),
+    sequence: integer().notNull().default(0),
+    onlineMeetingUrl: text(),
+    transcriptOptIn: boolean().notNull().default(false),
+    briefOptIn: boolean().notNull().default(true),
+    insertAgenda: boolean().notNull().default(false),
   },
   (table) => [
     check(
@@ -68,7 +81,12 @@ export const meeting = pgTable(
       sql`${table.type} in ('quarterly_review', 'strategy_dialogue', 'jbp', 'negotiation', 'site_visit', 'escalation', 'format', 'other')`,
     ),
     check('meeting_duration', sql`${table.durationMinutes} between 15 and 600`),
-    check('meeting_status', sql`${table.status} in ('planned', 'held', 'closed')`),
+    check('meeting_status', sql`${table.status} in ('planned', 'held', 'closed', 'cancelled')`),
+    check(
+      'meeting_source',
+      sql`${table.source} in ('reziproq', 'outlook_addin', 'inbound_mail', 'calendar_sync')`,
+    ),
+    index('meeting_ical_uid').on(table.ownerOrgId, table.icalUid),
     check('meeting_title', sql`length(trim(${table.title})) between 1 and 200`),
     index('meeting_relationship').on(table.relationshipId, table.startsAt),
   ],

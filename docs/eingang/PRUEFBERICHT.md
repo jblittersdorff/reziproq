@@ -149,6 +149,10 @@ Die 31 Statuszeilen, Ablageziele und relativen Berichtslinks wurden geprüft. Di
 - **F6 (nur KI-07):** Vorerst nur QBR sieben Tage vorher; ein neuer Lauf ersetzt nur den offenen
   Entwurf desselben Termins. Weitere Termintypen kommen mit IN-03. Die übrigen Fragen aus F6
   (Terminmodell, Add-in) bleiben offen.
+- **F6 (IN-03, 23.11.2026):** Termine aus Outlook, Eingangsadresse und Kalender werden Termine beim
+  Lieferanten mit `visibility = internal` (der Lieferant sieht sie nicht; Agenda und Protokoll teilt
+  man wie bisher ausdrücklich). „Bei beiden“ legt je Lieferant einen eigenen Termin an (gleiche
+  Kalender-UID); „Als Ereignis speichern“ behält nur den Eingang, ohne Termin und Briefing.
 - **F7:** Jeweils die vorsichtigste Stufe; `user_assumption` und eigene Daten älter als zwölf Monate
   ergeben `low`.
 

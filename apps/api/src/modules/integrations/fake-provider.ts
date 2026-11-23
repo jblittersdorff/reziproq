@@ -8,6 +8,8 @@ export interface ProviderItem {
   kind: ItemKind | string;
   relationshipId: string | null;
   text: string;
+  /** IN-03: weitere Angaben, z. B. Absender, SPF/DKIM und iCalendar einer Einladung */
+  data?: Record<string, unknown> | undefined;
 }
 
 export interface ProviderToken {
@@ -18,8 +20,10 @@ export interface ProviderToken {
 export interface FetchContext {
   connector: ConnectorDefinition;
   parts: readonly string[];
-  /** Beziehungen der Organisation, nur ID und Name, damit der Anbieter fake Beispiele bauen kann */
-  relationships: readonly { id: string; name: string }[];
+  /** Persönliche Verbindung (Kalender einer Person) */
+  personal: boolean;
+  /** Beziehungen der Organisation mit Name und Mail-Domains, damit fake Beispiele bauen kann */
+  relationships: readonly { id: string; name: string; domains: string[] }[];
 }
 
 /** Was jeder Anbieter können muss; der echte Anbieter einer Anbindung kommt mit IN-02 bis IN-07 */
@@ -65,6 +69,29 @@ export class FakeProvider implements ConnectorProvider {
       return items;
     }
     const { connector } = context;
+    // IN-03: Kalender einer Person: ein Termin mit einem Lieferanten in drei Tagen
+    if (context.personal && context.parts.includes('calendar')) {
+      const supplier = context.relationships.find((entry) => entry.domains.length > 0);
+      if (!supplier) return [];
+      const start = new Date(Date.now() + 3 * 86_400_000);
+      start.setUTCHours(9, 0, 0, 0);
+      return [
+        {
+          externalId: `${connector.key}-kalender-${supplier.id}`,
+          kind: 'calendar_event',
+          relationshipId: null,
+          text: '',
+          data: {
+            uid: `fake-${connector.key}-${supplier.id}@reziproq.test`,
+            sequence: 0,
+            subject: `Abstimmung mit ${supplier.name}`,
+            startsAt: start.toISOString(),
+            endsAt: new Date(start.getTime() + 3_600_000).toISOString(),
+            attendees: [{ email: `einkauf@${supplier.domains[0]}`, name: null, response: null }],
+          },
+        },
+      ];
+    }
     if (!connector.items.includes('note')) {
       return [
         {

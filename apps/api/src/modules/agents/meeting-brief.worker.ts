@@ -80,7 +80,7 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
             join relationship r on r.id = m.relationship_id and r.buyer_org_id = ${orgId}
             join relationship_member rm
               on rm.relationship_id = m.relationship_id and rm.org_id = ${orgId} and rm.team_role = 'sro'
-            where m.status = 'planned' and m.starts_at > ${now.toISOString()}::timestamptz
+            where m.status = 'planned' and m.brief_opt_in and m.starts_at > ${now.toISOString()}::timestamptz
             group by m.id, m.relationship_id, m.type, m.starts_at
             order by m.starts_at`)
         ).rows;

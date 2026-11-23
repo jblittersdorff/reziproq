@@ -872,6 +872,42 @@ export const layerRegister: Record<string, LayerEntry> = {
       secret_ref: '0190a0a0-0000-7000-8000-000000000001',
     }),
   },
+  // IN-03: Termine aus Outlook, Eingangsadresse und Kalender, je Käufer privat
+  meeting_attendee: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      email: 'probe@example.com',
+      side: 'unknown',
+    }),
+  },
+  supplier_domain: {
+    kind: 'org_private',
+    testValues: () => ({
+      domain: `probe-${Math.random().toString(36).slice(2)}.example`,
+      source: 'manual',
+    }),
+  },
+  inbound_item: {
+    kind: 'org_private',
+    testValues: {
+      source: 'inbound_mail',
+      subject: 'Probe',
+      details: {},
+      suggestion_kind: 'none',
+      status: 'needs_review',
+    },
+  },
+  addin_registration: {
+    kind: 'org_private',
+    testValues: {
+      user_id: 'probe',
+      organizer_email: 'probe@example.com',
+      subject: 'Probe',
+      start_at: '2026-01-01T08:00:00Z',
+      meeting_type: 'other',
+    },
+  },
   // IN-02: Anmeldung über Microsoft und Google, je Organisation
   org_sso: {
     kind: 'org_private',

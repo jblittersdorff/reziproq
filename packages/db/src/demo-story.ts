@@ -60,6 +60,7 @@ export async function demoStory(
   if (existing) {
     await demoEarlyWarning(tx, first.id, account, today);
     await demoBriefing(tx, first.id, account);
+    await demoInbound(tx, relationships, account, today);
     return { created: false, relationships };
   }
 
@@ -316,6 +317,7 @@ export async function demoStory(
     .onConflictDoNothing();
   await demoEarlyWarning(tx, first.id, account, today);
   await demoBriefing(tx, first.id, account);
+  await demoInbound(tx, relationships, account, today);
   return { created: true, relationships };
 }
 
@@ -482,4 +484,53 @@ async function demoPastMeeting(
       participant('Key Account', seedSupplierOrg.id, 1),
       participant('Qualitätsleitung', seedSupplierOrg.id, 2),
     ]);
+}
+
+/**
+ * IN-03: Ein Eingang in „Neu eingegangen“ mit zwei Lieferanten, damit Zuordnen und „Bei beiden“
+ * in der Demo zu sehen sind. Teilnehmer nur als Funktionsadressen, keine erfundenen Personen.
+ */
+async function demoInbound(
+  tx: Transaction,
+  relationships: string[],
+  account: { id: string; name: string },
+  today: Date,
+) {
+  if (relationships.length < 2) return;
+  const oem = seedBuyers.testOem.id;
+  const uid = 'demo-lieferantenrunde@reziproq.demo';
+  const [existing] = await tx
+    .select({ id: schema.inboundItem.id })
+    .from(schema.inboundItem)
+    .where(and(eq(schema.inboundItem.orgId, oem), eq(schema.inboundItem.icalUid, uid)));
+  if (existing) return;
+  const startsAt = addDays(today, 6);
+  startsAt.setUTCHours(9, 0, 0, 0);
+  await tx.insert(schema.inboundItem).values({
+    orgId: oem,
+    source: 'inbound_mail',
+    fromEmail: null,
+    subject: 'Lieferantenrunde Gehäuse und Elektronik',
+    icalUid: uid,
+    details: {
+      method: 'REQUEST',
+      startsAt: startsAt.toISOString(),
+      endsAt: new Date(startsAt.getTime() + 60 * 60 * 1000).toISOString(),
+      location: 'Teams',
+      onlineMeetingUrl: null,
+      organizerEmail: null,
+      organizerName: account.name,
+      attendees: [
+        { email: 'vertrieb@lieferant-eins.example', name: null, response: null },
+        { email: 'vertrieb@lieferant-zwei.example', name: null, response: null },
+      ],
+    },
+    suggestedRelationshipIds: relationships.slice(0, 2),
+    suggestionKind: 'several',
+    suggestionReason: 'Teilnehmer von beiden Lieferanten. Wähle einen oder speichere den Termin bei beiden.',
+    suggestedType: 'other',
+    status: 'needs_review',
+    ownerUserId: account.id,
+    assigneeUserId: account.id,
+  });
 }

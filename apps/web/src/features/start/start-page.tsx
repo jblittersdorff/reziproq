@@ -17,6 +17,7 @@ import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { useMe } from '@/features/auth/use-me';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
+import { InboxTile } from '@/features/calendar/inbox-page';
 import { HintsAttention } from '@/features/hints/hints-attention';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { startQueryOptions } from '@/lib/api';
@@ -186,6 +187,8 @@ export function StartPage() {
           >
             {/* KI-16: rechts oben „Wo du handeln musst“ (Main.neu.dc.html) */}
             {!supplierSide && <HintsAttention />}
+            {/* IN-03: „Neu eingegangen“, sobald eine Anbindung für Termine aktiv ist */}
+            {!supplierSide && <InboxTile />}
             <ListTile data={data} supplierSide={supplierSide} />
             {metrics}
           </aside>

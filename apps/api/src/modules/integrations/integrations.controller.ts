@@ -19,6 +19,8 @@ import {
   type CreatedApiKey,
   connectRequestSchema,
   createApiKeySchema,
+  type InboundMailSettings,
+  inboundMailSettingsSchema,
   type Integrations,
   type MyConnections,
   updatePartsSchema,
@@ -92,6 +94,18 @@ export class IntegrationsController {
     @Body(new ZodValidationPipe(updatePartsSchema)) body: { parts: string[] },
   ): Promise<Integrations> {
     await this.integrations.updateParts(auth, id, body.parts);
+    return this.integrations.overview(auth);
+  }
+
+  /** IN-03: zugelassene Absender-Domains der Eingangsadresse */
+  @Put(':id/einstellungen')
+  @Requires('einstellungen.verwalten')
+  async settings(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(inboundMailSettingsSchema)) body: InboundMailSettings,
+  ): Promise<Integrations> {
+    await this.integrations.updateInboundSettings(auth, id, body.allowedDomains);
     return this.integrations.overview(auth);
   }
 
