@@ -142,12 +142,12 @@ describe('WG-04 Strategie und Ablauf, WG-06 Ziele der Warengruppe', () => {
         name: 'Mehrlagen',
       });
       expect((await states())[0]).toBe('done');
-      // Schritt 7 zählt bis WG-12 die Beobachtung; 3 bis 5 folgen eigenen Regeln (WG-07, WG-09).
-      expect((await states())[6]).toBe('open');
-      await call(users.buyer, 'PUT', `/warengruppen/strategien/${strategyId}/schritte/7/notiz`, {
-        text: 'Zwei Initiativen tragen den größten Teil der Wirkung.',
+      // Schritt 8 zählt bis WG-14 die Beobachtung; 3 bis 7 folgen eigenen Regeln (WG-07 bis WG-12).
+      expect((await states())[7]).toBe('open');
+      await call(users.buyer, 'PUT', `/warengruppen/strategien/${strategyId}/schritte/8/notiz`, {
+        text: 'Die Vergaben folgen dem Plan der Scorecard.',
       });
-      expect((await states())[6]).toBe('done');
+      expect((await states())[7]).toBe('done');
       // Start zeigt den nächsten offenen Schritt in derselben Liste wie alle Aufgaben.
       const due = dueListSchema.parse((await call(users.lead, 'GET', '/start/due')).body);
       expect(due.items).toContainEqual(

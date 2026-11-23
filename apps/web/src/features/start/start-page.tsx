@@ -28,6 +28,7 @@ import { dayTime } from './greeting';
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'ai_budget') return t.start.kind.ai_budget;
   if (item.kind === 'agent_approval') return t.start.kind.agent_approval;
+  if (item.kind === 'category_review') return t.start.dueCategoryReview(item.supplier);
   if (item.kind === 'view_assignment') {
     const views = t.analysis.views as Record<string, string>;
     return t.start.dueViewAssignment((item.detail && views[item.detail]) ?? item.detail ?? '');

@@ -31,6 +31,8 @@ export const dueKinds = [
   'agent_approval',
   // WG-07: zugewiesene Sicht einer Warengruppenstrategie kommentieren (Funktion im Team)
   'view_assignment',
+  // WG-12: Quartals-Review einer freigegebenen Warengruppenstrategie (Lead)
+  'category_review',
 ] as const;
 
 export const dueItemSchema = z.object({

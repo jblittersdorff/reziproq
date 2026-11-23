@@ -846,6 +846,29 @@ export const layerRegister: Record<string, LayerEntry> = {
     }),
   },
   // NAV-10: Notizen an Lieferanten; private sieht nur die Autorin (Policy note_private_author)
+  material_group_initiative: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      goal_id: org && probe('material_group_goal', org),
+      lever_choice_id: org && probe('material_group_lever_choice', org),
+      name: 'Probe',
+    }),
+  },
+  material_group_initiative_supplier: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      initiative_id: org && probe('material_group_initiative', org),
+    }),
+  },
+  material_group_review: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      due_on: '2099-01-01',
+    }),
+  },
   note: {
     kind: 'org_private',
     testValues: ({ orgUser }) => ({

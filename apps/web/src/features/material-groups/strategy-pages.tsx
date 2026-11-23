@@ -61,6 +61,7 @@ import { AnalysisSection } from './analysis-pages';
 import { AssessmentSection } from './assessment-pages';
 import { MarketSection } from './market-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
+import { ScorecardSection } from './scorecard-pages';
 
 const strategyPath = (groupId: string, step?: number) =>
   `/warengruppen/${groupId}/strategie${step ? `/${step}` : ''}`;
@@ -557,6 +558,10 @@ function StepContent({
         <div className="flex min-w-0 flex-col gap-6">
           {content.step === 1 && (
             <SetupStep groupId={groupId} context={context} content={content} editable={editable} />
+          )}
+          {/* WG-12: Schritt 7 zeigt die Scorecard der Initiativen je gewähltem Hebel */}
+          {content.step === 7 && (
+            <ScorecardSection groupId={groupId} context={context} editable={editable} />
           )}
           {content.step === 2 ? note('', text.goals.reasonTitle, text.goals.reasonHint) : note()}
           {content.step === 2 && note('beobachtung')}

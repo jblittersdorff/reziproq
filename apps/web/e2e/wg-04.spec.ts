@@ -417,6 +417,115 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-12 (Schritt 27): Scorecard und Quartals-Review
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/scorecard`, (route) =>
+    route.fulfill({
+      json: {
+        canEdit: true,
+        initiatives: [
+          {
+            id: uuid(80),
+            goalId: uuid(81),
+            leverChoiceId: uuid(37),
+            name: 'Laminat direkt einkaufen',
+            effect: 'Kein Stillstand bei Ausfall auf Stufe 1',
+            actual: 0,
+            target: 2,
+            ownerUserId: 'anna',
+            ownerName: 'Lena Berger',
+            targetQuarter: 2,
+            targetYear: 2027,
+            horizon: 'short',
+            progress: 30,
+            suppliers: [{ relationshipId: uuid(82), name: 'Rheintal Elektronik GmbH' }],
+            canReport: true,
+          },
+          {
+            id: uuid(83),
+            goalId: uuid(81),
+            leverChoiceId: uuid(38),
+            name: 'Moldau PCB für Starrflex qualifizieren',
+            effect: 'Zweite Quelle, Abhängigkeit unter 50 %',
+            actual: null,
+            target: 1,
+            ownerUserId: 'anna',
+            ownerName: 'Lena Berger',
+            targetQuarter: 4,
+            targetYear: 2028,
+            horizon: 'mid',
+            progress: 0,
+            suppliers: [],
+            canReport: true,
+          },
+        ],
+        goals: [
+          {
+            id: uuid(81),
+            dimension: 'supply',
+            text: 'Zwei Quellen je Technologie',
+            kpiName: 'Bestätigte Kapazität',
+          },
+        ],
+        choices: [
+          { id: uuid(37), pairing: 'S1 · T1', leverName: 'Second-Level Buying' },
+          { id: uuid(38), pairing: 'W1 · O1', leverName: 'Neue Lieferanten einführen' },
+          { id: uuid(84), pairing: 'S2 · O2', leverName: 'Bedarfe bündeln' },
+        ],
+        missingChoiceIds: [uuid(84)],
+        suppliers: [{ relationshipId: uuid(82), name: 'Rheintal Elektronik GmbH' }],
+        people: [{ userId: 'anna', name: 'Lena Berger' }],
+        reviews: [{ id: uuid(85), dueOn: '2027-04-10', heldAt: null }],
+      },
+    }),
+  );
+  await page.route(`**/api/warengruppen/reviews/${uuid(85)}`, (route) =>
+    route.fulfill({
+      json: {
+        id: uuid(85),
+        groupId: group,
+        groupName: 'Leiterplatten',
+        strategyId,
+        year: 2027,
+        dueOn: '2027-04-10',
+        heldAt: null,
+        heldBy: null,
+        summary: null,
+        canHold: true,
+        initiatives: [
+          {
+            id: uuid(80),
+            name: 'Laminat direkt einkaufen',
+            goal: 'Zwei Quellen je Technologie',
+            lever: 'Second-Level Buying',
+            progress: 30,
+            actual: 0,
+            target: 2,
+            ownerName: 'Lena Berger',
+          },
+        ],
+        commitments: [
+          {
+            id: uuid(86),
+            supplier: 'Rheintal Elektronik GmbH',
+            relationshipId: uuid(82),
+            title: 'Kapazitätsplan 2028 schicken',
+            dueOn: '2027-02-01',
+            side: 'supplier',
+          },
+        ],
+        actions: [
+          {
+            id: uuid(87),
+            supplier: 'Rheintal Elektronik GmbH',
+            relationshipId: uuid(82),
+            title: 'Audit Starrflex vorbereiten',
+            dueDate: '2027-03-15',
+            status: 'open',
+          },
+        ],
+      },
+    }),
+  );
   // WG-10 (Schritt 26): Hebelkatalog in den Einstellungen
   await page.route('**/api/warengruppen/hebel', (route) =>
     route.fulfill({
@@ -763,6 +872,8 @@ const pages = [
     'Hebel für die strategische Bewertung wählen',
   ],
   ['hebel', '/einstellungen/warengruppen/hebel', 'Hebelkatalog der Warengruppen'],
+  ['scorecard', `/warengruppen/${group}/strategie/7`, 'Initiativen in der Scorecard planen'],
+  ['review', `/warengruppen/${group}/review/${uuid(85)}`, 'Quartals-Review zum 10.04.2027'],
   [
     'segmentierung',
     `/warengruppen/${group}/segmentierung`,

@@ -12,6 +12,7 @@ import {
   desc,
   eq,
   inArray,
+  isNull,
   schema,
   seedMaterialGroupDefaults,
   sql,
@@ -214,6 +215,26 @@ export class StrategyService {
         ),
       );
     const chosen = choiceCount?.n ?? 0;
+    // WG-12: Initiativen je gewähltem Hebel für Schritt 7
+    const chosenIds = await tx
+      .select({ id: schema.materialGroupLeverChoice.id })
+      .from(schema.materialGroupLeverChoice)
+      .where(
+        and(
+          eq(schema.materialGroupLeverChoice.strategyId, strategy.id),
+          eq(schema.materialGroupLeverChoice.status, 'chosen'),
+        ),
+      );
+    const initiatives = await tx
+      .select({
+        leverChoiceId: schema.materialGroupInitiative.leverChoiceId,
+        effect: schema.materialGroupInitiative.effect,
+        ownerUserId: schema.materialGroupInitiative.ownerUserId,
+        targetQuarter: schema.materialGroupInitiative.targetQuarter,
+        targetYear: schema.materialGroupInitiative.targetYear,
+      })
+      .from(schema.materialGroupInitiative)
+      .where(eq(schema.materialGroupInitiative.strategyId, strategy.id));
     const forces = await tx
       .select({ status: schema.materialGroupMarketForce.status })
       .from(schema.materialGroupMarketForce)
@@ -250,6 +271,20 @@ export class StrategyService {
         );
         if (covered && chosen > 0) return 'done';
         return swot.length > 0 || anyNote(6) ? 'in_progress' : 'open';
+      }
+      if (step === 7) {
+        // WG-12: jeder gewählte Hebel hat eine Initiative mit Effekt, Verantwortung und Termin
+        const complete = (choiceId: string) =>
+          initiatives.some(
+            (entry) =>
+              entry.leverChoiceId === choiceId &&
+              entry.effect.trim().length > 0 &&
+              entry.ownerUserId !== null &&
+              entry.targetQuarter !== null &&
+              entry.targetYear !== null,
+          );
+        if (chosenIds.length > 0 && chosenIds.every((choice) => complete(choice.id))) return 'done';
+        return initiatives.length > 0 || anyNote(7) ? 'in_progress' : 'open';
       }
       if (step === 3) return analysis.step3;
       if (step === 4) return analysis.step4;
@@ -909,7 +944,9 @@ export class StrategyService {
   /** Start (NAV-05): der nächste offene Schritt je Strategie im Entwurf, den die Person bearbeitet. */
   async dueItems(auth: AuthContext): Promise<DueItem[]> {
     if (!auth.organization?.buyer) return [];
-    const assigned = can(auth, 'warengruppen.sehen') ? await this.assignedViews(auth) : [];
+    const assigned = can(auth, 'warengruppen.sehen')
+      ? [...(await this.assignedViews(auth)), ...(await this.openReviews(auth))]
+      : [];
     if (!can(auth, 'warengruppenstrategie.bearbeiten')) return assigned;
     return [...assigned, ...(await this.openSteps(auth))];
   }
@@ -948,6 +985,43 @@ export class StrategyService {
           href: `/warengruppen/${row.group_id}/strategie/${step}`,
         };
       });
+    });
+  }
+
+  /** WG-12: offene Quartals-Reviews der Warengruppen, deren Lead die Person ist */
+  private openReviews(auth: AuthContext): Promise<DueItem[]> {
+    return this.run(auth, async (tx) => {
+      const rows = await tx
+        .select({
+          id: schema.materialGroupReview.id,
+          dueOn: schema.materialGroupReview.dueOn,
+          groupId: schema.materialGroup.id,
+          groupName: schema.materialGroup.name,
+        })
+        .from(schema.materialGroupReview)
+        .innerJoin(
+          schema.materialGroupStrategy,
+          eq(schema.materialGroupStrategy.id, schema.materialGroupReview.strategyId),
+        )
+        .innerJoin(
+          schema.materialGroup,
+          eq(schema.materialGroup.id, schema.materialGroupStrategy.materialGroupId),
+        )
+        .where(
+          and(
+            isNull(schema.materialGroupReview.heldAt),
+            eq(schema.materialGroup.leadUserId, auth.userId),
+          ),
+        )
+        .orderBy(asc(schema.materialGroupReview.dueOn));
+      return rows.map((row) => ({
+        id: `review:${row.id}`,
+        kind: 'category_review' as const,
+        supplier: row.groupName,
+        detail: row.dueOn,
+        dueDate: row.dueOn,
+        href: `/warengruppen/${row.groupId}/review/${row.id}`,
+      }));
     });
   }
 

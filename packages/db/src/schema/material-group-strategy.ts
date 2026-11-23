@@ -18,6 +18,7 @@ import {
 import { appUser } from './app-user.js';
 import { materialGroup } from './master-data.js';
 import { organization } from './organization.js';
+import { relationship } from './relationship.js';
 
 // WG-04, WG-06: Strategie je Warengruppe und Jahr in zehn Schritten, mit Leitfragen, „Beobachtung
 // und Erklärung“ je Schritt und Sicht, Meilensteinen, Kennzahlen und Zielen. Alles org_private:
@@ -471,3 +472,95 @@ export const materialGroupLeverChoice = pgTable(
     index('material_group_lever_choice_strategy').on(table.strategyId),
   ],
 );
+
+/**
+ * WG-12 (Schritt 27): Initiative der Warengruppe. Zahlt auf genau ein Ziel ein und gehört zu genau
+ * einer gewählten Hebelwahl. Privat; sie ist nicht die geteilte `initiative` des Impact-Ledgers.
+ */
+export const materialGroupInitiative = pgTable(
+  'material_group_initiative',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    goalId: uuid()
+      .notNull()
+      .references(() => materialGroupGoal.id, { onDelete: 'cascade' }),
+    leverChoiceId: uuid()
+      .notNull()
+      .references(() => materialGroupLeverChoice.id, { onDelete: 'cascade' }),
+    name: text().notNull(),
+    effect: text().notNull().default(''),
+    actual: numeric({ precision: 14, scale: 4 }),
+    target: numeric({ precision: 14, scale: 4 }),
+    ownerUserId: text().references(() => appUser.id),
+    targetQuarter: integer(),
+    targetYear: integer(),
+    // Fortschritt in Prozent, meldet die verantwortliche Person
+    progress: integer().notNull().default(0),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('material_group_initiative_name', sql`length(trim(${table.name})) between 1 and 200`),
+    check('material_group_initiative_progress', sql`${table.progress} between 0 and 100`),
+    check(
+      'material_group_initiative_quarter',
+      sql`${table.targetQuarter} is null or ${table.targetQuarter} between 1 and 4`,
+    ),
+    index('material_group_initiative_strategy').on(table.strategyId),
+  ],
+);
+
+/** WG-12: Lieferanten der Warengruppe an einer Initiative (je Beziehung, Entscheidung vom 23.11.) */
+export const materialGroupInitiativeSupplier = pgTable(
+  'material_group_initiative_supplier',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    initiativeId: uuid()
+      .notNull()
+      .references(() => materialGroupInitiative.id, { onDelete: 'cascade' }),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+  },
+  (table) => [
+    unique('material_group_initiative_supplier_once').on(table.initiativeId, table.relationshipId),
+  ],
+);
+
+/** WG-12: Quartals-Review einer freigegebenen Strategie; je Strategie und Fälligkeit genau eines */
+export const materialGroupReview = pgTable(
+  'material_group_review',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    dueOn: date().notNull(),
+    heldAt: timestamp({ withTimezone: true }),
+    heldBy: text().references(() => appUser.id),
+    summary: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_review_once').on(table.strategyId, table.dueOn),
+    check(
+      'material_group_review_held',
+      sql`${table.heldAt} is null or length(trim(coalesce(${table.summary}, ''))) > 0`,
+    ),
+  ],
+);
+

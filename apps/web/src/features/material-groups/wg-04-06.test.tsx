@@ -230,7 +230,11 @@ describe('WG-04 Strategie und Ablauf', () => {
     expect(
       within(flow).getByRole('link', { name: 'Scorecard, offen' }).getAttribute('aria-current'),
     ).toBe('step');
-    expect(screen.getByText('die Beobachtung und Erklärung ausgefüllt ist.')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'jeder gewählte Hebel mindestens eine Initiative mit Effekt, Verantwortung und Termin hat.',
+      ),
+    ).toBeTruthy();
     // Warengruppen-Leiste mit Stand als Chip
     const bar = screen.getByRole('navigation', { name: 'Warengruppe' });
     expect(within(bar).getByText('Strategie 2027 · Entwurf')).toBeTruthy();

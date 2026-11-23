@@ -149,6 +149,7 @@ import { Route as AppPortfolioRundenIdLieferantenRouteImport } from './routes/_a
 import { Route as AppPortfolioRundenIdNachnominierenRouteImport } from './routes/_app/portfolio/runden/$id/nachnominieren'
 import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/portfolio/runden/$id/name'
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
+import { Route as AppWarengruppenIdReviewReviewIdRouteImport } from './routes/_app/warengruppen/$id/review/$reviewId'
 import { Route as AppWarengruppenIdStrategieIndexRouteImport } from './routes/_app/warengruppen/$id/strategie/index'
 import { Route as AppWarengruppenIdStrategieStepRouteImport } from './routes/_app/warengruppen/$id/strategie/$step'
 import { Route as AppEinstellungenKiAgentenEigeneIdRouteImport } from './routes/_app/einstellungen/ki_/agenten/eigene/$id'
@@ -1057,6 +1058,12 @@ const AppPortfolioRundenIdPruefenRoute =
     path: '/portfolio/runden/$id/pruefen',
     getParentRoute: () => AppRoute,
   } as any)
+const AppWarengruppenIdReviewReviewIdRoute =
+  AppWarengruppenIdReviewReviewIdRouteImport.update({
+    id: '/warengruppen/$id/review/$reviewId',
+    path: '/warengruppen/$id/review/$reviewId',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppWarengruppenIdStrategieIndexRoute =
   AppWarengruppenIdStrategieIndexRouteImport.update({
     id: '/warengruppen/$id/strategie/',
@@ -1940,6 +1947,7 @@ export interface FileRoutesByFullPath {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/warengruppen/$id/review/$reviewId': typeof AppWarengruppenIdReviewReviewIdRoute
   '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/einstellungen/daten/import/': typeof AppEinstellungenDatenImportIndexRoute
   '/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
@@ -2202,6 +2210,7 @@ export interface FileRoutesByTo {
   '/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/warengruppen/$id/review/$reviewId': typeof AppWarengruppenIdReviewReviewIdRoute
   '/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/einstellungen/daten/import': typeof AppEinstellungenDatenImportIndexRoute
   '/einstellungen/fragebogen/$kind': typeof AppEinstellungenFragebogenKindIndexRoute
@@ -2470,6 +2479,7 @@ export interface FileRoutesById {
   '/_app/portfolio/runden/$id/nachnominieren': typeof AppPortfolioRundenIdNachnominierenRoute
   '/_app/portfolio/runden/$id/name': typeof AppPortfolioRundenIdNameRoute
   '/_app/portfolio/runden/$id/pruefen': typeof AppPortfolioRundenIdPruefenRoute
+  '/_app/warengruppen/$id/review/$reviewId': typeof AppWarengruppenIdReviewReviewIdRoute
   '/_app/warengruppen/$id/strategie/$step': typeof AppWarengruppenIdStrategieStepRoute
   '/_app/einstellungen/daten/import/': typeof AppEinstellungenDatenImportIndexRoute
   '/_app/einstellungen/fragebogen/$kind/': typeof AppEinstellungenFragebogenKindIndexRoute
@@ -2738,6 +2748,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/warengruppen/$id/review/$reviewId'
     | '/warengruppen/$id/strategie/$step'
     | '/einstellungen/daten/import/'
     | '/einstellungen/fragebogen/$kind/'
@@ -3000,6 +3011,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden/$id/nachnominieren'
     | '/portfolio/runden/$id/name'
     | '/portfolio/runden/$id/pruefen'
+    | '/warengruppen/$id/review/$reviewId'
     | '/warengruppen/$id/strategie/$step'
     | '/einstellungen/daten/import'
     | '/einstellungen/fragebogen/$kind'
@@ -3267,6 +3279,7 @@ export interface FileRouteTypes {
     | '/_app/portfolio/runden/$id/nachnominieren'
     | '/_app/portfolio/runden/$id/name'
     | '/_app/portfolio/runden/$id/pruefen'
+    | '/_app/warengruppen/$id/review/$reviewId'
     | '/_app/warengruppen/$id/strategie/$step'
     | '/_app/einstellungen/daten/import/'
     | '/_app/einstellungen/fragebogen/$kind/'
@@ -4401,6 +4414,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio/runden/$id/pruefen'
       fullPath: '/portfolio/runden/$id/pruefen'
       preLoaderRoute: typeof AppPortfolioRundenIdPruefenRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warengruppen/$id/review/$reviewId': {
+      id: '/_app/warengruppen/$id/review/$reviewId'
+      path: '/warengruppen/$id/review/$reviewId'
+      fullPath: '/warengruppen/$id/review/$reviewId'
+      preLoaderRoute: typeof AppWarengruppenIdReviewReviewIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/warengruppen/$id/strategie/': {
@@ -5808,6 +5828,7 @@ interface AppRouteChildren {
   AppPortfolioRundenIdNachnominierenRoute: typeof AppPortfolioRundenIdNachnominierenRoute
   AppPortfolioRundenIdNameRoute: typeof AppPortfolioRundenIdNameRoute
   AppPortfolioRundenIdPruefenRoute: typeof AppPortfolioRundenIdPruefenRoute
+  AppWarengruppenIdReviewReviewIdRoute: typeof AppWarengruppenIdReviewReviewIdRoute
   AppWarengruppenIdStrategieStepRoute: typeof AppWarengruppenIdStrategieStepRoute
   AppEinstellungenDatenImportIndexRoute: typeof AppEinstellungenDatenImportIndexRoute
   AppEinstellungenFragebogenKindIndexRoute: typeof AppEinstellungenFragebogenKindIndexRoute
@@ -5950,6 +5971,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppPortfolioRundenIdNachnominierenRoute,
   AppPortfolioRundenIdNameRoute: AppPortfolioRundenIdNameRoute,
   AppPortfolioRundenIdPruefenRoute: AppPortfolioRundenIdPruefenRoute,
+  AppWarengruppenIdReviewReviewIdRoute: AppWarengruppenIdReviewReviewIdRoute,
   AppWarengruppenIdStrategieStepRoute: AppWarengruppenIdStrategieStepRoute,
   AppEinstellungenDatenImportIndexRoute: AppEinstellungenDatenImportIndexRoute,
   AppEinstellungenFragebogenKindIndexRoute:

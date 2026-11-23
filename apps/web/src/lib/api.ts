@@ -51,6 +51,8 @@ import {
   type CustomLeverRequest,
   type CycleStatusQuery,
   categoryLabelSchema,
+  categoryReviewSchema,
+  categoryScorecardSchema,
   categorySegmentationSchema,
   commentListSchema,
   commitmentsSchema,
@@ -113,6 +115,7 @@ import {
   type ImportPreview,
   type ImportResult,
   type ImportType,
+  type InitiativeRequest,
   type InitiativeStatus,
   type InviteSupplierRequest,
   type InviteSurveyParticipants,
@@ -4361,4 +4364,70 @@ export const decideCustomAgentResult = (accessToken: string, draftId: string, ac
     'POST',
     `${customAgents}/entwuerfe/${draftId}/${accept ? 'uebernehmen' : 'verwerfen'}`,
     {},
+  );
+
+/** WG-12 (Schritt 27): Scorecard der Warengruppe und Quartals-Review */
+export const categoryScorecardQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'scorecard'],
+    queryFn: () =>
+      getJson(
+        `/warengruppen/strategien/${strategyId}/scorecard`,
+        categoryScorecardSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const saveInitiative = (
+  accessToken: string,
+  strategyId: string,
+  request: InitiativeRequest,
+  id?: string,
+) =>
+  sendJson(
+    id ? 'PATCH' : 'POST',
+    `/warengruppen/strategien/${strategyId}/initiativen${id ? `/${id}` : ''}`,
+    request,
+    categoryScorecardSchema,
+    accessToken,
+  );
+
+export const removeInitiative = (accessToken: string, strategyId: string, id: string) =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/strategien/${strategyId}/initiativen/${id}`,
+    undefined,
+    categoryScorecardSchema,
+    accessToken,
+  );
+
+export const reportInitiativeProgress = (
+  accessToken: string,
+  strategyId: string,
+  id: string,
+  progress: number,
+) =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/initiativen/${id}/fortschritt`,
+    { progress },
+    categoryScorecardSchema,
+    accessToken,
+  );
+
+export const categoryReviewQueryOptions = (accessToken: string, reviewId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'reviews', reviewId],
+    queryFn: () => getJson(`/warengruppen/reviews/${reviewId}`, categoryReviewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const holdCategoryReview = (accessToken: string, reviewId: string, summary: string) =>
+  sendJson(
+    'POST',
+    `/warengruppen/reviews/${reviewId}/abschliessen`,
+    { summary },
+    categoryReviewSchema,
+    accessToken,
   );

@@ -39,7 +39,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 24 | Anpassung WG-07 · Zuweisung von Sichten und Kostenzugriff | 22–23; bestehende Analysen und RLS. Erledigt: Funktion ohne Kostensicht (F9); Sichten zuweisen und kommentieren, Aufgabe in Mein Tag. | M | fertig (23.11.2026) |
 | 25 | Anpassung WG-09 / KI-08 · Marktanalyse als Agent (K2-a) | 7, 20, 24; WG-09 und WG-10 gebaut; sechs Kräfte, Vorschläge und Quellen unter den Rechten des Teams. | L | fertig (23.11.2026) |
 | 26 | Anpassung WG-10 · Hebelkatalog und vorgeschlagene Paarungen | 21, 24–25; bestehende Bewertung und Katalogpflege. Erledigt: Pflegeseite Hebelkatalog, Vorschläge prüfen oder verwerfen, Katalog markiert Vorschläge. | M | fertig (23.11.2026) |
-| 27 | WG-12 · Scorecard und Quartalsreview | 22, 26; Abnahme von Review nach Freigabe mit WG-16. | M | offen |
+| 27 | WG-12 · Scorecard und Quartalsreview | 22, 26; Abnahme von Review nach Freigabe mit WG-16. | M | fertig (23.11.2026; Anpassen aus dem Review mit WG-16) |
 | 28 | WG-15 · Supplier Map | 22–23, 26; Ist aus SEG und Spend, Soll-Typ, SRO-Zeilenzugriff; Übergabelink mit WG-20. | M | offen |
 | 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | offen |
 | 30 | WG-16 · Freigabe und Versionen | 27–29 und Schritte 2–9; Review und Freigaberollen gemeinsam abnehmen. | L | offen |
