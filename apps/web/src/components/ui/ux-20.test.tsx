@@ -1,0 +1,223 @@
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AppShell } from './app-shell';
+import { Collapsible } from './collapsible';
+import { SupplierHeader } from './entity-header';
+import { FormPage } from './form-page';
+import { NextCard } from './next-card';
+import { ProcessChain } from './process-chain';
+import { Row, RowGroup } from './row-group';
+import { SoWhat } from './so-what';
+
+// UX-20 Phase 1: Bausteine einmal gebaut, Kriterien aus UX-20 und NAV-10 je Baustein.
+afterEach(cleanup);
+
+describe('NextCard', () => {
+  it('hat genau einen Knopf mit Ziel', () => {
+    render(
+      <NextCard
+        kicker="Als Nächstes · überfällig seit 2 Tagen"
+        title="Liefertreue Oktober für Rheintal erfassen"
+        action={{ label: 'Wert erfassen', href: '/lieferanten/1/plan/scorecard' }}
+      />,
+    );
+    const links = screen.getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]?.getAttribute('href')).toBe('/lieferanten/1/plan/scorecard');
+  });
+
+  it('ohne Ziel wirft die Karte einen Fehler, auch bei leerem Ziel oder „#“', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    for (const href of ['', ' ', '#']) {
+      expect(() =>
+        render(<NextCard kicker="k" title="t" action={{ label: 'Los', href }} />),
+      ).toThrow(/braucht ein Ziel/);
+    }
+  });
+});
+
+describe('RowGroup', () => {
+  it('eine Zeile mit Ziel ist ein Link mit Pfeil, eine ohne Ziel hat keinen Pfeil und ist nicht klickbar', () => {
+    const { container } = render(
+      <RowGroup label="Heute">
+        <Row href="/mein-tag" title="Briefing prüfen" detail="Agenda bis Fr" />
+        <Row title="Scorecard unterschreiben" value="Di 24.11." />
+      </RowGroup>,
+    );
+    const link = screen.getByRole('link', { name: /Briefing prüfen/ });
+    expect(link.querySelector('[data-slot="row-arrow"]')).not.toBeNull();
+    const plain = container.querySelector('[data-slot="row"]') as HTMLElement;
+    expect(plain.textContent).toContain('Scorecard unterschreiben');
+    expect(plain.closest('a')).toBeNull();
+    expect(plain.querySelector('[data-slot="row-arrow"]')).toBeNull();
+    expect(screen.getAllByRole('link')).toHaveLength(1);
+  });
+});
+
+describe('ProcessChain', () => {
+  it('markiert den aktuellen Schritt, frühere als erledigt; ohne Recht grau und ohne Link', () => {
+    render(
+      <ProcessChain
+        label="Ablauf Segmentierung"
+        stateLabels={{ done: 'erledigt', current: 'jetzt', open: 'offen' }}
+        steps={[
+          { key: 'a', label: 'Runde starten', href: '/a', state: 'done' },
+          { key: 'b', label: 'Bewerten', href: '/b', state: 'done' },
+          { key: 'c', label: 'Konsolidieren', href: '/c', state: 'current' },
+          { key: 'd', label: 'Portfolio', href: '/d', state: 'open', allowed: false },
+        ]}
+      />,
+    );
+    const chain = screen.getByRole('navigation', { name: 'Ablauf Segmentierung' });
+    const items = within(chain).getAllByRole('listitem');
+    expect(items.map((item) => item.getAttribute('data-state'))).toEqual([
+      'done',
+      'done',
+      'current',
+      'open',
+    ]);
+    expect(items[2]?.getAttribute('aria-current')).toBe('step');
+    expect(within(chain).getAllByRole('link')).toHaveLength(3);
+    expect(within(items[3] as HTMLElement).queryByRole('link')).toBeNull();
+  });
+});
+
+describe('Collapsible', () => {
+  // Öffnen mit Klick und Tastatur prüft e2e/ux-20-phase-1.spec.ts im echten Browser.
+  it('ist beim Laden eingeklappt', () => {
+    const { container } = render(
+      <Collapsible title="Leitfragen">
+        <p>Was will Rheintal erreichen?</p>
+      </Collapsible>,
+    );
+    const details = container.querySelector('details') as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector('summary')?.textContent).toContain('Leitfragen');
+  });
+});
+
+describe('FormPage', () => {
+  it('hat genau einen Hauptknopf; der Zweitknopf ist kein Absenden', () => {
+    const submit = vi.fn((event: { preventDefault: () => void }) => event.preventDefault());
+    render(
+      <FormPage
+        label="Person hinzufügen"
+        primary="Einladung senden"
+        secondary={{ label: 'Abbrechen', onClick: () => {} }}
+        onSubmit={submit}
+      >
+        <input aria-label="Name" />
+      </FormPage>,
+    );
+    const form = screen.getByRole('form', { name: 'Person hinzufügen' });
+    expect(form.querySelectorAll('button[type="submit"]')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    expect(submit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Einladung senden' }));
+    expect(submit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('SoWhat', () => {
+  it('zeigt höchstens drei Punkte; ein Punkt mit Ziel ist ein Link', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const point = (key: string, href?: string) => ({
+      key,
+      status: 'Offen',
+      tone: 'warning' as const,
+      text: key,
+      ...(href ? { href } : {}),
+    });
+    render(
+      <SoWhat
+        heading="Das Wichtigste"
+        statement="Ihr haltet eure Zusagen."
+        points={[point('a', '/x'), point('b')]}
+      />,
+    );
+    expect(screen.getAllByRole('link')).toHaveLength(1);
+    cleanup();
+    expect(() =>
+      render(
+        <SoWhat
+          heading="Das Wichtigste"
+          statement="s"
+          points={[point('a'), point('b'), point('c'), point('d')]}
+        />,
+      ),
+    ).toThrow(/höchstens drei/);
+  });
+});
+
+describe('AppShell und Köpfe', () => {
+  it('Seitenleiste mit vier Hauptpunkten und Einstellungen, Tab-Leiste mit fünf Zielen', () => {
+    const icon = <svg aria-hidden />;
+    const items = ['Übersicht', 'Mein Tag', 'Lieferanten', 'Warengruppen'].map((label) => ({
+      key: label,
+      label,
+      href: `/${label}`,
+      icon,
+    }));
+    render(
+      <AppShell
+        label="Hauptbereiche"
+        brand="Reziproq"
+        brandHref="/"
+        items={items}
+        settings={{ key: 'settings', label: 'Einstellungen', href: '/einstellungen', icon }}
+        tabs={[...items, { key: 'ask', label: 'Frag', href: '/fragen', icon }]}
+        activeKey="Mein Tag"
+      >
+        <p>Inhalt</p>
+      </AppShell>,
+    );
+    const [sidebar, tabs] = screen.getAllByRole('navigation', { name: 'Hauptbereiche' });
+    expect(
+      within(sidebar as HTMLElement)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual([
+      'Reziproq',
+      'Übersicht',
+      'Mein Tag',
+      'Lieferanten',
+      'Warengruppen',
+      'Einstellungen',
+    ]);
+    expect(within(tabs as HTMLElement).getAllByRole('link')).toHaveLength(5);
+    expect(
+      within(sidebar as HTMLElement)
+        .getByRole('link', { name: 'Mein Tag' })
+        .getAttribute('aria-current'),
+    ).toBe('page');
+  });
+
+  it('der Lieferantenkopf hat Zurück-Link, vier Bereiche und den Knopf „···“', () => {
+    render(
+      <SupplierHeader
+        back={{ label: 'Lieferanten', href: '/lieferanten' }}
+        name="Rheintal Elektronik"
+        meta="Hoher Impact · ausbaufähig"
+        areasLabel="Bereiche des Lieferanten"
+        areas={['Überblick', 'Aktivitäten', 'Plan', 'Ergebnisse'].map((label) => ({
+          key: label,
+          label,
+          href: '/x',
+        }))}
+        activeArea="Plan"
+        profile={{ label: 'Profil, Segmentierung und Team', href: '/p', active: false }}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Lieferanten' }).getAttribute('href')).toBe(
+      '/lieferanten',
+    );
+    expect(
+      within(screen.getByRole('navigation', { name: 'Bereiche des Lieferanten' })).getAllByRole(
+        'link',
+      ),
+    ).toHaveLength(4);
+    expect(screen.getByRole('link', { name: 'Profil, Segmentierung und Team' })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeTruthy();
+  });
+});

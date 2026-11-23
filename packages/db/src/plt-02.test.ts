@@ -188,6 +188,7 @@ describe('PLT-02 in der Datenbank', () => {
       'notification_channel',
       'notification_pref',
       'objective_category',
+      'org_module',
       'org_setting',
       'org_sso',
       'organization',

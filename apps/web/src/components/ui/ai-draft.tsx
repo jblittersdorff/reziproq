@@ -13,9 +13,9 @@ export interface DraftSource {
 }
 
 /**
- * Entwurf von Reziproq (Designsprache Regel 7): weiß, Rand 2 px gestrichelt Petrol, Zeile
+ * Entwurf von Reziproq (Designsprache 2, Regel 7): weiß, Rand 1 px Mint (`draft-line`), Zeile
  * „Entwurf von Reziproq“ mit Doppelring, Quellen als graue Pillen, darunter Übernehmen,
- * Anpassen oder Verwerfen. Bestätigt wird der Rand fest.
+ * Anpassen oder Verwerfen. Bestätigt entfällt der Doppelring; die Zeile nennt die Übernahme.
  */
 function AiDraft({
   heading,
@@ -44,13 +44,14 @@ function AiDraft({
       data-slot="ai-draft"
       data-confirmed={confirmed || undefined}
       className={cn(
-        'flex flex-col gap-3 rounded-lg border-2 border-petrol bg-card p-5',
-        confirmed ? 'border-solid' : 'border-dashed',
+        // Designsprache 2: dünner Mint-Rand statt gestricheltem Petrol
+        'flex flex-col gap-3 rounded-lg border border-draft-line bg-card p-5',
         className,
       )}
     >
+      {/* Bestätigt: ohne Doppelring; die Zeile nennt dann, wann übernommen wurde (vom Aufrufer) */}
       <p className="flex items-center gap-2 font-semibold text-petrol-dark text-sm">
-        <BrandMark />
+        {!confirmed && <BrandMark />}
         {heading}
       </p>
       <div className="text-sm leading-relaxed">{children}</div>

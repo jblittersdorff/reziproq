@@ -71,7 +71,9 @@ for (const width of [390, 1440]) {
     const row = page.getByRole('listitem').filter({ hasText: 'Microsoft 365' }).first();
     await row.getByRole('button', { name: 'Verwalten' }).click();
     await expect(row.getByText('nordwind-service.at', { exact: true })).toBeVisible();
-    await expect(row.getByRole('switch', { name: 'Nur noch über Microsoft anmelden' })).toBeChecked();
+    await expect(
+      row.getByRole('switch', { name: 'Nur noch über Microsoft anmelden' }),
+    ).toBeChecked();
     await page.waitForLoadState('networkidle');
     expect(
       await page.evaluate(

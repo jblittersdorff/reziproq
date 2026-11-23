@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { meResponseSchema } from './me.js';
+import { defaultOrgModules } from './modules.js';
 
 const ada = {
   name: 'Ada Lovelace',
@@ -13,6 +14,7 @@ const ada = {
   pendingApproval: false,
   locale: 'en',
   categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
+  modules: defaultOrgModules,
   permissions: {
     viewOrganizationSettings: false,
     viewBuyerAreas: false,

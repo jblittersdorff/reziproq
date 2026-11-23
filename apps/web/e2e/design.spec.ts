@@ -78,10 +78,17 @@ test('/design zeigt jeden Baustein mit Vorlage und Datei', async ({ page }) => {
     'border-top-style',
     'solid',
   );
+  // Designsprache 2: Entwurf mit 1 px Mint-Rand und Doppelring, bestätigt ohne Doppelring
   await expect(page.locator('[data-slot="ai-draft"]:not([data-confirmed])')).toHaveCSS(
-    'border-top-style',
-    'dashed',
+    'border-top-color',
+    'rgb(207, 229, 221)',
   );
+  await expect(
+    page.locator('[data-slot="ai-draft"]:not([data-confirmed]) [data-slot="brand-mark"]').first(),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-slot="ai-draft"][data-confirmed] [data-slot="brand-mark"]'),
+  ).toHaveCount(0);
   await expect(page.locator('[data-layer="private"]')).toHaveCSS('border-top-style', 'dashed');
   await expect(page.getByRole('table', { name: 'Initiativen 2027' })).toContainText('läuft');
   // Kopfleiste: aktiver Punkt markiert, Profil als Kreis mit Initialen und Namen

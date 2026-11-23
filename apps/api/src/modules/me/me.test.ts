@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { permissionsResponseSchema } from '@reziproq/shared';
+import { defaultOrgModules, permissionsResponseSchema } from '@reziproq/shared';
 import { generateKeyPair } from 'jose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp } from '../../testing/test-app.js';
@@ -65,6 +65,8 @@ describe('GET /api/me', () => {
       locale: 'de',
       // WG-01: ohne Organisation die Vorgabe
       categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
+      // UX-20: ohne Organisation der Standard (Claims, Risiko, Vertrag aus)
+      modules: defaultOrgModules,
       permissions: noPermissions,
     });
     expect(testApp.zitadel.userinfoCalls).toEqual([{ authorization: `Bearer ${token}` }]);

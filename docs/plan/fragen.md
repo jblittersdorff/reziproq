@@ -142,3 +142,13 @@ nichts Unumkehrbares bewirkt.
 - Zwischen 761 und 1100 px hat die Seitenleiste neben zwei Spalten wenig Platz; die
   Designsprache sagt „unter 1100 px eine Spalte“.
 - Empfehlung: Spec umsetzen (761 px), zwei Spalten erst ab 1100 px.
+
+## Entschieden am 23.11.2026 (Gründer: „Empfehlungen übernehmen“)
+
+Alle Empfehlungen oben gelten. Ergänzt:
+- **F-UX-00a:** Der Arbeitsbranch wird wie bisher nach jedem grünen Commit gepusht (Sicherung,
+  `CLAUDE.md`).
+- **F-UX-01:** Module schaltet vorerst nur der Betrieb (direkt in `org_module`); die App liest
+  nur. Eine Oberfläche für Admins kommt, wenn ein Modul gebaut wird.
+- **F-UX-02, F-UX-03:** Spec-Entwürfe „Beziehungsnetz“ und „JBP-Termin“ kommen vor Phase 4 bzw. 7
+  zur Freigabe.

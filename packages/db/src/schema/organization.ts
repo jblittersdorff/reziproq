@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, pgTable, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, check, pgTable, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Eine Organisation ist ein Mandant: eine Firma, die Reziproq nutzt oder als Lieferant vorkommt.
 // Sie hat keinen festen Typ (PLT-02): Ob sie Käufer oder Lieferant ist, ergibt sich aus der
@@ -39,4 +39,33 @@ export const organizationFeature = pgTable(
     enabledAt: timestamp('enabled_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [primaryKey({ columns: [table.organizationId, table.feature] })],
+);
+
+/** UX-20: Module je Organisation; ohne Zeile gilt der Standard (claims, risk, contract aus). */
+export const orgModules = [
+  'claims',
+  'risk',
+  'contract',
+  'value_finder',
+  'category_strategy',
+] as const;
+export type OrgModule = (typeof orgModules)[number];
+
+export const orgModule = pgTable(
+  'org_module',
+  {
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    module: text({ enum: orgModules }).notNull(),
+    enabled: boolean().notNull(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.module] }),
+    check(
+      'org_module_module',
+      sql`${table.module} in ('claims', 'risk', 'contract', 'value_finder', 'category_strategy')`,
+    ),
+  ],
 );

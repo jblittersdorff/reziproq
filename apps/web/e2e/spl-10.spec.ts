@@ -120,7 +120,14 @@ for (const width of [390, 1440]) {
     await mock(page);
     await page.goto(`/lieferanten/${id}/strategie/lieferantenplan/zusammenfassung/bearbeiten`);
     await expect(page.getByText('KI-Entwurf, bitte prüfen')).toBeVisible();
-    await expect(page.locator('[data-slot="ai-draft"]')).toHaveCSS('border-top-style', 'dashed');
+    // Designsprache 2: Entwurf mit 1 px Mint-Rand und Doppelring
+    await expect(page.locator('[data-slot="ai-draft"]')).toHaveCSS(
+      'border-top-color',
+      'rgb(207, 229, 221)',
+    );
+    await expect(
+      page.locator('[data-slot="ai-draft"] [data-slot="brand-mark"]').first(),
+    ).toBeVisible();
     await page.waitForLoadState('networkidle');
     expect(
       await page.evaluate(

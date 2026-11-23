@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { defaultOrgModules, orgModulesSchema } from './modules.js';
 import { orgRoles } from './permissions.js';
 
 /** Sprachen der Oberfläche (PLT-09); gespeichert in app_user.locale. */
@@ -50,6 +51,8 @@ export const meResponseSchema = z.object({
   categoryLabel: z
     .object({ singular: z.string(), plural: z.string() })
     .default({ singular: 'Warengruppe', plural: 'Warengruppen' }),
+  /** UX-20: Module der Organisation; ohne Organisation der Standard (Claims, Risiko, Vertrag aus) */
+  modules: orgModulesSchema.default(defaultOrgModules),
   startPage: startPageRequestSchema.shape.startPage.optional(),
   defaultOverview: z.boolean().optional(),
   permissions: z.object({

@@ -59,7 +59,12 @@ const inbox: Inbox = {
       objectType: 'meeting',
       suggestedType: 'jbp',
       assigned: [
-        { relationshipId: uuid(50), name: 'Rheintal Elektronik', meetingId: uuid(60), mailId: null },
+        {
+          relationshipId: uuid(50),
+          name: 'Rheintal Elektronik',
+          meetingId: uuid(60),
+          mailId: null,
+        },
       ],
     }),
   ],
@@ -76,7 +81,9 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page, { locale: 'de' });
     await page.route('**/api/me/permissions', (route) =>
-      route.fulfill({ json: { actions: ['termine.sehen', 'termine.bearbeiten', 'lieferanten.sehen'] } }),
+      route.fulfill({
+        json: { actions: ['termine.sehen', 'termine.bearbeiten', 'lieferanten.sehen'] },
+      }),
     );
     await page.route('**/api/mein-tag/eingang', (route) => route.fulfill({ json: inbox }));
     await page.goto('/mein-tag/eingang');
@@ -89,7 +96,10 @@ for (const width of [390, 1440]) {
       ),
     ).toBe(0);
     if (process.env.IN03_SHOTS) {
-      await page.screenshot({ path: `${process.env.IN03_SHOTS}/eingang-${width}.png`, fullPage: true });
+      await page.screenshot({
+        path: `${process.env.IN03_SHOTS}/eingang-${width}.png`,
+        fullPage: true,
+      });
     }
   });
 }

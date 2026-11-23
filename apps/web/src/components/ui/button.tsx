@@ -16,8 +16,8 @@ const buttonVariants = cva(
         // Die eine Hauptaktion je Ansicht
         default:
           'bg-primary text-primary-foreground hover:bg-petrol-dark data-[preview=hover]:bg-petrol-dark',
-        secondary:
-          'bg-card text-text shadow-inset-line hover:bg-paper data-[preview=hover]:bg-paper',
+        // Designsprache 2: Zweitknopf grau gefüllt ohne Rand
+        secondary: 'bg-control text-ink hover:bg-line data-[preview=hover]:bg-line',
         outline: 'bg-card text-text shadow-inset-line hover:bg-paper data-[preview=hover]:bg-paper',
         ghost: 'text-text hover:bg-line-soft data-[preview=hover]:bg-line-soft',
         destructive:

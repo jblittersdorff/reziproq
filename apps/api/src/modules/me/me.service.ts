@@ -3,8 +3,10 @@ import { and, eq, schema } from '@reziproq/db';
 import {
   actions,
   defaultCategoryLabel,
+  defaultOrgModules,
   type MeResponse,
   type PermissionsResponse,
+  resolveOrgModules,
   type StartPageRequest,
   type UserLocale,
 } from '@reziproq/shared';
@@ -72,39 +74,47 @@ export class MeService {
       isOperator: auth.isOperator,
     };
 
-    const buyerSettings = organization?.buyer && !pendingApproval
-      ? await this.tenant.run(
-          { userId: auth.userId, organizationId: organization.id },
-          async (tx) => {
-            const [setting] = await tx
-              .select()
-              .from(schema.userSetting)
-              .where(
-                and(
-                  eq(schema.userSetting.userId, auth.userId),
-                  eq(schema.userSetting.orgId, organization.id),
+    const buyerSettings =
+      organization?.buyer && !pendingApproval
+        ? await this.tenant.run(
+            { userId: auth.userId, organizationId: organization.id },
+            async (tx) => {
+              const [setting] = await tx
+                .select()
+                .from(schema.userSetting)
+                .where(
+                  and(
+                    eq(schema.userSetting.userId, auth.userId),
+                    eq(schema.userSetting.orgId, organization.id),
+                  ),
+                );
+              const [lead] = await tx
+                .select({ id: schema.materialGroup.id })
+                .from(schema.materialGroup)
+                .where(
+                  and(
+                    eq(schema.materialGroup.orgId, organization.id),
+                    eq(schema.materialGroup.active, true),
+                    eq(schema.materialGroup.leadUserId, auth.userId),
+                  ),
+                )
+                .limit(1);
+              return {
+                categoryLabel: await readCategoryLabel(tx, organization.id),
+                // UX-20: Module der Organisation, ohne Zeile der Standard
+                modules: resolveOrgModules(
+                  await tx
+                    .select({ module: schema.orgModule.module, enabled: schema.orgModule.enabled })
+                    .from(schema.orgModule)
+                    .where(eq(schema.orgModule.orgId, organization.id)),
                 ),
-              );
-            const [lead] = await tx
-              .select({ id: schema.materialGroup.id })
-              .from(schema.materialGroup)
-              .where(
-                and(
-                  eq(schema.materialGroup.orgId, organization.id),
-                  eq(schema.materialGroup.active, true),
-                  eq(schema.materialGroup.leadUserId, auth.userId),
-                ),
-              )
-              .limit(1);
-            return {
-              categoryLabel: await readCategoryLabel(tx, organization.id),
-              startPage: setting?.startPage ?? null,
-              defaultOverview: subject.orgRole === 'admin' || Boolean(lead),
-            };
-          },
-          { readOnly: true },
-        )
-      : { categoryLabel: defaultCategoryLabel };
+                startPage: setting?.startPage ?? null,
+                defaultOverview: subject.orgRole === 'admin' || Boolean(lead),
+              };
+            },
+            { readOnly: true },
+          )
+        : { categoryLabel: defaultCategoryLabel, modules: defaultOrgModules };
 
     return {
       name: info.name,

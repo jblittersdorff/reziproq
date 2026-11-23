@@ -19,6 +19,9 @@
   /* Darunter gilt ein Fenster als schmal, und die Seitenleiste klappt ein (PLT-11),
      z. B. sidebar:flex. */
   --breakpoint-sidebar: 64rem;
+  /* NAV-10 1.1: Seitenleiste ab 761 px (darunter Tab-Leiste), zwei Spalten ab 1100 px */
+  --breakpoint-shell: 47.5625rem;
+  --breakpoint-wide: 68.75rem;
 }
 
 :root {
@@ -44,9 +47,11 @@
   --line-height-figure: 2.25rem;
   --font-size-title-work: 2.25rem;
   --line-height-title-work: 1.08;
-  --font-size-title: 2.625rem;
-  --line-height-title: 1.05;
-  --font-size-title-hero: 2.875rem;
+  --font-size-title: 2.25rem;
+  /* Designsprache 2: Titel auf dem Telefon */
+  --font-size-title-phone: 1.875rem;
+  --line-height-title: 1.08;
+  --font-size-title-hero: 2.25rem;
   --line-height-title-hero: 1.04;
   --letter-spacing-title-lg: -0.035em;
   /* WEB-01 Website: fließende Größen für Seitentitel, Abschnittstitel und Einleitung */
@@ -66,8 +71,15 @@
   --elevation-site-frame: 0 0 0 1px #0f1b2212, 0 48px 96px -48px #0f1b2252;
   --letter-spacing-title-work: -0.03em;
   --letter-spacing-section: -0.02em;
+  /* Designsprache 2: Abschnittslabel in Versalien */
+  --letter-spacing-label: 0.04em;
   --letter-spacing-section-sm: -0.015em;
   --font-size-sm: 0.8125rem;
+  /* Designsprache 2: Tab-Leiste 11, Unterzeile 14, Zeile 16, Titel der Ablauf-Leiste 17 */
+  --font-size-tab: 0.6875rem;
+  --font-size-detail: 0.875rem;
+  --font-size-row: 1rem;
+  --font-size-flow: 1.0625rem;
   --line-height-sm: 1.25rem;
   --font-size-base: 0.9375rem;
   --line-height-base: 1.5rem;
@@ -89,15 +101,22 @@
      klein 8. Alles Klickbare ist eine Pille (rounded-full). */
   --corner-sm: 0.5rem;
   --corner-md: 1rem;
-  --corner-lg: 1.5rem;
-  --corner-xl: 1.75rem;
+  --corner-lg: 1.125rem;
+  --corner-xl: 1.5rem;
   --corner-field: 1.25rem;
+  /* Designsprache 2: Segment-Umschalter 12 px, aktives Segment 9 px, Seitenleiste und Suche 10 px */
+  --corner-segment: 0.75rem;
+  --corner-segment-item: 0.5625rem;
+  --corner-nav: 0.625rem;
 
   /* Formen der Designsprache: Karte mit hauchfeinem Rand, großes Eingabefeld (Frage), aktiver
      Schalter. Kein farbiger Schatten. */
-  --elevation-card: 0 0 0 1px #0f1b220a;
+  --elevation-card: none;
   --elevation-ask: 0 0 0 1px #0f1b2214, 0 6px 20px #0f1b220a;
   --elevation-toggle: 0 1px 2px #0f1b221f;
+  /* Designsprache 2: aktives Segment, aktiver Punkt der Seitenleiste */
+  --elevation-segment: 0 1px 3px #0f1b2222;
+  --elevation-nav: 0 1px 2px #0f1b2214;
   /* Innenrand: Zweitknopf (line), Leitfragen (mint-line) */
   --elevation-inset-line: inset 0 0 0 1px #dfe2dd;
   --elevation-inset-mint: inset 0 0 0 2px #9fd9c8;
@@ -131,6 +150,13 @@
   --track: #e6e9e5;
   --risk: #94201a;
   --ring-open: #b9bfba;
+  /* Designsprache 2: Zweitknopf und Hinweis-Karte, Zeilentrenner, Rand der Seitenleiste,
+     Rand eines KI-Entwurfs, Ampelpunkt Gelb */
+  --control: #e9ece8;
+  --row-line: #eef0ec;
+  --sidebar-line: #e0e3df;
+  --draft-line: #cfe5dd;
+  --signal-amber: #c98a12;
   --input-border: #7b8389;
   --on-dark: #f4f5f2;
   --on-dark-muted: #a9b4b9;
@@ -241,6 +267,10 @@
   --font-display: var(--font-family-display);
 
   --text-sm: var(--font-size-sm);
+  --text-tab: var(--font-size-tab);
+  --text-detail: var(--font-size-detail);
+  --text-row: var(--font-size-row);
+  --text-flow: var(--font-size-flow);
   --text-sm--line-height: var(--line-height-sm);
   --text-base: var(--font-size-base);
   --text-base--line-height: var(--line-height-base);
@@ -270,6 +300,8 @@
   --text-title-work: var(--font-size-title-work);
   --text-title-work--line-height: var(--line-height-title-work);
   --text-title: var(--font-size-title);
+  --text-title-phone: var(--font-size-title-phone);
+  --text-title-phone--line-height: var(--line-height-title);
   --text-title--line-height: var(--line-height-title);
   --text-title-hero: var(--font-size-title-hero);
   --text-title-hero--line-height: var(--line-height-title-hero);
@@ -290,6 +322,7 @@
   --shadow-site-frame: var(--elevation-site-frame);
   --tracking-title-work: var(--letter-spacing-title-work);
   --tracking-section: var(--letter-spacing-section);
+  --tracking-label: var(--letter-spacing-label);
   --tracking-section-sm: var(--letter-spacing-section-sm);
 
   --spacing: var(--spacing-unit);
@@ -300,6 +333,9 @@
   --radius-xl: var(--corner-xl);
   --radius-evidence: 2rem;
   --radius-field: var(--corner-field);
+  --radius-segment: var(--corner-segment);
+  --radius-segment-item: var(--corner-segment-item);
+  --radius-nav: var(--corner-nav);
 
   --shadow-xs: var(--elevation-xs);
   --shadow-sm: var(--elevation-sm);
@@ -309,6 +345,8 @@
   --shadow-card: var(--elevation-card);
   --shadow-ask: var(--elevation-ask);
   --shadow-toggle: var(--elevation-toggle);
+  --shadow-segment: var(--elevation-segment);
+  --shadow-nav: var(--elevation-nav);
   --shadow-inset-line: var(--elevation-inset-line);
   --shadow-inset-mint: var(--elevation-inset-mint);
   --shadow-ring-gap: var(--elevation-ring-gap);
@@ -368,6 +406,11 @@
   --color-line-soft: var(--line-soft);
   --color-muted-strong: var(--muted-strong);
   --color-track: var(--track);
+  --color-control: var(--control);
+  --color-row-line: var(--row-line);
+  --color-sidebar-line: var(--sidebar-line);
+  --color-draft-line: var(--draft-line);
+  --color-signal-amber: var(--signal-amber);
   --color-risk: var(--risk);
   --color-ring-open: var(--ring-open);
   --color-input-border: var(--input-border);

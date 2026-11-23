@@ -36,6 +36,7 @@ export * from './material-group-assessment.js';
 export * from './material-group-awards.js';
 export * from './material-group-market.js';
 export * from './material-group-merge.js';
+export * from './modules.js';
 export * from './material-group-scorecard.js';
 export * from './material-group-segmentation.js';
 export * from './material-group-strategy.js';

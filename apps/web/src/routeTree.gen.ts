@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as BausteineRouteImport } from './routes/bausteine'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
@@ -286,6 +287,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BausteineRoute = BausteineRouteImport.update({
+  id: '/bausteine',
+  path: '/bausteine',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignRoute = DesignRouteImport.update({
@@ -1846,6 +1852,7 @@ const AppLieferantenIdStrategieLieferantenplanZieleObjectiveIdBearbeitenRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bausteine': typeof BausteineRoute
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
@@ -2116,6 +2123,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bausteine': typeof BausteineRoute
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
@@ -2384,6 +2392,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/bausteine': typeof BausteineRoute
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
@@ -2656,6 +2665,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bausteine'
     | '/design'
     | '/styleguide'
     | '/einladung/$token'
@@ -2926,6 +2936,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bausteine'
     | '/design'
     | '/styleguide'
     | '/$'
@@ -3193,6 +3204,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/bausteine'
     | '/design'
     | '/styleguide'
     | '/einladung/$token'
@@ -3465,6 +3477,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  BausteineRoute: typeof BausteineRoute
   DesignRoute: typeof DesignRoute
   StyleguideRoute: typeof StyleguideRoute
   EinladungTokenRouteRoute: typeof EinladungTokenRouteRouteWithChildren
@@ -3487,6 +3500,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bausteine': {
+      id: '/bausteine'
+      path: '/bausteine'
+      fullPath: '/bausteine'
+      preLoaderRoute: typeof BausteineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design': {
@@ -6078,6 +6098,7 @@ const EinladungTokenRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  BausteineRoute: BausteineRoute,
   DesignRoute: DesignRoute,
   StyleguideRoute: StyleguideRoute,
   EinladungTokenRouteRoute: EinladungTokenRouteRouteWithChildren,

@@ -37,6 +37,21 @@ Aufwand:
 
 ## Phase 1 · Grundlagen
 
+**Stand 23.11.2026: umgesetzt.**
+- `org_module` (Migration 0129, nur lesen für die App, Standard Claims/Risiko/Vertrag aus), über
+  `/me` als `modules`.
+- Tokens Version 2 (Gruppen 18 px ohne Schatten, Tinte-Karte 24 px, Titel 36 / Telefon 30 px,
+  Zweitknopf grau, KI-Entwurf mit Mint-Rand, Umbruch 761 px und 1100 px).
+- Bausteine in `components/ui/`: `app-shell`, `next-card`, `so-what`, `chart-card`,
+  `process-chain`, `row-group`, `collapsible`, `form-page`, `back-link`, `entity-header`
+  (`SupplierHeader`, `CategoryHeader`), `flow-bar`.
+- Testseite `/bausteine` mit den Texten der Vorlagen.
+- Die Vorgänger (`NextStep`, `ListCard`, `Steps`, `StepProgress`, `GroupBar`, `LocalBar`,
+  `GlobalBar` u. a.) bleiben, bis die Seiten in den Phasen 2 bis 9 umgezogen sind; danach werden
+  sie entfernt, damit jeder Baustein genau einmal existiert.
+- Die Testseite zeigt Beispielzahlen aus den Vorlagen; auf echten Seiten kommen Zahlen nur aus den
+  Daten.
+
 | Seite oder Baustein                                       | Stand im Code                                                                                         | Aufwand                                                                                                     |
 | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `org_module` mit Migration und Zeilensicherheit           | fehlt; `organization_feature` vorhanden (F-UX-01)                                                     | M                                                                                                           |

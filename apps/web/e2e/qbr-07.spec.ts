@@ -153,10 +153,19 @@ for (const width of [390, 1440]) {
     await page.goto(`/lieferanten/${id}/umsetzung/termine/${mid}`);
     const section = page.getByRole('region', { name: 'Zusammenfassung für den Pre-Read' });
     await expect(section.getByText('KI-Entwurf, bitte prüfen')).toBeVisible();
+    // Designsprache 2: Entwurf mit 1 px Mint-Rand und Doppelring, bestätigt ohne Doppelring
     await expect(section.locator('[data-slot="ai-draft"]:not([data-confirmed])')).toHaveCSS(
-      'border-top-style',
-      'dashed',
+      'border-top-color',
+      'rgb(207, 229, 221)',
     );
+    await expect(
+      section
+        .locator('[data-slot="ai-draft"]:not([data-confirmed]) [data-slot="brand-mark"]')
+        .first(),
+    ).toBeVisible();
+    await expect(
+      section.locator('[data-slot="ai-draft"][data-confirmed] [data-slot="brand-mark"]'),
+    ).toHaveCount(0);
     await expect(section.locator('[data-slot="ai-draft"][data-confirmed]')).toHaveCSS(
       'border-top-style',
       'solid',

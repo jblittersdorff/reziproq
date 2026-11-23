@@ -7,6 +7,7 @@ import type {
   Supplier,
   SuppliersResponse,
 } from '@reziproq/shared';
+import { defaultOrgModules } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { cleanup, render } from '@testing-library/react';
@@ -40,6 +41,7 @@ export const anna: MeResponse = {
   pendingApproval: false,
   locale: 'de',
   categoryLabel: { singular: 'Warengruppe', plural: 'Warengruppen' },
+  modules: defaultOrgModules,
   permissions: {
     viewOrganizationSettings: true,
     viewBuyerAreas: true,

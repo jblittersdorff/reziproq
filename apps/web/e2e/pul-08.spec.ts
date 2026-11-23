@@ -148,10 +148,17 @@ for (const width of [390, 1440]) {
     await mock(page);
     await page.goto(`/lieferanten/${id}/beziehung/feedback/${waveId}`);
     await expect(page.getByText('KI-Entwurf, bitte prüfen')).toBeVisible();
+    // Designsprache 2: Entwurf mit 1 px Mint-Rand und Doppelring, bestätigt ohne Doppelring
     await expect(page.locator('[data-slot="ai-draft"]:not([data-confirmed])')).toHaveCSS(
-      'border-top-style',
-      'dashed',
+      'border-top-color',
+      'rgb(207, 229, 221)',
     );
+    await expect(
+      page.locator('[data-slot="ai-draft"]:not([data-confirmed]) [data-slot="brand-mark"]').first(),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-slot="ai-draft"][data-confirmed] [data-slot="brand-mark"]'),
+    ).toHaveCount(0);
     await expect(page.locator('[data-slot="ai-draft"][data-confirmed]')).toHaveCSS(
       'border-top-style',
       'solid',

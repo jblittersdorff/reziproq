@@ -72,6 +72,8 @@ export const layerRegister: Record<string, LayerEntry> = {
     manual: 'Spalte organization_id; nur lesen, Freischaltungen setzt der Betrieb',
   },
   user_setting: { kind: 'org_private', manual: 'Private Startseite je Person und Organisation' },
+  // UX-20: Module je Organisation; ohne id-Spalte, nur lesen, umschalten nur der Betrieb
+  org_module: { kind: 'org_private', manual: 'Spalte org_id; nur lesen, Module setzt der Betrieb' },
   app_user: {
     kind: 'org_private',
     manual: 'Spalte organization_id; dazu sieht jede Person sich selbst, auch ohne Organisation',
