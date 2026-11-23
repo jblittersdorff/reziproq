@@ -52,6 +52,7 @@ import { type AccountOrganization, TenantDatabase } from '../../common/database.
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { analysisStates } from './analysis-states.js';
+import { supplierMapData } from './supplier-map-data.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -239,6 +240,7 @@ export class StrategyService {
       .select({ status: schema.materialGroupMarketForce.status })
       .from(schema.materialGroupMarketForce)
       .where(eq(schema.materialGroupMarketForce.strategyId, strategy.id));
+    const map = await supplierMapData(tx, group.orgId, strategy.id, group.id, { feedback: false });
     const hasLead = group.leadUserId !== null;
     const hasProducts = (productGroups?.n ?? 0) > 0;
     return strategySteps.map(({ step }): StepState => {
@@ -285,6 +287,13 @@ export class StrategyService {
           );
         if (chosenIds.length > 0 && chosenIds.every((choice) => complete(choice.id))) return 'done';
         return initiatives.length > 0 || anyNote(7) ? 'in_progress' : 'open';
+      }
+      if (step === 9) {
+        // WG-15: jeder einzeln gezeigte Lieferant hat Anteil Soll und Soll-Typ
+        if (map.complete) return 'done';
+        return map.rows.some((row) => row.shareTarget !== null || row.site !== null) || anyNote(9)
+          ? 'in_progress'
+          : 'open';
       }
       if (step === 3) return analysis.step3;
       if (step === 4) return analysis.step4;

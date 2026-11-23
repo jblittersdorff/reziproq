@@ -417,6 +417,84 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-15 (Schritt 28): Supplier Map
+  const segment = (impactLevel: number, qualityLevel: number, name: string) => ({
+    impactLevel,
+    qualityLevel,
+    name,
+  });
+  const mapRow = (n: number, name: string, share: number, extra: Record<string, unknown>) => ({
+    relationshipId: uuid(n),
+    name,
+    site: null,
+    amountCents: Math.round(share * 820_000_000),
+    share,
+    shareTarget: null,
+    targetYear: null,
+    segmentIst: null,
+    segmentTarget: null,
+    feedbackGap: null,
+    complete: false,
+    ...extra,
+  });
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/supplier-map`, (route) =>
+    route.fulfill({
+      json: {
+        canEdit: true,
+        restricted: false,
+        strategyYear: 2027,
+        spendYear: 2025,
+        currency: 'EUR',
+        totalCents: 820_000_000,
+        rows: [
+          mapRow(82, 'Rheintal Elektronik GmbH', 0.38, {
+            site: 'Speyer, DE',
+            shareTarget: 52,
+            targetYear: 2029,
+            segmentIst: segment(3, 2, 'Hoher Impact · ausbaufähige Beziehung'),
+            segmentTarget: { kind: 'segment', ...segment(3, 3, 'Hoher Impact · starke Beziehung') },
+            feedbackGap: { dimension: 'trust', delta: -0.9 },
+            complete: true,
+          }),
+          mapRow(90, 'Saar Circuits', 0.27, {
+            site: 'Saarlouis, DE',
+            segmentIst: segment(2, 3, 'Mittlerer Impact · starke Beziehung'),
+            segmentTarget: {
+              kind: 'segment',
+              ...segment(2, 3, 'Mittlerer Impact · starke Beziehung'),
+            },
+            feedbackGap: { dimension: 'collaboration', delta: 0 },
+          }),
+          mapRow(91, 'Donau Print', 0.18, {
+            site: 'Linz, AT',
+            shareTarget: 0,
+            targetYear: 2028,
+            segmentIst: segment(2, 1, 'Mittlerer Impact · schwache Beziehung'),
+            segmentTarget: { kind: 'ended' },
+            feedbackGap: { dimension: 'transparency', delta: 1.6 },
+            complete: true,
+          }),
+        ],
+        rest: [
+          mapRow(92, 'Moldau PCB', 0.09, {
+            segmentIst: segment(1, 2, 'Niedriger Impact · ausbaufähige Beziehung'),
+          }),
+          mapRow(93, 'Weichsel Boards', 0.08, {
+            segmentIst: segment(1, 3, 'Niedriger Impact · starke Beziehung'),
+          }),
+        ],
+        restCents: 139_400_000,
+        restShare: 0.17,
+        segmentTypes: [
+          segment(3, 3, 'Hoher Impact · starke Beziehung'),
+          segment(3, 2, 'Hoher Impact · ausbaufähige Beziehung'),
+          segment(2, 3, 'Mittlerer Impact · starke Beziehung'),
+        ],
+        complete: false,
+        handoverRelationshipId: null,
+      },
+    }),
+  );
   // WG-12 (Schritt 27): Scorecard und Quartals-Review
   await page.route(`**/api/warengruppen/strategien/${strategyId}/scorecard`, (route) =>
     route.fulfill({
@@ -873,6 +951,11 @@ const pages = [
   ],
   ['hebel', '/einstellungen/warengruppen/hebel', 'Hebelkatalog der Warengruppen'],
   ['scorecard', `/warengruppen/${group}/strategie/7`, 'Initiativen in der Scorecard planen'],
+  [
+    'supplier-map',
+    `/warengruppen/${group}/strategie/9`,
+    'Die Lieferantenbasis von morgen festlegen',
+  ],
   ['review', `/warengruppen/${group}/review/${uuid(85)}`, 'Quartals-Review zum 10.04.2027'],
   [
     'segmentierung',

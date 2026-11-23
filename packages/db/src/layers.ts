@@ -869,6 +869,12 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2099-01-01',
     }),
   },
+  material_group_supplier_map_row: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+    }),
+  },
   note: {
     kind: 'org_private',
     testValues: ({ orgUser }) => ({

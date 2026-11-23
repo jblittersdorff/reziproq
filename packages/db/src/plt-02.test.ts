@@ -162,6 +162,7 @@ describe('PLT-02 in der Datenbank', () => {
       'material_group_question',
       'material_group_review',
       'material_group_strategy',
+      'material_group_supplier_map_row',
       'material_group_swot_item',
       'material_group_view_assignment',
       'material_group_view_comment',

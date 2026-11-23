@@ -256,6 +256,7 @@ import {
   type StrategicTopicRequest,
   type StrategyAssessment,
   type SubmitSurvey,
+  type SupplierMapUpdate,
   type SupplierTargetRequest,
   type SurveyKind,
   type SurveySide,
@@ -277,6 +278,7 @@ import {
   strategyStepSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
+  supplierMapSchema,
   supplierOverviewSchema,
   supplierPlanResponseSchema,
   supplierProfileSchema,
@@ -4429,5 +4431,32 @@ export const holdCategoryReview = (accessToken: string, reviewId: string, summar
     `/warengruppen/reviews/${reviewId}/abschliessen`,
     { summary },
     categoryReviewSchema,
+    accessToken,
+  );
+
+/** WG-15 (Schritt 28): Supplier Map der Warengruppenstrategie */
+export const supplierMapQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'supplier-map'],
+    queryFn: () =>
+      getJson(
+        `/warengruppen/strategien/${strategyId}/supplier-map`,
+        supplierMapSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const saveSupplierMapRow = (
+  accessToken: string,
+  strategyId: string,
+  relationshipId: string,
+  update: SupplierMapUpdate,
+) =>
+  sendJson(
+    'PUT',
+    `/warengruppen/strategien/${strategyId}/supplier-map/${relationshipId}`,
+    update,
+    supplierMapSchema,
     accessToken,
   );

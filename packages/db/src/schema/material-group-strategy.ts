@@ -564,3 +564,42 @@ export const materialGroupReview = pgTable(
   ],
 );
 
+
+/**
+ * WG-15: Zeile der Supplier Map je Strategie und Lieferant (Beziehung). Standort, Umsatzanteil Soll
+ * (ganze Prozent) und Zieljahr gehören der Map; der Soll-Typ ist das Soll der Segmententscheidung
+ * der Warengruppe (Gründer, 23.11.2026). Nur „beenden“ steht hier, weil eine Segmententscheidung
+ * immer ein Segment trägt.
+ */
+export const materialGroupSupplierMapRow = pgTable(
+  'material_group_supplier_map_row',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    site: text(),
+    shareTarget: integer(),
+    targetYear: integer(),
+    ended: boolean().notNull().default(false),
+    updatedBy: text().references(() => appUser.id),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_supplier_map_row_once').on(table.strategyId, table.relationshipId),
+    check(
+      'material_group_supplier_map_row_share',
+      sql`${table.shareTarget} is null or ${table.shareTarget} between 0 and 100`,
+    ),
+    check(
+      'material_group_supplier_map_row_year',
+      sql`${table.targetYear} is not null or (${table.shareTarget} is null and not ${table.ended})`,
+    ),
+  ],
+);

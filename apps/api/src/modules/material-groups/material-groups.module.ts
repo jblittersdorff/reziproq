@@ -18,8 +18,10 @@ import { CategorySegmentationController } from './segmentation.controller.js';
 import { CategorySegmentationService } from './segmentation.service.js';
 import { StrategyController } from './strategy.controller.js';
 import { StrategyService } from './strategy.service.js';
+import { SupplierMapController } from './supplier-map.controller.js';
+import { SupplierMapService } from './supplier-map.service.js';
 
-/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-18 */
+/** Warengruppenmanagement (Release 1.1): WG-01, WG-04, WG-06, WG-07, WG-09, WG-10, WG-12, WG-15, WG-18 */
 @Module({
   imports: [AiDraftsModule, RatingsModule, RoundsModule, SuppliersModule],
   // Strategie zuerst: feste Pfade wie /warengruppen/strategien vor /warengruppen/:id
@@ -29,6 +31,7 @@ import { StrategyService } from './strategy.service.js';
     MarketController,
     AssessmentController,
     ScorecardController,
+    SupplierMapController,
     CategorySegmentationController,
     MaterialGroupsController,
   ],
@@ -41,6 +44,7 @@ import { StrategyService } from './strategy.service.js';
     CategorySegmentationService,
     ScorecardService,
     ScorecardWorker,
+    SupplierMapService,
   ],
   exports: [StrategyService],
 })

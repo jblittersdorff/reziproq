@@ -62,6 +62,7 @@ import { AssessmentSection } from './assessment-pages';
 import { MarketSection } from './market-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
 import { ScorecardSection } from './scorecard-pages';
+import { SupplierMapSection } from './supplier-map-section';
 
 const strategyPath = (groupId: string, step?: number) =>
   `/warengruppen/${groupId}/strategie${step ? `/${step}` : ''}`;
@@ -554,6 +555,10 @@ function StepContent({
     <div className="flex flex-col gap-6">
       {/* WG-Ziele.dc.html: die Tabelle der Ziele über die ganze Breite, darunter Text und Leitfragen */}
       {content.step === 2 && <GoalsStep context={context} content={content} editable={editable} />}
+      {/* WG-15 (WG-SupplierMap.dc.html): Schritt 9 zeigt die Supplier Map über die ganze Breite */}
+      {content.step === 9 && (
+        <SupplierMapSection groupId={groupId} context={context} editable={editable} />
+      )}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">
           {content.step === 1 && (

@@ -34,6 +34,7 @@ export * from './material-group-analysis.js';
 export * from './material-group-assessment.js';
 export * from './material-group-market.js';
 export * from './material-group-scorecard.js';
+export * from './material-group-supplier-map.js';
 export * from './material-group-segmentation.js';
 export * from './material-group-strategy.js';
 export * from './material-groups.js';

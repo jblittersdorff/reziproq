@@ -24,6 +24,7 @@ import { MeterBar } from '@/components/ui/meter-bar';
 import { Monogram } from '@/components/ui/monogram';
 import { NextStep, NextStepArrow } from '@/components/ui/next-step';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { ShareStack } from '@/components/ui/share-stack';
 import { StepProgress } from '@/components/ui/step-progress';
 import { Steps } from '@/components/ui/steps';
 import {
@@ -508,6 +509,17 @@ function BarExample() {
         <span className="text-muted-foreground tabular-nums">{s.barValue}</span>
       </span>
       <MeterBar value={0.46} label={`${s.barLabel}: ${s.barValue}`} />
+      <ShareStack
+        className="mt-3"
+        label={s.stackLabel}
+        segments={[
+          { key: 're', text: 'RE 38', share: 0.38, tone: 'petrol' },
+          { key: 'sc', text: 'SC 27', share: 0.27, tone: 'slate' },
+          { key: 'dp', text: 'DP 18', share: 0.18, tone: 'risk' },
+          { key: 'mp', text: 'MP 9', share: 0.09, tone: 'ink' },
+          { key: 'rest', text: '8', share: 0.08, tone: 'rest' },
+        ]}
+      />
     </div>
   );
 }
