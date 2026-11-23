@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Lieferanten-Leiste</title>
+<title>SupplierBar</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -12,73 +12,68 @@
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>body{margin:0}</style>
 </helmet>
-<div style="font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#ffffff;border-bottom:1px solid #dfe2dd">
-  <div style="max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 0;display:flex;flex-direction:column;gap:16px;box-sizing:border-box">
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between">
-      <a href="L-Ueberblick.dc.html" style="display:flex;align-items:center;gap:16px;text-decoration:none;color:#14181b">
-        <span style="width:52px;height:52px;border-radius:999px;background:#e1f3ed;color:#0a5c50;box-shadow:inset 0 0 0 2px #0b7a6a;display:flex;align-items:center;justify-content:center;font:600 16px Outfit,Figtree,sans-serif;letter-spacing:.02em">RE</span>
-        <span style="display:flex;flex-direction:column;gap:2px">
-          <strong style="font-family:Outfit,Figtree,sans-serif;font-size:26px;line-height:1.1;font-weight:600;letter-spacing:-0.025em">Rheintal Elektronik</strong>
-          <span style="font-size:13px;color:#5a636b">Strategisch · Leiterplatten · SRO Sara Ost</span>
-        </span>
-      </a>
-      <span style="display:inline-flex;align-items:center;gap:12px;min-height:40px;padding:0 16px 0 14px;border-radius:999px;background:#f4f5f2;color:#14181b;font-size:13px;font-weight:600">
-        <span role="img" aria-label="Schritt 4 von 6" style="display:flex;padding-left:4px">
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#0b7a6a;border:2px solid #0b7a6a;box-shadow:0 0 0 2px #f4f5f2"></span>
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#0b7a6a;border:2px solid #0b7a6a;box-shadow:0 0 0 2px #f4f5f2"></span>
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#0b7a6a;border:2px solid #0b7a6a;box-shadow:0 0 0 2px #f4f5f2"></span>
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#4fd1b4;border:2px solid #0f1b22;box-shadow:0 0 0 2px #f4f5f2"></span>
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#ffffff;border:2px solid #b9bfba;box-shadow:0 0 0 2px #f4f5f2"></span>
-          <span style="width:14px;height:14px;box-sizing:border-box;border-radius:99px;margin-left:-4px;background:#ffffff;border:2px solid #b9bfba;box-shadow:0 0 0 2px #f4f5f2"></span>
-        </span>
-        Schritt 4 von 6 · Gemeinsamer Plan</span>
+<div style="font-family:Figtree,system-ui,sans-serif;color:#0f1b22;background:#f4f5f2">
+  <div style="max-width:1200px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 4px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+    <a href="Lieferanten.dc.html" style="align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:32px;color:#0b7a6a;font-size:15px;font-weight:600;text-decoration:none"><svg width="10" height="16" viewBox="0 0 12 20" fill="none" aria-hidden="true"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Lieferanten</a>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+        <strong style="font-family:Outfit,Figtree,sans-serif;font-size:clamp(28px,4vw,36px);line-height:1.08;font-weight:600;letter-spacing:-0.03em">Rheintal Elektronik</strong>
+        <span style="font-size:14px;color:#5a636b">Hoher Impact · ausbaufähig · Elektronik · Schritt 4 von 6: Plan</span>
+      </div>
+      <a href="L-Profil.dc.html" aria-label="Profil, Segmentierung und Team" aria-current="{{profileCurrent}}" style="{{profileStyle}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></a>
     </div>
-    <nav aria-label="Bereiche des Lieferanten" style="display:flex;gap:4px;overflow-x:auto">
-      <sc-for list="{{areas}}" as="a" hint-placeholder-count="6">
+    <nav aria-label="Bereiche des Lieferanten" style="display:flex;gap:2px;padding:3px;border-radius:12px;background:#e6e9e5;overflow-x:auto;max-width:100%;box-sizing:border-box">
+      <sc-for list="{{areas}}" as="a" hint-placeholder-count="4">
         <a href="{{a.href}}" aria-current="{{a.current}}" style="{{a.style}}">{{a.label}}</a>
       </sc-for>
     </nav>
-  </div>
-  <sc-if value="{{hasSubs}}" hint-placeholder-val="{{true}}">
-    <div style="background:#f4f5f2;border-top:1px solid #dfe2dd">
-      <nav aria-label="Seiten im Bereich" style="max-width:1200px;margin:0 auto;padding:10px clamp(16px,4vw,48px);display:flex;flex-wrap:wrap;gap:6px;box-sizing:border-box">
-        <sc-for list="{{subs}}" as="s" hint-placeholder-count="4">
+    <sc-if value="{{hasSubs}}" hint-placeholder-val="{{true}}">
+      <nav aria-label="Seiten im Bereich" style="display:flex;gap:4px;overflow-x:auto;padding:2px 0">
+        <sc-for list="{{subs}}" as="s" hint-placeholder-count="5">
           <a href="{{s.href}}" aria-current="{{s.current}}" style="{{s.style}}">{{s.label}}</a>
         </sc-for>
       </nav>
-    </div>
-  </sc-if>
+    </sc-if>
+  </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"area":{"editor":"enum","options":["Überblick","Strategie","Beziehung","Gemeinsamer Plan","Umsetzung","Wirkung"],"default":"Gemeinsamer Plan"},"page":{"editor":"text","default":"Initiativen"},"subs":{"editor":"enum","options":["an","aus"],"default":"an"},"$preview":{"width":1440,"height":190}}'>
+<script type="text/x-dc" data-dc-script data-props='{"area":{"editor":"enum","options":["Überblick","Aktivitäten","Plan","Ergebnisse","Claims und Risiken","Profil","Notizen","Strategie","Beziehung","Gemeinsamer Plan","Umsetzung","Wirkung"],"default":"Plan"},"page":{"editor":"text","default":"Themen"},"subs":{"editor":"enum","options":["an","aus"],"default":"an"},"$preview":{"width":1440,"height":200}}'>
 class Component extends DCLogic {
   renderVals() {
-    const area = this.props.area ?? 'Gemeinsamer Plan';
-    const page = this.props.page ?? '';
-    const areas = [
+    const areaAlias = { Notizen: 'Aktivitäten', Strategie: 'Profil', Beziehung: 'Profil', 'Gemeinsamer Plan': 'Plan', Umsetzung: 'Plan', Wirkung: 'Ergebnisse' };
+    const pageArea = { Wertpotenziale: 'Ergebnisse', Feedback: 'Ergebnisse', Termine: 'Aktivitäten', Verlauf: 'Aktivitäten', Notizen: 'Aktivitäten', Claims: 'Claims und Risiken', Risiken: 'Claims und Risiken', 'Vertrag und Pflichten': 'Profil' };
+    const rawArea = this.props.area ?? 'Plan';
+    let page = this.props.page ?? '';
+    const area = pageArea[page] ?? areaAlias[rawArea] ?? rawArea;
+    if (area === 'Ergebnisse' && page === 'Initiativen') page = 'Gesichert';
+    if (page === 'Notizen') page = 'Verlauf';
+    const tabs = [
       ['Überblick', 'L-Ueberblick.dc.html', []],
-      ['Strategie', 'L-Warengruppen.dc.html', [['Warengruppen', 'L-Warengruppen.dc.html'], ['Segmentierung', 'L-Segmentierung.dc.html'], ['Lieferantenplan', 'L-Lieferantenplan.dc.html'], ['Profil und Spend', 'L-Profil.dc.html']]],
-      ['Beziehung', 'B-Team.dc.html', [['Team', 'B-Team.dc.html'], ['Spielregeln', 'B-Spielregeln.dc.html'], ['Feedback', 'B-Feedback.dc.html']]],
-      ['Gemeinsamer Plan', 'P-Vorbereitung.dc.html', [['Wertpotenziale', 'KI-Wert.dc.html'], ['Vorbereitung', 'P-Vorbereitung.dc.html'], ['Themen', 'P-Themen.dc.html'], ['Initiativen', 'P-Initiativen.dc.html'], ['Zusagen', 'P-Zusagen.dc.html'], ['Freigabe', 'P-Freigabe.dc.html'], ['Scorecard', 'P-Scorecard.dc.html']]],
-      ['Umsetzung', 'U-Termine.dc.html', [['Termine', 'U-Termine.dc.html'], ['Maßnahmen', 'U-Massnahmen.dc.html']]],
-      ['Wirkung', 'W-Initiative.dc.html', [['Initiativen', 'W-Initiative.dc.html']]],
+      ['Aktivitäten', 'L-Notizen.dc.html', [['Verlauf', 'L-Notizen.dc.html'], ['Termine', 'U-Termine.dc.html']]],
+      ['Plan', 'P-Themen.dc.html', [['Vorbereitung', 'P-Vorbereitung.dc.html'], ['Themen', 'P-Themen.dc.html'], ['Initiativen', 'P-Initiativen.dc.html'], ['Zusagen', 'P-Zusagen.dc.html'], ['Maßnahmen', 'U-Massnahmen.dc.html'], ['Scorecard', 'P-Scorecard.dc.html'], ['Freigabe', 'P-Freigabe.dc.html']]],
+      ['Ergebnisse', 'W-Initiative.dc.html', [['Gesichert', 'W-Initiative.dc.html'], ['Wertpotenziale', 'KI-Wert.dc.html'], ['Feedback', 'B-Feedback.dc.html']]],
+      ['Claims und Risiken', 'C-Claims.dc.html', [['Claims', 'C-Claims.dc.html'], ['Risiken', 'R-Risiken.dc.html']]],
     ];
-    const tab = 'display:inline-flex;align-items:center;min-height:46px;padding:0 14px;text-decoration:none;font-size:15px;white-space:nowrap;border-bottom:3px solid ';
-    const pill = 'display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;text-decoration:none;font-size:13px;';
-    const current = areas.find((entry) => entry[0] === area) ?? areas[0];
+    const profil = ['Profil', 'L-Profil.dc.html', [['Profil und Spend', 'L-Profil.dc.html'], ['Segmentierung', 'L-Segmentierung.dc.html'], ['Warengruppen', 'L-Warengruppen.dc.html'], ['Lieferantenplan', 'L-Lieferantenplan.dc.html'], ['Team', 'B-Team.dc.html'], ['Spielregeln', 'B-Spielregeln.dc.html'], ['Vertrag und Pflichten', 'V-Vertrag.dc.html']]];
+    const tab = 'display:inline-flex;align-items:center;justify-content:center;flex:1 0 auto;min-height:36px;padding:0 18px;border-radius:9px;text-decoration:none;font-size:14px;white-space:nowrap;';
+    const pill = 'display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;text-decoration:none;font-size:13px;white-space:nowrap;';
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;border-radius:999px;text-decoration:none;';
+    const current = area === 'Profil' ? profil : (tabs.find((t) => t[0] === area) ?? tabs[0]);
     return {
-      areas: areas.map(([label, href]) => ({
+      areas: tabs.map(([label, href]) => ({
         label,
         href,
         current: label === area ? 'page' : 'false',
-        style: label === area ? tab + '#0f1b22;color:#0f1b22;font-weight:600' : tab + 'transparent;color:#5a636b;font-weight:500',
+        style: label === area ? tab + 'background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 3px #0f1b2222' : tab + 'color:#3f4a52;font-weight:500',
       })),
+      profileCurrent: area === 'Profil' ? 'page' : 'false',
+      profileStyle: area === 'Profil' ? btn + 'background:#0f1b22;color:#ffffff' : btn + 'background:#ffffff;color:#0b7a6a',
       hasSubs: current[2].length > 0 && (this.props.subs ?? 'an') !== 'aus',
       subs: current[2].map(([label, href]) => ({
         label,
         href,
         current: label === page ? 'page' : 'false',
-        style: label === page ? pill + 'background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b221f' : pill + 'color:#3f4a52;font-weight:500',
+        style: label === page ? pill + 'background:#0f1b22;color:#ffffff;font-weight:600' : pill + 'color:#5a636b;font-weight:500',
       })),
     };
   }

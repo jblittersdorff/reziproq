@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Prüfung durch Controlling</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.warn{background:#f8eed6;color:#74500a}.sh{background:#e1f3ed;color:#0a5c50}
+.card{background:#ffffff;border-radius:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:14px;font:700 15px Figtree,sans-serif;text-decoration:none;border:0}
+.bp{background:#0b7a6a;color:#ffffff}.bs{background:#ffffff;color:#14181b;border:1px solid #dfe2dd}
+.muted{color:#5a636b}
+.t1{font-size:34px;line-height:1.1;font-weight:800;letter-spacing:-0.03em}
+.t2{font-size:18px;font-weight:700}
+.step{display:flex;gap:16px;align-items:flex-start}
+.n{width:32px;height:32px;border-radius:99px;background:#0f1b22;color:#4fd1b4;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+td,th{padding:10px 12px;border-top:1px solid #eceeea;font-size:14px;text-align:left;font-variant-numeric:tabular-nums}
+th{font-size:12px;color:#5a636b;font-weight:600;border-top:0}
+
+
+/* apple-layer */
+.hero{position:relative;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:#0f1b22;color:#f4f5f2}
+.hero .btn.bm{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;font:600 15px Figtree,system-ui,sans-serif;text-decoration:none;background:#4fd1b4;color:#0f1b22}
+.t1{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:-0.03em}
+.card{border-radius:18px;box-shadow:none!important;padding:20px 22px}
+.hero{border-radius:22px;padding:22px 26px;box-shadow:none}
+.hero .rings{display:none}
+.ki{border:1px solid #cfe5dd!important;background:#fbfdfc;border-radius:18px}
+.chip{padding:3px 9px;font-size:12px}
+.btn.bs{box-shadow:none;background:#e9ece8;color:#14181b}
+.btn.bp{background:#0b7a6a}
+.seg{border-radius:12px;padding:3px;background:#e6e9e5}.seg .pill{border-radius:9px;min-height:34px}
+.pill.on{box-shadow:0 1px 3px #0f1b2222}
+details.fold{display:block;border-radius:16px;background:#ffffff}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 18px;font:500 15px Figtree,system-ui,sans-serif;color:#3f4a52}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary span{flex:1}
+details.fold>summary::after{content:"";width:8px;height:8px;border-right:2px solid #b4bab5;border-bottom:2px solid #b4bab5;transform:rotate(-45deg);margin-right:4px;transition:transform .15s}
+details.fold[open]>summary::after{transform:rotate(45deg)}
+details.fold>.card,details.fold>section,details.fold>div{border-radius:0 0 16px 16px;padding-top:4px}
+details.fold [data-foldh]{display:none}
+.quiet{background:#e9ece8!important;color:#14181b!important}
+.quiet *{color:inherit}
+.quiet p,.quiet span{color:#5a636b!important}
+.quiet h2,.quiet h3,.quiet strong{color:#0f1b22!important}
+@media (max-width:760px){
+.hero{flex-direction:column;align-items:stretch!important;padding:20px}
+.hero>div{flex:none!important}
+.hero .btn{width:100%;box-sizing:border-box;justify-content:center;min-height:50px}
+.hero>div{min-width:0;max-width:100%}
+.t1{font-size:30px}
+}
+
+/* sowhat */
+.swg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px;align-items:stretch}
+.swc{display:flex;flex-direction:column;gap:12px;padding:20px 22px;border-radius:18px;background:#fff;min-width:0;box-sizing:border-box}
+.swc .swk{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#7b8389}
+.swc .swt{margin:0;font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22}
+.swp{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.swp li{border-top:1px solid #eef0ec}
+.swp a,.swp span.r{display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px;color:#0f1b22;text-decoration:none}
+.swp a::after{content:"";margin-left:auto;flex:none;width:7px;height:7px;border-right:2px solid #c4c8c3;border-top:2px solid #c4c8c3;transform:rotate(45deg)}
+.swtag{flex:none;min-width:64px;text-align:center;padding:3px 8px;border-radius:99px;font-size:12px;font-weight:600;box-sizing:border-box}
+.swtag.ok{background:#e8f1df;color:#2f5f1d}.swtag.risk{background:#fae6e3;color:#94201a}.swtag.warn{background:#f8eed6;color:#74500a}.swtag.n{background:#eceeea;color:#3f4a52}.swtag.m{background:#e1f3ed;color:#0a5c50}
+.swb{display:grid;grid-template-columns:minmax(80px,auto) 1fr auto;align-items:center;gap:10px;font-size:14px}
+.swb .tr{position:relative;height:12px;border-radius:99px;background:#eceeea;overflow:hidden}
+.swb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#0b7a6a}
+.swb .tr i.g{background:#b4bab5}.swb .tr i.r{background:#94201a}.swb .tr i.m{background:#4fd1b4}
+.swb .tr b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0f1b22}
+.swb .v{font-variant-numeric:tabular-nums;font-size:13px;color:#3f4a52;white-space:nowrap}
+.sws{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:3px}
+.swl{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:#3f4a52}
+.swl i{display:inline-block;width:10px;height:10px;border-radius:99px;margin-right:6px;vertical-align:-1px}
+.swkp{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.swkp div{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:#f4f5f2}
+.swkp b{font:600 22px Outfit,sans-serif;letter-spacing:-0.02em;white-space:nowrap}.swkp span{font-size:12px;color:#5a636b}
+.swsrc{font-size:12px;color:#7b8389}
+.swc .swf{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #eef0ec;font-size:14px;font-weight:600;color:#0b7a6a;text-decoration:none}
+.swc .swf::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg)}
+
+/* chain */
+.chn{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:2px 0 4px;margin:0;list-style:none;scrollbar-width:none}
+.chn li{flex:none;display:flex;align-items:center;gap:6px}
+.chn a{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px 0 6px;border-radius:999px;font:600 13px Figtree,system-ui,sans-serif;text-decoration:none;white-space:nowrap;background:#eceeea;color:#5a636b}
+.chn a i{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:99px;font:600 11px Outfit,sans-serif;font-style:normal;background:#fff;color:#7b8389}
+.chn a.chd{background:#e1f3ed;color:#0a5c50}.chn a.chd i{background:#0b7a6a;color:#fff}
+.chn a.chx{background:#0f1b22;color:#fff}.chn a.chx i{background:#4fd1b4;color:#0f1b22}
+.chn li+li::before{content:"";width:10px;height:2px;background:#d4d8d3;border-radius:2px}
+.chnw{display:flex;flex-direction:column;gap:6px}
+.chnw>span{font-size:12px;font-weight:600;color:#7b8389;letter-spacing:.02em}
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it on" href="Uebersicht.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it" href="Lieferanten.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
+
+<main style="max-width:960px;margin:0 auto;padding:40px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:22px">
+  <a href="W-Uebersicht.dc.html" style="font-size:14px;font-weight:600;text-decoration:none">← Ergebnisse</a>
+  <div style="display:flex;flex-direction:column;gap:8px"><span class="chip warn" style="align-self:flex-start">angefordert von Sara Ost, 02.10.</span><h1 class="t1">Preis Leiterplatten prüfen</h1><p class="muted">Rheintal Elektronik · Juli bis September 2026 · drei Schritte, dann entscheiden</p></div>
+<nav class="chnw" aria-label="Ablauf Ergebnis"><span>ABLAUF ERGEBNIS</span><ol class="chn"><li><a class="chd" href="P-Initiative.dc.html"><i><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></i>Initiative</a></li><li><a class="chd" href="W-Initiative.dc.html"><i><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></i>Wirkung messen</a></li><li><a class="chx" href="W-Pruefung.dc.html" aria-current="step"><i>3</i>Controlling prüft</a></li><li><a class="" href="W-Uebersicht.dc.html"><i>4</i>Ergebnisse</a></li></ol></nav>
+
+<div class="swg"><section class="swc" aria-label="Das Wichtigste"><span class="swk"><svg width="22" height="16" viewBox="0 0 28 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#4fd1b4" stroke-width="2"></circle></svg>Das Wichtigste</span><p class="swt">Preis Leiterplatten bringt im dritten Quartal 24,0 T€, 8 % über Plan.</p><ul class="swp"><li><span class="r"><span class="swtag n">Regel</span><span>(Preis alt − Preis neu) × Menge, Baseline 12,34 € eingefroren</span></span></li><li><span class="r"><span class="swtag ok">Nachweis</span><span>Neuer Rahmenvertrag seit Januar 2026</span></span></li><li><span class="r"><span class="swtag warn">Achtung</span><span>Die Ersparnis je Stück sinkt von 0,39 auf 0,31 €</span></span></li></ul></section><section class="swc"><span class="swk">Juli bis September 2026</span><p class="swt">Ist über Plan in jedem Monat außer September</p><div class="swb"><span>Juli</span><span class="tr"><i class="" style="width:100%"></i><b style="left:85%"></b></span><span class="v">8.190 €</span></div><div class="swb"><span>August</span><span class="tr"><i class="" style="width:98%"></i><b style="left:90%"></b></span><span class="v">8.050 €</span></div><div class="swb"><span>September</span><span class="tr"><i class="" style="width:95%"></i><b style="left:96%"></b></span><span class="v">7.750 €</span></div><span class="swsrc">Strich: Plan je Monat</span></section></div>
+
+
+  <section class="card" style="padding:24px;display:flex;flex-direction:column;gap:22px" aria-label="Rechenweg">
+    <div class="step"><span class="n">1</span><div style="display:flex;flex-direction:column;gap:4px"><h2 class="t2">Rechenregel</h2><p style="font-size:15px">Preis · Version 1: <strong>(Preis alt − Preis neu) × Menge</strong></p><p style="font-size:13px" class="muted">GuV-Zeile Materialaufwand · Wirkungsart EBIT</p></div></div>
+    <div class="step"><span class="n">2</span><div style="display:flex;flex-direction:column;gap:4px"><h2 class="t2">Baseline</h2><p style="font-size:15px">Preis alt <strong>12,34 €</strong> je Stück</p><p style="font-size:13px" class="muted">Version 1, eingefroren von Sara Ost am 10.01.2026</p></div></div>
+    <div class="step" style="align-items:stretch"><span class="n">3</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px"><h2 class="t2">Monatswerte im Zeitraum</h2>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:460px">
+        <thead><tr><th scope="col">Monat</th><th scope="col">Preis neu</th><th scope="col">Menge</th><th scope="col">Plan</th><th scope="col">Ist</th></tr></thead>
+        <tbody><tr><td>Juli</td><td>11,95 €</td><td>21.000</td><td>7.000 €</td><td><strong>8.190 €</strong></td></tr><tr><td>August</td><td>11,99 €</td><td>23.000</td><td>7.400 €</td><td><strong>8.050 €</strong></td></tr><tr><td>September</td><td>12,03 €</td><td>25.000</td><td>7.900 €</td><td><strong>7.750 €</strong></td></tr><tr><th scope="row" style="border-top:1px solid #eceeea;font-size:14px;color:#14181b">Summe</th><td></td><td></td><td>22.300 €</td><td><strong>23.990 €</strong></td></tr></tbody>
+      </table></div></div></div>
+    <div style="display:flex;gap:16px;align-items:flex-start;padding-top:16px;border-top:1px solid #eceeea"><span class="chip sh">Nachweis R4</span><p style="font-size:14px">Neuer Rahmenvertrag ab Januar · Sara Ost, 01.02.2026</p></div>
+  </section>
+
+  <section class="card" style="padding:24px;display:flex;flex-direction:column;gap:16px" aria-labelledby="entscheiden">
+    <h2 id="entscheiden" class="t2">Entscheiden</h2>
+    <button class="btn bp" style="align-self:flex-start">Freigeben: 24,0 T€ EBIT realisiert</button>
+    <label style="display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid #eceeea"><strong style="font-size:14px">Begründung zum Zurückweisen</strong><span style="font-size:13px" class="muted">Sara Ost bekommt eine Mail mit diesem Text.</span><textarea rows="3" style="border:1px solid #7b8389;border-radius:12px;padding:12px;font:400 15px/1.5 Figtree,sans-serif"></textarea></label>
+    <button class="btn bs" style="align-self:flex-start">Zurückweisen</button>
+  </section>
+</main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="on" href="Uebersicht.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="" href="Lieferanten.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1555}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

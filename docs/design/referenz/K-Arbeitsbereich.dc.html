@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Arbeitsbereich beim Kunden</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+a{color:#0b7a6a}a:hover{color:#0a5c50}
+h1,h2,h3,p{margin:0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.warn{background:#f8eed6;color:#74500a}.sh{background:#ffffff;color:#0a5c50}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:14px;font:700 15px Figtree,sans-serif;text-decoration:none;border:0}
+.bm{background:#4fd1b4;color:#0f1b22}
+.muted{color:#5a636b}
+.tab{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent;color:#5a636b;font-weight:500}
+.item{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-top:1px solid #c4e9dd;font-size:14px}
+.stepnum{width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+
+
+/* apple-layer */
+.hero{position:relative;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:#0f1b22;color:#f4f5f2}
+.hero .btn.bm{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;font:600 15px Figtree,system-ui,sans-serif;text-decoration:none;background:#4fd1b4;color:#0f1b22}
+.t1{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:-0.03em}
+.card{border-radius:18px;box-shadow:none!important;padding:20px 22px}
+.hero{border-radius:22px;padding:22px 26px;box-shadow:none}
+.hero .rings{display:none}
+.ki{border:1px solid #cfe5dd!important;background:#fbfdfc;border-radius:18px}
+.chip{padding:3px 9px;font-size:12px}
+.btn.bs{box-shadow:none;background:#e9ece8;color:#14181b}
+.btn.bp{background:#0b7a6a}
+.seg{border-radius:12px;padding:3px;background:#e6e9e5}.seg .pill{border-radius:9px;min-height:34px}
+.pill.on{box-shadow:0 1px 3px #0f1b2222}
+details.fold{display:block;border-radius:16px;background:#ffffff}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 18px;font:500 15px Figtree,system-ui,sans-serif;color:#3f4a52}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary span{flex:1}
+details.fold>summary::after{content:"";width:8px;height:8px;border-right:2px solid #b4bab5;border-bottom:2px solid #b4bab5;transform:rotate(-45deg);margin-right:4px;transition:transform .15s}
+details.fold[open]>summary::after{transform:rotate(45deg)}
+details.fold>.card,details.fold>section,details.fold>div{border-radius:0 0 16px 16px;padding-top:4px}
+details.fold [data-foldh]{display:none}
+.quiet{background:#e9ece8!important;color:#14181b!important}
+.quiet *{color:inherit}
+.quiet p,.quiet span{color:#5a636b!important}
+.quiet h2,.quiet h3,.quiet strong{color:#0f1b22!important}
+@media (max-width:760px){
+.hero{flex-direction:column;align-items:stretch!important;padding:20px}
+.hero>div{flex:none!important}
+.hero .btn{width:100%;box-sizing:border-box;justify-content:center;min-height:50px}
+.hero>div{min-width:0;max-width:100%}
+.t1{font-size:30px}
+}
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+</style>
+</helmet>
+<div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="K-Start.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-it" href="K-Start.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"></path></svg><span>Start</span></a><a class="rz-it on" href="K-Arbeitsbereich.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"></rect><path d="M9 7V5h6v2"></path></svg><span>Kunden</span></a><span style="flex:1"></span><span class="rz-me"><span class="rz-av">KK</span>Kim Kaiser · Rheintal</span></nav><div class="rz-main">
+
+<div style="background:#ffffff;border-bottom:1px solid #dfe2dd">
+  <div style="max-width:1200px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 0;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+      <span style="display:flex;align-items:center;gap:14px"><span style="width:44px;height:44px;border-radius:12px;background:#0f1b22;color:#4fd1b4;display:flex;align-items:center;justify-content:center;font-weight:800">NA</span><span><strong style="font-size:20px;font-weight:800">Nordwind</strong><br><span style="font-size:13px" class="muted">euer Kunde · Typ Strategisch (geteilt am 15.10.)</span></span></span>
+      <span class="chip" style="background:#e1f3ed;color:#0a5c50;padding:6px 12px">JBP am 04.12.</span>
+    </div>
+    <nav aria-label="Bereiche beim Kunden" style="display:flex;gap:2px;overflow-x:auto">
+      <a class="tab" href="#" aria-current="page" style="border-bottom-color:#0b7a6a;color:#14181b;font-weight:700">Überblick</a><a class="tab" href="#">Beziehung</a><a class="tab" href="#">Gemeinsamer Plan</a><a class="tab" href="#">Umsetzung</a><a class="tab" href="#">Wirkung</a><a class="tab" href="#">Eigene Sicht</a>
+    </nav>
+  </div>
+</div>
+<main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
+  <section style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;padding:24px;border-radius:22px;background:#0f1b22;color:#f4f5f2" data-next>
+    <div style="display:flex;flex-direction:column;gap:4px;flex:1 1 320px"><span style="font-size:13px;color:#4fd1b4;font-weight:600">Nächster Schritt</span><strong style="font-size:20px">Euer Geschäftsupdate für das JBP fehlt noch</strong><span style="font-size:14px;color:#a9b4b9">Nordwind hat seins schon geschrieben.</span></div>
+    <a href="E-Formular.dc.html" class="btn bm">Update schreiben</a>
+  </section>
+  <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+    <section aria-labelledby="geteilt" style="flex:1 1 380px;padding:24px;border-radius:24px;background:#e1f3ed;border:2px solid #9fd9c8;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 id="geteilt" style="font-size:18px;font-weight:700;color:#0a5c50">Mit Nordwind geteilt</h2><span class="chip sh">beide Seiten</span></div>
+      <p style="font-size:13px;color:#0a5c50;margin:4px 0 6px">Was Nordwind mit euch teilt und ihr gemeinsam pflegt.</p>
+      <div class="item"><strong>Spielregeln · Strategisch</strong><span style="color:#0a5c50">4 Rechte und Pflichten, 4 Formate</span></div>
+      <div class="item"><strong>Gemeinsamer Plan · in Vorbereitung</strong><span style="color:#0a5c50">3 Themen von euch, 1 von Nordwind</span></div>
+      <div class="item"><strong>Zusage „Musterteile bis 15.12.“</strong><span style="color:#0a5c50">wartet auf eure Bestätigung</span></div>
+      <div class="item"><strong>Scorecard 2027</strong><span style="color:#0a5c50">ihr habt unterschrieben, Nordwind noch nicht</span></div>
+    </section>
+    <section aria-labelledby="eigene" style="flex:1 1 380px;padding:24px;border-radius:24px;background:#eceeea;border:2px dashed #b9bfba;display:flex;flex-direction:column">
+      <h2 id="eigene" style="font-size:18px;font-weight:700;display:flex;gap:8px;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Nur Rheintal</h2>
+      <p style="font-size:13px;margin:4px 0 6px" class="muted">Eure eigene Sicht. Nordwind sieht sie nie.</p>
+      <div class="item" style="border-color:#d5d9d4"><strong>Kundenwert</strong><span class="muted">A-Kunde · 38 % unseres Umsatzes in Leiterplatten</span></div>
+      <div class="item" style="border-color:#d5d9d4"><strong>Interne Notiz</strong><span class="muted">Preisziel −3 % nur mit Mengenzusage 2028</span></div>
+      <a href="#" style="margin-top:auto;padding-top:14px;font-weight:600;font-size:14px">Zur eigenen Sicht</a>
+    </section>
+  </div>
+  <section style="padding:22px;border-radius:20px;background:#ffffff" aria-labelledby="weg">
+    <h2 id="weg" style="font-size:18px;font-weight:700;margin-bottom:14px">Wo ihr gemeinsam steht</h2>
+    <ol style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:16px;font-size:14px">
+      <li style="display:flex;gap:10px;align-items:center"><span class="stepnum" style="background:#0b7a6a;color:#fff">✓</span>Spielregeln</li>
+      <li style="display:flex;gap:10px;align-items:center"><span class="stepnum" style="background:#0b7a6a;color:#fff">✓</span>Feedback</li>
+      <li style="display:flex;gap:10px;align-items:center" aria-current="step"><span class="stepnum" style="background:#0f1b22;color:#4fd1b4">3</span><strong>Gemeinsamer Plan</strong></li>
+      <li style="display:flex;gap:10px;align-items:center" class="muted"><span class="stepnum" style="background:#eceeea">4</span>Scorecard</li>
+    </ol>
+  </section>
+</main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="K-Start.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"></path></svg>Start</a><a class="on" href="K-Arbeitsbereich.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"></rect><path d="M9 7V5h6v2"></path></svg>Kunden</a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":875}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

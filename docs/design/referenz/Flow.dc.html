@@ -14,18 +14,17 @@
 </helmet>
 <section aria-label="{{aria}}" style="font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
   <div style="max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 0;box-sizing:border-box">
-    <div style="display:flex;flex-direction:column;gap:18px;padding:20px 24px;border-radius:24px;background:#ffffff;box-shadow:0 0 0 1px #0f1b2214,0 6px 20px #0f1b220a">
+    <div style="display:flex;flex-direction:column;gap:18px;padding:16px 20px;border-radius:16px;background:#ffffff">
       <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px">
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px">
-          <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:#0f1b22;color:#4fd1b4;font-size:12px;font-weight:600">Ablauf</span>
-          <strong style="font-family:Outfit,Figtree,sans-serif;font-size:19px;font-weight:600;letter-spacing:-0.015em">{{title}}</strong>
+                    <strong style="font-family:Outfit,Figtree,sans-serif;font-size:17px;font-weight:600;letter-spacing:-0.01em">{{title}}</strong>
           <span style="font-size:13px;color:#5a636b">Schritt {{number}} von {{total}} · {{context}}</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
           <sc-if value="{{hasPrev}}" hint-placeholder-val="{{true}}">
             <a href="{{prevHref}}" style="display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;color:#3f4a52;text-decoration:none">Zurück</a>
           </sc-if>
-          <a href="{{nextHref}}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;background:#ffffff;box-shadow:inset 0 0 0 1px #b9bfba;font-size:14px;font-weight:600;color:#0f1b22;text-decoration:none">{{nextLabel}}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></a>
+          <a href="{{nextHref}}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;font-size:14px;font-weight:600;color:#0f1b22;text-decoration:none">{{nextLabel}}<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></a>
         </div>
       </div>
       <ol style="{{grid}}">

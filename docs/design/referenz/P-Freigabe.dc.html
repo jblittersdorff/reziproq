@@ -27,10 +27,106 @@ h1,h2,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
 .rings{position:absolute;right:-80px;top:50%;width:360px;height:258px;transform:translateY(-50%);pointer-events:none}
 .st{display:flex;flex-direction:column;gap:6px;flex:1 1 180px;padding:18px;border-radius:24px;background:#ffffff;box-shadow:0 0 0 1px #0f1b220a}
 .add{color:#2f5f1d;font-weight:600}.del{color:#94201a;text-decoration:line-through}
+
+
+/* apple-layer */
+.hero{position:relative;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:#0f1b22;color:#f4f5f2}
+.hero .btn.bm{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;font:600 15px Figtree,system-ui,sans-serif;text-decoration:none;background:#4fd1b4;color:#0f1b22}
+.t1{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:-0.03em}
+.card{border-radius:18px;box-shadow:none!important;padding:20px 22px}
+.hero{border-radius:22px;padding:22px 26px;box-shadow:none}
+.hero .rings{display:none}
+.ki{border:1px solid #cfe5dd!important;background:#fbfdfc;border-radius:18px}
+.chip{padding:3px 9px;font-size:12px}
+.btn.bs{box-shadow:none;background:#e9ece8;color:#14181b}
+.btn.bp{background:#0b7a6a}
+.seg{border-radius:12px;padding:3px;background:#e6e9e5}.seg .pill{border-radius:9px;min-height:34px}
+.pill.on{box-shadow:0 1px 3px #0f1b2222}
+details.fold{display:block;border-radius:16px;background:#ffffff}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 18px;font:500 15px Figtree,system-ui,sans-serif;color:#3f4a52}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary span{flex:1}
+details.fold>summary::after{content:"";width:8px;height:8px;border-right:2px solid #b4bab5;border-bottom:2px solid #b4bab5;transform:rotate(-45deg);margin-right:4px;transition:transform .15s}
+details.fold[open]>summary::after{transform:rotate(45deg)}
+details.fold>.card,details.fold>section,details.fold>div{border-radius:0 0 16px 16px;padding-top:4px}
+details.fold [data-foldh]{display:none}
+.quiet{background:#e9ece8!important;color:#14181b!important}
+.quiet *{color:inherit}
+.quiet p,.quiet span{color:#5a636b!important}
+.quiet h2,.quiet h3,.quiet strong{color:#0f1b22!important}
+@media (max-width:760px){
+.hero{flex-direction:column;align-items:stretch!important;padding:20px}
+.hero>div{flex:none!important}
+.hero .btn{width:100%;box-sizing:border-box;justify-content:center;min-height:50px}
+.hero>div{min-width:0;max-width:100%}
+.t1{font-size:30px}
+}
+
+/* sowhat */
+.swg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px;align-items:stretch}
+.swc{display:flex;flex-direction:column;gap:12px;padding:20px 22px;border-radius:18px;background:#fff;min-width:0;box-sizing:border-box}
+.swc .swk{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#7b8389}
+.swc .swt{margin:0;font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22}
+.swp{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.swp li{border-top:1px solid #eef0ec}
+.swp a,.swp span.r{display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px;color:#0f1b22;text-decoration:none}
+.swp a::after{content:"";margin-left:auto;flex:none;width:7px;height:7px;border-right:2px solid #c4c8c3;border-top:2px solid #c4c8c3;transform:rotate(45deg)}
+.swtag{flex:none;min-width:64px;text-align:center;padding:3px 8px;border-radius:99px;font-size:12px;font-weight:600;box-sizing:border-box}
+.swtag.ok{background:#e8f1df;color:#2f5f1d}.swtag.risk{background:#fae6e3;color:#94201a}.swtag.warn{background:#f8eed6;color:#74500a}.swtag.n{background:#eceeea;color:#3f4a52}.swtag.m{background:#e1f3ed;color:#0a5c50}
+.swb{display:grid;grid-template-columns:minmax(80px,auto) 1fr auto;align-items:center;gap:10px;font-size:14px}
+.swb .tr{position:relative;height:12px;border-radius:99px;background:#eceeea;overflow:hidden}
+.swb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#0b7a6a}
+.swb .tr i.g{background:#b4bab5}.swb .tr i.r{background:#94201a}.swb .tr i.m{background:#4fd1b4}
+.swb .tr b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#0f1b22}
+.swb .v{font-variant-numeric:tabular-nums;font-size:13px;color:#3f4a52;white-space:nowrap}
+.sws{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:3px}
+.swl{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:#3f4a52}
+.swl i{display:inline-block;width:10px;height:10px;border-radius:99px;margin-right:6px;vertical-align:-1px}
+.swkp{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.swkp div{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:#f4f5f2}
+.swkp b{font:600 22px Outfit,sans-serif;letter-spacing:-0.02em;white-space:nowrap}.swkp span{font-size:12px;color:#5a636b}
+.swsrc{font-size:12px;color:#7b8389}
+.swc .swf{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #eef0ec;font-size:14px;font-weight:600;color:#0b7a6a;text-decoration:none}
+.swc .swf::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg)}
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
 </style>
 </helmet>
 <div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
-<dc-import name="Header" active="Lieferanten" hint-size="100%,68px"></dc-import>
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it on" href="Lieferanten.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
+
 <dc-import name="SupplierBar" area="Gemeinsamer Plan" page="Freigabe" subs="aus" hint-size="100%,140px"></dc-import>
 <dc-import name="Flow" step="Freigabe" hint-size="100%,250px"></dc-import>
 <main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
@@ -39,29 +135,32 @@ h1,h2,.dsp{font-family:Outfit,Figtree,system-ui,sans-serif}
   <section class="hero" aria-label="Nächster Schritt">
     <svg class="rings" viewBox="0 0 420 300" fill="none" aria-hidden="true"><path d="M210 34.67A130 130 0 0 1 210 265.33A130 130 0 0 1 210 34.67Z" fill="#4fd1b4" fill-opacity=".12"></path><circle cx="150" cy="150" r="130" stroke="#f4f5f2" stroke-opacity=".14" stroke-width="2"></circle><circle cx="270" cy="150" r="130" stroke="#4fd1b4" stroke-opacity=".35" stroke-width="2"></circle></svg>
     <div style="position:relative;display:flex;flex-direction:column;gap:4px;flex:1 1 320px"><span style="font-size:13px;color:#4fd1b4;font-weight:600">Nächster Schritt · für Mara Weiß</span><strong class="dsp" style="font-size:22px;line-height:1.2;font-weight:600;letter-spacing:-0.02em">4 Initiativen, 4 Zusagen, 6 Kennzahlen prüfen und freigeben</strong></div>
-    <a href="#" class="btn bm" style="position:relative">Intern freigeben<span style="width:34px;height:34px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span></a>
+    <a href="P-Scorecard.dc.html" class="btn bm" style="position:relative">Intern freigeben<span style="width:34px;height:34px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span></a>
   </section>
+<div class="swg"><section class="swc" aria-label="Das Wichtigste"><span class="swk"><svg width="22" height="16" viewBox="0 0 28 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#4fd1b4" stroke-width="2"></circle></svg>Das Wichtigste</span><p class="swt">Der Plan wartet auf Mara Weiß. Danach gibt Rheintal frei, dann gilt Version 2.</p><ul class="swp"><li><span class="r"><span class="swtag m">Neu</span><span>Initiative „Kapazität 2028 sichern“</span></span></li><li><span class="r"><span class="swtag warn">Geändert</span><span>Preis Leiterplatten endet 31.05. statt 31.03.</span></span></li><li><span class="r"><span class="swtag warn">Strenger</span><span>Ziel Liefertreue 97 % statt 95 %</span></span></li></ul></section></div>
+
 
   <ol aria-label="Weg zur Freigabe" style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:12px">
     <li class="st"><span class="chip ok" style="align-self:flex-start">✓ erledigt</span><strong style="font-weight:600">Entwurf im JBP</strong><span style="font-size:13px" class="muted">04.12. gemeinsam erarbeitet</span></li>
     <li class="st" style="box-shadow:inset 0 0 0 2px #0f1b22" aria-current="step"><span class="chip" style="align-self:flex-start;background:#4fd1b4;color:#0f1b22">jetzt</span><strong style="font-weight:700">Interne Freigabe</strong><span style="font-size:13px" class="muted">Sponsor Mara Weiß</span></li>
-    <li class="st"><span class="chip n" style="align-self:flex-start">wartet</span><strong style="font-weight:600">Freigabe Rheintal</strong><span style="font-size:13px" class="muted">Ole Brandt</span></li>
+    <li class="st"><span class="chip n" style="align-self:flex-start">wartet</span><strong style="font-weight:600">Freigabe Rheintal</strong><span style="font-size:13px" class="muted">Kim Kaiser</span></li>
     <li class="st"><span class="chip n" style="align-self:flex-start">danach</span><strong style="font-weight:600">Plan gilt</strong><span style="font-size:13px" class="muted">Version 2 wird eingefroren</span></li>
   </ol>
 
-  <section class="card" style="padding:24px" aria-labelledby="versionen">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><h2 id="versionen" class="t3">Was sich seit Version 1 geändert hat</h2><label style="font-size:14px;display:flex;gap:8px;align-items:center"><span class="muted">Vergleichen mit</span><select style="min-height:44px;border-radius:999px;border:1px solid #7b8389;padding:0 14px;background:#ffffff;font:500 14px Figtree,system-ui,sans-serif"><option>Version 1 · 12.01.2026</option></select></label></div>
+  <details class="fold"><summary><span>Was sich seit Version 1 geändert hat</span></summary><section class="card" style="padding:24px" aria-labelledby="versionen">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><h2 id="versionen" class="t3" data-foldh>Was sich seit Version 1 geändert hat</h2><label style="font-size:14px;display:flex;gap:8px;align-items:center"><span class="muted">Vergleichen mit</span><select style="min-height:44px;border-radius:999px;border:1px solid #7b8389;padding:0 14px;background:#ffffff;font:500 14px Figtree,system-ui,sans-serif"><option>Version 1 · 12.01.2026</option></select></label></div>
     <ul style="margin:0;padding:0;list-style:none;font-size:14px;line-height:1.6;display:flex;flex-direction:column">
       <li style="padding:10px 0;border-top:1px solid #eceeea"><strong style="font-weight:600">Initiative</strong> <span class="add">+ Kapazität 2028 sichern</span></li>
       <li style="padding:10px 0;border-top:1px solid #eceeea"><strong style="font-weight:600">Preis Leiterplatten</strong> · Ende <span class="del">31.03.</span> <span class="add">31.05.</span></li>
       <li style="padding:10px 0;border-top:1px solid #eceeea"><strong style="font-weight:600">Kennzahl Liefertreue</strong> · Ziel <span class="del">95 %</span> <span class="add">97 %</span></li>
       <li style="padding:10px 0;border-top:1px solid #eceeea"><strong style="font-weight:600">Initiative</strong> <span class="del">Verpackung ohne Einweg</span> (geparkt)</li>
     </ul>
-  </section>
+  </section></details>
 </main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="on" href="Lieferanten.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1298}}'>
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Umfrage beantworten</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}
+h1,h2,h3,p{margin:0}
+.muted{color:#5a636b}
+.q{display:flex;flex-direction:column;gap:16px;padding:18px;border-radius:18px;background:#ffffff}
+.lbl{font-size:13px;font-weight:600}
+.sc{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:3px;border-radius:12px;background:#eceeea}
+.o{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;font-size:15px;font-weight:600;color:#3f4a52}
+.on{background:#0b7a6a;color:#ffffff}
+.cj{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:#eceeea;font-size:13px;font-weight:600;color:#3f4a52}
+.ends{display:flex;justify-content:space-between;font-size:12px;color:#5a636b}
+</style>
+</helmet>
+<div style="width:390px;min-height:1700px;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;color:#14181b;background:#f4f5f2;padding:28px 16px 40px;display:flex;flex-direction:column;gap:20px">
+  <span style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px"><svg width="24" height="18" viewBox="0 0 28 20" fill="none" stroke="#0b7a6a" stroke-width="2.2" aria-hidden="true"><circle cx="10" cy="10" r="8"></circle><circle cx="18" cy="10" r="8"></circle></svg>Reziproq</span>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <h1 style="font-size:26px;line-height:1.15;font-weight:800;letter-spacing:-0.02em">Nordwind · Rheintal Elektronik</h1>
+    <p class="muted" style="font-size:14px;line-height:1.5">Zu jeder Frage zwei Antworten: wie es heute ist und wie es sein sollte. Deine Antworten bleiben anonym.</p>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <span class="muted" style="font-size:13px">Bitte bis 30.09. antworten</span>
+    <span style="display:inline-flex;padding:3px;border-radius:999px;background:#eceeea"><span style="padding:6px 12px;border-radius:999px;background:#ffffff;font-size:12px;font-weight:600">Deutsch</span><span style="padding:6px 12px;font-size:12px;font-weight:600" class="muted">English</span></span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span class="muted" style="font-size:13px">Seite 1 von 5</span>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px" aria-hidden="true"><span style="height:5px;border-radius:99px;background:#0b7a6a"></span><span style="height:5px;border-radius:99px;background:#dfe2dd"></span><span style="height:5px;border-radius:99px;background:#dfe2dd"></span><span style="height:5px;border-radius:99px;background:#dfe2dd"></span><span style="height:5px;border-radius:99px;background:#dfe2dd"></span></div>
+    <h2 style="font-size:18px;font-weight:700">Vertrauen</h2>
+  </div>
+
+  <article class="q">
+    <div><span class="muted" style="font-size:12px">Frage 1 von 25</span><h3 style="font-size:17px;font-weight:600;line-height:1.35">Zusagen werden eingehalten.</h3></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie ist es heute?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o">3</span><span class="o on">4</span><span class="o">5</span></div><div class="ends"><span>Gar nicht</span><span>Voll und ganz</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie sollte es sein?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o">3</span><span class="o">4</span><span class="o on">5</span></div><div class="ends"><span>Gar nicht</span><span>Voll und ganz</span></div></div>
+  </article>
+
+  <article class="q">
+    <div><span class="muted" style="font-size:12px">Frage 2 von 25</span><h3 style="font-size:17px;font-weight:600;line-height:1.35">Informationen werden nicht gegen uns verwendet.</h3></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie ist es heute?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o">3</span><span class="o">4</span><span class="o">5</span></div><span class="cj" style="background:#0b7a6a;color:#ffffff">Kann ich nicht beurteilen</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie sollte es sein?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o">3</span><span class="o">4</span><span class="o on">5</span></div></div>
+  </article>
+
+  <article class="q" style="box-shadow:0 0 0 2px #b3261e">
+    <div><span class="muted" style="font-size:12px">Frage 3 von 25</span><h3 style="font-size:17px;font-weight:600;line-height:1.35">Bei Problemen suchen wir gemeinsam eine Lösung.</h3></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie ist es heute?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o on">3</span><span class="o">4</span><span class="o">5</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span class="lbl">Wie sollte es sein?</span><div class="sc"><span class="o">1</span><span class="o">2</span><span class="o">3</span><span class="o">4</span><span class="o">5</span></div><span class="cj">Kann ich nicht beurteilen</span></div>
+  </article>
+  <p role="alert" style="font-size:14px;color:#94201a;font-weight:600">Bitte zu jeder Frage Ist und Soll wählen, oder „Kann ich nicht beurteilen“.</p>
+  <div style="display:flex;justify-content:flex-end"><a href="#" style="display:inline-flex;align-items:center;min-height:52px;padding:0 26px;border-radius:14px;background:#0b7a6a;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px">Weiter</a></div>
+  <p class="muted" style="font-size:12px">Zwischenstand auf diesem Gerät gespeichert.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1740}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

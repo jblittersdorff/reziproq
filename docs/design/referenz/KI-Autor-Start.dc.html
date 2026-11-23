@@ -81,10 +81,79 @@ td{padding:12px;border-top:1px solid #eceeea;vertical-align:top}
 .r-done{background:#0b7a6a;color:#ffffff}.r-draft{background:#ffffff;color:#0a5c50;border:2px dashed #0b7a6a}.r-wait{background:#4fd1b4;color:#0f1b22;border:2px solid #0f1b22}
 .ready{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid #eceeea;font-size:14px}
 .qa{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:20px;background:#f4f5f2}
+
+
+/* apple-layer */
+.hero{position:relative;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;background:#0f1b22;color:#f4f5f2}
+.hero .btn.bm{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:999px;border:0;font:600 15px Figtree,system-ui,sans-serif;text-decoration:none;background:#4fd1b4;color:#0f1b22}
+.t1{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:-0.03em}
+.card{border-radius:18px;box-shadow:none!important;padding:20px 22px}
+.hero{border-radius:22px;padding:22px 26px;box-shadow:none}
+.hero .rings{display:none}
+.ki{border:1px solid #cfe5dd!important;background:#fbfdfc;border-radius:18px}
+.chip{padding:3px 9px;font-size:12px}
+.btn.bs{box-shadow:none;background:#e9ece8;color:#14181b}
+.btn.bp{background:#0b7a6a}
+.seg{border-radius:12px;padding:3px;background:#e6e9e5}.seg .pill{border-radius:9px;min-height:34px}
+.pill.on{box-shadow:0 1px 3px #0f1b2222}
+details.fold{display:block;border-radius:16px;background:#ffffff}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 18px;font:500 15px Figtree,system-ui,sans-serif;color:#3f4a52}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary span{flex:1}
+details.fold>summary::after{content:"";width:8px;height:8px;border-right:2px solid #b4bab5;border-bottom:2px solid #b4bab5;transform:rotate(-45deg);margin-right:4px;transition:transform .15s}
+details.fold[open]>summary::after{transform:rotate(45deg)}
+details.fold>.card,details.fold>section,details.fold>div{border-radius:0 0 16px 16px;padding-top:4px}
+details.fold [data-foldh]{display:none}
+.quiet{background:#e9ece8!important;color:#14181b!important}
+.quiet *{color:inherit}
+.quiet p,.quiet span{color:#5a636b!important}
+.quiet h2,.quiet h3,.quiet strong{color:#0f1b22!important}
+@media (max-width:760px){
+.hero{flex-direction:column;align-items:stretch!important;padding:20px}
+.hero>div{flex:none!important}
+.hero .btn{width:100%;box-sizing:border-box;justify-content:center;min-height:50px}
+.hero>div{min-width:0;max-width:100%}
+.t1{font-size:30px}
+}
+/* rz-shell */
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){
+.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
 </style>
 </helmet>
 <div style="min-height:100vh;font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
-<dc-import name="Header" active="Warengruppen" hint-size="100%,68px"></dc-import>
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it" href="Lieferanten.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it on" href="WG-Uebersicht.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
+
 <main style="max-width:1200px;margin:0 auto;padding:32px clamp(16px,4vw,48px) 64px;display:flex;flex-direction:column;gap:24px">
   <a href="WG-Uebersicht.dc.html" style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:14px;font-weight:600;text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Warengruppen</a>
   <div style="display:flex;flex-direction:column;gap:8px;max-width:760px"><h1 class="t1">Strategie-Entwurf für Spritzguss erstellen</h1><p class="muted">Der Strategie-Autor schreibt einen ersten Entwurf aller zehn Schritte aus euren Daten und öffentlichen Quellen. Was er nicht wissen kann, fragt er euch. Nichts davon zählt, bis euer Team es bestätigt, und freigeben könnt nur ihr.</p></div>
@@ -94,18 +163,18 @@ td{padding:12px;border-top:1px solid #eceeea;vertical-align:top}
         <h2 id="bereit" class="t3" style="margin-bottom:6px">Welche Daten bereitliegen</h2>
 <div class="ready"><span class="chip ok" style="flex:none">✓ vorhanden</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Spend 2024 bis 2026</strong><span class="muted" style="font-size:13px">6 Lieferanten, 3 Business Units, 214 Teilenummern</span></span></div><div class="ready"><span class="chip ok" style="flex:none">✓ vorhanden</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Bewertungsrunde der Warengruppe</strong><span class="muted" style="font-size:13px">entschieden am 22.09.2026, Grundlage für die Segmente</span></span></div><div class="ready"><span class="chip ok" style="flex:none">✓ vorhanden</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Qualität und Lieferung</strong><span class="muted" style="font-size:13px">Bewertungen und Fehlerquoten aller 6 Lieferanten</span></span></div><div class="ready"><span class="chip ok" style="flex:none">✓ vorhanden</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Übergeordnete Einkaufsstrategie 2027</strong><span class="muted" style="font-size:13px">hochgeladen, Grundlage für die Ziele</span></span></div><div class="ready"><span class="chip warn" style="flex:none">fehlt</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Kostenaufschlüsselung und Soll-Kalkulation</strong><span class="muted" style="font-size:13px">Der Autor fragt das Team. Ohne sie bleibt die Kostensicht ein Entwurf mit Sicherheit niedrig.</span></span></div><div class="ready"><span class="chip warn" style="flex:none">fehlt</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Technologie-Roadmap</strong><span class="muted" style="font-size:13px">Der Autor recherchiert öffentlich und fragt die Entwicklung nach euren Plänen.</span></span></div>
       </section>
-      <section class="card" style="gap:0" aria-labelledby="was">
-        <h2 id="was" class="t3" style="margin-bottom:6px">Was der Autor in jedem Schritt tut</h2>
+      <details class="fold"><summary><span>Was der Autor in jedem Schritt tut</span></summary><section class="card" style="gap:0" aria-labelledby="was">
+        <h2 id="was" class="t3" style="margin-bottom:6px" data-foldh>Was der Autor in jedem Schritt tut</h2>
 <div class="wstep" style="padding:12px 0"><span class="ring r-draft">1</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Aufsetzen</strong><span class="muted" style="font-size:13px">Übernimmt Team und Lead, schlägt Produktgruppen aus den Teilebezeichnungen vor</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">2</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Ziele</strong><span class="muted" style="font-size:13px">Leitet Ziele aus der Einkaufsstrategie ab und füllt Ist-Werte aus euren Daten</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">3</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Interne Analyse</strong><span class="muted" style="font-size:13px">Volumen, Lieferkette, Kosten, Technologie mit Beobachtung je Sicht</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">4</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Lieferantenanalyse</strong><span class="muted" style="font-size:13px">Umsatz und Finanzen, Qualität, Footprint, weitere verfügbare Lieferanten</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">5</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Marktanalyse</strong><span class="muted" style="font-size:13px">Sechs Marktkräfte mit dem Agenten Marktanalyse</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">6</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Bewertung</strong><span class="muted" style="font-size:13px">Stärken, Schwächen, Chancen, Risiken und Hebel je Paarung</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">7</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Scorecard</strong><span class="muted" style="font-size:13px">Initiativen je Hebel mit Effekt, Vorschlag für Verantwortliche und Termin</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">8</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Vergaben</strong><span class="muted" style="font-size:13px">Anstehende Vergaben aus Vertragslaufzeiten und geeignete Lieferanten</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-draft">9</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Supplier Map</strong><span class="muted" style="font-size:13px">Vorschlag für Anteil und Soll-Typ je Lieferant</span></span><span class="chip sh">Autor</span></div><div class="wstep" style="padding:12px 0"><span class="ring r-wait">10</span><span style="display:flex;flex-direction:column;gap:2px"><strong style="font-weight:600">Freigabe</strong><span class="muted" style="font-size:13px">Entwirft die Zusammenfassung. Vorlegen und unterschreiben bleibt beim Team</span></span><span class="chip n">Team</span></div>
-      </section>
+      </section></details>
     </div>
     <aside class="side" aria-label="Rahmen und Start">
-      <section class="card" aria-labelledby="rahmen">
-        <h2 id="rahmen" class="t3">Rahmen</h2>
+      <details class="fold"><summary><span>Rahmen</span></summary><section class="card" aria-labelledby="rahmen">
+        <h2 id="rahmen" class="t3" data-foldh>Rahmen</h2>
         <div><div class="kv" style="border-top:0"><span>Strategie für</span><strong style="font-weight:600">2027</strong></div><div class="kv"><span>Lead</span><strong style="font-weight:600">Ida Roth</strong></div><div class="kv"><span>Öffentliche Recherche</span><span class="chip ok">an</span></div><div class="kv"><span>Höchstens</span><strong class="num" style="font-weight:600">10,00 €</strong></div></div>
         <p class="muted" style="font-size:13px">Das Budget liegt über eurer Grenze je Lauf. Der Admin hat es für den Strategie-Autor freigegeben.</p>
-      </section>
-      <section class="card" style="background:#0f1b22;color:#f4f5f2;box-shadow:none">
+      </section></details>
+      <section class="card quiet" style="background:#e9ece8;color:#14181b;box-shadow:none">
         <strong class="dsp" style="font-size:19px;font-weight:600">Bereit für den Entwurf</strong>
         <p style="font-size:14px;line-height:1.5;color:#a9b4b9">Dauert etwa 20 Minuten. Ihr bekommt eine Aufgabe, sobald der Entwurf oder die ersten Fragen da sind.</p>
         <a href="KI-Autor.dc.html" class="btn bm" style="align-self:flex-start;min-height:50px;padding:0 8px 0 24px;font-size:15px">Entwurf erstellen<span class="go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span></a>
@@ -113,9 +182,10 @@ td{padding:12px;border-top:1px solid #eceeea;vertical-align:top}
     </aside>
   </div>
 </main>
+</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="" href="Lieferanten.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="on" href="WG-Uebersicht.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":833}}'>
 class Component extends DCLogic {
   renderVals() { return {}; }
 }
