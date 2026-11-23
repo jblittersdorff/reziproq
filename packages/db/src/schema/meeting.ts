@@ -141,6 +141,41 @@ export const meetingNote = pgTable(
 );
 
 /**
+ * KI-17: Notizen nach dem Termin, aus denen Reziproq Ergebnisse entwirft (org_private). Der
+ * Lieferant sieht sie nie. Jede Auswertung liest die jüngste Zeile; file_key bleibt leer, bis es
+ * einen Dateispeicher gibt (KI-18).
+ */
+export const meetingCapture = pgTable(
+  'meeting_capture',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    meetingId: uuid()
+      .notNull()
+      .references(() => meeting.id, { onDelete: 'cascade' }),
+    source: text({ enum: ['typed', 'pasted', 'file'] }).notNull(),
+    text: text().notNull(),
+    fileKey: text(),
+    runId: uuid(),
+    createdBy: text().notNull(),
+    createdByName: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // Wann der SRO das Protokoll aus dieser Auswertung geteilt hat
+    protocolSharedAt: timestamp({ withTimezone: true }),
+  },
+  (table) => [
+    check('meeting_capture_source', sql`${table.source} in ('typed', 'pasted', 'file')`),
+    check('meeting_capture_text', sql`length(${table.text}) between 1 and 200000`),
+    index('meeting_capture_meeting').on(table.orgId, table.meetingId, table.createdAt),
+  ],
+);
+
+/**
  * QBR-01b: eingefrorener Stand der Live-Abschnitte beim Abschließen. Ein Archiv, kein zweiter Ort:
  * einer je Termin, danach unveränderlich (Trigger in der Migration).
  */

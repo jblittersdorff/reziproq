@@ -47,6 +47,7 @@ import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { MeetingBriefPanel } from './meeting-brief';
+import { MeetingCapturePanel } from './meeting-capture';
 import { PreReadSummary } from './pre-read-summary';
 
 // QBR-01a: Termine für beide Seiten. Der Käufer arbeitet unter /lieferanten/<id>/umsetzung/termine,
@@ -515,7 +516,18 @@ function Section({
 }
 
 /** Termin-Seite: Agenda, Protokoll und Beschlüsse, interne Notizen; bearbeitet je Abschnitt. */
-export function MeetingPage({ place, meetingId }: { place: MeetingPlace; meetingId: string }) {
+export type MeetingTab = 'prep' | 'agenda' | 'results';
+
+export function MeetingPage({
+  place,
+  meetingId,
+  initialTab,
+}: {
+  place: MeetingPlace;
+  meetingId: string;
+  /** KI-07, KI-17: Reiter aus dem Link, z. B. aus der Aufgabe „Ergebnisse erfassen“ */
+  initialTab?: MeetingTab | undefined;
+}) {
   const text = useT().meetings;
   const query = useMeeting(place, meetingId);
   const title = query.data?.meeting.title ?? text.title;
@@ -526,7 +538,7 @@ export function MeetingPage({ place, meetingId }: { place: MeetingPlace; meeting
       current={title}
       header={null}
     >
-      <MeetingContent place={place} meetingId={meetingId} />
+      <MeetingContent place={place} meetingId={meetingId} initialTab={initialTab} />
       {query.data && <CommentsSection place={place} objectType="meeting" objectId={meetingId} />}
     </MeetingFrame>
   );
@@ -579,7 +591,15 @@ function PreReadButton({
   );
 }
 
-function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: string }) {
+function MeetingContent({
+  place,
+  meetingId,
+  initialTab,
+}: {
+  place: MeetingPlace;
+  meetingId: string;
+  initialTab?: MeetingTab | undefined;
+}) {
   const t = useT();
   const text = t.meetings;
   const format = useFormat();
@@ -589,7 +609,7 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
   // Abschließen bleibt auf dieser Seite; die Rückmeldung steht deshalb hier (NAV-04).
   const [closedMessage, setClosedMessage] = useState<string | null>(null);
   // KI-07: beim Käufer zwei Reiter, Vorbereitung (Briefing) und Agenda (wie der Lieferant sie sieht)
-  const [tab, setTab] = useState<'prep' | 'agenda' | null>(null);
+  const [tab, setTab] = useState<MeetingTab | null>(initialTab ?? null);
   const supplier = useQuery({
     ...supplierQueryOptions(query.accessToken, place.relationshipId),
     enabled: query.accessToken !== '' && place.side === 'buyer',
@@ -623,13 +643,14 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
   const hasBrief = Object.values(brief.data?.parts ?? {}).some(
     (part) => part.draft !== null || part.accepted !== null,
   );
-  const shownTab =
+  // KI-17: Ergebnisse gibt es ab Beginn des Termins.
+  const started = meeting.status !== 'planned' || new Date(meeting.startsAt) <= new Date();
+  const shownTab: MeetingTab =
     place.side !== 'buyer'
       ? 'agenda'
-      : (tab ??
-        (hasBrief && meeting.status === 'planned' && new Date(meeting.startsAt) > new Date()
-          ? 'prep'
-          : 'agenda'));
+      : tab === 'results' && !started
+        ? 'agenda'
+        : (tab ?? (hasBrief && !started ? 'prep' : 'agenda'));
   return (
     <>
       <PageHeader
@@ -680,14 +701,21 @@ function MeetingContent({ place, meetingId }: { place: MeetingPlace; meetingId: 
           label={text.brief.tabsLabel}
           value={shownTab}
           options={[
-            { value: 'prep', label: text.brief.tabPrep },
-            { value: 'agenda', label: text.brief.tabAgenda },
+            { value: 'prep' as const, label: text.brief.tabPrep },
+            { value: 'agenda' as const, label: text.brief.tabAgenda },
+            ...(started ? [{ value: 'results' as const, label: text.capture.tab }] : []),
           ]}
           onChange={setTab}
           className="self-start"
         />
       )}
-      {shownTab === 'prep' ? (
+      {shownTab === 'results' ? (
+        <MeetingCapturePanel
+          relationshipId={place.relationshipId}
+          meetingId={meetingId}
+          supplier={supplier.data?.name ?? text.brief.sideYou}
+        />
+      ) : shownTab === 'prep' ? (
         <MeetingBriefPanel
           relationshipId={place.relationshipId}
           meetingId={meetingId}

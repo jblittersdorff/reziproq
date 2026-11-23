@@ -1,6 +1,6 @@
 # Rundgang: Was ist gebaut und wo sehe ich es
 
-Stand 23.11.2026, nach Schritt 10 (KI-07 Termin-Briefing) und 11b (KI-16) der Warteschlange ([umsetzungsplan.md](umsetzungsplan.md)).
+Stand 23.11.2026, nach Schritt 10 (KI-07), 11b (KI-16) und 11c (KI-17) der Warteschlange ([umsetzungsplan.md](umsetzungsplan.md)).
 Diese Datei wird mit jedem Schritt fortgeschrieben.
 
 ## Vorbereitung
@@ -10,7 +10,8 @@ Diese Datei wird mit jedem Schritt fortgeschrieben.
    Demo-Geschichte an: Der Test-Lieferant und der Lieferant mit dem größten Spend werden
    Fokuslieferanten mit Gemeinsamem Plan, Initiativen, Zusagen, Scorecard, einem QBR in sieben Tagen,
    Jahresziel 600.000 € und Ziel 400.000 € für den Test-Lieferanten. Danach laufen einmal der
-   Wertpotenzial-Finder, das Termin-Briefing und die Regeln der Hinweise mit Begründungen. Ein zweiter Aufruf ändert an der Geschichte nichts.
+   Wertpotenzial-Finder, das Termin-Briefing, die Regeln der Hinweise mit Begründungen und die
+   Auswertung von Beispielnotizen zum Werksbesuch vor drei Tagen. Ein zweiter Aufruf ändert an der Geschichte nichts.
 3. Als **OEM 1** anmelden (Käufer, Admin). Für die Lieferantensicht als **Lieferant 1**.
 
 KI läuft lokal mit dem Testanbieter: feste Antworten, keine Kosten, kein Netzwerk. Marktsignale
@@ -28,6 +29,7 @@ kommen aus festen Testquellen.
 | Lieferant › **Aktivitäten**                                 | Notizen (Team oder nur ich), Termine, Einträge von Reziproq.                                                                                                                                                                                                                                                                |
 | Lieferant › **Plan**                                        | Gemeinsamer Plan (freigegeben), Zusagen (eine überfällig), Scorecard (Liefertreue hinter Plan, Fortschritt von der Basis zum Ziel).                                                                                                                                                                                         |
 | Lieferant › Aktivitäten › **Termine** › Quartalsreview | Reiter **Vorbereitung** (Termin-Briefing): Lage, nächster Schritt, Ziele „nur für euch“ mit „Erreicht, wenn …“, Agenda mit Zeiten und wer führt (Bearbeiten rechnet neu), Fragen in drei Gruppen mit „An … senden“, Risiken, offene Punkte; rechts Teilnehmer, Quellen, wie aktuell. „Agenda übernehmen“ teilt sie, Reiter **Agenda** zeigt sie wie der Lieferant. Neue Termintypen Verhandlung, Werksbesuch, Eskalation mit Dauer. |
+| Lieferant › Aktivitäten › **Termine** › Werksbesuch | Reiter **Ergebnisse**: Beispielnotizen sind schon ausgewertet. Zusagen, Maßnahmen, Entscheidungen, offene Fragen und eine Änderung an einer Zusage als Entwürfe mit Fundstelle; „Verantwortlich unklar“ bei Personen, die nicht im Termin waren; die Preisgrenze bleibt privat. Schalter „Für den Lieferanten sichtbar“, Übernehmen, Ändern, Verwerfen, Alle geteilten übernehmen. Rechts das Protokoll, wie der Lieferant es sieht, „Protokoll teilen“ mit Bestätigung. |
 | Lieferant › **Ergebnisse** › P&L-Brücke                     | Bestätigte Ergebnisse der Initiativen.                                                                                                                                                                                                                                                                                      |
 | Lieferant › Ergebnisse › **Wertpotenziale**                 | Preisgleitklausel nach Index: Wert für euch, Wirkung für den Lieferanten, Sicherheit mit Grund, Rechenweg (aufklappen). Annahmen ändern, Als Thema ins JBP übernehmen, Verwerfen. Rechts: was geprüft wurde, Marktsignale mit Ergebnis, was nach außen ging, Datenlücken mit „Anfrage entwerfen“.                           |
 | **Wertpotenziale über alle** (`/uebersicht/wertpotenziale`) | Summen je Wirkungsart, größtes Potenzial, Spannen-Balken und Tabelle je Lieferant, häufigste Hebel, Signale und Datenlücken.                                                                                                                                                                                                |
@@ -44,5 +46,5 @@ Datenanfrage (als Maßnahme), erscheint bei ihm.
 
 - Feedback-Umfrage und Hantel (keine Umfrage in den Demo-Daten)
 - Anbindungen (Schritt 12, in Arbeit)
-- Import mit Prüfung und Ergebnisse nach Terminen (KI-15, KI-17, kommen nach dem Termin-Briefing)
+- Import mit Prüfung und Zuordnung (KI-15, nächster Schritt 11a)
 - Anpassungen der Warengruppen (Schritte 21 bis 33, nach dem Lieferantenmanagement)

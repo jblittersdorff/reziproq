@@ -152,6 +152,7 @@ describe('PLT-02 in der Datenbank', () => {
       'maturity_step',
       'meeting',
       'meeting_agenda_item',
+      'meeting_capture',
       'meeting_decision',
       'meeting_note',
       'meeting_participant',

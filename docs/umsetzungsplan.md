@@ -20,7 +20,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 10 | Anpassung KI-07 · Termin-Briefing (neue Fassung vom 23.11.2026) | 7, 11b; Termine um Verhandlung, Werksbesuch/Audit, Eskalation ergänzen; Agent `qbr_prep` → `meeting_brief`; Outlook-Einladung mit IN-03. | L | fertig (Outlook-Einladung und Transkript mit IN-03, Reiter Ergebnisse mit KI-17) |
 | 11a | KI-15 · Import und Zuordnung | 5, 7, WG-01; erweitert den Import aus PLT-07; `pg_trgm`; Datenmodell nach F14. | L | offen (F14 entschieden: auf Bestand abbilden) |
 | 11b | KI-16 · Hinweise mit Frühwarnung | 7, FS-01; erweitert `hint`, „Wo du handeln musst“ in Mein Tag; `public_event` nur mit Testanbieter. | M | fertig (Suchanbieter, Strategie-Risiko bei `dependency` offen) |
-| 11c | KI-17 · Ergebnisse nach dem Termin | 10 (Ziele aus dem Briefing), QBR-01; `meeting_capture`; Dateien erst mit Speicher (KI-18). | L | offen |
+| 11c | KI-17 · Ergebnisse nach dem Termin | 10 (Ziele aus dem Briefing), QBR-01; `meeting_capture`; Dateien erst mit Speicher (KI-18). | L | fertig (F15 zu JBP-06 offen, DOCX/PDF mit KI-18) |
 | 11d | Anpassung NAV-10 / AW-01 · Hinweise anschließen | 9, 11b; Risiko und nächste Handlung mit freigegebenen Bewertungsregeln abnehmen. | M | offen |
 | 12 | IN-01 · Integrationsschicht (I1.1) | 5, 7; Domänendienste, can() und Jobs; alle Anbindungen lokal mit fake. | L | offen |
 | 13 | IN-07 · Import-API (I1.2) | 12 und KI-15 (11a); gemeinsamer Stapel für Datei und API. | L | offen |

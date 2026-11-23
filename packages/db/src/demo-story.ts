@@ -346,6 +346,7 @@ async function demoBriefing(
     .select({ id: schema.meetingParticipant.id })
     .from(schema.meetingParticipant)
     .where(eq(schema.meetingParticipant.meetingId, qbr.id));
+  await demoPastMeeting(tx, relationshipId, account);
   if (present.length > 0) return;
   await tx.update(schema.meeting).set({ durationMinutes: 90 }).where(eq(schema.meeting.id, qbr.id));
   const participant = (name: string, ownerOrgId: string, position: number) => ({
@@ -433,4 +434,52 @@ async function demoEarlyWarning(
       createdByName: account.name,
     });
   }
+}
+
+/** KI-17: ein Werksbesuch vor drei Tagen mit Teilnehmern, für die Ergebnisse nach dem Termin. */
+async function demoPastMeeting(
+  tx: Transaction,
+  relationshipId: string,
+  account: { id: string; name: string },
+) {
+  const oem = seedBuyers.testOem.id;
+  const [existing] = await tx
+    .select({ id: schema.meeting.id })
+    .from(schema.meeting)
+    .where(
+      and(eq(schema.meeting.relationshipId, relationshipId), eq(schema.meeting.type, 'site_visit')),
+    );
+  if (existing) return;
+  const startsAt = addDays(new Date(), -3);
+  startsAt.setUTCHours(8, 0, 0, 0);
+  const [meeting] = await tx
+    .insert(schema.meeting)
+    .values({
+      relationshipId,
+      ownerOrgId: oem,
+      type: 'site_visit',
+      title: 'Werksbesuch',
+      startsAt,
+      durationMinutes: 120,
+      status: 'held',
+      createdBy: account.id,
+      createdByName: account.name,
+    })
+    .returning({ id: schema.meeting.id });
+  if (!meeting) return;
+  const participant = (name: string, ownerOrgId: string, position: number) => ({
+    meetingId: meeting.id,
+    relationshipId,
+    ownerOrgId,
+    visibility: 'shared' as const,
+    name,
+    position,
+  });
+  await tx
+    .insert(schema.meetingParticipant)
+    .values([
+      participant(account.name, oem, 1),
+      participant('Key Account', seedSupplierOrg.id, 1),
+      participant('Qualitätsleitung', seedSupplierOrg.id, 2),
+    ]);
 }

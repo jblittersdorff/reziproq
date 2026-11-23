@@ -53,6 +53,7 @@ export * from './next-cycle.js';
 export * from './ai-drafts.js';
 export * from './hints.js';
 export * from './meeting-brief.js';
+export * from './meeting-capture.js';
 export * from './search.js';
 export * from './ai-gateway.js';
 export * from './agents.js';

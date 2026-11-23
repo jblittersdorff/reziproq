@@ -2682,6 +2682,136 @@ export const en: Messages = {
     preReadPdf: 'Pre-read as PDF',
     protocolPdf: 'Minutes as PDF',
     preReadFailed: 'The PDF could not be created.',
+    capture: {
+      title: 'Results',
+      tab: 'Results',
+      loading: 'Loading results …',
+      failed: 'That did not work. Please try again.',
+      notYet:
+        'After the meeting you capture the results here. Reziproq turns them into commitments, actions and minutes.',
+      captureTitle: 'Capture results',
+      onlyYou: 'only for you',
+      notesLabel: 'Your notes on the meeting',
+      placeholder: 'For example: Commitment: Tom Weber sends the capacity plan by 15.01.',
+      notesHint:
+        'Write or paste notes. Lines starting with “Zusage:”, “Maßnahme:”, “Entscheidung:” or “Frage:” are recognised reliably. Assessments, price limits and alternatives always stay private.',
+      savedBy: (name: string, date: string) => `Last captured by ${name}, ${date}`,
+      addFile: 'Add file',
+      fileOnlyText:
+        'Until file storage is available, only text (.txt) works. DOCX and PDF come with file storage.',
+      fileTooLarge: 'The file is larger than 2 MB.',
+      evaluate: 'Evaluate',
+      evaluated: 'Evaluated. Review the drafts.',
+      nextEyebrow: 'Your next step',
+      nextReview: (n: number) =>
+        n === 1
+          ? 'Review 1 draft, then share the minutes'
+          : `Review ${n} drafts, then share the minutes`,
+      nextShare: 'Share the minutes',
+      nextShared: 'Minutes are shared',
+      shareHint: 'All drafts are decided. Share the minutes with the supplier.',
+      summary: (c: {
+        commitments: number;
+        actions: number;
+        decisions: number;
+        questions: number;
+        changes: number;
+      }) =>
+        [
+          c.commitments
+            ? `${c.commitments} ${c.commitments === 1 ? 'commitment' : 'commitments'}`
+            : null,
+          c.actions ? `${c.actions} ${c.actions === 1 ? 'action' : 'actions'}` : null,
+          c.decisions ? `${c.decisions} ${c.decisions === 1 ? 'decision' : 'decisions'}` : null,
+          c.questions
+            ? `${c.questions} ${c.questions === 1 ? 'open question' : 'open questions'}`
+            : null,
+          c.changes
+            ? `${c.changes} ${c.changes === 1 ? 'change to a commitment' : 'changes to commitments'}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(', ') || 'No open drafts',
+      acceptAllShared: 'Adopt all shared',
+      acceptedAll: 'Adopted.',
+      partlyFailed: (n: number) =>
+        n === 1
+          ? '1 draft could not be adopted. Check owner and date.'
+          : `${n} drafts could not be adopted. Check owners and dates.`,
+      selected: (n: number) => (n === 1 ? '1 draft selected' : `${n} drafts selected`),
+      acceptSelected: 'Adopt selected',
+      select: (title: string) => `Select: ${title}`,
+      groups: {
+        changes: 'Changes to existing commitments',
+        commitments: 'Commitments',
+        actions: 'Actions',
+        decisions: 'Decisions and open questions',
+        goals: 'Status of the briefing goals',
+      } as Record<string, string>,
+      goalsHint: 'The status of the goals is internal and never appears in the minutes.',
+      sideYou: 'you',
+      openQuestion: 'open question',
+      decision: 'decision',
+      to: (name: string) => `to ${name}`,
+      until: (date: string) => `by ${date}`,
+      proposals: { kept: 'done', missed: 'missed', new_date: 'new date' } as Record<string, string>,
+      goalStatuses: {
+        achieved: 'achieved',
+        partly: 'partly',
+        not_achieved: 'not achieved',
+      } as Record<string, string>,
+      ownerUnclear: 'Owner unclear',
+      dateUnclear: 'Date unclear',
+      visibleForSupplier: 'Visible to the supplier',
+      shared: 'shared',
+      private: 'private',
+      acceptedBadge: 'adopted',
+      discardedBadge: 'discarded',
+      quote: 'Source in the notes',
+      accept: 'Adopt',
+      accepted: 'Adopted.',
+      edit: 'Edit',
+      save: 'Save',
+      saved: 'Saved.',
+      cancel: 'Cancel',
+      discard: 'Discard',
+      discarded: 'Discarded.',
+      titleLabel: 'Title',
+      ownerLabel: 'Owner',
+      ownerNone: 'Unclear',
+      dueLabel: 'Due',
+      protocolTitle: (supplier: string) => `How ${supplier} sees the minutes`,
+      protocolEmpty: 'No shared points yet.',
+      internalCount: (n: number) =>
+        n === 1 ? '1 private point is not included.' : `${n} private points are not included.`,
+      shareProtocol: 'Share the minutes',
+      confirmTitle: 'Share the minutes now?',
+      recipients: (supplier: string, people: string) =>
+        people ? `${supplier}: ${people}` : `Everyone at ${supplier} with access`,
+      confirmHint:
+        'Shared are the minutes, the shared decisions and the adopted shared commitments and actions. Private points stay with you.',
+      confirmShare: 'Confirm sharing',
+      shareRule:
+        'Sharing shows recipients and content first. The supplier then sees it in the meeting.',
+      sharedAt: (date: string) => `Shared on ${date}`,
+      sharedNote: 'Shared.',
+      whatFollows: 'What happens next',
+      follows: [
+        'Commitments in the joint plan, actions with their owners',
+        'Due dates appear in My day',
+        'The next briefing reads the results',
+      ],
+      errors: {
+        angaben_fehlen: 'Please add owner and date first (Edit).',
+        nur_teilnehmer: 'Only someone who attended can be the owner.',
+        datum_unklar: 'The date must be after the meeting and at most a year later.',
+        verantwortlich_ohne_konto:
+          'This person has no account in the team. Please choose someone else.',
+        plan_freigegeben: 'The joint plan is approved; a new date needs a new version.',
+        nichts_zu_teilen: 'There are no adopted shared points yet.',
+        termin_der_anderen_seite: 'The side that created the meeting maintains the minutes.',
+      } as Record<string, string>,
+    },
     brief: {
       tabPrep: 'Preparation',
       tabAgenda: 'Agenda',

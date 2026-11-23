@@ -2752,6 +2752,140 @@ export const de = {
     preReadPdf: 'Pre-Read als PDF',
     protocolPdf: 'Protokoll als PDF',
     preReadFailed: 'Das PDF konnte nicht erzeugt werden.',
+    capture: {
+      title: 'Ergebnisse',
+      tab: 'Ergebnisse',
+      loading: 'Ergebnisse werden geladen …',
+      failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+      notYet:
+        'Nach dem Termin erfasst ihr hier die Ergebnisse. Reziproq macht daraus Zusagen, Maßnahmen und ein Protokoll.',
+      captureTitle: 'Ergebnisse erfassen',
+      onlyYou: 'nur für euch',
+      notesLabel: 'Eure Notizen zum Termin',
+      placeholder: 'Zum Beispiel: Zusage: Tom Weber schickt den Kapazitätsplan bis 15.01.',
+      notesHint:
+        'Notizen schreiben oder einfügen. Zeilen mit „Zusage:“, „Maßnahme:“, „Entscheidung:“ oder „Frage:“ ordnet Reziproq sicher zu. Bewertungen, Preisgrenzen und Alternativen bleiben immer privat.',
+      savedBy: (name: string, date: string) => `Zuletzt erfasst von ${name}, ${date}`,
+      addFile: 'Datei hinzufügen',
+      fileOnlyText:
+        'Bis zum Dateispeicher geht nur Text (.txt). DOCX und PDF kommen mit dem Dateispeicher.',
+      fileTooLarge: 'Die Datei ist größer als 2 MB.',
+      evaluate: 'Auswerten',
+      evaluated: 'Ausgewertet. Prüfe die Entwürfe.',
+      nextEyebrow: 'Dein nächster Schritt',
+      nextReview: (n: number) =>
+        n === 1
+          ? 'Prüfe 1 Entwurf, dann teile das Protokoll'
+          : `Prüfe ${n} Entwürfe, dann teile das Protokoll`,
+      nextShare: 'Protokoll teilen',
+      nextShared: 'Protokoll ist geteilt',
+      shareHint: 'Alle Entwürfe sind entschieden. Teile das Protokoll mit dem Lieferanten.',
+      summary: (c: {
+        commitments: number;
+        actions: number;
+        decisions: number;
+        questions: number;
+        changes: number;
+      }) =>
+        [
+          c.commitments ? `${c.commitments} ${c.commitments === 1 ? 'Zusage' : 'Zusagen'}` : null,
+          c.actions ? `${c.actions} ${c.actions === 1 ? 'Maßnahme' : 'Maßnahmen'}` : null,
+          c.decisions
+            ? `${c.decisions} ${c.decisions === 1 ? 'Entscheidung' : 'Entscheidungen'}`
+            : null,
+          c.questions
+            ? `${c.questions} ${c.questions === 1 ? 'offene Frage' : 'offene Fragen'}`
+            : null,
+          c.changes
+            ? `${c.changes} ${c.changes === 1 ? 'Änderung an einer Zusage' : 'Änderungen an Zusagen'}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(', ') || 'Keine offenen Entwürfe',
+      acceptAllShared: 'Alle geteilten übernehmen',
+      acceptedAll: 'Übernommen.',
+      partlyFailed: (n: number) =>
+        n === 1
+          ? '1 Entwurf ließ sich nicht übernehmen. Prüfe Verantwortlichen und Datum.'
+          : `${n} Entwürfe ließen sich nicht übernehmen. Prüfe Verantwortliche und Daten.`,
+      selected: (n: number) => (n === 1 ? '1 Entwurf ausgewählt' : `${n} Entwürfe ausgewählt`),
+      acceptSelected: 'Ausgewählte übernehmen',
+      select: (title: string) => `Auswählen: ${title}`,
+      groups: {
+        changes: 'Änderungen an bestehenden Zusagen',
+        commitments: 'Zusagen',
+        actions: 'Maßnahmen',
+        decisions: 'Entscheidungen und offene Fragen',
+        goals: 'Stand der Ziele aus dem Briefing',
+      } as Record<string, string>,
+      goalsHint: 'Der Stand der Ziele ist intern und steht nie im Protokoll.',
+      sideYou: 'ihr',
+      openQuestion: 'offene Frage',
+      decision: 'Entscheidung',
+      to: (name: string) => `an ${name}`,
+      until: (date: string) => `bis ${date}`,
+      proposals: {
+        kept: 'erledigt',
+        missed: 'nicht eingehalten',
+        new_date: 'neues Datum',
+      } as Record<string, string>,
+      goalStatuses: {
+        achieved: 'erreicht',
+        partly: 'teilweise',
+        not_achieved: 'nicht erreicht',
+      } as Record<string, string>,
+      ownerUnclear: 'Verantwortlich unklar',
+      dateUnclear: 'Datum unklar',
+      visibleForSupplier: 'Für den Lieferanten sichtbar',
+      shared: 'geteilt',
+      private: 'privat',
+      acceptedBadge: 'übernommen',
+      discardedBadge: 'verworfen',
+      quote: 'Fundstelle',
+      accept: 'Übernehmen',
+      accepted: 'Übernommen.',
+      edit: 'Ändern',
+      save: 'Speichern',
+      saved: 'Gespeichert.',
+      cancel: 'Abbrechen',
+      discard: 'Verwerfen',
+      discarded: 'Verworfen.',
+      titleLabel: 'Titel',
+      ownerLabel: 'Verantwortlich',
+      ownerNone: 'Unklar',
+      dueLabel: 'Fällig',
+      protocolTitle: (supplier: string) => `So sieht ${supplier} das Protokoll`,
+      protocolEmpty: 'Noch keine geteilten Punkte.',
+      internalCount: (n: number) =>
+        n === 1 ? '1 privater Punkt steht nicht darin.' : `${n} private Punkte stehen nicht darin.`,
+      shareProtocol: 'Protokoll teilen',
+      confirmTitle: 'Protokoll jetzt teilen?',
+      recipients: (supplier: string, people: string) =>
+        people ? `${supplier}: ${people}` : `Alle bei ${supplier} mit Zugang`,
+      confirmHint:
+        'Geteilt werden das Protokoll, die geteilten Entscheidungen und die übernommenen geteilten Zusagen und Maßnahmen. Private Punkte bleiben bei euch.',
+      confirmShare: 'Teilen bestätigen',
+      shareRule:
+        'Teilen zeigt vorher Empfänger und Inhalt. Der Lieferant sieht es danach im Termin.',
+      sharedAt: (date: string) => `Geteilt am ${date}`,
+      sharedNote: 'Geteilt.',
+      whatFollows: 'Was daraus wird',
+      follows: [
+        'Zusagen im Gemeinsamen Plan, Maßnahmen bei den Verantwortlichen',
+        'Fälligkeiten erscheinen in Mein Tag',
+        'Das nächste Briefing liest die Ergebnisse',
+      ],
+      errors: {
+        angaben_fehlen: 'Bitte zuerst Verantwortlichen und Datum ergänzen (Ändern).',
+        nur_teilnehmer: 'Verantwortlich kann nur sein, wer im Termin war.',
+        datum_unklar: 'Das Datum muss nach dem Termin und höchstens ein Jahr danach liegen.',
+        verantwortlich_ohne_konto: 'Diese Person hat kein Konto im Team. Bitte eine andere wählen.',
+        plan_freigegeben:
+          'Der Gemeinsame Plan ist freigegeben; ein neues Datum braucht eine neue Version.',
+        nichts_zu_teilen: 'Es gibt noch keine übernommenen geteilten Punkte.',
+        termin_der_anderen_seite: 'Das Protokoll pflegt die Seite, die den Termin angelegt hat.',
+      } as Record<string, string>,
+    },
     brief: {
       tabPrep: 'Vorbereitung',
       tabAgenda: 'Agenda',

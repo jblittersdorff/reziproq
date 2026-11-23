@@ -121,6 +121,8 @@ export interface BriefInputs {
   hints: { id: string; ruleKey: string; title: string | null }[];
   topics: { id: string; title: string; side: 'buyer' | 'supplier' }[];
   signals: { id: string; title: string }[];
+  /** KI-17: übernommene offene Fragen früherer Termine dieser Beziehung */
+  earlierQuestions: { id: string; text: string; meetingTitle: string }[];
   notes: number;
   previousQuestions: {
     text: string;
@@ -385,6 +387,20 @@ export class MeetingBriefService {
       .select({ count: sql<number>`count(*)::int` })
       .from(schema.note)
       .where(eq(schema.note.relationshipId, relationshipId));
+    const earlier = await tx.execute<{ id: string; content: string; title: string }>(sql`
+      select d.id, d.content, m.title from ai_draft d
+      join meeting m on m.id = d.object_id
+      where d.org_id = ${orgId} and d.relationship_id = ${relationshipId}
+        and d.kind = 'capture_question' and d.status = 'accepted' and d.object_id <> ${meetingId}
+      order by d.decided_at desc limit 3`);
+    const earlierQuestions = earlier.rows.flatMap((row) => {
+      try {
+        const item = JSON.parse(row.content) as { title?: string };
+        return item.title ? [{ id: row.id, text: item.title, meetingTitle: row.title }] : [];
+      } catch {
+        return [];
+      }
+    });
 
     return {
       meeting: {
@@ -415,6 +431,7 @@ export class MeetingBriefService {
       hints,
       topics,
       signals,
+      earlierQuestions,
       notes: notes?.count ?? 0,
       previousQuestions: await this.previousQuestions(tx, orgId, meetingId),
     };
@@ -901,6 +918,13 @@ export class MeetingBriefService {
         goalKey: null,
         about: 'Datenlücke im Wertpotenzial-Finder',
         source: ownDraftSource('value_data_gap', gap.id, gap.description),
+      })),
+      // KI-17: offene Fragen aus dem letzten Termin kommen wieder auf den Tisch
+      ...inputs.earlierQuestions.map((question) => ({
+        text: question.text,
+        goalKey: null,
+        about: `Offen aus „${question.meetingTitle}“`,
+        source: ownDraftSource('ai_draft', question.id, `Ergebnisse ${question.meetingTitle}`),
       })),
     ].slice(0, 8);
     parts.supplierQuestions = {

@@ -197,6 +197,75 @@ export class JbpCommitmentsService {
     return this.list(scope);
   }
 
+  /**
+   * KI-17: Zusage aus den Ergebnissen eines Termins, zunächst intern; erst „Protokoll teilen“ macht
+   * sie für die andere Seite sichtbar. Nur in einen Plan, der noch nicht freigegeben ist (JBP-06);
+   * sonst null, und die Ergebnisse legen eine Maßnahme an.
+   */
+  async createFromMeeting(
+    scope: JbpScope,
+    input: {
+      side: 'buyer' | 'supplier';
+      title: string;
+      ownerUserId: string | null;
+      ownerName: string;
+      dueOn: string;
+    },
+  ): Promise<string | null> {
+    if (!this.canEdit(scope)) throw forbidden();
+    const plan = await currentPlan(scope.tx, scope.relationshipId);
+    if (!plan || plan.status === 'approved') return null;
+    const { tx } = scope;
+    const actor = await actorOf(tx, scope.auth, scope.orgId);
+    return auditedChange(tx, actor, commitmentAudit, async () => {
+      const [row] = await tx
+        .insert(schema.commitment)
+        .values({
+          relationshipId: scope.relationshipId,
+          ownerOrgId: scope.orgId,
+          visibility: 'internal',
+          jbpId: plan.id,
+          initiativeId: null,
+          side: input.side,
+          title: input.title.slice(0, 200),
+          ownerUserId: input.ownerUserId,
+          ownerName: input.ownerName,
+          dueOn: input.dueOn,
+          createdBy: scope.auth.userId,
+          createdByName: actor.name,
+        })
+        .returning();
+      const created = row as CommitmentRow;
+      return {
+        objectId: created.id,
+        relationshipId: scope.relationshipId,
+        action: 'created' as const,
+        after: snapshot(created, null),
+        result: created.id,
+      };
+    });
+  }
+
+  /** KI-17: Beim Teilen des Protokolls wird eine eigene Zusage aus dem Termin geteilt. */
+  async shareFromMeeting(scope: JbpScope, commitmentId: string) {
+    const before = await this.own(scope, commitmentId);
+    if (before.visibility === 'shared') return;
+    await scope.tx
+      .update(schema.commitment)
+      .set({ visibility: 'shared', updatedAt: new Date() })
+      .where(eq(schema.commitment.id, commitmentId));
+  }
+
+  /** KI-17: neues Datum aus dem Termin; nach der Freigabe nicht (JBP-06, Inhalt gesperrt). */
+  async moveFromMeeting(scope: JbpScope, commitmentId: string, dueOn: string) {
+    const before = await this.own(scope, commitmentId);
+    const plan = await currentPlan(scope.tx, scope.relationshipId);
+    if (plan?.status === 'approved') {
+      throw new ConflictException({ statusCode: 409, code: 'plan_freigegeben' });
+    }
+    return this.change(scope, before, { dueOn });
+  }
+
   /** Nur die zusagende Seite ändert ihre Zusage (owner_org_id). */
   private async own(scope: JbpScope, commitmentId: string) {
     if (!this.canEdit(scope)) throw forbidden();

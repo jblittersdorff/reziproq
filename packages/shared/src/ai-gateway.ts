@@ -21,6 +21,8 @@ export const aiFeatureClasses = {
   insight_summary: 'standard',
   // KI-16: Begründung eines Hinweises
   hint_explanation: 'small',
+  // KI-17: Ergebnisse aus den Notizen nach einem Termin
+  meeting_capture: 'standard',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];

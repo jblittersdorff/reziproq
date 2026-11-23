@@ -76,9 +76,10 @@ describe('demo:setup', () => {
     const meetings = await query<{ created_by_name: string; status: string }>(
       sql`select created_by_name, status from meeting order by starts_at`,
     );
-    // Dazu der QBR in sieben Tagen aus der Demo-Geschichte
+    // Dazu aus der Demo-Geschichte der Werksbesuch vor drei Tagen (KI-17) und der QBR in sieben Tagen
     expect(meetings).toEqual([
       { created_by_name: 'OEM 1', status: 'closed' },
+      { created_by_name: 'OEM 1', status: 'held' },
       { created_by_name: 'OEM 1', status: 'planned' },
       { created_by_name: 'OEM 1', status: 'planned' },
     ]);

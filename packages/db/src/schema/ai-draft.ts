@@ -45,6 +45,13 @@ export const aiDraftKinds = [
   'brief_expected_questions',
   'brief_risks',
   'brief_open_points',
+  // KI-17: Ergebnisse nach dem Termin, je Punkt ein Entwurf (object_type meeting), Inhalt als JSON
+  'capture_commitment',
+  'capture_action',
+  'capture_decision',
+  'capture_question',
+  'capture_commitment_change',
+  'capture_goal_check',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
@@ -76,7 +83,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_run').on(table.orgId, table.runId),

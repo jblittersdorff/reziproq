@@ -235,6 +235,17 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // KI-17: Notizen nach dem Termin, nur die eigene Organisation
+  meeting_capture: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      source: 'typed',
+      text: 'Probe',
+      created_by: 'demo-test-oem-1',
+      created_by_name: 'Probe',
+    }),
+  },
   // QBR-03: Maßnahmen, geteilt oder intern; private Quellen gehören einer Seite.
   action: {
     kind: 'shared',

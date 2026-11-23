@@ -327,6 +327,20 @@ export class ActionsService {
     return this.get(scope, created.id);
   }
 
+  /** KI-17: Beim Teilen des Protokolls wird eine eigene Maßnahme aus dem Termin geteilt. */
+  async shareFromMeeting(scope: ActionScope, actionId: string) {
+    await scope.tx
+      .update(schema.action)
+      .set({ visibility: 'shared' })
+      .where(
+        and(
+          eq(schema.action.id, actionId),
+          eq(schema.action.ownerOrgId, scope.orgId),
+          eq(schema.action.relationshipId, scope.relationshipId),
+        ),
+      );
+  }
+
   /** Inhalt ändern: nur die Seite, die die Maßnahme angelegt hat. Die Quelle bleibt. */
   async update(scope: ActionScope, actionId: string, input: SaveAction): Promise<ActionItem> {
     if (!scope.canEdit) throw forbidden();

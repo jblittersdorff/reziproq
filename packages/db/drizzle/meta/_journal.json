@@ -757,6 +757,13 @@
       "when": 1795424382992,
       "tag": "0107_ki07_termin_briefing",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1795426164914,
+      "tag": "0108_ki17_ergebnisse",
+      "breakpoints": true
     }
   ]
 }

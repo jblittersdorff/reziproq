@@ -33,6 +33,9 @@ const berlinDay = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }
 const daysBetween = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 
+/** KI-17: Aufgabe einen Tag nach dem Termin, solange keine Notizen da sind */
+export const captureTaskTitle = 'Ergebnisse erfassen';
+
 /** Titel der Aufgabe für den SRO, die Mein Tag zeigt */
 export const briefTaskTitle = (type: MeetingType) =>
   `${typeNames[type]} vorbereiten: Briefing prüfen`;
@@ -132,6 +135,59 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
     return started;
   }
 
+  /**
+   * KI-17: Einen Tag nach dem Termin bekommt der SRO die Aufgabe „Ergebnisse erfassen“, falls noch
+   * keine Notizen da sind. Höchstens zwei Wochen zurück, genau eine Aufgabe je Termin.
+   */
+  async captureDue(organizationIds?: string[], now = new Date()): Promise<number> {
+    const organizations = organizationIds ?? (await this.store.hintOrganizations());
+    const dayBefore = new Date(now.getTime() - 86_400_000).toISOString();
+    const twoWeeks = new Date(now.getTime() - 14 * 86_400_000).toISOString();
+    let created = 0;
+    for (const orgId of organizations) {
+      const targets = await this.tenant.run(
+        { userId: systemUser, organizationId: orgId },
+        async (tx) =>
+          (
+            await tx.execute<{ meeting_id: string; relationship_id: string; user_id: string }>(sql`
+              select m.id as meeting_id, m.relationship_id, min(rm.user_id) as user_id
+              from meeting m
+              join relationship r on r.id = m.relationship_id and r.buyer_org_id = ${orgId}
+              join relationship_member rm
+                on rm.relationship_id = m.relationship_id and rm.org_id = ${orgId} and rm.team_role = 'sro'
+              where m.status <> 'closed'
+                and m.starts_at <= ${dayBefore}::timestamptz and m.starts_at >= ${twoWeeks}::timestamptz
+                and not exists (select 1 from meeting_capture c where c.meeting_id = m.id and c.org_id = ${orgId})
+                and not exists (select 1 from action a where a.source_type = 'meeting' and a.source_id = m.id
+                  and a.title = ${captureTaskTitle})
+              group by m.id, m.relationship_id`)
+          ).rows,
+        { readOnly: true },
+      );
+      for (const entry of targets) {
+        const auth = await this.actor(entry.user_id, orgId);
+        if (!auth) continue;
+        await this.actions.buyer(auth, entry.relationship_id, (scope) =>
+          this.actions.create(scope, {
+            action: {
+              title: captureTaskTitle,
+              description: null,
+              visibility: 'internal',
+              ownerSide: 'buyer',
+              ownerUserId: auth.userId,
+              ownerName: null,
+              dueDate: berlinDay.format(now),
+            },
+            sourceType: 'meeting',
+            sourceId: entry.meeting_id,
+          }),
+        );
+        created += 1;
+      }
+    }
+    return created;
+  }
+
   /** Genau eine Aufgabe je Termin für den SRO */
   private async task(
     auth: AuthContext,
@@ -176,7 +232,10 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
     });
     await boss.start();
     await boss.createQueue(queue, { expireInSeconds: 900, retryLimit: 2, retryDelay: 120 });
-    await boss.work(queue, { batchSize: 1 }, () => this.runDue());
+    await boss.work(queue, { batchSize: 1 }, async () => {
+      await this.runDue();
+      await this.captureDue();
+    });
     await boss.schedule(queue, '*/15 * * * *', {});
     this.boss = boss;
   }

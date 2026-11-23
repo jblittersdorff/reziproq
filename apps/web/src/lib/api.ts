@@ -84,12 +84,15 @@ import {
   type GoalRequest,
   type BriefSettings,
   type EditBriefAgenda,
+  type EditCaptureItem,
+  type SaveCapture,
   type HintRuleSettings,
   type HintSettings,
   healthResponseSchema,
   hintListSchema,
   hintRuleSettingsSchema,
   meetingBriefSchema,
+  meetingCaptureSchema,
   briefSettingsSchema,
   hintSchema,
   hintSettingsSchema,
@@ -3688,6 +3691,92 @@ export const sendBriefQuestion = (
     `${briefPath(relationshipId, meetingId)}/fragen/${encodeURIComponent(key)}/senden`,
     {},
     meetingBriefSchema,
+    accessToken,
+  );
+
+/** KI-17: Ergebnisse nach dem Termin, nur beim Käufer */
+const capturePath = (relationshipId: string, meetingId: string) =>
+  `/suppliers/${relationshipId}/termine/${meetingId}/ergebnisse`;
+
+export const captureQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+) =>
+  queryOptions({
+    queryKey: ['termine', meetingId, 'ergebnisse'],
+    queryFn: () =>
+      getJson(capturePath(relationshipId, meetingId), meetingCaptureSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const evaluateCapture = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  request: SaveCapture,
+) =>
+  sendJson(
+    'POST',
+    `${capturePath(relationshipId, meetingId)}/auswerten`,
+    request,
+    meetingCaptureSchema,
+    accessToken,
+  );
+
+export const acceptCapture = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  ids: string[],
+) =>
+  sendJson(
+    'POST',
+    `${capturePath(relationshipId, meetingId)}/uebernehmen`,
+    { ids },
+    meetingCaptureSchema,
+    accessToken,
+  );
+
+export const editCapture = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  draftId: string,
+  request: EditCaptureItem,
+) =>
+  sendJson(
+    'PUT',
+    `${capturePath(relationshipId, meetingId)}/${draftId}`,
+    request,
+    meetingCaptureSchema,
+    accessToken,
+  );
+
+export const discardCapture = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  draftId: string,
+) =>
+  sendJson(
+    'POST',
+    `${capturePath(relationshipId, meetingId)}/${draftId}/verwerfen`,
+    {},
+    meetingCaptureSchema,
+    accessToken,
+  );
+
+export const shareCaptureProtocol = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+) =>
+  sendJson(
+    'POST',
+    `${capturePath(relationshipId, meetingId)}/protokoll-teilen`,
+    {},
+    meetingCaptureSchema,
     accessToken,
   );
 

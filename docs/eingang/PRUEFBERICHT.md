@@ -193,3 +193,11 @@ Entschieden am 23.11.2026:
 - **F14:** KI-15 wird auf den Bestand abgebildet: Lieferant = Organisation mit Beziehung des Käufers,
   Warengruppe = `material_group`, Alias und Regeln je Käufer; der Import aus PLT-07 wird erweitert.
 
+## Offene Frage aus der Umsetzung (23.11.2026)
+
+- **F15 · KI-17 gegen JBP-06.** KI-17 lässt übernommene Zusagen aus einem Termin „im Gemeinsamen
+  Plan“ entstehen. JBP-06 sperrt den Inhalt eines freigegebenen Plans; neue Zusagen werden mit 409
+  abgelehnt. Vorläufig: Ist der Plan freigegeben, entsteht eine Maßnahme mit Verweis auf die Zusage;
+  ein neues Datum für eine Zusage im freigegebenen Plan wird abgelehnt. Soll stattdessen eine Zusage
+  aus einem Termin auch nach der Freigabe in den Plan dürfen, ohne neue Version?
+

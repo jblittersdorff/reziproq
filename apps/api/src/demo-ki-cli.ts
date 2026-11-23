@@ -8,6 +8,7 @@ import { AgentsService } from './modules/agents/agents.service.js';
 import { MeetingBriefWorker } from './modules/agents/meeting-brief.worker.js';
 import type { AuthContext } from './modules/auth/auth.guard.js';
 import { HintsService } from './modules/hints/hints.service.js';
+import { MeetingCaptureService } from './modules/meetings/meeting-capture.service.js';
 import { OpportunitiesService } from './modules/opportunities/opportunities.service.js';
 
 // pnpm demo:setup, zweiter Teil: Über der Demo-Geschichte laufen die echten Dienste einmal, wie
@@ -133,6 +134,48 @@ async function main() {
     console.log(
       `Hinweise: ${result.open} offen, ${result.written} neue Begründungen. Zu sehen unter Mein Tag und /hinweise.`,
     );
+
+    // 5. Ergebnisse nach dem Werksbesuch (KI-17): Beispielnotizen auswerten, wenn noch keine da sind
+    const [visit] = (
+      await tenant.run(
+        { userId: account.id, organizationId: testOem },
+        async (tx) =>
+          (
+            await tx.execute<{ id: string; relationship_id: string; buyer: string }>(sql`
+              select m.id, m.relationship_id,
+                (select p.name from meeting_participant p where p.meeting_id = m.id
+                  and p.owner_org_id = ${testOem} order by p.position limit 1) as buyer
+              from meeting m
+              join relationship r on r.id = m.relationship_id and r.buyer_org_id = ${testOem}
+              where m.type = 'site_visit' and m.title = 'Werksbesuch'
+                and not exists (select 1 from meeting_capture c where c.meeting_id = m.id)
+              limit 1`)
+          ).rows,
+        { readOnly: true },
+      )
+    ).slice(0, 1);
+    if (visit) {
+      const due = (days: number) => {
+        const date = new Date();
+        date.setUTCDate(date.getUTCDate() + days);
+        return `${String(date.getUTCDate()).padStart(2, '0')}.${String(date.getUTCMonth() + 1).padStart(2, '0')}.${date.getUTCFullYear()}`;
+      };
+      const notes = [
+        `Zusage: Key Account schickt den Kapazitätsplan 2027 bis ${due(30)}`,
+        `Zusage: ${visit.buyer} teilt die rollierende Prognose für 12 Monate bis ${due(20)}`,
+        `Zusage: Lea Brandt liefert ein Angebot für die Preisgleitklausel bis ${due(25)}`,
+        `Maßnahme: 8D-Prozess bei Reklamationen vereinheitlichen, Qualitätsleitung bis ${due(45)}`,
+        'Entscheidung: Pilot Konsignationslager ab dem nächsten Quartal gemeinsam prüfen.',
+        'Frage: Woher kommt das Laminat? (an Key Account)',
+        'Preisgrenze: einer Erhöhung über 2 % nicht zustimmen.',
+      ].join('\n');
+      const captured = await app
+        .get(MeetingCaptureService)
+        .evaluate(auth, visit.relationship_id, visit.id, { source: 'pasted', text: notes });
+      console.log(
+        `Ergebnisse Werksbesuch: ${captured.drafts.length} Entwürfe aus Beispielnotizen. Zu sehen unter Termine › Werksbesuch › Ergebnisse.`,
+      );
+    }
   } finally {
     await app.close();
   }
