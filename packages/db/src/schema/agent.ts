@@ -48,6 +48,9 @@ export const agent = pgTable(
     kind: text({ enum: ['system', 'custom'] }).notNull(),
     ownerUserId: text(),
     status: text({ enum: agentStatuses }).notNull().default('draft'),
+    // KI-09: Rückgabe durch den Admin mit Kommentar; Grund einer automatischen Pause
+    reviewComment: text(),
+    pausedReason: text(),
   },
   (table) => [
     unique('agent_org_id').on(table.orgId, table.id),
@@ -85,6 +88,11 @@ export const agentVersion = pgTable(
     createdBy: text(),
     approvedBy: text(),
     approvedAt: time(),
+    // KI-09: erfolgreicher Testlauf dieser Version; Prüfung der Aufgabe (keine Personenbewertung)
+    testRunId: uuid(),
+    testPassedAt: time(),
+    checkStatus: text({ enum: ['ok', 'blocked'] }),
+    checkNote: text(),
   },
   (table) => [
     unique('agent_version_org_id').on(table.orgId, table.id),

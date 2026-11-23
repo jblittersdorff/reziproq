@@ -27,6 +27,9 @@ export const aiFeatureClasses = {
   import_assist: 'small',
   // IN-04: zwei Sätze zu einer abgelegten Mail
   mail_summary: 'small',
+  // KI-09: Prüfung der Aufgabe eines eigenen Agenten (keine Personenbewertung) und sein Lauf
+  agent_check: 'small',
+  custom_agent: 'standard',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];

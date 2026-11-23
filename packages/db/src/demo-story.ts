@@ -64,6 +64,7 @@ export async function demoStory(
     await demoMails(tx, relationships, account, today);
     await demoNotifications(tx, relationships, account, today);
     await demoTranscripts(tx, relationships, account, today);
+    await demoCustomAgent(tx, relationships, account, today);
     return { created: false, relationships };
   }
 
@@ -784,5 +785,132 @@ async function demoTranscripts(
     unavailableReason: 'keine_transkription',
     attempts: 1,
     lastAttemptAt: today,
+  });
+}
+
+/**
+ * KI-09: ein eigener Agent „Verfehlte Zusagen“ (aktiv, montags 07:00, Testlauf bestanden) mit einem
+ * fertigen Lauf. Sein Ergebnis zum ersten Lieferanten wartet als Entwurf auf Übernehmen.
+ */
+async function demoCustomAgent(
+  tx: Transaction,
+  relationships: string[],
+  account: { id: string; name: string },
+  today: Date,
+) {
+  const [first] = relationships;
+  if (!first) return;
+  const oem = seedBuyers.testOem.id;
+  const key = 'custom-demo-verfehlte-zusagen';
+  const [existing] = await tx
+    .select({ id: schema.agent.id })
+    .from(schema.agent)
+    .where(and(eq(schema.agent.orgId, oem), eq(schema.agent.key, key)));
+  if (existing) return;
+  const config = {
+    name: 'Verfehlte Zusagen',
+    instructions:
+      'Finde jeden Montag Fokuslieferanten mit überfälligen Zusagen und entwirf je eine interne Maßnahme mit Vorschlag, wie wir nachfassen.',
+    tools: ['commitments', 'actions', 'meetings'],
+    trigger: { kind: 'schedule', schedule: { every: 'week', weekday: 1, time: '07:00' } },
+    scope: { kind: 'focus' },
+    output: 'action',
+    reviewer: 'me',
+    budgetCents: 100,
+  };
+  const [row] = await tx
+    .insert(schema.agent)
+    .values({
+      orgId: oem,
+      key,
+      name: config.name,
+      description: config.instructions.slice(0, 200),
+      kind: 'custom',
+      ownerUserId: account.id,
+      status: 'active',
+    })
+    .returning({ id: schema.agent.id });
+  if (!row) return;
+  const ran = addDays(today, -1);
+  ran.setUTCHours(6, 0, 0, 0);
+  const [version] = await tx
+    .insert(schema.agentVersion)
+    .values({
+      orgId: oem,
+      agentId: row.id,
+      version: 1,
+      instructions: config.instructions,
+      tools: config.tools,
+      trigger: 'schedule',
+      schedule: JSON.stringify(config.trigger.schedule),
+      scope: { config },
+      outputTarget: config.output,
+      reviewerRule: config.reviewer,
+      modelClass: 'standard',
+      budgetCents: config.budgetCents,
+      maxSteps: 10,
+      createdBy: account.id,
+      approvedBy: account.id,
+      approvedAt: ran,
+      testPassedAt: ran,
+      checkStatus: 'ok',
+    })
+    .returning({ id: schema.agentVersion.id });
+  if (!version) return;
+  const [run] = await tx
+    .insert(schema.agentRun)
+    .values({
+      orgId: oem,
+      agentVersionId: version.id,
+      actingUserId: account.id,
+      startedBy: account.id,
+      trigger: 'schedule',
+      status: 'done',
+      stepsUsed: 4,
+      costMicrocents: 1_800_000,
+      createdAt: ran,
+      startedAt: ran,
+      finishedAt: ran,
+    })
+    .returning({ id: schema.agentRun.id });
+  if (!run) return;
+  const result = {
+    relationshipId: first,
+    title: 'Zwei Zusagen überfällig: Lieferplan und Prüfbericht',
+    text: 'Der Lieferplan Q1 und der Prüfbericht zur Liefertreue sind seit über einer Woche überfällig. Vorschlag: im nächsten Abstimmungstermin beide Punkte als Erstes ansprechen und einen neuen Termin festhalten.',
+  };
+  const steps = [
+    {
+      seq: 1,
+      kind: 'plan' as const,
+      title: 'Umfang festlegen',
+      detail: { relationships: [first] },
+    },
+    { seq: 2, kind: 'read' as const, title: 'Daten lesen', detail: { tools: config.tools } },
+    { seq: 3, kind: 'model' as const, title: 'Ergebnis entwerfen', detail: null },
+    { seq: 6, kind: 'draft' as const, title: 'Entwürfe speichern', detail: { results: [result] } },
+  ];
+  await tx.insert(schema.agentStep).values(
+    steps.map((step) => ({
+      orgId: oem,
+      runId: run.id,
+      ...step,
+      startedAt: ran,
+      finishedAt: ran,
+      status: 'done' as const,
+    })),
+  );
+  await tx.insert(schema.aiDraft).values({
+    orgId: oem,
+    relationshipId: first,
+    runId: run.id,
+    kind: 'agent_result',
+    objectType: 'agent_run',
+    objectId: run.id,
+    subject: config.output,
+    content: JSON.stringify({ title: result.title, text: result.text, reviewer: account.id }),
+    claims: [{ key: '1', text: result.text }],
+    model: 'custom_agent',
+    createdBy: account.id,
   });
 }

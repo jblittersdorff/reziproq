@@ -27,6 +27,8 @@ export const dueKinds = [
   'connection_renew',
   // IN-02: neue Person aus der Firmen-Domain prüfen und freigeben (nur Admins)
   'member_review',
+  // KI-09: eigener Agent wartet auf Freigabe (nur Admins)
+  'agent_approval',
 ] as const;
 
 export const dueItemSchema = z.object({

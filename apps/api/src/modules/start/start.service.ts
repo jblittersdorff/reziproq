@@ -124,10 +124,39 @@ export class StartService {
     const connections = await this.integrations.dueItems(auth);
     // IN-02: neue Personen aus der Firmen-Domain, die auf Freigabe warten
     const memberReviews = await this.organizations.dueItems(auth);
+    // KI-09: eigene Agenten, die auf Freigabe warten (nur Admins)
+    const agentApprovals =
+      organization?.buyer && auth.orgRole === 'admin'
+        ? await this.tenant.run(
+            { userId: auth.userId, organizationId: organization.id },
+            async (tx) =>
+              (
+                await tx
+                  .select({ id: schema.agent.id, name: schema.agent.name })
+                  .from(schema.agent)
+                  .where(
+                    and(
+                      eq(schema.agent.orgId, organization.id),
+                      eq(schema.agent.kind, 'custom'),
+                      eq(schema.agent.status, 'pending_approval'),
+                    ),
+                  )
+              ).map((row) => ({
+                id: `agent-approval-${row.id}`,
+                kind: 'agent_approval' as const,
+                supplier: '',
+                detail: row.name,
+                dueDate: new Date().toISOString().slice(0, 10),
+                href: `/einstellungen/ki/agenten/eigene/${row.id}`,
+              })),
+            { readOnly: true },
+          )
+        : [];
     const items = [
       ...budget,
       ...connections,
       ...memberReviews,
+      ...agentApprovals,
       ...ruleReviews,
       ...ratings,
       ...cycles,

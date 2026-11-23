@@ -25,6 +25,7 @@ import {
 } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { z } from 'zod';
+import { AgentEventBus } from '../../common/agent-events.js';
 import { TenantDatabase } from '../../common/database.module.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -121,6 +122,7 @@ export class ImportsService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(ModelGateway) private readonly gateway: ModelGateway,
     @Inject(SuppliersService) private readonly suppliers: SuppliersService,
+    @Inject(AgentEventBus) private readonly agentEvents: AgentEventBus,
   ) {}
 
   private session(auth: AuthContext) {
@@ -1022,6 +1024,9 @@ export class ImportsService {
         .update(schema.importBatch)
         .set({ status: 'committed', committedBy: auth.userId, committedAt: new Date(), undo })
         .where(eq(schema.importBatch.id, id));
+      // KI-09: Ereignis „Spend-Import fertig“ für eigene Agenten
+      if (batch.kind === 'spend')
+        this.agentEvents.defer(session.organizationId, 'spend_import_done', null);
     });
     return this.get(auth, id);
   }

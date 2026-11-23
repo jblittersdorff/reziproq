@@ -1,6 +1,5 @@
-import { ActionsModule } from '../actions/actions.module.js';
-import { MeetingBriefWorker } from './meeting-brief.worker.js';
 import { Module } from '@nestjs/common';
+import { ActionsModule } from '../actions/actions.module.js';
 import { ActivitiesModule } from '../activities/activities.module.js';
 import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
 import { FeedbackModule } from '../feedback/feedback.module.js';
@@ -12,6 +11,11 @@ import { AgentTools } from './agent-tools.js';
 import { AgentsController } from './agents.controller.js';
 import { AgentsService } from './agents.service.js';
 import { AgentsWorker } from './agents.worker.js';
+import { CustomAgentsController } from './custom-agents.controller.js';
+import { CustomAgentsService } from './custom-agents.service.js';
+import { CustomAgentsWorker } from './custom-agents.worker.js';
+import { CustomAgentTools } from './custom-tools.js';
+import { MeetingBriefWorker } from './meeting-brief.worker.js';
 
 @Module({
   imports: [
@@ -23,7 +27,16 @@ import { AgentsWorker } from './agents.worker.js';
     RatingsModule,
     SuppliersModule,
   ],
-  controllers: [AgentsController],
-  providers: [AgentRunner, AgentTools, AgentsService, AgentsWorker, MeetingBriefWorker],
+  controllers: [AgentsController, CustomAgentsController],
+  providers: [
+    AgentRunner,
+    AgentTools,
+    AgentsService,
+    AgentsWorker,
+    MeetingBriefWorker,
+    CustomAgentTools,
+    CustomAgentsService,
+    CustomAgentsWorker,
+  ],
 })
 export class AgentsModule {}

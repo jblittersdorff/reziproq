@@ -35,6 +35,7 @@ import {
   surveyWavesSchema,
   type TeamRole,
 } from '@reziproq/shared';
+import { AgentEventBus } from '../../common/agent-events.js';
 import { AccountStore, TenantDatabase } from '../../common/database.module.js';
 import { actorOf } from '../audit/actor.js';
 import { surveyParticipantAudit, surveyWaveAudit } from '../audit/audited-objects.js';
@@ -84,6 +85,7 @@ export class WavesService {
     @Inject(SurveyService) private readonly surveys: SurveyService,
     @Inject(EmailService) private readonly email: EmailService,
     @Inject(AccountStore) private readonly accounts: AccountStore,
+    @Inject(AgentEventBus) private readonly agentEvents: AgentEventBus,
   ) {}
 
   buyer<T>(auth: AuthContext, relationshipId: string, work: (scope: WaveScope) => Promise<T>) {
@@ -218,6 +220,13 @@ export class WavesService {
   private async withReveal(tx: TenantTransaction, row: WaveRow): Promise<WaveRow> {
     if (row.revealedAt || this.statusOf(row) === 'open') return row;
     if (!(await revealIfDue(tx, row.id))) return row;
+    // KI-09: Ereignis „Feedback aufgedeckt“ für eigene Agenten des Käufers (nach dem Vorgang)
+    const [relation] = await tx
+      .select({ buyerOrgId: schema.relationship.buyerOrgId })
+      .from(schema.relationship)
+      .where(eq(schema.relationship.id, row.relationshipId));
+    if (relation)
+      this.agentEvents.defer(relation.buyerOrgId, 'feedback_revealed', row.relationshipId);
     const [fresh] = await tx
       .select()
       .from(schema.surveyWave)

@@ -13,6 +13,8 @@ export const agentRunStatuses = [
 export const agentRunSchema = z.object({
   id: z.uuid(),
   agentName: z.string(),
+  /** KI-09: Lauf eines eigenen Agenten (Name ist der des Agenten) */
+  custom: z.boolean().optional(),
   version: z.number().int(),
   status: z.enum(agentRunStatuses),
   isTest: z.boolean(),
@@ -77,6 +79,8 @@ export const agentRunDetailSchema = z.object({
   testResult: z.string().nullable(),
   question: z.string().nullable().optional(),
   detailsAllowed: z.boolean(),
+  /** KI-09: Lauf eines eigenen Agenten; Ergebnisse unter /ki/eigene-agenten/laeufe/:id/ergebnisse */
+  customAgentId: z.uuid().optional(),
 });
 
 export const setAgentStateSchema = z.object({ enabled: z.boolean() }).strict();

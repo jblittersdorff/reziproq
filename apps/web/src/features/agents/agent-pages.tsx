@@ -27,6 +27,7 @@ import {
 } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { CustomAgentsSection, CustomRunResults } from './custom-agent-pages';
 
 const home = '/einstellungen/ki/agenten';
 const pending = (run?: AgentRun) => run?.status === 'queued' || run?.status === 'running';
@@ -49,7 +50,7 @@ function AgentRunList({ title, runs }: { title: string; runs: AgentRun[] }) {
                 className="flex min-h-11 flex-wrap items-center justify-between gap-2 px-5 py-3 hover:bg-line-soft"
               >
                 <span className="font-medium">
-                  {t.qbrName}{' '}
+                  {run.custom ? run.agentName : t.qbrName}{' '}
                   <span className="text-muted-foreground text-sm">
                     {format.date(run.createdAt)}
                   </span>
@@ -99,29 +100,32 @@ export function AgentsPage() {
             />
           )}
           <div className="grid min-w-0 items-start gap-6 lg:grid-cols-3">
-            <ListCard aria-label={t.builtin} className="lg:col-span-2">
-              <ListCardHeader title={t.builtin} />
-              <ul className="divide-y divide-line">
-                {query.data.agents.map((agent) => (
-                  <li key={agent.id}>
-                    <Link
-                      to="/einstellungen/ki/agenten/$id"
-                      params={{ id: agent.id }}
-                      className="flex min-h-11 flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-line-soft"
-                    >
-                      <div>
-                        <p className="font-semibold">{t.qbrName}</p>
-                        <p className="text-muted-foreground text-sm">{t.qbrDescription}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span>{t.runCount(agent.runCount)}</span>
-                        <Badge>{agent.enabled ? t.enabled : t.disabled}</Badge>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </ListCard>
+            <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
+              <ListCard aria-label={t.builtin}>
+                <ListCardHeader title={t.builtin} />
+                <ul className="divide-y divide-line">
+                  {query.data.agents.map((agent) => (
+                    <li key={agent.id}>
+                      <Link
+                        to="/einstellungen/ki/agenten/$id"
+                        params={{ id: agent.id }}
+                        className="flex min-h-11 flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-line-soft"
+                      >
+                        <div>
+                          <p className="font-semibold">{t.qbrName}</p>
+                          <p className="text-muted-foreground text-sm">{t.qbrDescription}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span>{t.runCount(agent.runCount)}</span>
+                          <Badge>{agent.enabled ? t.enabled : t.disabled}</Badge>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </ListCard>
+              <CustomAgentsSection />
+            </div>
             <aside className="flex min-w-0 flex-col gap-6">
               <AgentRunList title={t.recent} runs={query.data.recentRuns} />
               <UsageCard />
@@ -307,7 +311,7 @@ export function AgentRunPage({ id }: { id: string }) {
   return (
     <>
       <PagePath trail={[{ label: t.title, href: home }]} current={t.run} />
-      <PageHeader title={t.run} purpose={t.qbrName} />
+      <PageHeader title={t.run} purpose={data?.run.custom ? data.run.agentName : t.qbrName} />
       {query.isError ? (
         <ErrorState title={t.failed} />
       ) : !data ? (
@@ -335,6 +339,15 @@ export function AgentRunPage({ id }: { id: string }) {
               >
                 {t.resume}
               </Button>
+            )}
+            {data.customAgentId && (
+              <Link
+                to="/einstellungen/ki/agenten/eigene/$id"
+                params={{ id: data.customAgentId }}
+                className={buttonVariants({ variant: 'secondary' })}
+              >
+                {t.custom.toAgent}
+              </Link>
             )}
             {data.draftHref && (
               <a href={data.draftHref} className={buttonVariants()}>
@@ -388,7 +401,7 @@ export function AgentRunPage({ id }: { id: string }) {
                       className="flex flex-wrap items-center justify-between gap-2 px-5 py-3"
                     >
                       <span>
-                        {t.step[step.key]}{' '}
+                        {(data.customAgentId ? t.custom.step : t.step)[step.key]}{' '}
                         {step.finishedAt && (
                           <span className="text-muted-foreground text-sm">
                             {format.dateTime(step.finishedAt)}
@@ -437,6 +450,9 @@ export function AgentRunPage({ id }: { id: string }) {
               )}
             </aside>
           </div>
+          {data.customAgentId && data.detailsAllowed && data.run.status === 'done' && (
+            <CustomRunResults runId={id} headingAs="h2" />
+          )}
           {data.testResult && (
             <ListCard aria-label={t.result}>
               <ListCardHeader title={t.result} />

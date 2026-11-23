@@ -18,9 +18,9 @@ import { type AgentJob, runCostCents } from './agent-runner.js';
 import { AgentTools } from './agent-tools.js';
 import { AgentsWorker } from './agents.worker.js';
 import {
+  meetingBrief,
   qbrAnswerSchema,
   qbrContextSchema,
-  meetingBrief,
   qbrQuestionSchema,
   resumable,
 } from './system-agents.js';
@@ -33,13 +33,14 @@ type RunRow = typeof agentRun.$inferSelect;
 
 function viewRun(
   auth: AuthContext,
-  row: { run: RunRow; name: string; version: number; person: string | null },
+  row: { run: RunRow; name: string; kind?: string; version: number; person: string | null },
 ): AgentRun {
   const run = row.run;
   const isOwn = auth.userId === run.startedBy;
   return {
     id: run.id,
     agentName: row.name,
+    custom: row.kind === 'custom',
     version: row.version,
     status: run.status,
     isTest: run.isTest,
@@ -141,6 +142,8 @@ export class AgentsService {
       .select({
         run: agentRun,
         name: agent.name,
+        kind: agent.kind,
+        agentId: agent.id,
         version: agentVersion.version,
         person: appUser.name,
       })
@@ -432,6 +435,36 @@ export class AgentsService {
     );
     if (!row) throw notFound();
     const run = viewRun(auth, row);
+    // KI-09: Lauf eines eigenen Agenten: Schritte für die startende Person und Admins, das
+    // Ergebnis liefert /ki/eigene-agenten/laeufe/:id/ergebnisse
+    if (row.run.contextType === null) {
+      const allowed = run.isOwn || auth.orgRole === 'admin';
+      const steps = allowed
+        ? await this.tenant.run(
+            session,
+            (tx) =>
+              tx
+                .select()
+                .from(agentStep)
+                .where(and(eq(agentStep.orgId, session.organizationId), eq(agentStep.runId, id)))
+                .orderBy(agentStep.seq),
+            { readOnly: true },
+          )
+        : [];
+      return {
+        run: { ...run, canResume: false },
+        detailsAllowed: allowed,
+        steps: steps.map((step) => ({
+          seq: step.seq,
+          key: agentStepKeys[step.seq - 1],
+          status: step.status,
+          finishedAt: step.finishedAt?.toISOString() ?? null,
+        })),
+        draftHref: null,
+        testResult: null,
+        customAgentId: row.agentId,
+      };
+    }
     const context = await this.contextAllowed(auth, row.run);
     if (!context)
       return {

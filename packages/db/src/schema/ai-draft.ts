@@ -55,6 +55,8 @@ export const aiDraftKinds = [
   // IN-04: zwei Sätze zu einer abgelegten Mail (object_type filed_mail), ohne Beziehung, damit eine
   // private Mail nicht über Entwurfszählungen sichtbar wird
   'mail_summary',
+  // KI-09: Ergebnis eines eigenen Agenten (object_type agent_run), je Lieferant ein Entwurf
+  'agent_result',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 
@@ -86,7 +88,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary', 'agent_result')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     index('ai_draft_run').on(table.orgId, table.runId),

@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { AgentEventBusModule } from './common/agent-events.js';
 import { DatabaseModule } from './common/database.module.js';
 import { FileStoreModule } from './common/file-store.js';
 import { NotificationBusModule } from './common/notification-bus.js';
@@ -31,7 +32,6 @@ import { MaterialGroupsModule } from './modules/material-groups/material-groups.
 import { MeModule } from './modules/me/me.module.js';
 import { MeetingsModule } from './modules/meetings/meetings.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
-import { TranscriptsModule } from './modules/transcripts/transcripts.module.js';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
@@ -49,6 +49,7 @@ import { SupplierPlansModule } from './modules/supplier-plans/supplier-plans.mod
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 import { SupportModule } from './modules/support/support.module.js';
 import { TouchpointsModule } from './modules/touchpoints/touchpoints.module.js';
+import { TranscriptsModule } from './modules/transcripts/transcripts.module.js';
 
 // Im Betrieb liefert die API auch die fertig gebaute Web-App aus.
 // Im Entwicklungsmodus übernimmt das der Vite-Server.
@@ -59,6 +60,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     DatabaseModule,
     NotificationBusModule,
     FileStoreModule,
+    AgentEventBusModule,
     AuthModule,
     HealthModule,
     AiGatewayModule,

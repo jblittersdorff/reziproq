@@ -105,6 +105,7 @@ import { Route as AppEinstellungenFragebogenKindVorschauRouteImport } from './ro
 import { Route as AppEinstellungenGuvZeilenKeyBearbeitenRouteImport } from './routes/_app/einstellungen/guv-zeilen/$key/bearbeiten'
 import { Route as AppEinstellungenKiAgentenIndexRouteImport } from './routes/_app/einstellungen/ki_/agenten/index'
 import { Route as AppEinstellungenKiAgentenIdRouteImport } from './routes/_app/einstellungen/ki_/agenten/$id'
+import { Route as AppEinstellungenKiAgentenNeuRouteImport } from './routes/_app/einstellungen/ki_/agenten/neu'
 import { Route as AppEinstellungenSegmentmodellKriteriumKeyRouteImport } from './routes/_app/einstellungen/segmentmodell/kriterium/$key'
 import { Route as AppEinstellungenSegmentmodellTypPairRouteImport } from './routes/_app/einstellungen/segmentmodell/typ/$pair'
 import { Route as AppEinstellungenSpielregelnFormateIndexRouteImport } from './routes/_app/einstellungen/spielregeln/formate/index'
@@ -149,6 +150,7 @@ import { Route as AppPortfolioRundenIdNameRouteImport } from './routes/_app/port
 import { Route as AppPortfolioRundenIdPruefenRouteImport } from './routes/_app/portfolio/runden/$id/pruefen'
 import { Route as AppWarengruppenIdStrategieIndexRouteImport } from './routes/_app/warengruppen/$id/strategie/index'
 import { Route as AppWarengruppenIdStrategieStepRouteImport } from './routes/_app/warengruppen/$id/strategie/$step'
+import { Route as AppEinstellungenKiAgentenEigeneIdRouteImport } from './routes/_app/einstellungen/ki_/agenten/eigene/$id'
 import { Route as AppEinstellungenKiAgentenLaeufeIdRouteImport } from './routes/_app/einstellungen/ki_/agenten/laeufe/$id'
 import { Route as AppKundenIdBeziehungFeedbackIndexRouteImport } from './routes/_app/kunden/$id/beziehung/feedback/index'
 import { Route as AppKundenIdBeziehungKontaktpunkteIndexRouteImport } from './routes/_app/kunden/$id/beziehung/kontaktpunkte/index'
@@ -793,6 +795,12 @@ const AppEinstellungenKiAgentenIdRoute =
     path: '/einstellungen/ki/agenten/$id',
     getParentRoute: () => AppRoute,
   } as any)
+const AppEinstellungenKiAgentenNeuRoute =
+  AppEinstellungenKiAgentenNeuRouteImport.update({
+    id: '/einstellungen/ki_/agenten/neu',
+    path: '/einstellungen/ki/agenten/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppEinstellungenSegmentmodellKriteriumKeyRoute =
   AppEinstellungenSegmentmodellKriteriumKeyRouteImport.update({
     id: '/einstellungen/segmentmodell/kriterium/$key',
@@ -1052,6 +1060,12 @@ const AppWarengruppenIdStrategieStepRoute =
   AppWarengruppenIdStrategieStepRouteImport.update({
     id: '/warengruppen/$id/strategie/$step',
     path: '/warengruppen/$id/strategie/$step',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenKiAgentenEigeneIdRoute =
+  AppEinstellungenKiAgentenEigeneIdRouteImport.update({
+    id: '/einstellungen/ki_/agenten/eigene/$id',
+    path: '/einstellungen/ki/agenten/eigene/$id',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenKiAgentenLaeufeIdRoute =
@@ -1889,6 +1903,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/einstellungen/ki/agenten/$id': typeof AppEinstellungenKiAgentenIdRoute
+  '/einstellungen/ki/agenten/neu': typeof AppEinstellungenKiAgentenNeuRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
   '/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
@@ -1935,6 +1950,7 @@ export interface FileRoutesByFullPath {
   '/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
   '/warengruppen/$id/strategie/': typeof AppWarengruppenIdStrategieIndexRoute
+  '/einstellungen/ki/agenten/eigene/$id': typeof AppEinstellungenKiAgentenEigeneIdRoute
   '/einstellungen/ki/agenten/laeufe/$id': typeof AppEinstellungenKiAgentenLaeufeIdRoute
   '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
@@ -2148,6 +2164,7 @@ export interface FileRoutesByTo {
   '/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/einstellungen/ki/agenten/$id': typeof AppEinstellungenKiAgentenIdRoute
+  '/einstellungen/ki/agenten/neu': typeof AppEinstellungenKiAgentenNeuRoute
   '/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
   '/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
@@ -2194,6 +2211,7 @@ export interface FileRoutesByTo {
   '/lieferanten/$id/wirkung': typeof AppLieferantenIdWirkungIndexRoute
   '/portfolio/runden/$id': typeof AppPortfolioRundenIdIndexRoute
   '/warengruppen/$id/strategie': typeof AppWarengruppenIdStrategieIndexRoute
+  '/einstellungen/ki/agenten/eigene/$id': typeof AppEinstellungenKiAgentenEigeneIdRoute
   '/einstellungen/ki/agenten/laeufe/$id': typeof AppEinstellungenKiAgentenLaeufeIdRoute
   '/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
@@ -2413,6 +2431,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/fragebogen/$kind/vorschau': typeof AppEinstellungenFragebogenKindVorschauRoute
   '/_app/einstellungen/guv-zeilen/$key/bearbeiten': typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   '/_app/einstellungen/ki_/agenten/$id': typeof AppEinstellungenKiAgentenIdRoute
+  '/_app/einstellungen/ki_/agenten/neu': typeof AppEinstellungenKiAgentenNeuRoute
   '/_app/einstellungen/segmentmodell/kriterium/$key': typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   '/_app/einstellungen/segmentmodell/typ/$pair': typeof AppEinstellungenSegmentmodellTypPairRoute
   '/_app/einstellungen/spielregeln/formate/$id': typeof AppEinstellungenSpielregelnFormateIdRoute
@@ -2459,6 +2478,7 @@ export interface FileRoutesById {
   '/_app/lieferanten/$id/wirkung/': typeof AppLieferantenIdWirkungIndexRoute
   '/_app/portfolio/runden/$id/': typeof AppPortfolioRundenIdIndexRoute
   '/_app/warengruppen/$id/strategie/': typeof AppWarengruppenIdStrategieIndexRoute
+  '/_app/einstellungen/ki_/agenten/eigene/$id': typeof AppEinstellungenKiAgentenEigeneIdRoute
   '/_app/einstellungen/ki_/agenten/laeufe/$id': typeof AppEinstellungenKiAgentenLaeufeIdRoute
   '/_app/kunden/$id/beziehung/team/bearbeiten': typeof AppKundenIdBeziehungTeamBearbeitenRoute
   '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId': typeof AppKundenIdEigeneSichtZieleObjectiveIdRoute
@@ -2678,6 +2698,7 @@ export interface FileRouteTypes {
     | '/einstellungen/fragebogen/$kind/vorschau'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/einstellungen/ki/agenten/$id'
+    | '/einstellungen/ki/agenten/neu'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
     | '/einstellungen/spielregeln/formate/$id'
@@ -2724,6 +2745,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/wirkung/'
     | '/portfolio/runden/$id/'
     | '/warengruppen/$id/strategie/'
+    | '/einstellungen/ki/agenten/eigene/$id'
     | '/einstellungen/ki/agenten/laeufe/$id'
     | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
@@ -2937,6 +2959,7 @@ export interface FileRouteTypes {
     | '/einstellungen/fragebogen/$kind/vorschau'
     | '/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/einstellungen/ki/agenten/$id'
+    | '/einstellungen/ki/agenten/neu'
     | '/einstellungen/segmentmodell/kriterium/$key'
     | '/einstellungen/segmentmodell/typ/$pair'
     | '/einstellungen/spielregeln/formate/$id'
@@ -2983,6 +3006,7 @@ export interface FileRouteTypes {
     | '/lieferanten/$id/wirkung'
     | '/portfolio/runden/$id'
     | '/warengruppen/$id/strategie'
+    | '/einstellungen/ki/agenten/eigene/$id'
     | '/einstellungen/ki/agenten/laeufe/$id'
     | '/kunden/$id/beziehung/team/bearbeiten'
     | '/kunden/$id/eigene-sicht/ziele/$objectiveId'
@@ -3201,6 +3225,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/fragebogen/$kind/vorschau'
     | '/_app/einstellungen/guv-zeilen/$key/bearbeiten'
     | '/_app/einstellungen/ki_/agenten/$id'
+    | '/_app/einstellungen/ki_/agenten/neu'
     | '/_app/einstellungen/segmentmodell/kriterium/$key'
     | '/_app/einstellungen/segmentmodell/typ/$pair'
     | '/_app/einstellungen/spielregeln/formate/$id'
@@ -3247,6 +3272,7 @@ export interface FileRouteTypes {
     | '/_app/lieferanten/$id/wirkung/'
     | '/_app/portfolio/runden/$id/'
     | '/_app/warengruppen/$id/strategie/'
+    | '/_app/einstellungen/ki_/agenten/eigene/$id'
     | '/_app/einstellungen/ki_/agenten/laeufe/$id'
     | '/_app/kunden/$id/beziehung/team/bearbeiten'
     | '/_app/kunden/$id/eigene-sicht/ziele/$objectiveId'
@@ -4056,6 +4082,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEinstellungenKiAgentenIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/einstellungen/ki_/agenten/neu': {
+      id: '/_app/einstellungen/ki_/agenten/neu'
+      path: '/einstellungen/ki/agenten/neu'
+      fullPath: '/einstellungen/ki/agenten/neu'
+      preLoaderRoute: typeof AppEinstellungenKiAgentenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/einstellungen/segmentmodell/kriterium/$key': {
       id: '/_app/einstellungen/segmentmodell/kriterium/$key'
       path: '/einstellungen/segmentmodell/kriterium/$key'
@@ -4362,6 +4395,13 @@ declare module '@tanstack/react-router' {
       path: '/warengruppen/$id/strategie/$step'
       fullPath: '/warengruppen/$id/strategie/$step'
       preLoaderRoute: typeof AppWarengruppenIdStrategieStepRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/ki_/agenten/eigene/$id': {
+      id: '/_app/einstellungen/ki_/agenten/eigene/$id'
+      path: '/einstellungen/ki/agenten/eigene/$id'
+      fullPath: '/einstellungen/ki/agenten/eigene/$id'
+      preLoaderRoute: typeof AppEinstellungenKiAgentenEigeneIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/ki_/agenten/laeufe/$id': {
@@ -5730,6 +5770,7 @@ interface AppRouteChildren {
   AppEinstellungenFragebogenKindVorschauRoute: typeof AppEinstellungenFragebogenKindVorschauRoute
   AppEinstellungenGuvZeilenKeyBearbeitenRoute: typeof AppEinstellungenGuvZeilenKeyBearbeitenRoute
   AppEinstellungenKiAgentenIdRoute: typeof AppEinstellungenKiAgentenIdRoute
+  AppEinstellungenKiAgentenNeuRoute: typeof AppEinstellungenKiAgentenNeuRoute
   AppEinstellungenSegmentmodellKriteriumKeyRoute: typeof AppEinstellungenSegmentmodellKriteriumKeyRoute
   AppEinstellungenSegmentmodellTypPairRoute: typeof AppEinstellungenSegmentmodellTypPairRoute
   AppEinstellungenSpielregelnFormateIdRoute: typeof AppEinstellungenSpielregelnFormateIdRoute
@@ -5754,6 +5795,7 @@ interface AppRouteChildren {
   AppEinstellungenSpielregelnRechteIndexRoute: typeof AppEinstellungenSpielregelnRechteIndexRoute
   AppPortfolioRundenIdIndexRoute: typeof AppPortfolioRundenIdIndexRoute
   AppWarengruppenIdStrategieIndexRoute: typeof AppWarengruppenIdStrategieIndexRoute
+  AppEinstellungenKiAgentenEigeneIdRoute: typeof AppEinstellungenKiAgentenEigeneIdRoute
   AppEinstellungenKiAgentenLaeufeIdRoute: typeof AppEinstellungenKiAgentenLaeufeIdRoute
 }
 
@@ -5856,6 +5898,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenGuvZeilenKeyBearbeitenRoute:
     AppEinstellungenGuvZeilenKeyBearbeitenRoute,
   AppEinstellungenKiAgentenIdRoute: AppEinstellungenKiAgentenIdRoute,
+  AppEinstellungenKiAgentenNeuRoute: AppEinstellungenKiAgentenNeuRoute,
   AppEinstellungenSegmentmodellKriteriumKeyRoute:
     AppEinstellungenSegmentmodellKriteriumKeyRoute,
   AppEinstellungenSegmentmodellTypPairRoute:
@@ -5895,6 +5938,8 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenSpielregelnRechteIndexRoute,
   AppPortfolioRundenIdIndexRoute: AppPortfolioRundenIdIndexRoute,
   AppWarengruppenIdStrategieIndexRoute: AppWarengruppenIdStrategieIndexRoute,
+  AppEinstellungenKiAgentenEigeneIdRoute:
+    AppEinstellungenKiAgentenEigeneIdRoute,
   AppEinstellungenKiAgentenLaeufeIdRoute:
     AppEinstellungenKiAgentenLaeufeIdRoute,
 }
