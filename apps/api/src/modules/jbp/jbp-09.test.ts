@@ -113,6 +113,8 @@ describe('JBP-09 Ist-Werte der Kennzahlen', () => {
     await db.execute(sql`delete from jbp where relationship_id = ${rel}`);
     await db.execute(sql`delete from meeting where relationship_id = ${rel}`);
     await db.execute(sql`delete from scorecard_setting where org_id = ${orgs.oem}`);
+    await db.execute(sql`delete from insight_summary where org_id in ${Object.values(orgs)}`);
+    await db.execute(sql`delete from model_call where org_id in ${Object.values(orgs)}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
     await db.execute(sql`delete from organization_feature where organization_id = ${orgs.oem}`);
@@ -217,6 +219,16 @@ describe('JBP-09 Ist-Werte der Kennzahlen', () => {
     expect(
       scorecardViewSchema.parse((await call(users.kam, 'GET', supplier)).body).tolerancePercent,
     ).toBe(2);
+  });
+
+  it('AW-01: der Käufer sieht eine Aussage zum Stand der Kennzahlen, der Lieferant nie', async () => {
+    // Frühere Abrufe mit anderem Stand: innerhalb einer Stunde zeigt die Seite sonst nur den Beleg
+    await db.execute(sql`delete from insight_summary where org_id = ${orgs.oem}`);
+    const own = scorecardViewSchema.parse((await call(users.sro, 'GET', buyer)).body);
+    expect(own.statement?.headline).toMatch(/^\d von \d Kennzahlen mit .+ sind auf Kurs\.$/);
+    expect(own.statement?.body).toMatch(/Am weitesten hinter Plan liegt .+\./);
+    const theirs = scorecardViewSchema.parse((await call(users.kam, 'GET', supplier)).body);
+    expect(theirs.statement ?? null).toBeNull();
   });
 
   it('die Scorecard erscheint mit Ist-Werten live im Termin', async () => {

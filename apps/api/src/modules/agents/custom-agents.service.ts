@@ -179,7 +179,7 @@ export class CustomAgentsService {
     };
   }
 
-  private async own(tx: TenantTransaction, auth: AuthContext, orgId: string, id: string) {
+  private async own(tx: TenantTransaction, _auth: AuthContext, orgId: string, id: string) {
     const [row] = await tx
       .select()
       .from(agent)
@@ -688,11 +688,40 @@ export class CustomAgentsService {
         );
       return row ?? null;
     });
-    if (!draft || draft.status !== 'draft' || !draft.relationshipId) throw notFound();
+    if (draft?.status !== 'draft' || !draft.relationshipId) throw notFound();
     const content = JSON.parse(draft.content) as { title: string; text: string; reviewer: string };
     if (content.reviewer !== auth.userId && auth.orgRole !== 'admin') throw forbidden();
     const relationshipId = draft.relationshipId;
-    if (draft.subject === 'note') {
+    // Erst den Stand bedingt setzen: ein zweiter Klick übernimmt nicht doppelt
+    const claimed = await this.tenant.run(session, (tx) =>
+      tx
+        .update(aiDraft)
+        .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: new Date() })
+        .where(and(eq(aiDraft.id, draftId), eq(aiDraft.status, 'draft')))
+        .returning({ id: aiDraft.id }),
+    );
+    if (claimed.length === 0) throw notFound();
+    try {
+      await this.writeResult(auth, relationshipId, draft.subject, content);
+    } catch (error) {
+      await this.tenant.run(session, (tx) =>
+        tx
+          .update(aiDraft)
+          .set({ status: 'draft', decidedBy: null, decidedAt: null })
+          .where(eq(aiDraft.id, draftId)),
+      );
+      throw error;
+    }
+  }
+
+  /** Schreibt das Ergebnis über den Fachdienst mit den Rechten der übernehmenden Person (KI-03) */
+  private async writeResult(
+    auth: AuthContext,
+    relationshipId: string,
+    subject: string | null,
+    content: { title: string; text: string },
+  ) {
+    if (subject === 'note') {
       await this.activities.createNote(auth, relationshipId, {
         text: `${content.title}\n\n${content.text}`.slice(0, 5000),
         visibility: 'team',
@@ -715,12 +744,6 @@ export class CustomAgentsService {
         }),
       );
     }
-    await this.tenant.run(session, (tx) =>
-      tx
-        .update(aiDraft)
-        .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: new Date() })
-        .where(eq(aiDraft.id, draftId)),
-    );
   }
 
   async discard(auth: AuthContext, draftId: string): Promise<void> {
@@ -736,7 +759,7 @@ export class CustomAgentsService {
             eq(aiDraft.kind, 'agent_result'),
           ),
         );
-      if (!row || row.status !== 'draft') throw notFound();
+      if (row?.status !== 'draft') throw notFound();
       const content = JSON.parse(row.content) as { reviewer: string };
       if (content.reviewer !== auth.userId && auth.orgRole !== 'admin') throw forbidden();
       await tx
@@ -811,7 +834,7 @@ export class CustomAgentsService {
           return null;
         }
       })();
-      if (!schedule || schedule.kind !== 'schedule') continue;
+      if (schedule?.kind !== 'schedule') continue;
       const due = lastOccurrence(schedule.schedule, now);
       const already = await this.tenant.run(
         { userId: 'system:agenten', organizationId: orgId },

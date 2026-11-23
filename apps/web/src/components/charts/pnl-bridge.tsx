@@ -61,7 +61,7 @@ export function PnlBridge({
     tooltip: { show: false },
     ...(narrow
       ? {
-          grid: { left: 8, right: 72, top: 8, bottom: 8, containLabel: true },
+          grid: { left: 8, right: 104, top: 8, bottom: 8, containLabel: true },
           yAxis: {
             type: 'category',
             inverse: true,

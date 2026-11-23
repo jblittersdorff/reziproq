@@ -23,7 +23,7 @@ export function ChartFrame({
   children: React.ReactNode;
 }) {
   return (
-    <figure className="flex flex-col gap-4">
+    <figure data-slot="chart" className="flex flex-col gap-4">
       <figcaption className="flex flex-col gap-1">
         <span className="font-semibold text-lg">{title}</span>
         {description && <span className="text-muted-foreground text-sm">{description}</span>}

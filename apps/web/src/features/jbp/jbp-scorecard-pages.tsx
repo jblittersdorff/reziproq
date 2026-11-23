@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/table';
 import { Tile } from '@/components/ui/tile';
 import { AuditHistory } from '@/features/audit/audit-history';
+import { Statement } from '@/features/insights/statement';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -166,6 +167,8 @@ function ScorecardContent({ place }: { place: MeetingPlace }) {
   return (
     <>
       {message && <StatusLine message={message} onHidden={hideMessage} />}
+      {/* AW-01: Aussage von Reziproq zum Stand, nur auf der Käuferseite */}
+      <Statement statement={data.statement} />
       <SignatureHead place={place} data={data} accessToken={query.accessToken} />
       {data.canEdit && (
         <div className="flex flex-wrap items-center gap-3">

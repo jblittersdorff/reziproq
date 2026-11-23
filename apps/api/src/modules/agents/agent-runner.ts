@@ -367,8 +367,22 @@ export class AgentRunner {
     try {
       const config = saveCustomAgentSchema.parse(version.scope.config);
       await this.step(job, 'plan', async () => ({ tools: config.tools, scope: config.scope.kind }));
+      // Fremdstart (docs/rechte.md): Schnittmenge der Rechte von Starter und Besitzer. Der Umfang
+      // („meine Fokuslieferanten“) gilt für den Besitzer, gelesen wird unter der Session des Starters.
+      const foreign = owner.ownerUserId !== null && owner.ownerUserId !== job.userId;
+      const ownerActor = foreign
+        ? await this.actor({ ...job, userId: owner.ownerUserId as string }).catch(() => null)
+        : null;
       const read = await this.step(job, 'read', async (actor) => {
-        const inScope = await this.customTools.relationships(actor, config.scope);
+        if (foreign && !ownerActor) return { suppliers: [] };
+        const ownerTools = ownerActor ? this.customTools.allowed(ownerActor) : null;
+        const tools = config.tools.filter((tool) => !ownerTools || ownerTools.includes(tool));
+        const scoped = await this.customTools.relationships(ownerActor ?? actor, config.scope);
+        const seen = await this.customTools.visible(
+          actor,
+          scoped.map((entry) => entry.id),
+        );
+        const inScope = scoped.filter((entry) => seen.has(entry.id));
         // Ereignis zu einem Lieferanten: nur dieser, wenn er im Umfang liegt
         const relationships = run.contextRelationshipId
           ? inScope.filter((entry) => entry.id === run.contextRelationshipId)
@@ -376,7 +390,7 @@ export class AgentRunner {
         const suppliers = [];
         for (const relationship of relationships.slice(0, 20)) {
           const data: Record<string, unknown> = {};
-          for (const tool of config.tools) {
+          for (const tool of tools) {
             const value = await this.customTools.read(actor, tool, relationship.id);
             if (value !== null) data[tool] = value;
           }
@@ -386,8 +400,9 @@ export class AgentRunner {
       });
       const suppliers = customReadSchema.parse(read).suppliers;
       if (suppliers.length === 0) {
-        // Verliert die Person jeden Zugriff im Umfang, pausiert der Agent (nicht im Testlauf)
-        if (!run.isTest) {
+        // Verliert der Besitzer jeden Zugriff im Umfang, pausiert der Agent (nicht im Testlauf, nicht
+        // beim Fremdstart: dann fehlt nur dem Starter der Zugriff)
+        if (!run.isTest && !foreign) {
           await this.tenant.run(this.session(job), (tx) =>
             tx
               .update(schema.agent)

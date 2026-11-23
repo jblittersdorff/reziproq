@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ActionsModule } from '../actions/actions.module.js';
+import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
 import { CustomersModule } from '../customers/customers.module.js';
 import { EmailModule } from '../email/email.module.js';
 import {
@@ -26,7 +27,7 @@ import { ScorecardSettingsController } from './scorecard-settings.controller.js'
 
 /** Gemeinsamer Plan (JBP-01 ff.). */
 @Module({
-  imports: [CustomersModule, ActionsModule, EmailModule],
+  imports: [AiGatewayModule, CustomersModule, ActionsModule, EmailModule],
   controllers: [
     BuyerJbpController,
     SupplierJbpController,

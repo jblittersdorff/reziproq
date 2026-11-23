@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { overviewInsightSchema, supplierRingsSchema } from '@reziproq/shared';
+import { overviewInsightSchema, securedResultsSchema, supplierRingsSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -215,6 +215,28 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     expect(data.inProgress.highCents).toBeGreaterThanOrEqual(2_000_000);
   });
 
+  it('die Brücke enthält nur vom Controlling bestätigte Werte; ihre Summe ist „Gesichert“', async () => {
+    const data = securedResultsSchema.parse(
+      (await call(users.admin, 'GET', `/suppliers/${rel.a}/ergebnisse/gesichert?jahr=${year}`))
+        .body,
+    );
+    expect(data.steps).toEqual([
+      expect.objectContaining({ initiativeId: initiative, securedCents: 3_000_000 }),
+    ]);
+    const sum = data.steps.reduce((total, step) => total + step.securedCents, 0);
+    expect(sum).toBe(data.securedEbitCents);
+    expect(sum).toBe((await rings()).securedEbitCents);
+    // April ist Ist, aber nicht bestätigt: offene Bestätigung, kein Balken
+    expect(data.pending).toEqual({ months: 1, initiatives: 1, amountCents: 1_000_000 });
+    expect(data.others).toEqual([]);
+    expect(
+      (await call(users.other, 'GET', `/suppliers/${rel.a}/ergebnisse/gesichert`)).status,
+    ).toBe(404);
+    expect(
+      (await call(users.supplier, 'GET', `/suppliers/${rel.a}/ergebnisse/gesichert`)).status,
+    ).toBe(403);
+  });
+
   it('ohne Jahresziel gibt es keinen äußeren Ring; Admin und Lead setzen es, andere nicht', async () => {
     expect((await overview()).goalEbitCents).toBeNull();
     expect((await overview(users.member)).canSetGoal).toBe(false);
@@ -427,5 +449,33 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     expect((await call(users.supplier, 'GET', `/suppliers/${rel.a}/ergebnisse/ringe`)).status).toBe(
       403,
     );
+  });
+  it('NAV-10: ein Käufer ohne Zugriff sieht den Lieferanten in keiner Zahl, keinem Highlight und keiner Matrix', async () => {
+    // Gegenprobe: die eigene Organisation sieht Lieferant, Hinweis und Potenzial
+    const own = JSON.stringify((await call(users.admin, 'GET', '/hinweise')).body);
+    expect(own).toContain(rel.a);
+    const paths = [
+      `/uebersicht?jahr=${year}`,
+      '/uebersicht/wertpotenziale',
+      '/portfolio',
+      '/portfolio/matrix',
+      '/start',
+      '/start/due',
+      '/hinweise',
+      '/suppliers',
+    ];
+    for (const path of paths) {
+      const response = await call(users.other, 'GET', path);
+      expect(response.status, path).toBeLessThan(500);
+      const text = JSON.stringify(response.body);
+      for (const secret of [rel.a, rel.b, `AW01-A ${run}`, `AW01-B ${run}`, 'Kupferklausel']) {
+        expect(text, `${path} nennt ${secret}`).not.toContain(secret);
+      }
+    }
+    const overview = overviewInsightSchema.parse(
+      (await call(users.other, 'GET', `/uebersicht?jahr=${year}`)).body,
+    );
+    expect(overview).toMatchObject({ securedEbitCents: 0, focusTotal: 0, cashCents: 0 });
+    expect(overview.inProgress).toEqual({ lowCents: 0, highCents: 0 });
   });
 });

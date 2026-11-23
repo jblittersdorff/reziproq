@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tile, TileActions, TileMetric, TileText, TileTitle } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
+import { Statement } from '@/features/insights/statement';
 import { routerLink } from '@/features/shell/navigation';
 import { useLocale, useT } from '@/lib/i18n';
 
@@ -44,7 +45,7 @@ function Dumbbell({
   const number = useNumber();
   const dimensions = text.settings.survey.dimensions;
   return (
-    <figure className="m-0 flex flex-col gap-3">
+    <figure data-slot="chart" className="m-0 flex flex-col gap-3">
       <figcaption className="sr-only">{caption}</figcaption>
       <div className="flex flex-wrap gap-x-5 gap-y-1 text-muted-foreground text-sm" aria-hidden>
         <span className="flex items-center gap-2">
@@ -206,6 +207,9 @@ export function ResultsSection({
           {text.resultsPurpose(results.responses.buyer, results.responses.supplier)}
         </p>
       </div>
+
+      {/* AW-01: Aussage von Reziproq zur größten Lücke, nur auf der Käuferseite */}
+      <Statement statement={results.statement} />
 
       {results.topGaps.length > 0 && (
         <div data-slot="top-gaps" className="grid gap-4 sm:grid-cols-3">

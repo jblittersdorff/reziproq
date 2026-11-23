@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { personSchema } from './commitments.js';
+import { insightStatementSchema } from './insights.js';
 import { meetingSides } from './meetings.js';
 
 // JBP-07: Scorecard mit höchstens zehn Kennzahlen und den Unterschriften beider Seiten.
@@ -118,6 +119,8 @@ export const scorecardViewSchema = z.object({
   canNewVersion: z.boolean(),
   people: z.array(personSchema),
   initiatives: z.array(z.object({ id: z.uuid(), title: z.string() })),
+  /** AW-01: Aussage von Reziproq zur Scorecard, nur auf der Käuferseite */
+  statement: insightStatementSchema.nullable().optional(),
 });
 export type ScorecardView = z.infer<typeof scorecardViewSchema>;
 

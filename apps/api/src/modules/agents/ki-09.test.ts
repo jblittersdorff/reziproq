@@ -13,6 +13,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { createBuyerDraft } from '../ai-drafts/evidence.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { AgentRunner } from './agent-runner.js';
 import {
@@ -150,6 +151,7 @@ describe('KI-09 Eigene Agenten', () => {
     const ids = [orgs.a, orgs.b];
     await db.execute(sql`delete from ai_source where org_id in ${ids}`);
     await db.execute(sql`delete from ai_draft where org_id in ${ids}`);
+    await db.execute(sql`delete from action where relationship_id in ${Object.values(rel)}`);
     await db.execute(sql`delete from model_call where org_id in ${ids}`).catch(() => undefined);
     await db.execute(sql`delete from agent where org_id in ${ids}`);
     await db.execute(sql`delete from relationship_member where org_id = ${orgs.a}`);
@@ -326,6 +328,35 @@ describe('KI-09 Eigene Agenten', () => {
     ]);
   });
 
+  it('Fremdstart: Schnittmenge der Rechte; der Umfang gilt für den Besitzer, ohne Treffer keine Pause', async () => {
+    const agent = await create(users.anna, { name: 'Fremdstart' });
+    await startRun(users.anna, agent.id, true);
+    await call(users.anna, 'POST', `/ki/eigene-agenten/${agent.id}/aktivieren`);
+    // Ben ist in keinem Team: Annas Fokuslieferanten, gelesen unter Bens Session
+    const runId = await startRun(users.ben, agent.id, false);
+    const results = customAgentRunResultsSchema.parse(
+      (await call(users.ben, 'GET', `/ki/eigene-agenten/laeufe/${runId}/ergebnisse`)).body,
+    );
+    expect(results.results.map((entry) => entry.relationshipId).sort()).toEqual(
+      [rel.one, rel.two].sort(),
+    );
+    // Hat der Besitzer keinen Fokuslieferanten mehr, liefert der Fremdstart nichts, pausiert aber nicht
+    await db.execute(sql`delete from relationship_member where user_id = ${users.anna}`);
+    try {
+      const empty = await startRun(users.ben, agent.id, false);
+      const detail = customAgentDetailSchema.parse(
+        (await call(users.admin, 'GET', `/ki/eigene-agenten/${agent.id}`)).body,
+      );
+      expect(detail.status).toBe('active');
+      expect(detail.runs.find((entry) => entry.id === empty)?.status).toBe('failed');
+    } finally {
+      await db.insert(schema.relationshipMember).values([
+        { relationshipId: rel.one, orgId: orgs.a, userId: users.anna, teamRole: 'sro' },
+        { relationshipId: rel.two, orgId: orgs.a, userId: users.anna, teamRole: 'sro' },
+      ]);
+    }
+  });
+
   it('eine Änderung erzeugt Version 2; frühere Läufe zeigen weiter Version 1', async () => {
     const agent = await create(users.anna, { name: 'Versionen' });
     const first = await startRun(users.anna, agent.id, true);
@@ -372,5 +403,97 @@ describe('KI-09 Eigene Agenten', () => {
       )
     ).rows;
     expect((await call(users.supplier, 'GET', `/ki/eigene-agenten/${any?.id}`)).status).toBe(403);
+  });
+  // KI-03 (Käuferentwürfe und Quellen) am Beispiel der Ergebnisse eigener Agenten
+  it('KI-03: ein Entwurf mit einer Aussage ohne Quelle wird abgelehnt', async () => {
+    await expect(
+      withTenant(db, { userId: users.anna, organizationId: orgs.a }, (tx) =>
+        createBuyerDraft(
+          tx,
+          {
+            orgId: orgs.a,
+            relationshipId: rel.one,
+            kind: 'agent_result',
+            objectType: 'agent_run',
+            objectId: randomUUID(),
+            content: '{}',
+            model: 'test',
+            createdBy: users.anna,
+          },
+          [{ text: 'Behauptung ohne Beleg', sources: [] }],
+        ),
+      ),
+    ).rejects.toMatchObject({ status: 422 });
+  });
+
+  it('KI-03: Übernehmen nur mit Recht, mit Person und Zeit; ein offener Entwurf ändert nichts', async () => {
+    const agent = await create(users.anna, { name: 'Entwürfe', output: 'action' });
+    await startRun(users.anna, agent.id, true);
+    await call(users.anna, 'POST', `/ki/eigene-agenten/${agent.id}/aktivieren`);
+    const runId = await startRun(users.anna, agent.id, false);
+    const results = customAgentRunResultsSchema.parse(
+      (await call(users.anna, 'GET', `/ki/eigene-agenten/laeufe/${runId}/ergebnisse`)).body,
+    );
+    const [first, second] = results.results;
+    if (!first?.draftId || !second?.draftId) throw new Error('Entwürfe fehlen');
+    const actions = async () =>
+      (
+        await db.execute<{ n: number }>(
+          sql`select count(*)::int as n from action where relationship_id = ${first.relationshipId}`,
+        )
+      ).rows[0]?.n ?? 0;
+    // Offener Entwurf: keine Maßnahme, kein geänderter Ablaufschritt
+    expect(await actions()).toBe(0);
+    // Ben ist nicht Prüfer: kein Übernehmen, nichts geschrieben
+    expect(
+      (await call(users.ben, 'POST', `/ki/eigene-agenten/entwuerfe/${first.draftId}/uebernehmen`))
+        .status,
+    ).toBe(403);
+    expect(await actions()).toBe(0);
+    const accept = await call(
+      users.anna,
+      'POST',
+      `/ki/eigene-agenten/entwuerfe/${first.draftId}/uebernehmen`,
+    );
+    expect(accept.status).toBeLessThan(300);
+    expect(await actions()).toBe(1);
+    // Ein zweiter Klick übernimmt nicht doppelt
+    expect(
+      (await call(users.anna, 'POST', `/ki/eigene-agenten/entwuerfe/${first.draftId}/uebernehmen`))
+        .status,
+    ).toBe(404);
+    expect(await actions()).toBe(1);
+    await call(users.anna, 'POST', `/ki/eigene-agenten/entwuerfe/${second.draftId}/verwerfen`);
+    const decided = await db
+      .select()
+      .from(schema.aiDraft)
+      .where(sql`${schema.aiDraft.id} in ${[first.draftId, second.draftId]}`);
+    for (const row of decided) {
+      expect(row.decidedBy).toBe(users.anna);
+      expect(row.decidedAt).not.toBeNull();
+    }
+    expect(decided.map((row) => row.status).sort()).toEqual(['accepted', 'discarded']);
+    // Die Maßnahme verweist nicht auf den privaten Entwurf (kein Fremdschlüssel geteilt → privat)
+    const [created] = (
+      await db.execute<{ source_type: string; source_id: string | null }>(
+        sql`select source_type, source_id from action where relationship_id = ${first.relationshipId}`,
+      )
+    ).rows;
+    expect(created).toEqual({ source_type: 'manual', source_id: null });
+    const references = await db.execute(sql`
+      select 1 from pg_constraint c join pg_class t on t.oid = c.confrelid
+      where c.contype = 'f' and t.relname = 'ai_draft'
+        and c.conrelid::regclass::text in ('action', 'note', 'commitment', 'initiative')`);
+    expect(references.rows).toHaveLength(0);
+    // Der Test-Lieferant sieht den Entwurf nicht, auch nicht über die Datenbank-Session
+    const supplierRows = await withTenant(
+      db,
+      { userId: users.supplier, organizationId: orgs.supplier },
+      (tx) => tx.execute(sql`select 1 from ai_draft where id = ${second.draftId}`),
+    );
+    expect(supplierRows.rows).toHaveLength(0);
+    expect(
+      (await call(users.supplier, 'GET', `/ki/eigene-agenten/laeufe/${runId}/ergebnisse`)).status,
+    ).toBe(403);
   });
 });

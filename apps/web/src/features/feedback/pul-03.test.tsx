@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
+
 import type { SurveyResults, SurveyWave, SurveyWaveDetail } from '@reziproq/shared';
 import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { expectPageLimits } from '@/testing/page-limits';
 
 // Tests zu docs/specs/PUL-03.md in der Oberfläche: vor der Aufdeckung nur der Hinweis, danach die
 // drei größten Lücken oben, Hantel je Dimension nach Lücke sortiert und nicht nur über Farbe
@@ -176,6 +178,28 @@ describe('PUL-03 Auswertung in der Oberfläche', () => {
       const gap = Number((row.textContent?.match(/Lücke (\d+,\d+)/)?.[1] ?? '0').replace(',', '.'));
       expect(row.querySelector('[data-gap="marked"]') !== null).toBe(gap >= 0.5);
     }
+  });
+
+  it('AW-01: über den Lücken steht die Aussage von Reziproq mit Quelle', async () => {
+    detail = {
+      ...detail,
+      results: {
+        ...results,
+        statement: {
+          id: '0190a0a0-0000-7000-8000-000000000301',
+          headline: 'Bei Transparenz liegen beide Seiten 0,9 Punkte auseinander.',
+          body: 'Ihr seht Transparenz besser: 4,1 gegen 3,2.',
+          sources: [{ key: 'dimension', label: 'Feedback-Welle, beide Seiten aufgedeckt' }],
+        },
+      },
+    };
+    renderAt(`${base}/${waveId}`);
+    expect(
+      await screen.findByText('Bei Transparenz liegen beide Seiten 0,9 Punkte auseinander.'),
+    ).toBeTruthy();
+    expect(screen.getByText('Zusammengefasst von Reziproq')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Stimmt nicht' })).toBeTruthy();
+    expectPageLimits();
   });
 
   it('Funktionen nur ab drei Antworten; Freitexte der anderen Seite', async () => {

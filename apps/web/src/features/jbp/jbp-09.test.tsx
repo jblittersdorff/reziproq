@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
+
 import type { Kpi, KpiDetail, KpiImportPreview, ScorecardView } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { expectPageLimits } from '@/testing/page-limits';
 
 // Tests zu docs/specs/JBP-09.md in der Oberfläche: Stand mit Symbol und Text, Kennzahl-Seite mit
 // Verlauf und Werten, Wert erfassen nur für die verantwortliche Seite, Import mit Vorschau.
@@ -184,6 +186,21 @@ describe('JBP-09 Ist-Werte in der Oberfläche', () => {
     expect(screen.getByRole('link', { name: 'Werte importieren' }).getAttribute('href')).toBe(
       `${base}/import`,
     );
+  });
+
+  it('AW-01: über der Scorecard steht die Aussage von Reziproq', async () => {
+    current = view({
+      statement: {
+        id: '0190a0a0-0000-7000-8000-000000000302',
+        headline: '1 von 2 Kennzahlen mit Rheintal sind auf Kurs.',
+        body: 'Am weitesten hinter Plan liegt Liefertreue. Die Scorecard ist unterschrieben.',
+        sources: [{ key: 'scorecard', label: 'Scorecard im JBP' }],
+      },
+    });
+    renderAt(base);
+    expect(await screen.findByText('1 von 2 Kennzahlen mit Rheintal sind auf Kurs.')).toBeDefined();
+    expect(screen.getByText('Zusammengefasst von Reziproq')).toBeDefined();
+    expectPageLimits();
   });
 
   it('die Kennzahl-Seite zeigt Werte, Verlauf und „Wert erfassen“ nur für die eigene Seite', async () => {

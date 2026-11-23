@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { insightStatementSchema } from './insights.js';
 
 // PUL-01: Fragebogen für Puls und Jahres-Feedback. Beide Seiten beantworten dieselben Fragen mit
 // Ist und Soll auf einer Skala von 1 bis 5, dazu „Kann ich nicht beurteilen“.
@@ -470,6 +471,8 @@ export type SurveyDimensionResult = z.infer<typeof surveyDimensionResultSchema>;
 
 export const surveyResultsSchema = z.object({
   revealedAt: z.string(),
+  /** AW-01: Aussage von Reziproq zur Welle (nur Käuferseite); fehlt, wenn sie nicht belastbar ist */
+  statement: insightStatementSchema.nullable().optional(),
   responses: z.object({ buyer: z.number().int(), supplier: z.number().int() }),
   /** Sortiert nach der größten Lücke (Betrag) */
   dimensions: z.array(surveyDimensionResultSchema),

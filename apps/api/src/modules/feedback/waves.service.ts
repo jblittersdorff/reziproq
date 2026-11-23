@@ -37,6 +37,7 @@ import {
 } from '@reziproq/shared';
 import { AgentEventBus } from '../../common/agent-events.js';
 import { AccountStore, TenantDatabase } from '../../common/database.module.js';
+import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import { actorOf } from '../audit/actor.js';
 import { surveyParticipantAudit, surveyWaveAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -44,6 +45,7 @@ import { can } from '../auth/can.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { EmailService } from '../email/email.service.js';
 import { resultsOf, revealIfDue, topGapOf, trendsOf } from './results.js';
+import { feedbackStatement } from './statement.js';
 import { SurveyService } from './survey.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -86,6 +88,7 @@ export class WavesService {
     @Inject(EmailService) private readonly email: EmailService,
     @Inject(AccountStore) private readonly accounts: AccountStore,
     @Inject(AgentEventBus) private readonly agentEvents: AgentEventBus,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
   ) {}
 
   buyer<T>(auth: AuthContext, relationshipId: string, work: (scope: WaveScope) => Promise<T>) {
@@ -280,6 +283,19 @@ export class WavesService {
       .orderBy(asc(schema.surveyParticipant.side), asc(schema.surveyParticipant.invitedAt));
     const open = this.statusOf(row) === 'open';
     const ownClosed = scope.side === 'buyer' ? row.buyerClosedAt : row.supplierClosedAt;
+    // Vor der Aufdeckung keine Ergebnisse, auch nicht der eigenen Seite.
+    const results = row.revealedAt
+      ? await resultsOf(scope.tx, row.id, scope.side, row.revealedAt, this.canAct(scope))
+      : null;
+    // AW-01: Aussage nur auf der Käuferseite (der Lieferant sieht nie eine Aussage des Käufers)
+    if (results && scope.side === 'buyer') {
+      results.statement = await feedbackStatement(this.summaries, scope.tx, scope.auth, {
+        relationshipId: scope.relationshipId,
+        waveId: row.id,
+        supplier: scope.names.supplier,
+        results,
+      });
+    }
     return surveyWaveDetailSchema.parse({
       wave: await this.toWave(scope.tx, row),
       ownSide: scope.side,
@@ -294,10 +310,7 @@ export class WavesService {
       canInvite: open && ownClosed === null && this.canManage(scope),
       canClose: open && ownClosed === null && this.canManage(scope),
       canExtend: open && this.canLead(scope),
-      // Vor der Aufdeckung keine Ergebnisse, auch nicht der eigenen Seite.
-      results: row.revealedAt
-        ? await resultsOf(scope.tx, row.id, scope.side, row.revealedAt, this.canAct(scope))
-        : null,
+      results,
     });
   }
 

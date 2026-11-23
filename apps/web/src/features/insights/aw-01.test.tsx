@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+
 import type { OverviewInsight, SupplierRings } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +12,7 @@ import {
   signedIn,
   tearDownApp,
 } from '@/testing/app-harness';
+import { expectPageLimits } from '@/testing/page-limits';
 
 // Tests zu docs/specs/AW-01.md und NAV-10 in der Oberfläche: Übersicht mit einem Ringpaar, zwei
 // Zeilen und drei Fragevorschlägen; ohne Jahresziel kein äußerer Ring; Ringpaar des Lieferanten.
@@ -75,6 +77,7 @@ describe('AW-01 Übersicht', () => {
       .getAllByRole('link')
       .filter((link) => link.getAttribute('href')?.startsWith('/fragen?q='));
     expect(questions).toHaveLength(3);
+    expectPageLimits();
   });
 
   it('zeigt die Aussage von Reziproq mit Quellen und drei Sätze; „Stimmt nicht“ meldet sie', async () => {
@@ -199,6 +202,9 @@ describe('AW-01 Lieferant · Überblick', () => {
     await waitFor(() => expect(outerRing()).not.toBeNull());
     // Ohne Kandidat fehlt die Karte „Größte Chance“
     expect(screen.queryByText('Größte Chance')).toBeNull();
+    expectPageLimits(
+      document.querySelector('[data-slot="goal-rings"]')?.closest('section') ?? document,
+    );
   });
 
   it('die Karte „Größte Chance“ zeigt das Potenzial und führt zu den Wertpotenzialen', async () => {

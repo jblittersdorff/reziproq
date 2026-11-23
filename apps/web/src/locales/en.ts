@@ -3756,6 +3756,19 @@ export const en: Messages = {
     approveTarget: 'Approve target',
     targetLabel: (year: number) => `EBIT target ${year} in euros`,
     saveTarget: 'Propose',
+    securedTitle: (secured: string, goal: string | null) =>
+      goal ? `Secured: ${secured} of ${goal} EBIT` : `Secured: ${secured} EBIT`,
+    securedSource: (year: number) => `Fiscal year ${year} · only months confirmed by controlling`,
+    securedEmpty: 'Nothing secured yet',
+    securedEmptyText: 'Only confirmed months of the initiatives appear here.',
+    securedTable: 'Secured contribution per initiative',
+    securedOthers: 'Other effect types, secured and never added to EBIT',
+    pendingTitle: (months: number) =>
+      `${months} ${months === 1 ? 'month is' : 'months are'} waiting for controlling`,
+    pendingText: (amount: string, initiatives: number) =>
+      `${amount} EBIT actuals from ${initiatives} ${initiatives === 1 ? 'initiative' : 'initiatives'} count only after confirmation.`,
+    pendingAction: 'View approvals',
+    planTitle: 'Plan and actuals by maturity',
   },
   // NAV-10: supplier activities (formerly notes room)
   activities: {

@@ -3848,6 +3848,20 @@ export const de = {
     approveTarget: 'Ziel freigeben',
     targetLabel: (year: number) => `EBIT-Ziel ${year} in Euro`,
     saveTarget: 'Vorschlagen',
+    securedTitle: (secured: string, goal: string | null) =>
+      goal ? `Gesichert: ${secured} von ${goal} EBIT` : `Gesichert: ${secured} EBIT`,
+    securedSource: (year: number) =>
+      `Geschäftsjahr ${year} · nur vom Controlling bestätigte Monate`,
+    securedEmpty: 'Noch nichts gesichert',
+    securedEmptyText: 'Erst bestätigte Monate der Initiativen erscheinen hier.',
+    securedTable: 'Gesicherter Beitrag je Initiative',
+    securedOthers: 'Andere Wirkungsarten, gesichert und nie zum EBIT addiert',
+    pendingTitle: (months: number) =>
+      `${months} ${months === 1 ? 'Monat wartet' : 'Monate warten'} auf das Controlling`,
+    pendingText: (amount: string, initiatives: number) =>
+      `${amount} EBIT-Ist aus ${initiatives} ${initiatives === 1 ? 'Initiative' : 'Initiativen'} zählen erst nach der Bestätigung.`,
+    pendingAction: 'Freigaben ansehen',
+    planTitle: 'Plan und Ist nach Reifegrad',
   },
   // NAV-10: Aktivitäten eines Lieferanten (früher Notizraum)
   activities: {

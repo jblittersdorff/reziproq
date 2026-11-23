@@ -143,7 +143,7 @@ Je Kriterium ein Test.
 - [x] Eine Aussage mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt.
 - [x] Ohne Jahresziel erscheint kein äußerer Ring.
 - [x] Die Übersicht zeigt eine Aussage, ein Ringpaar, drei Sätze, drei Zeilen und drei Fragevorschläge.
-- [ ] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keinem Highlight und keiner Matrix.
+- [x] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keinem Highlight und keiner Matrix (`apps/api/src/modules/impact/aw-01.test.ts`, Test „NAV-10“: Übersicht, Wertpotenziale, Portfolio, Matrix, Mein Tag, Hinweise, Lieferantenliste). Innerhalb einer Organisation sehen Käufer alle Beziehungen; „ohne Zugriff“ ist ein Käufer einer anderen Organisation.
 - [x] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten des Lieferanten als Eintrag von Reziproq mit Verweis (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`; bis KI-04 mit den bestehenden Entwürfen aus `ai_draft`, Abnahme mit `agent_run` in Schritt 9 der Warteschlange).
 - [x] Eine private Notiz sieht nur ihre Autorin, auch kein Admin (`apps/api/src/modules/activities/nav-10.test.ts`; Zeilensicherheit `note_private_author`).
 - [x] ⌘K öffnet das Suchfeld auf jeder Seite. Eine Frage auf der Seite eines Lieferanten hat diesen Lieferanten als Kontext (`apps/api/src/modules/activities/nav-10.test.ts`, `apps/web/src/features/activities/nav-10.test.tsx`, `apps/web/src/features/prompt/plt-12.test.tsx`).

@@ -514,7 +514,7 @@ function scorecardRoutes(side: Side) {
       @CurrentUser() auth: AuthContext,
       @Param('id', ParseUUIDPipe) id: string,
     ): Promise<ScorecardView> {
-      return this.run(auth, id, (scope) => this.scorecard.view(scope));
+      return this.run(auth, id, (scope) => this.scorecard.page(scope));
     }
 
     @Post('kennzahlen')

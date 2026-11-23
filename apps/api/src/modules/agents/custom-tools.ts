@@ -57,6 +57,21 @@ export class CustomAgentTools {
     );
   }
 
+  /** Welche der Beziehungen die Person sieht (Zeilensicherheit unter ihrer Session) */
+  async visible(auth: AuthContext, ids: string[]) {
+    if (ids.length === 0) return new Set<string>();
+    const session = this.session(auth);
+    const rows = await this.tenant.run(
+      session,
+      (tx) =>
+        tx.execute<{ id: string }>(sql`
+          select id from relationship where buyer_org_id = ${session.organizationId}
+            and status <> 'ended' and id in ${ids}`),
+      { readOnly: true },
+    );
+    return new Set(rows.rows.map((row) => row.id));
+  }
+
   /** Daten eines Werkzeugs zu einer Beziehung; ohne Recht oder Zugriff null */
   async read(auth: AuthContext, tool: CustomAgentTool, relationshipId: string) {
     if (!can(auth, customAgentTools[tool])) return null;

@@ -39,6 +39,7 @@ import {
 } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { SecuredSection } from './secured-section';
 
 // PNL-10: P&L-Brücke je Beziehung und Wirkung im Portfolio. Sicht und Geschäftsjahr stehen in der
 // Adresse (?sicht=jahreswirkung|geschaeftsjahr&gj=2026). Nie eine Summe über Wirkungsarten.
@@ -53,7 +54,7 @@ function useToken() {
   return auth.user?.access_token ?? '';
 }
 
-function useMoney() {
+export function useMoney() {
   const format = useFormat();
   return {
     full: (cents: number) => format.money({ amountCents: cents, currency: 'EUR' }),
@@ -297,7 +298,8 @@ export function BridgePage({
   relationshipId: string;
   search: ImpactSearch;
 }) {
-  const text = useT().impact.portfolio;
+  const messages = useT();
+  const text = messages.impact.portfolio;
   return (
     <SupplierFrame
       relationshipId={relationshipId}
@@ -307,6 +309,11 @@ export function BridgePage({
     >
       {() => (
         <>
+          {/* AW-01: zuerst Aussage und Brücke aus bestätigten Werten, dann Plan und Ist */}
+          <SecuredSection relationshipId={relationshipId} fiscalYear={search.gj} />
+          <h2 className="font-display font-semibold text-section tracking-section">
+            {messages.insights.planTitle}
+          </h2>
           <ExportButton
             view={search.sicht ?? 'jahreswirkung'}
             fiscalYear={search.gj}

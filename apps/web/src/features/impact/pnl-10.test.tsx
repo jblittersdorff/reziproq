@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
-import type { Bridge, PortfolioImpact } from '@reziproq/shared';
+
+import type { Bridge, PortfolioImpact, SecuredResults } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildInitiativeBridge } from '@/components/charts/bridge';
 import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { expectPageLimits } from '@/testing/page-limits';
 
 // Tests zu docs/specs/PNL-10.md in der Oberfläche: Brücke nur mit EBIT, Summe am Ende, andere Arten
 // daneben; Portfolio mit Pipeline je Wirkungsart ohne Gesamtsumme; Sicht und Geschäftsjahr in der
@@ -125,6 +127,39 @@ describe('PNL-10 in der Oberfläche', () => {
     expect(
       screen.getByText(/Bereits im Savings-Tracking, in keiner Summe: Im Savings-Tracking/),
     ).toBeDefined();
+  });
+
+  it('AW-01: oben die Brücke nur aus bestätigten Werten mit „Gesichert“ als Summe, offene Monate in der Tinte-Karte', async () => {
+    const secured: SecuredResults = {
+      fiscalYear: 2026,
+      fiscalYears: [2026],
+      currency: 'EUR',
+      steps: [{ initiativeId: uuid(10), title: 'Preis', maturity: 4, securedCents: 30_000_00 }],
+      securedEbitCents: 30_000_00,
+      target: { ebitTargetCents: 60_000_00, approved: true },
+      pending: { months: 2, initiatives: 1, amountCents: 10_000_00 },
+      others: [{ effectType: 'cash', securedCents: 5_000_00 }],
+      statement: null,
+    };
+    const handle = api.handle;
+    api.handle = (request) =>
+      request.url.startsWith(`/api/suppliers/${rel}/ergebnisse/gesichert`)
+        ? Response.json(secured)
+        : handle?.(request);
+    renderAt(`/lieferanten/${rel}/wirkung/bruecke`);
+    const table = await screen.findByRole('table', { name: 'Gesicherter Beitrag je Initiative' });
+    expect(within(table).getAllByRole('row')[1]?.textContent).toContain('30.000,00');
+    expect(screen.getByText(/Gesichert: 30\.000,00 € von 60\.000,00 € EBIT/)).toBeDefined();
+    expect(
+      screen.getByRole('heading', { name: '2 Monate warten auf das Controlling' }),
+    ).toBeDefined();
+    expect(screen.getByRole('link', { name: /Freigaben ansehen/ }).getAttribute('href')).toBe(
+      '/wirkung/freigaben',
+    );
+    expect(screen.getByText(/nie zum EBIT addiert: Cash 5\.000,00/)).toBeDefined();
+    // Plan und Ist bleiben darunter
+    expect(screen.getByRole('heading', { name: 'Plan und Ist nach Reifegrad' })).toBeDefined();
+    expectPageLimits();
   });
 
   it('das Portfolio zeigt die Pipeline je Wirkungsart ohne Gesamtsumme und führt zur Beziehung', async () => {

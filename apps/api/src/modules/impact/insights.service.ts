@@ -9,8 +9,10 @@ import {
   type OpportunityTemplateKey,
   type OverviewInsight,
   overviewInsightSchema,
+  type SecuredResults,
   type SupplierRings,
   type SupplierTargetRequest,
+  securedResultsSchema,
   supplierRingsSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
@@ -25,6 +27,7 @@ import { templateTitles } from '../opportunities/templates.js';
 import { ImpactService } from './impact.service.js';
 import {
   factsOf,
+  fiscalYearsOf,
   focusRelationships,
   type InitiativeFacts,
   PortfolioService,
@@ -37,7 +40,7 @@ function securedIn(facts: InitiativeFacts[], from: string, to: string) {
   return facts
     .filter((fact) => fact.effectType === 'ebit' && !fact.excluded)
     .flatMap((fact) => fact.realizedValues)
-    .filter((value) => value.month >= from && value.month <= to)
+    .filter((value) => value.month >= from && value.month < to)
     .reduce((sum, value) => sum + value.valueCents, 0);
 }
 
@@ -545,6 +548,157 @@ export class InsightsService {
         canPropose: scope.auth.orgRole === 'admin' || scope.teamRole === 'sro',
         canApprove:
           scope.auth.orgRole === 'admin' || (await isLead(tx, auth.userId, relationshipId)),
+      });
+    });
+  }
+
+  /**
+   * AW-01 Ergebnisse · Gesichert: je Initiative der vom Controlling bestätigte EBIT-Beitrag im
+   * Geschäftsjahr; die Summe ist dieselbe Zahl wie im Ring des Überblicks. Unbestätigte Ist-Monate
+   * zählen nicht, sie stehen als offene Bestätigung daneben.
+   */
+  supplierSecured(
+    auth: AuthContext,
+    relationshipId: string,
+    requestedYear?: number,
+  ): Promise<SecuredResults> {
+    if (!can(auth, 'wirkung.sehen')) throw forbidden();
+    return this.impact.run(auth, relationshipId, async (scope) => {
+      const { tx } = scope;
+      const startMonth = await this.portfolio.startMonth(tx, scope.orgId);
+      const today = new Date().toISOString().slice(0, 10);
+      const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
+      const [from, to] = fiscalYearRange(fiscalYear, startMonth);
+      const facts = await factsOf(tx, [relationshipId], true);
+      const counted = facts.filter((fact) => !fact.excluded && fact.effectType);
+      const inYear = (month: string) => month >= from && month < to;
+      const securedOf = (fact: InitiativeFacts) =>
+        fact.realizedValues
+          .filter((value) => inYear(value.month))
+          .reduce((sum, value) => sum + value.valueCents, 0);
+      const steps = counted
+        .filter((fact) => fact.effectType === 'ebit')
+        .map((fact) => ({
+          initiativeId: fact.id,
+          title: fact.title,
+          maturity: fact.maturity,
+          securedCents: securedOf(fact),
+        }))
+        .filter((step) => step.securedCents !== 0)
+        .sort((a, b) => b.securedCents - a.securedCents);
+      const secured = securedIn(facts, from, to);
+      // Ist-Monate im Geschäftsjahr, die das Controlling noch nicht freigegeben hat (nur EBIT)
+      const pendingByFact = counted
+        .filter((fact) => fact.effectType === 'ebit')
+        .map((fact) => {
+          const confirmed = new Set(fact.realizedValues.map((value) => value.month));
+          return fact.values.filter(
+            (value) =>
+              value.kind === 'actual' && inYear(value.month) && !confirmed.has(value.month),
+          );
+        });
+      const pendingValues = pendingByFact.flat();
+      const others = (['cash', 'cost_avoidance', 'strategic'] as const)
+        .map((effectType) => ({
+          effectType,
+          securedCents: counted
+            .filter((fact) => fact.effectType === effectType)
+            .reduce((sum, fact) => sum + securedOf(fact), 0),
+        }))
+        .filter((entry) => entry.securedCents !== 0);
+      const [target] = await tx
+        .select()
+        .from(schema.relationshipEbitTarget)
+        .where(
+          and(
+            eq(schema.relationshipEbitTarget.relationshipId, relationshipId),
+            eq(schema.relationshipEbitTarget.year, fiscalYear),
+          ),
+        );
+      const approvedTarget = target?.approvedAt ? target.ebitTargetCents : null;
+      const pending = {
+        months: new Set(pendingValues.map((value) => value.month)).size,
+        initiatives: pendingByFact.filter((values) => values.length > 0).length,
+        amountCents: pendingValues.reduce((sum, value) => sum + value.valueCents, 0),
+      };
+      const names = await supplierNames(tx, scope.orgId);
+      const name = names.get(relationshipId) ?? '';
+      const source = 'Impact-Ledger, vom Controlling bestätigt';
+      const [top] = steps;
+      const statementFacts: InsightFact[] = [
+        { key: 'name', label: 'Lieferant', display: name, source: 'Lieferant' },
+        { key: 'secured', label: 'Gesichert EBIT', display: money(secured), source },
+        {
+          key: 'initiatives',
+          label: 'Initiativen mit bestätigtem Beitrag',
+          display: String(steps.length),
+          source,
+        },
+      ];
+      if (top) {
+        statementFacts.push(
+          { key: 'top', label: 'Größter Beitrag', display: top.title, source },
+          { key: 'topAmount', label: 'Beitrag', display: money(top.securedCents), source },
+        );
+      }
+      if (approvedTarget) {
+        statementFacts.push(
+          { key: 'target', label: `Ziel ${fiscalYear}`, display: money(approvedTarget), source },
+          {
+            key: 'share',
+            label: 'Anteil am Ziel',
+            display: percent(secured / approvedTarget),
+            source,
+          },
+        );
+      }
+      if (pending.months > 0) {
+        statementFacts.push({
+          key: 'pending',
+          label: 'Monate ohne Bestätigung',
+          display: String(pending.months),
+          source: 'Controlling-Freigaben',
+        });
+      }
+      // Ohne bestätigten Beitrag keine Aussage: die Seite zeigt nur den Beleg
+      const insight =
+        steps.length === 0
+          ? { statement: null }
+          : await this.summaries.summarize(tx, auth, {
+              pageKey: 'supplier_results',
+              scopeType: 'relationship',
+              scopeId: relationshipId,
+              period: String(fiscalYear),
+              facts: statementFacts,
+              fallback: {
+                headline: approvedTarget
+                  ? `Mit ${name} sind ${percent(secured / approvedTarget)} des Ziels gesichert.`
+                  : `Mit ${name} sind ${money(secured)} EBIT gesichert.`,
+                body: [
+                  ...(top
+                    ? [`Den größten Beitrag liefert ${top.title} mit ${money(top.securedCents)}.`]
+                    : []),
+                  ...(pending.months > 0
+                    ? [
+                        `${pending.months} Monate warten noch auf die Bestätigung durch das Controlling.`,
+                      ]
+                    : []),
+                ].join(' '),
+              },
+              knownNames: [...names.values()],
+            });
+      return securedResultsSchema.parse({
+        fiscalYear,
+        fiscalYears: fiscalYearsOf(facts, startMonth, fiscalYear),
+        currency: 'EUR',
+        steps,
+        securedEbitCents: secured,
+        target: target
+          ? { ebitTargetCents: target.ebitTargetCents, approved: target.approvedAt !== null }
+          : null,
+        pending,
+        others,
+        statement: insight.statement,
       });
     });
   }

@@ -82,6 +82,41 @@ export const supplierRingsSchema = z.object({
   statement: insightStatementSchema.nullable().optional(),
 });
 
+/**
+ * AW-01 Ergebnisse · Gesichert: Brücke nur aus vom Controlling bestätigten EBIT-Werten im
+ * Geschäftsjahr; ihre Summe ist „Gesichert“. Unbestätigte Ist-Monate stehen in der Tinte-Karte,
+ * andere Wirkungsarten als eigene Zeile, nie addiert.
+ */
+export const securedResultsSchema = z.object({
+  fiscalYear: z.number().int(),
+  fiscalYears: z.array(z.number().int()),
+  currency: z.string(),
+  steps: z.array(
+    z.object({
+      initiativeId: z.uuid(),
+      title: z.string(),
+      maturity: z.number().int(),
+      securedCents: z.number().int(),
+    }),
+  ),
+  securedEbitCents: z.number().int(),
+  target: z.object({ ebitTargetCents: z.number().int(), approved: z.boolean() }).nullable(),
+  /** Ist-Monate im Geschäftsjahr ohne Freigabe durch das Controlling */
+  pending: z.object({
+    months: z.number().int(),
+    initiatives: z.number().int(),
+    amountCents: z.number().int(),
+  }),
+  others: z.array(
+    z.object({
+      effectType: z.enum(['cash', 'cost_avoidance', 'strategic']),
+      securedCents: z.number().int(),
+    }),
+  ),
+  statement: insightStatementSchema.nullable(),
+});
+export type SecuredResults = z.infer<typeof securedResultsSchema>;
+
 export const ebitGoalRequestSchema = z.object({
   year: z.number().int().min(2000).max(2100),
   amountCents: z.number().int().positive().nullable(),

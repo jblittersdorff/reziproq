@@ -63,6 +63,16 @@ export class SupplierRingsController {
     return this.insights.supplierRings(auth, id, year);
   }
 
+  @Get('gesichert')
+  @Requires('wirkung.sehen')
+  secured(
+    @CurrentUser() auth: AuthContext,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('jahr', yearQuery) year: number | undefined,
+  ) {
+    return this.insights.supplierSecured(auth, id, year);
+  }
+
   @Put('ziel')
   @HttpCode(204)
   @Requires('wirkung.sehen')

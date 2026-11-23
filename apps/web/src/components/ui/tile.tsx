@@ -78,7 +78,7 @@ function TileText({ className, ...props }: React.ComponentProps<'p'>) {
 /** Eine Kennzahl, groß; die Einheit oder Erklärung klein darunter. */
 function TileMetric({ value, label }: { value: React.ReactNode; label?: React.ReactNode }) {
   return (
-    <p className="flex flex-col gap-1">
+    <p data-slot="metric" className="flex flex-col gap-1">
       <span className="font-display font-display font-semibold text-figure tabular-nums tracking-section tracking-title group-data-[size=lg]/tile:text-2xl">
         {value}
       </span>

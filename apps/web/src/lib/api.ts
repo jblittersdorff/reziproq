@@ -260,6 +260,7 @@ import {
   scorecardSettingSchema,
   scorecardViewSchema,
   searchResultsSchema,
+  securedResultsSchema,
   segmentationSchema,
   segmentModelResponseSchema,
   spendOverviewSchema,
@@ -851,6 +852,23 @@ export const overviewInsightQueryOptions = (accessToken: string, year?: number) 
     queryKey: ['uebersicht', year ?? 'aktuell'],
     queryFn: () =>
       getJson(`/uebersicht${year ? `?jahr=${year}` : ''}`, overviewInsightSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** AW-01 Ergebnisse · Gesichert: Brücke nur aus vom Controlling bestätigten Werten */
+export const securedResultsQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  year?: number,
+) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'gesichert', year ?? null],
+    queryFn: () =>
+      getJson(
+        `/suppliers/${relationshipId}/ergebnisse/gesichert${year ? `?jahr=${year}` : ''}`,
+        securedResultsSchema,
+        accessToken,
+      ),
     retry: retryUnlessDenied,
   });
 

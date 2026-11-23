@@ -790,22 +790,29 @@ function WaveBody({
         </Badge>
         <span className="text-muted-foreground text-sm">{text.anonymous}</span>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {(['buyer', 'supplier'] as const).map((entry) => (
-          <Tile key={entry} data-side={entry}>
-            <TileTitle>{labels[entry]}</TileTitle>
-            <TileMetric
-              value={text.turnoutShort(wave.turnout[entry].completed, wave.turnout[entry].invited)}
-              label={text.turnout(wave.turnout[entry].completed, wave.turnout[entry].invited)}
-            />
-            {closedAt[entry] && (
-              <p className="text-muted-foreground text-sm">
-                {text.closedAt(labels[entry] ?? entry, format.date(closedAt[entry] ?? ''))}
-              </p>
-            )}
-          </Tile>
-        ))}
-      </div>
+      {/* AW-01: Nach dem Aufdecken steht der Rücklauf als Zeile unter „Ergebnis“; die Kacheln
+          würden die Grenze von vier Kennzahlen neben den drei größten Lücken sprengen. */}
+      {!wave.revealedAt && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {(['buyer', 'supplier'] as const).map((entry) => (
+            <Tile key={entry} data-side={entry}>
+              <TileTitle>{labels[entry]}</TileTitle>
+              <TileMetric
+                value={text.turnoutShort(
+                  wave.turnout[entry].completed,
+                  wave.turnout[entry].invited,
+                )}
+                label={text.turnout(wave.turnout[entry].completed, wave.turnout[entry].invited)}
+              />
+              {closedAt[entry] && (
+                <p className="text-muted-foreground text-sm">
+                  {text.closedAt(labels[entry] ?? entry, format.date(closedAt[entry] ?? ''))}
+                </p>
+              )}
+            </Tile>
+          ))}
+        </div>
+      )}
       {(data.canInvite || data.canExtend || data.canClose) && (
         <div className="flex flex-wrap items-center gap-3">
           {data.canInvite &&

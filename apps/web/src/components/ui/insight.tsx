@@ -23,7 +23,7 @@ export function InsightHeading({
 }) {
   if (!headline || !sources.length) return null;
   return (
-    <header className="flex max-w-190 flex-col items-start gap-3">
+    <header data-slot="insight" className="flex max-w-190 flex-col items-start gap-3">
       <p className="flex items-center gap-2 font-semibold text-petrol-dark text-sm">
         <BrandMark />
         {attribution}
@@ -94,7 +94,7 @@ export function QuestionSuggestions({
   questions: ReadonlyArray<{ label: string; href: string }>;
 }) {
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div data-slot="question-suggestions" className="flex flex-col items-start gap-3">
       <p className="flex items-center gap-2 font-semibold text-petrol-dark">
         <BrandMark />
         {title}

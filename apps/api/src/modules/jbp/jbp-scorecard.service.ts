@@ -36,6 +36,7 @@ import {
   scorecardViewSchema,
 } from '@reziproq/shared';
 import { ActionsService } from '../actions/actions.service.js';
+import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import { actorOf } from '../audit/actor.js';
 import {
   kpiValueAudit,
@@ -50,6 +51,7 @@ import { readCycleSettings } from '../overview/cycle.js';
 import { normalizeHeader } from '../suppliers/import-file.js';
 import type { JbpScope } from './jbp.service.js';
 import { teamPeople } from './people.js';
+import { scorecardStatement } from './statement.js';
 
 /** Toleranz „knapp“ des Kunden (JBP-09); beide Seiten lesen sie über app_kpi_tolerance. */
 export async function kpiTolerance(tx: TenantTransaction, relationshipId: string) {
@@ -108,7 +110,14 @@ export class JbpScorecardService {
   constructor(
     @Inject(EmailService) private readonly email: EmailService,
     @Inject(ActionsService) private readonly actions: ActionsService,
+    @Inject(InsightSummaryService) private readonly summaries: InsightSummaryService,
   ) {}
+
+  /** GET der Seite: Stand mit Aussage von Reziproq (AW-01); Änderungen antworten ohne Aussage */
+  async page(scope: JbpScope): Promise<ScorecardView> {
+    const view = await this.view(scope);
+    return { ...view, statement: await scorecardStatement(this.summaries, scope, view) };
+  }
 
   private canEdit(scope: JbpScope) {
     if (!can(scope.auth, 'jbp.bearbeiten', { teamRole: scope.teamRole })) return false;

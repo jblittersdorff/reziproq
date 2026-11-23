@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+
 import type { ValueOpportunities } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +12,7 @@ import {
   signedIn,
   tearDownApp,
 } from '@/testing/app-harness';
+import { expectPageLimits } from '@/testing/page-limits';
 
 // Tests zu docs/specs/KI-11.md in der Oberfläche: Entwurfskarte mit Wert für beide Seiten,
 // Sicherheit, Rechenweg; Summen ohne low; ohne Recherche sagt die Seite das; Übernehmen zeigt erst,
@@ -211,6 +213,7 @@ describe('KI-11 Wertpotenziale', () => {
         'Wirkungsarten werden nie addiert. Summen nur mit Sicherheit hoch und mittel.',
       ),
     ).toBeTruthy();
+    expectPageLimits();
   });
 
   it('ohne öffentliche Recherche sagt die Seite das', async () => {
@@ -357,6 +360,7 @@ describe('KI-11 Wertpotenziale über alle Lieferanten', () => {
       await screen.findByRole('heading', { name: 'Rheintal: Preisgleitklausel nach Index' }),
     ).toBeTruthy();
     expect(screen.getByText(/1 mit Sicherheit niedrig nicht eingerechnet/)).toBeTruthy();
+    expectPageLimits();
     const link = screen.getByRole('link', { name: 'Rheintal' });
     expect(link.getAttribute('href')).toBe(`/lieferanten/${id}/wirkung/wertpotenziale`);
     expect(screen.getByText('Kupferindex gesunken')).toBeTruthy();

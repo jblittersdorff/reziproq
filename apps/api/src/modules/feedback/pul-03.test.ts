@@ -129,6 +129,8 @@ describe('PUL-03 Auswertung und Wahrnehmungslücken', () => {
     await db.execute(sql`delete from survey_free_text where relationship_id = ${rel}`);
     await db.execute(sql`delete from survey_result where relationship_id = ${rel}`);
     await db.execute(sql`delete from survey_response where relationship_id = ${rel}`);
+    await db.execute(sql`delete from insight_summary where org_id in ${Object.values(orgs)}`);
+    await db.execute(sql`delete from model_call where org_id in ${Object.values(orgs)}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from survey_template where org_id in ${Object.values(orgs)}`);
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
@@ -216,6 +218,16 @@ describe('PUL-03 Auswertung und Wahrnehmungslücken', () => {
     expect(theirs?.questions).toEqual(own?.questions);
     expect(own?.freeTexts).toEqual(['Prognosen kommen zu spät.']);
     expect(theirs?.freeTexts).toEqual(['Mehr Offenheit bei Kosten.']);
+  });
+
+  it('AW-01: die Käuferseite sieht eine Aussage zur größten Lücke, der Lieferant nie', async () => {
+    const own = (await detail(users.sro, buyer)).results;
+    expect(own?.statement?.headline).toBe(
+      'Bei Vertrauen liegen beide Seiten 2,0 Punkte auseinander.',
+    );
+    expect(own?.statement?.body).not.toMatch(/@|sro|kam/i);
+    const theirs = (await detail(users.kam, supplier)).results;
+    expect(theirs?.statement ?? null).toBeNull();
   });
 
   it('die Aufdeckung erledigt den Zyklus-Schritt Feedback', async () => {
