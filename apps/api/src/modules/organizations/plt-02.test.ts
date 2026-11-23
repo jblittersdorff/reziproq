@@ -83,6 +83,8 @@ describe('PLT-02 über die API', () => {
       // Der Link zur Umfrage ebenso (PUL-02b).
       'GET /api/umfrage/00000000-0000-7000-8000-000000000000',
       'POST /api/umfrage/00000000-0000-7000-8000-000000000000',
+      // Der Eingang für Webhooks ebenso (IN-01); ohne gültige Signatur 401.
+      'POST /api/anbindungen/eingang/00000000-0000-7000-8000-000000000000',
     ];
     const routes = discoverRoutes(testApp.app).filter(
       (route) =>

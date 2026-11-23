@@ -35,7 +35,7 @@ export async function startTestApp({
       .overrideProvider(DISCOVERY_URL)
       .useValue(zitadel.discoveryUrl),
   ).compile();
-  const app: INestApplication = moduleRef.createNestApplication();
+  const app: INestApplication = moduleRef.createNestApplication({ rawBody: true });
   configureApp(app);
   await app.listen(0);
   const baseUrl = await app.getUrl();

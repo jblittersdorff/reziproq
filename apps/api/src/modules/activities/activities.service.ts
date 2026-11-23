@@ -182,16 +182,37 @@ export class ActivitiesService {
   }
 
   addNote(auth: AuthContext, relationshipId: string, input: NoteRequest): Promise<ActivityFeed> {
+    return this.writeNote(auth, relationshipId, input, (tx) =>
+      this.feedIn(tx, auth, relationshipId),
+    );
+  }
+
+  /** Für Anbindungen (IN-01): dieselbe Prüfung wie addNote, Ergebnis ist die ID der Notiz. */
+  async createNote(auth: AuthContext, relationshipId: string, input: NoteRequest): Promise<string> {
+    return this.writeNote(auth, relationshipId, input, async (_tx, id) => id);
+  }
+
+  private writeNote<T>(
+    auth: AuthContext,
+    relationshipId: string,
+    input: NoteRequest,
+    result: (tx: TenantTransaction, id: string) => Promise<T>,
+  ): Promise<T> {
+    // Auch Anbindungen (IN-01) schreiben hierüber; das Recht gilt deshalb im Dienst, nicht nur am Endpunkt.
+    if (!can(auth, 'notizen.schreiben')) throw forbidden();
     const note = noteRequestSchema.parse(input);
     return this.run(auth, async (tx, organization) => {
       await ownRelationship(tx, organization, relationshipId);
-      await tx.insert(schema.note).values({
-        orgId: organization.id,
-        relationshipId,
-        authorUserId: auth.userId,
-        ...note,
-      });
-      return this.feedIn(tx, auth, relationshipId);
+      const [created] = await tx
+        .insert(schema.note)
+        .values({
+          orgId: organization.id,
+          relationshipId,
+          authorUserId: auth.userId,
+          ...note,
+        })
+        .returning({ id: schema.note.id });
+      return result(tx, created?.id ?? '');
     });
   }
 

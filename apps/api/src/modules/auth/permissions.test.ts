@@ -533,7 +533,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     });
   });
 
-  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health, /me, der Einladungslink und der Link zur Umfrage.', () => {
+  it('Ein Test geht alle Endpunkte durch und schlägt fehl, wenn einer ohne can() auskommt. Ausgenommen sind /health, /me, der Einladungslink, der Link zur Umfrage und der Eingang für Webhooks.', () => {
     const routes = discoverRoutes(testApp.app);
     expect(routes.length).toBeGreaterThan(10);
     const unchecked = routes
@@ -542,7 +542,8 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       .map((route) => `${route.method} ${route.path}`);
     expect(unchecked).toEqual([]);
     // Ausnahmen sind genau /health, der Einladungslink (LIF-01a), der Link zur Umfrage (PUL-02b,
-    // alle öffentlich) und /me.
+    // alle öffentlich), der Eingang für Webhooks der Anbindungen (IN-01, öffentlich, mit Signatur)
+    // und /me.
     const exempt = routes.filter((route) => !route.requires).map((route) => route.path);
     expect(new Set(exempt)).toEqual(
       new Set([
@@ -554,6 +555,7 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         '/api/einladungen/00000000-0000-7000-8000-000000000000',
         '/api/einladungen/00000000-0000-7000-8000-000000000000/annahme',
         '/api/umfrage/00000000-0000-7000-8000-000000000000',
+        '/api/anbindungen/eingang/00000000-0000-7000-8000-000000000000',
       ]),
     );
   });

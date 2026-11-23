@@ -7,6 +7,7 @@ import {
   ClipboardListIcon,
   DatabaseIcon,
   LightbulbIcon,
+  PlugIcon,
   ReceiptEuroIcon,
   UploadIcon,
   UserCogIcon,
@@ -88,6 +89,15 @@ export function SettingsPage() {
               label={t.importBatches.navTitle}
               description={t.importBatches.navHint}
               icon={<UploadIcon aria-hidden />}
+              renderLink={routerLink}
+            />
+          )}
+          {permissions.viewBuyerAreas && manageSettings && (
+            <SettingsLinkRow
+              href="/einstellungen/anbindungen"
+              label={t.integrations.navTitle}
+              description={t.integrations.navHint}
+              icon={<PlugIcon aria-hidden />}
               renderLink={routerLink}
             />
           )}

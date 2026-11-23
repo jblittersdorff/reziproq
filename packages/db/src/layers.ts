@@ -837,6 +837,41 @@ export const layerRegister: Record<string, LayerEntry> = {
       text: 'Probe',
     }),
   },
+  // IN-01: Integrationsschicht, je Organisation
+  connection: {
+    kind: 'org_private',
+    testValues: { connector_key: 'files', scope: 'org', connected_by: 'probe' },
+  },
+  connection_secret: {
+    kind: 'org_private',
+    testValues: ({ probe, org }) => ({
+      connection_id: probe('connection', org ?? ''),
+      kind: 'api_key',
+      ciphertext: 'x',
+      key_ref: 'probe',
+    }),
+  },
+  sync_job: {
+    kind: 'org_private',
+    testValues: ({ probe, org }) => ({ connection_id: probe('connection', org ?? ''), kind: 'probe' }),
+  },
+  sync_event: {
+    kind: 'org_private',
+    testValues: ({ probe, org }) => ({
+      connection_id: probe('connection', org ?? ''),
+      direction: 'in',
+      kind: 'probe',
+      status: 'ignored',
+    }),
+  },
+  inbound_hook: {
+    kind: 'org_private',
+    testValues: ({ probe, org }) => ({
+      connection_id: probe('connection', org ?? ''),
+      path_token: `probe-${Math.random()}`,
+      secret_ref: '0190a0a0-0000-7000-8000-000000000001',
+    }),
+  },
   // AW-01: Aussage von Reziproq je Person und Seite
   insight_summary: {
     kind: 'org_private',

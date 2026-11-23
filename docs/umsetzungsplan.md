@@ -22,7 +22,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 11b | KI-16 · Hinweise mit Frühwarnung | 7, FS-01; erweitert `hint`, „Wo du handeln musst“ in Mein Tag; `public_event` nur mit Testanbieter. | M | fertig (Suchanbieter, Strategie-Risiko bei `dependency` offen) |
 | 11c | KI-17 · Ergebnisse nach dem Termin | 10 (Ziele aus dem Briefing), QBR-01; `meeting_capture`; Dateien erst mit Speicher (KI-18). | L | fertig (F15 zu JBP-06 offen, DOCX/PDF mit KI-18) |
 | 11d | Anpassung NAV-10 / AW-01 · Hinweise anschließen | 9, 11b; Risiko und nächste Handlung mit freigegebenen Bewertungsregeln abnehmen. | M | fertig (Feedback-Risiko mit Schritt 20) |
-| 12 | IN-01 · Integrationsschicht (I1.1) | 5, 7; Domänendienste, can() und Jobs; alle Anbindungen lokal mit fake. | L | offen |
+| 12 | IN-01 · Integrationsschicht (I1.1) | 5, 7; Domänendienste, can() und Jobs; alle Anbindungen lokal mit fake. | L | fertig (lokal mit Anbieter fake) |
 | 13 | IN-07 · Import-API (I1.2) | 12 und KI-15 (11a); gemeinsamer Stapel für Datei und API. | L | offen |
 | 14 | Anpassung IN-02 · Firmenanmeldung (I1.3) | 12; PLT-01/02, NAV-10; Identitätsmodell und Erstanmeldung klären. | L | offen |
 | 15 | Anpassung IN-03 · Termine, Zuordnung und Eingang in Mein Tag (I1.4) | 12, 14, 2, 10; QBR-01; privates Terminmodell und Briefingumfang klären. | L | offen |

@@ -5,6 +5,7 @@ import { CommentsModule } from '../comments/comments.module.js';
 import { CustomersModule } from '../customers/customers.module.js';
 import { FeedbackModule } from '../feedback/feedback.module.js';
 import { ImpactModule } from '../impact/impact.module.js';
+import { IntegrationsModule } from '../integrations/integrations.module.js';
 import { JbpModule } from '../jbp/jbp.module.js';
 import { MaterialGroupsModule } from '../material-groups/material-groups.module.js';
 import { OverviewModule } from '../overview/overview.module.js';
@@ -28,6 +29,7 @@ import { StartService } from './start.service.js';
     CommentsModule,
     FeedbackModule,
     MaterialGroupsModule,
+    IntegrationsModule,
   ],
   controllers: [StartController],
   providers: [StartService],

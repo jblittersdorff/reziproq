@@ -239,6 +239,31 @@ export class ActionDueStore {
   }
 }
 
+/**
+ * IN-01: Was die Integrationsschicht vor der Mandanten-Session braucht: zu einem Webhook-Pfad
+ * Organisation und Verbindung, für den Job „Erneuern“ die Organisationen mit aktiven Verbindungen.
+ * Nur IDs, über Datenbankfunktionen mit genau diesen Rechten (drizzle/0111, 0112).
+ */
+@Injectable()
+export class IntegrationStore {
+  constructor(@Inject(DATABASE) private readonly db: Database) {}
+
+  async hook(token: string): Promise<{ orgId: string; connectionId: string } | null> {
+    const result = await this.db.execute<{ org_id: string; connection_id: string }>(
+      sql`select org_id::text, connection_id::text from app_inbound_hook(${token})`,
+    );
+    const row = result.rows[0];
+    return row ? { orgId: row.org_id, connectionId: row.connection_id } : null;
+  }
+
+  async organizations(): Promise<string[]> {
+    const result = await this.db.execute<{ org_id: string }>(
+      sql`select org_id::text from app_connection_orgs()`,
+    );
+    return result.rows.map((row) => row.org_id);
+  }
+}
+
 @Global()
 @Module({
   providers: [
@@ -253,7 +278,15 @@ export class ActionDueStore {
     InvitationStore,
     SurveyLinkStore,
     ActionDueStore,
+    IntegrationStore,
   ],
-  exports: [TenantDatabase, AccountStore, InvitationStore, SurveyLinkStore, ActionDueStore],
+  exports: [
+    TenantDatabase,
+    AccountStore,
+    InvitationStore,
+    SurveyLinkStore,
+    ActionDueStore,
+    IntegrationStore,
+  ],
 })
 export class DatabaseModule {}

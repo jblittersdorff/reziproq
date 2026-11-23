@@ -26,6 +26,10 @@ import { dayTime } from './greeting';
 
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'ai_budget') return t.start.kind.ai_budget;
+  if (item.kind === 'connection_renew') {
+    const names = t.integrations.names;
+    return `${t.start.kind.connection_renew}: ${(item.detail && names[item.detail]) ?? item.detail ?? ''}`;
+  }
   if (item.kind === 'hint_rule_review') {
     const rules = t.hints.rules;
     const rule =

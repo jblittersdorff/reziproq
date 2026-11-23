@@ -23,6 +23,9 @@ const envSchema = z.object({
   ZITADEL_PROJECT_ID: z.preprocess(emptyAsUndefined, z.string().min(1)),
 
   // Das Testmodell braucht weder Schlüssel noch Internet. Echte Daten laufen über Bedrock.
+  // IN-01: Schlüssel für Zugangsdaten der Anbindungen; lokal aus einer Datei außerhalb des Repos,
+  // im Betrieb aus dem Schlüsseldienst in der EU. Ohne Schlüssel lässt sich nichts verbinden.
+  CONNECTION_SECRET_KEY: z.preprocess(emptyAsUndefined, z.string().min(16).optional()),
   AI_PROVIDER: z.preprocess(
     emptyAsUndefined,
     z.enum(['test', 'anthropic', 'bedrock']).default('test'),
@@ -101,6 +104,10 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
     }
     if (!env.WEB_APP_URL.startsWith('https://')) {
       throw new Error('Im Betrieb muss WEB_APP_URL HTTPS verwenden.');
+    }
+    // IN-01: Zugangsdaten der Anbindungen nur mit dem Schlüssel aus dem Schlüsseldienst
+    if (!env.CONNECTION_SECRET_KEY) {
+      throw new Error('Im Betrieb braucht die API CONNECTION_SECRET_KEY für Anbindungen.');
     }
   }
   return env;

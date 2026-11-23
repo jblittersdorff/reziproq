@@ -778,6 +778,20 @@
       "when": 1795428303219,
       "tag": "0110_ki15_rueckgaengig",
       "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "7",
+      "when": 1795429805118,
+      "tag": "0111_in01_integrationen",
+      "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "7",
+      "when": 1795430258170,
+      "tag": "0112_in01_erneuern",
+      "breakpoints": true
     }
   ]
 }

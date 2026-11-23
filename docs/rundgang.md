@@ -35,6 +35,8 @@ kommen aus festen Testquellen.
 | **Wertpotenziale über alle** (`/uebersicht/wertpotenziale`) | Summen je Wirkungsart, größtes Potenzial, Spannen-Balken und Tabelle je Lieferant, häufigste Hebel, Signale und Datenlücken.                                                                                                                                                                                                |
 | Profil › Einstellungen › **KI und Agenten**                 | Verarbeitung nur in der EU, öffentliche Recherche, Budget je Monat und Lauf, Segmente für den monatlichen Wertpotenzial-Lauf, Annahmen der Hebel-Vorlagen, Verbrauch des Monats. Abschnitt **Hinweise**: Regeln an oder aus, Schwellen, Bewertung je Regel. Abschnitt **Termin-Briefing**: Vorlauf je Termintyp. Darunter die Agenten mit Läufen und Protokoll.                                                                                             |
 | Profil › Einstellungen › **Daten importieren** (`/einstellungen/daten/import`) | Spend oder Lieferantenstamm als CSV oder Excel hochladen, z. B. `docs/beispiele/ki-15-spend.csv`. Spalten bestätigen, dann Prüfen: sicher zugeordnet, zur Prüfung, Fehler (Fremdwährung, leerer Betrag). Vorschläge mit Ähnlichkeit und Begründung, Übernehmen, Anderer Lieferant, Neu anlegen, Warengruppe. Jede Entscheidung wird ein Alias oder eine Regel. Übernehmen, danach Datenqualität und Rückgängig (30 Tage). |
+| Profil › Einstellungen › **Anbindungen** (`/einstellungen/anbindungen`) | Arbeitsplatz (Microsoft 365, Eingangsadresse, Google Workspace; Slack und Zoom ausgegraut) und Daten aus dem Einkauf (Import-API, Dateien; SAP ausgegraut). Alles läuft mit einem Anbieter zum Testen, ohne echtes Konto. **Verbinden**, dann **Verwalten**: Teile an oder aus, Adresse für eingehende Daten, **Jetzt abgleichen** (legt zwei Beispiel-Notizen bei den ersten Lieferanten an, ein drittes Element ohne Lieferant zeigt einen Fehler, ohne den Abgleich zu stoppen), **Trennen** mit Bestätigung. Tinte-Karte nennt den wichtigsten offenen Punkt, rechts die letzten Ereignisse mit Grund zum Aufklappen. |
+| **Profil** › Meine Verbindungen | Kalender (Microsoft 365, Google Workspace) für dich selbst verbinden und trennen. |
 
 ## Als Lieferant (Lieferant 1)
 
@@ -46,5 +48,5 @@ Datenanfrage (als Maßnahme), erscheint bei ihm.
 ## Was die Demo noch nicht zeigt
 
 - Feedback-Umfrage und Hantel (keine Umfrage in den Demo-Daten)
-- Anbindungen (Schritt 12, in Arbeit)
+- Echte Anbindungen an Microsoft 365, Google und eure Systeme (ab Schritt 13; bis dahin Anbieter zum Testen)
 - Anpassungen der Warengruppen (Schritte 21 bis 33, nach dem Lieferantenmanagement)

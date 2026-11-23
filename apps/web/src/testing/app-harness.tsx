@@ -264,6 +264,10 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
       : Response.json({ statusCode: api.meStatus }, { status: api.meStatus });
   }
   if (url === '/api/betreiber/kunden') return Response.json(api.customers);
+  // IN-01: Profil › Meine Verbindungen; ohne eigene Antwort des Tests noch nichts verbunden
+  if (url === '/api/profil/verbindungen') {
+    return Response.json({ connections: [], available: ['microsoft365', 'google_workspace'] });
+  }
   if (url === '/api/organisation') return Response.json(api.organization);
   if (url === '/api/prompt') {
     api.promptRequests.push(JSON.parse(String(init?.body)));

@@ -9,6 +9,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { useMe } from '@/features/auth/use-me';
 import { useCan } from '@/features/auth/use-permissions';
+import { MyConnectionsSection } from '@/features/integrations/integration-pages';
 import { MasterDataLinks } from '@/features/master-data/links';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -96,6 +97,9 @@ export function ProfilePage() {
               renderLink={routerLink}
             />
           </SettingsGroup>
+
+          {/* IN-01: eigene Verbindungen (Kalender, Outlook-Add-in), nur beim Käufer */}
+          {me.data.organization && me.data.permissions.viewBuyerAreas && <MyConnectionsSection />}
 
           {(manageSettings || me.data.permissions.viewOrganizationSettings) && (
             <SettingsGroup title={t.profile.settings}>

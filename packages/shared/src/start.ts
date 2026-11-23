@@ -23,6 +23,8 @@ export const dueKinds = [
   'ai_budget',
   // KI-16: Regel oft als nicht hilfreich bewertet, Schwelle prüfen (nur Admins)
   'hint_rule_review',
+  // IN-01: Verbindung mit Fehler, etwa wenn das Erneuern der Zugangsdaten scheiterte
+  'connection_renew',
 ] as const;
 
 export const dueItemSchema = z.object({

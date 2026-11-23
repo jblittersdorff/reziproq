@@ -22,6 +22,8 @@ export default defineProject({
     env: {
       // Kleine Pools: alle Testdateien laufen parallel mit eigener App (max_connections 100).
       DATABASE_POOL_MAX: '4',
+      // Nur ein Testwert für die Verschlüsselung der Zugangsdaten (IN-01), kein echtes Geheimnis.
+      CONNECTION_SECRET_KEY: 'nur-fuer-tests-kein-geheimnis',
       ZITADEL_ISSUER: 'https://zitadel.test',
       ZITADEL_PROJECT_ID: 'test-project',
       // Die CI setzt DATABASE_URL selbst; lokal die Datenbank aus docker-compose.yml.

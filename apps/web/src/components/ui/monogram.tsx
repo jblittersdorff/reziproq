@@ -23,16 +23,19 @@ function Monogram({
   tone,
   ring = false,
   size = 'md',
+  label,
   className,
 }: {
   name: string;
+  /** Feste Kurzform statt der zwei Buchstaben aus dem Namen, etwa „@“ oder „API“ */
+  label?: string | undefined;
   /** Kurzform für tone="ink" */
   emphasis?: boolean;
   tone?: MonogramTone;
   ring?: boolean;
   /** sm 28, md 38, lg 52 px */
   size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  className?: string | undefined;
 }) {
   const resolved = tone ?? (emphasis ? 'ink' : 'neutral');
   return (
@@ -49,7 +52,7 @@ function Monogram({
         className,
       )}
     >
-      {monogram(name)}
+      {label ?? monogram(name)}
     </span>
   );
 }

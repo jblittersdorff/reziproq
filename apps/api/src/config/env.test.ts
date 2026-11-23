@@ -71,8 +71,23 @@ describe('parseEnv', () => {
         AWS_REGION: 'eu-central-1',
         EMAIL_SMTP_HOST: 'smtp.example.test',
         WEB_APP_URL: 'https://app.example.test',
+        CONNECTION_SECRET_KEY: 'nur-fuer-tests-kein-geheimnis',
       }).AI_PROVIDER,
     ).toBe('bedrock');
+  });
+
+  it('IN-01: im Betrieb nur mit Schlüssel für die Zugangsdaten der Anbindungen', () => {
+    expect(() =>
+      parseEnv({
+        ...base,
+        NODE_ENV: 'production',
+        AI_PROVIDER: 'bedrock',
+        AI_MODEL: 'eu.anthropic.claude-haiku-5-5',
+        AWS_REGION: 'eu-central-1',
+        EMAIL_SMTP_HOST: 'smtp.example.test',
+        WEB_APP_URL: 'https://app.example.test',
+      }),
+    ).toThrow(/CONNECTION_SECRET_KEY/);
   });
 
   it('verlangt für AI_PROVIDER=anthropic einen Schlüssel', () => {

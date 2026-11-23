@@ -98,6 +98,8 @@ import {
   meetingCaptureSchema,
   importBatchListSchema,
   importBatchSchema,
+  integrationsSchema,
+  myConnectionsSchema,
   briefSettingsSchema,
   hintSchema,
   hintSettingsSchema,
@@ -3855,3 +3857,40 @@ export const briefSettingsQueryOptions = (accessToken: string) =>
 
 export const saveBriefSettings = (accessToken: string, request: BriefSettings) =>
   sendJson('PUT', '/einstellungen/termin-briefing', request, briefSettingsSchema, accessToken);
+
+/** IN-01: Einstellungen › Anbindungen (nur Admins) und Profil › Meine Verbindungen */
+const integrationsPath = '/einstellungen/anbindungen';
+
+export const integrationsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['anbindungen'],
+    queryFn: () => getJson(integrationsPath, integrationsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const connectIntegration = (accessToken: string, key: string) =>
+  sendJson('POST', `${integrationsPath}/${key}/verbinden`, {}, integrationsSchema, accessToken);
+
+export const integrationAction = (
+  accessToken: string,
+  id: string,
+  action: 'abgleichen' | 'trennen',
+) => sendJson('POST', `${integrationsPath}/${id}/${action}`, {}, integrationsSchema, accessToken);
+
+export const saveIntegrationParts = (accessToken: string, id: string, parts: string[]) =>
+  sendJson('PUT', `${integrationsPath}/${id}/teile`, { parts }, integrationsSchema, accessToken);
+
+const myConnectionsPath = '/profil/verbindungen';
+
+export const myConnectionsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['meine-verbindungen'],
+    queryFn: () => getJson(myConnectionsPath, myConnectionsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const connectMine = (accessToken: string, key: string) =>
+  sendJson('POST', `${myConnectionsPath}/${key}/verbinden`, {}, myConnectionsSchema, accessToken);
+
+export const disconnectMine = (accessToken: string, id: string) =>
+  sendJson('POST', `${myConnectionsPath}/${id}/trennen`, {}, myConnectionsSchema, accessToken);
