@@ -12,15 +12,24 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  type AnalysisViewKey,
+  type AssignView,
+  analysisViewKeys,
+  assignViewSchema,
   type CandidateRequest,
+  type CommentView,
   candidateRequestSchema,
+  commentViewSchema,
   saveAnalysisSchema,
 } from '@reziproq/shared';
+import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { AnalysisService } from './analysis.service.js';
+
+const viewPipe = new ZodValidationPipe(z.enum(analysisViewKeys));
 
 /** WG-07: Analysen der Schritte 3 und 4 und weitere verfügbare Lieferanten. */
 @Controller('warengruppen/strategien/:strategyId')
@@ -37,6 +46,30 @@ export class AnalysisController {
     const n = Number(step);
     if (n !== 3 && n !== 4) throw new BadRequestException({ code: 'invalid_step' });
     return this.analyses.step(auth, strategyId, n);
+  }
+
+  /** WG-07 (Schritt 24): Sicht Personen mit Funktion im Team zuweisen (Lead, CM, Admin) */
+  @Put('analysen/:view/zuweisung')
+  @Requires('warengruppen.sehen')
+  assign(
+    @CurrentUser() auth: AuthContext,
+    @Param('strategyId', ParseUUIDPipe) strategyId: string,
+    @Param('view', viewPipe) view: AnalysisViewKey,
+    @Body(new ZodValidationPipe(assignViewSchema)) body: AssignView,
+  ) {
+    return this.analyses.assign(auth, strategyId, view, body);
+  }
+
+  /** WG-07 (Schritt 24): Kommentar zu einer Sicht; die Funktion nur zu zugewiesenen Sichten */
+  @Post('analysen/:view/kommentare')
+  @Requires('warengruppen.sehen')
+  comment(
+    @CurrentUser() auth: AuthContext,
+    @Param('strategyId', ParseUUIDPipe) strategyId: string,
+    @Param('view', viewPipe) view: AnalysisViewKey,
+    @Body(new ZodValidationPipe(commentViewSchema)) body: CommentView,
+  ) {
+    return this.analyses.comment(auth, strategyId, view, body);
   }
 
   @Put('analysen/:view')

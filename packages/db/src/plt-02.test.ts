@@ -160,6 +160,8 @@ describe('PLT-02 in der Datenbank', () => {
       'material_group_question',
       'material_group_strategy',
       'material_group_swot_item',
+      'material_group_view_assignment',
+      'material_group_view_comment',
       'maturity_step',
       'meeting',
       'meeting_agenda_item',

@@ -231,11 +231,27 @@ export const analysisComputedSchema = z.object({
   bySupplierCountry: z.array(share),
 });
 
+const viewPersonSchema = z.object({ userId: z.string(), name: z.string() });
+
+/** WG-07 (Schritt 24): Kommentar zu einer Sicht, nur für das Team */
+export const viewCommentSchema = z.object({
+  id: z.uuid(),
+  authorName: z.string(),
+  body: z.string(),
+  createdAt: z.string(),
+  own: z.boolean(),
+});
+export type ViewComment = z.infer<typeof viewCommentSchema>;
+
 export const analysisViewSchema = z.object({
   view: z.enum(analysisViewKeys),
   state: z.enum(['open', 'in_progress', 'done']),
   data: z.record(z.string(), z.unknown()),
   updatedAt: z.string().nullable(),
+  /** WG-07: Personen mit Funktion, denen die Sicht zugewiesen ist */
+  assignees: z.array(viewPersonSchema).default([]),
+  comments: z.array(viewCommentSchema).default([]),
+  canComment: z.boolean().default(false),
 });
 
 export const candidateSchema = z.object({
@@ -259,7 +275,17 @@ export const analysisStepSchema = z.object({
   candidates: z.array(candidateSchema),
   // Schritt 4: Bewertungsrunde der Warengruppe entschieden (WG-18)
   round: z.object({ exists: z.boolean(), decided: z.boolean() }),
+  /** WG-07: Lead, Commodity Manager oder Admin weist Sichten zu (nie die Kostensicht) */
+  canAssign: z.boolean().default(false),
+  /** Personen mit Funktion im Team der Warengruppe */
+  functionMembers: z.array(viewPersonSchema).default([]),
 });
+
+export const assignViewSchema = z.object({ userIds: z.array(z.string().min(1)).max(20) }).strict();
+export type AssignView = z.infer<typeof assignViewSchema>;
+
+export const commentViewSchema = z.object({ body: z.string().trim().min(1).max(2000) }).strict();
+export type CommentView = z.infer<typeof commentViewSchema>;
 
 export const saveAnalysisSchema = z.object({ data: z.unknown() });
 

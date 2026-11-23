@@ -18,6 +18,8 @@ import {
   type TenantTransaction,
 } from '@reziproq/db';
 import {
+  type AnalysisViewKey,
+  analysisStepOf,
   type DueItem,
   defaultObjectiveCategories,
   type GoalRequest,
@@ -465,8 +467,9 @@ export class StrategyService {
       group,
       role,
       editableSteps: this.editable(auth, role, strategy),
-      // WG-07: Kostensicht nur für Team und Freigebende (heute Admins), auch nach der Freigabe
-      seesCost: role !== 'reader',
+      // WG-07: Kostensicht nur für Lead, Commodity Manager, Einkauf im Team und Freigebende (heute
+      // Admins), auch nach der Freigabe. Die Funktion im Team nie (Gründer, 23.11.2026).
+      seesCost: role !== 'reader' && role !== 'function',
     };
   }
 
@@ -905,7 +908,50 @@ export class StrategyService {
 
   /** Start (NAV-05): der nächste offene Schritt je Strategie im Entwurf, den die Person bearbeitet. */
   async dueItems(auth: AuthContext): Promise<DueItem[]> {
-    if (!auth.organization?.buyer || !can(auth, 'warengruppenstrategie.bearbeiten')) return [];
+    if (!auth.organization?.buyer) return [];
+    const assigned = can(auth, 'warengruppen.sehen') ? await this.assignedViews(auth) : [];
+    if (!can(auth, 'warengruppenstrategie.bearbeiten')) return assigned;
+    return [...assigned, ...(await this.openSteps(auth))];
+  }
+
+  /**
+   * WG-07 (Schritt 24): zugewiesene Sichten im Entwurf, zu denen die Person noch nichts
+   * kommentiert hat; fällig zum nächsten Meilenstein, sonst zum Jahresende vor dem Strategiejahr.
+   */
+  private assignedViews(auth: AuthContext): Promise<DueItem[]> {
+    return this.run(auth, async (tx) => {
+      const rows = await tx.execute<{
+        strategy_id: string;
+        view: string;
+        group_id: string;
+        group_name: string;
+        year: number;
+        due_on: string | null;
+      }>(sql`
+        select a.strategy_id, a.view, g.id as group_id, g.name as group_name, s.year,
+          (select min(m.due_on)::text from material_group_milestone m where m.strategy_id = s.id) as due_on
+        from material_group_view_assignment a
+        join material_group_strategy s on s.id = a.strategy_id
+        join material_group g on g.id = s.material_group_id
+        where a.user_id = ${auth.userId} and s.status in ('draft', 'resubmit') and g.active
+          and not exists (select 1 from material_group_view_comment c
+            where c.strategy_id = a.strategy_id and c.view = a.view and c.author_user_id = ${auth.userId})
+        order by g.name, a.view`);
+      return rows.rows.map((row) => {
+        const step = analysisStepOf(row.view as AnalysisViewKey);
+        return {
+          id: `${row.strategy_id}:${row.view}`,
+          kind: 'view_assignment' as const,
+          supplier: row.group_name,
+          detail: row.view,
+          dueDate: row.due_on ?? `${row.year - 1}-12-31`,
+          href: `/warengruppen/${row.group_id}/strategie/${step}`,
+        };
+      });
+    });
+  }
+
+  private openSteps(auth: AuthContext): Promise<DueItem[]> {
     return this.run(auth, async (tx) => {
       const strategies = await tx
         .select()

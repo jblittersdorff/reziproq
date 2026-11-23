@@ -15,10 +15,10 @@ import { StageMetrics } from '@/components/ui/stage';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { useMe } from '@/features/auth/use-me';
-import { PromptTrigger } from '@/features/prompt/prompt-trigger';
-import { routerLink } from '@/features/shell/navigation';
 import { InboxTile } from '@/features/calendar/inbox-page';
 import { HintsAttention } from '@/features/hints/hints-attention';
+import { PromptTrigger } from '@/features/prompt/prompt-trigger';
+import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { startQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
@@ -27,6 +27,11 @@ import { dayTime } from './greeting';
 
 export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
   if (item.kind === 'ai_budget') return t.start.kind.ai_budget;
+  if (item.kind === 'agent_approval') return t.start.kind.agent_approval;
+  if (item.kind === 'view_assignment') {
+    const views = t.analysis.views as Record<string, string>;
+    return t.start.dueViewAssignment((item.detail && views[item.detail]) ?? item.detail ?? '');
+  }
   if (item.kind === 'member_review') return `${t.start.kind.member_review}: ${item.detail ?? ''}`;
   if (item.kind === 'connection_renew') {
     const names = t.integrations.names;

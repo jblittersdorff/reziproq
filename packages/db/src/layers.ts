@@ -779,6 +779,24 @@ export const layerRegister: Record<string, LayerEntry> = {
     }),
   },
   // WG-07: Analysen und weitere verfügbare Lieferanten je Strategie
+  material_group_view_assignment: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      view: 'volume',
+      user_id: orgUser,
+      assigned_by: orgUser,
+    }),
+  },
+  material_group_view_comment: {
+    kind: 'org_private',
+    testValues: ({ org, orgUser, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      view: 'volume',
+      author_user_id: orgUser,
+      body: 'Probe',
+    }),
+  },
   material_group_analysis: {
     kind: 'org_private',
     testValues: ({ org, orgUser, probe }) => ({

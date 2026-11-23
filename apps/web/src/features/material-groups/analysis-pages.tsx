@@ -42,6 +42,7 @@ import { formatMoney } from '@/lib/money';
 import type { Messages } from '@/locales/de';
 import { CategorySegmentsCard, segmentationPagePath } from './segmentation-pages';
 import { NoteForm } from './strategy-pages';
+import { ViewTeamPanel } from './view-team';
 
 type Row = Record<string, string>;
 type Text = Messages['analysis'];
@@ -447,6 +448,12 @@ export function AnalysisSection({
             note={content.notes.find((entry) => entry.view === current.view)}
             editable={editable}
           />
+          <ViewTeamPanel
+            key={`team-${current.view}-${current.assignees.map((entry) => entry.userId).join(',')}`}
+            strategyId={context.strategy.id}
+            step={step}
+            view={current.view}
+          />
         </aside>
       </div>
       {content.step === 4 && (
@@ -475,7 +482,7 @@ export function AnalysisSection({
                 key={entry.view}
                 className="flex flex-col gap-2 rounded-lg bg-card p-4 shadow-card"
               >
-                <span className="text-muted-foreground text-xs">
+                <span className="text-chip text-muted-foreground">
                   {text.views[entry.view]} · {text.states[entry.state]}
                 </span>
                 <strong className="font-semibold">

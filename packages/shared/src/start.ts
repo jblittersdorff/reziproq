@@ -29,6 +29,8 @@ export const dueKinds = [
   'member_review',
   // KI-09: eigener Agent wartet auf Freigabe (nur Admins)
   'agent_approval',
+  // WG-07: zugewiesene Sicht einer Warengruppenstrategie kommentieren (Funktion im Team)
+  'view_assignment',
 ] as const;
 
 export const dueItemSchema = z.object({

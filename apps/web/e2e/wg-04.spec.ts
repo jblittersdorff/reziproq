@@ -487,6 +487,11 @@ async function mock(page: Page) {
       json: {
         step,
         canEdit: true,
+        canAssign: true,
+        functionMembers: [
+          { userId: 'kim', name: 'Kim Qualität' },
+          { userId: 'ole', name: 'Ole Logistik' },
+        ],
         views:
           step === 3
             ? [
@@ -499,6 +504,18 @@ async function mock(page: Page) {
                     forecast: [{ businessUnitId: uuid(50), year: 2027, amountCents: 480_000_000 }],
                   },
                   updatedAt: null,
+                  // Schritt 24: Sicht der Funktion zugewiesen, mit Kommentar
+                  assignees: [{ userId: 'kim', name: 'Kim Qualität' }],
+                  comments: [
+                    {
+                      id: uuid(70),
+                      authorName: 'Kim Qualität',
+                      body: 'Die Prüftechnik für Starrflex fehlt noch in den Mindestanforderungen.',
+                      createdAt: '2026-11-20T10:00:00Z',
+                      own: false,
+                    },
+                  ],
+                  canComment: true,
                 },
                 {
                   view: 'supply_chain',

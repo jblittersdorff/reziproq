@@ -1084,6 +1084,35 @@ export const analysisStepQueryOptions = (accessToken: string, strategyId: string
     retry: retryUnlessDenied,
   });
 
+/** WG-07 (Schritt 24): Sicht Personen mit Funktion zuweisen; Kommentar zu einer Sicht */
+export const assignAnalysisView = (
+  accessToken: string,
+  strategyId: string,
+  view: string,
+  userIds: string[],
+): Promise<AnalysisStep> =>
+  sendJson(
+    'PUT',
+    `/warengruppen/strategien/${strategyId}/analysen/${view}/zuweisung`,
+    { userIds },
+    analysisStepSchema,
+    accessToken,
+  );
+
+export const commentAnalysisView = (
+  accessToken: string,
+  strategyId: string,
+  view: string,
+  body: string,
+): Promise<AnalysisStep> =>
+  sendJson(
+    'POST',
+    `/warengruppen/strategien/${strategyId}/analysen/${view}/kommentare`,
+    { body },
+    analysisStepSchema,
+    accessToken,
+  );
+
 export const saveAnalysis = (
   accessToken: string,
   strategyId: string,

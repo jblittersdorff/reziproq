@@ -862,6 +862,13 @@
       "when": 1795449902327,
       "tag": "0122_ki09_eigene_agenten",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1795454378568,
+      "tag": "0123_wg07_sichten_zuweisen",
+      "breakpoints": true
     }
   ]
 }

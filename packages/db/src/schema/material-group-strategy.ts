@@ -226,6 +226,62 @@ export const materialGroupAnalysis = pgTable(
   ],
 );
 
+/**
+ * WG-07 (Schritt 24): Lead oder Commodity Manager weist einer Person mit Funktion im Team einzelne
+ * Sichten zu; sie kommentiert nur diese. Die Kostensicht wird nie zugewiesen.
+ */
+export const materialGroupViewAssignment = pgTable(
+  'material_group_view_assignment',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    view: text({ enum: analysisViews }).notNull(),
+    userId: text()
+      .notNull()
+      .references(() => appUser.id),
+    assignedBy: text()
+      .notNull()
+      .references(() => appUser.id),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('material_group_view_assignment_once').on(table.strategyId, table.view, table.userId),
+    check('material_group_view_assignment_no_cost', sql`${table.view} <> 'cost'`),
+  ],
+);
+
+/** WG-07 (Schritt 24): Kommentar zu einer Sicht der Strategie, nur für das Team */
+export const materialGroupViewComment = pgTable(
+  'material_group_view_comment',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    view: text({ enum: analysisViews }).notNull(),
+    authorUserId: text()
+      .notNull()
+      .references(() => appUser.id),
+    body: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('material_group_view_comment_strategy').on(table.strategyId, table.view),
+    check(
+      'material_group_view_comment_body',
+      sql`length(trim(${table.body})) between 1 and 2000`,
+    ),
+  ],
+);
+
 /** WG-07 Footprint: weitere verfügbare Lieferanten, die noch nicht zur Basis gehören */
 export const materialGroupCandidate = pgTable(
   'material_group_candidate',

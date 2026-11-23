@@ -96,26 +96,37 @@ beforeEach(() => {
   analysis = {
     step: 3,
     canEdit: true,
+    canAssign: false,
+    functionMembers: [],
     views: [
       {
         view: 'volume',
         state: 'in_progress',
         data: { minRequirements: ['Temperaturfest bis 150 °C'], differentiators: [], forecast: [] },
         updatedAt: null,
+        assignees: [],
+        comments: [],
+        canComment: false,
       },
       {
         view: 'supply_chain',
         state: 'done',
         data: { stages: [{ name: 'Laminat', description: '', valueSharePct: 30 }], countries: [] },
         updatedAt: null,
+        assignees: [],
+        comments: [],
+        canComment: false,
       },
       {
         view: 'cost',
         state: 'done',
         data: { costTypes: [{ name: 'Material', own: 100, target: 98.5, market: 91 }] },
         updatedAt: null,
+        assignees: [],
+        comments: [],
+        canComment: false,
       },
-      { view: 'technology', state: 'open', data: { technologies: [] }, updatedAt: null },
+      { view: 'technology', state: 'open', data: { technologies: [] }, updatedAt: null, assignees: [], comments: [], canComment: false },
     ],
     computed: {
       currency: 'EUR',
@@ -246,14 +257,20 @@ describe('WG-07 Analysen', () => {
           state: 'open',
           data: { stability: [], callOff: [] },
           updatedAt: null,
+          assignees: [],
+          comments: [],
+          canComment: false,
         },
         {
           view: 'quality',
           state: 'open',
           data: { ratings: [], defects: [], audits: [] },
           updatedAt: null,
+          assignees: [],
+          comments: [],
+          canComment: false,
         },
-        { view: 'footprint', state: 'open', data: { recipients: [] }, updatedAt: null },
+        { view: 'footprint', state: 'open', data: { recipients: [] }, updatedAt: null, assignees: [], comments: [], canComment: false },
       ],
       candidates: [
         {
@@ -279,5 +296,53 @@ describe('WG-07 Analysen', () => {
       }),
     );
     expect(await screen.findByText('Lieferant im Entwurf angelegt.')).toBeTruthy();
+  });
+  it('Schritt 24: Lead weist eine Sicht der Funktion zu; zugewiesene Personen kommentieren', async () => {
+    analysis = {
+      ...analysis,
+      canAssign: true,
+      functionMembers: [{ userId: 'kim', name: 'Kim Qualität' }],
+      views: analysis.views.map((entry) =>
+        entry.view === 'volume'
+          ? {
+              ...entry,
+              canComment: true,
+              comments: [
+                {
+                  id: uuid(70),
+                  authorName: 'Kim Qualität',
+                  body: 'Prüftechnik fehlt.',
+                  createdAt: '2026-11-20T10:00:00Z',
+                  own: false,
+                },
+              ],
+            }
+          : entry,
+      ),
+    };
+    renderAt(`/warengruppen/${group}/strategie/3`);
+    const panel = await screen.findByRole('region', { name: 'Team und Kommentare' });
+    expect(within(panel).getByText('Noch niemandem zum Kommentieren zugewiesen.')).toBeTruthy();
+    expect(within(panel).getByText('Prüftechnik fehlt.')).toBeTruthy();
+    fireEvent.click(within(panel).getByLabelText('Kim Qualität'));
+    fireEvent.click(within(panel).getByRole('button', { name: 'Zuweisung speichern' }));
+    await waitFor(() =>
+      expect(sent.at(-1)).toMatchObject({
+        method: 'PUT',
+        url: `/api/warengruppen/strategien/${strategyId}/analysen/volume/zuweisung`,
+        body: { userIds: ['kim'] },
+      }),
+    );
+    fireEvent.change(within(panel).getByLabelText('Dein Kommentar'), {
+      target: { value: 'Ergänze ich bis Freitag.' },
+    });
+    fireEvent.click(within(panel).getByRole('button', { name: 'Kommentieren' }));
+    await waitFor(() =>
+      expect(sent.at(-1)).toMatchObject({
+        method: 'POST',
+        url: `/api/warengruppen/strategien/${strategyId}/analysen/volume/kommentare`,
+        body: { body: 'Ergänze ich bis Freitag.' },
+      }),
+    );
   });
 });

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import {
   analysisStepSchema,
+  dueListSchema,
   lastFullYear,
   strategyContextResponseSchema,
   strategyStepSchema,
@@ -26,6 +27,7 @@ describe('WG-07 Analysen', () => {
     lead: `wg07-lead-${run}`,
     buyer: `wg07-buyer-${run}`,
     reader: `wg07-reader-${run}`,
+    fn: `wg07-fn-${run}`,
     adminB: `wg07-admin-b-${run}`,
     supplier: `wg07-sup-${run}`,
   };
@@ -94,6 +96,7 @@ describe('WG-07 Analysen', () => {
         person(users.lead, orgs.a, 'member'),
         person(users.buyer, orgs.a, 'member'),
         person(users.reader, orgs.a, 'member'),
+        person(users.fn, orgs.a, 'member'),
         person(users.adminB, orgs.b, 'admin'),
         person(users.supplier, orgs.s1, 'admin'),
       ]);
@@ -119,6 +122,7 @@ describe('WG-07 Analysen', () => {
     await db.insert(schema.materialGroupMember).values([
       { orgId: orgs.a, materialGroupId: group, userId: users.lead, role: 'lead' },
       { orgId: orgs.a, materialGroupId: group, userId: users.buyer, role: 'buyer' },
+      { orgId: orgs.a, materialGroupId: group, userId: users.fn, role: 'function' },
     ]);
     await db.insert(schema.materialGroupProductGroup).values(
       productGroups.map((id, n) => ({
@@ -289,6 +293,66 @@ describe('WG-07 Analysen', () => {
       .update(schema.materialGroupStrategy)
       .set({ status: 'draft' })
       .where(sql`${schema.materialGroupStrategy.id} = ${strategyId}`);
+  });
+
+  it('Schritt 24: die Funktion sieht keine Kosten und kommentiert nur zugewiesene Sichten', async () => {
+    const base = `/warengruppen/strategien/${strategyId}/analysen`;
+    const own = await analyses(3, users.fn);
+    expect(own.views.map((view) => view.view)).not.toContain('cost');
+    expect(JSON.stringify(own)).not.toContain('98.5');
+    expect(own.views.every((view) => !view.canComment)).toBe(true);
+    expect(
+      (await call(users.fn, 'POST', `${base}/volume/kommentare`, { body: 'Hallo' })).status,
+    ).toBe(403);
+    // Zuweisen dürfen Lead, Commodity Manager und Admin; nie die Kostensicht, nur an die Funktion
+    expect(
+      (await call(users.buyer, 'PUT', `${base}/volume/zuweisung`, { userIds: [users.fn] })).status,
+    ).toBe(403);
+    expect(
+      (await call(users.lead, 'PUT', `${base}/cost/zuweisung`, { userIds: [users.fn] })).status,
+    ).toBe(400);
+    expect(
+      (await call(users.lead, 'PUT', `${base}/volume/zuweisung`, { userIds: [users.buyer] }))
+        .status,
+    ).toBe(400);
+    const assigned = analysisStepSchema.parse(
+      (await call(users.lead, 'PUT', `${base}/volume/zuweisung`, { userIds: [users.fn] })).body,
+    );
+    expect(assigned.canAssign).toBe(true);
+    expect(assigned.functionMembers.map((entry) => entry.userId)).toEqual([users.fn]);
+    expect(assigned.views.find((view) => view.view === 'volume')?.assignees).toEqual([
+      { userId: users.fn, name: users.fn },
+    ]);
+    // Aufgabe in Mein Tag, bis die Person kommentiert hat
+    const due = async () =>
+      dueListSchema
+        .parse((await call(users.fn, 'GET', '/start/due')).body)
+        .items.filter((item) => item.kind === 'view_assignment');
+    expect(await due()).toEqual([
+      expect.objectContaining({ detail: 'volume', href: `/warengruppen/${group}/strategie/3` }),
+    ]);
+    const after = analysisStepSchema.parse(
+      (
+        await call(users.fn, 'POST', `${base}/volume/kommentare`, {
+          body: 'Die Prüftechnik fehlt in der Volumensicht.',
+        })
+      ).body,
+    );
+    expect(after.views.find((view) => view.view === 'volume')?.comments).toEqual([
+      expect.objectContaining({ body: 'Die Prüftechnik fehlt in der Volumensicht.', own: true }),
+    ]);
+    expect(await due()).toEqual([]);
+    expect(
+      (await call(users.fn, 'POST', `${base}/technology/kommentare`, { body: 'Nicht zugewiesen' }))
+        .status,
+    ).toBe(403);
+    // Das Team liest den Kommentar, Lead antwortet
+    const lead = await analyses(3);
+    expect(lead.views.find((view) => view.view === 'volume')?.comments[0]?.own).toBe(false);
+    expect(
+      (await call(users.lead, 'POST', `${base}/volume/kommentare`, { body: 'Danke, ergänze ich.' }))
+        .status,
+    ).toBe(201);
   });
 
   it('das Schema der Kostensicht lehnt ein Lieferantenfeld ab, auch in der Datenbank', async () => {

@@ -12,13 +12,16 @@ import {
   type AnalysisData,
   type AnalysisStep,
   type AnalysisViewKey,
+  type AssignView,
   analysisDataSchemas,
   analysisStepOf,
   analysisStepSchema,
   analysisViewKeys,
   type CandidateRequest,
+  type CommentView,
   candidateRequestSchema,
   lastFullYear,
+  type StrategyRole,
   topShares,
   viewsOfStep,
 } from '@reziproq/shared';
@@ -31,6 +34,9 @@ import { StrategyService } from './strategy.service.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
+
+/** WG-07: Wer Sichten zuweist */
+const assigners: StrategyRole[] = ['lead', 'commodity_manager', 'admin'];
 
 const supplierName = sql<string>`coalesce(${schema.relationshipSide.displayName}, ${schema.organization.name})`;
 
@@ -119,18 +125,80 @@ export class AnalysisService {
         rows.find((row) => row.view === view)?.data ?? {},
       ) as AnalysisData[K];
 
+    // WG-07 (Schritt 24): Zuweisungen und Kommentare je Sicht, nur für das Team und Admins
+    const team = access.role !== 'reader';
+    const assignments = team
+      ? await tx
+          .select({
+            view: schema.materialGroupViewAssignment.view,
+            userId: schema.materialGroupViewAssignment.userId,
+            name: schema.appUser.name,
+          })
+          .from(schema.materialGroupViewAssignment)
+          .innerJoin(
+            schema.appUser,
+            eq(schema.appUser.id, schema.materialGroupViewAssignment.userId),
+          )
+          .where(eq(schema.materialGroupViewAssignment.strategyId, strategyId))
+          .orderBy(asc(schema.appUser.name))
+      : [];
+    const comments = team
+      ? await tx
+          .select({
+            id: schema.materialGroupViewComment.id,
+            view: schema.materialGroupViewComment.view,
+            authorUserId: schema.materialGroupViewComment.authorUserId,
+            authorName: schema.appUser.name,
+            body: schema.materialGroupViewComment.body,
+            createdAt: schema.materialGroupViewComment.createdAt,
+          })
+          .from(schema.materialGroupViewComment)
+          .innerJoin(
+            schema.appUser,
+            eq(schema.appUser.id, schema.materialGroupViewComment.authorUserId),
+          )
+          .where(eq(schema.materialGroupViewComment.strategyId, strategyId))
+          .orderBy(asc(schema.materialGroupViewComment.createdAt))
+      : [];
+    const draft = access.strategy.status !== 'approved';
     const views = viewsOfStep(step)
-      // Kostensicht nur für Team und Freigebende, auch nach der Freigabe (WG-07)
+      // Kostensicht nur für Team ohne Funktion und Freigebende, auch nach der Freigabe (WG-07)
       .filter((view) => view !== 'cost' || access.seesCost)
       .map((view) => {
         const row = rows.find((entry) => entry.view === view);
+        const assignees = assignments.filter((entry) => entry.view === view);
         return {
           view,
           state: states.views[view],
           data: dataOf(view) as Record<string, unknown>,
           updatedAt: row ? row.updatedAt.toISOString() : null,
+          assignees: assignees.map(({ userId, name }) => ({ userId, name })),
+          comments: comments
+            .filter((entry) => entry.view === view)
+            .map((entry) => ({
+              id: entry.id,
+              authorName: entry.authorName,
+              body: entry.body,
+              createdAt: entry.createdAt.toISOString(),
+              own: entry.authorUserId === auth.userId,
+            })),
+          canComment: draft && this.mayComment(access.role, assignees, auth.userId),
         };
       });
+    const canAssign = draft && assigners.includes(access.role);
+    const functionMembers = canAssign
+      ? await tx
+          .select({ userId: schema.appUser.id, name: schema.appUser.name })
+          .from(schema.materialGroupMember)
+          .innerJoin(schema.appUser, eq(schema.appUser.id, schema.materialGroupMember.userId))
+          .where(
+            and(
+              eq(schema.materialGroupMember.materialGroupId, group.id),
+              eq(schema.materialGroupMember.role, 'function'),
+            ),
+          )
+          .orderBy(asc(schema.appUser.name))
+      : [];
 
     const suppliers = await this.suppliers(tx, orgId, group.id);
     const businessUnits = await tx
@@ -168,6 +236,103 @@ export class AnalysisService {
       businessUnits,
       candidates,
       round: states.round,
+      canAssign,
+      functionMembers: [...new Map(functionMembers.map((entry) => [entry.userId, entry])).values()],
+    });
+  }
+
+  /** WG-07: Die Funktion kommentiert nur zugewiesene Sichten; Lead, CM, Einkauf und Admin jede. */
+  private mayComment(role: StrategyRole, assignees: { userId: string }[], userId: string) {
+    if (role === 'function') return assignees.some((entry) => entry.userId === userId);
+    return role !== 'reader';
+  }
+
+  /**
+   * WG-07 (Schritt 24): Sicht Personen mit Funktion im Team zuweisen. Nur Lead, Commodity Manager
+   * oder Admin, nur im Entwurf, nie die Kostensicht. Ersetzt die bisherige Zuweisung der Sicht.
+   */
+  assign(
+    auth: AuthContext,
+    strategyId: string,
+    view: AnalysisViewKey,
+    input: AssignView,
+  ): Promise<AnalysisStep> {
+    if (view === 'cost') throw new BadRequestException({ code: 'kosten_nicht_zuweisbar' });
+    return this.run(auth, async (tx, organization) => {
+      const access = await this.strategies.accessIn(tx, auth, strategyId);
+      if (!assigners.includes(access.role) || access.strategy.status === 'approved')
+        throw forbidden();
+      const userIds = [...new Set(input.userIds)];
+      if (userIds.length > 0) {
+        const members = await tx
+          .select({ userId: schema.materialGroupMember.userId })
+          .from(schema.materialGroupMember)
+          .where(
+            and(
+              eq(schema.materialGroupMember.materialGroupId, access.group.id),
+              eq(schema.materialGroupMember.role, 'function'),
+              inArray(schema.materialGroupMember.userId, userIds),
+            ),
+          );
+        const known = new Set(members.map((entry) => entry.userId));
+        if (userIds.some((id) => !known.has(id)))
+          throw new BadRequestException({ code: 'keine_funktion_im_team' });
+      }
+      await tx
+        .delete(schema.materialGroupViewAssignment)
+        .where(
+          and(
+            eq(schema.materialGroupViewAssignment.strategyId, strategyId),
+            eq(schema.materialGroupViewAssignment.view, view),
+          ),
+        );
+      if (userIds.length > 0) {
+        await tx.insert(schema.materialGroupViewAssignment).values(
+          userIds.map((userId) => ({
+            orgId: organization.id,
+            strategyId,
+            view,
+            userId,
+            assignedBy: auth.userId,
+          })),
+        );
+      }
+      return this.stepIn(tx, auth, organization.id, strategyId, analysisStepOf(view));
+    });
+  }
+
+  /** WG-07 (Schritt 24): Kommentar zu einer Sicht; die Funktion nur zu zugewiesenen Sichten */
+  comment(
+    auth: AuthContext,
+    strategyId: string,
+    view: AnalysisViewKey,
+    input: CommentView,
+  ): Promise<AnalysisStep> {
+    return this.run(auth, async (tx, organization) => {
+      const access = await this.strategies.accessIn(tx, auth, strategyId);
+      if (view === 'cost' && !access.seesCost) throw forbidden();
+      const assignees = await tx
+        .select({ userId: schema.materialGroupViewAssignment.userId })
+        .from(schema.materialGroupViewAssignment)
+        .where(
+          and(
+            eq(schema.materialGroupViewAssignment.strategyId, strategyId),
+            eq(schema.materialGroupViewAssignment.view, view),
+          ),
+        );
+      if (
+        access.strategy.status === 'approved' ||
+        !this.mayComment(access.role, assignees, auth.userId)
+      )
+        throw forbidden();
+      await tx.insert(schema.materialGroupViewComment).values({
+        orgId: organization.id,
+        strategyId,
+        view,
+        authorUserId: auth.userId,
+        body: input.body,
+      });
+      return this.stepIn(tx, auth, organization.id, strategyId, analysisStepOf(view));
     });
   }
 
