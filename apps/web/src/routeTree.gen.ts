@@ -83,6 +83,7 @@ import { Route as AppEinstellungenWarengruppenImportRouteImport } from './routes
 import { Route as AppEinstellungenWarengruppenKennzahlenRouteImport } from './routes/_app/einstellungen/warengruppen/kennzahlen'
 import { Route as AppEinstellungenWarengruppenLeitfragenRouteImport } from './routes/_app/einstellungen/warengruppen/leitfragen'
 import { Route as AppEinstellungenWarengruppenNeuRouteImport } from './routes/_app/einstellungen/warengruppen/neu'
+import { Route as AppEinstellungenWarengruppenVergabeRouteImport } from './routes/_app/einstellungen/warengruppen/vergabe'
 import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './routes/_app/einstellungen/zielkategorien/index'
 import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/_app/einstellungen/zielkategorien/neu'
 import { Route as AppKundenIdIndexRouteImport } from './routes/_app/kunden/$id/index'
@@ -670,6 +671,12 @@ const AppEinstellungenWarengruppenNeuRoute =
   AppEinstellungenWarengruppenNeuRouteImport.update({
     id: '/einstellungen/warengruppen/neu',
     path: '/einstellungen/warengruppen/neu',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppEinstellungenWarengruppenVergabeRoute =
+  AppEinstellungenWarengruppenVergabeRouteImport.update({
+    id: '/einstellungen/warengruppen/vergabe',
+    path: '/einstellungen/warengruppen/vergabe',
     getParentRoute: () => AppRoute,
   } as any)
 const AppEinstellungenZielkategorienIndexRoute =
@@ -1889,6 +1896,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
+  '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -2153,6 +2161,7 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
+  '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -2421,6 +2430,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/kennzahlen': typeof AppEinstellungenWarengruppenKennzahlenRoute
   '/_app/einstellungen/warengruppen/leitfragen': typeof AppEinstellungenWarengruppenLeitfragenRoute
   '/_app/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
+  '/_app/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/_app/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
@@ -2690,6 +2700,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/kennzahlen'
     | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
+    | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
     | '/lieferanten/$id/aktivitaeten'
     | '/portfolio/fokus/$id'
@@ -2954,6 +2965,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/kennzahlen'
     | '/einstellungen/warengruppen/leitfragen'
     | '/einstellungen/warengruppen/neu'
+    | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
     | '/lieferanten/$id/aktivitaeten'
     | '/portfolio/fokus/$id'
@@ -3221,6 +3233,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/kennzahlen'
     | '/_app/einstellungen/warengruppen/leitfragen'
     | '/_app/einstellungen/warengruppen/neu'
+    | '/_app/einstellungen/warengruppen/vergabe'
     | '/_app/einstellungen/zielkategorien/neu'
     | '/_app/lieferanten/$id/aktivitaeten'
     | '/_app/portfolio/fokus/$id'
@@ -3952,6 +3965,13 @@ declare module '@tanstack/react-router' {
       path: '/einstellungen/warengruppen/neu'
       fullPath: '/einstellungen/warengruppen/neu'
       preLoaderRoute: typeof AppEinstellungenWarengruppenNeuRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/einstellungen/warengruppen/vergabe': {
+      id: '/_app/einstellungen/warengruppen/vergabe'
+      path: '/einstellungen/warengruppen/vergabe'
+      fullPath: '/einstellungen/warengruppen/vergabe'
+      preLoaderRoute: typeof AppEinstellungenWarengruppenVergabeRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/zielkategorien/': {
@@ -5786,6 +5806,7 @@ interface AppRouteChildren {
   AppEinstellungenWarengruppenKennzahlenRoute: typeof AppEinstellungenWarengruppenKennzahlenRoute
   AppEinstellungenWarengruppenLeitfragenRoute: typeof AppEinstellungenWarengruppenLeitfragenRoute
   AppEinstellungenWarengruppenNeuRoute: typeof AppEinstellungenWarengruppenNeuRoute
+  AppEinstellungenWarengruppenVergabeRoute: typeof AppEinstellungenWarengruppenVergabeRoute
   AppEinstellungenZielkategorienNeuRoute: typeof AppEinstellungenZielkategorienNeuRoute
   AppPortfolioFokusIdRoute: typeof AppPortfolioFokusIdRoute
   AppPortfolioRundenNeuRoute: typeof AppPortfolioRundenNeuRoute
@@ -5905,6 +5926,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenWarengruppenLeitfragenRoute:
     AppEinstellungenWarengruppenLeitfragenRoute,
   AppEinstellungenWarengruppenNeuRoute: AppEinstellungenWarengruppenNeuRoute,
+  AppEinstellungenWarengruppenVergabeRoute:
+    AppEinstellungenWarengruppenVergabeRoute,
   AppEinstellungenZielkategorienNeuRoute:
     AppEinstellungenZielkategorienNeuRoute,
   AppPortfolioFokusIdRoute: AppPortfolioFokusIdRoute,

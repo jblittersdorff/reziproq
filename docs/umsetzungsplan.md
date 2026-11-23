@@ -41,7 +41,7 @@ Der lokale Stand bis `d20ed66` enthält die Lieferantenmodule einschließlich PN
 | 26 | Anpassung WG-10 · Hebelkatalog und vorgeschlagene Paarungen | 21, 24–25; bestehende Bewertung und Katalogpflege. Erledigt: Pflegeseite Hebelkatalog, Vorschläge prüfen oder verwerfen, Katalog markiert Vorschläge. | M | fertig (23.11.2026) |
 | 27 | WG-12 · Scorecard und Quartalsreview | 22, 26; Abnahme von Review nach Freigabe mit WG-16. | M | fertig (23.11.2026; Anpassen aus dem Review mit WG-16) |
 | 28 | WG-15 · Supplier Map | 22–23, 26; Ist aus SEG und Spend, Soll-Typ, SRO-Zeilenzugriff; Übergabelink mit WG-20. | M | fertig (23.11.2026; Übergabe an WG-20 und Vorbelegung durch KI-13 folgen) |
-| 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | offen |
+| 29 | WG-14 · Vergabeplan | 22, 26, 28 für Warnung bei Soll-Typ „beendet“; übergreifender Widerspruch mit WG-20. | M | fertig (23.11.2026; Prüffragen vorbefüllen mit WG-23) |
 | 30 | WG-16 · Freigabe und Versionen | 27–29 und Schritte 2–9; Review und Freigaberollen gemeinsam abnehmen. | L | offen |
 | 31 | WG-20 · Zusammenführung und Übergaben | 23, 28–30; SEG, FS-01 und Lieferantenplan; NAV-10-Warengruppenreiter samt LS-Verweisen abschließen. | L | offen |
 | 32 | WG-23 · Entwürfe Stufe 1 und 2 (WG-24) | 5–7, 25, 27–31; KI-Fassung WG-23.neu.md. Zielort für Feedback und Umfang von „Fragen“ klären. | L | offen |

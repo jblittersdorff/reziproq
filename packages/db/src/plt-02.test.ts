@@ -148,6 +148,8 @@ describe('PLT-02 in der Datenbank', () => {
       'lever',
       'material_group',
       'material_group_analysis',
+      'material_group_award',
+      'material_group_award_supplier',
       'material_group_candidate',
       'material_group_goal',
       'material_group_initiative',

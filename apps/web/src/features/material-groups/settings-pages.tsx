@@ -1,4 +1,5 @@
 import {
+  type AwardEligibility,
   type MaterialGroupImportPreview,
   portalKpiSource,
   type StrategyLever,
@@ -13,7 +14,9 @@ import { CheckboxGroup, FormActions, FormField } from '@/components/ui/form-fiel
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
+import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -29,6 +32,7 @@ import { PageHeader } from '@/features/shell/page-header';
 import { PagePath, useGoBack } from '@/features/shell/page-path';
 import {
   ApiError,
+  awardEligibilityQueryOptions,
   categoryLabelQueryOptions,
   kpiListQueryOptions,
   leverCatalogQueryOptions,
@@ -38,6 +42,7 @@ import {
   parseMaterialGroupImport,
   parseMaterialGroupPreview,
   questionListQueryOptions,
+  saveAwardEligibility,
   saveCategoryLabel,
   saveKpi,
   saveQuestion,
@@ -1053,5 +1058,75 @@ function LeverForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * WG-14 (Schritt 29, nach Regeln): Bedingungen für Vergabefähigkeit. Admins schalten die
+ * Bedingungen; eine aktive Beziehung ist immer Pflicht (Gründer, 23.11.2026).
+ */
+export function AwardEligibilitySettingsPage() {
+  const t = useT();
+  const text = t.awardPlan;
+  const accessToken = useToken();
+  const manage = useCan('stammdaten.verwalten');
+  const queryClient = useQueryClient();
+  const options = awardEligibilityQueryOptions(accessToken);
+  const query = useQuery({ ...options, enabled: accessToken !== '' });
+  const [draft, setDraft] = useState<AwardEligibility | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const trail = useTrail(text.eligibilityTitle);
+  const current = draft ?? query.data ?? null;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!current) return;
+    setMessage(null);
+    setFailure(null);
+    try {
+      queryClient.setQueryData(options.queryKey, await saveAwardEligibility(accessToken, current));
+      setDraft(null);
+      setMessage(text.saved);
+    } catch {
+      setFailure(text.saveFailed);
+    }
+  };
+  const rows = [
+    ['qualityNotCritical', text.eligibilityQuality],
+    ['stabilityNotCritical', text.eligibilityStability],
+  ] as const;
+  return (
+    <>
+      {trail}
+      <PageHeader title={text.eligibilityTitle} purpose={text.eligibilityPurpose} />
+      {query.isError ? (
+        <ErrorState title={t.strategy.failed} />
+      ) : !current ? (
+        <LoadingState label={t.strategy.loading} />
+      ) : (
+        <form className="flex max-w-3xl flex-col gap-4" onSubmit={submit}>
+          {message && <StatusLine message={message} onHidden={() => setMessage(null)} />}
+          {failure && <StatusLine message={failure} tone="warning" />}
+          {!manage && <p className="text-muted-foreground text-sm">{text.eligibilityAdminOnly}</p>}
+          <SettingsGroup>
+            {rows.map(([key, label]) => (
+              <SettingsRow key={key} label={label} htmlFor={`vergabe-${key}`}>
+                <Switch
+                  id={`vergabe-${key}`}
+                  disabled={!manage}
+                  checked={current[key]}
+                  onCheckedChange={(value) => setDraft({ ...current, [key]: value })}
+                />
+              </SettingsRow>
+            ))}
+          </SettingsGroup>
+          {manage && (
+            <FormActions>
+              <Button type="submit">{text.eligibilitySave}</Button>
+            </FormActions>
+          )}
+        </form>
+      )}
+    </>
   );
 }

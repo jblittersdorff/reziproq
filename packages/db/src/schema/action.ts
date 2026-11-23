@@ -152,6 +152,8 @@ export const orgSettingKeys = [
   'transcript_retention_days',
   'teams_transcript_mode',
   'invite_notice_text',
+  // WG-14: Bedingungen für Vergabefähigkeit, { qualityNotCritical, stabilityNotCritical }
+  'award_eligibility',
 ] as const;
 
 export const orgSetting = pgTable(
@@ -175,7 +177,7 @@ export const orgSetting = pgTable(
         'ai_max_steps', 'ai_custom_agent_roles', 'ai_custom_agent_approval',
         'ai_agent_budget_overrides', 'ai_value_finder_segments', 'ai_value_assumptions', 'hint_rules', 'hint_thresholds', 'brief_lead_days', 'notify_teams_app', 'notify_mail', 'transcripts_enabled',
         'works_agreement_confirmed_at', 'works_agreement_confirmed_by', 'works_agreement_file_key',
-        'transcript_retention_days', 'teams_transcript_mode', 'invite_notice_text')`,
+        'transcript_retention_days', 'teams_transcript_mode', 'invite_notice_text', 'award_eligibility')`,
     ),
     unique('org_setting_je_schluessel').on(table.orgId, table.key),
   ],

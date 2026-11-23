@@ -2455,6 +2455,107 @@ export const de = {
   },
   // WG-18: Segmentierung je Warengruppe
   // WG-12 (Schritt 27): Scorecard der Warengruppe und Quartals-Review
+  awardPlan: {
+    title: 'Projekt- und Vergabeplan',
+    loading: 'Vergabeplan wird geladen …',
+    failed: 'Der Vergabeplan konnte nicht geladen werden.',
+    add: 'Vergabe hinzufügen',
+    empty:
+      'Noch keine Vergaben. Steht im Strategiejahr keine an, reicht eine kurze Begründung in der Beobachtung.',
+    columns: 'Monate',
+    detail: (suppliers: string, volume: string) => `${suppliers} · ${volume}`,
+    noSuppliers: 'noch kein Lieferant',
+    noVolume: 'Volumen offen',
+    bundled: 'gebündelt',
+    candidate: 'Kandidat',
+    request: 'Anfragezeitraum',
+    awardDate: 'Vergabedatum',
+    states: { running: 'läuft', planned: 'geplant', done: 'vorbei' } as Record<string, string>,
+    onlyEligible: 'Nur vergabefähige Lieferanten sind wählbar.',
+    endedWarning: (award: string, names: string) =>
+      `${award}: ${names} soll laut Supplier Map beendet werden. Passt das zur Strategie?`,
+    edit: (name: string) => `Vergabe bearbeiten: ${name}`,
+    remove: (name: string) => `Vergabe entfernen: ${name}`,
+    removeShort: 'Entfernen',
+    formNew: 'Neue Vergabe',
+    formEdit: (name: string) => `Vergabe: ${name}`,
+    name: 'Vergabe',
+    volume: 'Volumen in Euro',
+    requestFrom: 'Anfrage ab',
+    requestTo: 'Anfrage bis',
+    date: 'Vergabedatum',
+    bundleKey: 'Bündel',
+    bundleHint: 'Gleiches Bündel bei mehreren Vergaben heißt gebündelt, z. B. „Starrflex“.',
+    suppliers: 'Mögliche Lieferanten',
+    notEligible: (name: string, reasons: string) => `${name} (nicht vergabefähig: ${reasons})`,
+    reasons: {
+      inactive: 'Beziehung nicht aktiv',
+      quality_critical: 'Qualitätsbewertung C',
+      stability_critical: 'Lieferkette kritisch',
+    } as Record<string, string>,
+    endedOption: 'Soll laut Supplier Map: beenden',
+    save: 'Vergabe speichern',
+    cancel: 'Abbrechen',
+    saved: 'Gespeichert.',
+    saveFailed: 'Das hat nicht geklappt. Bitte die Angaben prüfen.',
+    errors: {
+      name_required: 'Bitte die Vergabe benennen.',
+      request_order: 'Die Anfrage endet vor ihrem Beginn.',
+      supplier_not_eligible: 'Dieser Lieferant ist nicht vergabefähig.',
+      supplier_not_in_group: 'Nur Lieferanten und Kandidaten der Warengruppe.',
+    } as Record<string, string>,
+    checkTitle: 'Geeignete Lieferanten finden',
+    checkPurpose:
+      'Prüffragen je Zieldimension. Reziproq füllt sie später aus euren Daten vor, sobald ihr einen Lieferanten vorschlagt.',
+    checks: [
+      [
+        'Lieferkette',
+        [
+          'In wie vielen Ländern produziert der Lieferant, und welche Standorte kommen in Frage?',
+          'Wie zuverlässig hat er in Anlauf und Serie geliefert, und kennt er die Warengruppe?',
+          'Welchen Umsatzanteil hätte er nach der Vergabe, entsteht ein Klumpenrisiko?',
+        ],
+      ],
+      [
+        'Qualität',
+        [
+          'Welches Auditergebnis hat er, und wie hat es sich in drei Jahren entwickelt?',
+          'Wie liegt seine Fehlerquote zum Durchschnitt der Warengruppe?',
+        ],
+      ],
+      [
+        'Kosten',
+        [
+          'Wie liegt der gebotene Preis zum Zielpreis der Soll-Kalkulation?',
+          'Wie liegt er zum Durchschnitt der Warengruppe?',
+          'Wie offen legt er Material-, Prozess- und Gemeinkosten?',
+        ],
+      ],
+      [
+        'Technologie',
+        [
+          'Wie viele Patente hält er im Verhältnis zum Umsatz?',
+          'Welche Neuerungen hat er in drei Jahren in Serie gebracht?',
+          'Wie viele seiner Produkte gelten im Vergleich als führend?',
+        ],
+      ],
+      [
+        'Nachhaltigkeit',
+        [
+          'Wie ist seine Nachhaltigkeitsbewertung, und wie entwickelt sie sich?',
+          'Wie hoch ist sein CO₂-Fußabdruck je Einheit?',
+          'Welchen Rezyklatanteil kann er umsetzen?',
+        ],
+      ],
+    ] as [string, string[]][],
+    eligibilityTitle: 'Vergabefähigkeit',
+    eligibilityPurpose:
+      'Welche Lieferanten einer Vergabe zugeordnet werden dürfen. Eine aktive Beziehung ist immer Pflicht; Kandidaten ohne Beziehung sind wählbar.',
+    eligibilityQuality: 'Nicht mit Qualitätsbewertung C (Lieferantensicht Qualität)',
+    eligibilityStability: 'Nicht mit kritischer Lieferkettenstabilität (Sicht Umsatz und Finanzen)',
+    eligibilitySave: 'Speichern',
+    eligibilityAdminOnly: 'Nur Admins stellen das ein.',
+  },
   supplierMap: {
     title: 'Supplier Map',
     loading: 'Supplier Map wird geladen …',
@@ -2722,7 +2823,7 @@ export const de = {
       'Den Markt einschätzen',
       'Hebel für die strategische Bewertung wählen',
       'Initiativen in der Scorecard planen',
-      'Vergaben planen',
+      'Vergaben an der Strategie ausrichten',
       'Die Lieferantenbasis von morgen festlegen',
       'Die Strategie zur Freigabe vorlegen',
     ],
@@ -2734,7 +2835,7 @@ export const de = {
       'Die Kräfte des Marktes heute und in drei bis fünf Jahren einschätzen.',
       'Stärken, Schwächen, Chancen und Risiken verbinden und die passenden Hebel wählen.',
       'Je Hebel die Initiativen, Verantwortlichen und Termine festlegen.',
-      'Anstehende Vergaben so planen, dass sie die Ziele der Warengruppe stützen.',
+      'Welche Vergaben anstehen und welche Lieferanten dafür in Frage kommen. Die Auswahl selbst fällt im Vergabeprozess.',
       'Ist und Soll je Lieferant. Diese Karte ist die Übergabe an das Lieferantenmanagement.',
       'Die Ausgangslage, Ziele, Hebel und Lieferanten knapp zusammenfassen.',
     ],
@@ -2746,7 +2847,7 @@ export const de = {
       'alle sechs Kräfte bestätigt sind und die Zusammenschau ausgefüllt ist.',
       'jedes der vier Felder einen bestätigten Eintrag hat und mindestens eine Paarung einen gewählten Hebel.',
       'jeder gewählte Hebel mindestens eine Initiative mit Effekt, Verantwortung und Termin hat.',
-      'die Beobachtung und Erklärung ausgefüllt ist.',
+      'jede Vergabe mindestens einen möglichen Lieferanten und ein Volumen hat; ohne geplante Vergabe die Beobachtung und Erklärung ausgefüllt ist.',
       'jeder einzeln gezeigte Lieferant Anteil Soll und Soll-Typ hat.',
       'die Strategie freigegeben ist.',
     ],
@@ -4191,6 +4292,10 @@ export const de = {
       'Mails legst du mit dem Outlook-Add-in ab oder leitest sie an die Notizadresse weiter (notizen@…reziproq.de).',
   },
   workspace: {
+    upcomingAwards: (n: number) =>
+      n === 1
+        ? '1 Vergabe in den nächsten sechs Monaten'
+        : `${n} Vergaben in den nächsten sechs Monaten`,
     label: 'Bereiche des Lieferanten',
     pagesLabel: 'Seiten im Bereich',
     // NAV-10: vier Reiter und der Knopf Profil

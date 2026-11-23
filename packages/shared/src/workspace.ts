@@ -142,6 +142,8 @@ export const supplierOverviewSchema = z.object({
   overdueCommitments: z.number().int().optional(),
   /** LS-01: Entwürfe von Reziproq, die noch zu prüfen sind, nur beim Käufer */
   openDrafts: z.number().int().optional(),
+  /** WG-14: Vergaben mit diesem Lieferanten in den nächsten sechs Monaten, nur beim Käufer (privat) */
+  upcomingAwards: z.number().int().optional(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

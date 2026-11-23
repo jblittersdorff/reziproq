@@ -869,6 +869,22 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2099-01-01',
     }),
   },
+  material_group_award: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      name: 'Probe',
+    }),
+  },
+  // Genau eins von Beziehung und Kandidat: ohne Beziehung ein Kandidat
+  material_group_award_supplier: {
+    kind: 'org_private',
+    testValues: ({ org, buyer, probe }) => ({
+      strategy_id: org && probe('material_group_strategy', org),
+      award_id: org && probe('material_group_award', org),
+      candidate_id: buyer === null && org ? probe('material_group_candidate', org) : null,
+    }),
+  },
   material_group_supplier_map_row: {
     kind: 'org_private',
     testValues: ({ org, probe }) => ({

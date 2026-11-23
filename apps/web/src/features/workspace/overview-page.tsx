@@ -103,6 +103,7 @@ export function OverviewPage({ relationshipId }: { relationshipId: string }) {
             supplierName={detail.name}
             head={overview.data?.head ?? emptyHead}
             metrics={metrics}
+            upcomingAwards={overview.data?.upcomingAwards ?? 0}
           />
         ))}
       </div>
@@ -201,12 +202,15 @@ function AreaTile({
   supplierName,
   head,
   metrics,
+  upcomingAwards,
 }: {
   area: WorkspaceArea;
   relationshipId: string;
   supplierName: string;
   head: WorkspaceHead;
   metrics: OverviewMetric[];
+  /** WG-14: Vergaben in den nächsten sechs Monaten, nur im privaten Bereich Strategie */
+  upcomingAwards: number;
 }) {
   const t = useT();
   const segment = workspaceAreas.find((entry) => entry.key === area)?.segment ?? area;
@@ -254,6 +258,9 @@ function AreaTile({
         </p>
         {detail && (
           <p className={internal ? 'text-muted-foreground' : 'text-petrol-dark'}>{detail}</p>
+        )}
+        {area === 'strategy' && upcomingAwards > 0 && (
+          <p className="text-muted-foreground">{t.workspace.upcomingAwards(upcomingAwards)}</p>
         )}
         <span className="grow" />
         <ul aria-label={t.workspace.areas[area]} className="mt-3 flex flex-wrap gap-2">

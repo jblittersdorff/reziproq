@@ -11,6 +11,8 @@ import {
   type AiSettings,
   type AnalysisStep,
   type AssignmentRequest,
+  type AwardEligibility,
+  type AwardRequest,
   acceptInvitationResponseSchema,
   accountPlanSchema,
   actionItemSchema,
@@ -29,6 +31,8 @@ import {
   apiKeysSchema,
   assignmentResponseSchema,
   auditResponseSchema,
+  awardEligibilitySchema,
+  awardPlanSchema,
   type BriefSettings,
   bridgeSchema,
   briefSettingsSchema,
@@ -4460,3 +4464,45 @@ export const saveSupplierMapRow = (
     supplierMapSchema,
     accessToken,
   );
+
+/** WG-14 (Schritt 29): Vergabeplan der Warengruppenstrategie */
+export const awardPlanQueryOptions = (accessToken: string, strategyId: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'strategien', strategyId, 'vergaben'],
+    queryFn: () =>
+      getJson(`/warengruppen/strategien/${strategyId}/vergaben`, awardPlanSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAward = (
+  accessToken: string,
+  strategyId: string,
+  request: AwardRequest,
+  id?: string,
+) =>
+  sendJson(
+    id ? 'PATCH' : 'POST',
+    `/warengruppen/strategien/${strategyId}/vergaben${id ? `/${id}` : ''}`,
+    request,
+    awardPlanSchema,
+    accessToken,
+  );
+
+export const removeAward = (accessToken: string, strategyId: string, id: string) =>
+  sendJson(
+    'DELETE',
+    `/warengruppen/strategien/${strategyId}/vergaben/${id}`,
+    undefined,
+    awardPlanSchema,
+    accessToken,
+  );
+
+export const awardEligibilityQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['warengruppen', 'vergabefaehigkeit'],
+    queryFn: () => getJson('/warengruppen/vergabefaehigkeit', awardEligibilitySchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveAwardEligibility = (accessToken: string, value: AwardEligibility) =>
+  sendJson('PUT', '/warengruppen/vergabefaehigkeit', value, awardEligibilitySchema, accessToken);

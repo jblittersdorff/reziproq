@@ -883,6 +883,13 @@
       "when": 1795461607592,
       "tag": "0125_wg15_supplier_map",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1795463040989,
+      "tag": "0126_wg14_vergabeplan",
+      "breakpoints": true
     }
   ]
 }

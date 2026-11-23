@@ -21,6 +21,7 @@ import {
 import {
   type AnalysisViewKey,
   analysisStepOf,
+  awardPlanComplete,
   type DueItem,
   defaultObjectiveCategories,
   type GoalRequest,
@@ -241,6 +242,18 @@ export class StrategyService {
       .from(schema.materialGroupMarketForce)
       .where(eq(schema.materialGroupMarketForce.strategyId, strategy.id));
     const map = await supplierMapData(tx, group.orgId, strategy.id, group.id, { feedback: false });
+    const awardRows = await tx
+      .select({
+        id: schema.materialGroupAward.id,
+        volumeCents: schema.materialGroupAward.volumeCents,
+        suppliers: sql<number>`(select count(*)::int from material_group_award_supplier s where s.award_id = material_group_award.id)`,
+      })
+      .from(schema.materialGroupAward)
+      .where(eq(schema.materialGroupAward.strategyId, strategy.id));
+    const awards = awardRows.map((row) => ({
+      volumeCents: row.volumeCents,
+      suppliers: Array.from({ length: row.suppliers }),
+    }));
     const hasLead = group.leadUserId !== null;
     const hasProducts = (productGroups?.n ?? 0) > 0;
     return strategySteps.map(({ step }): StepState => {
@@ -287,6 +300,15 @@ export class StrategyService {
           );
         if (chosenIds.length > 0 && chosenIds.every((choice) => complete(choice.id))) return 'done';
         return initiatives.length > 0 || anyNote(7) ? 'in_progress' : 'open';
+      }
+      if (step === 8) {
+        // WG-14: jede Vergabe hat einen möglichen Lieferanten und ein Volumen. Ohne geplante
+        // Vergabe zählt die begründete Beobachtung (z. B. „keine Vergabe im Strategiejahr“).
+        if (awards.length > 0) {
+          if (awardPlanComplete(awards)) return 'done';
+          return 'in_progress';
+        }
+        return noteFilled(8) ? 'done' : anyNote(8) ? 'in_progress' : 'open';
       }
       if (step === 9) {
         // WG-15: jeder einzeln gezeigte Lieferant hat Anteil Soll und Soll-Typ

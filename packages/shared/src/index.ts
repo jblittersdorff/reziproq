@@ -31,6 +31,7 @@ export * from './levers.js';
 export * from './mails.js';
 export * from './master-data.js';
 export * from './material-group-analysis.js';
+export * from './material-group-awards.js';
 export * from './material-group-assessment.js';
 export * from './material-group-market.js';
 export * from './material-group-scorecard.js';

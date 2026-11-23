@@ -21,6 +21,7 @@ import {
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { openHintCount } from '../hints/hint-count.js';
 import { meetingDate, nextMeetingOf } from '../meetings/next-meeting.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
@@ -32,7 +33,6 @@ import {
   readCycleSettings,
   segmentCycleStepSource,
 } from './cycle.js';
-import { openHintCount } from '../hints/hint-count.js';
 import { nextCycleDue } from './next-cycle.service.js';
 import { OVERVIEW_METRIC_SOURCES, type OverviewMetricSource } from './overview-metric.js';
 
@@ -119,7 +119,26 @@ export class OverviewService {
       .where(
         and(eq(schema.aiDraft.relationshipId, relationshipId), eq(schema.aiDraft.status, 'draft')),
       );
-    return { overdueCommitments: overdue?.n ?? 0, openDrafts: drafts?.n ?? 0 };
+    // WG-14: Vergaben mit Vergabedatum in den nächsten sechs Monaten (Strategien der eigenen Seite)
+    const [awards] = await tx
+      .select({ n: sql<number>`count(distinct ${schema.materialGroupAward.id})::int` })
+      .from(schema.materialGroupAward)
+      .innerJoin(
+        schema.materialGroupAwardSupplier,
+        eq(schema.materialGroupAwardSupplier.awardId, schema.materialGroupAward.id),
+      )
+      .where(
+        and(
+          eq(schema.materialGroupAwardSupplier.relationshipId, relationshipId),
+          sql`${schema.materialGroupAward.awardDate} >= ${today}`,
+          sql`${schema.materialGroupAward.awardDate} < (${today}::date + interval '6 months')`,
+        ),
+      );
+    return {
+      overdueCommitments: overdue?.n ?? 0,
+      openDrafts: drafts?.n ?? 0,
+      upcomingAwards: awards?.n ?? 0,
+    };
   }
 
   async startCycle(auth: AuthContext, relationshipId: string) {

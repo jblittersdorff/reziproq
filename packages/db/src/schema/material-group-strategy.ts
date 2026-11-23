@@ -603,3 +603,71 @@ export const materialGroupSupplierMapRow = pgTable(
     ),
   ],
 );
+
+/**
+ * WG-14: Vergabe im Vergabeplan einer Strategie. Anfragezeitraum als Balken, Vergabedatum als Punkt;
+ * gleicher `bundle_key` heißt gebündelt. Die Auswahl selbst fällt außerhalb von Reziproq.
+ */
+export const materialGroupAward = pgTable(
+  'material_group_award',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    name: text().notNull(),
+    volumeCents: bigint({ mode: 'number' }),
+    currency: text().notNull().default('EUR'),
+    requestFrom: date(),
+    requestTo: date(),
+    awardDate: date(),
+    bundleKey: text(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check('material_group_award_name', sql`length(trim(${table.name})) > 0`),
+    check(
+      'material_group_award_volume',
+      sql`${table.volumeCents} is null or ${table.volumeCents} >= 0`,
+    ),
+    check(
+      'material_group_award_request',
+      sql`${table.requestFrom} is null or ${table.requestTo} is null or ${table.requestFrom} <= ${table.requestTo}`,
+    ),
+    index('material_group_award_strategy').on(table.strategyId),
+  ],
+);
+
+/**
+ * WG-14: möglicher Lieferant einer Vergabe: eine Beziehung der Warengruppe oder ein Kandidat aus
+ * der Lieferkettensicht (WG-07; Gründer, 23.11.2026), genau eins von beiden.
+ */
+export const materialGroupAwardSupplier = pgTable(
+  'material_group_award_supplier',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    strategyId: uuid()
+      .notNull()
+      .references(() => materialGroupStrategy.id, { onDelete: 'cascade' }),
+    awardId: uuid()
+      .notNull()
+      .references(() => materialGroupAward.id, { onDelete: 'cascade' }),
+    relationshipId: uuid().references(() => relationship.id),
+    candidateId: uuid().references(() => materialGroupCandidate.id, { onDelete: 'cascade' }),
+    note: text(),
+  },
+  (table) => [
+    check(
+      'material_group_award_supplier_one',
+      sql`(${table.relationshipId} is null) <> (${table.candidateId} is null)`,
+    ),
+    unique('material_group_award_supplier_relationship').on(table.awardId, table.relationshipId),
+    unique('material_group_award_supplier_candidate').on(table.awardId, table.candidateId),
+  ],
+);

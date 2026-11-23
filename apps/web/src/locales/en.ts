@@ -2405,6 +2405,107 @@ export const en: Messages = {
   },
   // WG-18: segmentation per category
   // WG-12 (step 27): material group scorecard and quarterly review
+  awardPlan: {
+    title: 'Project and award plan',
+    loading: 'Loading award plan …',
+    failed: 'The award plan could not be loaded.',
+    add: 'Add award',
+    empty:
+      'No awards yet. If none is due in the strategy year, a short reason in the observation is enough.',
+    columns: 'Months',
+    detail: (suppliers: string, volume: string) => `${suppliers} · ${volume}`,
+    noSuppliers: 'no supplier yet',
+    noVolume: 'volume open',
+    bundled: 'bundled',
+    candidate: 'Candidate',
+    request: 'Request period',
+    awardDate: 'Award date',
+    states: { running: 'running', planned: 'planned', done: 'past' } as Record<string, string>,
+    onlyEligible: 'Only suppliers eligible for awards can be chosen.',
+    endedWarning: (award: string, names: string) =>
+      `${award}: ${names} is to be phased out according to the supplier map. Does that fit the strategy?`,
+    edit: (name: string) => `Edit award: ${name}`,
+    remove: (name: string) => `Remove award: ${name}`,
+    removeShort: 'Remove',
+    formNew: 'New award',
+    formEdit: (name: string) => `Award: ${name}`,
+    name: 'Award',
+    volume: 'Volume in euros',
+    requestFrom: 'Request from',
+    requestTo: 'Request until',
+    date: 'Award date',
+    bundleKey: 'Bundle',
+    bundleHint: 'The same bundle on several awards means bundled, e.g. “Rigid-flex”.',
+    suppliers: 'Possible suppliers',
+    notEligible: (name: string, reasons: string) => `${name} (not eligible: ${reasons})`,
+    reasons: {
+      inactive: 'relationship not active',
+      quality_critical: 'quality rating C',
+      stability_critical: 'supply chain critical',
+    } as Record<string, string>,
+    endedOption: 'Target per supplier map: phase out',
+    save: 'Save award',
+    cancel: 'Cancel',
+    saved: 'Saved.',
+    saveFailed: 'That did not work. Please check the entries.',
+    errors: {
+      name_required: 'Please name the award.',
+      request_order: 'The request ends before it starts.',
+      supplier_not_eligible: 'This supplier is not eligible for awards.',
+      supplier_not_in_group: 'Only suppliers and candidates of the material group.',
+    } as Record<string, string>,
+    checkTitle: 'Find suitable suppliers',
+    checkPurpose:
+      'Check questions per target dimension. Reziproq will later prefill them from your data as soon as you propose a supplier.',
+    checks: [
+      [
+        'Supply chain',
+        [
+          'In how many countries does the supplier produce, and which sites are an option?',
+          'How reliably did they deliver in ramp-up and series, and do they know the material group?',
+          'What revenue share would they have after the award; does a concentration risk arise?',
+        ],
+      ],
+      [
+        'Quality',
+        [
+          'What audit result do they have, and how has it developed over three years?',
+          'How does their defect rate compare to the material group average?',
+        ],
+      ],
+      [
+        'Cost',
+        [
+          'How does the offered price compare to the target price of the should-cost calculation?',
+          'How does it compare to the material group average?',
+          'How openly do they disclose material, process and overhead costs?',
+        ],
+      ],
+      [
+        'Technology',
+        [
+          'How many patents do they hold relative to revenue?',
+          'Which innovations have they brought into series in three years?',
+          'How many of their products are considered leading in comparison?',
+        ],
+      ],
+      [
+        'Sustainability',
+        [
+          'What is their sustainability rating, and how is it developing?',
+          'How high is their CO₂ footprint per unit?',
+          'What share of recycled material can they achieve?',
+        ],
+      ],
+    ] as [string, string[]][],
+    eligibilityTitle: 'Award eligibility',
+    eligibilityPurpose:
+      'Which suppliers may be assigned to an award. An active relationship is always required; candidates without a relationship can be chosen.',
+    eligibilityQuality: 'Not with quality rating C (supplier view quality)',
+    eligibilityStability: 'Not with critical supply chain stability (view revenue and finance)',
+    eligibilitySave: 'Save',
+    eligibilityAdminOnly: 'Only admins can change this.',
+  },
   supplierMap: {
     title: 'Supplier map',
     loading: 'Loading supplier map …',
@@ -2664,7 +2765,7 @@ export const en: Messages = {
       'Assess the market',
       'Choose levers for the strategic assessment',
       'Plan initiatives in the scorecard',
-      'Plan awards',
+      'Align awards with the strategy',
       'Set the supplier base of tomorrow',
       'Submit the strategy for approval',
     ],
@@ -2676,7 +2777,7 @@ export const en: Messages = {
       'Assess the market forces today and in three to five years.',
       'Combine strengths, weaknesses, opportunities and risks and choose the right levers.',
       'Set initiatives, owners and dates for each lever.',
-      'Plan upcoming awards so that they support the goals of the material group.',
+      'Which awards are coming up and which suppliers are an option. The choice itself is made in the award process.',
       'Current and target per supplier. This map is the handover to supplier management.',
       'Summarise starting point, goals, levers and suppliers briefly.',
     ],
@@ -2688,7 +2789,7 @@ export const en: Messages = {
       'all six forces are confirmed and the synthesis is written.',
       'each of the four fields has a confirmed entry and at least one pairing has a chosen lever.',
       'every chosen lever has at least one initiative with effect, owner and due date.',
-      'the observation and explanation is filled in.',
+      'every award has at least one possible supplier and a volume; without planned awards the observation and explanation is filled in.',
       'every supplier shown individually has a target share and a target type.',
       'the strategy is approved.',
     ],
@@ -4088,6 +4189,8 @@ export const en: Messages = {
       'File mails with the Outlook add-in or forward them to the notes address (notizen@…reziproq.de).',
   },
   workspace: {
+    upcomingAwards: (n: number) =>
+      n === 1 ? '1 award in the next six months' : `${n} awards in the next six months`,
     label: 'Supplier sections',
     pagesLabel: 'Pages in this area',
     // NAV-10: four tabs and the profile button

@@ -417,6 +417,112 @@ async function mock(page: Page) {
       },
     }),
   );
+  // WG-14 (Schritt 29): Vergabeplan; eigene Kennungen, damit sie keine anderen überschneiden
+  const awardUuid = (n: number) =>
+    `0190a0a0-0000-7000-8000-0000000001${String(n).padStart(2, '0')}`;
+  const month = (offset: number, day: number) => {
+    const date = new Date();
+    date.setUTCDate(1);
+    date.setUTCMonth(date.getUTCMonth() + offset);
+    return `${date.toISOString().slice(0, 8)}${String(day).padStart(2, '0')}`;
+  };
+  const awardEntry = (
+    n: number,
+    name: string,
+    volumeCents: number,
+    range: [number, number, number],
+    suppliers: [number, string, boolean][],
+    bundleKey: string | null = null,
+  ) => ({
+    id: awardUuid(n),
+    name,
+    volumeCents,
+    currency: 'EUR',
+    requestFrom: month(range[0], 5),
+    requestTo: month(range[1], 20),
+    awardDate: month(range[2], 15),
+    bundleKey,
+    bundled: bundleKey !== null,
+    suppliers: suppliers.map(([id, supplierName, ended]) => ({
+      kind: 'relationship',
+      id: uuid(id),
+      name: supplierName,
+      note: null,
+      ended,
+    })),
+    endedSuppliers: suppliers
+      .filter(([, , ended]) => ended)
+      .map(([, supplierName]) => supplierName),
+  });
+  const option = (n: number, name: string, extra: Record<string, unknown> = {}) => ({
+    kind: 'relationship',
+    id: uuid(n),
+    name,
+    eligible: true,
+    reasons: [],
+    ended: false,
+    ...extra,
+  });
+  await page.route(`**/api/warengruppen/strategien/${strategyId}/vergaben`, (route) =>
+    route.fulfill({
+      json: {
+        canEdit: true,
+        strategyYear: 2027,
+        awards: [
+          awardEntry(
+            1,
+            'Rahmenvertrag Mehrlagen 2027',
+            360_000_000,
+            [0, 1, 2],
+            [
+              [82, 'Rheintal', false],
+              [90, 'Saar Circuits', false],
+            ],
+          ),
+          awardEntry(
+            2,
+            'Starrflex Antriebe, neue Generation',
+            140_000_000,
+            [1, 2, 3],
+            [
+              [82, 'Rheintal', false],
+              [92, 'Moldau PCB', false],
+            ],
+            'starrflex',
+          ),
+          awardEntry(
+            3,
+            'Starrflex Steuerungen',
+            70_000_000,
+            [1, 2, 3],
+            [
+              [82, 'Rheintal', false],
+              [92, 'Moldau PCB', false],
+            ],
+            'starrflex',
+          ),
+          awardEntry(
+            4,
+            'Laminat direkt (Stufe 2)',
+            90_000_000,
+            [2, 3, 4],
+            [[91, 'Donau Print', true]],
+          ),
+          awardEntry(5, 'Ultra-HDI Vorserie', 30_000_000, [3, 4, 5], [[82, 'Rheintal', false]]),
+        ],
+        options: [
+          option(82, 'Rheintal'),
+          option(91, 'Donau Print', { ended: true }),
+          option(93, 'Weichsel Boards', { eligible: false, reasons: ['quality_critical'] }),
+        ],
+        eligibility: { qualityNotCritical: true, stabilityNotCritical: true },
+        complete: true,
+      },
+    }),
+  );
+  await page.route('**/api/warengruppen/vergabefaehigkeit', (route) =>
+    route.fulfill({ json: { qualityNotCritical: true, stabilityNotCritical: true } }),
+  );
   // WG-15 (Schritt 28): Supplier Map
   const segment = (impactLevel: number, qualityLevel: number, name: string) => ({
     impactLevel,
@@ -951,6 +1057,8 @@ const pages = [
   ],
   ['hebel', '/einstellungen/warengruppen/hebel', 'Hebelkatalog der Warengruppen'],
   ['scorecard', `/warengruppen/${group}/strategie/7`, 'Initiativen in der Scorecard planen'],
+  ['vergaben', `/warengruppen/${group}/strategie/8`, 'Vergaben an der Strategie ausrichten'],
+  ['vergabefaehigkeit', '/einstellungen/warengruppen/vergabe', 'Vergabefähigkeit'],
   [
     'supplier-map',
     `/warengruppen/${group}/strategie/9`,

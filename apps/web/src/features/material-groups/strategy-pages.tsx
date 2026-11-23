@@ -59,6 +59,7 @@ import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { AnalysisSection } from './analysis-pages';
 import { AssessmentSection } from './assessment-pages';
+import { AwardsSection } from './awards-section';
 import { MarketSection } from './market-pages';
 import { ProductGroupsSection, TeamSection } from './material-groups-pages';
 import { ScorecardSection } from './scorecard-pages';
@@ -555,6 +556,8 @@ function StepContent({
     <div className="flex flex-col gap-6">
       {/* WG-Ziele.dc.html: die Tabelle der Ziele über die ganze Breite, darunter Text und Leitfragen */}
       {content.step === 2 && <GoalsStep context={context} content={content} editable={editable} />}
+      {/* WG-14 (WG-Vergaben.dc.html): Schritt 8 zeigt den Vergabeplan über die ganze Breite */}
+      {content.step === 8 && <AwardsSection context={context} editable={editable} />}
       {/* WG-15 (WG-SupplierMap.dc.html): Schritt 9 zeigt die Supplier Map über die ganze Breite */}
       {content.step === 9 && (
         <SupplierMapSection groupId={groupId} context={context} editable={editable} />
