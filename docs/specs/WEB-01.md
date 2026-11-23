@@ -86,3 +86,14 @@ Bausteine: Kopf (Navigation, EN/DE, Anmelden, Demo buchen), Fuß, Kundenstimmen.
   `e2e/web-01.spec.ts` (jede Seite und Sprache auf 390 und 1440 Pixel: eine h1, kein seitliches
   Scrollen; Sprachumschalter), Token-Prüfung in `apps/web/src/styles/tokens.node.test.ts` deckt
   `apps/website` mit ab. `pnpm test:e2e` startet beide E2E-Läufe.
+
+## Navigation ohne Neuladen (23.11.2026)
+
+Auf Wunsch des Gründers wechselt die Website zwischen ihren Seiten ohne Neuladen
+(`apps/website/src/navigation.tsx`). Die Links bleiben normale Verweise auf die vorgerenderten
+Seiten, damit Suchmaschinen und Besucher ohne JavaScript sie wie bisher nutzen. Mit JavaScript
+übernimmt die Website interne Klicks: Sie tauscht den Inhalt, setzt Adresse, Titel und Sprache,
+springt nach oben oder zum Anker und setzt den Fokus auf den Inhalt. Zurück und Vor im Browser
+funktionieren. Strg- oder Cmd-Klick, neue Tabs, Downloads, „Anmelden“ (App) und fremde Adressen lädt
+der Browser wie gewohnt. Tests: `apps/website/src/web-01.test.tsx`, `apps/website/e2e/web-01.spec.ts`.
+

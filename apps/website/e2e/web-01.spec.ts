@@ -38,3 +38,26 @@ test('der Umschalter führt zur gleichen Seite in der anderen Sprache', async ({
   await page.getByRole('navigation', { name: 'Sprache' }).getByRole('link', { name: 'EN' }).click();
   await expect(page).toHaveURL(/\/pricing\/?$/);
 });
+
+test('ein Wechsel im Menü lädt die Seite nicht neu; Zurück zeigt die vorige Seite', async ({
+  page,
+}) => {
+  await page.goto(pathOf('home', 'de'));
+  await expect(page.locator('h1')).toHaveCount(1);
+  const home = await page.locator('h1').textContent();
+  // Merker im Fenster: nach einem echten Neuladen wäre er weg
+  await page.evaluate(() => {
+    (window as unknown as { marker: string }).marker = 'noch da';
+  });
+  await page.getByRole('navigation').first().getByRole('link').nth(4).click();
+  await expect(page).toHaveURL(new RegExp(`${pathOf('pricing', 'de')}$`));
+  await expect(page.locator('h1')).not.toHaveText(home ?? '');
+  expect(await page.evaluate(() => (window as unknown as { marker?: string }).marker)).toBe(
+    'noch da',
+  );
+  await page.goBack();
+  await expect(page.locator('h1')).toHaveText(home ?? '');
+  expect(await page.evaluate(() => (window as unknown as { marker?: string }).marker)).toBe(
+    'noch da',
+  );
+});

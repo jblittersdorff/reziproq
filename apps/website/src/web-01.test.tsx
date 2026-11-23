@@ -1,9 +1,17 @@
-import { cleanup, fireEvent, render as renderDom, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render as renderDom,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { App } from './app';
 import { de } from './content/de';
 import { en } from './content/en';
 import { render, routes } from './entry-server';
+import { internalTarget, Site } from './navigation';
 import { mailtoHref } from './pages/contact';
 import {
   formatEuro,
@@ -12,7 +20,7 @@ import {
   priceYear,
   successShareCents,
 } from './pricing';
-import { contactEmail, locales, match, pageKeys, pathOf } from './site';
+import { contactEmail, type Locale, locales, match, type PageKey, pageKeys, pathOf } from './site';
 
 // Tests zu docs/specs/WEB-01.md
 
@@ -195,5 +203,61 @@ describe('Kontakt ohne Maildienst', () => {
     expect(screen.getByLabelText(de.contact.form.email).hasAttribute('required')).toBe(true);
     expect(screen.getByRole('checkbox').getAttribute('aria-required')).toBe('true');
     expect(screen.getByRole('button', { name: de.contact.form.send })).toBeTruthy();
+  });
+});
+
+describe('Navigation ohne Neuladen', () => {
+  const start = (page: PageKey, locale: Locale) => {
+    window.history.replaceState(null, '', pathOf(page, locale));
+    return renderDom(<Site initial={{ page, locale }} />);
+  };
+  const heading = () => screen.getByRole('heading', { level: 1 }).textContent;
+
+  it('ein Klick im Menü wechselt Inhalt, Adresse, Titel und Sprache, ohne die Seite zu laden', async () => {
+    start('home', 'de');
+    const before = heading();
+    const nav = screen.getByRole('navigation', { name: de.nav.main });
+    const link = within(nav).getByRole('link', { name: de.nav.pricing });
+    // fireEvent.click gibt false zurück, wenn die Website den Klick übernommen hat
+    expect(fireEvent.click(link)).toBe(false);
+    expect(window.location.pathname).toBe(pathOf('pricing', 'de'));
+    expect(heading()).not.toBe(before);
+    expect(document.title).toBe(de.meta.titles.pricing);
+    // Sprachwahl wechselt ebenfalls ohne Neuladen
+    const language = screen.getByRole('navigation', { name: de.nav.language });
+    expect(fireEvent.click(within(language).getAllByRole('link')[0] as HTMLElement)).toBe(false);
+    expect(window.location.pathname).toBe(pathOf('pricing', 'en'));
+    expect(document.documentElement.lang).toBe('en');
+    expect(document.title).toBe(en.meta.titles.pricing);
+  });
+
+  it('Zurück im Browser zeigt die vorige Seite', async () => {
+    start('home', 'de');
+    const home = heading();
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: de.nav.main })).getByRole('link', {
+        name: de.nav.security,
+      }),
+    );
+    expect(heading()).not.toBe(home);
+    window.history.back();
+    await waitFor(() => expect(window.location.pathname).toBe(pathOf('home', 'de')));
+    await waitFor(() => expect(heading()).toBe(home));
+  });
+
+  it('Strg-Klick, Anmelden in der App und fremde Adressen lädt der Browser wie gewohnt', () => {
+    start('home', 'de');
+    const nav = screen.getByRole('navigation', { name: de.nav.main });
+    const link = within(nav).getByRole('link', { name: de.nav.pricing });
+    const origin = window.location.origin;
+    expect(internalTarget(new MouseEvent('click', { ctrlKey: true }), origin)).toBeNull();
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'target', { value: link });
+    expect(internalTarget(event, origin)?.pathname).toBe(pathOf('pricing', 'de'));
+    const external = document.createElement('a');
+    external.href = 'https://example.com/preise';
+    const outside = new MouseEvent('click', { bubbles: true, cancelable: true });
+    Object.defineProperty(outside, 'target', { value: external });
+    expect(internalTarget(outside, origin)).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import { App } from './app';
+import { Site } from './navigation';
 import { match } from './site';
 import './styles.css';
 
@@ -11,7 +11,7 @@ const root = document.getElementById('root');
 if (root) {
   const app = (
     <StrictMode>
-      <App page={route.page} locale={route.locale} />
+      <Site initial={route} />
     </StrictMode>
   );
   if (root.hasChildNodes()) hydrateRoot(root, app);
