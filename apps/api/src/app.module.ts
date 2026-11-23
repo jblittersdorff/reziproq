@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { DatabaseModule } from './common/database.module.js';
+import { FileStoreModule } from './common/file-store.js';
 import { NotificationBusModule } from './common/notification-bus.js';
 import { env } from './config/env.js';
 import { ActionsModule } from './modules/actions/actions.module.js';
@@ -30,6 +31,7 @@ import { MaterialGroupsModule } from './modules/material-groups/material-groups.
 import { MeModule } from './modules/me/me.module.js';
 import { MeetingsModule } from './modules/meetings/meetings.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
+import { TranscriptsModule } from './modules/transcripts/transcripts.module.js';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module.js';
 import { OrganizationsModule } from './modules/organizations/organizations.module.js';
 import { OverviewModule } from './modules/overview/overview.module.js';
@@ -56,6 +58,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
   imports: [
     DatabaseModule,
     NotificationBusModule,
+    FileStoreModule,
     AuthModule,
     HealthModule,
     AiGatewayModule,
@@ -93,6 +96,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     CalendarModule,
     MailsModule,
     NotificationsModule,
+    TranscriptsModule,
     SearchModule,
     MaterialGroupsModule,
     ActivitiesModule,

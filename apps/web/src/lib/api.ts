@@ -148,6 +148,7 @@ import {
   meetingCaptureSchema,
   meetingDetailSchema,
   meetingListSchema,
+  meetingTranscriptStateSchema,
   meResponseSchema,
   myActionsSchema,
   myConnectionsSchema,
@@ -228,6 +229,7 @@ import {
   type SaveSso,
   type SaveSurveyQuestion,
   type SaveTouchpoint,
+  type SaveTranscriptSettings,
   type SavingsReference,
   type ScorecardSetting,
   type SendDataRequest,
@@ -279,6 +281,8 @@ import {
   teamResponseSchema,
   touchpointListSchema,
   touchpointSchema,
+  transcriptSettingsSchema,
+  transcriptTextSchema,
   type UpdateAssignment,
   type UpdateCycleSettings,
   type UpdateMeeting,
@@ -4094,3 +4098,123 @@ export const saveNotificationOrganization = (accessToken: string, input: SaveNot
     notificationPrefsSchema,
     accessToken,
   );
+
+/** IN-05: Einstellungen › Anbindungen › Transkripte (Admin) */
+export const transcriptSettingsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['einstellungen', 'transkripte'],
+    queryFn: () => getJson('/einstellungen/transkripte', transcriptSettingsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const saveTranscriptSettings = (accessToken: string, input: SaveTranscriptSettings) =>
+  sendJson('PUT', '/einstellungen/transkripte', input, transcriptSettingsSchema, accessToken);
+
+/** Betriebsvereinbarung bestätigen, mit Datum und optional der Datei */
+export async function confirmWorksAgreement(
+  accessToken: string,
+  confirmedAt: string,
+  file: File | null,
+) {
+  const path = '/einstellungen/transkripte/betriebsvereinbarung';
+  const form = new FormData();
+  form.append('confirmedAt', confirmedAt);
+  if (file) form.append('file', file);
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok)
+    throw new ApiError(
+      path,
+      res.status,
+      await forbiddenCode(res),
+      await res.json().catch(() => null),
+    );
+  return transcriptSettingsSchema.parse(await res.json());
+}
+
+/** IN-05: Transkript eines Termins (nur Käufer) */
+const transcriptPath = (relationshipId: string, meetingId: string) =>
+  `/suppliers/${relationshipId}/termine/${meetingId}/transkript`;
+
+export const meetingTranscriptQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+) =>
+  queryOptions({
+    queryKey: ['termine', meetingId, 'transkript'],
+    queryFn: () =>
+      getJson(transcriptPath(relationshipId, meetingId), meetingTranscriptStateSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const transcriptTextQueryOptions = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+) =>
+  queryOptions({
+    queryKey: ['termine', meetingId, 'transkript', 'text'],
+    queryFn: () =>
+      getJson(
+        `${transcriptPath(relationshipId, meetingId)}/text`,
+        transcriptTextSchema,
+        accessToken,
+      ),
+    retry: retryUnlessDenied,
+  });
+
+export const setTranscriptOptIn = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  optIn: boolean,
+) =>
+  sendJson(
+    'PUT',
+    `${transcriptPath(relationshipId, meetingId)}/opt-in`,
+    { optIn },
+    meetingTranscriptStateSchema,
+    accessToken,
+  );
+
+export const releaseTranscript = (
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  released: boolean,
+) =>
+  sendJson(
+    'PUT',
+    `${transcriptPath(relationshipId, meetingId)}/freigabe`,
+    { released },
+    meetingTranscriptStateSchema,
+    accessToken,
+  );
+
+export async function uploadTranscript(
+  accessToken: string,
+  relationshipId: string,
+  meetingId: string,
+  file: File,
+) {
+  const path = `${transcriptPath(relationshipId, meetingId)}/upload`;
+  const form = new FormData();
+  form.append('file', file);
+  const res = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { ...supportHeaders(), authorization: `Bearer ${accessToken}` },
+    body: form,
+  });
+  if (!res.ok)
+    throw new ApiError(
+      path,
+      res.status,
+      await forbiddenCode(res),
+      await res.json().catch(() => null),
+    );
+  return meetingTranscriptStateSchema.parse(await res.json());
+}

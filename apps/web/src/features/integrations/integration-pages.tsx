@@ -15,26 +15,26 @@ import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
+import { ErrorState } from '@/components/ui/error-state';
 import { CheckboxGroup, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
-import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Monogram } from '@/components/ui/monogram';
+import { NativeSelect } from '@/components/ui/native-select';
 import { NextStep } from '@/components/ui/next-step';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
-import { PageHeader } from '@/features/shell/page-header';
+import { Textarea } from '@/components/ui/textarea';
 import { routerLink } from '@/features/shell/navigation';
+import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
 import {
   ApiError,
   apiKeysQueryOptions,
   connectIntegration,
-  createApiKey,
   connectMine,
+  createApiKey,
   disconnectMine,
   integrationAction,
   integrationsQueryOptions,
@@ -48,6 +48,7 @@ import {
 } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { TranscriptSettingsSection } from './transcript-settings';
 
 type Connector = Integrations['connectors'][number];
 type ConnectionView = NonNullable<Connector['connection']>;
@@ -241,18 +242,22 @@ export function IntegrationsPage() {
               {section('anbindungen-arbeitsplatz', text.workplace, workplace)}
               {section('anbindungen-einkauf', text.purchasing, purchasing)}
             </div>
-            <aside
-              aria-labelledby="anbindungen-ereignisse"
-              className="flex min-w-0 shrink grow basis-75 flex-col gap-3 rounded-lg bg-card p-6 shadow-card"
-            >
-              <h2
-                id="anbindungen-ereignisse"
-                className="font-display font-semibold text-section tracking-section"
+            <div className="flex min-w-0 shrink grow basis-75 flex-col gap-5">
+              <aside
+                aria-labelledby="anbindungen-ereignisse"
+                className="flex flex-col gap-3 rounded-lg bg-card p-6 shadow-card"
               >
-                {text.events.title}
-              </h2>
-              <EventList events={data.events} />
-            </aside>
+                <h2
+                  id="anbindungen-ereignisse"
+                  className="font-display font-semibold text-section tracking-section"
+                >
+                  {text.events.title}
+                </h2>
+                <EventList events={data.events} />
+              </aside>
+              {/* IN-05: Transkripte rechts, nur für Admins (die Route verlangt einstellungen.verwalten) */}
+              <TranscriptSettingsSection />
+            </div>
           </div>
         </>
       )}
@@ -629,7 +634,10 @@ function SsoSection({ provider }: { provider: SsoProvider }) {
 
   return (
     <section aria-labelledby={`${provider}-sso`} className="flex flex-col gap-3">
-      <h3 id={`${provider}-sso`} className="flex flex-wrap items-center gap-2 font-semibold text-sm">
+      <h3
+        id={`${provider}-sso`}
+        className="flex flex-wrap items-center gap-2 font-semibold text-sm"
+      >
         {text.title}
         {current && (
           <Badge variant={current.status === 'active' ? 'success' : 'warning'}>

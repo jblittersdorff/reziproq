@@ -63,6 +63,7 @@ export async function demoStory(
     await demoInbound(tx, relationships, account, today);
     await demoMails(tx, relationships, account, today);
     await demoNotifications(tx, relationships, account, today);
+    await demoTranscripts(tx, relationships, account, today);
     return { created: false, relationships };
   }
 
@@ -322,6 +323,7 @@ export async function demoStory(
   await demoInbound(tx, relationships, account, today);
   await demoMails(tx, relationships, account, today);
   await demoNotifications(tx, relationships, account, today);
+  await demoTranscripts(tx, relationships, account, today);
   return { created: true, relationships };
 }
 
@@ -723,4 +725,64 @@ async function demoNotifications(
       createdAt: today,
     },
   ]);
+}
+
+/**
+ * IN-05: Transkripte eingeschaltet, Betriebsvereinbarung bestätigt; beim letzten vergangenen Termin
+ * des ersten Lieferanten ist „Transkript übernehmen“ an, aber in der Besprechung lief keine
+ * Transkription. Im Reiter Ergebnisse stehen dann Grund, Datei hochladen und Notizen erfassen.
+ */
+async function demoTranscripts(
+  tx: Transaction,
+  relationships: string[],
+  account: { id: string; name: string },
+  today: Date,
+) {
+  const [first] = relationships;
+  if (!first) return;
+  const oem = seedBuyers.testOem.id;
+  const settings: [(typeof schema.orgSetting.$inferInsert)['key'], unknown][] = [
+    ['transcripts_enabled', true],
+    ['works_agreement_confirmed_at', addDays(today, -14).toISOString().slice(0, 10)],
+    ['works_agreement_confirmed_by', account.name],
+    ['transcript_retention_days', 90],
+  ];
+  for (const [key, value] of settings) {
+    await tx
+      .insert(schema.orgSetting)
+      .values({ orgId: oem, key, value, updatedBy: account.id })
+      .onConflictDoNothing();
+  }
+  const [past] = await tx
+    .select({ id: schema.meeting.id })
+    .from(schema.meeting)
+    .where(
+      and(
+        eq(schema.meeting.relationshipId, first),
+        eq(schema.meeting.ownerOrgId, oem),
+        sql`${schema.meeting.startsAt} < ${today}`,
+      ),
+    )
+    .orderBy(desc(schema.meeting.startsAt))
+    .limit(1);
+  if (!past) return;
+  const [existing] = await tx
+    .select({ id: schema.meetingTranscript.id })
+    .from(schema.meetingTranscript)
+    .where(eq(schema.meetingTranscript.meetingId, past.id));
+  if (existing) return;
+  await tx
+    .update(schema.meeting)
+    .set({ transcriptOptIn: true })
+    .where(eq(schema.meeting.id, past.id));
+  await tx.insert(schema.meetingTranscript).values({
+    orgId: oem,
+    relationshipId: first,
+    meetingId: past.id,
+    source: 'teams',
+    status: 'unavailable',
+    unavailableReason: 'keine_transkription',
+    attempts: 1,
+    lastAttemptAt: today,
+  });
 }

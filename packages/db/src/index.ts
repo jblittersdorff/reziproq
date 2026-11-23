@@ -1,4 +1,4 @@
-export { and, asc, desc, eq, gte, inArray, isNull, ne, or, sql } from 'drizzle-orm';
+export { and, asc, desc, eq, gte, inArray, isNotNull, isNull, lte, ne, or, sql } from 'drizzle-orm';
 export {
   type AuditActor,
   type AuditedChangeResult,

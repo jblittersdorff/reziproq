@@ -169,6 +169,7 @@ describe('PLT-02 in der Datenbank', () => {
       'meeting_note',
       'meeting_participant',
       'meeting_snapshot',
+      'meeting_transcript',
       'model_call',
       'note',
       'notification',

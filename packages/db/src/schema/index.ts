@@ -36,3 +36,4 @@ export * from './survey.js';
 export * from './touchpoint.js';
 export * from './value-opportunity.js';
 export * from './notification.js';
+export * from './transcript.js';

@@ -176,7 +176,7 @@ export const meetingCapture = pgTable(
     meetingId: uuid()
       .notNull()
       .references(() => meeting.id, { onDelete: 'cascade' }),
-    source: text({ enum: ['typed', 'pasted', 'file'] }).notNull(),
+    source: text({ enum: ['typed', 'pasted', 'file', 'transcript'] }).notNull(),
     text: text().notNull(),
     fileKey: text(),
     runId: uuid(),
@@ -187,7 +187,10 @@ export const meetingCapture = pgTable(
     protocolSharedAt: timestamp({ withTimezone: true }),
   },
   (table) => [
-    check('meeting_capture_source', sql`${table.source} in ('typed', 'pasted', 'file')`),
+    check(
+      'meeting_capture_source',
+      sql`${table.source} in ('typed', 'pasted', 'file', 'transcript')`,
+    ),
     check('meeting_capture_text', sql`length(${table.text}) between 1 and 200000`),
     index('meeting_capture_meeting').on(table.orgId, table.meetingId, table.createdAt),
   ],

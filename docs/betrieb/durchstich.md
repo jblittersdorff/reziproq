@@ -131,3 +131,11 @@ Schnittstellen direkt in den Code (`sso-provisioner.ts`, `microsoft-provider.ts`
 - In Reziproq die Anbindung **Trennen** (löscht die Zugangsdaten sofort).
 - In der `.env` `IDENTITY_PROVIDER=fake` und `MICROSOFT_PROVIDER=fake`, API neu starten.
 - Bei Microsoft den geheimen Clientschlüssel löschen, in Zitadel das Token des Dienstkontos.
+
+## Später im Durchstich: Transkripte (IN-05)
+
+- Teams: eigene Teams-App mit ressourcenspezifischer Berechtigung `OnlineMeetingTranscript.Read.Chat`,
+  Installation im Chat der Besprechung mit den Rechten des Organisators, Abo auf
+  `communications/onlineMeetings/.../transcripts`. Bis dahin der Testanbieter.
+- Meet: Scope `https://www.googleapis.com/auth/meetings.space.readonly` in der Google-Anbindung.
+- Nie: `Recordings`, Audio oder Video. Die Schnittstelle `TranscriptClient` hat dafür keine Methode.

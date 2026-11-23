@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { FILE_STORE, LocalFileStore } from '../../common/file-store.js';
 import { AiGatewayModule } from '../ai-gateway/ai-gateway.module.js';
 import { CalendarModule } from '../calendar/calendar.module.js';
 import { IntegrationsModule } from '../integrations/integrations.module.js';
@@ -10,7 +9,7 @@ import { MailsService } from './mails.service.js';
 @Module({
   imports: [AiGatewayModule, CalendarModule, IntegrationsModule],
   controllers: [MailAddinController, FiledMailsController],
-  providers: [MailsService, { provide: FILE_STORE, useClass: LocalFileStore }],
+  providers: [MailsService],
   exports: [MailsService],
 })
 export class MailsModule {}

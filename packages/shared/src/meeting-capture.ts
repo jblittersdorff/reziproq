@@ -6,7 +6,8 @@ import { aiDraftSchema } from './ai-drafts.js';
 // Ziele aus dem Briefing (KI-07). Im Zweifel ist ein Punkt intern; das Protokoll enthält nur
 // geteilte Punkte. Der Lieferant sieht nichts davon, bis der SRO das Protokoll teilt.
 
-export const captureSources = ['typed', 'pasted', 'file'] as const;
+// IN-05: transcript, wenn das Transkript eines Termins ausgewertet wird
+export const captureSources = ['typed', 'pasted', 'file', 'transcript'] as const;
 export const captureKinds = [
   'commitment',
   'action',

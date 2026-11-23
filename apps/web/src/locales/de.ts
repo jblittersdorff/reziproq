@@ -673,6 +673,74 @@ export const de = {
   },
 
   // Sprache (PLT-09)
+  // IN-05: Transkripte (Einstellungen und Termin)
+  transcripts: {
+    settingsTitle: 'Transkripte',
+    settingsLoading: 'Einstellungen werden geladen …',
+    enabled: 'Transkripte übernehmen',
+    enabledHint: 'Erst nach bestätigter Betriebsvereinbarung.',
+    perMeeting: 'Zustimmung je Termin',
+    perMeetingHint: 'Immer an: Übernommen wird nur, wenn am Termin „Transkript übernehmen“ an ist.',
+    agreementTitle: 'Betriebsvereinbarung',
+    agreementMissing: 'Noch nicht bestätigt.',
+    agreementConfirmed: (date: string, by: string) => `Bestätigt am ${date} von ${by}.`,
+    agreementDate: 'Datum der Vereinbarung',
+    agreementFile: 'Datei (optional)',
+    agreementChoose: 'Datei wählen',
+    agreementConfirm: 'Bestätigen',
+    agreementTemplate: 'Vorlage herunterladen',
+    retention: 'Rohtranskript aufbewahren',
+    retentionDays: (days: number) => `${days} Tage`,
+    teamsMode: 'Weg für Teams',
+    teamsModes: { meeting: 'Je Besprechung (Standard)', org: 'Für die Organisation' },
+    inviteNotice: 'Hinweis in der Einladung',
+    save: 'Speichern',
+    saved: 'Gespeichert.',
+    failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
+    errors: {
+      betriebsvereinbarung_fehlt: 'Bitte zuerst die Betriebsvereinbarung bestätigen.',
+      format_nicht_unterstuetzt: 'Bitte eine VTT-, DOCX- oder TXT-Datei wählen.',
+      datei_zu_gross: 'Die Datei ist größer als 10 MB.',
+      datei_leer: 'In der Datei steht kein Text.',
+      transkripte_aus: 'Transkripte sind für eure Organisation nicht eingeschaltet.',
+      kein_opt_in: 'Für diesen Termin ist „Transkript übernehmen“ aus.',
+      noch_nicht_vorbei: 'Der Termin ist noch nicht vorbei.',
+    } as Record<string, string>,
+    neverMedia: 'Audio und Video werden nie gespeichert, nur Text.',
+    // Termin
+    title: 'Transkript',
+    loading: 'Transkript wird geladen …',
+    optIn: 'Transkript übernehmen',
+    optInHint:
+      'Nach dem Termin holt Reziproq das Transkript aus Teams oder Meet und macht daraus Entwürfe.',
+    orgOff:
+      'Transkripte sind für eure Organisation noch nicht eingeschaltet (Einstellungen › Anbindungen).',
+    pending: 'Transkript wird abgeholt.',
+    fetched: (source: string) => `Transkript ${source} übernommen.`,
+    sources: { teams: 'aus Teams', meet: 'aus Google Meet', upload: 'aus einer Datei' } as Record<
+      string,
+      string
+    >,
+    deleted:
+      'Das Rohtranskript ist nach der Aufbewahrung gelöscht. Entwürfe und Fundstellen bleiben.',
+    duration: (minutes: number) => `${minutes} Minuten`,
+    speakers: (count: number) => (count === 1 ? '1 Sprecher' : `${count} Sprecher`),
+    deleteOn: (date: string) => `wird am ${date} gelöscht`,
+    none: 'Noch kein Transkript.',
+    upload: 'Datei hochladen',
+    uploadHint: 'VTT, DOCX oder TXT bis 10 MB.',
+    notes: 'Notizen erfassen',
+    showText: 'Transkript ansehen',
+    hideText: 'Transkript ausblenden',
+    textLoading: 'Text wird geladen …',
+    textFailed: 'Der Text konnte nicht geladen werden.',
+    quoteMark: 'Fundstelle in einem Entwurf',
+    release: 'Für Teilnehmer freigeben',
+    released: 'Für Teilnehmer freigegeben',
+    privateNote:
+      'Nur eure Seite. Der Lieferant sieht nie ein Transkript, nur das geteilte Protokoll.',
+  },
+
   // IN-06: Profil › Benachrichtigungen
   notifications: {
     title: 'Benachrichtigungen',

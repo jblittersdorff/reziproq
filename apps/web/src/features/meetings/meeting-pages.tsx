@@ -48,6 +48,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { MeetingBriefPanel } from './meeting-brief';
 import { MeetingCapturePanel } from './meeting-capture';
+import { MeetingTranscriptPanel } from './meeting-transcript';
 import { PreReadSummary } from './pre-read-summary';
 
 // QBR-01a: Termine für beide Seiten. Der Käufer arbeitet unter /lieferanten/<id>/umsetzung/termine,
@@ -710,18 +711,38 @@ function MeetingContent({
         />
       )}
       {shownTab === 'results' ? (
-        <MeetingCapturePanel
-          relationshipId={place.relationshipId}
-          meetingId={meetingId}
-          supplier={supplier.data?.name ?? text.brief.sideYou}
-        />
+        <div className="flex flex-col gap-5">
+          {/* IN-05: Transkript vor den Entwürfen; ohne Transkript Upload oder Notizen */}
+          <MeetingTranscriptPanel
+            relationshipId={place.relationshipId}
+            meetingId={meetingId}
+            onCaptureNotes={() =>
+              document
+                .getElementById('ergebnisse-erfassen')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          />
+          <MeetingCapturePanel
+            relationshipId={place.relationshipId}
+            meetingId={meetingId}
+            supplier={supplier.data?.name ?? text.brief.sideYou}
+          />
+        </div>
       ) : shownTab === 'prep' ? (
-        <MeetingBriefPanel
-          relationshipId={place.relationshipId}
-          meetingId={meetingId}
-          supplier={supplier.data?.name ?? text.brief.sideYou}
-          meetingDay={meeting.startsAt}
-        />
+        <div className="flex flex-col gap-5">
+          {/* IN-05: „Transkript übernehmen“ im Reiter Vorbereitung */}
+          <MeetingTranscriptPanel
+            relationshipId={place.relationshipId}
+            meetingId={meetingId}
+            compact
+          />
+          <MeetingBriefPanel
+            relationshipId={place.relationshipId}
+            meetingId={meetingId}
+            supplier={supplier.data?.name ?? text.brief.sideYou}
+            meetingDay={meeting.startsAt}
+          />
+        </div>
       ) : (
         <>
           <Section

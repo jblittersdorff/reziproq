@@ -898,10 +898,25 @@ export class CalendarIntakeService implements OnModuleInit {
       return row?.id ?? '';
     });
     const inbound = await this.integrations.inboundMailOf(session.organizationId);
+    // IN-05: Hinweis aus den Einstellungen der Organisation (Transkripte), sonst der Standardtext
+    const notice = data.transcriptOptIn
+      ? await this.tenant.run(session, async (tx) => {
+          const [row] = await tx
+            .select({ value: schema.orgSetting.value })
+            .from(schema.orgSetting)
+            .where(
+              and(
+                eq(schema.orgSetting.orgId, session.organizationId),
+                eq(schema.orgSetting.key, 'invite_notice_text'),
+              ),
+            );
+          return typeof row?.value === 'string' ? row.value : defaultTranscriptNotice;
+        })
+      : null;
     return {
       registrationId: id,
       inboundAddress: inbound?.address ?? null,
-      transcriptNotice: data.transcriptOptIn ? defaultTranscriptNotice : null,
+      transcriptNotice: notice,
     };
   }
 

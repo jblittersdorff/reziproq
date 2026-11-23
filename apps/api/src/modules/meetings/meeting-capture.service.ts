@@ -346,7 +346,11 @@ export class MeetingCaptureService {
         .returning();
       if (!capture) throw notFound();
       const raw = await this.extract(scope, input.text, ctx);
-      const items = validateExtraction(raw, input.text, ctx);
+      // IN-05: Ein Transkript ist Freitext beider Seiten; daraus entstehen nur interne Punkte.
+      // Teilen entscheidet der SRO, nie ein Satz im Transkript.
+      const items = validateExtraction(raw, input.text, ctx).map((item) =>
+        input.source === 'transcript' ? { ...item, visibility: 'internal' as const } : item,
+      );
       await scope.tx
         .update(schema.aiDraft)
         .set({

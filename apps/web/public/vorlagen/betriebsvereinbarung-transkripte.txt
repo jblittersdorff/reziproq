@@ -1,0 +1,28 @@
+Vorlage: Ergänzung zur Betriebsvereinbarung – Transkripte von Besprechungen in Reziproq
+(Entwurf zur Abstimmung mit dem Betriebsrat; vor Gebrauch rechtlich prüfen)
+
+1. Zweck
+Transkripte von Besprechungen mit Lieferanten werden in Reziproq ausschließlich genutzt, um
+Zusagen, Maßnahmen, Entscheidungen und das Protokoll des Termins vorzubereiten. Eine Leistungs-
+oder Verhaltenskontrolle einzelner Beschäftigter findet nicht statt; Reziproq bewertet keine
+Personen.
+
+2. Umfang
+- Übernommen wird nur Text. Audio, Video und Aufzeichnungen werden nie abgerufen oder gespeichert.
+- Ein Transkript wird nur übernommen, wenn für den einzelnen Termin „Transkript übernehmen“
+  eingeschaltet ist und die Teilnehmenden in der Einladung darauf hingewiesen wurden.
+- Besprechungen ohne Lieferant werden nicht übernommen.
+
+3. Zugriff
+- Rohtranskript: SRO der Lieferantenbeziehung und organisierende Person; weitere Teilnehmende der
+  eigenen Organisation nur nach Freigabe durch den SRO.
+- Der Lieferant sieht nie ein Transkript, nur das Protokoll, das der SRO teilt.
+
+4. Speicherung und Löschung
+- Das Rohtranskript wird verschlüsselt in Frankfurt gespeichert und nach [30 / 90 / 180] Tagen
+  automatisch gelöscht.
+- Entwürfe, übernommene Zusagen und Maßnahmen sowie das Protokoll bleiben, mit Zitaten als
+  Fundstelle.
+
+5. Gültigkeit
+Diese Ergänzung gilt ab [Datum]. Ansprechpartner: [Name, Funktion].

@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
-import { Injectable } from '@nestjs/common';
+import { Global, Injectable, Module } from '@nestjs/common';
 import { env } from '../config/env.js';
 
 /**
@@ -54,3 +54,11 @@ export class LocalFileStore implements FileStore {
     await rm(this.path(key), { force: true });
   }
 }
+
+/** Eine Ablage für alle Fachbereiche (IN-04 Anhänge, IN-05 Transkripte) */
+@Global()
+@Module({
+  providers: [{ provide: FILE_STORE, useClass: LocalFileStore }],
+  exports: [FILE_STORE],
+})
+export class FileStoreModule {}

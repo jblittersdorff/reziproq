@@ -988,6 +988,15 @@ export const layerRegister: Record<string, LayerEntry> = {
       href: '/hinweise',
     }),
   },
+  // IN-05: Transkripte, nur beim Käufer
+  meeting_transcript: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      meeting_id: buyer && probe('meeting', buyer),
+      source: 'upload',
+      status: 'pending',
+    }),
+  },
   // AW-01: Aussage von Reziproq je Person und Seite
   insight_summary: {
     kind: 'org_private',
