@@ -58,10 +58,10 @@ export const routeMoves: readonly RouteMove[] = [
   // Mein Agent (MA-01); eigene Agenten entfallen (E-K0-13).
   move('/einstellungen/ki/agenten/*', '/mein-agent', 'K1-f', 'geplant'),
 
-  // Bausteine: eine Seite statt drei
+  // Bausteine: eine Seite statt drei; eigener kleiner Schritt K1-d.3 (steht nicht im Paket K1-d)
   move('/bausteine', '/bausteine', 'UX-20', 'bleibt'),
-  move('/design', '/bausteine', 'K1-d', 'geplant'),
-  move('/styleguide', '/bausteine', 'K1-d', 'geplant'),
+  move('/design', '/bausteine', 'K1-d.3', 'geplant'),
+  move('/styleguide', '/bausteine', 'K1-d.3', 'geplant'),
 
   // Beziehungen (BZ-01) und Akte (AK-01); Einzelregeln je Unterseite mit K2-c
   move('/lieferanten/neu', null, 'K2-b', 'geplant'),

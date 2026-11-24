@@ -14,7 +14,7 @@ Stand 24.11.2026, geprüft auf `spec/PNL-11` nach K1-a.1. Grundlage: der letzte 
   - Ein eigener Wartehelfer statt `networkidle` war schneller, blieb aber unter voller Last hängen; der Rundgang wartet deshalb weiter mit `networkidle`.
 - **`pnpm check` gesamt: rund 9 min → 4 min 16 s** (3814 Unit- und API-Tests, 3 Zeitmessungen, 208 + 47 E2E-Tests).
 - **Unbenutzte Bausteine entfernt:** `Label`, `FlowBar`, `LayerPanel`, `GlobalBar` samt ihren Beispielen und Tests. `Range` bleibt: Die Website nutzt ihn.
-- **Offen:** Die drei Testseiten für Bausteine werden mit K1-d zu `/bausteine` zusammengelegt. Dann ziehen die Prüfungen aus PLT-10 dorthin um.
+- **Offen:** Die drei Testseiten für Bausteine (`/design`, `/styleguide`, `/bausteine`) werden zu `/bausteine` zusammengelegt. Dann ziehen die Prüfungen aus PLT-10 dorthin um. Das steht nicht im Paket K1-d. Es kommt als eigener kleiner Schritt K1-d.3, sobald der Gründer ihn freigibt.
 
 **Regel:** Ein Test fällt nur zusammen mit dem Code, den er schützt. Solange eine Seite oder ein Dienst läuft, bleibt sein Test. Fällt eine Seite weg, tritt an die Stelle ihres E2E-Tests der Inventar-Test (`docs/inventar.md`) und der Test der Weiterleitung. Prüfungen für Rechte, Datenräume und Mandanten (RLS, Cross-Tenant, Leitplanken) werden nie abgeschwächt.
 

@@ -20,7 +20,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/bewertungen/$id/qualitaet` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/bewertungen/$id/zusammenfassung` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/beziehungen` | – (zeigt bis K2-b die Lieferantenliste) | K1-d | bleibt |
-| `/design` | `/bausteine` | K1-d | geplant |
+| `/design` | `/bausteine` | K1-d.3 | geplant |
 | `/einladung/$token` | – (ohne Rahmen) | LP-01 | bleibt |
 | `/einladung/$token/name` | – (ohne Rahmen) | LP-01 | bleibt |
 | `/einladung/$token/passkey` | – (ohne Rahmen) | LP-01 | bleibt |
@@ -263,7 +263,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/start` | `/heute` | K1-d | aktiv |
 | `/start/faellig` | `/heute?ansicht=alles` | K1-e | geplant |
 | `/start/massnahmen` | `/heute?ansicht=alles` (Zusagen und Aufgaben) | K1-e | geplant |
-| `/styleguide` | `/bausteine` | K1-d | geplant |
+| `/styleguide` | `/bausteine` | K1-d.3 | geplant |
 | `/uebersicht` | `/wert` | K1-d | aktiv |
 | `/uebersicht/ergebnisse` | `/wert` | K4-b | geplant |
 | `/uebersicht/wertpotenziale` | offen (Wertfinder) | K4-d | geplant |
