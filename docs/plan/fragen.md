@@ -152,3 +152,31 @@ Alle Empfehlungen oben gelten. Ergänzt:
   nur. Eine Oberfläche für Admins kommt, wenn ein Modul gebaut wird.
 - **F-UX-02, F-UX-03:** Spec-Entwürfe „Beziehungsnetz“ und „JBP-Termin“ kommen vor Phase 4 bzw. 7
   zur Freigabe.
+- **Seitenleiste (Phase 2):** Die Seitenleiste ist immer so hoch wie der Bildschirm und scrollt
+  nicht mit; nur der Inhalt scrollt. Das ersetzt „nicht fixiert, so hoch wie die Seite“ in NAV-10 1.1
+  und der Designsprache; beide sind angepasst. Die Support-Leiste (PLT-13) steht dafür über dem
+  Inhalt neben der Seitenleiste.
+
+## Neu aus Phase 2 (24.11.2026)
+
+**F-UX-15 · EBIT je Warengruppe für die Übersicht.**
+- NAV-10: Diagrammkarte „Warengruppen“ mit EBIT gesichert gegen Ziel je Warengruppe, Potenzial
+  nicht freigegebener Strategien hell.
+- Im Datenmodell fehlen ein EBIT-Ziel je Warengruppe (WG-06 kennt Ziele als Text mit Kennzahl) und
+  die Zuordnung einer Initiative zu einer Warengruppe.
+- Bis dahin zeigt die Karte den Stand der Strategien (Schritte erledigt, freigegeben).
+- Empfehlung: Initiative bekommt die Warengruppe (aus dem Thema oder von Hand), WG-06 ein Ziel in
+  Cent je Hebel; Umsetzung mit Phase 9.
+
+**F-UX-16 · Freigabetermin einer Warengruppenstrategie.**
+- Vorlage: „Freigabe Strategie Leiterplatten, Mi 09.12., Leitungsgremium Einkauf“ in Schiene und
+  Fristen.
+- WG-16 kennt nur offene Unterschriften ohne Datum.
+- Empfehlung: optionales Datum „Freigabe geplant am“ beim Einreichen (Schritt 10); dann erscheint
+  es als Freigabe in der Terminschiene.
+
+**F-UX-17 · Gewicht des Segments in „Als Nächstes“.**
+- NAV-10: Reihenfolge überfällig, heute, dann Wirkung (Spend × Segment), dann Frist.
+- Heute zählt der Spend des Lieferanten; das Segmentmodell hat keine Gewichte je Segment.
+- Empfehlung: Gewicht je Segmenttyp im Segmentmodell (Start 1,0; strategisch 2,0), einstellbar
+  unter Einstellungen › Segmentierung.

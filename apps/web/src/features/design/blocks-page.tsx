@@ -8,8 +8,9 @@ import {
 } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { AppShell, ShellContent } from '@/components/ui/app-shell';
-import { ChartBars, ChartCard, ChartFigures } from '@/components/ui/chart-card';
+import { ChartBars, ChartCard, ChartColumns, ChartFigures } from '@/components/ui/chart-card';
 import { Collapsible } from '@/components/ui/collapsible';
+import { DateList } from '@/components/ui/date-list';
 import { CategoryHeader, SupplierHeader } from '@/components/ui/entity-header';
 import { FlowBar } from '@/components/ui/flow-bar';
 import { FormField } from '@/components/ui/form-field';
@@ -22,6 +23,7 @@ import { Row, RowGroup } from '@/components/ui/row-group';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SoWhat, type SoWhatTone } from '@/components/ui/so-what';
 import { StatusLine } from '@/components/ui/status-line';
+import { TimelineRail } from '@/components/ui/timeline-rail';
 import { routerLink } from '@/features/shell/navigation';
 import { type Locale, useLocale, useMessages } from '@/lib/i18n';
 import { blocksMessages } from './blocks-messages';
@@ -83,7 +85,7 @@ export function BlocksPage() {
       label={t.nav.label}
       brand="Reziproq"
       brandHref="/bausteine"
-      search={{ label: t.nav.search, href: '/fragen', shortcut: '⌘K' }}
+      search={{ key: 'ask', label: t.nav.search, href: '/fragen', shortcut: '⌘K' }}
       items={items}
       settings={{
         key: 'settings',
@@ -91,7 +93,7 @@ export function BlocksPage() {
         href: '/einstellungen',
         icon: <SettingsIcon aria-hidden />,
       }}
-      person={{ initials: 'JL', name: 'Jan-Luka' }}
+      person={{ initials: 'JL', name: 'Jan-Luka', href: '/profil', label: t.nav.profile }}
       tabs={[
         ...items,
         {
@@ -169,6 +171,61 @@ export function BlocksPage() {
                 share,
                 value,
                 ...(index === 2 ? { potential: 0.78 } : {}),
+              }))}
+            />
+          </ChartCard>
+        </div>
+
+        {section('rail', t.sections.rail)}
+        <ChartCard label={t.rail.kicker} title={t.rail.label}>
+          <TimelineRail
+            label={t.rail.label}
+            locale={locale}
+            today={{
+              key: 'today',
+              date: '2026-11-23',
+              kind: t.rail.today[0],
+              title: t.rail.today[1],
+              sub: t.rail.today[2],
+              href: '/mein-tag',
+            }}
+            items={t.rail.items.map(([kind, title, sub, tone, day]) => ({
+              key: title,
+              date: `2026-12-${String(day - 7).padStart(2, '0')}`,
+              kind,
+              title,
+              sub,
+              tone,
+              href: '/lieferanten',
+            }))}
+            renderLink={routerLink}
+          />
+        </ChartCard>
+
+        {section('dates', t.sections.dates)}
+        <div className="grid gap-5.5 wide:grid-cols-2">
+          <ChartCard label={t.dates.kicker} title={t.dates.title}>
+            <DateList
+              locale={locale}
+              items={t.dates.items.map(([title, sub, chip, day]) => ({
+                key: title,
+                date: `2026-12-${String(day - 7).padStart(2, '0')}`,
+                title,
+                sub,
+                chip: { label: chip, tone: 'shared' as const },
+                href: '/lieferanten',
+              }))}
+              renderLink={routerLink}
+            />
+          </ChartCard>
+          <ChartCard title={t.columns.label}>
+            <ChartColumns
+              label={t.columns.label}
+              items={t.columns.items.map(([label, value, share]) => ({
+                key: label,
+                label,
+                value,
+                share,
               }))}
             />
           </ChartCard>

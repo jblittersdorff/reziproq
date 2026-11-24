@@ -121,7 +121,8 @@ Jede Seite der Käufer- und Lieferantenseite folgt diesen fünf Regeln:
 ## Ablauf
 
 1. **Seitenleiste** (ab 761 px Breite):
-   - 236 px breit, Fläche `#eceeea`, nicht fixiert, so hoch wie die Seite.
+   - 236 px breit, Fläche `#eceeea`, so hoch wie der Bildschirm; sie bleibt beim Scrollen stehen,
+     nur der Inhalt scrollt (Gründer, 23.11.2026; vorher „nicht fixiert, so hoch wie die Seite“).
    - Von oben:
      - Logo (führt zur eigenen Startseite);
      - Feld „Suchen oder fragen“ mit ⌘K;

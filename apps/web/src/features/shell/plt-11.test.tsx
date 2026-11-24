@@ -34,19 +34,20 @@ afterEach(tearDownApp);
 
 const admin = { ...anna, orgRole: 'admin' as const };
 
-/** Ziele der globalen Leiste: Mitte die vier Hauptziele, rechts Fragen und Profil. */
+/** NAV-10 1.1: Ziele der Seitenleiste: Suchen oder fragen, vier Hauptpunkte, Einstellungen, Person. */
 const barTargets = [
+  { label: 'Suchen oder fragen', path: '/fragen' },
   { label: 'Übersicht', path: '/uebersicht' },
   { label: 'Mein Tag', path: '/mein-tag' },
   { label: 'Lieferanten', path: '/lieferanten' },
   { label: 'Warengruppen', path: '/warengruppen' },
-  { label: 'Suchen oder Reziproq fragen', path: '/fragen' },
+  { label: 'Einstellungen', path: '/einstellungen' },
   { label: 'Profil', path: '/profil' },
 ];
 
 /** Alle Routen dieser Spec mit ihrem Titel (h1). Start begrüßt statt eines Titels. */
 const routes = [
-  { path: '/start', title: 'Guten' },
+  { path: '/start', title: 'Mein Tag' },
   { path: '/lieferanten', title: 'Lieferanten' },
   { path: '/portfolio', title: 'Matrix' },
   { path: '/wirkung', title: 'Übersicht' },
@@ -63,7 +64,7 @@ describe('Nach dem Login landet der Nutzer auf /start', () => {
   it('leitet / und die frühere Übersicht auf /start um', async () => {
     for (const path of ['/', '/start']) {
       const router = renderAt(path);
-      await screen.findByRole('heading', { level: 1, name: /Guten|Willkommen/ });
+      await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
       expect(router.state.location.pathname).toBe('/mein-tag');
       tearDownApp();
       setUpApp();
@@ -91,19 +92,18 @@ describe('Nach dem Login landet der Nutzer auf /start', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 29, hour, 0));
     renderAt('/start');
-    expect(await screen.findByRole('heading', { level: 1, name: greeting })).toBeDefined();
+    // NAV-10 1.1: Titel „Mein Tag“, darunter Wochentag und Datum mit Begrüßung
+    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
+    expect(await screen.findByText(`Donnerstag, 29. Oktober · ${greeting}`)).toBeDefined();
   });
 
-  it('zeigt auf Start das Fragefeld, das eine Frage an /fragen übergibt', async () => {
+  it('auf Mein Tag führt „Suchen oder fragen“ zu /fragen (kein eigenes Fragefeld mehr)', async () => {
     const router = renderAt('/start');
-    await screen.findByRole('heading', { level: 1 });
-    fireEvent.change(screen.getByRole('textbox', { name: 'Deine Frage an Reziproq' }), {
-      target: { value: 'Zeig mir meine Lieferanten' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Fragen' }));
+    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
+    expect(screen.queryByRole('textbox', { name: 'Deine Frage an Reziproq' })).toBeNull();
+    fireEvent.click(within(bar()).getByRole('link', { name: 'Suchen oder fragen' }));
     await screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
     expect(router.state.location.pathname).toBe('/fragen');
-    expect(router.state.location.search).toEqual({ q: 'Zeig mir meine Lieferanten' });
   });
 });
 
@@ -111,9 +111,12 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
   it.each(routes)('auf $path zeigt die Leiste alle Ziele', async (route) => {
     renderAt(route.path);
     await screen.findByRole('heading', { level: 1 });
-    const links = within(bar()).getAllByRole('link');
-    const named = links.map((link) => link.getAttribute('aria-label') ?? link.textContent);
-    for (const target of barTargets) expect(named).toContain(target.label);
+    // Einstellungen und Person erscheinen, sobald /me geladen ist
+    await waitFor(() => {
+      const links = within(bar()).getAllByRole('link');
+      const named = links.map((link) => link.getAttribute('aria-label') ?? link.textContent);
+      for (const target of barTargets) expect(named).toContain(target.label);
+    });
   });
 
   it.each(barTargets)('ein Klick auf $label öffnet $path und markiert es', async (target) => {
@@ -134,13 +137,15 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
     expect(active.map((candidate) => candidate.getAttribute('href'))).toEqual([target.path]);
   });
 
-  it('markiert auf Unterseiten von Profil und Einstellungen das Profil', async () => {
+  it('markiert auf Unterseiten der Einstellungen die Einstellungen (NAV-10 1.1)', async () => {
     renderAt('/einstellungen/organisation');
     await screen.findByRole('heading', { level: 1, name: 'Organisation' });
-    const active = within(bar())
-      .getAllByRole('link')
-      .filter((candidate) => candidate.getAttribute('aria-current') === 'page');
-    expect(active.map((candidate) => candidate.getAttribute('aria-label'))).toEqual(['Profil']);
+    await waitFor(() => {
+      const active = within(bar())
+        .getAllByRole('link')
+        .filter((candidate) => candidate.getAttribute('aria-current') === 'page');
+      expect(active.map((candidate) => candidate.getAttribute('href'))).toEqual(['/einstellungen']);
+    });
   });
 
   it('zeigt auch auf der Menüseite dieselben Ziele', async () => {
@@ -151,16 +156,22 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
       within(menu)
         .getAllByRole('link')
         .map((link) => link.getAttribute('href')),
-    ).toEqual(barTargets.map((target) => target.path));
+    ).toEqual(['/uebersicht', '/mein-tag', '/lieferanten', '/warengruppen', '/fragen', '/profil']);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('zeigt Organisationen ohne Käuferfunktionen nur das Profil', async () => {
     api.me = { ...anna, permissions: { ...anna.permissions, viewBuyerAreas: false } };
     renderAt('/profil');
-    await screen.findByText('Anna Schmidt');
-    const links = within(bar()).getAllByRole('link');
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/', '/profil', '/menu']);
+    await screen.findByRole('heading', { level: 1, name: 'Profil' });
+    await waitFor(() => {
+      const links = within(bar()).getAllByRole('link');
+      expect(links.map((link) => link.getAttribute('href'))).toEqual([
+        '/',
+        '/einstellungen',
+        '/profil',
+      ]);
+    });
   });
 
   it('bietet als erstes Tab-Ziel den Sprung zum Inhalt', async () => {
@@ -202,7 +213,7 @@ it('/portfolio setzt den Tab-Titel', async () => {
 describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mitglied sieht Organisation', () => {
   it('ein Mitglied ohne Admin sieht nur den Weg zu Einstellungen › Organisation', async () => {
     renderAt('/profil');
-    await screen.findByText('Anna Schmidt');
+    await within(await screen.findByRole('main')).findByText('Anna Schmidt');
     expect(screen.getByRole('link', { name: /Organisation/ }).getAttribute('href')).toBe(
       '/einstellungen/organisation',
     );
@@ -213,7 +224,7 @@ describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mit
     api.me = admin;
     api.permissions = actionsFor.admin;
     renderAt('/profil');
-    await screen.findByText('Anna Schmidt');
+    await within(await screen.findByRole('main')).findByText('Anna Schmidt');
     // Die Rechte kommen aus /me/permissions, kurz nach /me.
     expect(
       (await screen.findByRole('link', { name: 'Alle Einstellungen' })).getAttribute('href'),

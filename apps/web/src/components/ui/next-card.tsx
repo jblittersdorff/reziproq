@@ -29,7 +29,8 @@ function NextCard({
   kicker: React.ReactNode;
   title: React.ReactNode;
   text?: React.ReactNode;
-  action: { label: string; href: string };
+  /** `ariaLabel`, wenn der Text allein das Ziel nicht nennt (z. B. „Öffnen“) */
+  action: { label: string; href: string; ariaLabel?: string };
   sticky?: boolean;
   headingAs?: 'h2' | 'h3';
   renderLink?: RenderLink;
@@ -56,6 +57,7 @@ function NextCard({
       )}
       {renderLink({
         href: action.href,
+        ...(action.ariaLabel ? { 'aria-label': action.ariaLabel } : {}),
         className:
           'flex min-h-13 w-full items-center justify-center rounded-md bg-mint px-7 font-semibold text-ink text-lg no-underline hover:bg-mint/90 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-mint/60 shell:w-auto',
         children: action.label,

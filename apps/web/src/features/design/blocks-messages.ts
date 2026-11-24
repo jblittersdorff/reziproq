@@ -17,6 +17,7 @@ export const blocksMessages = defineMessages({
       categories: 'Warengruppen',
       settings: 'Einstellungen',
       ask: 'Frag',
+      profile: 'Profil',
     },
     sections: {
       next: 'NextCard · Als Nächstes',
@@ -29,6 +30,43 @@ export const blocksMessages = defineMessages({
       supplier: 'SupplierHeader · Lieferantenkopf',
       category: 'CategoryHeader · Warengruppenkopf',
       flow: 'FlowBar · Ablauf-Leiste',
+      rail: 'TimelineRail · Terminschiene',
+      dates: 'DateList · Termine und Fristen',
+      columns: 'ChartColumns · Säulen je Quartal',
+    },
+    rail: {
+      label: 'Die nächsten vier Wochen',
+      kicker: '4 Termine und Fristen · alle Lieferanten und Warengruppen',
+      today: ['Heute', '3 Dinge in Mein Tag', 'davon 1 überfällig'] as [string, string, string],
+      items: [
+        [
+          'Termin · JBP',
+          'JBP Rheintal Elektronik',
+          'Fr 10:00 · Briefing im Entwurf',
+          'meeting',
+          11,
+        ],
+        ['Freigabe', 'Strategie Leiterplatten', '210 bis 310 T€ hängen daran', 'approval', 16],
+        ['Zusage', 'Musterteile von Rheintal', 'wartet auf Bestätigung', 'commitment', 22],
+        ['Frist · Bewertung', 'Bewertungsrunde 2027', '12 von 18 abgegeben', 'deadline', 26],
+      ] as [string, string, string, 'meeting' | 'approval' | 'commitment' | 'deadline', number][],
+    },
+    dates: {
+      kicker: 'Nächste 14 Tage',
+      title: 'Termine und Fristen',
+      items: [
+        ['JBP Rheintal Elektronik', 'Fr 10:00 bis 12:00 · Teams', 'Briefing', 11],
+        ['Freigabe Strategie Leiterplatten', 'Mi · Leitungsgremium Einkauf', 'Freigabe', 16],
+      ] as [string, string, string, number][],
+    },
+    columns: {
+      label: 'EBIT gesichert je Quartal',
+      items: [
+        ['Q1', '64 T€', 0.45],
+        ['Q2', '98 T€', 0.7],
+        ['Q3', '141 T€', 1],
+        ['Q4 bis heute', '109 T€', 0.77],
+      ] as [string, string, number][],
     },
     next: {
       kicker: 'Als Nächstes · überfällig seit 2 Tagen · 2 Min.',
@@ -155,6 +193,7 @@ export const blocksMessages = defineMessages({
       categories: 'Material groups',
       settings: 'Settings',
       ask: 'Ask',
+      profile: 'Profile',
     },
     sections: {
       next: 'NextCard · Up next',
@@ -167,6 +206,43 @@ export const blocksMessages = defineMessages({
       supplier: 'SupplierHeader · supplier header',
       category: 'CategoryHeader · material group header',
       flow: 'FlowBar · flow bar',
+      rail: 'TimelineRail · timeline rail',
+      dates: 'DateList · dates and deadlines',
+      columns: 'ChartColumns · columns per quarter',
+    },
+    rail: {
+      label: 'The next four weeks',
+      kicker: '4 dates and deadlines · all suppliers and material groups',
+      today: ['Today', '3 items in my day', '1 of them overdue'] as [string, string, string],
+      items: [
+        [
+          'Meeting · JBP',
+          'JBP Rheintal Elektronik',
+          'Fri 10:00 · briefing in draft',
+          'meeting',
+          11,
+        ],
+        ['Approval', 'Strategy PCB', '210 to 310 k€ depend on it', 'approval', 16],
+        ['Commitment', 'Samples from Rheintal', 'waiting for confirmation', 'commitment', 22],
+        ['Deadline · rating', 'Rating round 2027', '12 of 18 submitted', 'deadline', 26],
+      ] as [string, string, string, 'meeting' | 'approval' | 'commitment' | 'deadline', number][],
+    },
+    dates: {
+      kicker: 'Next 14 days',
+      title: 'Dates and deadlines',
+      items: [
+        ['JBP Rheintal Elektronik', 'Fri 10:00 to 12:00 · Teams', 'Briefing', 11],
+        ['Approval strategy PCB', 'Wed · purchasing board', 'Approval', 16],
+      ] as [string, string, string, number][],
+    },
+    columns: {
+      label: 'EBIT secured per quarter',
+      items: [
+        ['Q1', '64 k€', 0.45],
+        ['Q2', '98 k€', 0.7],
+        ['Q3', '141 k€', 1],
+        ['Q4 to date', '109 k€', 0.77],
+      ] as [string, string, number][],
     },
     next: {
       kicker: 'Up next · overdue for 2 days · 2 min.',

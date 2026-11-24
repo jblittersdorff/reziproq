@@ -11,15 +11,14 @@ const barTargets = [
   { name: 'Mein Tag', path: '/mein-tag' },
   { name: 'Lieferanten', path: '/lieferanten' },
   { name: 'Warengruppen', path: '/warengruppen' },
-  { name: 'Suchen oder Reziproq fragen', path: '/fragen' },
+  { name: 'Suchen oder fragen', path: '/fragen' },
   { name: 'Profil', path: '/profil' },
 ];
 
-const greeting = /^Guten (Morgen|Tag|Abend), Anna\.$/;
-
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  { path: '/start', title: greeting, empty: 'Heute wartet nichts auf dich.' },
+  // NAV-10 1.1: /start führt zu Mein Tag
+  { path: '/start', title: 'Mein Tag' },
   { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Matrix' },
   // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
@@ -87,6 +86,38 @@ async function signIn(page: Page, { admin = false } = {}) {
       },
     }),
   );
+  // NAV-10 1.1: Mein Tag mit einer Aufgabe, damit „Als Nächstes“ erscheint
+  const today = new Date().toISOString().slice(0, 10);
+  await page.route('**/api/start/mein-tag', (route) =>
+    route.fulfill({
+      json: {
+        today,
+        next: {
+          scope: 'global',
+          item: {
+            id: 'task-1',
+            kind: 'validation',
+            supplier: 'Rheintal',
+            detail: 'Preis Leiterplatten',
+            dueDate: today,
+            href: '/wirkung/freigaben',
+          },
+          overdueDays: 0,
+          minutes: 2,
+        },
+        todayItems: [],
+        week: [],
+        total: 1,
+        doneToday: 0,
+        prepared: [],
+        preparedTotal: 0,
+        waiting: [],
+        waitingTotal: 0,
+        timeline: [],
+        hints: null,
+      },
+    }),
+  );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
   return zitadel;
 }
@@ -101,6 +132,7 @@ async function pageSettled(page: Page) {
 }
 
 const bar = (page: Page) => page.getByRole('navigation', { name: 'Hauptnavigation' });
+const tabs = (page: Page) => page.getByRole('navigation', { name: 'Tab-Leiste' });
 const url = (path: string) => `http://localhost:5174${path}`;
 
 /** Alle sichtbaren Klickflächen, die kleiner als 44 × 44 px sind. */
@@ -138,7 +170,10 @@ test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
   await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
   await expect(page).toHaveURL(url('/mein-tag'));
   await expect(
-    page.locator('#inhalt').getByRole('heading', { level: 1, name: greeting }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Mein Tag' }),
+  ).toBeVisible();
+  await expect(
+    page.locator('#inhalt').getByText(/· Guten (Morgen|Tag|Abend), Anna\.$/),
   ).toBeVisible();
 });
 
@@ -179,13 +214,12 @@ test.describe('Bei 390 px Breite', () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow, `waagerechte Scrollleiste auf ${route.path}`).toBe(0);
-      for (const target of barTargets.slice(0, 4)) {
-        await expect(
-          bar(page).getByRole('link', { name: target.name, exact: true }),
-        ).toBeInViewport();
+      // Bis 760 px die Tab-Leiste mit fünf Zielen statt der Seitenleiste (NAV-10 1.1)
+      for (const name of ['Übersicht', 'Mein Tag', 'Lieferanten', 'Warengruppen', 'Frag']) {
+        await expect(tabs(page).getByRole('link', { name, exact: true })).toBeInViewport();
       }
     }
-    await bar(page).getByRole('link', { name: 'Mein Tag' }).click();
+    await tabs(page).getByRole('link', { name: 'Mein Tag' }).click();
     await expect(page).toHaveURL(url('/mein-tag'));
   });
 });
@@ -290,11 +324,19 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
   await page.goto('/start');
   await pageSettled(page);
 
+  // Seitenleiste von oben: Logo, Suchen oder fragen, vier Hauptpunkte, Einstellungen, Person;
+  // danach der Knopf der Karte „Als Nächstes“.
   const expected = [
     'Zum Inhalt springen',
     'Reziproq',
-    ...barTargets.map((target) => target.name),
-    'Deine Frage an Reziproq',
+    'Suchen oder fragen',
+    'Übersicht',
+    'Mein Tag',
+    'Lieferanten',
+    'Warengruppen',
+    'Einstellungen',
+    'Profil',
+    'Rheintal',
   ];
   const visited: string[] = [];
   for (const _ of expected) {
@@ -319,10 +361,10 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     expect(visited[index]?.startsWith(name), `${index}: ${visited[index]}`).toBe(true);
   });
 
-  // Enter auf dem Feld öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
-  await page.keyboard.type('Wer ist mein Fokuslieferant?');
+  // Enter auf „Suchen oder fragen“ öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
+  await bar(page).getByRole('link', { name: 'Suchen oder fragen' }).focus();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/fragen\?q=/);
+  await expect(page).toHaveURL(url('/fragen'));
   await page.goto('/profil/sprache');
   await pageSettled(page);
   await page.getByRole('radio', { name: 'Deutsch' }).focus();
@@ -338,7 +380,8 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  await expect(page.locator(':focus')).toHaveAttribute('aria-label', 'Deine Frage an Reziproq');
+  // Der erste Halt im Inhalt ist der Knopf der Karte „Als Nächstes“, nicht die Seitenleiste.
+  await expect(page.locator('#inhalt [data-slot="next-card"] a')).toBeFocused();
 });
 
 test('Es gibt nur ein helles Thema, auch bei dunkler Systemeinstellung', async ({ page }) => {

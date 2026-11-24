@@ -102,4 +102,44 @@ function ChartFigures({ items }: { items: { key: string; value: string; label: s
   );
 }
 
-export { ChartBars, ChartCard, ChartFigures };
+/**
+ * Säulen, z. B. „EBIT gesichert je Quartal“ (Vorlage `Uebersicht.dc.html`): Wert über der Säule,
+ * Name darunter; `share` 0 bis 1 relativ zur größten Säule. Ein Zeitraum in der Zukunft hat keine
+ * Säule, der laufende trägt seinen Zusatz im Namen (z. B. „Q4 bis heute“).
+ */
+function ChartColumns({
+  items,
+  label,
+}: {
+  items: { key: string; label: string; value: string; share: number; future?: boolean }[];
+  /** Name für Screenreader */
+  label: string;
+}) {
+  return (
+    <ul
+      aria-label={label}
+      data-slot="chart-columns"
+      className="flex h-31 items-end gap-3.5 pt-1.5 shell:h-40"
+    >
+      {items.map((item) => (
+        <li
+          key={item.key}
+          className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5 text-chip text-input-border"
+        >
+          <b className="font-semibold text-ink text-sm tabular-nums">{item.value}</b>
+          <span aria-hidden className="flex w-full flex-1 items-end justify-center">
+            {!item.future && (
+              <span
+                className="block w-full max-w-11 rounded-t-lg rounded-b-sm bg-petrol"
+                style={{ height: `${Math.max(0.02, Math.min(1, item.share)) * 100}%` }}
+              />
+            )}
+          </span>
+          <span className="text-center">{item.label}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export { ChartBars, ChartCard, ChartColumns, ChartFigures };

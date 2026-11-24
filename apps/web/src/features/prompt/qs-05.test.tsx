@@ -122,7 +122,8 @@ describe('QS-05 Suche', () => {
     await waitFor(() => expect(searches.at(-1)).toBe(`/api/suche?q=Kosten&kunde=${idB}`));
     fireEvent.change(select, { target: { value: idA } });
     await waitFor(() => expect(searches.at(-1)).toBe(`/api/suche?q=Kosten&kunde=${idA}`));
-    // Fragen steht in der globalen Leiste des Lieferanten.
-    expect(screen.getAllByRole('link', { name: 'Fragen' }).length).toBeGreaterThan(0);
+    // Suchen oder fragen steht in der Seitenleiste des Lieferanten, „Frag“ in der Tab-Leiste.
+    expect(screen.getAllByRole('link', { name: 'Suchen oder fragen' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Frag' }).length).toBeGreaterThan(0);
   });
 });

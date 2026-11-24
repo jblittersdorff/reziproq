@@ -1,30 +1,18 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ErrorState } from '@/components/ui/error-state';
 import { FormActions, FormField } from '@/components/ui/form-field';
 import { GoalRings } from '@/components/ui/goal-rings';
 import { Input } from '@/components/ui/input';
-import { EvidenceCard, EvidenceRow, QuestionSuggestions } from '@/components/ui/insight';
-import { ListCard } from '@/components/ui/list-card';
-import { LoadingState } from '@/components/ui/loading-state';
-import { StatusLine } from '@/components/ui/status-line';
+import { EvidenceCard } from '@/components/ui/insight';
 import { Tile } from '@/components/ui/tile';
-import { useToken } from '@/features/ratings/use-rating';
 import { SeverityBadge, useHintWhy } from '@/features/hints/hint-panel';
+import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
-import { PageHeader } from '@/features/shell/page-header';
-import {
-  approveSupplierTarget,
-  overviewInsightQueryOptions,
-  proposeSupplierTarget,
-  saveEbitGoal,
-  supplierRingsQueryOptions,
-  valueOverviewQueryOptions,
-} from '@/lib/api';
+import { approveSupplierTarget, proposeSupplierTarget, supplierRingsQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
-import { Statement } from './statement';
 import { formatMoney } from '@/lib/money';
+import { Statement } from './statement';
 
 function useAmount() {
   const { locale } = useLocale();
@@ -39,7 +27,7 @@ const centsOf = (value: string) => {
 };
 
 /** Ein Betrag mit Speichern und Abbrechen (Jahresziel, Ziel des Lieferanten) */
-function AmountForm({
+export function AmountForm({
   label,
   submitLabel,
   onSubmit,
@@ -99,156 +87,6 @@ function AmountForm({
         </Button>
       </FormActions>
     </form>
-  );
-}
-
-/**
- * Übersicht (NAV-10, AW-01, nach Uebersicht.dc.html): Beleg als Ringpaar, außen gesichertes EBIT
- * gegen das Jahresziel, innen Fokuslieferanten mit freigegebenem JBP; darunter die Zeilenliste und
- * drei Fragevorschläge. Aussage und drei Sätze von Reziproq kommen mit KI-04 und KI-16.
- */
-export function OverviewPage() {
-  const t = useT();
-  const text = t.insights;
-  const accessToken = useToken();
-  const client = useQueryClient();
-  const amount = useAmount();
-  const query = useQuery({
-    ...overviewInsightQueryOptions(accessToken),
-    enabled: accessToken !== '',
-  });
-  const [editing, setEditing] = useState(false);
-  const [saved, setSaved] = useState(false);
-  // KI-11: Wertpotenziale als dritte Zeile, nur wenn es sie gibt
-  const opportunities = useQuery({
-    ...valueOverviewQueryOptions(accessToken),
-    enabled: accessToken !== '',
-  }).data;
-  const data = query.data;
-
-  if (query.isError) {
-    return (
-      <>
-        <PageHeader size="list" title={text.overviewTitle} purpose="" />
-        <ErrorState title={text.failed} />
-      </>
-    );
-  }
-  if (!data) {
-    return (
-      <>
-        <PageHeader size="list" title={text.overviewTitle} purpose="" />
-        <LoadingState label={text.loading} />
-      </>
-    );
-  }
-  const secured = amount(data.securedEbitCents, data.currency);
-  const goal = data.goalEbitCents === null ? null : amount(data.goalEbitCents, data.currency);
-
-  return (
-    <>
-      <PageHeader
-        size="list"
-        title={text.overviewTitle}
-        purpose={text.overviewPurpose(data.fiscalYear)}
-      />
-      <div className="flex flex-col gap-6">
-        {saved && <StatusLine message={text.goalSaved} onHidden={() => setSaved(false)} />}
-        <Statement statement={data.statement} />
-        <EvidenceCard title={text.evidenceTitle(secured, goal)} source={text.evidenceSource}>
-          <GoalRings
-            result={{
-              label: text.result,
-              actual: data.securedEbitCents,
-              target: data.goalEbitCents,
-              format: (value, target) =>
-                target === null
-                  ? amount(value, data.currency)
-                  : text.moneyOf(amount(value, data.currency), amount(target, data.currency)),
-            }}
-            relationships={{
-              label: text.relationships,
-              actual: data.focusWithApprovedJbp,
-              target: data.focusTotal || null,
-              format: (value, target) => text.countOf(value, target ?? 0),
-            }}
-          />
-          {data.goalEbitCents === null && (
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <span className="text-muted-foreground">{text.noGoal}</span>
-              {data.canSetGoal && !editing && (
-                <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-                  {text.setGoal}
-                </Button>
-              )}
-            </div>
-          )}
-          {editing && (
-            <AmountForm
-              label={text.goalLabel(data.fiscalYear)}
-              submitLabel={text.saveGoal}
-              onCancel={() => setEditing(false)}
-              onSubmit={async (cents) => {
-                await saveEbitGoal(accessToken, { year: data.fiscalYear, amountCents: cents });
-                await client.invalidateQueries({ queryKey: ['uebersicht'] });
-                setEditing(false);
-                setSaved(true);
-              }}
-            />
-          )}
-        </EvidenceCard>
-        {(data.sentences?.length ?? 0) > 0 && (
-          <section aria-label={text.sentencesLabel} className="grid gap-3 sm:grid-cols-3">
-            {data.sentences?.map((sentence) => (
-              <Tile key={sentence.kind} className="gap-2">
-                <span className="font-semibold text-muted-foreground text-sm">
-                  {text.sentenceKinds[sentence.kind]}
-                </span>
-                <p>{sentence.text}</p>
-                {routerLink({
-                  href: sentence.href,
-                  className:
-                    'mt-auto self-start font-semibold text-primary text-sm underline-offset-4 hover:underline',
-                  children: sentence.kind === 'todo' ? text.toMyDay : text.view,
-                })}
-              </Tile>
-            ))}
-          </section>
-        )}
-        <ListCard aria-label={text.rowsLabel}>
-          <EvidenceRow
-            href="/uebersicht/ergebnisse"
-            title={text.inProgress}
-            detail={text.inProgressDetail}
-            value={text.range(
-              amount(data.inProgress.lowCents, data.currency),
-              amount(data.inProgress.highCents, data.currency),
-            )}
-          />
-          <EvidenceRow
-            href="/uebersicht/ergebnisse"
-            title={text.cash}
-            detail={text.cashDetail}
-            value={amount(data.cashCents, data.currency)}
-          />
-          {opportunities && opportunities.suppliers.length > 0 && (
-            <EvidenceRow
-              href="/uebersicht/wertpotenziale"
-              title={t.opportunities.overview.rowTitle}
-              detail={t.opportunities.overview.rowDetail}
-              value={t.opportunities.overview.rowValue(opportunities.counts.new)}
-            />
-          )}
-        </ListCard>
-        <QuestionSuggestions
-          title={text.questionsTitle}
-          questions={text.questions.map((question) => ({
-            label: question,
-            href: `/fragen?q=${encodeURIComponent(question)}`,
-          }))}
-        />
-      </div>
-    </>
   );
 }
 

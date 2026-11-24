@@ -5,6 +5,7 @@ export const en: Messages = {
   app: {
     name: 'Reziproq',
     navigation: 'Main navigation',
+    tabNavigation: 'Tab bar',
     openMenu: 'Open menu',
     skipToContent: 'Skip to content',
     path: 'Path',
@@ -17,7 +18,7 @@ export const en: Messages = {
     homePage: 'Home page',
     roleDefault: 'Role default',
     list: 'List',
-    searchOrAsk: 'Search or ask Reziproq',
+    searchOrAsk: 'Search or ask',
     start: 'Start',
     suppliers: 'Suppliers',
     materialGroups: 'Material groups',
@@ -26,6 +27,8 @@ export const en: Messages = {
     customers: 'Customers',
     questions: 'Questions',
     profile: 'Profile',
+    settings: 'Settings',
+    ask: 'Ask',
   },
 
   menu: {

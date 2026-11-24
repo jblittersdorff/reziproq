@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
+import type { DueItem, MyDay } from '@reziproq/shared';
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   actionsFor,
   anna,
   api,
+  myDayResponse,
   renderAt,
   setUpApp,
   signedIn,
@@ -33,6 +35,7 @@ const items = (count: number) =>
   }));
 
 let due: ReturnType<typeof items>;
+let myDay: MyDay;
 
 const focus = [
   { id: uuid(60), name: 'Alpha GmbH', rulesShared: true },
@@ -56,8 +59,10 @@ beforeEach(() => {
   api.me = { ...anna, orgRole: 'member' };
   api.permissions = actionsFor.member;
   due = items(5);
+  myDay = day();
   api.handle = (request) => {
     if (request.url === '/api/start') return Response.json(start());
+    if (request.url === '/api/start/mein-tag') return Response.json(myDay);
     if (request.url === '/api/start/due') return Response.json({ items: items(7) });
     return undefined;
   };
@@ -65,153 +70,203 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-describe('NAV-05 Start (Handschrift Bühne A2)', () => {
-  it('die Bühne nennt die Lage, führt zu den fälligen Aufgaben und zeigt drei Zahlen', async () => {
-    renderAt('/start');
-    expect(await screen.findByText('Sieben Dinge warten heute auf dich.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Fällige Aufgaben' }).getAttribute('href')).toBe(
+const rel = uuid(70);
+const task = (id: number, dueDate: string, overrides: Partial<DueItem> = {}): DueItem => ({
+  id: uuid(id),
+  kind: 'action',
+  supplier: 'Rheintal Elektronik',
+  detail: `Aufgabe ${id}`,
+  dueDate,
+  href: `/lieferanten/${rel}/umsetzung/massnahmen#${uuid(id)}`,
+  ...overrides,
+});
+const offset = (days: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+/** Ein Tag mit überfälliger Aufgabe, einer für heute, einer in der Woche und rechts allem */
+function day(): MyDay {
+  const today = offset(0);
+  return myDayResponse({
+    today,
+    next: {
+      scope: 'global',
+      item: task(1, offset(-2), { kind: 'validation', detail: 'Preis Leiterplatten' }),
+      overdueDays: 2,
+      minutes: 2,
+    },
+    todayItems: [task(2, today)],
+    week: [task(3, offset(1), { kind: 'signature', supplier: 'Nordwerk Guss', detail: null })],
+    total: 7,
+    doneToday: 1,
+    prepared: [
+      {
+        id: `meeting:${uuid(80)}`,
+        kind: 'brief_goals',
+        objectType: 'meeting',
+        subject: 'JBP Rheintal',
+        counterpart: 'Rheintal Elektronik',
+        count: 4,
+        createdAt: new Date().toISOString(),
+        href: `/lieferanten/${rel}/umsetzung/termine/${uuid(80)}`,
+      },
+    ],
+    preparedTotal: 1,
+    waiting: [
+      {
+        id: `commitment:${uuid(81)}`,
+        kind: 'commitment',
+        title: '8D-Bericht Charge 4711',
+        owner: 'Nils Ott',
+        counterpart: 'Rheintal Elektronik',
+        dueDate: offset(-3),
+        href: `/lieferanten/${rel}/plan/zusagen#${uuid(81)}`,
+      },
+    ],
+    waitingTotal: 1,
+    timeline: [
+      {
+        id: `meeting:${uuid(82)}`,
+        date: offset(3),
+        kind: 'meeting',
+        source: 'meeting',
+        title: 'QBR Rheintal',
+        counterpart: 'Rheintal Elektronik',
+        detail: 'Teams',
+        startsAt: new Date(`${offset(3)}T10:00:00`).toISOString(),
+        progress: null,
+        href: `/lieferanten/${rel}/umsetzung/termine/${uuid(82)}`,
+        relationshipId: rel,
+        categoryId: null,
+      },
+    ],
+    hints: { open: 7, high: 1 },
+  });
+}
+
+describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
+  it('Kopf: Titel, Datum mit Begrüßung und „n von m für heute erledigt“', async () => {
+    renderAt('/mein-tag');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Mein Tag' })).toBeTruthy();
+    // erledigt 1, offen heute: die überfällige und die von heute
+    expect((await screen.findAllByText('1 von 3 für heute erledigt')).length).toBeGreaterThan(0);
+    expect(screen.getByText(/· Guten (Morgen|Tag|Abend), Anna\.$/)).toBeTruthy();
+  });
+
+  it('genau eine Karte „Als Nächstes“ mit Zeitbedarf und einem Knopf zum Ort der Aufgabe', async () => {
+    renderAt('/mein-tag');
+    const card = (
+      await screen.findByText('Als Nächstes · überfällig seit 2 Tagen · 2 Min.')
+    ).closest('[data-slot="next-card"]') as HTMLElement;
+    expect(document.querySelectorAll('[data-slot="next-card"]')).toHaveLength(1);
+    const links = within(card).getAllByRole('link');
+    expect(links).toHaveLength(1);
+    expect(links[0]?.textContent).toBe('Wirkung prüfen');
+    expect(links[0]?.getAttribute('href')).toBe(myDay.next?.item.href);
+  });
+
+  it('ohne Kandidat erscheint keine Karte, statt einer leeren', async () => {
+    myDay = myDayResponse();
+    renderAt('/mein-tag');
+    expect(await screen.findByText('Für heute ist nichts fällig.')).toBeTruthy();
+    expect(document.querySelector('[data-slot="next-card"]')).toBeNull();
+  });
+
+  it('Heute, Diese Woche mit Datum als Chip und der Link „Alle n Aufgaben“', async () => {
+    renderAt('/mein-tag');
+    await screen.findByText('Heute · 1 weitere');
+    expect(screen.getByRole('link', { name: /Maßnahme · Aufgabe 2/ }).getAttribute('href')).toBe(
+      task(2, offset(0)).href,
+    );
+    expect(screen.getByText('Diese Woche · 1')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Scorecard unterschreiben/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Alle 7 Aufgaben' }).getAttribute('href')).toBe(
       '/start/faellig',
     );
-    const metrics = document.querySelector('dl[aria-label="Auf einen Blick"]') as HTMLElement;
-    expect(
-      [...metrics.querySelectorAll('[data-metric]')].map((metric) => metric.textContent),
-    ).toEqual(['Lieferanten16', 'im Fokus2', 'offene Entscheidungen3']);
-    // Das Fragefeld steht ohne Symbol direkt unter der Bühne.
-    const prompt = document.querySelector('[data-slot="prompt"]') as HTMLElement;
-    expect(within(prompt).getByRole('textbox', { name: 'Deine Frage an Reziproq' })).toBeTruthy();
-    expect(prompt.querySelectorAll('svg')).toHaveLength(1);
   });
 
-  it('die erste Kachel zeigt die nächste Aufgabe mit einem Knopf und dem Weg zu allen', async () => {
-    renderAt('/start');
-    const tile = (
-      await screen.findByRole('heading', { level: 2, name: 'Bewertung abgeben' })
-    ).closest('[data-slot="due-tile"]') as HTMLElement;
-    expect(within(tile).getByText('Nur intern')).toBeTruthy();
-    expect(within(tile).getByText('Lieferant 1 · Antrieb')).toBeTruthy();
-    const action = within(tile).getByRole('link', {
-      name: 'Lieferant 1: Bewertung abgeben · Antrieb öffnen',
-    });
-    expect(action.textContent).toBe('Jetzt bewerten');
-    expect(action.getAttribute('href')).toBe(`/bewertungen/${uuid(0)}`);
-    expect(within(tile).getByRole('link', { name: 'Alle Aufgaben' }).getAttribute('href')).toBe(
-      '/start/faellig',
+  it('rechts Termine und Fristen, Wartet auf andere (überfällig rot) und Hinweise', async () => {
+    renderAt('/mein-tag');
+    const aside = await screen.findByRole('complementary', { name: 'Termine und Fristen' });
+    const meeting = within(aside).getByRole('link', { name: /QBR Rheintal/ });
+    expect(meeting.getAttribute('href')).toBe(myDay.timeline[0]?.href);
+    expect(within(meeting).getByText('Termin')).toBeTruthy();
+    const waiting = within(aside).getByRole('link', { name: /8D-Bericht/ });
+    expect(within(waiting).getByText('überfällig').className).toContain('destructive');
+    expect(within(aside).getByRole('link', { name: /^Hinweise/ }).textContent).toContain(
+      '7 offen, 1 mit hoher Wirkung',
     );
   });
 
-  it('Im Fokus nennt die Fokuslieferanten mit Stand der Spielregeln; die Zahl führt zu den Entscheidungen', async () => {
-    renderAt('/start');
-    const list = (await screen.findByRole('heading', { level: 2, name: 'Im Fokus' })).closest(
-      '[data-slot="list-tile"]',
-    ) as HTMLElement;
-    const alpha = within(list).getByRole('link', { name: /^Alpha GmbH/ });
-    expect(alpha.getAttribute('href')).toBe(`/lieferanten/${uuid(60)}`);
-    expect(within(alpha).getByText('Spielregeln geteilt')).toBeTruthy();
-    expect(
-      within(within(list).getByRole('link', { name: /^Beta AG/ })).getByText('intern'),
-    ).toBeTruthy();
-    expect(within(list).getByRole('link', { name: 'Zum Portfolio' }).getAttribute('href')).toBe(
-      '/portfolio',
+  it('Von Reziproq vorbereitet: Entwürfe mit „RZ“, je Objekt eine Zeile', async () => {
+    renderAt('/mein-tag');
+    await screen.findByText('Von Reziproq vorbereitet · 1 Entwurf');
+    const row = screen.getByRole('link', { name: /Briefing JBP Rheintal/ });
+    expect(row.getAttribute('href')).toBe(myDay.prepared[0]?.href);
+    expect(within(row).getByText('RZ')).toBeTruthy();
+  });
+
+  it('auf dem Telefon kommt die rechte Spalte nach „Heute“; die Person führt zu den Einstellungen', async () => {
+    renderAt('/mein-tag');
+    const today = await screen.findByText('Heute · 1 weitere');
+    const aside = screen.getByRole('complementary', { name: 'Termine und Fristen' });
+    const prepared = screen.getByText('Von Reziproq vorbereitet · 1 Entwurf');
+    // Reihenfolge im Dokument = Reihenfolge auf dem Telefon
+    expect(today.compareDocumentPosition(aside) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(aside.compareDocumentPosition(prepared) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const main = screen.getByRole('main');
+    expect(within(main).getByRole('link', { name: 'Einstellungen' }).getAttribute('href')).toBe(
+      '/einstellungen',
     );
-    const count = document.querySelector('[data-slot="count-tile"]') as HTMLElement;
-    expect(within(count).getByText('3')).toBeTruthy();
-    expect(
-      within(count).getByRole('link', { name: 'Entscheidungen ansehen' }).getAttribute('href'),
-    ).toBe('/portfolio/offen');
   });
 
-  it('ohne Portfolio zeigt Start die eigenen Beziehungen und die offenen Maßnahmen', async () => {
-    api.handle = (request) =>
-      request.url === '/api/start' ? Response.json(start({ portfolio: null })) : undefined;
-    renderAt('/start');
-    expect(
-      await screen.findByRole('heading', { level: 2, name: 'Meine Beziehungen' }),
-    ).toBeTruthy();
-    expect(screen.getByText('Partner')).toBeTruthy();
-    const count = document.querySelector('[data-slot="count-tile"]') as HTMLElement;
-    expect(within(count).getByText('4')).toBeTruthy();
-    expect(
-      within(count).getByRole('link', { name: 'Maßnahmen ansehen' }).getAttribute('href'),
-    ).toBe('/start/massnahmen');
-  });
-
-  it('zeigt den nächsten Termin als dunkle Kachel mit Link zur Agenda (QBR-01b)', async () => {
-    api.handle = (request) =>
-      request.url === '/api/start'
-        ? Response.json(
-            start({
-              nextMeeting: {
-                id: uuid(90),
-                relationshipId: uuid(60),
-                counterpart: 'Alpha GmbH',
-                title: 'Quartalsreview',
-                startsAt: '2099-03-15T09:00:00Z',
-                location: 'Werk Nord',
-              },
-            }),
-          )
-        : undefined;
-    renderAt('/start');
-    const link = await screen.findByRole('link', { name: 'Agenda öffnen: Quartalsreview' });
-    expect(link.getAttribute('href')).toBe(
-      `/lieferanten/${uuid(60)}/umsetzung/termine/${uuid(90)}`,
-    );
-    const tile = link.closest('[data-slot="next-meeting"]') as HTMLElement;
-    expect(tile.getAttribute('data-tone')).toBe('stage');
-    expect(within(tile).getByText('Geteilt mit Alpha GmbH')).toBeDefined();
-    expect(within(tile).getByText('Werk Nord')).toBeDefined();
-  });
-
-  it('eine fällige Zusage oder ein Meilenstein steht als Aufgabe auf Start (JBP-05)', async () => {
-    api.handle = (request) =>
-      request.url === '/api/start'
-        ? Response.json(
-            start({
-              due: {
-                items: [
-                  {
-                    id: uuid(80),
-                    kind: 'commitment',
-                    supplier: 'Alpha GmbH',
-                    detail: 'Bedarfsausblick 2027',
-                    dueDate: '2099-03-31',
-                    href: `/lieferanten/${uuid(60)}/plan/zusagen#${uuid(80)}`,
-                  },
-                ],
-                total: 1,
-              },
-            }),
-          )
-        : undefined;
-    renderAt('/start');
-    const tile = (
-      await screen.findByRole('heading', { level: 2, name: 'Zusage einhalten' })
-    ).closest('[data-slot="due-tile"]') as HTMLElement;
-    expect(within(tile).getByText('Alpha GmbH · Bedarfsausblick 2027')).toBeTruthy();
-    expect(
-      within(tile)
-        .getByRole('link', { name: 'Alpha GmbH: Zusage · Bedarfsausblick 2027 öffnen' })
-        .getAttribute('href'),
-    ).toBe(`/lieferanten/${uuid(60)}/plan/zusagen#${uuid(80)}`);
-  });
-
-  it('zeigt auf /start/faellig die vollständige Liste', async () => {
+  it('Alle Aufgaben: Zurück zu Mein Tag, drei Ansichten und die volle Liste nach Frist', async () => {
+    myDay = myDayResponse();
     renderAt('/start/faellig');
     await waitFor(() =>
       expect(screen.getAllByRole('link', { name: /Lieferant \d/ })).toHaveLength(7),
     );
+    expect(screen.getByRole('heading', { level: 1, name: 'Alle Aufgaben' })).toBeTruthy();
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: 'Mein Tag' }).getAttribute('href'),
+    ).toBe('/mein-tag');
+    const views = screen.getByRole('navigation', { name: 'Ansichten' });
+    expect(
+      within(views)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Für mich · 7', 'Wartet auf andere · 0', 'Maßnahmen']);
+    expect(
+      within(views).getByRole('link', { name: 'Für mich · 7' }).getAttribute('aria-current'),
+    ).toBe('page');
+    // alle Fristen liegen weit in der Zukunft: Gruppe „Später“
+    expect(screen.getByText('Später · 7')).toBeTruthy();
   });
 
-  it('bei nichts Fälligem bleibt die Bühne ruhig und die Kacheln erklären sich', async () => {
-    due = [];
-    api.handle = (request) =>
-      request.url === '/api/start'
-        ? Response.json(start({ due: { items: [], total: 0 } }))
-        : undefined;
-    renderAt('/start');
-    expect(await screen.findByText('Heute wartet nichts auf dich.')).toBeTruthy();
-    expect(screen.queryByRole('link', { name: 'Fällige Aufgaben' })).toBeNull();
-    expect(screen.getByRole('heading', { level: 2, name: 'Nichts fällig.' })).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 2, name: 'Kein Termin geplant' })).toBeTruthy();
+  it('Alle Aufgaben, Ansicht „Wartet auf andere“: überfällige Zusagen anderer mit Dauer', async () => {
+    renderAt('/start/faellig?ansicht=wartet');
+    const row = await screen.findByRole('link', { name: /8D-Bericht Charge 4711/ });
+    expect(row.getAttribute('href')).toBe(myDay.waiting[0]?.href);
+    expect(within(row).getByText('seit 3 Tagen')).toBeTruthy();
+  });
+
+  it('Alle Aufgaben: „Als Nächstes“ oben, die übrigen nach Überfällig, Heute und Diese Woche', async () => {
+    api.handle = (request) => {
+      if (request.url === '/api/start/mein-tag') return Response.json(myDay);
+      if (request.url === '/api/start/due') {
+        return Response.json({
+          items: [myDay.next?.item, task(4, offset(-1)), ...myDay.todayItems, ...myDay.week],
+        });
+      }
+      return undefined;
+    };
+    renderAt('/start/faellig');
+    await screen.findByText('Als Nächstes · überfällig seit 2 Tagen · 2 Min.');
+    expect(screen.getByText('Überfällig · 1')).toBeTruthy();
+    expect(screen.getByText('Heute · 1')).toBeTruthy();
+    expect(screen.getByText('Diese Woche · 1')).toBeTruthy();
+    expect(screen.getByText('seit 1 Tag')).toBeTruthy();
   });
 });

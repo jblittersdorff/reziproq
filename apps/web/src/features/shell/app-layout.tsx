@@ -1,13 +1,16 @@
+import { useQuery } from '@tanstack/react-query';
 import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
+import { SettingsIcon } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
-import { GlobalBar } from '@/components/ui/global-bar';
+import { AppShell } from '@/components/ui/app-shell';
 import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
+import { useToken } from '@/features/ratings/use-rating';
 import { SupportBanner } from '@/features/support/support-banner';
-import { ApiError } from '@/lib/api';
+import { ApiError, dueQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { LocalBarSlotProvider } from './local-bar-slot';
-import { routerLink, useActiveNavKey, useNavTargets } from './navigation';
+import { type NavTarget, routerLink, useActiveNavKey, useNavTargets } from './navigation';
 import { StageSlotProvider } from './stage-slot';
 
 /** Alle Seiten des Rahmens brauchen einen Login; ohne ihn erscheint die Anmeldung. */
@@ -19,69 +22,119 @@ export function AppLayout() {
   );
 }
 
-/** Globale Leiste oben (PLT-11), darunter die Bühne, falls die Seite eine hat, und der Inhalt mittig. */
+/**
+ * Rahmen nach NAV-10 1.1 (UX-20 `AppShell`): ab 761 px Seitenleiste mit den Hauptpunkten,
+ * Einstellungen und Person, darunter die Tab-Leiste mit fünf Zielen. Darin die lokale Leiste eines
+ * Lieferanten (falls die Seite eine hat), die Bühne und der Inhalt.
+ */
 function Shell() {
   const t = useT();
   const { main, actions } = useNavTargets();
   const activeKey = useActiveNavKey();
   const me = useMe();
+  const accessToken = useToken();
+  const buyer = !!me.data?.permissions.viewBuyerAreas;
+  const due = useQuery({ ...dueQueryOptions(accessToken), enabled: buyer && accessToken !== '' });
+  const today = new Date().toISOString().slice(0, 10);
+  const dueToday = due.data?.items.filter((item) => item.dueDate <= today).length ?? 0;
   const initials = me.data ? personInitials(me.data.name) : undefined;
   const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
   const [stageSlot, setStageSlot] = useState<HTMLDivElement | null>(null);
   useQuestionsShortcut();
   useAccountLocale();
 
+  const icon = (target: NavTarget) => {
+    const Icon = target.icon;
+    return <Icon aria-hidden />;
+  };
+  const items = main.map((target) => ({
+    key: target.key,
+    label: target.label,
+    href: target.href,
+    icon: icon(target),
+    ...(target.key === 'myDay' && dueToday > 0 ? { badge: dueToday } : {}),
+  }));
+  const questions = actions.find((target) => target.key === 'questions');
+  const profile = actions.find((target) => target.key === 'profile');
+
   return (
     <LocalBarSlotProvider value={localBarSlot}>
       <StageSlotProvider value={stageSlot}>
-        <div
-          className={
-            me.data?.permissions.viewBuyerAreas
-              ? 'flex min-h-svh flex-col pb-20 sidebar:pb-0'
-              : 'flex min-h-svh flex-col'
-          }
+        {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
+        <a
+          href="#inhalt"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
         >
-          {/* Erstes Tab-Ziel: springt an der Navigation vorbei direkt zum Inhalt. */}
-          <a
-            href="#inhalt"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:flex focus:min-h-11 focus:items-center focus:rounded-md focus:bg-background focus:px-4 focus:shadow-md focus:outline-none focus:ring-3 focus:ring-ring/50"
-          >
-            {t.app.skipToContent}
-          </a>
-
-          {/* Betreiber-Ansicht (PLT-13): schmale Leiste ganz oben, über der globalen Leiste. */}
+          {t.app.skipToContent}
+        </a>
+        <AppShell
+          label={t.app.navigation}
+          tabsLabel={t.app.tabNavigation}
+          brand={t.app.name}
+          brandHref="/"
+          {...(questions
+            ? {
+                search: {
+                  key: 'questions',
+                  label: t.nav.searchOrAsk,
+                  href: questions.href,
+                  shortcut: '⌘K',
+                },
+              }
+            : {})}
+          items={items}
+          {...(buyer || me.data?.permissions.viewOrganizationSettings
+            ? {
+                settings: {
+                  key: 'settings',
+                  label: t.nav.settings,
+                  href: '/einstellungen',
+                  icon: <SettingsIcon aria-hidden />,
+                },
+              }
+            : {})}
+          {...(me.data && initials
+            ? {
+                person: {
+                  initials,
+                  name:
+                    me.data.organization && !buyer
+                      ? `${me.data.name} · ${me.data.organization.name}`
+                      : me.data.name,
+                  href: profile?.href ?? '/profil',
+                  label: t.nav.profile,
+                },
+              }
+            : {})}
+          tabs={[
+            ...items,
+            ...(questions
+              ? [
+                  {
+                    key: 'questions',
+                    label: t.nav.ask,
+                    href: questions.href,
+                    icon: icon(questions),
+                  },
+                ]
+              : []),
+          ]}
+          activeKey={activeKey}
+          renderLink={routerLink}
+        >
+          {/* Betreiber-Ansicht (PLT-13): schmale Leiste ganz oben über dem Inhalt; neben der
+              Seitenleiste, damit diese so hoch bleibt wie der Bildschirm. */}
           <SupportBanner />
-          <GlobalBar
-            label={t.app.navigation}
-            brand={t.app.name}
-            brandHref="/"
-            buyerTabs={!!me.data?.permissions.viewBuyerAreas}
-            items={main}
-            actions={actions.map((action) => {
-              const Icon = action.icon;
-              // Profil als Tinte-Kreis mit Mint-Initialen (Designsprache „Kopfleiste“).
-              return {
-                ...action,
-                icon: <Icon aria-hidden />,
-                ...(action.key === 'profile' && initials ? { initials } : {}),
-              };
-            })}
-            activeKey={activeKey}
-            menuHref="/menu"
-            menuLabel={t.app.openMenu}
-            renderLink={routerLink}
-          />
           {/* Lokale Leiste eines Lieferanten (NAV-06); leer auf allen anderen Seiten. */}
           <div ref={setLocalBarSlot} className="contents" />
-
           <main id="inhalt" tabIndex={-1} className="flex w-full flex-col outline-none">
             {/* Bühne über die ganze Breite (PLT-10); leer auf Seiten ohne Bühne. */}
             <div ref={setStageSlot} className="contents" />
-            <div className="mx-auto flex w-full max-w-300 flex-col gap-8 px-4 py-8 sm:px-12 sidebar:py-12">
+            <div className="mx-auto flex w-full min-w-0 max-w-300 flex-col gap-8 px-4 py-6 sm:px-10 shell:py-8 [&>*]:min-w-0">
               <ContentGate />
             </div>
           </main>
-        </div>
+        </AppShell>
       </StageSlotProvider>
     </LocalBarSlotProvider>
   );

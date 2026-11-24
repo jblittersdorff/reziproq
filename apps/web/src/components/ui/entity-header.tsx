@@ -4,7 +4,10 @@ import { cn } from '@/lib/utils';
 import { BackLink } from './back-link';
 import { defaultRenderLink, type NavItem, type RenderLink } from './nav-link';
 
-/** Bereiche als Segment-Umschalter: Fläche `track`, aktives Segment weiß mit Schatten */
+/**
+ * Bereiche oder Ansichten als Segment-Umschalter aus Links: Fläche `track`, aktives Segment weiß
+ * mit Schatten (Lieferanten- und Warengruppenkopf, Ansichten von „Alle Aufgaben“).
+ */
 function AreaSwitch({
   label,
   areas,
@@ -27,7 +30,8 @@ function AreaSwitch({
             href: area.href,
             'aria-current': area.key === active ? 'page' : undefined,
             className: cn(
-              'inline-flex min-h-11 flex-[1_0_auto] items-center justify-center whitespace-nowrap rounded-segment-item px-4.5 text-detail no-underline',
+              // Schrumpft auf dem Telefon und bricht dann um, statt über den Rand zu ragen
+              'inline-flex min-h-11 min-w-0 flex-[1_1_auto] items-center justify-center text-balance rounded-segment-item px-3 py-1 text-center text-detail leading-tight no-underline shell:px-4.5',
               area.key === active
                 ? 'bg-card font-semibold text-ink shadow-segment'
                 : 'font-medium text-muted-strong hover:text-ink',
@@ -159,4 +163,4 @@ function CategoryHeader(props: HeaderProps) {
   return <HeaderFrame {...props} slot="category-header" />;
 }
 
-export { CategoryHeader, SupplierHeader };
+export { AreaSwitch, CategoryHeader, SupplierHeader };

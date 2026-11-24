@@ -89,12 +89,21 @@ for (const shortcut of ['Meta+k', 'Control+k']) {
   });
 }
 
-test('Das Feld auf Start stellt eine Frage auf /fragen', async ({ page }) => {
+test('„Frag“ in der Tab-Leiste öffnet auf dem Telefon /fragen und stellt dort die Frage', async ({
+  page,
+}) => {
+  // NAV-10 1.1: kein Fragefeld mehr auf Start; auf dem Telefon „Frag“, am Schreibtisch ⌘K
+  await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
   await page.goto('/start');
-  await page.getByRole('textbox', { name: 'Deine Frage an Reziproq' }).fill('Öffne das Portfolio');
-  await page.getByRole('button', { name: 'Fragen' }).click();
-  await expect(page).toHaveURL(/http:\/\/localhost:5174\/fragen\?q=/);
+  await expect(page.locator('#inhalt h1')).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Tab-Leiste' })
+    .getByRole('link', { name: 'Frag', exact: true })
+    .click();
+  await expect(page).toHaveURL('http://localhost:5174/fragen');
+  await field(page).fill('Öffne das Portfolio');
+  await page.keyboard.press('Enter');
   await expect(questions(page).getByText('Hier ist der Link zu Portfolio.')).toBeVisible();
   await page.getByRole('link', { name: 'Bereich öffnen' }).click();
   await expect(page).toHaveURL(/\/lieferanten\?ansicht=matrix$/);

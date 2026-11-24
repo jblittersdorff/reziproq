@@ -27,6 +27,8 @@ function SoWhat({
   statement,
   points,
   aside,
+  source,
+  action,
   renderLink = defaultRenderLink,
   className,
 }: {
@@ -35,6 +37,10 @@ function SoWhat({
   statement: React.ReactNode;
   points: SoWhatPoint[];
   aside?: React.ReactNode;
+  /** Quellzeile unten, z. B. „Quellen: Ergebnisse, Hinweise · Stand 23.11.“ */
+  source?: React.ReactNode;
+  /** Zweitaktion klein unten, z. B. „Stimmt nicht“ */
+  action?: React.ReactNode;
   renderLink?: RenderLink;
   className?: string;
 }) {
@@ -83,6 +89,12 @@ function SoWhat({
             );
           })}
         </ul>
+        {(source || action) && (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            {source && <p className="text-chip text-input-border">{source}</p>}
+            {action}
+          </div>
+        )}
       </section>
       {aside}
     </div>

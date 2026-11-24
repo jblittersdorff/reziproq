@@ -58,6 +58,17 @@ for (const width of [390, 760, 761, 1440]) {
         sidebar.getByRole('link', { name: /Übersicht|Mein Tag|Lieferanten|Warengruppen/ }),
       ).toHaveText(['Übersicht', /^Mein Tag/, 'Lieferanten', 'Warengruppen']);
       await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
+      // Seitenleiste so hoch wie der Bildschirm; sie bleibt stehen, nur der Inhalt scrollt
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+      const sideBox = await sidebar.boundingBox();
+      // Toleranz bis 1 px: am Seitenende rundet der Browser Bruchteile der Seitenhöhe
+      expect(Math.abs(sideBox?.y ?? 99)).toBeLessThanOrEqual(1);
+      expect(Math.abs((sideBox?.height ?? 0) - 900)).toBeLessThanOrEqual(1);
+      await expect(sidebar.getByRole('link', { name: 'Profil' })).toBeInViewport();
+      expect(await sidebar.evaluate((element) => element.scrollHeight - element.clientHeight)).toBe(
+        0,
+      );
     }
     // Eingeklappt beim Laden, öffnet mit der Tastatur
     const questions = page.locator('details[data-slot="collapsible"]').first();

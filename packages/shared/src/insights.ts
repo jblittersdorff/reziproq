@@ -36,6 +36,18 @@ export const overviewInsightSchema = z.object({
   inProgress: z.object({ lowCents: z.number().int(), highCents: z.number().int() }),
   // Cash getrennt vom EBIT, nie addiert
   cashCents: z.number().int(),
+  // NAV-10 1.1: Säulen „EBIT gesichert je Quartal“ des Geschäftsjahrs und der Zeitraum „Seit Start“
+  quarters: z
+    .array(
+      z.object({
+        quarter: z.number().int().min(1).max(4),
+        securedCents: z.number().int(),
+        state: z.enum(['past', 'current', 'future']),
+      }),
+    )
+    .length(4)
+    .optional(),
+  sinceStartSecuredCents: z.number().int().optional(),
   statement: insightStatementSchema.nullable().optional(),
   sentences: z.array(overviewSentenceSchema).max(3).optional(),
 });

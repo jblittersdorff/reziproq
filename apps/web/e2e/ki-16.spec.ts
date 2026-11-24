@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test';
 import { defaultAiSettings, defaultHintThresholds } from '@reziproq/shared';
 import { signIn } from './route-walk.js';
 
-// KI-16: „Wo du handeln musst“ in Mein Tag und Einstellungen KI › Hinweise auf Telefonbreite und am
-// Schreibtisch, ohne seitliches Scrollen.
+// KI-16: Hinweise mit „Als Nächstes“ und „Das Wichtigste“ (NAV-10 1.1, statt „Wo du handeln musst“
+// in Mein Tag) und Einstellungen KI › Hinweise auf Telefonbreite und am Schreibtisch, ohne
+// seitliches Scrollen.
 
 const rel = '550e8400-e29b-41d4-a716-446655440010';
 const base = {
@@ -70,7 +71,7 @@ const hints = [
 ];
 
 for (const width of [390, 1440]) {
-  test(`KI-16 Mein Tag und Einstellungen ohne seitliches Scrollen (${width})`, async ({ page }) => {
+  test(`KI-16 Hinweise und Einstellungen ohne seitliches Scrollen (${width})`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 });
     await signIn(page, { locale: 'de' });
     await page.route('**/api/me/permissions', (route) =>
@@ -124,15 +125,14 @@ for (const width of [390, 1440]) {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
 
-    await page.goto('/start');
-    await expect(
-      page.getByRole('heading', { level: 2, name: 'Wo du handeln musst' }),
-    ).toBeVisible();
+    await page.goto('/hinweise');
+    await expect(page.getByText('Das Wichtigste')).toBeVisible();
+    await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
     await page.waitForLoadState('networkidle');
     expect(await overflow()).toBe(0);
     if (process.env.KI16_SHOTS)
       await page.screenshot({
-        path: `${process.env.KI16_SHOTS}/mein-tag-${width}.png`,
+        path: `${process.env.KI16_SHOTS}/hinweise-${width}.png`,
         fullPage: true,
       });
 

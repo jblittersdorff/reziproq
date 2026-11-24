@@ -71,6 +71,75 @@ Aufwand:
 
 ## Phase 2 · Navigation und Start
 
+**Stand 24.11.2026: umgesetzt.**
+- Rahmen `AppShell` für jede angemeldete Seite: Seitenleiste ab 761 px (so hoch wie der
+  Bildschirm, bleibt beim Scrollen stehen; Entscheidung des Gründers vom 23.11.2026), Tab-Leiste
+  bis 760 px mit „Frag“; „Suchen oder fragen“ mit ⌘K, Einstellungen, Person.
+- `next_action` und `timeline_item` als Funktionen im Code (F-UX-04): `packages/shared/src/my-day.ts`
+  (Auswahl, Zeitbedarf je Art, Modulfilter, Sortierung) und `apps/api/src/modules/start/my-day-data.ts`
+  (Quellen in der Mandanten-Session). Endpunkte `GET /start/mein-tag`, `/start/termine?tage=`,
+  `/start/als-naechstes`, `/start/brauchen-dich`.
+- Mein Tag nach `Main`/`A-MeinTag`, Übersicht nach `Uebersicht`/`A-Uebersicht`, Alle Aufgaben nach
+  `Aufgaben`, Hinweise oben nach `Hinweise` (Ablauf, „Als Nächstes“, „Das Wichtigste“).
+- Neue Bausteine: `page-title`, `timeline-rail`, `date-list`, `ChartColumns` in `chart-card`;
+  erweitert: `DateCircle` (Ring, 44 px), `SoWhat` (Quellen, Zweitaktion), `NextCard`
+  (`ariaLabel`), `AreaSwitch` als Export. Alle auf `/bausteine`.
+- In der Seitenleiste markieren `/start/…` (Alle Aufgaben, Maßnahmen) und `/hinweise` den
+  Hauptpunkt Mein Tag, wie in den Vorlagen `Aufgaben` und `Hinweise`.
+- Screenshots: `docs/plan/screens/phase-2/` (Mein Tag, Übersicht, Alle Aufgaben, Hinweise, Bausteine;
+  je 390 und 1440 px, erzeugt mit `UX_SHOTS=… playwright test e2e/ux-20-phase-2.spec.ts`).
+
+Bewusste Abweichungen in Phase 2:
+- **Warengruppen-Karte der Übersicht** zeigt den Stand der Strategien je Warengruppe statt „EBIT
+  gesichert gegen Ziel“: Es gibt noch kein EBIT-Ziel je Warengruppe und keine Zuordnung der
+  Initiativen zu Warengruppen (F-UX-15).
+- **Terminschiene ohne Freigabetermine der Warengruppen:** WG-16 kennt kein Datum der Freigabe,
+  nur offene Unterschriften (F-UX-16). Enthalten sind Termine, offene Zusagen beider Seiten, Fristen
+  offener Bewertungsrunden und Reviews der Warengruppen.
+- **Wirkung in „Als Nächstes“** ist der Spend des Lieferanten; der Faktor Segment fehlt, bis das
+  Segmentmodell Gewichte trägt (F-UX-17).
+- **Kein Link „Alle Termine“** unter Terminschiene und Fristen: Es gibt keine Seite mit allen
+  Terminen; ein Link ohne Ziel ist verboten.
+- **„n von m für heute erledigt“** zählt als erledigt nur Quellen mit Erledigt-Zeitpunkt:
+  Maßnahmen, Beiträge zum Lieferantenplan, Freigaben der Wirkung, abgegebene Bewertungen.
+- **Mein Tag ohne Karte „Wo du handeln musst“ (KI-16)** und ohne eigenes Fragefeld: Die Vorlage
+  hat dafür die Zeile „Hinweise“ und das Feld in der Seitenleiste bzw. „Frag“. Die wichtigsten
+  Hinweise stehen oben auf `/hinweise`.
+- **Übersicht ohne Zeilen „In Umsetzung“, „Cash“, „Wertpotenziale“ und Fragevorschläge** (AW-01):
+  NAV-10 1.1 nennt sie nicht; Cash steht als Quellzeile der Ergebnisse, nie addiert.
+- **Risiko und Claims:** keine Karte, keine Zeile, kein Termin; beide Module sind aus und haben
+  keine Quelle. Der Modulfilter ist trotzdem gebaut und getestet.
+- **Lieferantenseite:** Start der Lieferanten bleibt vorerst der bisherige (LIF-02) im neuen
+  Rahmen; die Bausteine dort folgen mit Phase 10.
+- **Nach Phase 3 und 9 verschoben:** Liste „Brauchen dich“/„Laufen gut“ (Phase 3, nutzt
+  `/start/brauchen-dich`), `/warengruppen/<id>` als Überblick und sprechende Schrittadressen
+  (Phase 9, F-UX-07), Matrix und Runde als Ansichten von `/lieferanten` (Phase 3).
+
+Kriterien aus NAV-10 „Fertig, wenn“ und ihre Tests:
+
+| Kriterium | Test |
+| --- | --- |
+| Seitenleiste ab 761 px mit vier Hauptpunkten, darunter Einstellungen | `e2e/ux-20-phase-1.spec.ts`, `e2e/ux-20-phase-2.spec.ts` (761, 1440), `plt-11.test.tsx` |
+| Bis 760 px Tab-Leiste mit fünf Zielen, verdeckt nichts | `e2e/ux-20-phase-1.spec.ts`, `e2e/ux-20-phase-2.spec.ts` (390, 760) |
+| 390 px ohne seitliches Scrollen, Tabellen und Schiene in ihrem Rahmen | `e2e/ux-20-phase-2.spec.ts` (auch Terminschiene) |
+| Zurück-Link außer auf den Startseiten | `start.test.tsx` (Alle Aufgaben), `ki-16.test.tsx` (Hinweise); übrige Seiten mit Phase 3 bis 9, Begehung Phase 10 |
+| Höchstens eine Karte „Als Nächstes“, kein Hauptknopf außerhalb; Formulare ein Hauptknopf | `components/ui/ux-20.test.tsx`, `start.test.tsx`, `ki-16.test.tsx`, `e2e/ux-20-phase-2.spec.ts` |
+| Ohne Kandidat keine Karte | `packages/shared/src/my-day.test.ts`, `api start/ux-20-phase-2.test.ts`, `start.test.tsx` |
+| Eingeklappt beim Laden, öffnet mit Klick und Tastatur | `components/ui/ux-20.test.tsx`, `e2e/ux-20-phase-1.spec.ts` |
+| Lead startet in der Übersicht, SRO in Mein Tag; geänderte Startseite gilt | `plt-11.test.tsx` („beachtet Rollenstandard …“) |
+| Alte Adressen leiten weiter | `plt-11.test.tsx` (`/`, `/start`), `nav-10.test.tsx` (`/agenten`); `/warengruppen/<id>` als Überblick mit Phase 9 |
+| Übersicht: Ring nur mit Ziel, eine Karte, Schiene ≤ 8, Karte je Bereich mit Daten, EBIT und Cash nie addiert | `insights/aw-01.test.tsx` (NAV-10 1.1), `api impact/aw-01.test.ts` (Quartale) |
+| Schiene nur sichtbare Lieferanten, jeder Eintrag öffnet sein Objekt | `api start/ux-20-phase-2.test.ts`, `insights/aw-01.test.tsx`, `e2e/ux-20-phase-2.spec.ts` |
+| Satz mit Zahl außerhalb der Fakten wird nicht angezeigt | `api impact/aw-01.test.ts`, `insights/aw-01.test.tsx` (neutraler Titel) |
+| Ohne Zugriff kein Lieferant in Zahl, Zeile oder „Als Nächstes“ | `api start/ux-20-phase-2.test.ts`, `api impact/aw-01.test.ts` |
+| Lauf eines Agenten in den Aktivitäten als Reziproq | `api activities/nav-10.test.ts`, `api agents/ki-04.test.ts` |
+| Private Notiz nur für die Autorin | `api activities/nav-10.test.ts` |
+| ⌘K überall, „Frag“ auf dem Telefon, Frage mit Lieferant als Kontext | `prompt/plt-12.test.tsx`, `e2e/ux-20-phase-2.spec.ts` |
+| Lieferantenkopf mit vier Bereichen und „···“; jede Seite einem Bereich | `components/ui/ux-20.test.tsx`; Zuordnung aller Seiten mit Phase 3 |
+| Agenten nur über Einstellungen, KI | `activities/nav-10.test.tsx` |
+| Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten | `customers/lif-02.test.tsx`, `activities/nav-10.test.tsx` |
+
+
 | Seite oder Baustein                                                                           | Stand im Code                                                                                                                        | Aufwand                                                                                                                                          |
 | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Seitenleiste mit vier Hauptpunkten, Einstellungen, Person; Tab-Leiste mit „Frag“              | Kopfleiste mit vier Hauptpunkten (NAV-10 1.0), unten vier Ziele auf dem Telefon, ⌘K vorhanden                                        | M (nach Phase 1)                                                                                                                                 |

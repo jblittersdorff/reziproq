@@ -6,6 +6,7 @@ import type {
   PromptEvent,
   Supplier,
   SuppliersResponse,
+  MyDay,
 } from '@reziproq/shared';
 import { defaultOrgModules } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -290,7 +291,34 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
   }
+  // NAV-10 1.1: Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“ ohne eigene Antwort leer
+  if (url === '/api/start/mein-tag') return Response.json(myDayResponse());
+  if (url.startsWith('/api/start/termine')) {
+    const today = new Date().toISOString().slice(0, 10);
+    return Response.json({ from: today, to: today, items: [] });
+  }
+  if (url === '/api/start/als-naechstes') return Response.json({ next: null });
+  if (url === '/api/start/brauchen-dich') return Response.json({ items: [] });
   return Response.json({ statusCode: 404 }, { status: 404 });
+}
+
+/** Antwort von /api/start/mein-tag; ohne Angaben ein ruhiger Tag ohne Aufgaben */
+export function myDayResponse(overrides: Partial<MyDay> = {}): MyDay {
+  return {
+    today: new Date().toISOString().slice(0, 10),
+    next: null,
+    todayItems: [],
+    week: [],
+    total: 0,
+    doneToday: 0,
+    prepared: [],
+    preparedTotal: 0,
+    waiting: [],
+    waitingTotal: 0,
+    timeline: [],
+    hints: null,
+    ...overrides,
+  };
 }
 
 let consoleError: ReturnType<typeof vi.spyOn> | undefined;

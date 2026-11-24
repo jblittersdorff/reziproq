@@ -1,12 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, schema, sql } from '@reziproq/db';
 import {
+  compareDue,
   type DueItem,
   type DueList,
   dueListSchema,
+  endOfWeek,
+  type MyDay,
+  myDaySchema,
+  type NeedsYou,
+  type NextAction,
   type NextMeeting,
+  needsYouSchema,
+  nextActionSchema,
+  pickNextAction,
+  relationshipOfHref,
   type StartData,
   startSchema,
+  type Timeline,
+  timelineSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { ActionsService } from '../actions/actions.service.js';
@@ -17,22 +29,41 @@ import { CommentsService } from '../comments/comments.service.js';
 import { CustomersService } from '../customers/customers.service.js';
 import { MyFeedbackService } from '../feedback/my-feedback.service.js';
 import { hintRuleReviewDue, openHintCount } from '../hints/hint-count.js';
-import { IntegrationsService } from '../integrations/integrations.service.js';
-import { OrganizationService } from '../organizations/organization.service.js';
 import { ValidationService } from '../impact/validation.service.js';
+import { IntegrationsService } from '../integrations/integrations.service.js';
 import { JbpApprovalService } from '../jbp/jbp-approval.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import { JbpScorecardService } from '../jbp/jbp-scorecard.service.js';
 import { StrategyService } from '../material-groups/strategy.service.js';
 import { nextMeetingOf } from '../meetings/next-meeting.js';
+import { OrganizationService } from '../organizations/organization.service.js';
 import { OverviewService } from '../overview/overview.service.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
 import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { PlanApprovalsService } from '../supplier-plans/plan-approvals.service.js';
 import { PlanContributionsService } from '../supplier-plans/plan-contributions.service.js';
+import {
+  doneToday,
+  hintCounts,
+  needsYou,
+  orgModulesOf,
+  preparedDrafts,
+  spendWeights,
+  timelineItems,
+  type Viewer,
+  visibleRelationships,
+  waitingOnOthers,
+} from './my-day-data.js';
 
 const limit = 5;
+
+const isoToday = () => new Date().toISOString().slice(0, 10);
+const addDays = (date: string, days: number) => {
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+};
 
 const toNext = (row: {
   id: string;
@@ -358,5 +389,141 @@ export class StartService {
             )
           : 0,
     });
+  }
+
+  // NAV-10 1.1 (UX-20 Phase 2): Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“.
+  // Nur beim Käufer; die Lieferantenseite hat ihren eigenen Start ohne diese Bereiche.
+
+  private buyerViewer(auth: AuthContext): Viewer | null {
+    const organization = auth.organization;
+    if (!organization?.buyer) return null;
+    return { orgId: organization.id, userId: auth.userId, admin: auth.orgRole === 'admin' };
+  }
+
+  async timeline(auth: AuthContext, days: number): Promise<Timeline> {
+    const from = isoToday();
+    const to = addDays(from, days - 1);
+    const viewer = this.buyerViewer(auth);
+    if (!viewer || !can(auth, 'termine.sehen'))
+      return timelineSchema.parse({ from, to, items: [] });
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: viewer.orgId },
+      async (tx) => {
+        const relationships = await visibleRelationships(tx, viewer);
+        const items = await timelineItems(
+          tx,
+          viewer,
+          relationships,
+          { from, to },
+          {
+            rounds: can(auth, 'portfolio.sehen') ? 'all' : 'own',
+            modules: await orgModulesOf(tx, viewer.orgId),
+          },
+        );
+        return timelineSchema.parse({ from, to, items });
+      },
+      { readOnly: true },
+    );
+  }
+
+  /** Wirkung je Aufgabe: Spend des Lieferanten, zu dem sie gehört */
+  private async weigh(auth: AuthContext, viewer: Viewer) {
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: viewer.orgId },
+      async (tx) => {
+        const relationships = await visibleRelationships(tx, viewer);
+        const weights = await spendWeights(tx, [...relationships.keys()]);
+        return (item: DueItem) => weights.get(relationshipOfHref(item.href) ?? '') ?? 0;
+      },
+      { readOnly: true },
+    );
+  }
+
+  async next(auth: AuthContext): Promise<{ next: NextAction | null }> {
+    const due = await this.dueItems(auth);
+    const viewer = this.buyerViewer(auth);
+    const weight = viewer ? await this.weigh(auth, viewer) : undefined;
+    const next = pickNextAction(due, isoToday(), weight ? { weight } : {});
+    return { next: next ? nextActionSchema.parse(next) : null };
+  }
+
+  async myDay(auth: AuthContext): Promise<MyDay> {
+    const today = isoToday();
+    const due = await this.dueItems(auth);
+    const viewer = this.buyerViewer(auth);
+    const extras = viewer
+      ? await this.tenant.run(
+          { userId: auth.userId, organizationId: viewer.orgId },
+          async (tx) => {
+            const relationships = await visibleRelationships(tx, viewer);
+            const weights = await spendWeights(tx, [...relationships.keys()]);
+            const prepared = can(auth, 'lieferanten.sehen')
+              ? await preparedDrafts(tx, viewer, relationships)
+              : [];
+            const waiting = await waitingOnOthers(tx, viewer, relationships, addDays(today, 14));
+            return {
+              weight: (item: DueItem) => weights.get(relationshipOfHref(item.href) ?? '') ?? 0,
+              done: await doneToday(tx, viewer, today),
+              prepared,
+              waiting,
+              timeline: can(auth, 'termine.sehen')
+                ? await timelineItems(
+                    tx,
+                    viewer,
+                    relationships,
+                    { from: today, to: addDays(today, 13) },
+                    {
+                      rounds: can(auth, 'portfolio.sehen') ? 'all' : 'own',
+                      modules: await orgModulesOf(tx, viewer.orgId),
+                    },
+                  )
+                : [],
+              hints: can(auth, 'hinweise.sehen')
+                ? await hintCounts(tx, viewer, relationships)
+                : null,
+            };
+          },
+          { readOnly: true },
+        )
+      : null;
+    const weight = extras?.weight ?? (() => 0);
+    const next = pickNextAction(due, today, { weight });
+    const rest = due.filter((item) => item.id !== next?.item.id).sort(compareDue(today, weight));
+    const sunday = endOfWeek(today);
+    return myDaySchema.parse({
+      today,
+      next,
+      todayItems: rest.filter((item) => item.dueDate <= today),
+      week: rest.filter((item) => item.dueDate > today && item.dueDate <= sunday),
+      total: due.length,
+      doneToday: extras?.done ?? 0,
+      prepared: extras?.prepared.slice(0, 5) ?? [],
+      preparedTotal: extras?.prepared.length ?? 0,
+      waiting: extras?.waiting.slice(0, 50) ?? [],
+      waitingTotal: extras?.waiting.length ?? 0,
+      timeline: extras?.timeline ?? [],
+      hints: extras?.hints ?? null,
+    });
+  }
+
+  async needsYou(auth: AuthContext): Promise<NeedsYou> {
+    const viewer = this.buyerViewer(auth);
+    if (!viewer || !can(auth, 'lieferanten.sehen')) return { items: [] };
+    const due = await this.dueItems(auth);
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: viewer.orgId },
+      async (tx) =>
+        needsYouSchema.parse({
+          items: await needsYou(
+            tx,
+            viewer,
+            await visibleRelationships(tx, viewer),
+            due,
+            isoToday(),
+            (item) => relationshipOfHref(item.href),
+          ),
+        }),
+      { readOnly: true },
+    );
   }
 }

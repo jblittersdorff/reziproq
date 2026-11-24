@@ -3,12 +3,14 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppShell } from './app-shell';
 import { Collapsible } from './collapsible';
+import { DateList } from './date-list';
 import { SupplierHeader } from './entity-header';
 import { FormPage } from './form-page';
 import { NextCard } from './next-card';
 import { ProcessChain } from './process-chain';
 import { Row, RowGroup } from './row-group';
 import { SoWhat } from './so-what';
+import { TimelineRail } from './timeline-rail';
 
 // UX-20 Phase 1: Bausteine einmal gebaut, Kriterien aus UX-20 und NAV-10 je Baustein.
 afterEach(cleanup);
@@ -219,5 +221,69 @@ describe('AppShell und Köpfe', () => {
     ).toHaveLength(4);
     expect(screen.getByRole('link', { name: 'Profil, Segmentierung und Team' })).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeTruthy();
+  });
+});
+
+describe('TimelineRail und DateList (Phase 2)', () => {
+  it('die Schiene beginnt mit Heute in Tinte; jeder Eintrag mit Ziel öffnet sein Objekt', () => {
+    render(
+      <TimelineRail
+        label="Die nächsten vier Wochen"
+        locale="de"
+        today={{
+          key: 'today',
+          date: '2026-11-23',
+          kind: 'Heute',
+          title: '3 Dinge',
+          href: '/mein-tag',
+        }}
+        items={[
+          {
+            key: 'a',
+            date: '2026-12-04',
+            kind: 'Termin',
+            tone: 'meeting',
+            title: 'JBP',
+            href: '/a',
+          },
+          { key: 'b', date: '2026-12-09', kind: 'Freigabe', tone: 'approval', title: 'Strategie' },
+        ]}
+      />,
+    );
+    const rail = screen.getByRole('list', { name: 'Die nächsten vier Wochen' });
+    const items = within(rail).getAllByRole('listitem');
+    expect(items[0]?.getAttribute('data-now')).toBe('true');
+    expect(items[0]?.querySelector('[data-next]')).not.toBeNull();
+    expect(
+      within(rail)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual(['/mein-tag', '/a']);
+    // Art als Text, nicht nur als Farbe
+    expect(within(items[2] as HTMLElement).getByText('Freigabe')).toBeTruthy();
+  });
+
+  it('DateList: Zeile mit Ziel ist ein Link, ohne Ziel nicht; Status als Text im Chip', () => {
+    render(
+      <DateList
+        locale="de"
+        label="Termine"
+        items={[
+          {
+            key: 'a',
+            date: '2026-12-04',
+            title: 'JBP',
+            chip: { label: 'Briefing', tone: 'shared' },
+            href: '/a',
+          },
+          { key: 'b', title: '8D-Bericht', chip: { label: 'überfällig', tone: 'danger' } },
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole('link')).toHaveLength(1);
+    expect(screen.getByText('überfällig')).toBeTruthy();
+    expect(
+      screen.getAllByRole('listitem')[1]?.querySelector('[data-slot="date-circle"]'),
+    ).toBeNull();
   });
 });

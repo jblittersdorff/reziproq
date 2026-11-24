@@ -83,6 +83,17 @@ describe('KI-09 Eigene Agenten', () => {
       runId,
       ticket: row.jobTicket,
     });
+    // Hat der Worker der Test-App den Auftrag zuerst genommen, endet process() sofort; dann auf
+    // das Ende des Laufs warten, statt die Ergebnisse eines laufenden Laufs zu lesen.
+    for (let attempt = 0; attempt < 150; attempt++) {
+      const [current] = await db
+        .select({ status: schema.agentRun.status })
+        .from(schema.agentRun)
+        .where(eq(schema.agentRun.id, runId));
+      if (current && !['queued', 'running'].includes(current.status)) return;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error(`Lauf ${runId} endet nicht`);
   }
   async function startRun(user: string, agentId: string, isTest: boolean) {
     const response = await call(user, 'POST', `/ki/eigene-agenten/${agentId}/starten`, { isTest });
@@ -205,7 +216,8 @@ describe('KI-09 Eigene Agenten', () => {
     );
     expect(actions.rows).toEqual([{ visibility: 'internal', owner_user_id: users.anna }]);
     await db.execute(sql`delete from action where relationship_id in (${rel.one}, ${rel.two})`);
-  });
+    // Zwei vollständige Läufe nacheinander: im Gesamtlauf mit allen Dateien parallel länger als 5 s
+  }, 30_000);
 
   it('die Werkzeugauswahl zeigt nur Datenbereiche, die der Nutzer sehen darf', async () => {
     const options = customAgentOptionsSchema.parse(

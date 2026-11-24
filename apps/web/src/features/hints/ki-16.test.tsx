@@ -6,6 +6,7 @@ import {
   actionsFor,
   anna,
   api,
+  myDayResponse,
   renderAt,
   setUpApp,
   signedIn,
@@ -187,6 +188,26 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     expect(await screen.findByText('Kein Hinweis passt zu diesen Filtern.')).toBeTruthy();
   });
 
+  it('oben Ablauf, genau eine Karte „Als Nächstes“ mit dem wichtigsten Hinweis und „Das Wichtigste“', async () => {
+    renderAt('/hinweise');
+    await screen.findByRole('list', { name: 'Hinweise' });
+    expect(screen.getByRole('navigation', { name: 'Ablauf Maßnahme' })).toBeTruthy();
+    const cards = document.querySelectorAll('[data-slot="next-card"]');
+    expect(cards).toHaveLength(1);
+    const card = cards[0] as HTMLElement;
+    expect(within(card).getByText('Als Nächstes · hohe Wirkung')).toBeTruthy();
+    expect(within(card).getByRole('link', { name: 'Maßnahme anlegen' }).getAttribute('href')).toBe(
+      drop.href,
+    );
+    const summary = document.querySelector('[data-slot="so-what"]') as HTMLElement;
+    expect(within(summary).getByText(/^5 Hinweise, \d mit hoher Wirkung/)).toBeTruthy();
+    expect(within(summary).getAllByRole('link').length).toBeLessThanOrEqual(3);
+    expect(within(summary).getByText('Nach Schwere')).toBeTruthy();
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: 'Mein Tag' }).getAttribute('href'),
+    ).toBe('/mein-tag');
+  });
+
   it('ein Klick öffnet die Leiste mit Beleg, Begründung, nächstem Schritt, In Arbeit und Bewertung', async () => {
     renderAt('/hinweise');
     const list = await screen.findByRole('list', { name: 'Hinweise' });
@@ -218,35 +239,18 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     );
   });
 
-  it('Mein Tag zeigt höchstens vier offene Hinweise der eigenen Beziehungen nach score', async () => {
+  it('Mein Tag zeigt die Zeile „Hinweise“ mit offenen und hohen; sie führt zu allen Hinweisen', async () => {
+    // NAV-10 1.1 (Vorlage Main.dc.html): statt der Karte „Wo du handeln musst“ eine Zeile; die
+    // wichtigsten Hinweise stehen auf /hinweise oben in „Als Nächstes“ und „Das Wichtigste“.
     const handle = api.handle;
     api.handle = (request) =>
-      request.url === '/api/start'
-        ? Response.json({
-            due: { items: [], total: 0 },
-            relationships: { items: [], total: 0 },
-            nextMeeting: null,
-            portfolio: null,
-            openActions: 0,
-          })
+      request.url === '/api/start/mein-tag'
+        ? Response.json(myDayResponse({ hints: { open: 5, high: 2 } }))
         : handle?.(request);
-    renderAt('/start');
-    const card = (
-      await screen.findByRole('heading', { level: 2, name: 'Wo du handeln musst' })
-    ).closest('[data-slot="hints-attention"]') as HTMLElement;
-    const rows = within(card).getAllByRole('listitem');
-    expect(rows).toHaveLength(4);
-    // Pearl River gehört nicht zu den eigenen Beziehungen
-    expect(within(card).queryByText(/Elektronik/)).toBeNull();
-    expect(rows[0]?.textContent).toContain('Liefertreue');
-    expect(
-      within(card)
-        .getByRole('link', { name: /^Maßnahme anlegen/ })
-        .getAttribute('href'),
-    ).toBe(drop.href);
-    expect(within(card).getByRole('link', { name: 'Alle Hinweise' }).getAttribute('href')).toBe(
-      '/hinweise',
-    );
+    renderAt('/mein-tag');
+    const row = await screen.findByRole('link', { name: /^Hinweise/ });
+    expect(row.getAttribute('href')).toBe('/hinweise');
+    expect(within(row).getByText('5 offen, 2 mit hoher Wirkung')).toBeTruthy();
   });
 
   it('Einstellungen KI › Hinweise: Regel ausschalten, Schwelle ändern, Bewertung je Regel', async () => {

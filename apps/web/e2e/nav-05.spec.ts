@@ -73,6 +73,25 @@ async function mock(page: Page) {
     }),
   );
   await page.route('**/api/start/due', (route) => route.fulfill({ json: { items } }));
+  // NAV-10 1.1: Mein Tag ersetzt den Start mit Bühne und Kacheln
+  await page.route('**/api/start/mein-tag', (route) =>
+    route.fulfill({
+      json: {
+        today: new Date().toISOString().slice(0, 10),
+        next: { scope: 'global', item: items[0], overdueDays: -1, minutes: 10 },
+        todayItems: [],
+        week: [],
+        total: items.length,
+        doneToday: 0,
+        prepared: [],
+        preparedTotal: 0,
+        waiting: [],
+        waitingTotal: 0,
+        timeline: [],
+        hints: null,
+      },
+    }),
+  );
 }
 
 async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, name: string) {
@@ -99,19 +118,18 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   }
 }
 
-test('NAV-05 zeigt Start mit Bühne und vier Kacheln (A2) und die volle Liste ohne Überlauf', async ({
+test('NAV-05/NAV-10 1.1: /start führt zu Mein Tag; Mein Tag und alle Aufgaben ohne Überlauf', async ({
   page,
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page.getByText('Acht Dinge warten heute auf dich.')).toBeVisible();
-  await expect(page.getByRole('heading', { level: 2, name: 'Im Fokus' })).toBeVisible();
-  await expect(
-    page.getByRole('heading', { level: 2, name: 'Offene Entscheidungen' }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/mein-tag$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Mein Tag' })).toBeVisible();
+  await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
   await shoot(page, testInfo, 'start');
 
   await page.goto('/start/faellig');
-  await expect(page.getByText('Alles, was bei mir fällig ist').first()).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Alle Aufgaben' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Alpha GmbH/ }).first()).toBeVisible();
   await shoot(page, testInfo, 'faellig');
 });

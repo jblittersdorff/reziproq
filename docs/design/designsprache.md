@@ -137,7 +137,7 @@ Bedienflächen sind mindestens 44 px hoch, Zeilen 56 px. Abstände in Schritten 
 | Baustein | Beschreibung | Referenz |
 |---|---|---|
 | Logo | Zwei Ringe (links Tinte, rechts Petrol, Strich 2), Überlappung Mint gefüllt, Wortmarke in Outfit 600 | `Main.dc.html` |
-| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Suchfeld mit ⌘K, vier Hauptpunkte mit Symbol 20 px, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; nicht fixiert | `Main.dc.html` |
+| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Suchfeld mit ⌘K, vier Hauptpunkte mit Symbol 20 px, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; so hoch wie der Bildschirm, bleibt beim Scrollen stehen (Gründer, 23.11.2026) | `Main.dc.html` |
 | Tab-Leiste | unter 760 px fest unten, weiß 93 % mit Unschärfe, fünf Ziele mit Symbol 24 px und Text 11 / 600, aktiv Petrol | `Main.dc.html`, `A-MeinTag.dc.html` |
 | Zurück-Link | Pfeil „‹“ und Name der Ebene darüber, Petrol 15 / 600, mindestens 32 px hoch | `SupplierBar.dc.html` |
 | Lieferantenkopf | Zurück „‹ Lieferanten“, Name groß, graue Zeile mit Segment und Schritt, runder Knopf „···“ für Profil, Bereiche als Segment-Umschalter, Unterseiten als schlichte Links (aktiv Tinte gefüllt) | `SupplierBar.dc.html` |

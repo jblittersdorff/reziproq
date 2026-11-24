@@ -19,7 +19,14 @@ import { useT } from '@/lib/i18n';
 // @reziproq/shared, rechts Fragen und Profil. Die Lieferantenseite hat Start, Kunden und Profil
 // (LIF-02). Leiste und Menüseite lesen von hier.
 
-export type NavKey = AreaKey | 'overview' | 'myDay' | 'customers' | 'questions' | 'profile';
+export type NavKey =
+  | AreaKey
+  | 'overview'
+  | 'myDay'
+  | 'customers'
+  | 'questions'
+  | 'profile'
+  | 'settings';
 
 export interface NavTarget extends NavItem {
   key: NavKey;
@@ -38,13 +45,16 @@ const areaIcons: Record<AreaKey, LucideIcon> = {
 const sections: { prefix: string; key: NavKey }[] = [
   { prefix: '/uebersicht', key: 'overview' },
   { prefix: '/mein-tag', key: 'myDay' },
+  // Alle Aufgaben, Maßnahmen und Hinweise liegen unter Mein Tag (Vorlagen Aufgaben, Hinweise)
+  { prefix: '/start', key: 'myDay' },
+  { prefix: '/hinweise', key: 'myDay' },
   { prefix: '/portfolio', key: 'suppliers' },
   { prefix: '/wirkung', key: 'overview' },
   ...areas.map((area) => ({ prefix: area.path, key: area.key })),
   { prefix: '/kunden', key: 'customers' },
   { prefix: '/fragen', key: 'questions' },
   { prefix: '/profil', key: 'profile' },
-  { prefix: '/einstellungen', key: 'profile' },
+  { prefix: '/einstellungen', key: 'settings' },
 ];
 
 export function activeNavKey(pathname: string): NavKey | undefined {

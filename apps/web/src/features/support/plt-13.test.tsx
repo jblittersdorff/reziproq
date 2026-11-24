@@ -48,7 +48,7 @@ describe('In einen Kunden wechseln', () => {
     api.me = { ...anna, orgRole: 'admin' };
     api.permissions = actionsFor.admin;
     renderAt('/profil');
-    await screen.findByText('Anna Schmidt');
+    await within(await screen.findByRole('main')).findByText('Anna Schmidt');
     expect(screen.queryByRole('link', { name: /In einen Kunden wechseln/ })).toBeNull();
     expect(api.requests.some((r) => r.url === '/api/betreiber/kunden')).toBe(false);
   });

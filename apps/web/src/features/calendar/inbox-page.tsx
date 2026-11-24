@@ -144,7 +144,7 @@ export function InboxPage() {
 }
 
 /** IN-04: Warten nur Termine, nur Mails oder beides? Davon hängt der Text der Zahl ab. */
-function kindOf(items: InboundItemView[]): 'meeting' | 'mail' | 'mixed' {
+export function kindOf(items: InboundItemView[]): 'meeting' | 'mail' | 'mixed' {
   const kinds = new Set(items.map((item) => item.kind));
   return kinds.size > 1 ? 'mixed' : kinds.has('mail') ? 'mail' : 'meeting';
 }

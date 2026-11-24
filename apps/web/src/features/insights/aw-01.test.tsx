@@ -60,27 +60,91 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 const outerRing = () => document.querySelector('[data-slot="goal-rings"] circle.stroke-petrol');
+const todayIso = () => new Date().toISOString().slice(0, 10);
+const inDays = (days: number) => {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+const railItem = (index: number) => ({
+  id: `meeting:${index}`,
+  date: inDays(index + 1),
+  kind: 'meeting' as const,
+  source: 'meeting' as const,
+  title: `Termin ${index}`,
+  counterpart: 'Rheintal',
+  detail: null,
+  startsAt: null,
+  progress: null,
+  href: `/lieferanten/0190a0a0-0000-7000-8000-00000000000${index % 10}/umsetzung/termine/x${index}`,
+  relationshipId: null,
+  categoryId: null,
+});
 
-describe('AW-01 Übersicht', () => {
-  it('zeigt ein Ringpaar, zwei Zeilen und drei Fragevorschläge; EBIT und Cash getrennt', async () => {
+// NAV-10 1.1 (Vorlagen Uebersicht.dc.html, A-Uebersicht.dc.html): Lagebild mit Ergebnissen,
+// „Als Nächstes“, Zusammenfassung, Terminschiene und je Bereich mit Daten einer Diagrammkarte.
+describe('NAV-10 1.1 Übersicht', () => {
+  beforeEach(() => {
+    overview = {
+      ...overview,
+      quarters: [
+        { quarter: 1, securedCents: 6_400_000, state: 'past' },
+        { quarter: 2, securedCents: 9_800_000, state: 'past' },
+        { quarter: 3, securedCents: 14_100_000, state: 'past' },
+        { quarter: 4, securedCents: 10_900_000, state: 'current' },
+      ],
+      sinceStartSecuredCents: 52_000_000,
+    };
+  });
+
+  it('Ring nur mit Jahresziel, daneben Zahl, Ziel und was fehlt; Säulen je Quartal; Cash getrennt', async () => {
     renderAt('/uebersicht');
-    expect(await screen.findByText(/Gesichert sind .+ von .+ EBIT\./)).toBeTruthy();
-    expect(document.querySelectorAll('[data-slot="goal-rings"]')).toHaveLength(1);
+    expect(
+      await screen.findByText(/von 600.000 € Jahresziel\. Es fehlen 188.000 €\./),
+    ).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeTruthy();
     expect(outerRing()).not.toBeNull();
-    expect(screen.getByText('9 von 12')).toBeTruthy();
-    expect(screen.getByText('Fokuslieferanten mit freigegebenem JBP')).toBeTruthy();
-    const rows = screen.getByRole('region', { name: 'Was dahinter steht' });
-    expect(within(rows).getAllByRole('link')).toHaveLength(2);
-    expect(within(rows).getByText('In Umsetzung')).toBeTruthy();
-    expect(within(rows).getByText('Cash')).toBeTruthy();
-    const questions = screen
-      .getAllByRole('link')
-      .filter((link) => link.getAttribute('href')?.startsWith('/fragen?q='));
-    expect(questions).toHaveLength(3);
+    const columns = screen.getByRole('list', { name: 'EBIT gesichert je Quartal' });
+    expect(within(columns).getAllByRole('listitem')).toHaveLength(4);
+    expect(within(columns).getByText('Q4 bis heute')).toBeTruthy();
+    // EBIT und Cash nie addiert: 412.000 € + 80.000 € ergäben 492.000 €
+    expect(screen.queryByText(/492/)).toBeNull();
+    expect(
+      screen.getByText('Cash 80.000 € wird getrennt gezählt und nie zum EBIT addiert.'),
+    ).toBeTruthy();
     expectPageLimits();
   });
 
-  it('zeigt die Aussage von Reziproq mit Quellen und drei Sätze; „Stimmt nicht“ meldet sie', async () => {
+  it('der Zeitraum Quartal zeigt das laufende Quartal ohne Ring, Seit Start die ganze Summe', async () => {
+    renderAt('/uebersicht');
+    fireEvent.click(await screen.findByRole('radio', { name: 'Quartal' }));
+    expect(await screen.findByText('Ergebnisse Q4 · nur vom Controlling bestätigt')).toBeTruthy();
+    expect(outerRing()).toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Seit Start' }));
+    expect(await screen.findByText(/520.000 € EBIT/)).toBeTruthy();
+  });
+
+  it('ohne Jahresziel kein Ring; Admin oder Lead legt es fest', async () => {
+    overview = { ...overview, goalEbitCents: null };
+    renderAt('/uebersicht');
+    expect(await screen.findByText('Ohne Jahresziel gibt es keinen Ring.')).toBeTruthy();
+    expect(outerRing()).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Ziel festlegen' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Jahresziel EBIT 2026 in Euro' }), {
+      target: { value: '600000' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Ziel speichern' }));
+    await waitFor(() => expect(sent[0]?.body).toEqual({ year: 2026, amountCents: 60_000_000 }));
+  });
+
+  it('ohne Recht kein Knopf „Ziel festlegen“', async () => {
+    overview = { ...overview, goalEbitCents: null, canSetGoal: false };
+    renderAt('/uebersicht');
+    expect(await screen.findByText('Ohne Jahresziel gibt es keinen Ring.')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Ziel festlegen' })).toBeNull();
+  });
+
+  it('Zusammengefasst von Reziproq: ein Satz, drei Punkte mit Läuft, Hakt, Offen und Quellen', async () => {
     const reports: string[] = [];
     const handle = api.handle;
     overview = {
@@ -94,12 +158,12 @@ describe('AW-01 Übersicht', () => {
       sentences: [
         {
           kind: 'good',
-          text: 'Rheintal trägt 120.000 € bei, 20 % des Jahresziels.',
+          text: 'Rheintal trägt 120.000 € bei.',
           href: '/lieferanten/x/wirkung/bruecke',
         },
         {
           kind: 'stuck',
-          text: 'Bei Kessler wartet ein Potenzial von 210.000 € bis 320.000 € EBIT.',
+          text: 'Bei Kessler wartet ein Potenzial.',
           href: '/lieferanten/y/wirkung/wertpotenziale',
         },
         { kind: 'todo', text: 'Als Nächstes: den JBP mit Kessler freigeben.', href: '/mein-tag' },
@@ -113,41 +177,162 @@ describe('AW-01 Übersicht', () => {
       return handle?.(request);
     };
     renderAt('/uebersicht');
+    const box = (await screen.findByText('Gesichert sind 69 % des Jahresziels.')).closest(
+      '[data-slot="so-what"]',
+    ) as HTMLElement;
+    expect(within(box).getByText('Zusammengefasst von Reziproq')).toBeTruthy();
     expect(
-      await screen.findByRole('heading', { name: 'Gesichert sind 69 % des Jahresziels.' }),
+      within(box)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent?.split(' ')[0]),
+    ).toEqual(['LäuftRheintal', 'HaktBei', 'OffenAls']);
+    expect(
+      within(box).getByText(/^Quellen: Impact-Ledger, vom Controlling bestätigt · Stand/),
     ).toBeTruthy();
-    expect(screen.getByText('Zusammengefasst von Reziproq')).toBeTruthy();
-    const cards = screen.getByRole('region', { name: 'Drei Sätze von Reziproq' });
-    expect(within(cards).getByText('Was gut läuft')).toBeTruthy();
-    expect(within(cards).getByText('Was hakt')).toBeTruthy();
-    expect(within(cards).getByRole('link', { name: 'Zu Mein Tag' }).getAttribute('href')).toBe(
-      '/mein-tag',
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Stimmt nicht' }));
+    fireEvent.click(within(box).getByRole('button', { name: 'Stimmt nicht' }));
     await waitFor(() =>
       expect(reports).toEqual(['/api/aussagen/0190a0a0-0000-7000-8000-0000000000ff/stimmt-nicht']),
     );
-    expect(await screen.findByText('Danke, gemeldet.')).toBeTruthy();
   });
 
-  it('ohne Jahresziel erscheint kein äußerer Ring; Admin oder Lead legt es fest', async () => {
-    overview = { ...overview, goalEbitCents: null };
+  it('ein Satz mit einer Zahl, die nicht in den Fakten steht, fehlt: es steht der neutrale Titel', async () => {
+    overview = {
+      ...overview,
+      statement: null,
+      sentences: [
+        { kind: 'todo', text: 'Als Nächstes: das Jahresziel festlegen.', href: '/mein-tag' },
+      ],
+    };
     renderAt('/uebersicht');
-    expect(await screen.findByText('Noch kein Jahresziel.')).toBeTruthy();
-    expect(outerRing()).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Ziel festlegen' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Jahresziel EBIT 2026 in Euro' }), {
-      target: { value: '600000' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Ziel speichern' }));
-    await waitFor(() => expect(sent[0]?.body).toEqual({ year: 2026, amountCents: 60_000_000 }));
+    expect(await screen.findByText('Ergebnisse, Hinweise und Fristen im Überblick')).toBeTruthy();
+    expect(screen.queryByText(/Stimmt nicht/)).toBeNull();
   });
 
-  it('ohne Recht kein Knopf „Ziel festlegen“', async () => {
-    overview = { ...overview, goalEbitCents: null, canSetGoal: false };
+  it('genau eine Karte „Als Nächstes“; die Terminschiene zeigt Heute und höchstens acht Einträge', async () => {
+    const handle = api.handle;
+    api.handle = (request) => {
+      if (request.url === '/api/start/als-naechstes') {
+        return Response.json({
+          next: {
+            scope: 'global',
+            item: {
+              id: 'v1',
+              kind: 'validation',
+              supplier: 'Rheintal',
+              detail: 'Preis Leiterplatten',
+              dueDate: todayIso(),
+              href: '/wirkung/freigaben',
+            },
+            overdueDays: 0,
+            minutes: 2,
+          },
+        });
+      }
+      if (request.url.startsWith('/api/start/termine')) {
+        return Response.json({
+          from: todayIso(),
+          to: inDays(27),
+          items: Array.from({ length: 10 }, (_, index) => railItem(index)),
+        });
+      }
+      return handle?.(request);
+    };
     renderAt('/uebersicht');
-    expect(await screen.findByText('Noch kein Jahresziel.')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Ziel festlegen' })).toBeNull();
+    await screen.findByText('Als Nächstes · heute fällig · 2 Min.');
+    expect(document.querySelectorAll('[data-slot="next-card"]')).toHaveLength(1);
+    const rail = screen.getByRole('list', { name: 'Termine und Fristen der nächsten vier Wochen' });
+    const entries = within(rail).getAllByRole('listitem');
+    expect(entries).toHaveLength(1 + 8);
+    expect(entries[0]?.getAttribute('data-now')).toBe('true');
+    // jeder Eintrag öffnet sein Objekt
+    for (const [index, entry] of entries.slice(1).entries()) {
+      expect(within(entry).getByRole('link').getAttribute('href')).toBe(railItem(index).href);
+    }
+    // auf dem Telefon steht „Als Nächstes“ vor den Ergebnissen
+    const next = document.querySelector('[data-slot="next-card"]')?.parentElement as HTMLElement;
+    expect(next.className).toContain('order-1');
+  });
+
+  it('je Bereich mit Daten eine Diagrammkarte; ohne Module keine Karte zu Risiko oder Claims', async () => {
+    api.permissions = [...actionsFor.admin, 'portfolio.sehen'];
+    const handle = api.handle;
+    api.handle = (request) => {
+      if (request.url === '/api/warengruppen/strategien') {
+        return Response.json({
+          year: 2026,
+          next: null,
+          approvedCount: 1,
+          groups: [
+            {
+              id: '0190a0a0-0000-7000-8000-0000000000a1',
+              name: 'Gussteile',
+              code: 'G',
+              lead: null,
+              spend: null,
+              supplierCount: 3,
+              strategy: {
+                id: '0190a0a0-0000-7000-8000-0000000000b1',
+                year: 2026,
+                status: 'approved',
+                version: 1,
+                steps: Array(10).fill('done'),
+              },
+              hidden: false,
+              canCreate: false,
+            },
+            {
+              id: '0190a0a0-0000-7000-8000-0000000000a2',
+              name: 'Leiterplatten',
+              code: 'L',
+              lead: null,
+              spend: null,
+              supplierCount: 2,
+              strategy: null,
+              hidden: false,
+              canCreate: true,
+            },
+          ],
+        });
+      }
+      if (request.url.startsWith('/api/portfolio/matrix')) {
+        const point = (n: number, typeName: string, spendCents: number) => ({
+          relationshipId: `0190a0a0-0000-7000-8000-0000000000c${n}`,
+          name: `L${n}`,
+          spendCents,
+          currency: 'EUR',
+          businessUnit: null,
+          materialGroup: null,
+          ist: { impactLevel: 1, qualityLevel: 1, typeName },
+          soll: { impactLevel: 1, qualityLevel: 1, typeName },
+        });
+        return Response.json({
+          spendYear: 2025,
+          businessUnits: [],
+          materialGroups: [],
+          points: [point(1, 'Strategisch', 600_000_00), point(2, 'Hebeln', 400_000_00)],
+        });
+      }
+      if (request.url === '/api/start/brauchen-dich') {
+        return Response.json({
+          items: [
+            { relationshipId: '0190a0a0-0000-7000-8000-0000000000c1', reason: 'hint', title: 'x' },
+          ],
+        });
+      }
+      return handle?.(request);
+    };
+    renderAt('/uebersicht');
+    expect(await screen.findByText('1 von 2 Strategien sind freigegeben')).toBeTruthy();
+    expect(await screen.findByText('Strategisch trägt 60 % des Spend')).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: /1 Lieferant braucht dich/ }).getAttribute('href'),
+    ).toBe('/lieferanten');
+    const cards = [...document.querySelectorAll('[data-slot="chart-card"]')].map(
+      (card) => card.querySelector('span')?.textContent,
+    );
+    expect(cards).not.toContain('Risiko');
+    expect(cards).not.toContain('Claims');
+    expect(document.body.textContent).not.toMatch(/Claims|Risikobild/);
   });
 });
 

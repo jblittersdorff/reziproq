@@ -162,15 +162,11 @@ describe('IN-03 Neu eingegangen', () => {
     await waitFor(() => expect(sent[3]).toMatchObject({ body: { action: 'ignore' } }));
   });
 
-  it('Mein Tag zeigt rechts „Neu eingegangen“ mit der Zahl', async () => {
-    renderAt('/start');
-    const tile = (await screen.findByRole('heading', { name: 'Neu eingegangen' })).closest(
-      '[data-slot="list-card"], section',
-    ) as HTMLElement;
-    expect(within(tile).getByText('3 Termine warten auf dich')).toBeTruthy();
-    expect(within(tile).getByRole('link', { name: 'Zuordnen' }).getAttribute('href')).toBe(
-      '/mein-tag/eingang',
-    );
+  it('Mein Tag zeigt rechts die Zeile „Neu eingegangen“ mit der Zahl', async () => {
+    renderAt('/mein-tag');
+    const row = await screen.findByRole('link', { name: /Neu eingegangen/ });
+    expect(row.getAttribute('href')).toBe('/mein-tag/eingang');
+    expect(within(row).getByText('3 Termine warten auf dich')).toBeTruthy();
   });
 });
 

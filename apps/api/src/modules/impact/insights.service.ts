@@ -44,6 +44,29 @@ function securedIn(facts: InitiativeFacts[], from: string, to: string) {
     .reduce((sum, value) => sum + value.valueCents, 0);
 }
 
+/** Erster Tag des Monats `months` Monate nach `start` (JJJJ-MM-01) */
+function shiftMonth(start: string, months: number) {
+  const [year = 0, month = 1] = start.split('-').map(Number);
+  const index = year * 12 + (month - 1) + months;
+  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`;
+}
+
+/** EBIT gesichert je Quartal des Geschäftsjahrs; Quartale nach heute bleiben leer */
+function quartersOf(facts: InitiativeFacts[], from: string, today: string) {
+  return [1, 2, 3, 4].map((quarter) => {
+    const start = shiftMonth(from, (quarter - 1) * 3);
+    const end = shiftMonth(from, quarter * 3);
+    return {
+      quarter,
+      securedCents: securedIn(facts, start, end),
+      state: (today < start ? 'future' : today < end ? 'current' : 'past') as
+        | 'past'
+        | 'current'
+        | 'future',
+    };
+  });
+}
+
 /** Lead einer Warengruppe (WG-01); mit Admin pflegt er Jahresziel und gibt Lieferantenziele frei. */
 async function isLead(tx: TenantTransaction, userId: string, relationshipId?: string) {
   const rows = await tx
@@ -168,6 +191,8 @@ export class InsightsService {
         focusWithApprovedJbp: approvedJbp.length,
         inProgress,
         cashCents: plan(counted.filter((fact) => fact.effectType === 'cash')),
+        quarters: quartersOf(facts, from, today),
+        sinceStartSecuredCents: securedIn(facts, '0000-01-01', '9999-12-01'),
       });
     });
   }

@@ -64,19 +64,22 @@ describe('Öffnen', () => {
     expect(await questionsPage()).toBeDefined();
   });
 
-  it('fragt mit dem Feld auf Start und übergibt die Frage über die URL', async () => {
+  it('„Suchen oder fragen“ in der Seitenleiste öffnet /fragen und fragt dort', async () => {
+    // NAV-10 1.1: Das Fragefeld auf Start entfällt; gefragt wird über die Seitenleiste (⌘K)
+    // und auf dem Telefon über „Frag“ in der Tab-Leiste.
     api.prompt.events = [{ type: 'text', delta: 'Antwort auf Start.' }, { type: 'done' }];
-    const router = renderAt('/start');
-    fireEvent.change(await screen.findByRole('textbox', { name: 'Deine Frage an Reziproq' }), {
-      target: { value: 'Wie geht es meinen Lieferanten?' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Fragen' }));
+    const router = renderAt('/mein-tag');
+    const sidebar = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
+    fireEvent.click(within(sidebar).getByRole('link', { name: 'Suchen oder fragen' }));
     await questionsPage();
+    await askQuestion('Wie geht es meinen Lieferanten?');
     await screen.findByText('Antwort auf Start.');
-    expect(router.state.location.search).toEqual({ q: 'Wie geht es meinen Lieferanten?' });
+    expect(router.state.location.pathname).toBe('/fragen');
     expect(api.promptRequests[0]).toEqual({
       messages: [{ role: 'user', content: 'Wie geht es meinen Lieferanten?' }],
     });
+    const tabs = screen.getByRole('navigation', { name: 'Tab-Leiste' });
+    expect(within(tabs).getByRole('link', { name: 'Frag' }).getAttribute('href')).toBe('/fragen');
   });
 });
 
@@ -244,7 +247,7 @@ describe('Verlauf', () => {
     await askQuestion('Erste Frage');
     await screen.findByText('Erste Antwort.');
     await router.navigate({ to: '/start' });
-    await screen.findByRole('heading', { level: 1, name: /Guten/ });
+    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
     await questionsPage();
     expect(screen.queryByText('Erste Antwort.')).toBeNull();

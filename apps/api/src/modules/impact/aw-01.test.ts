@@ -215,6 +215,16 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     expect(data.inProgress.highCents).toBeGreaterThanOrEqual(2_000_000);
   });
 
+  it('NAV-10 1.1: EBIT gesichert je Quartal und seit Start, nur bestätigt; nie mit Cash addiert', async () => {
+    const data = await overview();
+    // März ist bestätigt (Q1), April nicht; das Geschäftsjahr beginnt im Januar
+    expect(data.quarters?.map((entry) => entry.securedCents)).toEqual([3_000_000, 0, 0, 0]);
+    expect(data.quarters?.reduce((sum, entry) => sum + entry.securedCents, 0)).toBe(
+      data.securedEbitCents,
+    );
+    expect(data.sinceStartSecuredCents).toBe(3_000_000);
+  });
+
   it('die Brücke enthält nur vom Controlling bestätigte Werte; ihre Summe ist „Gesichert“', async () => {
     const data = securedResultsSchema.parse(
       (await call(users.admin, 'GET', `/suppliers/${rel.a}/ergebnisse/gesichert?jahr=${year}`))

@@ -5,6 +5,7 @@ export const de = {
   app: {
     name: 'Reziproq',
     navigation: 'Hauptnavigation',
+    tabNavigation: 'Tab-Leiste',
     openMenu: 'Menü öffnen',
     skipToContent: 'Zum Inhalt springen',
     path: 'Pfad',
@@ -18,7 +19,7 @@ export const de = {
     homePage: 'Startseite',
     roleDefault: 'Nach Rolle',
     list: 'Liste',
-    searchOrAsk: 'Suchen oder Reziproq fragen',
+    searchOrAsk: 'Suchen oder fragen',
     start: 'Start',
     suppliers: 'Lieferanten',
     materialGroups: 'Warengruppen',
@@ -27,6 +28,9 @@ export const de = {
     customers: 'Kunden',
     questions: 'Fragen',
     profile: 'Profil',
+    // NAV-10 1.1: Seitenleiste und Tab-Leiste
+    settings: 'Einstellungen',
+    ask: 'Frag',
   },
 
   menu: {

@@ -38,5 +38,9 @@ export default defineProject({
       ),
     },
     globalSetup: ['./src/testing/global-setup.ts'],
+    // Jede Datei startet eine eigene App mit Datenbank, alle laufen parallel. Unter Last braucht
+    // ein Test mit mehreren Läufen länger als die 5 s von Vitest; Zeitgrenzen für die Leistung
+    // prüft getrennt die Zeitmessung (LS-01, pnpm test:perf).
+    testTimeout: 15_000,
   },
 });

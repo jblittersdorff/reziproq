@@ -15,13 +15,14 @@ export interface ShellItem {
 
 /**
  * Rahmen jeder angemeldeten Seite (UX-20 `AppShell`, NAV-10 1.1, Vorlage `Main.dc.html`):
- * - ab 761 px Seitenleiste (236 px, nicht fixiert) mit Logo, „Suchen oder fragen“ mit ⌘K, den
+ * - ab 761 px Seitenleiste (236 px, so hoch wie der Bildschirm, bleibt beim Scrollen stehen) mit Logo, „Suchen oder fragen“ mit ⌘K, den
  *   Hauptpunkten, Einstellungen und der Person; der aktive Punkt weiß, Symbol Petrol;
  * - bis 760 px Tab-Leiste fest unten (weiß, durchscheinend, Unschärfe) mit fünf Zielen;
  * - Inhalt bis 1200 px; unter der Tab-Leiste 92 px Abstand, damit nichts verdeckt wird.
  */
 function AppShell({
   label,
+  tabsLabel,
   brand,
   brandHref,
   search,
@@ -35,13 +36,16 @@ function AppShell({
 }: {
   /** Name der Navigation für Screenreader, z. B. „Hauptbereiche“ */
   label: string;
+  /** Name der Tab-Leiste; beide Leisten brauchen verschiedene Namen */
+  tabsLabel?: string;
   brand: string;
   brandHref: string;
   /** „Suchen oder fragen“ mit Kürzel; ohne Eintrag kein Suchfeld */
-  search?: { label: string; href: string; shortcut?: string };
+  search?: { key: string; label: string; href: string; shortcut?: string };
   items: ShellItem[];
   settings?: ShellItem;
-  person?: { initials: string; name: string };
+  /** Person unten in der Seitenleiste; führt zum Profil */
+  person?: { initials: string; name: string; href: string; label: string };
   /** Ziele der Tab-Leiste (fünf); fehlt die Angabe, gelten die Hauptpunkte */
   tabs?: ShellItem[];
   activeKey: string | undefined;
@@ -76,7 +80,10 @@ function AppShell({
       <nav
         aria-label={label}
         data-slot="sidebar"
-        className="hidden w-59 shrink-0 flex-col gap-0.5 border-sidebar-line border-r bg-line-soft px-3 pt-4.5 pb-5 shell:flex"
+        // Bleibt beim Scrollen stehen und ist so hoch wie der Bildschirm (Gründer, 23.11.2026;
+        // weicht von „nicht fixiert“ in NAV-10 1.1 ab). Eigener Scroll nur, wenn der Bildschirm
+        // niedriger ist als die Punkte, damit nichts unerreichbar wird.
+        className="hidden w-59 shrink-0 flex-col gap-0.5 border-sidebar-line border-r bg-line-soft px-3 pt-4.5 pb-5 shell:sticky shell:top-0 shell:flex shell:h-svh shell:overflow-y-auto"
       >
         {renderLink({
           href: brandHref,
@@ -86,6 +93,8 @@ function AppShell({
         {search &&
           renderLink({
             href: search.href,
+            'aria-label': search.label,
+            'aria-current': search.key === activeKey ? 'page' : undefined,
             className:
               'mb-3.5 flex min-h-11 items-center gap-2 rounded-nav bg-sidebar-line px-2.5 text-detail text-muted-foreground no-underline [&_svg]:size-4',
             children: (
@@ -105,23 +114,31 @@ function AppShell({
         ))}
         <span className="flex-1" />
         {settings && sideItem(settings)}
-        {person && (
-          <span className="flex items-center gap-2.5 px-2.5 pt-3 text-detail text-muted-strong">
-            <span
-              aria-hidden
-              className="inline-flex size-8 items-center justify-center rounded-full bg-ink font-display font-semibold text-mint text-chip"
-            >
-              {person.initials}
-            </span>
-            {person.name}
-          </span>
-        )}
+        {person &&
+          renderLink({
+            href: person.href,
+            'aria-label': person.label,
+            'aria-current': activeKey === 'profile' ? 'page' : undefined,
+            className:
+              'flex min-h-11 items-center gap-2.5 rounded-nav px-2.5 pt-3 text-detail text-muted-strong no-underline hover:text-ink',
+            children: (
+              <>
+                <span
+                  aria-hidden
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-ink font-display font-semibold text-mint text-chip"
+                >
+                  {person.initials}
+                </span>
+                <span className="min-w-0 truncate">{person.name}</span>
+              </>
+            ),
+          })}
       </nav>
       <div data-slot="shell-main" className="min-w-0 flex-1 pb-23 shell:pb-0">
         {children}
       </div>
       <nav
-        aria-label={label}
+        aria-label={tabsLabel ?? label}
         data-slot="tab-bar"
         className="z-20 flex justify-around border-sidebar-line border-t bg-card/93 px-1 pt-2 pb-6 backdrop-blur-md max-shell:fixed max-shell:inset-x-0 max-shell:bottom-0 shell:hidden"
       >

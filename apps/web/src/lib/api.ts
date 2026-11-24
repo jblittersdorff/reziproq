@@ -167,9 +167,12 @@ import {
   meResponseSchema,
   myActionsSchema,
   myConnectionsSchema,
+  myDaySchema,
   myFeedbackSchema,
   type NotePatch,
   type NoteRequest,
+  needsYouSchema,
+  nextActionSchema,
   nextCyclePreviewSchema,
   notificationPrefsSchema,
   type ObjectiveCategoryRequest,
@@ -303,6 +306,7 @@ import {
   surveyWavesSchema,
   type TeamRequest,
   teamResponseSchema,
+  timelineSchema,
   touchpointListSchema,
   touchpointSchema,
   transcriptSettingsSchema,
@@ -2075,6 +2079,37 @@ export const dueQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['start', 'due'],
     queryFn: () => getJson('/start/due', dueListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+// NAV-10 1.1 (UX-20 Phase 2): Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“
+export const myDayQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['start', 'mein-tag'],
+    queryFn: () => getJson('/start/mein-tag', myDaySchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const timelineQueryOptions = (accessToken: string, days = 28) =>
+  queryOptions({
+    queryKey: ['start', 'termine', days],
+    queryFn: () => getJson(`/start/termine?tage=${days}`, timelineSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+const nextActionResponseSchema = z.object({ next: nextActionSchema.nullable() });
+
+export const nextActionQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['start', 'als-naechstes'],
+    queryFn: () => getJson('/start/als-naechstes', nextActionResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const needsYouQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['start', 'brauchen-dich'],
+    queryFn: () => getJson('/start/brauchen-dich', needsYouSchema, accessToken),
     retry: retryUnlessDenied,
   });
 
