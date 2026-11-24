@@ -2,149 +2,47 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Rheintal Elektronik</title>
+<title>Rheintal Elektronik · Gemeinsam</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#f4f5f2}
-a{color:inherit;text-decoration:none}
-h1,h2,h3,p{margin:0}
-.ph{position:relative;width:390px;height:844px;overflow:hidden;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#0f1b22;display:flex;flex-direction:column}
-.scr{flex:1;overflow:hidden;padding:0 16px 120px;display:flex;flex-direction:column;gap:22px}
-.nav{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 8px 0}
-.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:17px;color:#0b7a6a}
-.ico{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;color:#0b7a6a;border:0;background:transparent}
-.lt{font:700 34px/1.1 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22}
-.where{font-size:15px;color:#5a636b}
-.next{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:24px;background:#0f1b22;color:#f4f5f2}
-.next .k{font-size:13px;font-weight:600;color:#4fd1b4;letter-spacing:.01em}
-.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}
-.next p{font-size:15px;line-height:1.45;color:#a9b4b9}
-.cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:16px;border:0;background:#4fd1b4;color:#0f1b22;font:600 17px Figtree,system-ui,sans-serif}
-.cta.p{background:#0b7a6a;color:#ffffff}
-.sec{display:flex;flex-direction:column;gap:8px}
-.sh{padding:0 4px;font-size:13px;font-weight:600;color:#7b8389;text-transform:uppercase;letter-spacing:.04em}
-.grp{display:flex;flex-direction:column;border-radius:16px;background:#ffffff;overflow:hidden}
-.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;border-top:1px solid #eef0ec;font-size:16px}
-.row:first-child{border-top:0}
-.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.row .t b{font-weight:600;font-size:16px;color:#0f1b22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .t span{font-size:14px;color:#7b8389;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .v{font-size:15px;color:#7b8389;white-space:nowrap}
-.row .v.a{color:#0b7a6a;font-weight:600}
-.chev{color:#c4c8c3;flex:none}
-.av{width:36px;height:36px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;background:#eceeea;color:#3f4a52}
-.dot{width:10px;height:10px;border-radius:99px;flex:none}
-.badge{min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-.steps{display:flex;align-items:center;gap:6px;padding:14px;border-radius:16px;background:#ffffff}
-.st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#7b8389;text-align:center}
-.st i{width:26px;height:26px;border-radius:99px;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif;font-style:normal;background:#eceeea;color:#7b8389}
-.st.done i{background:#0b7a6a;color:#fff}
-.st.now{color:#0f1b22;font-weight:700}
-.st.now i{background:#4fd1b4;color:#0f1b22;box-shadow:0 0 0 3px #0f1b22}
-.ln{height:2px;flex:.5;background:#e0e3df;margin-bottom:20px}
-.ln.done{background:#0b7a6a}
-.tab{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 6px 28px;background:#ffffffeb;border-top:1px solid #e0e3df;backdrop-filter:blur(12px)}
-.tb{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;font-size:11px;font-weight:600;color:#9aa1a6}
-.tb.on{color:#0b7a6a}
-.sticky{position:absolute;left:0;right:0;bottom:84px;padding:12px 16px;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}
-.search{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:12px;background:#e6e9e5;color:#7b8389;font-size:16px}
-.segc{display:flex;padding:3px;border-radius:10px;background:#e6e9e5}
-.segc span{flex:1;text-align:center;padding:7px 0;border-radius:8px;font-size:14px;font-weight:600;color:#3f4a52}
-.segc span.on{background:#fff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222}
-.fig{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
-.more{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:15px;font-weight:600;color:#0b7a6a}
-.acol{max-width:760px;margin:0 auto;padding:28px clamp(16px,4vw,40px) 64px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box;font-family:Figtree,system-ui,sans-serif;color:#0f1b22}
-.sticky{position:static;padding:0;background:none}
-@media (min-width:761px){.next{flex-direction:row;flex-wrap:wrap;align-items:center;padding:24px 28px}.next .k,.next h2,.next p{flex:1 1 100%}.next .cta{width:auto;padding:0 28px}}
-@media (max-width:760px){.acol{padding-top:16px}.sticky{position:sticky;bottom:92px;padding:12px 0;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}}
-.wide{max-width:1200px}
-.uhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
-.ugrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px}
-.box{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:18px;background:#fff;min-width:0}
-.box h2{font:600 19px/1.25 Outfit,Figtree,sans-serif;letter-spacing:-0.015em}
-.box .k{font-size:13px;font-weight:600;color:#7b8389}
-.box .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid #eef0ec;font-size:14px;font-weight:600;color:#0b7a6a}
-.box .src{font-size:12px;color:#7b8389}
-.hb{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:10px;font-size:14px}
-.hb .tr{position:relative;height:12px;border-radius:99px;background:#eceeea;overflow:hidden}
-.hb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#0b7a6a}
-.hb .tr i.pot{background:#bfe9dc}
-.hb .v{font-variant-numeric:tabular-nums;color:#3f4a52;font-size:13px;white-space:nowrap}
-.qc{--qh:78px;display:flex;align-items:flex-end;gap:14px;height:calc(var(--qh) + 46px);padding-top:6px}
-@media (min-width:761px){.qc{--qh:200px;margin-top:auto}}
-.qc div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:#7b8389}
-.qc b{font:600 13px Figtree,sans-serif;color:#0f1b22}
-.qc span.c{width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:#0b7a6a}
-.split{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:3px}
-.split i{display:block}
-.tl{position:relative;display:flex;gap:10px;overflow-x:auto;padding:6px 2px 4px;scroll-snap-type:x mandatory}
-.tl::before{content:"";position:absolute;left:0;right:0;top:31px;height:2px;background:#e0e3df}
-.ev{position:relative;flex:1 0 116px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#0f1b22}
-.ev .dt{align-self:flex-start;display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 2px #e0e3df;font:600 17px/1 Outfit,sans-serif}
-.ev .dt small{font:600 10px Figtree,sans-serif;color:#7b8389;margin-top:2px}
-.ev.now .dt{background:#0f1b22;color:#4fd1b4;box-shadow:none}.ev.now .dt small{color:#a9b4b9}
-.ev .ty{font-size:12px;font-weight:600}
-.ev b{font-size:14px;font-weight:600;line-height:1.3}
-.ev span.s{font-size:13px;color:#7b8389;line-height:1.3}
-.t-termin{color:#0b7a6a}.t-frist{color:#74500a}.t-risiko{color:#94201a}.t-freigabe{color:#0a5c50}
-.sum .stmt{font:600 20px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22}
-.pts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.pts li{display:flex;align-items:center;gap:12px;min-height:44px;border-top:1px solid #eef0ec;font-size:15px}
-.tag{flex:none;min-width:56px;text-align:center;padding:3px 0;border-radius:99px;font-size:12px;font-weight:600}
-.tag.ok{background:#e8f1df;color:#2f5f1d}.tag.risk{background:#fae6e3;color:#94201a}.tag.warn{background:#f8eed6;color:#74500a}
-.rcol{display:flex;flex-direction:column;gap:22px}
-.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px;align-items:stretch}
-.toprow .next{justify-content:space-between}
-@media (min-width:761px){.toprow .next{flex-direction:column;flex-wrap:nowrap;align-items:stretch;box-sizing:border-box}.toprow .next>*{flex:none!important}.toprow .next .cta{align-self:flex-start;margin-top:auto}}
-@media (min-width:761px){.toprow .r1{order:2}}
-@media (max-width:760px){.tl{margin:0 -16px;padding-left:16px;padding-right:16px}.hb{grid-template-columns:84px 1fr auto}}
-.cock{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
-.cock>div{display:flex;flex-direction:column;gap:22px;min-width:0}
-@media (max-width:1100px){.cock{grid-template-columns:1fr}}
-.dl{display:flex;flex-direction:column}
-.dli{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid #eef0ec;text-decoration:none;color:#0f1b22}
-.dli:first-child{border-top:0;padding-top:2px}
-.dli .dt{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;box-shadow:inset 0 0 0 2px #e0e3df;font:600 15px/1 Outfit,sans-serif}
-.dli .dt small{font:600 9px Figtree,sans-serif;color:#7b8389;margin-top:2px}
-.dli .tx{display:flex;flex-direction:column;gap:2px;font-size:14px;min-width:0}
-.dli .tx b{font-size:15px;font-weight:600}
-.dli .tx span{color:#7b8389}
-.chipx{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;background:#eceeea;color:#3f4a52}
-.chipx.r{background:#fae6e3;color:#94201a}.chipx.w{background:#f8eed6;color:#74500a}.chipx.g{background:#e8f1df;color:#2f5f1d}.chipx.m{background:#e1f3ed;color:#0a5c50}
-.row .v .chipx{font-size:12px}
-.prog{display:flex;align-items:center;gap:10px;font-size:13px;color:#5a636b}
-.prog .tr{width:140px;height:8px;border-radius:99px;background:#e6e9e5;overflow:hidden}.prog .tr i{display:block;height:100%;background:#0b7a6a;border-radius:99px}
-.wgt{display:grid;grid-template-columns:minmax(0,2.2fr) 1fr 1.2fr 1.4fr 1fr 20px;align-items:center;gap:14px;min-height:64px;padding:8px 18px;border-top:1px solid #eef0ec;text-decoration:none;color:#0f1b22;font-size:14px}
-.wgt:first-child{border-top:0}
-.wgt.h{min-height:36px;font-size:12px;font-weight:600;color:#7b8389;background:#fafbf9}
-.wgt .nm{display:flex;align-items:center;gap:12px;min-width:0}.wgt .nm b{font-size:16px;font-weight:600}.wgt .nm .sb{display:block;font-size:13px;color:#7b8389}
-.mini{height:8px;border-radius:99px;background:#e6e9e5;overflow:hidden;position:relative}.mini i{position:absolute;left:0;top:0;bottom:0;background:#0b7a6a;border-radius:99px}.mini i.pot{background:#bfe9dc}
-.cell{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#3f4a52}
-@media (max-width:900px){.wgt{grid-template-columns:minmax(0,1fr) auto 20px}.wgt .hide{display:none}.wgt.h{display:none}}
-.kv2{display:grid;grid-template-columns:1fr;gap:8px}
-.kv2 div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:#f4f5f2}
-.kv2 b{order:2;font:600 19px Outfit,sans-serif;letter-spacing:-0.02em;white-space:nowrap}.kv2 span{font-size:13px;color:#5a636b}
-
-.team{display:flex;flex-wrap:wrap;gap:10px}
-.tm{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:99px;background:#f4f5f2;font-size:13px}
-.tm small{color:#7b8389}
-
-/* rz-shell */
+/* ci-base */ body,x-dc>div,.rz-app{font-family:Figtree,system-ui,sans-serif;color:#14181b} input,textarea,select{font-family:Figtree,system-ui,sans-serif;color:#14181b}
+body{margin:0;background:#f4f5f2}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin:0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22}
+.ask{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px}.ask span{flex:1}.ask kbd{font:600 11px Figtree,sans-serif;color:#5a636b}
+.it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500}.it svg{color:#7b8389}.it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}.it.on svg{color:#0b7a6a}
+.bg{display:flex;gap:8px;padding:10px;margin:8px 0 4px;border-radius:12px;font-size:13px;line-height:1.4;color:#3f4a52}.me{display:flex;align-items:center;gap:10px;padding:10px 10px 0;font-size:14px;color:#3f4a52}
+.av{width:32px;height:32px;flex:none;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}.av.p{background:#0b7a6a;color:#ffffff}
+.main{flex:999 1 560px;min-width:0}.wrap{max-width:1200px;margin:0 auto;padding:36px 40px 72px;display:flex;flex-direction:column;gap:22px}
+.cols{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.l{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:22px}.r{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.back{display:inline-flex;align-items:center;min-height:32px;font-size:15px;font-weight:600;color:#0b7a6a}.t1{font:700 36px/1.08 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22;text-wrap:balance}.sub{font-size:15px;color:#5a636b}
+.next{background:#0f1b22;color:#f4f5f2;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px}.next .k{font-size:13px;font-weight:600;color:#4fd1b4}.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}.next p{font-size:15px;line-height:1.5;color:#a9b4b9}
+.bm{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;background:#4fd1b4;color:#0f1b22;font:600 16px Figtree,sans-serif;border:0;cursor:pointer}.bd{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:#2e3e47;color:#f4f5f2;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.b2{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.sh{padding:0 4px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5a636b}
+.grp{background:#ffffff;border-radius:18px;overflow:hidden}.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;box-sizing:border-box;border-top:1px solid #eef0ec}.row:first-child{border-top:0}.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.row .t b{font-size:16px;font-weight:600;color:#14181b}.row .t span{font-size:14px;color:#5a636b}.chev{color:#b9bfba;font-size:20px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}.c-sh{background:#e1f3ed;color:#0a5c50}.c-wa{background:#f8eed6;color:#74500a}.c-ne{background:#eceeea;color:#3f4a52}.c-kr{background:#fae6e3;color:#94201a}.c-ok{background:#e8f1df;color:#2f5f1d}
+.card{background:#ffffff;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}.say{font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22;text-wrap:balance}.by{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:#5a636b}.pill{padding:2px 8px;border-radius:999px;background:#eceeea;font-size:12px;color:#3f4a52}
+.priv{background:#eceeea;border:1.5px dashed #b9bfba;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}.shared{background:#e1f3ed;border:1px solid #9fd9c8;border-radius:18px;overflow:hidden}.shared .row{border-top:1px solid #cfe5dd}.shared .row:first-child{border-top:0}
+.num{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#0f1b22}.tn{font-variant-numeric:tabular-nums}.draft{background:#ffffff;border:1px solid #cfe5dd;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.sb{display:none}.wrap{padding:20px 16px 96px}.t1{font-size:30px}}
 .rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
 .rz-main{flex:999 1 480px;min-width:0}
 .rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
 .rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
 .rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
-.rz-search span{flex:1}.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-search span{flex:1}
+.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
 .rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
 .rz-it svg{color:#7b8389}
-.rz-it:hover{background:#e3e6e2;color:#0f1b22}
+.rz-it:hover{background:#e6e9e5;color:#0f1b22}
 .rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
 .rz-it.on svg{color:#0b7a6a}
 .rz-it span{flex:1}
@@ -152,11 +50,10 @@ h1,h2,h3,p{margin:0}
 .rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
 .rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
 .rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
-.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#9aa1a6;text-decoration:none}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#5a636b;text-decoration:none}
 .rz-tab a.on{color:#0b7a6a}
 .card{box-shadow:none}
-@media (max-width:760px){
-.rz-sb{display:none!important}
+@media (max-width:760px){.rz-sb{display:none!important}
 .rz-tab{display:flex!important}
 .rz-main{padding-bottom:92px}
 main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
@@ -169,18 +66,57 @@ main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!i
 .main,.side{flex-basis:auto!important;width:100%}
 table{display:block;overflow-x:auto}
 }
+
+.bp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;background:#0b7a6a;color:#ffffff;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
 </style>
 </helmet>
-<div style="background:#f4f5f2">
-<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Suchen oder fragen</span><kbd>⌘K</kbd></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg><span>Übersicht</span></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Mein Tag</span><b class="rz-badge">3</b></a><a class="rz-it on" href="Lieferanten.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg><span>Lieferanten</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><span style="flex:1"></span><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main">
-<dc-import name="SupplierBar" area="Überblick" page=" " hint-size="100%,200px"></dc-import>
-<main class="acol wide"><ol class="steps" aria-label="Prozess" style="list-style:none;margin:0"><li class="st done"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></i>Segment</li><span class="ln done" aria-hidden="true"></span><li class="st done"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></i>Plan</li><span class="ln done" aria-hidden="true"></span><li class="st now" aria-current="step"><i>3</i>JBP</li><span class="ln" aria-hidden="true"></span><li class="st "><i>4</i>Ergebnisse</li></ol><div class="cock"><div><section class="next" aria-label="Nächster Schritt"><span class="k">Als Nächstes · JBP Fr 04.12.</span><h2>Briefing prüfen und Agenda an Rheintal schicken</h2><p>3 Ziele und 9 offene Fragen. Die Agenda soll bis Fr 27.11. bei Rheintal sein. Zwei Beiträge fehlen noch.</p><a class="cta" href="Termin-Briefing.dc.html">Briefing öffnen</a></section><section class="sec"><div class="grp"><a class="row" href="W-Initiative.dc.html"><span class="t"><b>Ergebnisse</b><span>74 von 100 T€ gesichert · 140 bis 200 T€ Potenzial</span></span><span class="v a">74 %</span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="L-Notizen.dc.html"><span class="t"><b>Aktivitäten</b><span>zuletzt Mail von Tom Weber · 3 neu</span></span><span class="v "><span class="chipx m">3 neu</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="P-Vorbereitung.dc.html"><span class="t"><b>Gemeinsamer Plan 2027</b><span>4 Ziele, 6 Zusagen · 1 überfällig</span></span><span class="v "><span class="chipx r">1 überfällig</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="B-Netz.dc.html"><span class="t"><b>Beziehungsnetz</b><span>2 Lücken zu Entscheidern</span></span><span class="v "><span class="chipx w">2 Lücken</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a><a class="row" href="C-Claims.dc.html"><span class="t"><b>Claims und Risiken</b><span>1 Claim offen, Antwort bis Mi 02.12.</span></span><span class="v "><span class="chipx w">Frist</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section><section class="box"><span class="k">Leistung</span><h2>Die Liefertreue steigt, die Prognosetreue hinkt</h2><div class="hb"><span>Liefertreue</span><span class="tr"><i style="width:94%"></i></span><span class="v">94 % · Ziel 97</span></div><div class="hb"><span>Reklamationen</span><span class="tr"><i style="width:70%"></i></span><span class="v">28 ppm · im Plan</span></div><div class="hb"><span>Prognosetreue</span><span class="tr"><i style="width:72%"></i></span><span class="v">72 % · Ziel 85</span></div><span class="src">Scorecard 2026 · gemeinsam mit Rheintal</span><a class="foot" href="P-Scorecard.dc.html">Zur Scorecard<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section></div><div><section class="box"><span class="k">Kennzahlen</span><h2>Rheintal in Zahlen</h2><div class="kv2"><div><b>4,2 Mio. €</b><span>Spend 2026, +8 %</span></div><div><b>38 %</b><span>der Warengruppe Leiterplatten</span></div><div><b>0,9</b><span>Lücke Transparenz im Feedback</span></div></div></section><section class="box"><span class="k">Nächste Wochen</span><h2>Termine und Fristen</h2><div class="dl"><a class="dli" href="J-Beitraege.dc.html"><span class="dt">27<small>NOV</small></span><span class="tx"><b>Agenda an Rheintal</b><span>Fr · Beiträge beider Seiten</span></span><span style="margin-left:auto"><span class="chipx w">Frist</span></span></a><a class="dli" href="C-Claim.dc.html"><span class="dt">02<small>DEZ</small></span><span class="tx"><b>Claim beantworten</b><span>Mi · 186 T€ Lohn und Energie</span></span><span style="margin-left:auto"><span class="chipx w">Frist</span></span></a><a class="dli" href="Termin-Briefing.dc.html"><span class="dt">04<small>DEZ</small></span><span class="tx"><b>JBP Rheintal</b><span>Fr 10:00 · Teams</span></span><span style="margin-left:auto"><span class="chipx m">Termin</span></span></a><a class="dli" href="P-Zusagen.dc.html"><span class="dt">15<small>DEZ</small></span><span class="tx"><b>Zusage Musterteile</b><span>Rheintal, wartet auf Bestätigung</span></span></a></div></section><section class="box"><span class="k">3 von 5</span><h2>Kontakte bei Rheintal</h2><div class="dl"><a class="dli" href="B-Person.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">TW</span><span class="tx"><b>Tom Weber</b><span>Key Account Manager</span></span><span style="margin-left:auto"><span class="chipx g">eng</span></span></a><a class="dli" href="B-Person.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">KK</span><span class="tx"><b>Kim Kaiser</b><span>Geschäftsführerin · entscheidet</span></span><span style="margin-left:auto"><span class="chipx r">Lücke</span></span></a><a class="dli" href="B-Person.dc.html"><span class="av" style="background:#e1f3ed;color:#0a5c50">MK</span><span class="tx"><b>Mia Kuhn</b><span>Werksleitung</span></span><span style="margin-left:auto"><span class="chipx w">lose</span></span></a></div><a class="foot" href="B-Netz.dc.html">Beziehungsnetz<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section></div></div></main>
-</div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="on" href="Lieferanten.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav>
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Frag Reziproq</span><kbd>⌘K</kbd></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Heute</span><b class="rz-badge">3</b></a><a class="rz-it on" href="Lieferanten.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5.5"></circle><circle cx="15" cy="12" r="5.5"></circle></svg><span>Beziehungen</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg><span>Wert</span></a><span style="flex:1;min-height:24px"></span><a href="Erledigt.dc.html" style="display:flex;gap:8px;margin:0 0 6px;padding:10px;border-radius:10px;font-size:13px;line-height:1.4;color:#3f4a52;text-decoration:none"><span style="width:8px;height:8px;margin-top:5px;flex:none;border-radius:99px;background:#0b7a6a"></span><span>Im Hintergrund: Briefing JBP Rheintal wird aktualisiert</span></a><a class="rz-it" href="Mein-Agent.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><circle cx="12" cy="12" r="8.5" stroke-dasharray="2.5 3"></circle></svg><span>Mein Agent</span></a><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main"><main class="wrap">
+<header style="display:flex;flex-direction:column;gap:14px"><a class="back" href="Lieferanten.dc.html">‹ Beziehungen</a><div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px"><span class="av p" style="width:56px;height:56px;font-size:18px">RE</span><div style="flex:1 1 380px;display:flex;flex-direction:column;gap:6px"><h1 class="t1">Rheintal Elektronik</h1><p class="sub">Strategisch · Leiterplatten, Baugruppen, Kabelsätze · 4,2 Mio. € Spend 2026 · Lead Sara Ost · im Jahreszyklus: JBP</p></div><div style="display:flex;flex-wrap:wrap;gap:8px" aria-label="Aktionen von Reziproq"><a class="b2" href="K1-Mappe.dc.html">Wert finden</a><a class="b2" href="Termin-Briefing.dc.html">Briefing JBP</a><a class="b2" href="K2-Mail-Zusage.dc.html">Schreiben</a><a class="b2" href="K2-Profil.dc.html" aria-label="Profil, Team und Mandat">···</a></div></div></header><nav aria-label="Sicht auf die Beziehung" style="display:flex;padding:3px;border-radius:12px;background:#e6e9e5;gap:2px;max-width:560px"><a href="L-Ueberblick.dc.html" aria-current="page" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:#ffffff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Gemeinsam</a><a href="K2-Akte-Privat.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:transparent;color:#3f4a52"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f4a52" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Nur für dich</a><a href="K2-Akte-Geteilt.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:transparent;color:#3f4a52"><span aria-hidden="true" style="width:10px;height:10px;flex:none;border-radius:99px;background:#0b7a6a"></span>Von Rheintal</a></nav>
+<div class="cols">
+<div class="l">
+<section class="next" aria-label="Als Nächstes"><p class="k">Als Nächstes · Gespräch statt Mail</p><h2>Ruf Nils Ott an: 8D-Bericht Charge 4711</h2><p>Seit 05.11. überfällig, zwei Mails ohne Antwort. Nils Ott entscheidet bei Rheintal über Qualität, ihr habt noch nie direkt gesprochen. Drei Gesprächspunkte liegen bereit.</p><div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px"><button class="bm">Gesprächspunkte</button><a class="bd" href="K2-Mail-Zusage.dc.html">Doch eine Mail</a></div></section>
+<section class="card" aria-label="Das Wichtigste">
+<p class="by"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg><span>Zusammengefasst von Reziproq</span><span class="pill">Zusagen</span><span class="pill">Scorecard</span><span class="pill">Feedback</span></p>
+<p class="say">Ihr haltet mehr Zusagen als Rheintal. Der Abstand kommt fast ganz aus dem überfälligen 8D-Bericht.</p>
+<div style="padding:6px 0 2px"><div role="img" aria-label="Gehaltene Zusagen 2026: ihr 90 Prozent, Rheintal 78 Prozent" style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:10px"><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif;color:#0f1b22;white-space:nowrap">90 %</span><div style="width:90%;height:18px;border-radius:9px 0 0 9px;background:#0f1b22"></div></div><div style="width:4px;height:36px;border-radius:2px;background:#4fd1b4"></div><div style="flex:1;display:flex;align-items:center;gap:10px"><div style="width:78%;height:18px;border-radius:0 9px 9px 0;background:#0b7a6a"></div><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif;color:#0b7a6a;white-space:nowrap">78 %</span></div></div><div style="display:flex;font-size:13px;color:#5a636b"><span style="flex:1;text-align:right;padding-right:16px">ihr · 9 von 10</span><span style="flex:1;padding-left:16px">Rheintal · 7 von 9</span></div></div></div>
+<p style="font-size:13px;color:#5a636b">Gehaltene Zusagen 2026. Rheintal sieht dieselben Zahlen.</p>
+</section>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> Zusagen · 6 offen</p>
+<div class="shared">
+<div class="row"><span class="av p">RE</span><span class="t"><b>8D-Bericht Charge 4711</b><span>Rheintal · Nils Ott · war bis 05.11.</span></span><span class="chip c-kr">überfällig</span></div><div class="row"><span class="av p">RE</span><span class="t"><b>Beitrag Machbarkeit Lieferzeit</b><span>Rheintal · Tom Weber · bis Fr 27.11.</span></span><span class="chip c-ne">offen</span></div><div class="row"><span class="av">NW</span><span class="t"><b>Prognose monatlich teilen</b><span>eure Seite · Ida Roth · ab 15.12. · aus der Feedback-Lücke</span></span><span class="chip c-ne">offen</span></div><div class="row"><span class="av p">RE</span><span class="t"><b>Musterteile Starrflex liefern</b><span>Rheintal · Kim Kaiser · bis 15.12. · von euch eingetragen</span></span><span class="chip c-wa">Rheintal bestätigt noch</span></div><div class="row"><span class="av">NW</span><span class="t"><b>Prognose 2028 teilen</b><span>eure Seite · Ida Roth · bis 31.01.</span></span><span class="chip c-ne">offen</span></div><div class="row"><span class="av p">RE</span><span class="t"><b>Abnahmeplan SMT-Linie</b><span>Rheintal · Kim Kaiser · bis 28.02. · aus dem JBP 2026</span></span><span class="chip c-ne">offen</span></div><div class="row"><span class="t"><b>16 gehaltene Zusagen 2026</b><span>zuletzt: Abrufmengen 6 Monate im Voraus, eure Seite</span></span></div>
 </div>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> Scorecard 2027 · Kennzahlen Oktober</p>
+<div class="shared">
+<div class="row"><span class="t"><b>Liefertreue</b><span>Rheintal · 94 %, Ziel 97 %</span></span><span class="chip c-wa">knapp</span></div><div class="row"><span class="t"><b>Reklamationen je Mio. Teile</b><span>Rheintal · 28 ppm, Ziel 20</span></span><span class="chip c-ok">im Plan</span></div><div class="row"><span class="t"><b>Prognosetreue</b><span>eure Seite · 72 % im Oktober, Ziel 85 %</span></span><span class="chip c-kr">hinter Plan</span></div><div class="row"><span class="t"><b>Durchlaufzeit Musterteile</b><span>Rheintal · Ziel 14 Tage</span></span><span class="chip c-ne">noch kein Wert</span></div><div class="row"><span class="t"><b>Unterschrift</b><span>Rheintal hat unterschrieben, eure fehlt · Freigabe in Heute</span></span><button class="b2" style="min-height:40px">Unterschreiben</button></div>
+</div>
+</div>
+<aside class="r">
+<p class="sh">Nächste Wochen</p>
+<div class="grp">
+<a class="row" href="Termin-Briefing.dc.html"><span class="av" style="flex-direction:column;width:40px;height:40px;line-height:1;font-size:13px">27<span style="font:600 9px Figtree,sans-serif;opacity:.8">NOV</span></span><span class="t"><b>Agenda an Rheintal</b><span>Fr · Beiträge beider Seiten</span></span><span class="chev" aria-hidden="true">›</span></a><a class="row" href="Termin-Briefing.dc.html"><span class="av p" style="flex-direction:column;width:40px;height:40px;line-height:1;font-size:13px">04<span style="font:600 9px Figtree,sans-serif;opacity:.8">DEZ</span></span><span class="t"><b>JBP Rheintal</b><span>Fr 10:00 · Teams</span></span><span class="chev" aria-hidden="true">›</span></a><div class="row"><span class="av p" style="flex-direction:column;width:40px;height:40px;line-height:1;font-size:13px">15<span style="font:600 9px Figtree,sans-serif;opacity:.8">DEZ</span></span><span class="t"><b>Musterteile Starrflex</b><span>Zusage Rheintal · Bestätigung fehlt</span></span></div>
+</div>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> Plan und Spielregeln</p>
+<div class="shared">
+<a class="row" href="P-Freigabe.dc.html"><span class="t"><b>Gemeinsamer Plan 2027</b><span>4 Ziele · wartet auf Mara Weiß, danach Kim Kaiser</span></span><span class="chip c-wa">Freigabe</span><span class="chev" aria-hidden="true">›</span></a><a class="row" href="K1-Kurz-Pruefen.dc.html"><span class="t"><b>Spielregeln „Strategisch“</b><span>gelten seit 15.10. · 2 Änderungen noch nicht geteilt</span></span><span class="chip c-sh">Entwurf</span><span class="chev" aria-hidden="true">›</span></a>
+</div>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> Feedback</p>
+<div class="shared">
+<a class="row" href="K2-Feedback.dc.html"><span class="t"><b>Puls Herbst 2026 läuft</b><span>bis Sa 28.11. · ihr 4 von 5, Rheintal 1 von 5</span></span><span class="chev" aria-hidden="true">›</span></a><a class="row" href="K2-Feedback.dc.html"><span class="t"><b>Lücke Transparenz 0,9</b><span>Jahres-Feedback 2026 · Zusage „Prognose monatlich“ läuft</span></span><span class="chev" aria-hidden="true">›</span></a>
+</div>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> Team beider Seiten</p>
+<div class="shared">
+<a class="row" href="K2-Profil.dc.html"><span class="t"><b>6 bei euch, 1 aktiv bei Rheintal</b><span>Jan-Luka, Sara Ost, Mara Weiß, Tom Berg, Ida Roth, Max Klein · Kim Kaiser</span></span><span class="chev" aria-hidden="true">›</span></a>
+</div>
+<p style="font-size:13px;color:#5a636b;padding:0 4px">Was hier steht, sieht Rheintal genauso. Rheintals eigene Notizen siehst du nie, und Rheintal deine nicht.</p>
+</aside>
+</div>
+</main></div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Heute</a><a class="on" href="Lieferanten.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5.5"></circle><circle cx="15" cy="12" r="5.5"></circle></svg>Beziehungen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg>Wert</a></nav>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1477}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1660}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+renderVals() {
+return {};
+}
 }
 </script>
 </body>

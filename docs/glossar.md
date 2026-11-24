@@ -41,6 +41,78 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 
 Im Produktkonzept heißt die GuV-Wirkung auch „P&L-Impact“. In der Oberfläche steht „GuV-Wirkung“, wie in CLAUDE.md.
 
+## Umbau KI-nativ (Kapitel 1 bis 8)
+
+Ergänzung aus dem Spec-Paket vom 24.11.2026. Wo ein Begriff in diesem Glossar schon steht, auch in den älteren Abschnitten unten, gilt diese Fassung. Die Tabelle oben mit den Schlüsseln beschreibt die heutigen Texte der App und ändert sich erst mit dem Umbau.
+
+- **Heute** — Startseite der Arbeit: bis zu drei Fokus-Themen, Kurz prüfen, Erledigt, „Diese Woche“. Ersetzt Mein Tag.
+- **Fokus-Thema** — Ein Thema, das eine Entscheidung, Freigabe oder ein Gespräch eines Menschen braucht (`focus_item.level = focus`).
+- **Fokus-Mappe (Mappe)** — Vorbereitete Entscheidung in fünf Teilen: worum es geht, Belege, Optionen mit Wert für beide Seiten, Empfehlung, dein Schritt.
+- **Kurz prüfen** — Stapel der offenen Entwürfe von Reziproq; ein Klick je Entwurf: Übernehmen, Anpassen, Verwerfen (mit Grund), Später.
+- **Erledigt** — Protokoll dessen, was Reziproq selbst getan hat; jede Zeile mit Zurücknehmen oder Warum.
+- **Warum** — Herleitung einer Aussage oder Zahl: Rechenweg, Quellen, Lauf.
+- **Mein Agent** — Einstellung je Person: wie viel Reziproq je Aufgabe selbst tut.
+- **Stufe** — Vorschlagen (Hinweis mit Begründung), Vorbereiten (Entwurf in Kurz prüfen), Erledigen (Reziproq handelt und meldet in Erledigt). Code: `suggest`, `prepare`, `do`.
+- **Aufgabe von Reziproq** — Ein Worker aus der Registry (früher „Agent“), z. B. Postfach, Termin-Briefing, Wertfinder.
+- **Bindend** — Handlung, die gegenüber anderen gilt (Zusage im Namen des Käufers, Freigabe, Wertbestätigung, Teilen in die Mitte, Deal senden oder bestätigen, Mandat ändern). Nur mit Bestätigungs-Token eines Menschen.
+- **Beziehung** — Wurzelobjekt zwischen Käufer und Lieferant; alles trägt `relationship_id`. Ersetzt „Lieferant“ in der Navigation.
+- **Akte** — Die Seite einer Beziehung mit drei Sichten: Gemeinsam, Nur für dich, Von <Gegenüber>.
+- **Die Mitte** — Alles in `space = shared`: beide Seiten sehen es gleich.
+- **Spiegel** — Darstellung beider Seiten nebeneinander: links die eigene Seite (Tinte), rechts das Gegenüber (Petrol), Naht in Mint.
+- **Zusage** — Verbindliche Ankündigung einer Seite mit Frist und Messung; ersetzt die geteilte Maßnahme. Interne Maßnahmen heißen Aufgabe.
+- **Zusagequote** — Gehaltene Zusagen einer Seite im Jahr, je Beziehung, Beleg je Buchung.
+- **Mandat** — Rahmen je Beziehung: Ziel, Grenzen, was Reziproq selbst tun darf. Nur für die Käuferseite.
+- **Termin** — Objekt mit drei Phasen: Vorbereiten, Im Termin, Danach.
+- **Beitrag** — Zulieferung einer Person zu einem Agendapunkt; per Link ohne Konto möglich.
+- **Wert** — Ersetzt „Wirkung“ und „Ergebnisse“ in der Oberfläche.
+- **Wertart** — EBIT, Kostenvermeidung, Cash. Werden nie addiert.
+- **Wert-Engine** — Deterministische Berechnung aus Rechenregel, eingefrorener Baseline und Importwerten.
+- **Reife R1 bis R5** — Idee, Bewertet, Beschlossen, Umgesetzt, Realisiert. R5 vergibt das Controlling.
+- **Wertkonto** — Gebuchter, geprüfter und möglicher Wert je Beziehung, getrennt nach Wertart.
+- **Wertfinder** — Sucht Hebel mit Wert für beide Seiten (früher Wertpotenzial-Finder).
+- **Reibung** — Ereignis, das dem Gegenüber Kosten verursacht (z. B. Eilabruf), mit geschätzten Kosten.
+- **Beziehungsrendite** — EBIT je Stunde gemeinsamer Arbeit einer Beziehung; nur Summen, standardmäßig aus (E-K4-2).
+- **Deal** — Vereinbarung zweier Seiten über einen Tausch (z. B. Prognose gegen Preis), mit Fassungen, Verlauf und Folgen.
+- **Kostenspanne** — Freiwillig geteilte Spanne eigener Kosten des Lieferanten, ohne Herleitung.
+- **Kennzeichnung** — Angabe an jeder Nachricht in der Mitte: Mensch, mit Reziproq, Reziproq.
+- **Verdiente Autonomie** — Reziproq bietet eine höhere Stufe an, wenn Entwürfe über Zeit unverändert übernommen wurden; ein Fehler setzt zurück.
+- **Simulator** — Spielt im Demo-Mandanten den Lieferanten nach Drehbuch.
+- **Strategie** — Versionierte Warengruppenstrategie in vier Teilen: Rahmen und Ziele, Lage, Richtung, Umsetzung.
+- **Mandat-Vorschlag** — Aus einer freigegebenen Strategie abgeleitete Änderung eines Mandats; gilt erst nach Bestätigung.
+- **Marktsignal** — Preis-, Rohstoff- oder Kapazitätsänderung aus öffentlichen Quellen, auf Beziehungen abgebildet.
+- **Kanal** — Ort außerhalb von Reziproq: Mail, Kalender, Chat, Sprache.
+- **Demo-Regie** — Verborgene Leiste im Demo-Mandanten (⌥D) für Szenarien, Signale, Zeit, Rolle, Gegenüber, KI-Modus.
+- **Hypothese** — Ein Hebel der Strategie als prüfbare Behauptung mit Wert, Sicherheit und Annahmen (ab Kapitel 8).
+- **Annahme** — Prüfbare Bedingung einer Hypothese mit Prüfregel, Quelle und Frist; Stand im Plan, offen oder verletzt.
+- **Sicherheit** — Hoch, mittel oder niedrig; setzt der Code aus dem Stand der Annahmen; Reziproq senkt sie selbst, hebt sie nie ohne Bestätigung.
+- **Zielwächter** — Täglicher Abgleich jedes Strategie-Ziels mit seinem Planpfad: im Plan, gefährdet, offen.
+- **Wert-Pipeline** — Wert einer Strategie je Wertart in vier Stufen: Potenzial, beschlossen, umgesetzt, gesichert.
+- **Soll-Kosten** — Was ein Teil kosten sollte, gerechnet aus Stückliste, Indizes und Prozessmodell; nur für die Käuferseite.
+- **Einzelquelle** — Anteil des Bedarfs, der nur an einer qualifizierten Quelle hängt; Maß für Abhängigkeit.
+- **Anteile-Rechner** — Rechnet Anteile je Lieferant unter den Regeln der Strategie durch und zeigt die Optionen, die alle Regeln einhalten.
+- **Weitergabe** — Entwürfe, die aus einer Entscheidung für die zuständigen Personen entstehen (Mandat, Lieferantenplan, JBP, Anfrage, Strategie).
+- **Vergabe** — Objekt einer Ausschreibung: Shortlist, Anfragen je Akte, Angebote, Verhandlung, Vergabe-Mappe.
+- **Verhandlungsrahmen** — Vom Menschen freigegebenes Ziel, Argumente und Grenzen, in denen der Agent unverbindlich verhandeln darf; nur Käuferseite.
+- **Verhandlung der Agenten** — Unverbindliche Runden zwischen dem Agenten des Käufers und dem des Lieferanten, höchstens drei, nur wenn beide Seiten es zulassen.
+- **Review nach Ausnahme** — Vorlage fürs Gremium mit nur Abweichungen und Entscheidungen, 10 Arbeitstage vorher von Reziproq geschrieben.
+
+### Wörter, die in der Oberfläche nicht mehr vorkommen
+
+- Übersicht → Wert
+- Mein Tag → Heute
+- Lieferanten (Navigation) → Beziehungen
+- Agenten → Mein Agent (Person), KI (Einstellungen, Admin)
+- Wirkung, Ergebnisse → Wert
+- Maßnahme (geteilt) → Zusage
+- Maßnahme (intern) → Aufgabe
+- Notizraum, Aktivitäten → Verlauf (Akte, Nur für dich)
+- Neu eingegangen → Zuordnung als Entwurf in Kurz prüfen
+- Wertpotenzial-Finder → Wertfinder
+- Wette (für einen Hebel) → Hypothese
+- Forecast → Prognose
+- Suchen oder fragen → Frag Reziproq
+- Quartalsbericht → Wertbericht (monatlich)
+
 ## Begriffe für die geplante Oberfläche
 
 Die Tabelle oben dokumentiert die heutigen Übersetzungsschlüssel. Die Hauptnavigation für Käufer lautet Übersicht, Mein Tag, Lieferanten, Warengruppen. Das fachliche Maß GuV-Wirkung bleibt erhalten.

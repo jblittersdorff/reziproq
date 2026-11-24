@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Rheintal Elektronik · Nur für dich</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+/* ci-base */ body,x-dc>div,.rz-app{font-family:Figtree,system-ui,sans-serif;color:#14181b} input,textarea,select{font-family:Figtree,system-ui,sans-serif;color:#14181b}
+body{margin:0;background:#f4f5f2}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin:0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22}
+.ask{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px}.ask span{flex:1}.ask kbd{font:600 11px Figtree,sans-serif;color:#5a636b}
+.it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500}.it svg{color:#7b8389}.it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}.it.on svg{color:#0b7a6a}
+.bg{display:flex;gap:8px;padding:10px;margin:8px 0 4px;border-radius:12px;font-size:13px;line-height:1.4;color:#3f4a52}.me{display:flex;align-items:center;gap:10px;padding:10px 10px 0;font-size:14px;color:#3f4a52}
+.av{width:32px;height:32px;flex:none;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}.av.p{background:#0b7a6a;color:#ffffff}
+.main{flex:999 1 560px;min-width:0}.wrap{max-width:1200px;margin:0 auto;padding:36px 40px 72px;display:flex;flex-direction:column;gap:22px}
+.cols{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.l{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:22px}.r{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.back{display:inline-flex;align-items:center;min-height:32px;font-size:15px;font-weight:600;color:#0b7a6a}.t1{font:700 36px/1.08 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22;text-wrap:balance}.sub{font-size:15px;color:#5a636b}
+.next{background:#0f1b22;color:#f4f5f2;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px}.next .k{font-size:13px;font-weight:600;color:#4fd1b4}.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}.next p{font-size:15px;line-height:1.5;color:#a9b4b9}
+.bm{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;background:#4fd1b4;color:#0f1b22;font:600 16px Figtree,sans-serif;border:0;cursor:pointer}.bd{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:#2e3e47;color:#f4f5f2;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.b2{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.sh{padding:0 4px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5a636b}
+.grp{background:#ffffff;border-radius:18px;overflow:hidden}.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;box-sizing:border-box;border-top:1px solid #eef0ec}.row:first-child{border-top:0}.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.row .t b{font-size:16px;font-weight:600;color:#14181b}.row .t span{font-size:14px;color:#5a636b}.chev{color:#b9bfba;font-size:20px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}.c-sh{background:#e1f3ed;color:#0a5c50}.c-wa{background:#f8eed6;color:#74500a}.c-ne{background:#eceeea;color:#3f4a52}.c-kr{background:#fae6e3;color:#94201a}.c-ok{background:#e8f1df;color:#2f5f1d}
+.card{background:#ffffff;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}.say{font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22;text-wrap:balance}.by{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:#5a636b}.pill{padding:2px 8px;border-radius:999px;background:#eceeea;font-size:12px;color:#3f4a52}
+.priv{background:#eceeea;border:1.5px dashed #b9bfba;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}.shared{background:#e1f3ed;border:1px solid #9fd9c8;border-radius:18px;overflow:hidden}.shared .row{border-top:1px solid #cfe5dd}.shared .row:first-child{border-top:0}
+.num{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#0f1b22}.tn{font-variant-numeric:tabular-nums}.draft{background:#ffffff;border:1px solid #cfe5dd;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.sb{display:none}.wrap{padding:20px 16px 96px}.t1{font-size:30px}}
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}
+.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e6e9e5;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#5a636b;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+
+.bp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;background:#0b7a6a;color:#ffffff;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+</style>
+</helmet>
+<div class="rz-app"><nav class="rz-sb" aria-label="Hauptbereiche"><a class="rz-logo" href="Main.dc.html"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Reziproq</a><a class="rz-search" href="Fragen.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span>Frag Reziproq</span><kbd>⌘K</kbd></a><a class="rz-it" href="Main.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><span>Heute</span><b class="rz-badge">3</b></a><a class="rz-it on" href="Lieferanten.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5.5"></circle><circle cx="15" cy="12" r="5.5"></circle></svg><span>Beziehungen</span></a><a class="rz-it" href="WG-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg><span>Warengruppen</span></a><a class="rz-it" href="Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg><span>Wert</span></a><span style="flex:1;min-height:24px"></span><a href="Erledigt.dc.html" style="display:flex;gap:8px;margin:0 0 6px;padding:10px;border-radius:10px;font-size:13px;line-height:1.4;color:#3f4a52;text-decoration:none"><span style="width:8px;height:8px;margin-top:5px;flex:none;border-radius:99px;background:#0b7a6a"></span><span>Im Hintergrund: Briefing JBP Rheintal wird aktualisiert</span></a><a class="rz-it" href="Mein-Agent.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"></circle><circle cx="12" cy="12" r="8.5" stroke-dasharray="2.5 3"></circle></svg><span>Mein Agent</span></a><a class="rz-it" href="E-Uebersicht.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"></path></svg><span>Einstellungen</span></a><span class="rz-me"><span class="rz-av">JL</span>Jan-Luka</span></nav><div class="rz-main"><main class="wrap">
+<header style="display:flex;flex-direction:column;gap:14px"><a class="back" href="Lieferanten.dc.html">‹ Beziehungen</a><div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px"><span class="av p" style="width:56px;height:56px;font-size:18px">RE</span><div style="flex:1 1 380px;display:flex;flex-direction:column;gap:6px"><h1 class="t1">Rheintal Elektronik</h1><p class="sub">Strategisch · Leiterplatten, Baugruppen, Kabelsätze · 4,2 Mio. € Spend 2026 · Lead Sara Ost · im Jahreszyklus: JBP</p></div><div style="display:flex;flex-wrap:wrap;gap:8px" aria-label="Aktionen von Reziproq"><a class="b2" href="K1-Mappe.dc.html">Wert finden</a><a class="b2" href="Termin-Briefing.dc.html">Briefing JBP</a><a class="b2" href="K2-Mail-Zusage.dc.html">Schreiben</a><a class="b2" href="K2-Profil.dc.html" aria-label="Profil, Team und Mandat">···</a></div></div></header><nav aria-label="Sicht auf die Beziehung" style="display:flex;padding:3px;border-radius:12px;background:#e6e9e5;gap:2px;max-width:560px"><a href="L-Ueberblick.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:transparent;color:#3f4a52"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Gemeinsam</a><a href="K2-Akte-Privat.dc.html" aria-current="page" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:#ffffff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f4a52" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Nur für dich</a><a href="K2-Akte-Geteilt.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 10px;border-radius:9px;font:600 14px Figtree,sans-serif;white-space:nowrap;background:transparent;color:#3f4a52"><span aria-hidden="true" style="width:10px;height:10px;flex:none;border-radius:99px;background:#0b7a6a"></span>Von Rheintal</a></nav>
+<div class="cols">
+<div class="l">
+<section class="next" aria-label="Als Nächstes"><p class="k">Als Nächstes · Beziehungsnetz · JBP Fr 04.12.</p><h2>Ida Roth und Nils Ott zusammenbringen</h2><p>Nils Ott entscheidet bei Rheintal über Qualität, Agendapunkt 2 im JBP. Bisher läuft alles über Tom Weber. Reziproq hat die Einladung für Ida Roth entworfen.</p><div style="display:flex;flex-wrap:wrap;gap:10px;padding-top:4px"><a class="bm" href="K1-Kurz-Pruefen.dc.html">Entwurf ansehen</a><button class="bd">Später</button></div></section>
+<section class="priv" aria-label="Das Wichtigste"><p style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#3f4a52"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f4a52" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg> Nur für dich und euer Team <span class="chip c-ne" style="margin-left:auto">privat</span></p>
+<p class="say">Rheintal ist strategisch, aber knapp: 0,4 Punkte über der Grenze. Zu zwei Entscheidern fehlt der direkte Draht.</p>
+</section>
+<p class="sh">Verlauf · nur euer Team</p>
+<a class="grp" href="Fragen.dc.html" style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;color:#5a636b;font-size:15px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span style="flex:1">Frag Reziproq zu Rheintal, zum Beispiel: „Was hat Rheintal zur Kapazität 2028 gesagt?“</span></a>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px"><div role="group" aria-label="Filter" style="display:flex;flex-wrap:wrap;gap:8px"><button aria-pressed="true" style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#0f1b22;color:#ffffff">Alles</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Termine</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Mails</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Notizen</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Transkripte</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Dateien</button><button style="min-height:36px;padding:0 14px;border:0;border-radius:999px;font:600 14px Figtree,sans-serif;background:#ffffff;color:#3f4a52;box-shadow:inset 0 0 0 1px #dfe2dd">Reziproq</button></div>
+<button class="b2" style="margin-left:auto">Neue Notiz</button></div>
+<div class="grp">
+<div class="row"><span class="av p">TW</span><span class="t"><b>Mail von Tom Weber</b><span>20.11. · Liefertreue Oktober 94 % · zugeordnet von Reziproq</span></span><span class="chip c-ne">Mail</span></div><div class="row"><span class="av">JL</span><span class="t"><b>Deine Notiz</b><span>19.11. · nur du · Gespräch mit Tom Weber, zwei Themen fürs JBP</span></span><span class="chip c-ne">Notiz</span></div><div class="row"><span class="av">JF</span><span class="t"><b>Angeheftet · Jonas Feld</b><span>02.11. · Linie Kupfer: Basis 10/2026, Anpassung ab 5 % Indexänderung, beide Richtungen</span></span><span class="chip c-ne">Notiz</span></div><div class="row"><span class="av">IR</span><span class="t"><b>Reklamation Charge 4711</b><span>26.10. · Mail an Nils Ott, Kopie Tom Weber · 8D binnen 10 Tagen zugesagt</span></span><span class="chip c-ne">Mail</span></div><div class="row"><span class="av">SO</span><span class="t"><b>QBR Q3 mit Rheintal</b><span>24.09. · Teams · Transkript, 6 Ergebnisse, 3 Zusagen</span></span><span class="chip c-ne">Termin</span></div><div class="row"><span class="t"><b>Alles anzeigen</b><span>214 Einträge seit 01.10.2026 · Mails, Termine, Notizen, Dateien und was Reziproq getan hat</span></span></div>
+</div>
+<p class="sh">Beziehungsnetz · Rheintal sieht es nie</p>
+<div class="grp">
+<div class="row"><span class="t"><b>Preise und Verträge</b><span>Sara Ost ↔ Tom Weber · entscheidet: Kim Kaiser, nur über Tom Weber</span></span><span class="chip c-wa">indirekt</span></div><div class="row"><span class="t"><b>Rohstoffe</b><span>Jonas Feld ↔ Lea Brandt · entscheidet: Kim Kaiser, nur über Lea Brandt</span></span><span class="chip c-wa">indirekt</span></div><div class="row"><span class="t"><b>Qualität</b><span>Ida Roth ↔ Tom Weber · entscheidet: Nils Ott</span></span><span class="chip c-kr">Draht fehlt</span></div><div class="row"><span class="t"><b>Technik</b><span>Tom Berg ↔ Mia Kuhn, Werksleitung · entscheidet: Mia Kuhn</span></span><span class="chip c-ne">lose</span></div>
+</div>
+<p style="font-size:13px;color:#5a636b;padding:0 4px">Wie oft ihr sprecht, liest Reziproq aus dem Verlauf. Wer entscheidet, legt ihr fest, je Thema eine Person.</p>
+</div>
+<aside class="r">
+<p class="sh">Segment und Bewertung</p>
+<div class="grp">
+<a class="row" href="K2-Segmente.dc.html"><span class="t"><b>Strategisch · 0,4 über der Grenze</b><span>Bewertungsrunde 2027, 4 Bewertende · entschieden 12.09.</span></span><span class="chip c-wa">knapp</span><span class="chev" aria-hidden="true">›</span></a><div class="row"><span class="t"><b>Wertbeitrag 4,1 · Innovation 3,8</b><span>Versorgungsrisiko 3,6 · Qualität 3,1, Spanne 2,6</span></span></div>
+</div>
+<p class="sh">Lieferantenplan 2027</p>
+<div class="grp">
+<div class="row"><span class="t"><b>Version 2 · freigegeben</b><span>Sara Ost, 03.10. · alle 4 Funktionen haben beigetragen</span></span><span class="chip c-ok">gilt</span></div><div class="row"><span class="t"><b>3 Ziele gehen ins JBP</b><span>Kapazität 2028 sichern · Stückpreis −3 % · Reklamationen halbieren</span></span></div><div class="row"><span class="t"><b>Zweitquelle prüfen</b><span>bleibt intern · Angebot bis 31.01., Sara Ost</span></span><span class="chip c-ne">intern</span></div><div class="row"><span class="t"><b>Version 3</b><span>entwirft Reziproq nach dem JBP und fragt Qualität, Entwicklung und Logistik an</span></span><span class="chip c-ne">ab 04.12.</span></div>
+</div>
+<p class="sh">Warengruppen</p>
+<div class="grp">
+<div class="row"><span class="t"><b>Leiterplatten · 3,1 Mio. €</b><span>Lead Sara Ost · ausbaufähig, will stärken</span></span></div><div class="row"><span class="t"><b>Bestückte Baugruppen · 0,9 Mio. €</b><span>Lead Ida Roth · stark, Strategie freigegeben</span></span></div><div class="row"><span class="t"><b>Kabelsätze · 0,2 Mio. €</b><span>beendet die Beziehung bis 06/2027</span></span><span class="chip c-wa">widerspricht</span></div><a class="row" href="K1-Kurz-Pruefen.dc.html"><span class="t"><b>Leads abstimmen</b><span>Reziproq schlägt 15 Minuten vor dem JBP vor</span></span><span class="chip c-sh">Entwurf</span><span class="chev" aria-hidden="true">›</span></a>
+</div>
+<p class="sh">Wert und Mandat</p>
+<div class="grp">
+<a class="row" href="Uebersicht.dc.html"><span class="t"><b>Ergebnisse 2026</b><span>74 von 100 T€ gesichert · 140 bis 200 T€ Potenzial · Details unter Wert</span></span><span class="chev" aria-hidden="true">›</span></a><a class="row" href="K1-Mappe.dc.html"><span class="t"><b>Prognose gegen 1,5 % Preis</b><span>63 T€ EBIT für euch · in Heute im Fokus</span></span><span class="chev" aria-hidden="true">›</span></a><a class="row" href="K2-Mandat.dc.html"><span class="t"><b>Mandat für Rheintal</b><span>Ziel, Grenzen und was Reziproq hier selbst tut</span></span><span class="chip c-wa">bestätigen</span><span class="chev" aria-hidden="true">›</span></a>
+</div>
+</aside>
+</div>
+</main></div></div><nav class="rz-tab" aria-label="Hauptbereiche"><a class="" href="Main.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Heute</a><a class="on" href="Lieferanten.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5.5"></circle><circle cx="15" cy="12" r="5.5"></circle></svg>Beziehungen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a><a class="" href="WG-Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="" href="Uebersicht.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg>Wert</a></nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1610}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

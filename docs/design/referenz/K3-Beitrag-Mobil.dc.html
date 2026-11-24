@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Beitrag per Link mobil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f4f5f2}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin:0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22}
+.ask{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px}.ask span{flex:1}.ask kbd{font:600 11px Figtree,sans-serif;color:#5a636b}
+.it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500}.it svg{color:#7b8389}.it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}.it.on svg{color:#0b7a6a}
+.bg{display:flex;gap:8px;padding:10px;margin:8px 0 4px;border-radius:12px;font-size:13px;line-height:1.4;color:#3f4a52}.me{display:flex;align-items:center;gap:10px;padding:10px 10px 0;font-size:14px;color:#3f4a52}
+.av{width:32px;height:32px;flex:none;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}.av.p{background:#0b7a6a;color:#ffffff}
+.main{flex:999 1 560px;min-width:0}.wrap{max-width:1200px;margin:0 auto;padding:36px 40px 72px;display:flex;flex-direction:column;gap:22px}
+.cols{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.l{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:22px}.r{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.back{display:inline-flex;align-items:center;min-height:32px;font-size:15px;font-weight:600;color:#0b7a6a}.t1{font:700 36px/1.08 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22;text-wrap:balance}.sub{font-size:15px;color:#5a636b}
+.next{background:#0f1b22;color:#f4f5f2;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px}.next .k{font-size:13px;font-weight:600;color:#4fd1b4}.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}.next p{font-size:15px;line-height:1.5;color:#a9b4b9}
+.bm{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;background:#4fd1b4;color:#0f1b22;font:600 16px Figtree,sans-serif;border:0;cursor:pointer}.bd{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:#2e3e47;color:#f4f5f2;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.b2{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.sh{padding:0 4px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5a636b}
+.grp{background:#ffffff;border-radius:18px;overflow:hidden}.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;box-sizing:border-box;border-top:1px solid #eef0ec}.row:first-child{border-top:0}.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.row .t b{font-size:16px;font-weight:600;color:#14181b}.row .t span{font-size:14px;color:#5a636b}.chev{color:#b9bfba;font-size:20px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}.c-sh{background:#e1f3ed;color:#0a5c50}.c-wa{background:#f8eed6;color:#74500a}.c-ne{background:#eceeea;color:#3f4a52}.c-kr{background:#fae6e3;color:#94201a}.c-ok{background:#e8f1df;color:#2f5f1d}
+.card{background:#ffffff;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}.say{font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22;text-wrap:balance}.by{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:#5a636b}.pill{padding:2px 8px;border-radius:999px;background:#eceeea;font-size:12px;color:#3f4a52}
+.priv{background:#eceeea;border:1.5px dashed #b9bfba;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}.shared{background:#e1f3ed;border:1px solid #9fd9c8;border-radius:18px;overflow:hidden}.shared .row{border-top:1px solid #cfe5dd}.shared .row:first-child{border-top:0}
+.num{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#0f1b22}.tn{font-variant-numeric:tabular-nums}.draft{background:#ffffff;border:1px solid #cfe5dd;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.sb{display:none}.wrap{padding:20px 16px 96px}.t1{font-size:30px}}
+/* ci-base */ body,x-dc>div,.rz-app{font-family:Figtree,system-ui,sans-serif;color:#14181b} input,textarea,select{font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}
+.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e6e9e5;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#5a636b;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+
+.bp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;background:#0b7a6a;color:#ffffff;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+</style>
+</helmet>
+<div style="position:relative;width:390px;min-height:844px;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b"><div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:10px;min-height:44px"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg><span style="font:600 17px Outfit,Figtree,sans-serif;color:#0f1b22">Reziproq</span><span style="margin-left:auto;font-size:13px;color:#5a636b">für Rheintal Elektronik</span></div>
+<header style="display:flex;flex-direction:column;gap:6px"><p class="sub" style="font-size:14px">Hallo Herr Weber · Frist Fr 27.11., 12:00</p><h1 class="t1" style="font-size:26px">Ihr Beitrag zum JBP am 04.12.: Machbarkeit 6 Wochen Lieferzeit</h1></header>
+<p style="font-size:14px;color:#3f4a52;line-height:1.5">Nordwind schlägt vor: rollierende Prognose für 12 Monate gegen kürzere Lieferzeit. Reziproq fragt genau ab, was auf Folie 6 steht.</p>
+<label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;color:#14181b">Lieferzeit mit 12-Monats-Prognose</span><span style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:12px;background:#ffffff;box-shadow:inset 0 0 0 1px #7b8389;font-size:16px;color:#14181b">6 Wochen</span><span style="font-size:13px;color:#5a636b">heute 8 Wochen ab Bestellung</span></label><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;color:#14181b">Ab wann</span><span style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:12px;background:#ffffff;box-shadow:inset 0 0 0 1px #7b8389;font-size:16px;color:#14181b">Q2 2027</span></label><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;color:#14181b">Bedingung</span><span style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:12px;background:#ffffff;box-shadow:inset 0 0 0 1px #7b8389;font-size:16px;color:#14181b">Abweichung der Prognose höchstens 15 %</span></label><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:600;color:#14181b">Was Rheintal dafür braucht</span><span style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:12px;background:#ffffff;box-shadow:inset 0 0 0 1px #7b8389;font-size:16px;color:#14181b">Prognose bis zum 5. Werktag</span></label>
+<p class="sh" style="display:flex;align-items:center;gap:8px"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg> So erscheint es auf Folie 6</p>
+<div class="shared"><div class="row"><span class="av">RE</span><span class="t"><b>6 Wochen ab Q2 2027</b><span>bei rollierender Prognose, Abweichung bis 15 % · Beitrag Rheintal</span></span></div></div>
+<button class="bp" style="width:100%;min-height:52px">Beitrag senden</button>
+<p style="font-size:13px;color:#5a636b;line-height:1.5">Nordwind sieht nur, was Sie hier senden. Ohne Beitrag bleibt die Folie als Lücke und wird im Termin geklärt. Anmeldung mit Passkey, der Link gilt bis zur Frist.</p>
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

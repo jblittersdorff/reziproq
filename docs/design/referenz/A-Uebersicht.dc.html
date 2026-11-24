@@ -2,115 +2,95 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<title>Übersicht</title>
+<title>Wert mobil</title>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#f4f5f2}
-a{color:inherit;text-decoration:none}
-h1,h2,h3,p{margin:0}
-.ph{position:relative;width:390px;height:844px;overflow:hidden;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#0f1b22;display:flex;flex-direction:column}
-.scr{flex:1;overflow:hidden;padding:0 16px 120px;display:flex;flex-direction:column;gap:22px}
-.nav{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 8px 0}
-.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:17px;color:#0b7a6a}
-.ico{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;color:#0b7a6a;border:0;background:transparent}
-.lt{font:700 34px/1.1 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22}
-.where{font-size:15px;color:#5a636b}
-.next{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:24px;background:#0f1b22;color:#f4f5f2}
-.next .k{font-size:13px;font-weight:600;color:#4fd1b4;letter-spacing:.01em}
-.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}
-.next p{font-size:15px;line-height:1.45;color:#a9b4b9}
-.cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:16px;border:0;background:#4fd1b4;color:#0f1b22;font:600 17px Figtree,system-ui,sans-serif}
-.cta.p{background:#0b7a6a;color:#ffffff}
-.sec{display:flex;flex-direction:column;gap:8px}
-.sh{padding:0 4px;font-size:13px;font-weight:600;color:#7b8389;text-transform:uppercase;letter-spacing:.04em}
-.grp{display:flex;flex-direction:column;border-radius:16px;background:#ffffff;overflow:hidden}
-.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 14px;border-top:1px solid #eef0ec;font-size:16px}
-.row:first-child{border-top:0}
-.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.row .t b{font-weight:600;font-size:16px;color:#0f1b22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .t span{font-size:14px;color:#7b8389;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .v{font-size:15px;color:#7b8389;white-space:nowrap}
-.row .v.a{color:#0b7a6a;font-weight:600}
-.chev{color:#c4c8c3;flex:none}
-.av{width:36px;height:36px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,Figtree,sans-serif;background:#eceeea;color:#3f4a52}
-.dot{width:10px;height:10px;border-radius:99px;flex:none}
-.badge{min-width:22px;height:22px;padding:0 7px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-.steps{display:flex;align-items:center;gap:6px;padding:14px;border-radius:16px;background:#ffffff}
-.st{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#7b8389;text-align:center}
-.st i{width:26px;height:26px;border-radius:99px;display:flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif;font-style:normal;background:#eceeea;color:#7b8389}
-.st.done i{background:#0b7a6a;color:#fff}
-.st.now{color:#0f1b22;font-weight:700}
-.st.now i{background:#4fd1b4;color:#0f1b22;box-shadow:0 0 0 3px #0f1b22}
-.ln{height:2px;flex:.5;background:#e0e3df;margin-bottom:20px}
-.ln.done{background:#0b7a6a}
-.tab{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 6px 28px;background:#ffffffeb;border-top:1px solid #e0e3df;backdrop-filter:blur(12px)}
-.tb{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;font-size:11px;font-weight:600;color:#9aa1a6}
-.tb.on{color:#0b7a6a}
-.sticky{position:absolute;left:0;right:0;bottom:84px;padding:12px 16px;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}
-.search{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:12px;background:#e6e9e5;color:#7b8389;font-size:16px}
-.segc{display:flex;padding:3px;border-radius:10px;background:#e6e9e5}
-.segc span{flex:1;text-align:center;padding:7px 0;border-radius:8px;font-size:14px;font-weight:600;color:#3f4a52}
-.segc span.on{background:#fff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222}
-.fig{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
-.more{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:15px;font-weight:600;color:#0b7a6a}
-.acol{max-width:760px;margin:0 auto;padding:28px clamp(16px,4vw,40px) 64px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box;font-family:Figtree,system-ui,sans-serif;color:#0f1b22}
-.sticky{position:static;padding:0;background:none}
-@media (min-width:761px){.next{flex-direction:row;flex-wrap:wrap;align-items:center;padding:24px 28px}.next .k,.next h2,.next p{flex:1 1 100%}.next .cta{width:auto;padding:0 28px}}
-@media (max-width:760px){.acol{padding-top:16px}.sticky{position:sticky;bottom:92px;padding:12px 0;background:linear-gradient(#f4f5f200,#f4f5f2 30%)}}
-.wide{max-width:1200px}
-.uhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
-.ugrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px}
-.box{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:18px;background:#fff;min-width:0}
-.box h2{font:600 19px/1.25 Outfit,Figtree,sans-serif;letter-spacing:-0.015em}
-.box .k{font-size:13px;font-weight:600;color:#7b8389}
-.box .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid #eef0ec;font-size:14px;font-weight:600;color:#0b7a6a}
-.box .src{font-size:12px;color:#7b8389}
-.hb{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:10px;font-size:14px}
-.hb .tr{position:relative;height:12px;border-radius:99px;background:#eceeea;overflow:hidden}
-.hb .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#0b7a6a}
-.hb .tr i.pot{background:#bfe9dc}
-.hb .v{font-variant-numeric:tabular-nums;color:#3f4a52;font-size:13px;white-space:nowrap}
-.qc{--qh:78px;display:flex;align-items:flex-end;gap:14px;height:calc(var(--qh) + 46px);padding-top:6px}
-@media (min-width:761px){.qc{--qh:200px;margin-top:auto}}
-.qc div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:#7b8389}
-.qc b{font:600 13px Figtree,sans-serif;color:#0f1b22}
-.qc span.c{width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:#0b7a6a}
-.split{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:3px}
-.split i{display:block}
-.tl{position:relative;display:flex;gap:10px;overflow-x:auto;padding:6px 2px 4px;scroll-snap-type:x mandatory}
-.tl::before{content:"";position:absolute;left:0;right:0;top:31px;height:2px;background:#e0e3df}
-.ev{position:relative;flex:1 0 116px;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#0f1b22}
-.ev .dt{align-self:flex-start;display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 2px #e0e3df;font:600 17px/1 Outfit,sans-serif}
-.ev .dt small{font:600 10px Figtree,sans-serif;color:#7b8389;margin-top:2px}
-.ev.now .dt{background:#0f1b22;color:#4fd1b4;box-shadow:none}.ev.now .dt small{color:#a9b4b9}
-.ev .ty{font-size:12px;font-weight:600}
-.ev b{font-size:14px;font-weight:600;line-height:1.3}
-.ev span.s{font-size:13px;color:#7b8389;line-height:1.3}
-.t-termin{color:#0b7a6a}.t-frist{color:#74500a}.t-risiko{color:#94201a}.t-freigabe{color:#0a5c50}
-.sum .stmt{font:600 20px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22}
-.pts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.pts li{display:flex;align-items:center;gap:12px;min-height:44px;border-top:1px solid #eef0ec;font-size:15px}
-.tag{flex:none;min-width:56px;text-align:center;padding:3px 0;border-radius:99px;font-size:12px;font-weight:600}
-.tag.ok{background:#e8f1df;color:#2f5f1d}.tag.risk{background:#fae6e3;color:#94201a}.tag.warn{background:#f8eed6;color:#74500a}
-.rcol{display:flex;flex-direction:column;gap:22px}
-.toprow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:22px;align-items:stretch}
-.toprow .next{justify-content:space-between}
-@media (min-width:761px){.toprow .next{flex-direction:column;flex-wrap:nowrap;align-items:stretch;box-sizing:border-box}.toprow .next>*{flex:none!important}.toprow .next .cta{align-self:flex-start;margin-top:auto}}
-@media (min-width:761px){.toprow .r1{order:2}}
-@media (max-width:760px){.tl{margin:0 -16px;padding-left:16px;padding-right:16px}.hb{grid-template-columns:84px 1fr auto}}
-.scr{overflow:visible}</style>
+body{margin:0;background:#f4f5f2}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin:0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22}
+.ask{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px}.ask span{flex:1}.ask kbd{font:600 11px Figtree,sans-serif;color:#5a636b}
+.it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500}.it svg{color:#7b8389}.it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}.it.on svg{color:#0b7a6a}
+.bg{display:flex;gap:8px;padding:10px;margin:8px 0 4px;border-radius:12px;font-size:13px;line-height:1.4;color:#3f4a52}.me{display:flex;align-items:center;gap:10px;padding:10px 10px 0;font-size:14px;color:#3f4a52}
+.av{width:32px;height:32px;flex:none;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}.av.p{background:#0b7a6a;color:#ffffff}
+.main{flex:999 1 560px;min-width:0}.wrap{max-width:1200px;margin:0 auto;padding:36px 40px 72px;display:flex;flex-direction:column;gap:22px}
+.cols{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.l{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:22px}.r{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:22px}
+.back{display:inline-flex;align-items:center;min-height:32px;font-size:15px;font-weight:600;color:#0b7a6a}.t1{font:700 36px/1.08 Outfit,Figtree,sans-serif;letter-spacing:-0.03em;color:#0f1b22;text-wrap:balance}.sub{font-size:15px;color:#5a636b}
+.next{background:#0f1b22;color:#f4f5f2;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px}.next .k{font-size:13px;font-weight:600;color:#4fd1b4}.next h2{font:600 22px/1.2 Outfit,Figtree,sans-serif;letter-spacing:-0.02em}.next p{font-size:15px;line-height:1.5;color:#a9b4b9}
+.bm{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;background:#4fd1b4;color:#0f1b22;font:600 16px Figtree,sans-serif;border:0;cursor:pointer}.bd{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 20px;border-radius:999px;background:#2e3e47;color:#f4f5f2;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.b2{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.sh{padding:0 4px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5a636b}
+.grp{background:#ffffff;border-radius:18px;overflow:hidden}.row{display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 16px;box-sizing:border-box;border-top:1px solid #eef0ec}.row:first-child{border-top:0}.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.row .t b{font-size:16px;font-weight:600;color:#14181b}.row .t span{font-size:14px;color:#5a636b}.chev{color:#b9bfba;font-size:20px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}.c-sh{background:#e1f3ed;color:#0a5c50}.c-wa{background:#f8eed6;color:#74500a}.c-ne{background:#eceeea;color:#3f4a52}.c-kr{background:#fae6e3;color:#94201a}.c-ok{background:#e8f1df;color:#2f5f1d}
+.card{background:#ffffff;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}.say{font:600 19px/1.3 Outfit,Figtree,sans-serif;letter-spacing:-0.015em;color:#0f1b22;text-wrap:balance}.by{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:#5a636b}.pill{padding:2px 8px;border-radius:999px;background:#eceeea;font-size:12px;color:#3f4a52}
+.priv{background:#eceeea;border:1.5px dashed #b9bfba;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}.shared{background:#e1f3ed;border:1px solid #9fd9c8;border-radius:18px;overflow:hidden}.shared .row{border-top:1px solid #cfe5dd}.shared .row:first-child{border-top:0}
+.num{font:600 28px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#0f1b22}.tn{font-variant-numeric:tabular-nums}.draft{background:#ffffff;border:1px solid #cfe5dd;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.sb{display:none}.wrap{padding:20px 16px 96px}.t1{font-size:30px}}
+/* ci-base */ body,x-dc>div,.rz-app{font-family:Figtree,system-ui,sans-serif;color:#14181b} input,textarea,select{font-family:Figtree,system-ui,sans-serif;color:#14181b}
+.rz-app{display:flex;flex-wrap:wrap;align-items:stretch;min-height:100vh;background:#f4f5f2}
+.rz-main{flex:999 1 480px;min-width:0}
+.rz-sb{flex:0 0 236px;display:flex;flex-direction:column;gap:2px;padding:18px 12px 20px;box-sizing:border-box;background:#eceeea;border-right:1px solid #e0e3df;font-family:Figtree,system-ui,sans-serif}
+.rz-logo{display:flex;align-items:center;gap:10px;padding:4px 10px 16px;font:600 19px Outfit,Figtree,sans-serif;letter-spacing:-0.02em;color:#0f1b22;text-decoration:none}
+.rz-search{display:flex;align-items:center;gap:8px;min-height:38px;margin:0 0 14px;padding:0 10px;border-radius:10px;background:#e0e3df;color:#5a636b;font-size:14px;text-decoration:none}
+.rz-search span{flex:1}
+.rz-search kbd{font:600 11px Figtree,sans-serif;color:#7b8389}
+.rz-it{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;color:#3f4a52;font-size:15px;font-weight:500;text-decoration:none}
+.rz-it svg{color:#7b8389}
+.rz-it:hover{background:#e6e9e5;color:#0f1b22}
+.rz-it.on{background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 2px #0f1b2214}
+.rz-it.on svg{color:#0b7a6a}
+.rz-it span{flex:1}
+.rz-badge{min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:#0b7a6a;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rz-me{display:flex;align-items:center;gap:10px;padding:12px 10px 0;font-size:14px;color:#3f4a52}
+.rz-av{width:32px;height:32px;border-radius:999px;background:#0f1b22;color:#4fd1b4;display:inline-flex;align-items:center;justify-content:center;font:600 12px Outfit,sans-serif}
+.rz-tab{display:none;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px);font-family:Figtree,system-ui,sans-serif}
+.rz-tab a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;font-size:11px;font-weight:600;color:#5a636b;text-decoration:none}
+.rz-tab a.on{color:#0b7a6a}
+.card{box-shadow:none}
+@media (max-width:760px){.rz-sb{display:none!important}
+.rz-tab{display:flex!important}
+.rz-main{padding-bottom:92px}
+main{padding-left:16px!important;padding-right:16px!important;padding-top:20px!important}
+.rings,svg[aria-hidden="true"][style*="position:absolute"]{display:none!important}
+.hero{padding:20px!important;border-radius:22px!important}
+.hero .btn{width:100%;justify-content:center}
+.t1{font-size:30px}
+.say{font-size:26px!important}
+.cols{flex-direction:column}
+.main,.side{flex-basis:auto!important;width:100%}
+table{display:block;overflow-x:auto}
+}
+
+.bp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;background:#0b7a6a;color:#ffffff;font:600 15px Figtree,sans-serif;border:0;cursor:pointer}
+.tabs{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;padding:8px 4px 24px;background:#ffffffee;border-top:1px solid #e0e3df;backdrop-filter:blur(12px)}.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:44px;font-size:11px;font-weight:600;color:#5a636b}.tabs a.on{color:#0b7a6a}.seg{display:flex;padding:3px;border-radius:12px;background:#e6e9e5;gap:2px}.seg button{flex:1;min-height:40px;border:0;border-radius:9px;font:600 14px Figtree,sans-serif;cursor:pointer;color:#3f4a52;background:transparent}
+</style>
 </helmet>
-<div class="ph" style="height:2388px"><div class="nav"><span></span><a class="ico" href="Fragen.dc.html" aria-label="Suchen oder fragen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></a></div><div class="scr"><header style="display:flex;flex-direction:column;gap:4px"><h1 class="lt">Übersicht</h1><span class="where">Einkauf Nordwind · 2026 · Stand 23.11.</span></header><section class="next" aria-label="Nächster Schritt"><span class="k">Was ihr tun solltet · Freigabe Mi 09.12.</span><h2>Strategie Leiterplatten freigeben</h2><p>Dort warten 210 bis 310 T€ EBIT. Lead Sara Ost hat alle Analysen bestätigt.</p><a class="cta" href="WG-Freigabe.dc.html">Zur Freigabe</a></section><section class="box sum" aria-label="Zusammenfassung"><span class="k" style="display:flex;align-items:center;gap:8px"><svg width="22" height="16" viewBox="0 0 28 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#4fd1b4" stroke-width="2"></circle></svg>Zusammengefasst von Reziproq</span><p class="stmt">69 % des Jahresziels sind gesichert. Guss trägt, Leiterplatten wartet auf die Freigabe.</p><ul class="pts"><li><span class="tag ok">Läuft</span><span>Gussteile: 180 T€, 82 % des Ziels</span></li><li><span class="tag risk">Hakt</span><span>Silesia Guss: Hochwasser, Engpass ab So 06.12.</span></li><li><span class="tag warn">Offen</span><span>3 Claims in Guss älter als 60 Tage</span></li></ul><span class="src">Quellen: Ergebnisse, Risiken, Claims · Stand 23.11.</span></section><section class="box"><span class="k">Ergebnisse 2026 · nur vom Controlling bestätigt</span><div style="display:flex;align-items:center;gap:18px"><svg width="92" height="92" viewBox="0 0 92 92" role="img" aria-label="69 Prozent des Jahresziels"><circle cx="46" cy="46" r="38" fill="none" stroke="#eceeea" stroke-width="10"></circle><circle cx="46" cy="46" r="38" fill="none" stroke="#0b7a6a" stroke-width="10" stroke-linecap="round" stroke-dasharray="164.7 238.8" transform="rotate(-90 46 46)"></circle><text x="46" y="52" text-anchor="middle" font-family="Outfit,sans-serif" font-size="20" font-weight="600" fill="#0f1b22">69 %</text></svg><span style="display:flex;flex-direction:column;gap:4px"><span class="fig">412 T€ EBIT</span><span class="where" style="font-size:14px">von 600 T€ Jahresziel. Es fehlen 188 T€.</span></span></div><div class="qc" role="img" aria-label="EBIT gesichert je Quartal: Q1 64 T€, Q2 98 T€, Q3 141 T€, Q4 bis heute 109 T€"><div><b>64</b><span class="c" style="height:calc(0.454 * var(--qh))"></span>Q1</div><div><b>98</b><span class="c" style="height:calc(0.695 * var(--qh))"></span>Q2</div><div><b>141</b><span class="c" style="height:calc(1.0 * var(--qh))"></span>Q3</div><div><b>109</b><span class="c" style="height:calc(0.773 * var(--qh))"></span>Q4 bis heute</div></div><span class="src">Cash wird getrennt gezählt und nie zum EBIT addiert.</span><a class="foot" href="W-Uebersicht.dc.html">Alle Ergebnisse<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section><section class="box"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h2>Die nächsten vier Wochen</h2><span class="k">7 Termine und Fristen · alle Lieferanten und Warengruppen</span></div><div class="tl" role="list"><a class="ev now" href="A-MeinTag.dc.html"><span class="dt">23<small>NOV</small></span><span class="ty t-termin">Heute</span><b>3 Dinge in Mein Tag</b><span class="s">davon 1 überfällig</span></a><a class="ev" href="C-Claim.dc.html"><span class="dt">02<small>DEZ</small></span><span class="ty t-frist">Frist · Claim</span><b>Rheintal: Lohn- und Energiezuschlag</b><span class="s">186 T€ gefordert, Antwort fällig</span></a><a class="ev" href="Termin-Briefing.dc.html"><span class="dt">04<small>DEZ</small></span><span class="ty t-termin">Termin · JBP</span><b>JBP Rheintal Elektronik</b><span class="s">Fr 10:00 · Briefing im Entwurf</span></a><a class="ev" href="R-Krise.dc.html"><span class="dt">06<small>DEZ</small></span><span class="ty t-risiko">Risiko</span><b>Silesia Guss: Engpass</b><span class="s">ohne Wiederanlauf</span></a><a class="ev" href="WG-Freigabe.dc.html"><span class="dt">09<small>DEZ</small></span><span class="ty t-freigabe">Freigabe</span><b>Strategie Leiterplatten</b><span class="s">210 bis 310 T€ hängen daran</span></a><a class="ev" href="U-Termine.dc.html"><span class="dt">10<small>DEZ</small></span><span class="ty t-termin">Termin · QBR</span><b>QBR Nordwerk Guss</b><span class="s">Do 14:00</span></a><a class="ev" href="P-Zusagen.dc.html"><span class="dt">15<small>DEZ</small></span><span class="ty t-frist">Zusage</span><b>Musterteile von Rheintal</b><span class="s">wartet auf Bestätigung</span></a><a class="ev" href="PF-Runde.dc.html"><span class="dt">19<small>DEZ</small></span><span class="ty t-frist">Frist · Bewertung</span><b>Bewertungsrunde 2027</b><span class="s">12 von 18 abgegeben</span></a></div><a class="foot" href="U-Termine.dc.html">Alle Termine<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section><section class="box"><span class="k">Warengruppen</span><h2>Gussteile liegt bei 82 %, Leiterplatten erst bei 41 % des Ziels</h2><div class="hb"><span>Gussteile</span><span class="tr"><i style="width:82%"></i></span><span class="v">180 / 220 T€</span></div><div class="hb"><span>Spritzguss</span><span class="tr"><i style="width:82%"></i></span><span class="v">98 / 120 T€</span></div><div class="hb"><span>Leiterplatten</span><span class="tr"><i class="pot" style="width:100%"></i><i style="width:41%"></i></span><span class="v">74 / 180 T€</span></div><div class="hb"><span>Logistik</span><span class="tr"><i style="width:75%"></i></span><span class="v">60 / 80 T€</span></div><span class="src" style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:14px;height:8px;border-radius:9px;background:#bfe9dc"></i>hell: Potenzial nach Freigabe der Strategie</span><span class="src">EBIT gesichert gegen Ziel je Warengruppe, T€</span><a class="foot" href="A-Warengruppen.dc.html">Alle 4 Warengruppen<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section><section class="box"><span class="k">Risiko</span><h2>14 hohe Risiken, 5 davon noch ohne Maßnahme</h2><div class="split" role="img" aria-label="9 mit Maßnahme, 5 ohne Maßnahme"><i style="flex:9;background:#0b7a6a"></i><i style="flex:5;background:#94201a"></i></div><div style="display:flex;justify-content:space-between;font-size:13px"><span><b>9</b> mit Maßnahme</span><span style="color:#94201a"><b>5</b> ohne Maßnahme</span></div><section class="sec"><div class="grp"><a class="row" href="R-Krise.dc.html"><span class="dot" style="background:#94201a" aria-hidden="true"></span><span class="t"><b>Krise aktiv: Hochwasser Oberschlesien</b><span>Silesia Guss · 2 von 3 Lieferanten haben geantwortet</span></span><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></div></section><span class="src">Erwarteter Schaden der fünf größten Risiken: 3,9 Mio. €</span><a class="foot" href="R-Portfolio.dc.html">Zum Risikobild<svg width="8" height="13" viewBox="0 0 9 15" fill="none" aria-hidden="true"><path d="M1.5 1.5l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></section></div><nav class="tab" aria-label="Hauptbereiche"><a class="tb on" href="A-Uebersicht.dc.html" aria-current="page"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3.5"></circle></svg>Übersicht</a><a class="tb" href="A-MeinTag.dc.html"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Mein Tag</a><a class="tb" href="A-Lieferanten.dc.html"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"></path><circle cx="17" cy="10" r="2.5"></circle><path d="M16 14.5c2.6 0 5 1.6 5 4.5"></path></svg>Lieferanten</a><a class="tb" href="A-Warengruppen.dc.html"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="tb" href="Fragen.dc.html"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a></nav></div>
+<div style="position:relative;width:390px;height:844px;overflow:hidden;background:#f4f5f2;font-family:Figtree,system-ui,sans-serif;color:#14181b">
+<div style="padding:12px 16px 0;display:flex;flex-direction:column;gap:14px"><div style="display:flex;align-items:center;justify-content:space-between;min-height:44px"><svg width="30" height="22" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg><a href="Fragen.dc.html" aria-label="Frag Reziproq" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:99px;background:#e6e9e5;color:#3f4a52"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg></a></div>
+<header><p class="sub" style="font-size:14px">2026 · Stand 23.11.</p><h1 class="t1" style="font-size:30px">Wert</h1></header>
+<section class="next" style="padding:20px;border-radius:22px;gap:10px" aria-label="Als Nächstes">
+<p class="k">Als Nächstes · Controlling wartet</p>
+<h2 style="font-size:19px">Wirkung Preis Leiterplatten Q3 freigeben: 24 T€</h2>
+<a class="bm" href="W-Pruefung.dc.html" style="width:100%;box-sizing:border-box;min-height:52px;margin-top:4px">Mappe öffnen</a>
+</section>
+<section class="card" style="padding:16px;gap:10px"><div role="img" aria-label="Wert 2026: für euch 412 T€, für Lieferanten geschätzt 120 bis 180 T€" style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:10px"><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif;color:#0f1b22;white-space:nowrap">412 T€</span><div style="width:100%;height:12px;border-radius:6px 0 0 6px;background:#0f1b22"></div></div><div style="width:4px;height:30px;border-radius:2px;background:#4fd1b4"></div><div style="flex:1;display:flex;align-items:center;gap:10px"><div style="width:37%;height:12px;border-radius:0 6px 6px 0;background:#0b7a6a"></div><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif;color:#0b7a6a;white-space:nowrap">≈ 120–180</span></div></div><div style="display:flex;font-size:13px;color:#5a636b"><span style="flex:1;text-align:right;padding-right:16px">für euch</span><span style="flex:1;padding-left:16px">für Lieferanten</span></div></div>
+<p style="font-size:13px;color:#5a636b">EBIT gesichert, 69 % des Ziels · Kostenvermeidung 85 T€ und Cash 120 T€ getrennt</p></section>
+<div class="grp"><a class="row" href="W-Initiative.dc.html"><span class="av p">RE</span><span class="t"><b>Rheintal Elektronik</b><span>Wertkonto · Ziel 100 T€</span></span><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif">74 T€</span><span class="chev" aria-hidden="true">›</span></a><div class="row"><span class="av p">NG</span><span class="t"><b>Nordwerk Guss</b><span>Ziel 120 T€</span></span><span class="tn" style="font:600 15px Outfit,Figtree,sans-serif">96 T€</span></div></div>
+</div>
+<nav class="tabs" aria-label="Hauptbereiche"><a class="" href="A-MeinTag.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Heute</a><a class="" href="A-Lieferanten.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5.5"></circle><circle cx="15" cy="12" r="5.5"></circle></svg>Beziehungen</a><a class="" href="Fragen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>Frag</a><a class="" href="A-Warengruppen.dc.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>Warengruppen</a><a class="on" href="A-Uebersicht.dc.html" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"></path></svg>Wert</a></nav>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2388}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+renderVals() {
+return {};
+}
 }
 </script>
 </body>

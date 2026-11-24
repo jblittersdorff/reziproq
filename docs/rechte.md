@@ -65,6 +65,75 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `eigene_sicht.bearbeiten` | Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite) | ja | ja | nein | nein |
 | `feedback.verwalten` | Feedback-Welle starten (Käufer: Admin oder SRO), eigene Teilnehmende einladen, eigene Seite abschließen | ja | ja | nein | nein |
 
+## Umbau KI-nativ (Planung)
+
+Ergänzung aus dem Spec-Paket vom 24.11.2026 (`docs/entscheidungen.md`, Specs ab ZA-01). Sie geht den
+Abschnitten zu Warengruppenmanagement, KI und Anbindungen unten vor; Zeilen zu eigenen Agenten entfallen.
+
+Grundsatz: Ein Lauf von Reziproq handelt immer mit den Rechten einer Person und nie über deren Stufe in Mein Agent hinaus; ein Mandat kann die Stufe nur senken.
+
+### Räume
+
+| Raum | Käuferseite | Lieferantenseite | Gast per Link |
+|---|---|---|---|
+| `buyer_private` | lesen und schreiben je Rolle | nie | nie |
+| `shared` | lesen; schreiben je Rolle; bindend nur mit Token | lesen; schreiben je Rolle; bindend nur mit Token | nur die Objekte des Links |
+| `supplier_private` | nie | lesen und schreiben je Rolle | nie |
+
+Durchgesetzt mit Row Level Security in der Datenbank. Suche, Frag Reziproq, Exporte, Links und Agent-Kontext unterliegen denselben Regeln.
+
+### Rollen Käuferseite
+
+| Handlung | Admin | Lead | SRO | Mitglied | Leser |
+|---|---|---|---|---|---|
+| KI-Einstellungen der Organisation, Kanäle, Kostensätze Reibung (Startwerte) | ja | – | – | – | – |
+| Beziehungsrendite einschalten (E-K4-2) | ja | – | – | – | – |
+| Transkript-Aufbewahrung 30, 90 oder 180 Tage (E-K3-7) | ja | – | – | – | – |
+| Mein Agent (eigene Stufen) | ja | ja | ja | ja | – |
+| Zusage im Namen des Käufers freigeben | ja | ja | ja | ja | – |
+| Agenda und Protokoll teilen | ja | ja | ja | ja | – |
+| Wirkung freigeben | ja | ja | ja | – | – |
+| Mandat bestätigen oder ändern | ja | ja | ja (eigene Beziehung) | – | – |
+| Deal im Mandat senden oder bestätigen | ja | ja | ja (eigene Beziehung) | – | – |
+| Deal außerhalb des Mandats annehmen (E-K5-2) | – | ja (oder Vertretung) | – | – | – |
+| Strategie freigeben festhalten (E-K6-2) | – | Lead der Warengruppe | – | – | – |
+| Strategie-Teil bestätigen | ja | ja | ja (im Team) | ja (im Team) | – |
+| Reibungs-Kostensätze ändern (E-K4-3) | – | ja | – | – | – |
+| Wertbericht senden | ja | ja | – | – | – |
+| Anteile einer Warengruppe entscheiden (E-K8-3) | – | Lead der Warengruppe (oder Vertretung) | – | – | – |
+| Verhandlungsrahmen freigeben, Anfragen senden | ja | ja | – | ja (Commodity Manager der Warengruppe) | – |
+| Vergeben (E-K8-3) | – | Lead der Warengruppe (oder Vertretung) | – | – | – |
+| Review-Vorlage senden, Beschlüsse festhalten | – | Lead der Warengruppe | – | – | – |
+| Hypothese bearbeiten, Sicherheit anheben bestätigen | ja | ja | ja (verantwortlich) | ja (verantwortlich) | – |
+| Demo-Regie (nur im Demo-Mandanten) | ja | ja | ja | ja | ja |
+
+Den Gemeinsamen Plan gibt intern der Sponsor der Beziehung frei (im Demo Mara Weiß), unabhängig von der Rolle in der Tabelle. Controlling bestätigt Wert per Link mit Token (E-K4-1); ein Konto ist optional.
+
+### Rollen Lieferantenseite (ab Kapitel 5)
+
+| Handlung | Sponsor | Key Account | Mitglied |
+|---|---|---|---|
+| Deal senden oder bestätigen | ja (oder nach eigener Freigaberegel, E-K5-3) | ja, wenn die Freigaberegel es erlaubt | – |
+| Kostenspanne teilen oder zurückziehen | ja | ja | – |
+| Plan freigeben | ja | – | – |
+| Zusagen bestätigen | ja | ja | ja (eigene) |
+| Beiträge senden | ja | ja | ja (eigene) |
+| Person einladen | ja | ja | – |
+| Vorlagen anlegen (E-K5-5) | ja | ja | – |
+| Verhandlung durch den eigenen Agenten zulassen, Untergrenze setzen (E-K8-6) | ja | ja | – |
+| Angebot auf eine Anfrage bestätigen | ja | ja, wenn die Freigaberegel es erlaubt | – |
+
+Bestätigen per Link (ohne Konto): Passkey, an die Person gebunden, 14 Tage (E-K2-6); zeigt nur die Objekte des Links.
+
+### Nie, für niemanden
+
+- Daten aus einer Kundenakte in einer anderen Kundenakte, auch nicht über den Agenten oder eine Vorlage (E-K5-5).
+- Personenbezogene Stunden oder Leistungsauswertungen (E-K4-2).
+- Wertarten addiert (G-3).
+- Bindende Handlung über einen Kanal gegenüber Lieferanten (KA-01).
+- Namen, Preise, Bedingungen oder Rang eines Bieters gegenüber einem anderen Bieter, auch nicht über Agenten (VG-01).
+- Soll-Kosten, Verhandlungsrahmen oder Hypothesen beim Lieferanten (WZ-01, VG-01, WT-01).
+
 ## Warengruppenmanagement (Zielmatrix)
 
 Die Rollen Lead, Commodity Manager, Einkauf im Team und Funktion im Team gelten je Warengruppe (`category_member.role`).

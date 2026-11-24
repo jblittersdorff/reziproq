@@ -10,26 +10,36 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Outfit:wght@500;600;700&amp;display=swap" rel="stylesheet">
-<style>body{margin:0}</style>
+<style>
+/* ci-base */ body,x-dc>div,.rz-app{font-family:Figtree,system-ui,sans-serif;color:#14181b} input,textarea,select{font-family:Figtree,system-ui,sans-serif;color:#14181b}
+body{margin:0}
+</style>
 </helmet>
-<div style="font-family:Figtree,system-ui,sans-serif;color:#0f1b22;background:#f4f5f2">
+<div style="font-family:Figtree,system-ui,sans-serif;color:#14181b;background:#f4f5f2">
   <div style="max-width:1200px;margin:0 auto;padding:20px clamp(16px,4vw,48px) 4px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
-    <a href="Lieferanten.dc.html" style="align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:32px;color:#0b7a6a;font-size:15px;font-weight:600;text-decoration:none"><svg width="10" height="16" viewBox="0 0 12 20" fill="none" aria-hidden="true"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Lieferanten</a>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
-      <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
-        <strong style="font-family:Outfit,Figtree,sans-serif;font-size:clamp(28px,4vw,36px);line-height:1.08;font-weight:600;letter-spacing:-0.03em">Rheintal Elektronik</strong>
-        <span style="font-size:14px;color:#5a636b">Hoher Impact · ausbaufähig · Elektronik · Schritt 4 von 6: Plan</span>
+    <a href="Lieferanten.dc.html" style="align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:32px;color:#0b7a6a;font-size:15px;font-weight:600;text-decoration:none"><svg width="10" height="16" viewBox="0 0 12 20" fill="none" aria-hidden="true"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Beziehungen</a>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px">
+      <span aria-hidden="true" style="width:48px;height:48px;flex:none;border-radius:999px;background:#0b7a6a;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font:600 16px Outfit,Figtree,sans-serif">RE</span>
+      <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:4px;min-width:0">
+        <strong style="font-family:Outfit,Figtree,sans-serif;font-size:clamp(28px,4vw,34px);line-height:1.08;font-weight:600;letter-spacing:-0.03em;color:#0f1b22">Rheintal Elektronik</strong>
+        <span style="font-size:14px;color:#5a636b">Strategisch · Leiterplatten, Baugruppen, Kabelsätze · 4,2 Mio. € · im Jahreszyklus: JBP</span>
       </div>
-      <a href="L-Profil.dc.html" aria-label="Profil, Segmentierung und Team" aria-current="{{profileCurrent}}" style="{{profileStyle}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></a>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" aria-label="Aktionen von Reziproq">
+        <a href="K1-Mappe.dc.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;text-decoration:none">Wert finden</a>
+        <a href="Termin-Briefing.dc.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;text-decoration:none">Briefing JBP</a>
+        <a href="K2-Mail-Zusage.dc.html" style="display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;background:#e9ece8;color:#0f1b22;font:600 15px Figtree,sans-serif;text-decoration:none">Schreiben</a>
+        <a href="K2-Profil.dc.html" aria-label="Profil, Team und Mandat" aria-current="{{profileCurrent}}" style="{{profileStyle}}">···</a>
+      </div>
     </div>
-    <nav aria-label="Bereiche des Lieferanten" style="display:flex;gap:2px;padding:3px;border-radius:12px;background:#e6e9e5;overflow-x:auto;max-width:100%;box-sizing:border-box">
-      <sc-for list="{{areas}}" as="a" hint-placeholder-count="4">
-        <a href="{{a.href}}" aria-current="{{a.current}}" style="{{a.style}}">{{a.label}}</a>
-      </sc-for>
+    <nav aria-label="Sicht auf die Beziehung" style="display:flex;gap:2px;padding:3px;border-radius:12px;background:#e6e9e5;max-width:560px;box-sizing:border-box">
+      <a href="L-Ueberblick.dc.html" aria-current="{{gCurrent}}" style="{{gStyle}}"><svg width="20" height="14" viewBox="0 0 28 20" fill="none" aria-hidden="true"><path d="M14 3.07A8 8 0 0 1 14 16.93A8 8 0 0 1 14 3.07Z" fill="#4fd1b4"></path><circle cx="10" cy="10" r="8" stroke="#0f1b22" stroke-width="2"></circle><circle cx="18" cy="10" r="8" stroke="#0b7a6a" stroke-width="2"></circle></svg>Gemeinsam</a>
+      <a href="K2-Akte-Privat.dc.html" aria-current="{{pCurrent}}" style="{{pStyle}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f4a52" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Nur für dich</a>
+      <a href="K2-Akte-Geteilt.dc.html" aria-current="{{sCurrent}}" style="{{sStyle}}"><span aria-hidden="true" style="width:10px;height:10px;border-radius:99px;background:#0b7a6a"></span>Von Rheintal</a>
     </nav>
     <sc-if value="{{hasSubs}}" hint-placeholder-val="{{true}}">
-      <nav aria-label="Seiten im Bereich" style="display:flex;gap:4px;overflow-x:auto;padding:2px 0">
-        <sc-for list="{{subs}}" as="s" hint-placeholder-count="5">
+      <nav aria-label="Seiten zum Objekt" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:2px 0">
+        <span style="font-size:13px;font-weight:600;color:#5a636b;padding-right:6px">{{objName}}</span>
+        <sc-for list="{{subs}}" as="s" hint-placeholder-count="4">
           <a href="{{s.href}}" aria-current="{{s.current}}" style="{{s.style}}">{{s.label}}</a>
         </sc-for>
       </nav>
@@ -37,39 +47,40 @@
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"area":{"editor":"enum","options":["Überblick","Aktivitäten","Plan","Ergebnisse","Claims und Risiken","Profil","Notizen","Strategie","Beziehung","Gemeinsamer Plan","Umsetzung","Wirkung"],"default":"Plan"},"page":{"editor":"text","default":"Themen"},"subs":{"editor":"enum","options":["an","aus"],"default":"an"},"$preview":{"width":1440,"height":200}}'>
+<script type="text/x-dc" data-dc-script data-props='{"area":{"editor":"enum","options":["Überblick","Aktivitäten","Plan","Ergebnisse","Claims und Risiken","Profil","Notizen","Strategie","Beziehung","Gemeinsamer Plan","Umsetzung","Wirkung"],"default":"Plan"},"page":{"editor":"text","default":"Themen"},"subs":{"editor":"enum","options":["an","aus"],"default":"an"},"$preview":{"width":1440,"height":250}}'>
 class Component extends DCLogic {
   renderVals() {
+    // Kapitel 2: Kopf der Akte. Drei Sichten statt vier Bereiche; Unterseiten nur noch für Objekte, die erst in Kapitel 3 und 4 umgebaut werden.
     const areaAlias = { Notizen: 'Aktivitäten', Strategie: 'Profil', Beziehung: 'Profil', 'Gemeinsamer Plan': 'Plan', Umsetzung: 'Plan', Wirkung: 'Ergebnisse' };
     const pageArea = { Wertpotenziale: 'Ergebnisse', Feedback: 'Ergebnisse', Termine: 'Aktivitäten', Verlauf: 'Aktivitäten', Notizen: 'Aktivitäten', Claims: 'Claims und Risiken', Risiken: 'Claims und Risiken', 'Vertrag und Pflichten': 'Profil' };
     const rawArea = this.props.area ?? 'Plan';
     let page = this.props.page ?? '';
     const area = pageArea[page] ?? areaAlias[rawArea] ?? rawArea;
     if (area === 'Ergebnisse' && page === 'Initiativen') page = 'Gesichert';
-    if (page === 'Notizen') page = 'Verlauf';
-    const tabs = [
-      ['Überblick', 'L-Ueberblick.dc.html', []],
-      ['Aktivitäten', 'L-Notizen.dc.html', [['Verlauf', 'L-Notizen.dc.html'], ['Termine', 'U-Termine.dc.html']]],
-      ['Plan', 'P-Themen.dc.html', [['Vorbereitung', 'P-Vorbereitung.dc.html'], ['Themen', 'P-Themen.dc.html'], ['Initiativen', 'P-Initiativen.dc.html'], ['Zusagen', 'P-Zusagen.dc.html'], ['Maßnahmen', 'U-Massnahmen.dc.html'], ['Scorecard', 'P-Scorecard.dc.html'], ['Freigabe', 'P-Freigabe.dc.html']]],
-      ['Ergebnisse', 'W-Initiative.dc.html', [['Gesichert', 'W-Initiative.dc.html'], ['Wertpotenziale', 'KI-Wert.dc.html'], ['Feedback', 'B-Feedback.dc.html']]],
-      ['Claims und Risiken', 'C-Claims.dc.html', [['Claims', 'C-Claims.dc.html'], ['Risiken', 'R-Risiken.dc.html']]],
-    ];
-    const profil = ['Profil', 'L-Profil.dc.html', [['Profil und Spend', 'L-Profil.dc.html'], ['Segmentierung', 'L-Segmentierung.dc.html'], ['Warengruppen', 'L-Warengruppen.dc.html'], ['Lieferantenplan', 'L-Lieferantenplan.dc.html'], ['Team', 'B-Team.dc.html'], ['Spielregeln', 'B-Spielregeln.dc.html'], ['Vertrag und Pflichten', 'V-Vertrag.dc.html']]];
-    const tab = 'display:inline-flex;align-items:center;justify-content:center;flex:1 0 auto;min-height:36px;padding:0 18px;border-radius:9px;text-decoration:none;font-size:14px;white-space:nowrap;';
+    const privatePages = ['JBP vorbereiten', 'Gesichert', 'Wertpotenziale', 'Verlauf', 'Notizen', 'Risiken', 'Segmentierung', 'Lieferantenplan', 'Warengruppen'];
+    const view = (privatePages.includes(page) || area === 'Ergebnisse' || (area === 'Aktivitäten' && page !== 'Termine')) ? 'p' : 'g';
+    const objects = {
+      Plan: ['Gemeinsamer Plan', [['JBP vorbereiten', 'Termin-Briefing.dc.html'], ['Plan und Freigabe', 'P-Freigabe.dc.html'], ['Zusagen und Scorecard', 'L-Ueberblick.dc.html']]],
+      Ergebnisse: ['Wert', [['Wertkonto', 'W-Initiative.dc.html'], ['Feedback', 'K2-Feedback.dc.html']]],
+      'Aktivitäten': ['Termine und Verlauf', [['Termine', 'Heute-Alles.dc.html'], ['Verlauf', 'K2-Akte-Privat.dc.html']]],
+      'Claims und Risiken': ['Claims und Risiken', [['Claims', 'C-Claims.dc.html'], ['Risiken', 'R-Risiken.dc.html']]],
+      Profil: ['Profil', [['Profil und Team', 'K2-Profil.dc.html'], ['Vertrag und Pflichten', 'V-Vertrag.dc.html']]],
+    };
+    const obj = objects[area] ?? null;
+    const tab = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:1 0 auto;min-height:40px;padding:0 14px;border-radius:9px;text-decoration:none;font:600 14px Figtree,sans-serif;white-space:nowrap;';
+    const on = tab + 'background:#ffffff;color:#0f1b22;box-shadow:0 1px 3px #0f1b2222';
+    const off = tab + 'background:transparent;color:#3f4a52';
     const pill = 'display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;text-decoration:none;font-size:13px;white-space:nowrap;';
-    const btn = 'display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;border-radius:999px;text-decoration:none;';
-    const current = area === 'Profil' ? profil : (tabs.find((t) => t[0] === area) ?? tabs[0]);
+    const btn = 'display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:44px;height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font:600 18px Figtree,sans-serif;';
     return {
-      areas: tabs.map(([label, href]) => ({
-        label,
-        href,
-        current: label === area ? 'page' : 'false',
-        style: label === area ? tab + 'background:#ffffff;color:#0f1b22;font-weight:600;box-shadow:0 1px 3px #0f1b2222' : tab + 'color:#3f4a52;font-weight:500',
-      })),
+      gCurrent: view === 'g' ? 'page' : 'false', gStyle: view === 'g' ? on : off,
+      pCurrent: view === 'p' ? 'page' : 'false', pStyle: view === 'p' ? on : off,
+      sCurrent: 'false', sStyle: off,
       profileCurrent: area === 'Profil' ? 'page' : 'false',
-      profileStyle: area === 'Profil' ? btn + 'background:#0f1b22;color:#ffffff' : btn + 'background:#ffffff;color:#0b7a6a',
-      hasSubs: current[2].length > 0 && (this.props.subs ?? 'an') !== 'aus',
-      subs: current[2].map(([label, href]) => ({
+      profileStyle: area === 'Profil' ? btn + 'background:#0f1b22;color:#ffffff' : btn + 'background:#e9ece8;color:#0f1b22',
+      hasSubs: !!obj && (this.props.subs ?? 'an') !== 'aus',
+      objName: obj ? obj[0] : '',
+      subs: (obj ? obj[1] : []).map(([label, href]) => ({
         label,
         href,
         current: label === page ? 'page' : 'false',

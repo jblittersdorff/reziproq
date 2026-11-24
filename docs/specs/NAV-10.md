@@ -1,296 +1,137 @@
-# NAV-10 Navigation: Übersicht, Mein Tag, Lieferanten, Warengruppen
+# NAV-10 Navigation und Seitenrahmen
 
-Release 1.1 · baut auf NAV-05 (Start), LS-01, FS-01, Impact-Ledger, WG-01 bis WG-20 · deckt ab NAV-10 bis NAV-14 · ersetzt die Hauptnavigation Start, Warengruppen, Lieferanten, Portfolio, Wirkung, Agenten · **ersetzt Version 1.0 (Kopfzeile mit Pillen)**
+Version 2.0 · alle Kapitel · Pakete K1-d (Rahmen), ergänzt in K2-c, K3-b, K4-b, K5-b, K6-f, K7-e · baut auf ZA-01, HE-01, MA-01 · **ersetzt Version 1.1** und NAV-05 (Start) · Bildvorlagen: Main, Fragen, A-MeinTag, Heute-Alles, A-Uebersicht, A-Lieferanten, A-Lieferant, A-Lieferant-Desktop, A-Warengruppen, A-Warengruppe, L5-Heute
 
-Änderungen gegenüber 1.0:
-- Die Kopfzeile entfällt. Auf dem Desktop gibt es eine Seitenleiste, auf dem Telefon eine Tab-Leiste unten.
-- Jede Seite folgt den fünf Seitenregeln (Abschnitt „Seitenregeln“).
-- Die Übersicht und Mein Tag sind kürzer. Lieferanten- und Warengruppenkopf sind neu gestaltet.
-- Die Warengruppe bekommt eine eigene Seite „Überblick“.
+## Änderungen gegenüber 1.1
 
-Hinweis: Alles zu Claims, Risiken und Verträgen in dieser Spec erscheint nur, wenn das Modul in `org_module` aktiv ist (siehe UX-20). In Release 1.1 sind diese Module aus.
+- Hauptpunkte heißen Heute, Beziehungen, Warengruppen, Wert. Mein Tag wird Heute (HE-01), Übersicht wird Wert (WK-01), Lieferanten werden Beziehungen (BZ-01).
+- „Suchen oder fragen“ wird **Frag Reziproq**: suchen, fragen und Aufträge geben.
+- Neu in der Seitenleiste: Zeile „Im Hintergrund“ und **Mein Agent** (MA-01). Die Seite Agenten entfällt.
+- Die Karte „Als Nächstes“ liest aus `focus_item` (HE-01). Neu ist „Zusammengefasst von Reziproq“ mit belegten Zahlen.
+- Eine Seite gibt es nur für ein Objekt, eine Entscheidung (Mappe) oder eine Einstellung (G-8). Ablauf-Leiste, Schrittseiten und die vier Bereiche im Lieferantenkopf entfallen; an ihre Stelle treten Sichten, Blätter, Mappen und Kurz prüfen.
+- Terminschiene und Lagebild mit Risiko- und Claims-Karte entfallen (G-4); Termine stehen in Heute und an den Objekten.
+- Der Lieferant hat eine eigene Navigation mit denselben Bausteinen (LP-01).
 
 ## Ziel
 
-Der Nutzer weiß auf jeder Seite drei Dinge, ohne zu suchen:
-1. wo er ist;
-2. wo er im Prozess steht;
-3. was als Nächstes zu tun ist, mit einem Klick erreichbar.
+Auf jeder Seite weiß die Person, ohne zu suchen: wo sie ist, was gerade dran ist (genau eine Karte „Als Nächstes“) und was Reziproq schon erledigt oder vorbereitet hat. Jede Seite wird zuerst für 390 px gebaut und dann für den Desktop erweitert.
 
-Alles andere tritt zurück. Reziproq wird auch vom Telefon aus genutzt. Jede Seite wird zuerst für 390 px Breite gebaut und dann für den Desktop erweitert.
+| Hauptpunkt | Frage | Spec |
+|---|---|---|
+| **Heute** | Was braucht heute mich? | HE-01 |
+| **Beziehungen** | Wie steht es mit Lieferant X? | BZ-01, AK-01 |
+| **Warengruppen** | Steht meine Strategie? | ST-01 |
+| **Wert** | Was haben wir erreicht? | WK-01 |
 
-Reziproq hat vier Hauptpunkte. Jeder beantwortet eine Frage:
-
-| Hauptpunkt | Frage |
-|---|---|
-| **Übersicht** | Was haben wir erreicht? |
-| **Mein Tag** | Was mache ich heute? |
-| **Lieferanten** | Wie steht es um Lieferant X? |
-| **Warengruppen** | Steht meine Strategie? |
-
-KI ist kein Menüpunkt. Reziproq erscheint als Akteur in den Aktivitäten, als Absender von Entwürfen und im Feld „Suchen oder fragen“. Agenten verwalten liegt in den Einstellungen.
+Reziproq ist kein Menüpunkt. Es erscheint als „Entwurf von Reziproq“, „Zusammengefasst von Reziproq“, in Erledigt, als Kennzeichnung an Nachrichten (AU-01) und in Frag Reziproq. Was Reziproq je Aufgabe selbst tun darf, stellt jede Person in Mein Agent ein.
 
 ## Wer darf was
 
 | Rolle | Darf |
 |---|---|
-| Käufer: alle mit Zugriff | Alle vier Hauptpunkte. Jede Zahl und jede Zeile zeigt nur Lieferanten und Warengruppen, die die Person sehen darf. |
-| Lead, Admin | Starten standardmäßig in der Übersicht. |
-| Alle anderen Käufer | Starten standardmäßig in Mein Tag. |
-| Jede Person | Die eigene Startseite in den Einstellungen ändern. |
-| Lieferant | Eigene Navigation mit denselben Bausteinen: Start, Kunden. Sieht nichts von der Käuferseite. |
+| Käufer, alle mit Zugriff | alle vier Hauptpunkte; jede Zahl und Zeile nur zu Beziehungen und Warengruppen, die die Person sehen darf |
+| Lead, Admin | starten in Wert (E-K1-1) |
+| alle anderen Käufer | starten in Heute |
+| jede Person | eigene Startseite in den Einstellungen ändern (`wert`, `heute`) |
+| Lieferant | Heute, Kunden, Frag, Mein Agent, Einstellungen; keine Warengruppen, kein Wert (LP-01) |
+| Gast per Link | nur die Seite des Links (BL-01, BE-01), ohne Rahmen |
 
-## Daten
+## Rahmen
 
-| Tabelle | Felder | Art |
-|---|---|---|
-| `user_setting` (besteht) | neuer Schlüssel: `start_page` (`overview`, `my_day`), leer = nach Rolle | `org_private` |
-| `note` | `id`, `org_id`, `relationship_id`, `author_user_id`, `visibility` (`team`, `private`), `kind` (`note`, `call`), `text`, `pinned`, `created_at`, `updated_at` | `org_private` |
-| `activity_feed` (Sicht, keine Tabelle) | `org_id`, `relationship_id`, `occurred_at`, `kind` (`meeting`, `note`, `call`, `mail`, `transcript`, `document`, `hint`, `agent`), `actor` (Person oder `reziproq`), `title`, `meta`, `object_type`, `object_id`, `visibility` | aus den Quelltabellen |
-| `timeline_item` (Sicht, keine Tabelle) | `org_id`, `date`, `kind` (`meeting`, `deadline`, `approval`, `commitment`, `risk`), `title`, `meta`, `object_type`, `object_id`, `relationship_id`, `category_id` | aus Terminen, Claims, Warengruppen, Zusagen, Bewertungsrunden, Krisen |
-| `next_action` (Sicht, keine Tabelle) | `org_id`, `user_id`, `scope` (`global`, `relationship`, `category`, `page`), `scope_id`, `kind`, `title`, `kicker`, `due_at`, `href`, `score` | aus Aufgaben, Hinweisen, Zusagen, Abläufen |
+**Seitenleiste** (ab 761 px): 236 px, Fläche `#eceeea`, so hoch wie die Seite. Von oben: Logo (zur Startseite), Feld „Frag Reziproq“ mit ⌘K, Heute mit Zahl der offenen Fokus-Themen, Beziehungen, Warengruppen, Wert; Abstand; Zeile „Im Hintergrund: …“ (13 px, Punkt Petrol, zeigt einen laufenden Lauf; Klick öffnet Erledigt); Mein Agent; Einstellungen; Person mit Initialen. Aktiver Punkt weiß mit leichtem Schatten, Symbol Petrol. Beim Lieferanten: Heute, Kunden; Mein Agent, Einstellungen; Person als „<Name> · <Firma>“.
 
-- `activity_feed` ist eine SQL-Sicht über Termine, `note`, Dokumente, Hinweise (FS-01, KI-16) und abgeschlossene Läufe von Agenten mit Entwürfen (`agent_run` aus KI-04). Mails und Transkripte kommen mit den Anbindungen (IN-04, IN-05) dazu. Die Zeilensicherheit der Quelltabellen gilt weiter.
-- Eine Notiz mit `private` sieht nur die Person, die sie geschrieben hat, auch kein Admin.
-- `next_action` liefert je Ort genau einen nächsten Schritt (siehe Seitenregel 3). Die Auswahl trifft der Code nach `score`:
-  - überfällig vor fällig heute;
-  - dann Wirkung (Spend × Segment);
-  - dann Frist.
-- Ohne Kandidat liefert die Sicht nichts, und die Seite zeigt keine Karte „Als Nächstes“.
+**Tab-Leiste** (bis 760 px): fest unten, weiß durchscheinend. Käufer: Heute, Beziehungen, Frag, Warengruppen, Wert. Lieferant: Heute, Kunden, Frag. Aktiv Petrol, Text 11 px, Inhalt unten 92 px Abstand. Mein Agent und Einstellungen erreichen beide Seiten mobil über die Person in Heute.
 
-Adressen und Weiterleitungen:
-
-| Neu | Alt, leitet weiter |
-|---|---|
-| `/uebersicht` | `/wirkung` |
-| `/mein-tag` | `/start` |
-| `/lieferanten` (Ansichten Liste, Matrix, Bewertungsrunde) | `/portfolio` → `/lieferanten?ansicht=matrix` |
-| `/warengruppen` | unverändert |
-| `/warengruppen/<id>` | bisher Schritt 10, jetzt Überblick; Schritt 10 unter `/warengruppen/<id>/strategie/freigabe` |
-| `/einstellungen/ki/agenten` | `/agenten` |
-| `/` | Startseite der Person |
-
-Lieferant (`/lieferanten/<id>/…`):
-
-| Bereich | Seiten | Alt |
-|---|---|---|
-| Überblick | – | Überblick |
-| Aktivitäten | Verlauf, Termine | Termine aus Umsetzung |
-| Plan | Vorbereitung, Themen, Initiativen, Zusagen, Maßnahmen, Scorecard, Freigabe | Gemeinsamer Plan, Maßnahmen aus Umsetzung |
-| Ergebnisse | Gesichert, Wertpotenziale, Feedback | Wirkung, Wertpotenziale aus Gemeinsamer Plan, Feedback aus Beziehung |
-| Profil (Knopf „···“ im Kopf) | Profil und Spend, Segmentierung, Warengruppen, Lieferantenplan, Team, Spielregeln, Beziehungsnetz | Strategie, Team und Spielregeln aus Beziehung |
-
-Warengruppe (`/warengruppen/<id>/…`):
-
-| Bereich | Inhalt | Alt |
-|---|---|---|
-| Überblick | **neu:** vier Phasen, „Als Nächstes“, Zeilen zu Analysen, Lieferanten, Zielen, Strategie | bisher Schritt 10 |
-| Strategie | der geführte Ablauf in zehn Schritten, darin Schritt 10 Zusammenfassung und Freigabe (WG-16) | unverändert |
-| Lieferanten | Supplier Map (WG-15) | Schritt 9 |
-| Ergebnisse | Scorecard und Ziele der Warengruppe (WG-12) | Schritt 7 |
-
-Alte Adressen leiten auf die neuen weiter. Lesezeichen und Links in Mails funktionieren weiter.
+**Frag Reziproq** (⌘K, mobil Vollbild, mobil auch per Sprache nach KA-01):
+- Suchen: Beziehungen, Warengruppen, Termine, Zusagen, Notizen; Treffer sofort.
+- Fragen: Antwort mit Quellen und belegten Zahlen; Kontext ist das geöffnete Objekt.
+- Aufträge („Bereite das JBP vor“, „Erinnere mich Freitag“): enden als Mappe, Entwurf in Kurz prüfen oder Erinnerung; nie als bindende Handlung.
+- Beim Lieferanten nur innerhalb seiner Akten; Fragen nach Daten der Kundenseite beantwortet Reziproq mit „kann Reziproq nicht sehen“ (LP-01).
 
 ## Seitenregeln
 
-Jede Seite der Käufer- und Lieferantenseite folgt diesen fünf Regeln:
+1. **Wo bin ich.** Titel Outfit 700, 34 bis 36 px (mobil 30 px); darüber Zurück-Link mit dem Namen der Ebene („‹ Beziehungen“, „‹ Heute“). Startseiten der Hauptpunkte ohne Zurück-Link. Hauptpunkt markiert.
+2. **Genau eine Karte „Als Nächstes“.** Tinte-Karte mit Kurzzeile (Mint), Titel, Satz, genau einem Hauptknopf und höchstens einem Zweitknopf; direkt unter dem Kopf. Quelle: `next_action` (Sicht auf `focus_item` mit `level = focus` und passendem Ort). Ohne Kandidat keine Karte. Jeder andere Knopf der Seite ist ein Zweitknopf; Formulare haben genau einen Hauptknopf.
+3. **Zusammengefasst von Reziproq.** Wo eine Seite einen Satz von Reziproq zeigt, stehen seine Zahlen in `sentence_facts`; Quellen-Chips darunter. Ein Satz mit einer Zahl ohne Beleg wird nicht angezeigt (G-6). Wertarten werden nie addiert (G-3).
+4. **Alles andere tritt zurück.** Inhalte in weißen Gruppen mit Zeilen; Details öffnen als Blatt (620 px von rechts, Esc schließt, mobil volle Seite); Herleitung, Verlauf, „Wer sieht was“ und Leitfragen sind eingeklappt.
+5. **Mobil zuerst.** Unter 760 px keine Seitenleiste; Spalten untereinander; Tabellen scrollen im Rahmen, die Seite nie seitwärts; Bedienflächen mindestens 44 px.
 
-1. **Wo bin ich.**
-   - Großer Titel (Outfit 700, 34 bis 36 px, auf dem Telefon 30 px).
-   - Darüber ein Zurück-Link mit dem Namen der Ebene darüber, zum Beispiel „‹ Lieferanten“ oder „‹ Warengruppen“. Die Startseiten der vier Hauptpunkte haben keinen Zurück-Link.
-   - Der Hauptpunkt ist in Seitenleiste oder Tab-Leiste markiert.
-2. **Wo stehe ich im Prozess.**
-   - Wo ein Ablauf läuft, steht unter dem Titel eine Schrittfolge.
-   - Im Überblick hat sie vier Phasen (Lieferant: Segment, Plan, JBP, Ergebnisse; Warengruppe: Analyse, Bewertung, Strategie, Freigabe).
-   - In einem Ablauf zeigt sie alle Schritte (Ablauf-Leiste).
-3. **Genau eine Karte „Als Nächstes“.**
-   - Dunkle Tinte-Karte mit Kurzzeile (Mint), Titel und genau einem Knopf.
-   - Sie steht direkt unter dem Kopf.
-   - Auf dem Telefon füllt der Knopf die Breite. In Prozessschritten steht er unten fest über der Tab-Leiste.
-   - Jeder andere Knopf der Seite ist ein Zweitknopf (grau gefüllt).
-   - Formulare haben keine Karte, ihr Speichern-Knopf ist der Hauptknopf.
-4. **Alles andere tritt zurück.**
-   - Inhalte stehen in weißen Gruppen mit Zeilen.
-   - Hintergrund und Hilfen sind eingeklappt und öffnen mit einem Klick: Leitfragen, „So liest du …“, Herleitung, Verlauf, Protokoll, „Wer sieht was“, Verbrauch.
-   - Zahlen beschränken sich auf die, die die nächste Entscheidung braucht.
-5. **Mobil zuerst.**
-   - Unter 760 px Breite verschwindet die Seitenleiste. Die Tab-Leiste unten zeigt fünf Ziele: Übersicht, Mein Tag, Lieferanten, Warengruppen, Frag.
-   - Spalten stehen untereinander, Tabellen scrollen in ihrem Rahmen, die Seite selbst nie seitwärts.
-   - Bedienflächen sind mindestens 44 px hoch.
+Fortschritt zeigt das Objekt selbst: Phasen-Umschalter am Termin (TE-01), Teile-Umschalter an der Strategie (ST-01), Freigabe-Schritte am Plan (GP-01), „So geht es weiter“ in jeder Mappe (HE-01).
 
-## Ablauf
+## Seiten und Adressen
 
-1. **Seitenleiste** (ab 761 px Breite):
-   - 236 px breit, Fläche `#eceeea`, so hoch wie der Bildschirm; sie bleibt beim Scrollen stehen,
-     nur der Inhalt scrollt (Gründer, 23.11.2026; vorher „nicht fixiert, so hoch wie die Seite“).
-   - Von oben:
-     - Logo (führt zur eigenen Startseite);
-     - Feld „Suchen oder fragen“ mit ⌘K;
-     - die vier Hauptpunkte mit Symbol (Mein Tag mit Zahl offener Dinge für heute);
-     - Abstand;
-     - Einstellungen;
-     - die Person mit Initialen.
-   - Der aktive Punkt ist weiß mit leichtem Schatten, sein Symbol Petrol.
-   - Auf der Lieferantenseite: Start, Kunden und die Person mit Firma.
-2. **Tab-Leiste** (bis 760 px Breite):
-   - Fest unten, weiß durchscheinend mit Unschärfe.
-   - Fünf Ziele mit Symbol und Text 11 px. Aktiv in Petrol.
-   - „Frag“ öffnet Suchen oder fragen als Vollbild.
-   - Der Inhalt hat unten 92 px Abstand.
-3. **Suchen oder fragen:** ein Feld für beides.
-   - **Suchen:** Treffer zu Lieferanten, Warengruppen, Terminen und Notizen erscheinen sofort.
-   - **Fragen:** Eine Frage („Warum …“, „Was …“) geht an die bestehende Funktion Fragen, mit dem aktuellen Objekt als Kontext.
-   - Antworten sind Entwürfe mit Quellen (KI-03).
-4. **Übersicht** (`/uebersicht`): ein Lagebild über alle Bereiche, nicht nur eine Zahl. Breite bis 1200 px, auf dem Telefon alles untereinander. Von oben:
-   - Titel „Übersicht“, darunter Organisation, Jahr und Stand. Rechts der Zeitraum als Segment-Umschalter: Quartal, Jahr, Seit Start.
-   - **Erste Reihe, zwei Spalten:**
-     - links **Ergebnisse:**
-       - ein Ring, nur EBIT gesichert gegen das Jahresziel und nur vom Controlling bestätigt;
-       - daneben Zahl, Ziel und was fehlt;
-       - darunter Säulen „EBIT gesichert je Quartal“.
-       - Ohne Jahresziel kein Ring.
-       - Cash wird getrennt gezählt und nie addiert.
-     - rechts oben **Als Nächstes** (`next_action`, `scope` = `global`): die Handlung mit dem größten offenen Potenzial hinter einem Hindernis.
-     - rechts darunter **Zusammengefasst von Reziproq:**
-       - ein Satz mit der wichtigsten Zahl, etwa „69 % des Jahresziels sind gesichert. Guss trägt, Leiterplatten wartet auf die Freigabe.“;
-       - darunter höchstens drei Punkte mit Status-Chip „Läuft“ (gut), „Hakt“ (kritisch) und „Offen“ (Achtung), je ein Satz mit Zahl;
-       - unten die Quellen.
-       - Kandidaten je Chip wählt der Code:
-         - Läuft: höchster Anteil am Ziel;
-         - Hakt: aktive Krise oder Hinweis mit höchstem `score`;
-         - Offen: älteste Frist.
-     - Auf dem Telefon steht „Als Nächstes“ zuerst, dann die Zusammenfassung, dann Ergebnisse.
-   - **Terminschiene „Die nächsten vier Wochen“:**
-     - alle Termine, Fristen, Freigaben, Zusagen und Risikodaten über alle Lieferanten und Warengruppen, die die Person sehen darf;
-     - waagerecht als Datumskreise auf einer Linie, beginnend mit „Heute“ (Tinte);
-     - je Eintrag: Art in Farbe und Text (Termin, Frist, Freigabe, Zusage, Risiko), Titel, eine Unterzeile;
-     - höchstens acht Einträge, sortiert nach Datum. Ein Klick öffnet das Objekt.
-     - Auf dem Telefon scrollt die Schiene seitwärts in ihrem Rahmen.
-     - Quelle: neue Sicht `timeline_item` (`org_id`, `date`, `kind`, `title`, `meta`, `object_type`, `object_id`) über Termine, Claims (Antwortfrist), Freigabetermine der Warengruppen, Zusagen, Bewertungsrunden und aktive Krisen.
-   - **Lagebild, vier Diagrammkarten** im Raster (zwei Spalten, auf dem Telefon eine):
-     - **Warengruppen:** EBIT gesichert gegen Ziel je Warengruppe als Ziel-Balken. Potenzial aus nicht freigegebenen Strategien wird hell dargestellt.
-     - **Lieferanten:** Spend nach Segment als sortierte Balken; Link „n Lieferanten brauchen dich“.
-     - **Risiko:** hohe Risiken mit und ohne Maßnahme als 100-%-Balken. Bei aktiver Krise eine Zeile dazu.
-     - **Claims:** gefordert gegen berechtigt als Balken, dazu Chips „n offen“ und „n älter als 60 Tage“.
-     - Jede Karte hat ein Bereichslabel, eine Aussage mit Zahl als Titel, das Diagramm, eine Quellzeile und unten genau einen Link in den Bereich.
-     - Eine Karte erscheint nur, wenn der Bereich Daten hat (etwa keine Claims-Karte ohne Claims-Modul).
-   - Die Kandidaten und alle Zahlen kommen aus dem Code. Reziproq formuliert nur die Titelsätze aus diesen Fakten. Ein Satz mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt, und es erscheint der neutrale Titel des Bereichs.
-   - EBIT und Cash werden nie addiert.
-   - **Jahresziel:** `org_setting` `goal_ebit_year_cents` je Jahr, Ziele je Warengruppe aus WG-06.
-5. **Mein Tag** (`/mein-tag`, ersetzt NAV-05). Auf dem Desktop zwei Spalten (etwa 1,7 : 1, bis 1200 px), auf dem Telefon untereinander.
-   - **Kopf:** Titel, Wochentag und Datum mit Begrüßung; rechts „n von m für heute erledigt“ mit Fortschrittsbalken.
-   - **Linke Spalte:**
-     - **Als Nächstes:** das dringendste Ding für heute, überfällig vor fällig heute, mit Zeitbedarf in der Kurzzeile.
-     - **Heute:** die übrigen Dinge mit Fälligkeit heute oder überfällig.
-     - **Von Reziproq vorbereitet:** offene Entwürfe der Person, höchstens fünf, Absender-Monogramm „RZ“ in Tinte (Briefings, Import-Prüfung, neue Wertpotenziale, Analysen zur Bestätigung).
-     - **Diese Woche:** Aufgaben bis Sonntag mit Wochentag und Datum als Chip.
-     - unten der Link „Alle n Aufgaben“.
-   - **Rechte Spalte:**
-     - **Termine und Fristen** der nächsten 14 Tage aus `timeline_item`, mit Datumskreis und Art als Chip (Frist, Briefing, Freigabe);
-     - **Wartet auf andere:** Zusagen, Beiträge und Maßnahmen anderer Personen mit Fälligkeit, überfällig rot;
-     - zwei Zeilen „Neu eingegangen“ (Aktivitäten zur Zuordnung) und „Hinweise“.
-   - Auf dem Telefon kommt die rechte Spalte nach „Heute“.
-6. **Lieferanten** (`/lieferanten`):
-   - Titel, Suche und ein Umschalter: Meine, Strategisch, Alle.
-   - Gruppen „Brauchen dich“ und „Laufen gut“. Jede Zeile hat Monogramm, Ampelpunkt mit Text und den Grund in einer Zeile.
-   - Auf dem Desktop bleibt die Liste mit Detailleiste (LS-01).
-   - Matrix und Bewertungsrunde sind Ansichten.
-7. **Lieferant: Kopf** (Baustein `SupplierBar`):
-   - Zurück-Link „‹ Lieferanten“;
-   - Name groß;
-   - darunter eine graue Zeile mit Segment, Warengruppe und Schritt im Jahreszyklus;
-   - rechts der runde Knopf „···“ für Profil;
-   - darunter die vier Bereiche als Segment-Umschalter;
-   - die Unterseiten eines Bereichs als schlichte Links, die aktive Seite dunkel.
-8. **Lieferant: Überblick**, zwei Spalten:
-   - oben die Schrittfolge mit vier Phasen;
-   - links:
-     - Als Nächstes (`scope` = `relationship`);
-     - Zeilen Ergebnisse, Aktivitäten, Gemeinsamer Plan, Beziehungsnetz, Claims und Risiken, je mit Stand-Chip;
-     - Diagrammkarte Leistung aus der Scorecard;
-   - rechts:
-     - Kennzahlen (Spend mit Veränderung, Anteil an der Warengruppe, größte Feedback-Lücke);
-     - Termine und Fristen dieses Lieferanten;
-     - wichtigste Kontakte mit Stärke der Verbindung und Lücken zu Entscheidern.
-9. **Lieferant: Aktivitäten, Verlauf:**
-   - oben eine neue Notiz mit Sichtbarkeit Team oder Nur ich;
-   - dann Filter: Alles, Termine, Notizen, Mails, Transkripte, Dateien, Reziproq;
-   - dann der Verlauf nach Monaten, angeheftete Einträge oben.
-   - Kontakte und „Daraus entstanden“ stehen rechts, auf dem Telefon darunter.
-   - Der Lieferant sieht die Aktivitäten nie.
-10. **Warengruppen** (`/warengruppen`):
-    - Titel mit Zahl der Warengruppen, Spend und Stand gegen Ziel; Suche.
-    - Links:
-      - Als Nächstes (`scope` = `global`, nur Warengruppen);
-      - Gruppen „Brauchen dich“, „Freigegeben“, „Noch nicht begonnen“.
-      - Auf dem Desktop je Zeile die Spalten Warengruppe (mit Ampelpunkt und Stand), Lead, Spend, Strategie (Schritt mit Balken), Ergebnis gegen Ziel (Balken, Potenzial hell). Auf dem Telefon nur Name, Stand und Ergebnis.
-    - Rechts:
-      - Diagrammkarte Ergebnisse je Warengruppe;
-      - Termine (Freigaben, Reviews);
-      - Zeile „Strategie von Reziproq entwerfen lassen“ für eine nicht begonnene Warengruppe.
-11. **Warengruppe: Kopf** (Baustein `GroupBar`):
-    - Zurück-Link „‹ Warengruppen“;
-    - Name groß;
-    - graue Zeile mit Spend, Zahl der Lieferanten, Lead und Schritt;
-    - die vier Bereiche als Segment-Umschalter.
-12. **Warengruppe: Überblick** (neu), zwei Spalten:
-    - oben die Schrittfolge mit vier Phasen;
-    - links:
-      - Als Nächstes (`scope` = `category`, der aktuelle Schritt des Ablaufs);
-      - Gruppe „Strategie“ mit Analysen, Ziele, Bewertung, Umsetzungsschritten und Freigabe, je mit Stand-Chip (fertig, jetzt, offen);
-      - Diagrammkarte Umsatzanteile der Lieferanten mit Link zur Supplier Map;
-    - rechts:
-      - Kennzahlen (Spend mit Prognose, gesichert gegen Ziel, Potenzial nach Freigabe);
-      - Team mit Rollen;
-      - nächste Termine.
-13. **Abläufe** (JBP, Warengruppe, Claim):
-    - Die Ablauf-Leiste (`Flow`) zeigt Schritt n von m, die Schritte und „Fertig, wenn“.
-    - Ihr Weiter-Knopf ist ein Zweitknopf.
-    - Die Hauptaktion steht in der Karte „Als Nächstes“ der Seite.
-    - Auf Schritten, die erledigt oder noch nicht dran sind, führt diese Karte zum aktuellen Schritt.
-14. **Einstellungen:**
-    - Erreichbar über die Seitenleiste unten und auf dem Telefon über die Person in Mein Tag.
-    - Darin der Abschnitt **KI** mit Agenten, Einstellungen KI (KI-01) und eigenen Agenten (KI-09).
-15. **Begriffe:** „Wirkung“ heißt in der Oberfläche überall „Ergebnisse“, „Notizraum“ heißt „Aktivitäten“. Tabellen und Code dürfen die alten Namen behalten.
+| Adresse | Seite | Spec |
+|---|---|---|
+| `/` | Startseite der Person | – |
+| `/heute` (`?ansicht=alles`), `/kurz-pruefen`, `/erledigt`, `/warum/<id>` | Heute, Kurz prüfen, Erledigt, Warum | HE-01 |
+| `/mappe/<art>/<id>` | Mappe (u. a. `deal`, `wert`, `strategie`, `mandat`, `segment`, `autonomie`, `anteile`, `vergabe`, `review`) | HE-01 und die Spec der Art |
+| `/beziehungen` (`?linse=segmente`) | Beziehungen | BZ-01 |
+| `/beziehungen/<id>` (`?sicht=privat`, `?sicht=geteilt`), `/profil`, `/spielregeln`, `/feedback` | Akte | AK-01 |
+| `/beziehungen/<id>/mandat` | Mandat | MD-01 |
+| `/beziehungen/<id>/plan`, `/initiativen/<id>` | Gemeinsamer Plan, Initiative | GP-01 |
+| `/beziehungen/<id>/wert` | Wertkonto | WK-01 |
+| `/beziehungen/<id>/deals/<deal>` | Deal | DL-01 |
+| `/termine/<id>` | Termin | TE-01 |
+| `/warengruppen`, `/warengruppen/<id>`, `/warengruppen/<id>/strategie` | Warengruppen, Warengruppe, Strategie | ST-01 |
+| `/warengruppen/<id>/hypothesen/<code>` | Hypothese | WT-01 |
+| `/warengruppen/<id>/soll-kosten`, `/warengruppen/<id>/szenarien` | Blätter Soll-Kosten und Szenarien | WZ-01, SZ-01 |
+| `/warengruppen/<id>/vergaben/<vid>` | Vergabe | VG-01 |
+| `/wert`, `/wert/bericht/<jahr-monat>` | Wert, Wertbericht | WK-01, WB-01 |
+| `/mein-agent` | Mein Agent | MA-01 |
+| `/einstellungen`, `/einstellungen/ki`, `/einstellungen/kanaele` | Einstellungen | MA-01, KA-01 |
+| `/kunden`, `/kunden/<id>`, `/einladung/<token>` | Lieferantenseite | LP-01 |
+| `/kunden/<id>/anfragen/<vid>` | Anfrage und Angebot beim Lieferanten | VG-01 |
+| `/b/<token>` | Bestätigen oder Beitrag per Link | BL-01, BE-01 |
+| `/demo` | Demo-Regie (nur Demo-Mandant) | DM-01, SI-01 |
 
-Ausnahmen ohne Seitenleiste und Tab-Leiste:
-- Präsentationsmodus des JBP (`J-Moderation`, Vollbild);
-- Seiten ohne Anmeldung (Anmeldung, Einladung, Umfrage, Abfrage).
+**Weiterleitungen (301)** aus Version 1.1: `/uebersicht` und `/wirkung` → `/wert`; `/mein-tag` und `/start` → `/heute`; `/lieferanten[/…]` → `/beziehungen[/…]` (Einzelregeln in AK-01 und BZ-01); `/portfolio` → `/beziehungen?linse=segmente`; `/agenten` und `/einstellungen/ki/agenten` → `/mein-agent`; `/hinweise` → `/heute?ansicht=alles`; `/warengruppen/<id>/strategie/<schritt>` → `/warengruppen/<id>/strategie#teil-<n>`; `/warengruppen/<id>/strategie/freigabe` → `/mappe/strategie/<aktuelle Version>`; Termin-Reiter nach TE-01. Lesezeichen und Links in Mails funktionieren weiter.
 
-Vorlagen in `docs/design/referenz/`:
-- Muster mobil: `A-MeinTag`, `A-Uebersicht`, `A-Lieferanten`, `A-Lieferant`, `A-JBP`, `A-Warengruppen`, `A-Warengruppe`;
-- Muster Desktop: `A-Lieferant-Desktop`, `A-Warengruppe-Desktop`;
-- gebaute Seiten: `Main`, `Uebersicht`, `L-Ueberblick`, `WG-Uebersicht`, `WG-Start`, `Aufgaben`, `WG-Ziele`, `P-Initiative`;
-- Bausteine: `SupplierBar`, `GroupBar`, `Flow`.
+## Daten
 
-Regeln zu Farben, Formen und Bausteinen stehen in `docs/design/designsprache.md`.
+| Tabelle oder Sicht | Änderung |
+|---|---|
+| `user_setting.start_page` | Werte `wert`, `heute`; leer = nach Rolle |
+| `next_action` | Sicht auf `focus_item` mit `level = focus`; Punktzahl aus der Triage (HE-01); `scope` `global`, `relationship`, `category`, `object` |
+| `activity_feed` | heißt in der Oberfläche Verlauf; steht in der Akte unter Nur für dich; enthält Läufe von Reziproq mit Verweis auf Erledigt |
+| `timeline_item` | Arten `meeting`, `deadline`, `approval`, `commitment`, `agenda_due`, `contributions_due`; `risk` entfällt (Modul aus) |
+| `note` | unverändert (`visibility` `team`, `private`) |
+
+## Begriffe in der Oberfläche
+
+| Bisher | Jetzt |
+|---|---|
+| Übersicht, Ergebnisse, Wirkung (als Bereich) | Wert |
+| Wirkung einer Initiative | bleibt nur im Namen der Mappe „Wirkung freigeben“ |
+| Mein Tag | Heute |
+| Lieferanten | Beziehungen (Lieferant bleibt für das Unternehmen) |
+| Aktivitäten, Notizraum | Verlauf |
+| Maßnahme | Zusage; intern Aufgabe |
+| Agenten | Mein Agent |
+| Wertpotenzial-Finder | Wertfinder |
+| Forecast | Prognose |
+
+Tabellen und Code dürfen alte Namen behalten.
+
+## Ausnahmen ohne Rahmen
+
+Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Einladung, Seiten per Link); Zwei-Fenster-Modus der Demo (SI-01).
 
 ## Fertig, wenn
 
-Je Kriterium ein Test.
+- [ ] TN-01 Ab 761 px zeigt jede Käuferseite die Seitenleiste mit Heute, Beziehungen, Warengruppen, Wert in dieser Reihenfolge, darunter „Im Hintergrund“, Mein Agent, Einstellungen.
+- [ ] TN-02 Bis 760 px ist die Seitenleiste verborgen; die Tab-Leiste zeigt beim Käufer fünf, beim Lieferanten drei Ziele und verdeckt keinen Inhalt.
+- [ ] TN-03 Bei 390 px ist auf keiner Seite ein waagerechter Bildlauf der Seite möglich.
+- [ ] TN-04 Jede Seite außer den Startseiten hat einen Zurück-Link mit dem Namen der Ebene darüber.
+- [ ] TN-05 Jede Seite hat höchstens eine Karte „Als Nächstes“ und außerhalb davon keinen Hauptknopf; ohne Kandidat erscheint keine Karte.
+- [ ] TN-06 Ein Lead landet nach der Anmeldung in Wert, ein SRO in Heute; eine geänderte Startseite gilt ab der nächsten Anmeldung.
+- [ ] TN-07 Jede alte Adresse aus der Liste leitet mit 301 auf die neue weiter.
+- [ ] TN-08 ⌘K öffnet Frag Reziproq auf jeder Seite; eine Frage auf einer Akte hat diese als Kontext; ein Auftrag endet als Mappe, Entwurf oder Erinnerung.
+- [ ] TN-09 Es gibt keine Seite Agenten und keine Ablauf-Leiste; jede frühere Schrittseite leitet auf ihr Objekt, ihre Mappe oder Kurz prüfen.
+- [ ] TN-10 Ein Satz mit einer Zahl, die nicht in `sentence_facts` steht, wird nicht angezeigt.
+- [ ] TN-11 Eine Handlung auf Stufe Erledigen steht in Erledigt und im Verlauf des Objekts.
+- [ ] TN-12 Ein Käufer ohne Zugriff auf eine Beziehung sieht sie in keiner Zahl, keiner Zeile und keiner Karte „Als Nächstes“.
+- [ ] TN-13 Die Navigation des Lieferanten enthält weder Warengruppen noch Wert (T5-LP1).
 
-- [ ] Ab 761 px Breite zeigt jede Käuferseite die Seitenleiste mit genau vier Hauptpunkten in der Reihenfolge Übersicht, Mein Tag, Lieferanten, Warengruppen, darunter Einstellungen.
-- [ ] Bis 760 px Breite ist die Seitenleiste verborgen. Die Tab-Leiste zeigt fünf Ziele und verdeckt keinen Inhalt.
-- [ ] Bei 390 px Breite ist auf keiner Seite ein waagerechter Bildlauf der Seite möglich. Tabellen dürfen in ihrem Rahmen scrollen.
-- [ ] Jede Seite außer den Startseiten der vier Hauptpunkte hat einen Zurück-Link mit dem Namen der Ebene darüber.
-- [ ] Jede Seite hat höchstens eine Karte „Als Nächstes“ und außerhalb davon keinen Hauptknopf. Formulare haben genau einen Hauptknopf.
-- [ ] Ohne Kandidat in `next_action` erscheint keine Karte, statt einer leeren.
-- [ ] Leitfragen, Herleitungen, Verlauf und „Wer sieht was“ sind beim Laden eingeklappt und öffnen mit einem Klick und mit der Tastatur.
-- [ ] Ein Lead landet nach der Anmeldung in der Übersicht, ein SRO in Mein Tag. Eine geänderte Startseite gilt ab der nächsten Anmeldung.
-- [ ] Jede alte Adresse aus der Tabelle leitet auf die neue weiter. `/warengruppen/<id>` zeigt den Überblick.
-- [ ] Die Übersicht zeigt einen Ring nur mit Jahresziel, genau eine Karte „Als Nächstes“, die Terminschiene mit höchstens acht Einträgen und je Bereich mit Daten eine Diagrammkarte. EBIT und Cash werden nie addiert.
-- [ ] Die Terminschiene enthält nur Einträge zu Lieferanten und Warengruppen, die die Person sehen darf, und jeder Eintrag öffnet sein Objekt.
-- [ ] Ein Satz mit einer Zahl, die nicht in den Fakten steht, wird nicht angezeigt.
-- [ ] Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keiner Zeile und keiner Karte „Als Nächstes“.
-- [ ] Ein Lauf eines Agenten mit Entwürfen erscheint in den Aktivitäten als Eintrag von Reziproq mit Verweis.
-- [ ] Eine private Notiz sieht nur ihre Autorin, auch kein Admin.
-- [ ] ⌘K öffnet „Suchen oder fragen“ auf jeder Seite, „Frag“ in der Tab-Leiste auf dem Telefon. Eine Frage auf der Seite eines Lieferanten hat diesen als Kontext.
-- [ ] Der Lieferantenkopf zeigt vier Bereiche und den Knopf „···“. Jede bisherige Seite ist genau einem Bereich oder dem Profil zugeordnet.
-- [ ] Die Seite Agenten ist nur über Einstellungen, KI erreichbar.
-- [ ] Der Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten. Seine Seiten nutzen dieselben Bausteine mit seiner Navigation.
+## Nicht Teil
 
-## Nicht Teil dieser Funktion
-
-- Eigene Startseiten oder Widgets je Person
-- Dunkles Thema
-- Eigene App für iOS oder Android. Die Weboberfläche ist mobil nutzbar und bei Bedarf als Web-App installierbar.
+Eigene Startseiten oder Widgets je Person; dunkles Thema; eigene App für iOS oder Android (die Weboberfläche ist als Web-App installierbar); Claims, Risiko, Vertrag (G-4).

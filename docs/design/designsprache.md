@@ -1,43 +1,32 @@
-# Designsprache „Zwei Kreise“ · Version 2: Apple-Stil, mobil zuerst
+# Designsprache „Zwei Kreise“ · Version 3.1: KI-nativ, zwei Perspektiven
 
 Verbindliche Vorgabe für die Oberfläche von Reziproq. Referenz-Markup mit exakten Werten liegt in `docs/design/referenz/` (ein Ordner mit `.dc.html`-Dateien aus dem Design-Canvas; sie dienen als Vorlage für Aufbau und Werte, nicht als Code zum Übernehmen).
 
-## Was sich in Version 2 ändert
+## Was sich in Version 3 ändert
 
-- Die Navigation besteht aus einer Seitenleiste auf dem Desktop und einer Tab-Leiste auf dem Telefon. Die Kopfleiste entfällt.
-- Jede Seite folgt fünf Seitenregeln (unten). Sie haben Vorrang vor den Regeln 1 bis 13, wenn beide sich widersprechen.
-- Es gibt weniger sichtbare Information. Hilfen und Herleitungen sind eingeklappt.
-- Ecken und Schatten sind ruhiger: Karten haben 18 px Ecken und keinen Schatten.
-- Seiten werden zuerst für 390 px Breite gebaut.
+- Farben folgen der Perspektive: die eigene Seite ist immer Tinte, das Gegenüber immer Petrol, das Geteilte Mint. Das gilt beim Käufer und beim Lieferanten.
+- Neue Bausteine für die Arbeit mit Reziproq: Mappe, Kurz prüfen, Erledigt, Warum, Spiegel, Stufen-Umschalter, Kennzeichnung, Blatt, Sichten-, Phasen- und Teile-Umschalter, Demo-Regie (Abschnitt „Bausteine für Reziproq“).
+- Schrittfolge und Ablauf-Leiste entfallen. Fortschritt zeigt das Objekt selbst (Phasen am Termin, Teile an der Strategie, „So geht es weiter“ in der Mappe).
+- Abschnittslabels sind `#5a636b` statt `#7b8389` (Kontrast).
+- Die Seite Übersicht mit Terminschiene und Lagebild wird die Seite Wert.
+- Die Änderungen aus Version 2 (Seitenleiste, Tab-Leiste, ruhige Ecken, mobil zuerst) gelten weiter.
 
 ## Fünf Seitenregeln
 
-1. **Wo bin ich:**
-   - großer Titel;
-   - darüber ein Zurück-Link mit dem Namen der Ebene darüber („‹ Lieferanten“);
-   - markierter Hauptpunkt in Seitenleiste oder Tab-Leiste.
-2. **Wo stehe ich im Prozess:**
-   - Schrittfolge mit vier Phasen im Überblick;
-   - Ablauf-Leiste mit allen Schritten in Abläufen.
-3. **Genau eine Karte „Als Nächstes“:**
-   - Tinte-Karte mit einem Mint-Knopf.
-   - Jeder andere Knopf ist ein Zweitknopf.
-   - Auf dem Telefon ist der Knopf so breit wie die Karte. In Prozessschritten steht er unten fest.
-4. **Alles andere tritt zurück:**
-   - direkt unter „Als Nächstes“ die Karte „Das Wichtigste“: eine Aussage mit Zahl, höchstens drei Punkte, daneben eine einfache Grafik;
-   - weiße Gruppen mit Zeilen und graue Abschnittslabels;
-   - Hilfen sind eingeklappt.
-5. **Mobil zuerst:**
-   - unter 760 px Tab-Leiste mit fünf Zielen;
-   - Spalten untereinander;
-   - Bedienflächen mindestens 44 px.
+Sie haben Vorrang vor den Regeln darunter, wenn beide sich widersprechen. Sie stehen gleichlautend in NAV-10.
+
+1. **Wo bin ich:** großer Titel; darüber ein Zurück-Link mit dem Namen der Ebene („‹ Beziehungen“); markierter Hauptpunkt.
+2. **Genau eine Karte „Als Nächstes“:** Tinte-Karte mit einem Mint-Knopf und höchstens einem Zweitknopf. Jeder andere Knopf ist ein Zweitknopf.
+3. **Zusammengefasst von Reziproq:** ein Satz mit belegten Zahlen, Quellen als graue Pillen. Ohne Beleg kein Satz.
+4. **Alles andere tritt zurück:** weiße Gruppen mit Zeilen und grauen Abschnittslabels; Details als Blatt; Hilfen, Herleitung und Verlauf eingeklappt.
+5. **Mobil zuerst:** unter 760 px Tab-Leiste; Spalten untereinander; Bedienflächen mindestens 44 px.
 
 ## Leitidee
 
 Das Logo sind zwei Ringe, die sich überlappen. Das Motiv trägt das Produkt: zwei Seiten und ein geteilter Raum.
 
-- Tinte steht für die eigene Seite.
-- Petrol steht für den Lieferanten und für Aktionen.
+- Tinte steht für die eigene Seite, auf beiden Seiten der Beziehung.
+- Petrol steht für das Gegenüber und für Aktionen. Beim Käufer ist der Lieferant Petrol, beim Lieferanten der Kunde.
 - Mint steht für das Geteilte und für „jetzt“.
 
 ## Dreizehn Regeln
@@ -45,24 +34,26 @@ Das Logo sind zwei Ringe, die sich überlappen. Das Motiv trägt das Produkt: zw
 1. Wer handelt, ist ein Kreis: Lieferanten, Personen, Termine, Schritte.
 2. Was Inhalt trägt, ist eine weiße Gruppe mit 16 bis 18 px Ecken, ohne Schatten. Listen sind Zeilen in einer Gruppe.
 3. Knöpfe, Chips und Filter sind Pillen (voll gerundet). Zeilen sind als Ganzes klickbar und enden mit einem grauen Pfeil.
-4. Der Jahreszyklus und jeder Ablauf ist eine Schrittfolge aus Kreisen mit Linie: Petrol mit Haken fertig, Mint mit Tinte-Rand jetzt, grau offen.
+4. Phasen und Teile eines Objekts sind Schrittkreise mit Linie: Tinte mit Mint-Ziffer jetzt, Petrol mit Haken fertig, Ring `#b9bfba` offen. Es gibt keine Ablauf-Leiste über Seiten hinweg.
 5. Je Seite höchstens eine Hauptaktion: Tinte-Karte „Als Nächstes“ mit Mint-Knopf, ohne Ringe im Hintergrund.
 6. Privat ist grau mit gestricheltem Rand und Schloss. Geteilt ist Mint mit Doppelring.
 7. Ein Entwurf der KI trägt die Zeile „Entwurf von Reziproq“ mit Doppelring, einen dünnen Mint-Rand (1 px `#cfe5dd`) und seine Quellen. Bestätigt entfällt die Zeile.
 8. Status steht immer als Text, nie nur als Farbe.
 9. Seitentitel nennen die Aufgabe, nicht das Objekt. Karten mit Daten tragen als Titel die Aussage, nicht das Thema.
-10. Ergebnisarten (EBIT, Cash, Kostenvermeidung) werden nie addiert.
+10. Wertarten (EBIT, Kostenvermeidung, Cash) werden nie addiert, auch nicht in einem Satz. Wo sie nebeneinander stehen, steht der Hinweis „nie addiert“.
 11. Oben steht die Antwort: Jede Übersicht beginnt mit einem Satz, der das Wichtigste sagt. Erst danach kommen Zahlen und Diagramme.
 12. Ringe zeigen Fortschritt zu einem Ziel, sonst nichts. Höchstens zwei, außen Petrol, innen Mint, wie im Logo.
 13. Sichtbar ist nur, was die nächste Entscheidung braucht. Alles andere ist eingeklappt oder über „Frag“ erreichbar.
+14. Jede Nachricht in die Mitte trägt ihre Kennzeichnung: Mensch, mit Reziproq oder Reziproq.
+15. Der Spiegel zeigt links immer die eigene Seite (Tinte), rechts das Gegenüber (Petrol), dazwischen die Naht in Mint. Der Wert des Gegenübers erscheint nur privat und immer mit „≈“ als Spanne.
 
 ## Farben
 
 | Token | Wert | Einsatz |
 |---|---|---|
-| `ink` | `#0f1b22` | Dunkle Flächen, eigene Seite, Rand von „jetzt“ |
+| `ink` | `#0f1b22` | Dunkle Flächen, eigene Seite (beide Perspektiven), Rand von „jetzt“ |
 | `text` | `#14181b` | Fließtext, Titel |
-| `petrol` | `#0b7a6a` | Hauptknopf, Links, „fertig“, Lieferantenseite |
+| `petrol` | `#0b7a6a` | Hauptknopf, Links, „fertig“, Gegenüber |
 | `petrol-dark` | `#0a5c50` | Link im Hover, Text auf Mint-Fläche |
 | `mint` | `#4fd1b4` | Knopf und Akzent auf Tinte, „jetzt“ |
 | `mint-soft` | `#e1f3ed` | Geteilte Flächen, Leitfragen |
@@ -71,7 +62,7 @@ Das Logo sind zwei Ringe, die sich überlappen. Das Motiv trägt das Produkt: zw
 | `card` | `#ffffff` | Karten |
 | `line` | `#dfe2dd` | Trennlinien, Rand von Eingaben in Karten |
 | `line-soft` | `#eceeea` | Zeilentrenner, neutrale Fläche, Schaltergrund |
-| `muted` | `#5a636b` | Sekundärtext |
+| `muted` | `#5a636b` | Sekundärtext, Abschnittslabels |
 | `muted-strong` | `#3f4a52` | Text auf neutraler Fläche, inaktive Schalter |
 | `ring-open` | `#b9bfba` | Rand offener Ringe, gestrichelter Rand privat |
 | `input-border` | `#7b8389` | Rand von Textfeldern und Auswahlfeldern |
@@ -79,6 +70,7 @@ Das Logo sind zwei Ringe, die sich überlappen. Das Motiv trägt das Produkt: zw
 | `on-dark-muted` | `#a9b4b9` | Sekundärtext auf Tinte |
 | `track` | `#e6e9e5` | Leere Spur von Ringen und Ziel-Balken |
 | `risk` | `#94201a` | Einzige Abweichung in einem Diagramm (Balken, Feld) |
+| `amber` | `#c98a12` | Ampelpunkt Achtung (nie als Textfarbe) |
 | `dark-2` | `#2e3e47` | Zweitknopf und leere Spur auf Tinte |
 
 Status (immer Fläche plus Text):
@@ -106,7 +98,7 @@ Es gibt nur ein helles Thema. Kein Farbverlauf, kein farbiger Schatten.
 | Titel im Kopf | 28 bis 36 / 1,08 | 600 | −0,03em | Name im Lieferanten- und Warengruppenkopf |
 | Titel „Als Nächstes“ | 22 / 1,2 | 600 | −0,02em | Karte „Als Nächstes“ |
 | Zeile | 16 / 600, Unterzeile 14 / 400 grau | | 0 | Zeilen in Gruppen |
-| Abschnittslabel | 13 | 600 | 0,04em, Versalien | über Gruppen, Grau `#7b8389` |
+| Abschnittslabel | 13 | 600 | 0,04em, Versalien | über Gruppen, Grau `#5a636b` |
 | Abschnitt | 22 | 600 | −0,02em | Kartentitel auf Start |
 | Abschnitt klein | 19 | 600 | −0,015em | Kartentitel |
 | Kennzahl | 28 bis 30 | 600 | −0,02em | Große Zahlen, Tabellenziffern |
@@ -137,16 +129,14 @@ Bedienflächen sind mindestens 44 px hoch, Zeilen 56 px. Abstände in Schritten 
 | Baustein | Beschreibung | Referenz |
 |---|---|---|
 | Logo | Zwei Ringe (links Tinte, rechts Petrol, Strich 2), Überlappung Mint gefüllt, Wortmarke in Outfit 600 | `Main.dc.html` |
-| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Suchfeld mit ⌘K, vier Hauptpunkte mit Symbol 20 px, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; so hoch wie der Bildschirm, bleibt beim Scrollen stehen (Gründer, 23.11.2026) | `Main.dc.html` |
-| Tab-Leiste | unter 760 px fest unten, weiß 93 % mit Unschärfe, fünf Ziele mit Symbol 24 px und Text 11 / 600, aktiv Petrol | `Main.dc.html`, `A-MeinTag.dc.html` |
+| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Feld „Frag Reziproq“ mit ⌘K, vier Hauptpunkte mit Symbol 20 px (Heute mit Zahl), Zeile „Im Hintergrund“ (13 px, Punkt Petrol), Mein Agent, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; nicht fixiert. Beim Lieferanten Heute, Kunden und „<Name> · <Firma>“ | `Main.dc.html`, `L5-Heute.dc.html` |
+| Tab-Leiste | unter 760 px fest unten, weiß 93 % mit Unschärfe, Symbol 24 px und Text 11 / 600, aktiv Petrol; Käufer fünf Ziele, Lieferant drei | `Main.dc.html`, `A-MeinTag.dc.html` |
 | Zurück-Link | Pfeil „‹“ und Name der Ebene darüber, Petrol 15 / 600, mindestens 32 px hoch | `SupplierBar.dc.html` |
-| Lieferantenkopf | Zurück „‹ Lieferanten“, Name groß, graue Zeile mit Segment und Schritt, runder Knopf „···“ für Profil, Bereiche als Segment-Umschalter, Unterseiten als schlichte Links (aktiv Tinte gefüllt) | `SupplierBar.dc.html` |
-| Warengruppenkopf | wie Lieferantenkopf mit „‹ Warengruppen“, ohne Profil-Knopf | `GroupBar.dc.html` |
-| Schrittfolge | weiße Gruppe, vier Kreise 26 px mit Linie 2 px; fertig Petrol mit Haken, jetzt Mint mit Tinte-Rand und fettem Text, offen grau | `A-Lieferant.dc.html`, `WG-Start.dc.html` |
-| Ablauf-Leiste | weiße Gruppe ohne Schatten, Titel 17, Schritt n von m, Zurück und Weiter als Zweitknopf, alle Schritte, Zeile „Fertig, wenn …“ | `Flow.dc.html` |
+| Akte-Kopf | Zurück „‹ Beziehungen“ (beim Lieferanten „‹ Kunden“), Monogramm 56 px in der Farbe des Gegenübers, Name groß, graue Zeile (Segment, Warengruppen, Spend, Lead, Jahreszyklus), Aktionen von Reziproq als Zweitknöpfe, „···“ für Profil, Team, Mandat, darunter der Sichten-Umschalter | `SupplierBar.dc.html`, `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
+| Warengruppenkopf | „‹ Warengruppen“, Monogramm mit 10 px Ecken, Name, graue Zeile (Lieferanten, Spend, Prognose, Lead, Stand der Strategie), Aktionen Strategie und Entwurf fortschreiben | `WG-Start.dc.html` |
 | Als Nächstes | Tinte-Karte, Kurzzeile Mint 13 / 600, Titel Outfit 22, optional ein Satz in `on-dark-muted`, Mint-Knopf; auf dem Telefon Knopf volle Breite, 50 bis 52 px hoch | `Main.dc.html`, `Aufgaben.dc.html` |
 | Gruppe mit Zeilen | weiße Gruppe, Zeilen 56 px mit Trenner `#eef0ec`, links Monogramm oder Punkt, Titel und Unterzeile, rechts Wert grau, grauer Pfeil | `Main.dc.html`, `L-Ueberblick.dc.html` |
-| Abschnittslabel | 13 / 600 Versalien grau über einer Gruppe | `Main.dc.html` |
+| Abschnittslabel | 13 / 600 Versalien `#5a636b` über einer Gruppe | `Main.dc.html` |
 | Eingeklappt | weiße Zeile 52 px mit Titel 15 / 500 und Pfeil; öffnet den Inhalt darunter; für Leitfragen, Hilfen, Verlauf, Protokoll, Herleitung | `WG-Ziele.dc.html`, `P-Initiative.dc.html` |
 | Segment-Umschalter | Fläche `#e6e9e5`, Segmente gleich breit, aktives Segment weiß mit Schatten | `A-Lieferanten.dc.html` |
 | Suchfeld | Fläche `#e6e9e5`, 12 px Ecken, Lupe und Platzhalter grau | `A-Lieferanten.dc.html` |
@@ -157,13 +147,46 @@ Bedienflächen sind mindestens 44 px hoch, Zeilen 56 px. Abstände in Schritten 
 | Privat | Fläche `line-soft`, Rand gestrichelt `ring-open`, Schloss, Chip „privat“ | `P-Initiative.dc.html` |
 | Geteilt | Fläche `mint-soft`, Rand `mint-line`, Doppelring, Chip „beide Seiten“ | `L-Ueberblick.dc.html` |
 | KI-Entwurf | Weiß, Rand 1 px `#cfe5dd`, Zeile „Entwurf von Reziproq“ mit Doppelring, Quellen als graue Pillen, Übernehmen / Anpassen / Verwerfen | `WG-Markt.dc.html` |
-| Leitfragen | eingeklappt; geöffnet Fragen mit Petrol-Ring und Ziffer | `WG-Ziele.dc.html` |
+| Leitfragen | Fragezeichen neben der Teilüberschrift einer Strategie; geöffnet Fragen mit Petrol-Ring und Ziffer | `K6-Strategie.dc.html` |
 | Das Wichtigste (So-What) | Weiße Gruppe direkt unter „Als Nächstes“: Zeile „Das Wichtigste“ mit Doppelring, eine Aussage mit Zahl in Outfit 19, darunter höchstens drei Zeilen mit Status-Chip (Gut, Hakt, Offen, Wartet, Frist …) und einem Satz; jede Zeile mit Ziel ist ein Link. Daneben, wo es Daten gibt, eine Grafikkarte mit Aussage als Titel: Balken mit Wert rechts, 100-%-Balken mit Legende oder bis zu drei Kennzahlen. Auf dem Telefon untereinander | `C-Claim.dc.html`, `P-Zusagen.dc.html` |
 | Hinweis-Karte | grau `#e9ece8`, kein Tinte (Tinte ist der Karte „Als Nächstes“ vorbehalten) | `WG-Ziele.dc.html` |
 | Tabelle | Kopf 12 / 600 `muted`, Zeilentrenner `line-soft`, scrollt waagerecht in ihrem Rahmen; auf Übersichten keine Tabellen | `P-Scorecard.dc.html` |
 | Zeitachse | Balken voll gerundet; läuft Petrol, geplant `mint-soft`, fertig `line` | `P-Initiativen.dc.html` |
-| Ring | ein Ring 92 px in einer weißen Gruppe, daneben Zahl Outfit 28 und Satz | `Uebersicht.dc.html` |
+| Ring | ein Ring 92 px in einer weißen Gruppe, daneben Zahl Outfit 28 und Satz; nur EBIT gegen Jahresziel | `Uebersicht.dc.html` (Wert) |
 | Diagrammkarte | Gruppe mit Aussage als Titel (Outfit 20), Diagramm, Quelle in 12 px | `D-Diagramme.dc.html` |
+
+## Bausteine für Reziproq
+
+| Baustein | Beschreibung | Referenz |
+|---|---|---|
+| Mappe | Seite für eine Entscheidung: Kopf mit „‹ Heute“, Als Nächstes mit Empfehlung, fünf Teile (worum es geht, Belege, Optionen mit Wert für beide Seiten, Empfehlung, dein Schritt); rechts „So geht es weiter“ als Schrittkreise und „Nur für dich“ (privat) | `K1-Mappe.dc.html`, `K5-Deal-Mappe.dc.html` |
+| Kurz prüfen | ein Entwurf je Karte mit Kontext, Text, Quellen; Fortschrittsbalken Petrol; Knopf „Übernehmen“ Petrol als Zweitknopf-Form (kein Hauptknopf), Anpassen, Verwerfen mit Grund, Später; Tastatur Enter und V | `K1-Kurz-Pruefen.dc.html`, `K1-Kurz-Pruefen-Mobil.dc.html` |
+| Erledigt-Zeile | Uhrzeit Outfit 14 tabellarisch, Aufgabe als Chip, Text, Objekt, rechts Zweitknopf „Zurücknehmen“ oder „Warum“ | `Erledigt.dc.html` |
+| Warum | Blatt oder Seite mit Rechenweg (Tabelle mit Quelle je Zeile), Formulierung, Lauf (Aufgabe, Zeit, Schritte, Kosten, Rechte) | `K1-Warum.dc.html` |
+| Spiegel | zwei Balken gegeneinander, links eigene Seite Tinte, rechts Gegenüber Petrol, Naht 3 × 16 px Mint; Werte außen; darunter „<Gegenüber> sieht dieselben Zahlen“ oder „nur für euch“ | `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
+| Mini-Spiegel | 200 px breit, Balken 8 px, mobil 64 px; Spiegel je Frage im Feedback 12 px | `K2-Feedback.dc.html` |
+| Wertart-Kachel | je Wertart eine Kachel (EBIT, Kostenvermeidung, Cash) mit Zahl Outfit 28, darunter „gesichert“ oder „geschätzt“; Hinweis „nie addiert“ unter der Reihe | `Uebersicht.dc.html` |
+| Reife | Chip R1 bis R5 neutral, R5 gut („Realisiert“) | `W-Initiative.dc.html` |
+| Stufen-Umschalter | Segment-Umschalter Vorschlagen, Vorbereiten, Erledigen; Stufen über der Obergrenze ausgegraut mit Schloss | `Mein-Agent.dc.html` |
+| Kennzeichnung | Doppelring 14 px und Chip: „mit Reziproq“ und „Reziproq“ geteilt (`#e1f3ed` / `#0a5c50`), „Mensch“ neutral; daneben Name und Zeit | `K5-Deal.dc.html` |
+| Entwurf von Reziproq | wie KI-Entwurf; Zeile „Zusammengefasst von Reziproq“ mit Quellen-Pillen über Sätzen | `Main.dc.html` |
+| Sichten-Umschalter | Segment-Umschalter mit Symbolen: Doppelring Gemeinsam, Schloss Nur für dich, Petrol-Punkt Von <Gegenüber>; setzt die Adresse | `K2-Akte-Privat.dc.html` |
+| Von <Gegenüber> | weiße Gruppe mit Petrol-Kante links 4 px | `K2-Akte-Geteilt.dc.html` |
+| Monogramm nach Seite | eigene Personen Tinte, Personen des Gegenübers Petrol; beim Lieferanten umgekehrt zugeordnet | `L5-Akte.dc.html` |
+| Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
+| Datumskreis | Kreis 44 px mit Tag und Monat; Petrol, wenn das Gegenüber am Zug ist; im Termin-Kopf 56 px | `Termin-Briefing.dc.html` |
+| Phasen-Umschalter | Schrittkreise 22 px mit Linie: aktiv Tinte mit Mint-Ziffer, erledigt Petrol mit Haken, offen Ring `#b9bfba`; Text darunter | `Termin-Briefing.dc.html` |
+| Teile-Umschalter | wie Phasen-Umschalter, je Teil Stand als Text (bestätigt, jetzt, Entwurf) | `K6-Strategie.dc.html` |
+| Agenda-Zeile | Uhrzeit Outfit 14 tabellarisch, Titel, je Seite Monogramm 24 px und Chip | `Termin-Briefing.dc.html` |
+| Folie | 16:10 weiß, Rand 1 px `#dfe2dd`, Diagramme nach Abschnitt Diagramme, Quelle 12 px | `J-Deck.dc.html` |
+| Schalter | 52 × 32 px, an Petrol, aus `#b9bfba`, Knopf weiß; mit Label und Unterzeile in einer Zeile | `L5-Deal-Mappe.dc.html`, `K7-Kanaele.dc.html` |
+| Fremdes Programm | neutrale Fensterleiste ohne Marke, Reziproq als Seitenbereich rechts oder als Karte; Hinweis „Vorschau, stark vereinfacht“ | `K7-Mail.dc.html`, `K7-Teams.dc.html` |
+| Wert-Pipeline | vier Felder nebeneinander (Potenzial, beschlossen, umgesetzt, gesichert), Kurzzeile 12 / 600 Versalien, Zahl Outfit 22; die aktuelle Stufe Tinte mit weißer Zahl, sonst weiß mit Rand 1 px `#dfe2dd`; nur eine Wertart je Reihe | `K8-Warengruppe.dc.html` |
+| Hypothesen-Zeile | Code und Behauptung, Unterzeile mit Wert und kritischer Annahme, rechts „Sicherheit <Stufe>“ in `muted` und Stand als Chip (im Plan gut, gefährdet Achtung, verletzt kritisch, bestätigt gut, offen neutral) | `K8-Warengruppe.dc.html`, `K8-Hypothese.dc.html` |
+| Option mit getrennten Größen | Zeile mit Titel, Unterzeile und drei Zahlen nebeneinander (je Zahl Outfit 15 mit Einheit darunter in 12 px), nie zusammengezählt; rechts Kennzeichnung (Empfohlen, Regel verletzt, Sicherheit) | `K8-Anteile.dc.html`, `K8-Vergabe-Mappe.dc.html` |
+| Abstand-Balken | waagerechter Balken je Lieferant, Wert rechts; die eine Abweichung in `risk`, übrige Petrol | `K8-Soll-Kosten.dc.html` |
+| Runde einer Verhandlung | Zeile mit Runde und Zeit, Kennzeichnung „Reziproq für <Organisation>“, darunter der Text in 15 px; auf beiden Seiten gleich | `K8-Verhandlung.dc.html`, `L8-Angebot.dc.html` |
+| Demo-Regie | Leiste Tinte oben mit Drehbuch, Schritt, Uhrzeit des Demo-Mandanten, Rolle; nur im Demo-Mandanten | `Demo-Regie.dc.html`, `K5-Zwei-Fenster.dc.html` |
 
 ## Informationsdichte: die Antwort zuerst
 
@@ -181,12 +204,7 @@ Grenzen je Ansicht:
 - höchstens zwei Diagramme;
 - eine Tinte-Karte.
 
-Ausnahme: Die Seite Übersicht ist ein Lagebild über alle Bereiche. Dort sind erlaubt:
-- eine Terminschiene;
-- je Bereich eine Diagrammkarte (höchstens vier);
-- je Karte eine Aussage, ein Diagramm und ein Link.
-
-Die Übersicht soll gefüllt wirken, aber nichts zeigen, was nicht zu einem Klick in den Bereich führt.
+Ausnahme: Die Seite Wert zeigt drei Wertart-Kacheln, den Ring gegen das Jahresziel, Säulen je Quartal und das Wertkonto je Beziehung. Jede Zahl führt mit einem Klick zu ihrer Herleitung.
 
 Tabellen mit vielen Zeilen gehören auf Arbeitsseiten, nicht auf Übersichten.
 
@@ -203,10 +221,10 @@ Die Ringe kommen aus dem Logo: zwei Kreise, eine gemeinsame Sache.
 
 | Variante | Maße | Einsatz |
 |---|---|---|
-| Ring | 92 px, Radius 38, Strich 10, Enden rund, Spur `track` | Übersicht: Ergebnisse gegen Jahresziel (Petrol) |
-| Ringpaar | 220 bis 240 px | nur in Auswertungen über „Frag“, nicht mehr auf der Übersicht |
+| Ring | 92 px, Radius 38, Strich 10, Enden rund, Spur `track` | Wert: EBIT gesichert gegen Jahresziel (Petrol) |
+| Ringpaar | 220 bis 240 px | nur in Auswertungen über „Frag“ |
 | Einzelring | 56 px, Strich 7 | Kacheln und Zeilen: Fortschritt einer Warengruppe oder Initiative gegen ihr Ziel |
-| Kette | 14 px, überlappend | Abläufe und Jahreszyklus (Regel 4), kein Fortschritt in Prozent |
+| Kette | 14 px, überlappend | Jahreszyklus in der grauen Zeile des Akte-Kopfs, kein Fortschritt in Prozent |
 
 Regeln:
 - Ein Ring braucht ein Ziel. Ohne Ziel gibt es keinen Ring, sondern eine Zahl.
@@ -253,14 +271,8 @@ Vorlage mit allen Formen: `D-Diagramme.dc.html`.
 
 ## Stand der Vorlagen
 
-Alle Seiten der Käuferseite und der Lieferantenseite haben die Seitenleiste und die Tab-Leiste sowie die Bausteine dieser Version.
+`docs/design/referenz/` enthält nur die gültigen Boards aus dem Canvas (Version 1795540849-2ac5), ohne Archiv, ohne Claims, Risiko und Vertrag und ohne verworfene Varianten. Jede Spec nennt im Kopf ihre Bildvorlagen. Die Baustein-Boards `GroupBar`, `Flow` und `Header` sind abgelöst und liegen nicht mehr bei; `SupplierBar` zeigt den Akte-Kopf und bleibt.
 
-Vollständig nach den fünf Regeln gebaut sind:
-- Mein Tag, Übersicht, Warengruppen, Warengruppe Überblick, Lieferant Überblick;
-- die Muster `A-*`.
+Kapitel 8 nutzt dieselben Bausteine; neu sind Wert-Pipeline, Hypothesen-Zeile, Option mit getrennten Größen, Abstand-Balken und Runde einer Verhandlung.
 
-Auf allen übrigen Seiten gilt Folgendes:
-- Sie haben eine Karte „Als Nächstes“, Zweitknöpfe und eingeklappte Hilfen.
-- Ihr Inhalt ist der bisherige. Er wird beim Umsetzen nach Regel 4 weiter gekürzt.
-
-Die Kopfleiste (`Header.dc.html`) ist abgelöst.
+Bewusst nicht gezeichnet und in den Specs beschrieben: Mein Agent und Einstellungen beim Lieferanten, Sicht „Von <Kunde>“, Teile 1, 2 und 4 der Strategie aufgeklappt, Chat-Karte „Plan intern freigeben“, Benachrichtigungs-Mail an Lieferanten. Sie nutzen die Bausteine dieses Dokuments.
