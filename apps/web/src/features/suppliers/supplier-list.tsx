@@ -9,6 +9,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { MeterBar } from '@/components/ui/meter-bar';
 import { Monogram } from '@/components/ui/monogram';
 import { NextStep } from '@/components/ui/next-step';
+import { StatusDot, type StatusDotTone } from '@/components/ui/status-dot';
 import { routerLink } from '@/features/shell/navigation';
 import { useOverview } from '@/features/workspace/use-overview';
 import { useFormat } from '@/lib/format';
@@ -49,19 +50,38 @@ function useMillions() {
   };
 }
 
+/** NAV-10 1.1: Gruppe, Ampelpunkt mit Text und Grund einer Zeile */
+export type SupplierGroup = 'needs' | 'good' | 'ended';
+export interface SupplierRowStatus {
+  group: SupplierGroup;
+  status: string;
+  tone: StatusDotTone;
+  /** Grund in einer Zeile; ohne Grund Warengruppe und Land */
+  reason: string | null;
+}
+
+const groupOrder: SupplierGroup[] = ['needs', 'good', 'ended'];
+
 /**
- * Lieferantenliste mit Detailleiste (LS-01, nach Lieferanten.dc.html): feste Spalten und Zeilen
- * gleicher Höhe; ein Klick wählt die Zeile und zeigt rechts das Wichtigste, die Auswahl steht in
- * der Adresse. Pfeiltasten wechseln, Enter öffnet, Escape schließt.
+ * Lieferantenliste mit Detailleiste (LS-01, NAV-10 1.1, nach Lieferanten.dc.html und
+ * A-Lieferanten.dc.html): Gruppen „Brauchen dich“ und „Laufen gut“, feste Spalten und Zeilen
+ * gleicher Höhe; jede Zeile mit Ampelpunkt, Status als Text und Grund. Ein Klick wählt die Zeile
+ * und zeigt rechts das Wichtigste, die Auswahl steht in der Adresse. Pfeiltasten wechseln über
+ * beide Gruppen, Enter öffnet, Escape schließt.
  */
 export function SupplierList({
-  suppliers,
+  suppliers: unordered,
   spendYear,
   segmentOf,
   selectedId,
   onSelect,
   segmentHeading,
+  rowStatus,
+  groupLabels,
 }: {
+  /** Status je Zeile; die Liste ordnet danach in Gruppen, sonst in der gegebenen Reihenfolge */
+  rowStatus: (supplier: Supplier) => SupplierRowStatus;
+  groupLabels: Record<SupplierGroup, string>;
   suppliers: Supplier[];
   /** WG-18: mit Filter Warengruppe heißt die Spalte „Segment in <Warengruppe>“ */
   segmentHeading?: string | undefined;
@@ -76,7 +96,16 @@ export function SupplierList({
   const narrow = useNarrow();
   const navigate = useNavigate();
   const [shown, setShown] = useState(pageSize);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  // Gruppen in fester Reihenfolge; in der Gruppe bleibt die Sortierung (Spend oder Name).
+  const statuses = new Map(
+    unordered.map((supplier) => [supplier.relationshipId, rowStatus(supplier)]),
+  );
+  const statusOf = (supplier: Supplier) =>
+    statuses.get(supplier.relationshipId) as SupplierRowStatus;
+  const suppliers = groupOrder.flatMap((group) =>
+    unordered.filter((supplier) => statusOf(supplier).group === group),
+  );
   const segmentText = useSegmentText();
   const millions = useMillions();
   const format = useFormat();
@@ -140,7 +169,7 @@ export function SupplierList({
         <p className="sr-only">{text.keyboardHint}</p>
         <div
           aria-hidden
-          className="hidden grid-cols-[--spacing(10)_minmax(0,1fr)_--spacing(52)_--spacing(8)_--spacing(40)] gap-3 px-4 font-semibold text-muted-foreground text-xs sm:grid"
+          className="hidden grid-cols-[--spacing(10)_minmax(0,1fr)_--spacing(52)_--spacing(8)_--spacing(40)] gap-3 px-4 font-semibold text-muted-foreground text-chip sm:grid"
         >
           <span />
           <span>{text.columnSupplier}</span>
@@ -148,90 +177,122 @@ export function SupplierList({
           <span className="sr-only">{text.columnFocus}</span>
           <span className="whitespace-nowrap text-right">{text.columnSpend(spendYear)}</span>
         </div>
-        <ul
-          ref={listRef}
-          aria-label={text.label}
-          onKeyDown={onKeyDown}
-          className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card"
-        >
-          {visible.map((supplier) => {
-            const display = displayNameOf(supplier.name);
-            const segment = segmentText(segmentOf(supplier));
-            const group = supplier.topMaterialGroup ?? supplier.primaryMaterialGroup;
-            const isSelected = supplier.relationshipId === selected?.relationshipId;
+        <div ref={listRef} className="flex flex-col gap-5">
+          {groupOrder.map((group) => {
+            const rows = visible.filter((supplier) => statusOf(supplier).group === group);
+            if (rows.length === 0) return null;
+            const headingId = `lieferanten-${group}`;
             return (
-              <li key={supplier.relationshipId}>
-                <button
-                  type="button"
-                  data-id={supplier.relationshipId}
-                  data-slot="supplier-row"
-                  aria-pressed={isSelected}
-                  onClick={() => onSelect(supplier.relationshipId)}
-                  className={cn(
-                    'grid h-16 w-full grid-cols-[--spacing(10)_minmax(0,1fr)_auto] items-center gap-3 px-4 text-left text-sm transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset sm:grid-cols-[--spacing(10)_minmax(0,1fr)_--spacing(52)_--spacing(8)_--spacing(40)]',
-                    isSelected && 'bg-mint-soft hover:bg-mint-soft',
-                  )}
+              <section key={group} aria-labelledby={headingId} className="flex flex-col gap-2">
+                <h2
+                  id={headingId}
+                  className="px-1 font-semibold text-input-border text-sm uppercase tracking-label"
                 >
-                  <Monogram name={display.name} tone={supplier.isFocus ? 'shared' : 'neutral'} />
-                  <span className="flex min-w-0 flex-col">
-                    <span className="flex min-w-0 items-center gap-2">
-                      <strong
-                        data-slot="supplier-name"
-                        title={supplier.name}
-                        className="truncate font-semibold"
-                      >
-                        {display.name}
-                      </strong>
-                      {display.demo && <Badge>{text.demo}</Badge>}
-                      {supplier.status === 'draft' && <Badge>{t.suppliers.statusDraft}</Badge>}
-                      {supplier.status === 'ended' && <Badge>{t.suppliers.statusEnded}</Badge>}
-                    </span>
-                    <span className="truncate text-muted-foreground text-xs">
-                      {[
-                        group ?? text.groupMissing,
-                        supplier.country ? format.country(supplier.country) : null,
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </span>
-                  </span>
-                  <span className="hidden min-w-0 sm:flex">
-                    {segment ? (
-                      <Badge variant="neutral" className="truncate">
-                        {segment.short}
-                      </Badge>
-                    ) : (
-                      <Badge variant="plain" className="border border-line border-dashed">
-                        {text.notRated}
-                      </Badge>
-                    )}
-                  </span>
-                  <span className="hidden justify-center sm:flex">
-                    {supplier.isFocus && (
-                      <StarIcon
-                        aria-label={text.focus}
-                        className="size-4 fill-petrol text-petrol"
-                      />
-                    )}
-                  </span>
-                  <span className="flex min-w-0 flex-col items-end gap-1">
-                    <span className="font-semibold tabular-nums">
-                      {millions(
-                        supplier.spend?.amountCents ?? 0,
-                        supplier.spend?.currency ?? 'EUR',
-                      )}
-                    </span>
-                    <MeterBar
-                      className="w-24"
-                      value={(supplier.spend?.amountCents ?? 0) / max}
-                      label={`${display.name}: ${Math.round(((supplier.spend?.amountCents ?? 0) / max) * 100)} %`}
-                    />
-                  </span>
-                </button>
-              </li>
+                  {groupLabels[group]}
+                </h2>
+                <ul
+                  aria-label={group === 'good' ? text.label : groupLabels[group]}
+                  onKeyDown={onKeyDown}
+                  className="flex flex-col divide-y divide-line-soft overflow-hidden rounded-lg bg-card shadow-card"
+                >
+                  {rows.map((supplier) => {
+                    const display = displayNameOf(supplier.name);
+                    const segment = segmentText(segmentOf(supplier));
+                    const category = supplier.topMaterialGroup ?? supplier.primaryMaterialGroup;
+                    const status = statusOf(supplier);
+                    const isSelected = supplier.relationshipId === selected?.relationshipId;
+                    return (
+                      <li key={supplier.relationshipId}>
+                        <button
+                          type="button"
+                          data-id={supplier.relationshipId}
+                          data-slot="supplier-row"
+                          aria-pressed={isSelected}
+                          onClick={() => onSelect(supplier.relationshipId)}
+                          className={cn(
+                            'grid h-16 w-full grid-cols-[--spacing(10)_minmax(0,1fr)_auto] items-center gap-3 px-4 text-left text-sm transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset sm:grid-cols-[--spacing(10)_minmax(0,1fr)_--spacing(52)_--spacing(8)_--spacing(40)]',
+                            isSelected && 'bg-mint-soft hover:bg-mint-soft',
+                          )}
+                        >
+                          <Monogram
+                            name={display.name}
+                            tone={supplier.isFocus ? 'shared' : 'neutral'}
+                          />
+                          <span className="flex min-w-0 flex-col">
+                            <span className="flex min-w-0 items-center gap-2">
+                              <strong
+                                data-slot="supplier-name"
+                                title={supplier.name}
+                                className="truncate font-semibold"
+                              >
+                                {display.name}
+                              </strong>
+                              {display.demo && <Badge>{text.demo}</Badge>}
+                              {supplier.status === 'draft' && (
+                                <Badge>{t.suppliers.statusDraft}</Badge>
+                              )}
+                              {supplier.status === 'ended' && (
+                                <Badge>{t.suppliers.statusEnded}</Badge>
+                              )}
+                            </span>
+                            <span className="flex min-w-0 items-center gap-2 text-chip text-muted-foreground">
+                              <StatusDot
+                                tone={status.tone}
+                                label={status.status}
+                                className="text-text"
+                              />
+                              <span className="truncate">
+                                {status.reason ??
+                                  [
+                                    category ?? text.groupMissing,
+                                    supplier.country ? format.country(supplier.country) : null,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(' · ')}
+                              </span>
+                            </span>
+                          </span>
+                          <span className="hidden min-w-0 sm:flex">
+                            {segment ? (
+                              <Badge variant="neutral" className="truncate">
+                                {segment.short}
+                              </Badge>
+                            ) : (
+                              <Badge variant="plain" className="border border-line border-dashed">
+                                {text.notRated}
+                              </Badge>
+                            )}
+                          </span>
+                          <span className="hidden justify-center sm:flex">
+                            {supplier.isFocus && (
+                              <StarIcon
+                                aria-label={text.focus}
+                                className="size-4 fill-petrol text-petrol"
+                              />
+                            )}
+                          </span>
+                          <span className="flex min-w-0 flex-col items-end gap-1">
+                            <span className="font-semibold tabular-nums">
+                              {millions(
+                                supplier.spend?.amountCents ?? 0,
+                                supplier.spend?.currency ?? 'EUR',
+                              )}
+                            </span>
+                            <MeterBar
+                              className="w-24"
+                              value={(supplier.spend?.amountCents ?? 0) / max}
+                              label={`${display.name}: ${Math.round(((supplier.spend?.amountCents ?? 0) / max) * 100)} %`}
+                            />
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             );
           })}
-        </ul>
+        </div>
         {suppliers.length > visible.length && (
           <Button
             variant="secondary"
@@ -365,18 +426,18 @@ function SupplierPanel({
       </div>
       <dl className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 rounded-md bg-paper p-3">
-          <dt className="text-muted-foreground text-xs">{text.spendTile(spendYear)}</dt>
+          <dt className="text-muted-foreground text-chip">{text.spendTile(spendYear)}</dt>
           <dd className="font-display font-semibold text-lg tabular-nums">
             {millions(supplier.spend?.amountCents ?? 0, supplier.spend?.currency ?? 'EUR')}
           </dd>
-          <dd className="text-muted-foreground text-xs">
+          <dd className="text-muted-foreground text-chip">
             {text.shareOfSpend(percent.format(share))}
           </dd>
         </div>
         <div className="flex flex-col gap-1 rounded-md bg-paper p-3">
-          <dt className="text-muted-foreground text-xs">{text.groupTile}</dt>
+          <dt className="text-muted-foreground text-chip">{text.groupTile}</dt>
           <dd className="font-semibold">{group ?? text.groupMissing}</dd>
-          <dd className="text-muted-foreground text-xs">
+          <dd className="text-muted-foreground text-chip">
             {supplier.country ? format.country(supplier.country) : '–'}
           </dd>
         </div>
@@ -448,9 +509,10 @@ function SupplierPanel({
           </ul>
         </>
       )}
+      {/* NAV-10 Seitenregel 3: die eine Hauptaktion steht im „Nächsten Schritt“ darüber. */}
       {routerLink({
         href: base,
-        className: buttonVariants({ className: 'self-start' }),
+        className: buttonVariants({ variant: 'secondary', className: 'self-start' }),
         children: text.open,
       })}
     </section>

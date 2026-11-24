@@ -9,13 +9,12 @@ test.use({ locale: 'de-DE' });
 const id = '0190a0a0-0000-7000-8000-000000000001';
 const base = `/lieferanten/${id}`;
 const url = (path: string) => `http://localhost:5174${path}`;
-// Nur Bereiche mit gebauten Unterseiten stehen in der lokalen Leiste (UMB-05).
-// NAV-10: vier Reiter und der Knopf Profil statt der Bereiche aus NAV-06
+// NAV-10 1.1: Lieferantenkopf mit vier Bereichen und dem Knopf „···“ für das Profil
 const areas = [
   ['Aktivitäten', 'aktivitaeten'],
   ['Plan', 'plan/vorbereitung'],
   ['Ergebnisse', 'wirkung/bruecke'],
-  ['Profil', 'strategie/profil'],
+  ['Profil, Segmentierung und Team', 'strategie/profil'],
 ] as const;
 
 async function signIn(page: Page) {
@@ -72,13 +71,16 @@ async function signIn(page: Page) {
           },
           { tile: 'relationship', kind: 'team_size', count: 4 },
         ],
+        cycle: null,
+        canStartCycle: false,
+        canSetJbpDate: false,
       },
     }),
   );
   await page.route('**/api/audit**', (route) => route.fulfill({ json: { entries: [] } }));
 }
 
-const localBar = (page: Page) => page.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
+const header = (page: Page) => page.locator('[data-slot="supplier-header"]');
 
 test('NAV-10: Die Reiter führen zu ihren Seiten; der Wechsel lädt die Seite nicht neu', async ({
   page,
@@ -86,37 +88,42 @@ test('NAV-10: Die Reiter führen zu ihren Seiten; der Wechsel lädt die Seite ni
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
   await page.goto(base);
-  // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
+  // Auf dem Überblick ist der Name des Lieferanten der Titel der Seite.
   await expect(page.locator('#inhalt h1')).toHaveText('Rheintal Elektronik GmbH (Demo)');
   // Eine Markierung im Fenster überlebt nur, wenn die Seite nicht neu lädt.
   await page.evaluate(() => {
     (window as unknown as { nav06: boolean }).nav06 = true;
   });
   for (const [label, segment] of areas) {
-    await localBar(page).getByRole('link', { name: label, exact: true }).click();
+    await header(page).getByRole('link', { name: label, exact: true }).click();
     await expect(page).toHaveURL(url(`${base}/${segment}`));
     await expect(page.locator('#inhalt h1')).toBeVisible();
   }
   expect(await page.evaluate(() => (window as unknown as { nav06?: boolean }).nav06)).toBe(true);
 });
 
-test('Die lokale Leiste bleibt beim Scrollen sichtbar', async ({ page }) => {
+test('Der Lieferantenkopf steht oben auf jeder Seite; die Seite scrollt darunter', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 500 });
   await signIn(page);
   await page.goto(base);
-  await expect(page.getByRole('region', { name: 'Strategie' })).toBeVisible();
-  const bar = localBar(page);
-  const before = await bar.boundingBox();
+  await expect(page.getByRole('region', { name: 'Stand der Beziehung' })).toBeVisible();
+  // Kopf und Bereiche gehören zur Seite (Vorlage SupplierBar), nicht zur Seitenleiste
+  await expect(header(page).getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
+    'href',
+    '/lieferanten',
+  );
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
-  const after = await bar.boundingBox();
-  // Sie steht weiter direkt unter der globalen Leiste.
-  expect(after?.y).toBe(before?.y);
-  await expect(bar.getByRole('link', { name: 'Aktivitäten' })).toBeInViewport();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+  // Die Seitenleiste bleibt stehen, der Inhalt scrollt (Entscheidung vom 23.11.2026).
+  await expect(
+    page.locator('[data-slot="sidebar"]').getByRole('link', { name: 'Lieferanten' }),
+  ).toBeInViewport();
 });
 
 for (const path of ['', '/strategie', '/strategie/profil', '/beziehung/team']) {
-  test(`Bei 390 px Breite bricht die lokale Leiste ohne waagerechtes Scrollen um (${path || '/'})`, async ({
+  test(`Bei 390 px Breite bricht der Lieferantenkopf ohne waagerechtes Scrollen um (${path || '/'})`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
@@ -131,7 +138,7 @@ for (const path of ['', '/strategie', '/strategie/profil', '/beziehung/team']) {
     );
     expect(overflow).toBe(0);
     for (const [label] of areas) {
-      const link = localBar(page).getByRole('link', { name: label, exact: true });
+      const link = header(page).getByRole('link', { name: label, exact: true });
       await expect(link).toBeInViewport();
       const box = await link.boundingBox();
       expect(box?.height, label).toBeGreaterThanOrEqual(44);

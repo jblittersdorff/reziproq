@@ -1,3 +1,4 @@
+import type { StatusDotTone } from '@/components/ui/status-dot';
 import { defineMessages } from '@/lib/i18n';
 
 // Texte der Testseite /bausteine (UX-20 Phase 1). Sie stammen aus den Vorlagen in
@@ -33,6 +34,7 @@ export const blocksMessages = defineMessages({
       rail: 'TimelineRail · Terminschiene',
       dates: 'DateList · Termine und Fristen',
       columns: 'ChartColumns · Säulen je Quartal',
+      dots: 'StatusDot · Ampelpunkt mit Text',
     },
     rail: {
       label: 'Die nächsten vier Wochen',
@@ -68,6 +70,12 @@ export const blocksMessages = defineMessages({
         ['Q4 bis heute', '109 T€', 0.77],
       ] as [string, string, number][],
     },
+    dots: [
+      ['danger', 'Zusage überfällig'],
+      ['warning', 'Hinweis'],
+      ['success', 'läuft'],
+      ['neutral', 'Beendet'],
+    ] as [StatusDotTone, string][],
     next: {
       kicker: 'Als Nächstes · überfällig seit 2 Tagen · 2 Min.',
       title: 'Liefertreue Oktober für Rheintal erfassen',
@@ -209,6 +217,7 @@ export const blocksMessages = defineMessages({
       rail: 'TimelineRail · timeline rail',
       dates: 'DateList · dates and deadlines',
       columns: 'ChartColumns · columns per quarter',
+      dots: 'StatusDot · status dot with text',
     },
     rail: {
       label: 'The next four weeks',
@@ -244,6 +253,12 @@ export const blocksMessages = defineMessages({
         ['Q4 to date', '109 k€', 0.77],
       ] as [string, string, number][],
     },
+    dots: [
+      ['danger', 'commitment overdue'],
+      ['warning', 'insight'],
+      ['success', 'on track'],
+      ['neutral', 'Ended'],
+    ] as [StatusDotTone, string][],
     next: {
       kicker: 'Up next · overdue for 2 days · 2 min.',
       title: 'Record October on-time delivery for Rheintal',

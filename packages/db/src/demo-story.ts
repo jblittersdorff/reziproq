@@ -58,6 +58,7 @@ export async function demoStory(
     .from(schema.jbp)
     .where(eq(schema.jbp.relationshipId, first.id));
   if (existing) {
+    await demoCategorySpend(tx, oem);
     await demoEarlyWarning(tx, first.id, account, today);
     await demoBriefing(tx, first.id, account);
     await demoInbound(tx, relationships, account, today);
@@ -325,6 +326,7 @@ export async function demoStory(
   await demoMails(tx, relationships, account, today);
   await demoNotifications(tx, relationships, account, today);
   await demoTranscripts(tx, relationships, account, today);
+  await demoCategorySpend(tx, oem);
   return { created: true, relationships };
 }
 
@@ -332,6 +334,29 @@ export async function demoStory(
  * KI-07: Der Quartalsreview in sieben Tagen bekommt Dauer und Teilnehmer beider Seiten, damit das
  * Termin-Briefing eine Agenda mit Zeiten und „Wer führt“ zeigt. Ergänzt nur, was fehlt.
  */
+/**
+ * NAV-10 1.1: Der Überblick eines Lieferanten zeigt seinen Anteil an der Haupt-Warengruppe; dafür
+ * braucht der Spend eine Warengruppe. Die Beispieldaten führen ihn für den ganzen Lieferanten. Hier
+ * gehört er einmalig der Haupt-Warengruppe; die Summe je Lieferant und Jahr bleibt gleich. Hat ein
+ * Lieferant schon Spend mit Warengruppe, bleibt er unberührt.
+ */
+async function demoCategorySpend(tx: Transaction, oem: string) {
+  await tx.execute(sql`
+    update relationship_spend rs
+       set material_group_id = rmg.material_group_id
+      from relationship r, relationship_material_group rmg
+     where rs.relationship_id = r.id
+       and r.buyer_org_id = ${oem}
+       and rmg.relationship_id = r.id
+       and rmg.is_primary
+       and rs.material_group_id is null
+       and rs.business_unit_id is null
+       and not exists (
+         select 1 from relationship_spend other
+          where other.relationship_id = r.id and other.material_group_id is not null
+       )`);
+}
+
 async function demoBriefing(
   tx: Transaction,
   relationshipId: string,

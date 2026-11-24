@@ -21,14 +21,16 @@ test('Keine Route zeigt „Kommt mit Release“ oder „Kommt nach Release“', 
   expect(findings).toEqual([]);
 });
 
-test('Ein Lieferant auf einer Seite: Abschnitte, Sprung aus der lokalen Leiste, keine Scrollleiste bei 390 px', async ({
+test('Ein Lieferant auf einer Seite: alte Bereichsadresse leitet weiter, keine Scrollleiste bei 390 px', async ({
   page,
 }) => {
   await signIn(page, { locale: 'de' });
   await page.goto(`/lieferanten/${id}/beziehung`);
-  // Die alte Bereichsadresse führt zum Abschnitt auf dem Überblick.
-  await expect(page).toHaveURL(new RegExp(`/lieferanten/${id}#beziehung$`));
-  await expect(page.getByRole('region', { name: 'Beziehung' })).toBeInViewport();
+  // NAV-10 1.1: Die alte Bereichsadresse führt zur ersten Seite des neuen Bereichs (Team im Profil).
+  await expect(page).toHaveURL(new RegExp(`/lieferanten/${id}/beziehung/team$`));
+  await page.goto(`/lieferanten/${id}`);
+  await expect(page.locator('[data-slot="supplier-header"]')).toBeVisible();
+  await expect(page.locator('#inhalt h1')).toBeVisible();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 844 });
     const overflow = await page.evaluate(

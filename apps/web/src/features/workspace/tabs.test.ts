@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { areaPages, builtPages } from './areas';
-import { supplierTabs, tabOf, tabPages } from './tabs';
+import { pageAliases, supplierTabs, tabOf, tabPages } from './tabs';
 
 // NAV-10: Jede bisherige Seite eines Lieferanten gehört genau einem Reiter oder dem Profil.
 describe('NAV-10 Reiter der Lieferantenleiste', () => {
@@ -19,8 +19,10 @@ describe('NAV-10 Reiter der Lieferantenleiste', () => {
       tabPages[tab].map((page) => page.path),
     );
     for (const path of all) {
+      // Spend gehört zur Seite „Profil und Spend“ (NAV-10 1.1)
+      const page = pageAliases.find(([from]) => from === path)?.[1] ?? path;
       expect(
-        assigned.filter((entry) => entry === path),
+        assigned.filter((entry) => entry === page),
         path,
       ).toHaveLength(1);
     }
@@ -36,5 +38,9 @@ describe('NAV-10 Reiter der Lieferantenleiste', () => {
     expect(tabOf(`/lieferanten/${id}/beziehung/feedback`).tab).toBe('results');
     expect(tabOf(`/lieferanten/${id}/beziehung/team/bearbeiten`).tab).toBe('profile');
     expect(tabOf(`/lieferanten/${id}/zyklus/neu`).tab).toBe('overview');
+    expect(tabOf(`/lieferanten/${id}/strategie/spend/neu`)).toMatchObject({
+      tab: 'profile',
+      page: { path: 'strategie/profil' },
+    });
   });
 });

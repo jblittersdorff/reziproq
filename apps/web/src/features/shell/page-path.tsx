@@ -1,5 +1,7 @@
 import { useNavigate, useRouter } from '@tanstack/react-router';
+import { BackLink } from '@/components/ui/back-link';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { shownByHeader, useSupplierScope } from '@/features/workspace/supplier-scope';
 import { useT } from '@/lib/i18n';
 import { routerLink } from './navigation';
 
@@ -15,6 +17,15 @@ export function PagePath({
   current: string;
 }) {
   const t = useT();
+  const scope = useSupplierScope();
+  if (scope) {
+    // NAV-10 1.1: Im Lieferanten zeigt der Kopf Liste, Lieferant und Bereich; hier steht nur der
+    // Zurück-Link zur Ebene darüber, wenn es eine gibt.
+    const parent = trail.filter((entry) => !shownByHeader(scope.relationshipId, entry.href)).at(-1);
+    return parent ? (
+      <BackLink label={parent.label} href={parent.href} renderLink={routerLink} />
+    ) : null;
+  }
   const back = trail.at(-1);
   return (
     <Breadcrumb

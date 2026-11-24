@@ -1,3 +1,5 @@
+import type { AnyHintRuleKey, Supplier } from '@reziproq/shared';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { FactoryIcon, FileUpIcon, LockIcon, PlusIcon } from 'lucide-react';
 import { useId } from 'react';
@@ -7,14 +9,18 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { SearchInput } from '@/components/ui/search-input';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { useCan } from '@/features/auth/use-permissions';
+import { useToken } from '@/features/ratings/use-rating';
 import { PageHeader } from '@/features/shell/page-header';
-import { ApiError } from '@/lib/api';
+import { shortDate } from '@/features/start/next-action';
+import { supplierMessages } from '@/features/workspace/supplier-messages';
+import { ApiError, needsYouQueryOptions, timelineQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
-import { useT } from '@/lib/i18n';
+import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { activeFilters, type SortKey, type SupplierSearch, visibleSuppliers } from './search';
-import { SupplierList } from './supplier-list';
+import { SupplierList, type SupplierRowStatus } from './supplier-list';
 import { supplierSummary, useSuppliers } from './use-suppliers';
 
 /**
@@ -31,13 +37,18 @@ export function SuppliersPage() {
   const update = (next: Partial<SupplierSearch>) =>
     void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });
   const canEdit = useCan('lieferanten.bearbeiten');
+  const text = useMessages(supplierMessages).list;
+  const { locale } = useLocale();
+  const accessToken = useToken();
+  const signedIn = accessToken !== '' && allowed;
+  // NAV-10 1.1 (F-UX-06): „Brauchen dich“ mit Grund; „Laufen gut“ nennt den nächsten Termin.
+  const needsYou = useQuery({ ...needsYouQueryOptions(accessToken), enabled: signedIn });
+  const timeline = useQuery({ ...timelineQueryOptions(accessToken, 60), enabled: signedIn });
   const sortId = useId();
   const endedId = useId();
   const unitId = useId();
   const groupId = useId();
   const typeId = useId();
-  const focusId = useId();
-  const mineId = useId();
 
   const title = t.suppliers.title;
 
@@ -80,8 +91,9 @@ export function SuppliersPage() {
   }
 
   // Anlegen nur mit Recht aus der API (can() im Backend, PLT-03b).
+  // NAV-10: Außerhalb der Karte „Als Nächstes“ gibt es nur Zweitknöpfe.
   const addButton = canEdit && (
-    <Button asChild>
+    <Button asChild variant="secondary">
       <Link to="/lieferanten/neu">
         <PlusIcon />
         {t.suppliers.add}
@@ -89,7 +101,7 @@ export function SuppliersPage() {
     </Button>
   );
   const importButton = (
-    <Button asChild variant={canEdit ? 'secondary' : 'default'}>
+    <Button asChild variant="secondary">
       <Link to="/lieferanten/importieren">
         <FileUpIcon />
         {t.suppliers.importPage.title}
@@ -132,9 +144,62 @@ export function SuppliersPage() {
         null)
       : (supplier.segmentType ?? null);
 
+  const reasons = new Map(
+    (needsYou.data?.items ?? []).map((item) => [item.relationshipId, item] as const),
+  );
+  const meetings = new Map<string, string>();
+  for (const item of timeline.data?.items ?? []) {
+    if (item.relationshipId && item.kind === 'meeting' && !meetings.has(item.relationshipId)) {
+      meetings.set(item.relationshipId, text.meeting(item.title, shortDate(locale, item.date)));
+    }
+  }
+  const rowStatus = (supplier: Supplier): SupplierRowStatus => {
+    if (supplier.status === 'ended') {
+      return { group: 'ended', status: t.suppliers.statusEnded, tone: 'neutral', reason: null };
+    }
+    const need = reasons.get(supplier.relationshipId);
+    if (need) {
+      return {
+        group: 'needs',
+        status: text.status[need.reason],
+        tone: need.reason === 'commitment' || need.reason === 'due' ? 'danger' : 'warning',
+        // Ein Hinweis ohne Titel trägt den Schlüssel seiner Regel.
+        reason:
+          need.reason === 'hint'
+            ? (t.hints.rules[need.title as AnyHintRuleKey] ?? need.title)
+            : need.title,
+      };
+    }
+    return {
+      group: 'good',
+      status: text.status.good,
+      tone: 'success',
+      reason: meetings.get(supplier.relationshipId) ?? null,
+    };
+  };
+  // Umschalter Meine, Strategisch (Fokuslieferanten, SEG-02), Alle; steht in der Adresse.
+  const view = search.meine ? 'mine' : search.fokus ? 'strategic' : 'all';
+
   return (
     <>
       {header}
+
+      <SegmentedControl<'mine' | 'strategic' | 'all'>
+        className="self-start"
+        label={text.views}
+        value={view}
+        options={[
+          { value: 'mine', label: text.mine },
+          { value: 'strategic', label: text.strategic },
+          { value: 'all', label: text.all },
+        ]}
+        onChange={(value) =>
+          update({
+            meine: value === 'mine' ? 1 : undefined,
+            fokus: value === 'strategic' ? 1 : undefined,
+          })
+        }
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <SearchInput
@@ -214,26 +279,6 @@ export function SuppliersPage() {
               </NativeSelect>
             </div>
           ))}
-          <div className="flex min-h-12 items-center gap-3">
-            <Switch
-              id={focusId}
-              checked={search.fokus === 1}
-              onCheckedChange={(checked) => update({ fokus: checked ? 1 : undefined })}
-            />
-            <label htmlFor={focusId} className="text-base">
-              {t.suppliers.filters.focusOnly}
-            </label>
-          </div>
-          <div className="flex min-h-12 items-center gap-3">
-            <Switch
-              id={mineId}
-              checked={search.meine === 1}
-              onCheckedChange={(checked) => update({ meine: checked ? 1 : undefined })}
-            />
-            <label htmlFor={mineId} className="text-base">
-              {t.suppliers.filters.mineOnly}
-            </label>
-          </div>
         </fieldset>
       )}
       <div className="flex flex-wrap items-center gap-4">
@@ -263,6 +308,12 @@ export function SuppliersPage() {
         </p>
       ) : (
         <SupplierList
+          rowStatus={rowStatus}
+          groupLabels={{
+            needs: text.needsYou,
+            good: text.runningWell,
+            ended: t.suppliers.statusEnded,
+          }}
           suppliers={visible}
           spendYear={data.spendYear}
           segmentOf={segmentTypeOf}

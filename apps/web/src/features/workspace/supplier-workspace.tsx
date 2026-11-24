@@ -1,36 +1,33 @@
-import type { SupplierCycle } from '@reziproq/shared';
+import type { SupplierDetail, SupplierOverview } from '@reziproq/shared';
 import { Outlet, useRouterState } from '@tanstack/react-router';
 import { SearchXIcon } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
-import { Chain } from '@/components/ui/chain';
 import { EmptyState } from '@/components/ui/empty-state';
+import { SupplierHeader } from '@/components/ui/entity-header';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
-import { LocalBar, LocalBarProgress } from '@/components/ui/local-bar';
-import { Monogram } from '@/components/ui/monogram';
-import { InLocalBarSlot } from '@/features/shell/local-bar-slot';
 import { routerLink } from '@/features/shell/navigation';
 import { PagePath } from '@/features/shell/page-path';
 import { useSupplier } from '@/features/suppliers/use-supplier';
-import { useT } from '@/lib/i18n';
-import { workspacePath } from './areas';
-import { CycleAction } from './cycle-action';
+import { useMessages, useT } from '@/lib/i18n';
+import { currentStepIndex } from './phases';
+import { type SupplierText, supplierMessages } from './supplier-messages';
+import { SupplierScope } from './supplier-scope';
 import { type SupplierTab, supplierTabs, tabHref, tabOf, tabPages } from './tabs';
 import { useOverview } from './use-overview';
-import { WorkspaceHead } from './workspace-head';
 
 /**
- * Arbeitsbereich eines Lieferanten (NAV-06, UMB-05): lokale Leiste unter der globalen Leiste mit
- * Name und den Bereichen, die schon Unterseiten haben – ein Klick springt zum Abschnitt auf dem
- * Überblick. Darunter auf allen Seiten außer dem Überblick der Kopf als schmale Zeile.
- * Hier liegen auch Lade-, Fehler- und Nicht-gefunden-Zustand für alle Seiten eines Lieferanten.
+ * Arbeitsbereich eines Lieferanten (NAV-10 1.1, Vorlage `SupplierBar.dc.html`): auf jeder Seite
+ * oben der Lieferantenkopf mit „‹ Lieferanten“, Name, grauer Zeile (Segment, Warengruppe, Schritt
+ * im Jahreszyklus), rundem Knopf „···“ für das Profil, den vier Bereichen und den Unterseiten des
+ * aktiven Bereichs. Claims und Risiken erscheinen erst mit ihrem Modul (UX-20); bis dahin gibt es
+ * keine Seiten dafür. Hier liegen auch Lade-, Fehler- und Nicht-gefunden-Zustand aller Seiten.
  */
 export function SupplierWorkspace({ relationshipId }: { relationshipId: string }) {
   const t = useT();
+  const text = useMessages(supplierMessages);
   const supplier = useSupplier(relationshipId);
   const overview = useOverview(relationshipId);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const onOverview = pathname.replace(/\/$/, '') === workspacePath(relationshipId);
   const root = { label: t.suppliers.title, href: '/lieferanten' };
 
   if (supplier.notFound) {
@@ -56,81 +53,63 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   }
   if (!supplier.data) return <LoadingState label={t.suppliers.detailLoading} />;
 
-  // NAV-10: vier Reiter und der Knopf Profil; Unterseiten des aktiven Reiters als Pillen.
   const { tab, page } = tabOf(pathname);
-  const label = (tabKey: SupplierTab) => t.workspace.tabs[tabKey];
-  const items = supplierTabs.map((key) => ({
-    key,
-    label: label(key),
-    href: tabHref(relationshipId, key),
-  }));
-  const subItems = tabPages[tab].map((entry) => ({
+  const pages = tabPages[tab].map((entry) => ({
     key: entry.path,
-    label: entry.key === 'history' ? t.activities.history : t.workspace.pages[entry.key].title,
+    label:
+      entry.key === 'history'
+        ? t.activities.history
+        : entry.key === 'profile'
+          ? text.profile.title
+          : t.workspace.pages[entry.key].title,
     href: `/lieferanten/${relationshipId}/${entry.path}`,
   }));
-  const profileLink = routerLink({
-    href: tabHref(relationshipId, 'profile'),
-    className: buttonVariants({ variant: tab === 'profile' ? 'default' : 'secondary' }),
-    'aria-current': tab === 'profile' ? 'page' : undefined,
-    children: label('profile'),
-  });
 
   return (
-    <>
-      <InLocalBarSlot>
-        <LocalBar
-          label={t.workspace.label}
-          name={supplier.data.name}
-          nameIcon={<Monogram name={supplier.data.name} size="lg" ring />}
-          nameHref={workspacePath(relationshipId)}
-          subtitle={
-            !onOverview && overview.data && <WorkspaceHead head={overview.data.head} size="bar" />
-          }
-          progress={overview.data?.cycle && <CycleProgress cycle={overview.data.cycle} />}
-          items={items}
-          activeKey={tab === 'profile' ? undefined : tab}
-          subItems={subItems}
-          subLabel={t.workspace.pagesLabel}
-          activeSubKey={page?.path}
-          action={
-            overview.data && (
-              <CycleAction relationshipId={relationshipId} overview={overview.data} />
-            )
-          }
-          navAction={profileLink}
-          renderLink={routerLink}
-        />
-      </InLocalBarSlot>
+    <SupplierScope.Provider value={{ relationshipId }}>
+      <SupplierHeader
+        back={{ label: text.header.back, href: '/lieferanten' }}
+        name={supplier.data.name}
+        nameAs={tab === 'overview' && !page ? 'h1' : 'p'}
+        meta={headerMeta(text, t.workspace.cycle.steps, supplier.data, overview.data)}
+        areasLabel={text.header.areas}
+        areas={supplierTabs.map((key: SupplierTab) => ({
+          key,
+          label: t.workspace.tabs[key],
+          href: tabHref(relationshipId, key),
+        }))}
+        activeArea={tab === 'profile' ? undefined : tab}
+        pagesLabel={text.header.pages}
+        pages={pages}
+        activePage={page?.path}
+        profile={{
+          label: text.header.profile,
+          href: tabHref(relationshipId, 'profile'),
+          active: tab === 'profile',
+        }}
+        renderLink={routerLink}
+      />
       <Outlet />
-    </>
+    </SupplierScope.Provider>
   );
 }
 
-/** Kette des Jahreszyklus mit Schritt n von m, rechts in der Leiste. */
-function CycleProgress({ cycle }: { cycle: SupplierCycle }) {
-  const t = useT();
-  const currentIndex = cycle.steps.findIndex((step) =>
-    ['open', 'in_progress', 'overdue'].includes(step.status),
-  );
-  const current = cycle.steps[currentIndex];
-  const text = current
-    ? t.workspace.cycle.position(
-        currentIndex + 1,
-        cycle.steps.length,
-        t.workspace.cycle.steps[current.key],
-      )
-    : t.workspace.cycle.title(cycle.label);
-  return (
-    <LocalBarProgress>
-      <Chain
-        surface="paper"
-        label={text}
-        steps={cycle.steps.map((step, index) =>
-          step.status === 'completed' ? 'done' : index === currentIndex ? 'current' : 'open',
-        )}
-      />
-      <span aria-hidden>{text}</span>
-    </LocalBarProgress>
-  );
+/** Graue Zeile: Segment (oder „nicht bewertet“), Haupt-Warengruppe und Schritt im Jahreszyklus */
+function headerMeta(
+  text: SupplierText,
+  steps: Record<string, string>,
+  supplier: SupplierDetail,
+  overview: SupplierOverview | undefined,
+) {
+  const cycle = overview?.cycle ?? null;
+  const index = cycle ? currentStepIndex(cycle) : -1;
+  const step = cycle?.steps[index];
+  return [
+    overview?.head.isFocus ? text.header.focus : null,
+    overview ? (overview.head.segment?.current ?? text.header.notRated) : null,
+    supplier.materialGroups?.[0] ?? null,
+    cycle && step ? text.header.step(index + 1, cycle.steps.length, steps[step.key] ?? '') : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }

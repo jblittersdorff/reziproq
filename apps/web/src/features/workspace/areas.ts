@@ -56,15 +56,6 @@ export function builtPages(area: WorkspaceArea): { key: PageKey; segment: string
   );
 }
 
-/** Bereiche mit mindestens einer gebauten Unterseite, in der Reihenfolge der lokalen Leiste. */
-export const builtAreas: WorkspaceArea[] = workspaceAreas
-  .map((entry) => entry.key)
-  .filter((area) => builtPages(area).length > 0);
-
-/** Abschnitt eines Bereichs auf dem Überblick, z. B. /lieferanten/<id>#strategie. */
-export const sectionHref = (relationshipId: string, area: WorkspaceArea) =>
-  `/lieferanten/${relationshipId}#${workspaceAreas.find((entry) => entry.key === area)?.segment}`;
-
 export const workspacePath = (relationshipId: string, area?: WorkspaceArea) => {
   const segment = workspaceAreas.find((entry) => entry.key === area)?.segment;
   return segment ? `/lieferanten/${relationshipId}/${segment}` : `/lieferanten/${relationshipId}`;

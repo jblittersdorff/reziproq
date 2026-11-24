@@ -123,6 +123,21 @@ describe('demo:setup', () => {
     );
   });
 
+  it('der Spend der Beispieldaten gehört der Haupt-Warengruppe, die Summe bleibt (NAV-10 1.1)', async () => {
+    const rows = await query<{ grouped: string; ungrouped: string; primary_match: string }>(sql`
+      select count(*) filter (where rs.material_group_id is not null)::text as grouped,
+             count(*) filter (where rs.material_group_id is null)::text as ungrouped,
+             count(*) filter (where rs.material_group_id = rmg.material_group_id)::text as primary_match
+        from relationship_spend rs
+        join relationship r on r.id = rs.relationship_id
+        left join relationship_material_group rmg
+          on rmg.relationship_id = r.id and rmg.is_primary
+       where r.buyer_org_id = ${seedBuyers.testOem.id} and rmg.id is not null`);
+    expect(Number(rows[0]?.grouped)).toBeGreaterThan(0);
+    expect(rows[0]?.ungrouped).toBe('0');
+    expect(rows[0]?.primary_match).toBe(rows[0]?.grouped);
+  });
+
   it('ein zweiter Lauf ändert nichts mehr', async () => {
     const again = await demoSetup(temp.db, 'development');
     expect(again).toMatchObject({

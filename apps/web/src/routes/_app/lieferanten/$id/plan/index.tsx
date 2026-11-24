@@ -1,14 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { builtAreas } from '@/features/workspace/areas';
 
-// Der Bereich ist ein Abschnitt auf dem Überblick (UMB-05). Ohne gebaute Unterseite führt die
-// Adresse zum Überblick selbst.
+// NAV-10 1.1: Die alten Bereiche sind keine Abschnitte des Überblicks mehr. Die Adresse leitet auf
+// die erste Seite ihres neuen Bereichs weiter: Vorbereitung (Plan).
 export const Route = createFileRoute('/_app/lieferanten/$id/plan/')({
   beforeLoad: ({ params }) => {
-    throw redirect({
-      to: '/lieferanten/$id',
-      params: { id: params.id },
-      ...(builtAreas.includes('plan') ? { hash: 'plan' } : {}),
-    });
+    throw redirect({ to: '/lieferanten/$id/plan/vorbereitung', params: { id: params.id }, replace: true });
   },
 });

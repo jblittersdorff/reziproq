@@ -34,11 +34,12 @@ afterEach(tearDownApp);
 const text = (element: Element | null) => element?.textContent?.replaceAll(' ', ' ') ?? '';
 
 // LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
+// NAV-10 1.1: Zeilen in den Gruppen „Brauchen dich“, „Laufen gut“ und „Beendet“, in dieser Folge
 const cardNames = async () => {
-  const list = await screen.findByRole('list', { name: 'Lieferanten' });
-  return within(list)
-    .getAllByRole('listitem')
-    .map((row) => row.querySelector('[data-slot="supplier-name"]')?.getAttribute('title'));
+  await screen.findAllByRole('button', { pressed: false });
+  return [
+    ...document.querySelectorAll('[data-slot="supplier-row"] [data-slot="supplier-name"]'),
+  ].map((name) => name.getAttribute('title'));
 };
 
 const suppliersRequested = () =>
@@ -114,12 +115,14 @@ describe('Lieferantenseite', () => {
         target: { value: 'l-1000' },
       },
     );
+    // Beendete stehen in ihrer eigenen Gruppe nach „Laufen gut“.
     expect(await cardNames()).toEqual([
       'Alpen Sensorik GmbH (Demo)',
-      'Lombardia Fonderie S.p.A. (Demo)',
       'Rheintal Elektronik GmbH (Demo)',
       'Silesia Guss Sp. z o.o. (Demo)',
+      'Lombardia Fonderie S.p.A. (Demo)',
     ]);
+    expect(screen.getByRole('list', { name: 'Beendet' }).textContent).toContain('Lombardia');
     expect(router.state.location.search).toEqual({
       sortierung: 'name',
       beendet: 1,

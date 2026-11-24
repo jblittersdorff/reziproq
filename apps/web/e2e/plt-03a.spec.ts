@@ -55,11 +55,11 @@ async function signIn(page: Page) {
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
 }
 
-// LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
+// LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens. NAV-10 1.1: in den
+// Gruppen „Brauchen dich“, „Laufen gut“ und „Beendet“, in dieser Folge.
 const cardNames = (page: Page) =>
   page
-    .getByRole('list', { name: 'Lieferanten' })
-    .locator('[data-slot="supplier-name"]')
+    .locator('[data-slot="supplier-row"] [data-slot="supplier-name"]')
     .evaluateAll((names) => names.map((name) => name.getAttribute('title')));
 
 test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse', async ({
@@ -87,7 +87,7 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
     .fill('fonderie');
   await expect(page).toHaveURL(/suche=fonderie/);
   await expect.poll(() => cardNames(page)).toEqual(['Lombardia Fonderie S.p.A. (Demo)']);
-  await expect(page.getByRole('list', { name: 'Lieferanten' })).toContainText('Beendet');
+  await expect(page.getByRole('list', { name: 'Beendet' })).toContainText('Beendet');
 
   // Neuladen stellt dieselbe Ansicht wieder her.
   await page.reload();

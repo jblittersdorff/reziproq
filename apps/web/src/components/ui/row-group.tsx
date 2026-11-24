@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from 'lucide-react';
 import type * as React from 'react';
+import { useId } from 'react';
 import { cn } from '@/lib/utils';
 import { defaultRenderLink, type RenderLink } from './nav-link';
 
@@ -17,10 +18,18 @@ function RowGroup({
   className?: string;
   children: React.ReactNode;
 }) {
+  const headingId = useId();
   return (
-    <section data-slot="row-group" className={cn('flex flex-col gap-2', className)}>
+    <section
+      data-slot="row-group"
+      {...(label ? { 'aria-labelledby': headingId } : {})}
+      className={cn('flex flex-col gap-2', className)}
+    >
       {label && (
-        <h2 className="px-1 font-semibold text-input-border text-sm uppercase tracking-label">
+        <h2
+          id={headingId}
+          className="px-1 font-semibold text-input-border text-sm uppercase tracking-label"
+        >
           {label}
         </h2>
       )}

@@ -53,9 +53,12 @@ function Ring({
 export function GoalRings({
   result,
   relationships,
+  compact = false,
 }: {
   result: GoalMetric;
   relationships?: GoalMetric;
+  /** Für schmale Spalten (Lieferanten-Überblick rechts): kleinerer Ring, Zahlen wie Kennzahlen */
+  compact?: boolean;
 }) {
   const metrics = relationships ? [result, relationships] : [result];
   return (
@@ -75,7 +78,13 @@ export function GoalRings({
             .join(', ')}
           focusable="false"
           viewBox={relationships ? '0 0 240 240' : '0 0 56 56'}
-          className={relationships ? 'size-55 max-w-full shrink-0 sm:size-60' : 'size-14 shrink-0'}
+          className={
+            relationships
+              ? compact
+                ? 'size-36 max-w-full shrink-0'
+                : 'size-55 max-w-full shrink-0 sm:size-60'
+              : 'size-14 shrink-0'
+          }
         >
           {relationships ? (
             <>
@@ -87,15 +96,19 @@ export function GoalRings({
           )}
         </svg>
       )}
-      <dl className="flex min-w-0 flex-1 flex-col gap-5">
+      {/* Mit Grundbreite: in schmalen Karten rutschen die Zahlen unter das Ringpaar statt neben
+          ihm zu schrumpfen und über den Rand zu laufen. */}
+      <dl className="flex min-w-0 flex-1 basis-56 flex-col gap-5">
         {metrics.map((metric) => (
           <div key={metric.label}>
             <dt className="font-semibold text-muted-strong text-sm">{metric.label}</dt>
             <dd
               className={
-                relationships
+                relationships && !compact
                   ? 'font-display font-semibold text-figure tabular-nums tracking-section sm:text-evidence'
-                  : 'font-display font-semibold text-section tabular-nums'
+                  : relationships
+                    ? 'font-display font-semibold text-section tabular-nums tracking-section'
+                    : 'font-display font-semibold text-section tabular-nums'
               }
             >
               {metric.format(metric.actual, hasTarget(metric) ? metric.target : null)}

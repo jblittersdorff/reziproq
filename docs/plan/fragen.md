@@ -180,3 +180,20 @@ Alle Empfehlungen oben gelten. Ergänzt:
 - Heute zählt der Spend des Lieferanten; das Segmentmodell hat keine Gewichte je Segment.
 - Empfehlung: Gewicht je Segmenttyp im Segmentmodell (Start 1,0; strategisch 2,0), einstellbar
   unter Einstellungen › Segmentierung.
+
+## Neu aus Phase 3 (24.11.2026)
+
+**F-UX-18 · „Strategisch“ im Umschalter der Lieferantenliste.**
+- NAV-10: Umschalter „Meine, Strategisch, Alle“; die Spec sagt nicht, wer „strategisch“ ist.
+- Umgesetzt: Strategisch = Fokuslieferanten (SEG-02), wie in der Vorlage `PF-Portfolio`
+  („8 strategische Lieferanten“ unter „Fokus · 8“). In der Adresse `?fokus=1`, „Meine“ `?meine=1`.
+- Alternative: alle Lieferanten mit Soll-Segment „Strategisch“ aus der Konsolidierung.
+- Empfehlung: bei den Fokuslieferanten bleiben; Fokus ist die bewusste Auswahl, das Segment ein
+  Ergebnis der Bewertung.
+
+**F-UX-19 · Grund in der Gruppe „Laufen gut“.**
+- Die Vorlage `A-Lieferanten` zeigt je Zeile einen Grund („QBR am 10.12.“, „neues Wertpotenzial“,
+  „Plan in Arbeit“); F-UX-06 regelt nur „Brauchen dich“.
+- Umgesetzt: der nächste Termin der nächsten 60 Tage, sonst Warengruppe und Land.
+- Empfehlung: so lassen; neue Wertpotenziale und Planstand kommen dazu, wenn Phase 8 sie je
+  Lieferant liefert.

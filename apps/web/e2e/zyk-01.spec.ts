@@ -116,10 +116,14 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo) 
 test('ZYK-01 Zyklusübersicht und nächster Schritt', async ({ page }, testInfo) => {
   await setUp(page);
   await page.goto(base);
+  // NAV-10 1.1: vier Phasen oben, die sieben Schritte eingeklappt darunter
+  await expect(page.getByRole('navigation', { name: 'Jahreszyklus 2026' })).toBeVisible();
+  await page.getByText('Alle Schritte des Zyklus').click();
   await expect(page.getByRole('heading', { level: 2, name: 'Zyklus 2026' })).toBeVisible();
   await expect(page.getByText('Noch nicht verfügbar').first()).toBeVisible();
-  await expect(
-    page.getByRole('link', { name: 'Nächster Schritt: Segment konsolidieren' }),
-  ).toHaveAttribute('href', `${base}/strategie/segmentierung`);
+  // „Als Nächstes“ führt in den aktuellen Schritt
+  const next = page.locator('[data-slot="next-card"]');
+  await expect(next).toContainText('Segment konsolidieren');
+  await expect(next.getByRole('link')).toHaveAttribute('href', `${base}/strategie/segmentierung`);
   await shoot(page, testInfo);
 });

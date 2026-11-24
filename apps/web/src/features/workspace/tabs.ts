@@ -37,9 +37,10 @@ export const tabPages: Record<SupplierTab, TabPage[]> = {
     { key: 'valueOpportunities', path: 'wirkung/wertpotenziale' },
     { key: 'feedback', path: 'beziehung/feedback' },
   ],
+  // NAV-10 1.1 (Vorlage L-Profil): Profil und Spend sind eine Seite; die Spend-Einträge liegen
+  // weiter unter strategie/spend und gehören zur Pille „Profil und Spend“.
   profile: [
     { key: 'profile', path: 'strategie/profil' },
-    { key: 'spend', path: 'strategie/spend' },
     { key: 'segmentation', path: 'strategie/segmentierung' },
     // WG-20: Warengruppen des Lieferanten (NAV-10: im Profil nach der Segmentierung)
     { key: 'categories', path: 'strategie/warengruppen' },
@@ -62,9 +63,14 @@ const extraPrefixes: [string, SupplierTab][] = [
   ['beziehung', 'profile'],
 ];
 
+/** Adressen, die zur Pille einer anderen Seite gehören */
+export const pageAliases: [string, string][] = [['strategie/spend', 'strategie/profil']];
+
 /** Reiter und Unterseite zu einer Adresse unter /lieferanten/<id> */
 export function tabOf(pathname: string): { tab: SupplierTab; page: TabPage | undefined } {
-  const rest = pathname.split('/').slice(3).join('/');
+  const path = pathname.split('/').slice(3).join('/').replace(/\/$/, '');
+  const alias = pageAliases.find(([from]) => path === from || path.startsWith(`${from}/`));
+  const rest = alias ? alias[1] : path;
   if (!rest) return { tab: 'overview', page: undefined };
   for (const tab of [...supplierTabs, 'profile'] as SupplierTab[]) {
     const page = tabPages[tab].find(

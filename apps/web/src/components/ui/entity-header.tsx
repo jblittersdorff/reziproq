@@ -57,7 +57,9 @@ function PageLinks({
   renderLink: RenderLink;
 }) {
   return (
-    <nav aria-label={label} className="flex min-w-0 gap-1 overflow-x-auto py-0.5">
+    // Bricht um statt seitlich zu scrollen: auf dem Telefon bleibt jede Unterseite sichtbar und die
+    // Seite ragt nie über den Rand (Designsprache Regel 5; Vorlage SupplierBar scrollt seitlich).
+    <nav aria-label={label} className="flex min-w-0 flex-wrap gap-1 py-0.5">
       {pages.map((page) => (
         <span key={page.key} className="contents">
           {renderLink({
@@ -88,6 +90,8 @@ interface HeaderProps {
   pagesLabel?: string | undefined;
   pages?: NavItem[] | undefined;
   activePage?: string | undefined;
+  /** Auf dem Überblick ist der Name der Titel der Seite; auf Unterseiten trägt die Seite ihn. */
+  nameAs?: 'h1' | 'p';
   renderLink?: RenderLink;
 }
 
@@ -103,6 +107,7 @@ function HeaderFrame({
   pagesLabel,
   pages,
   activePage,
+  nameAs: Name = 'h1',
   renderLink = defaultRenderLink,
 }: HeaderProps & { slot: string; side?: React.ReactNode }) {
   return (
@@ -110,9 +115,9 @@ function HeaderFrame({
       <BackLink label={back.label} href={back.href} renderLink={renderLink} />
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-balance font-display font-semibold text-title-phone tracking-title shell:text-title">
+          <Name className="text-balance font-display font-semibold text-title-phone tracking-title shell:text-title">
             {name}
-          </h1>
+          </Name>
           <span className="text-detail text-muted-foreground">{meta}</span>
         </div>
         {side}

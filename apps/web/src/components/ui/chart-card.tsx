@@ -85,11 +85,20 @@ function ChartBars({
   );
 }
 
-/** Bis zu drei Kennzahlen nebeneinander, Zahl in Outfit */
-function ChartFigures({ items }: { items: { key: string; value: string; label: string }[] }) {
+/**
+ * Bis zu drei Kennzahlen nebeneinander, Zahl in Outfit; `stacked` untereinander für schmale Spalten
+ * (Vorlage `L-Ueberblick`, Karte Kennzahlen).
+ */
+function ChartFigures({
+  items,
+  stacked = false,
+}: {
+  items: { key: string; value: string; label: string }[];
+  stacked?: boolean;
+}) {
   if (items.length > 3) throw new Error('ChartFigures zeigt höchstens drei Kennzahlen.');
   return (
-    <dl className="grid grid-cols-3 gap-3">
+    <dl className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
       {items.map((item) => (
         <div key={item.key} className="flex flex-col">
           <dt className="order-2 text-detail text-input-border">{item.label}</dt>

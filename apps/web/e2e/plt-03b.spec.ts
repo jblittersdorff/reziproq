@@ -157,7 +157,7 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
 
   // Bearbeiten: Speichern führt zum Profil zurück und zeigt den neuen Wert.
-  await page.getByRole('link', { name: 'Bearbeiten' }).click();
+  await page.getByRole('link', { name: 'Profil bearbeiten' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil/bearbeiten`));
   await page.getByLabel('Notizen').fill('Rahmenvertrag bis 2027');
   await page.getByRole('button', { name: 'Speichern' }).click();
@@ -165,7 +165,8 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page.getByText('Rahmenvertrag bis 2027')).toBeVisible();
 
   // Spend: Eintrag hinzufügen auf eigener Seite, Abbrechen und Speichern führen zur Spend-Seite.
-  await page.getByRole('link', { name: /Spend je Jahr/ }).click();
+  // NAV-10 1.1: Die Karte „Spend je Jahr“ führt zu allen Einträgen.
+  await page.getByRole('link', { name: 'Alle Einträge' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
   await page.getByRole('link', { name: 'Eintrag hinzufügen' }).click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend/neu`));
@@ -178,16 +179,11 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/spend`));
   await expect(page.getByRole('table', { name: 'Einträge' })).toContainText('980.000,00');
 
-  // Zurück-Pfeil im Pfad führt eine Ebene nach oben zum Bereich Strategie, seit UMB-05 ein
-  // Abschnitt auf dem Überblick; von dort die Zeile zum Profil.
+  // NAV-10 1.1: Die Einträge gehören zur Pille „Profil und Spend“ im Lieferantenkopf; sie führt
+  // zurück zum Profil.
   await page
-    .getByRole('navigation', { name: 'Pfad' })
-    .getByRole('link', { name: 'Zurück zu Strategie' })
-    .click();
-  await expect(page).toHaveURL(url(`/lieferanten/${id}#strategie`));
-  await page
-    .getByRole('region', { name: 'Strategie' })
-    .getByRole('link', { name: /^Profil/ })
+    .getByRole('navigation', { name: 'Seiten im Bereich' })
+    .getByRole('link', { name: 'Profil und Spend' })
     .click();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
 

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { cycleDeadlineSchema } from './cycle.js';
 import { moneySchema } from './money.js';
+import { surveyDimensions } from './survey.js';
 
 /**
  * Die Bereiche im Arbeitsbereich eines Lieferanten (NAV-06) in fester Reihenfolge, mit dem
@@ -127,6 +128,26 @@ export const workspaceHeadSchema = z.object({
 
 export type WorkspaceHead = z.infer<typeof workspaceHeadSchema>;
 
+/**
+ * NAV-10 1.1, Kennzahlen des Lieferanten: Ist-Spend des letzten Jahres mit Veränderung zum Vorjahr,
+ * Anteil am Spend der Haupt-Warengruppe und die größte Lücke der letzten aufgedeckten Feedback-Welle.
+ */
+export const overviewFiguresSchema = z.object({
+  spend: z
+    .object({
+      year: z.number().int(),
+      amount: moneySchema,
+      /** Veränderung zum Vorjahr in Basispunkten; null ohne Vorjahr oder bei anderer Währung */
+      changeBasisPoints: z.number().int().nullable(),
+    })
+    .nullable(),
+  groupShare: z
+    .object({ group: z.string(), year: z.number().int(), basisPoints: z.number().int() })
+    .nullable(),
+  feedbackGap: z.object({ dimension: z.enum(surveyDimensions), delta: z.number() }).nullable(),
+});
+export type OverviewFigures = z.infer<typeof overviewFiguresSchema>;
+
 /** GET /api/suppliers/:id/overview */
 export const supplierOverviewSchema = z.object({
   head: workspaceHeadSchema,
@@ -146,6 +167,8 @@ export const supplierOverviewSchema = z.object({
   upcomingAwards: z.number().int().optional(),
   /** WG-20: offene Widersprüche zwischen Warengruppen, nur beim Käufer (privat) */
   openConflicts: z.number().int().optional(),
+  /** NAV-10 1.1: Kennzahlen im Überblick, nur beim Käufer; jede Angabe null, solange Daten fehlen */
+  figures: overviewFiguresSchema.optional(),
 });
 
 export type SupplierOverview = z.infer<typeof supplierOverviewSchema>;

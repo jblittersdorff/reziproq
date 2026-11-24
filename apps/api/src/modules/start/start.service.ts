@@ -80,6 +80,12 @@ const toNext = (row: {
 });
 
 /** Start (NAV-05): liest nur, speichert nichts. Aufgaben kommen von den Modulen. */
+/** Nur dieser eine Lieferant aus den sichtbaren, leer ohne Zugriff */
+function only<T>(visible: Map<string, T>, relationshipId: string): Map<string, T> {
+  const entry = visible.get(relationshipId);
+  return entry === undefined ? new Map() : new Map([[relationshipId, entry]]);
+}
+
 @Injectable()
 export class StartService {
   constructor(
@@ -400,7 +406,11 @@ export class StartService {
     return { orgId: organization.id, userId: auth.userId, admin: auth.orgRole === 'admin' };
   }
 
-  async timeline(auth: AuthContext, days: number): Promise<Timeline> {
+  /**
+   * Terminschiene der nächsten Tage; mit `relationshipId` nur die Einträge dieses Lieferanten
+   * (Überblick des Lieferanten, NAV-10 1.1), leer ohne Zugriff auf ihn.
+   */
+  async timeline(auth: AuthContext, days: number, relationshipId?: string): Promise<Timeline> {
     const from = isoToday();
     const to = addDays(from, days - 1);
     const viewer = this.buyerViewer(auth);
@@ -409,8 +419,12 @@ export class StartService {
     return this.tenant.run(
       { userId: auth.userId, organizationId: viewer.orgId },
       async (tx) => {
-        const relationships = await visibleRelationships(tx, viewer);
-        const items = await timelineItems(
+        const visible = await visibleRelationships(tx, viewer);
+        const relationships = relationshipId ? only(visible, relationshipId) : visible;
+        if (relationshipId && relationships.size === 0) {
+          return timelineSchema.parse({ from, to, items: [] });
+        }
+        const all = await timelineItems(
           tx,
           viewer,
           relationships,
@@ -420,30 +434,51 @@ export class StartService {
             modules: await orgModulesOf(tx, viewer.orgId),
           },
         );
+        // Freigaben und Reviews von Warengruppen gehören zu keinem Lieferanten.
+        const items = relationshipId
+          ? all.filter((item) => item.relationshipId === relationshipId)
+          : all;
         return timelineSchema.parse({ from, to, items });
       },
       { readOnly: true },
     );
   }
 
-  /** Wirkung je Aufgabe: Spend des Lieferanten, zu dem sie gehört */
+  /** Wirkung je Aufgabe: Spend des Lieferanten, zu dem sie gehört; dazu die sichtbaren Lieferanten */
   private async weigh(auth: AuthContext, viewer: Viewer) {
     return this.tenant.run(
       { userId: auth.userId, organizationId: viewer.orgId },
       async (tx) => {
         const relationships = await visibleRelationships(tx, viewer);
         const weights = await spendWeights(tx, [...relationships.keys()]);
-        return (item: DueItem) => weights.get(relationshipOfHref(item.href) ?? '') ?? 0;
+        return {
+          visible: new Set(relationships.keys()),
+          weight: (item: DueItem) => weights.get(relationshipOfHref(item.href) ?? '') ?? 0,
+        };
       },
       { readOnly: true },
     );
   }
 
-  async next(auth: AuthContext): Promise<{ next: NextAction | null }> {
-    const due = await this.dueItems(auth);
+  /**
+   * „Als Nächstes“ über alle Bereiche (scope global) oder für einen Lieferanten (scope
+   * relationship, NAV-10 1.1). Ohne Zugriff auf den Lieferanten gibt es keine Karte.
+   */
+  async next(auth: AuthContext, relationshipId?: string): Promise<{ next: NextAction | null }> {
     const viewer = this.buyerViewer(auth);
-    const weight = viewer ? await this.weigh(auth, viewer) : undefined;
-    const next = pickNextAction(due, isoToday(), weight ? { weight } : {});
+    if (relationshipId && !viewer) return { next: null };
+    const weighed = viewer ? await this.weigh(auth, viewer) : undefined;
+    if (relationshipId && !weighed?.visible.has(relationshipId)) return { next: null };
+    const due = await this.dueItems(auth);
+    const next = pickNextAction(due, isoToday(), {
+      ...(weighed ? { weight: weighed.weight } : {}),
+      ...(relationshipId
+        ? {
+            scope: 'relationship' as const,
+            filter: (item: DueItem) => relationshipOfHref(item.href) === relationshipId,
+          }
+        : {}),
+    });
     return { next: next ? nextActionSchema.parse(next) : null };
   }
 

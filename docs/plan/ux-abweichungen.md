@@ -122,7 +122,7 @@ Kriterien aus NAV-10 „Fertig, wenn“ und ihre Tests:
 | Seitenleiste ab 761 px mit vier Hauptpunkten, darunter Einstellungen | `e2e/ux-20-phase-1.spec.ts`, `e2e/ux-20-phase-2.spec.ts` (761, 1440), `plt-11.test.tsx` |
 | Bis 760 px Tab-Leiste mit fünf Zielen, verdeckt nichts | `e2e/ux-20-phase-1.spec.ts`, `e2e/ux-20-phase-2.spec.ts` (390, 760) |
 | 390 px ohne seitliches Scrollen, Tabellen und Schiene in ihrem Rahmen | `e2e/ux-20-phase-2.spec.ts` (auch Terminschiene) |
-| Zurück-Link außer auf den Startseiten | `start.test.tsx` (Alle Aufgaben), `ki-16.test.tsx` (Hinweise); übrige Seiten mit Phase 3 bis 9, Begehung Phase 10 |
+| Zurück-Link außer auf den Startseiten | `start.test.tsx` (Alle Aufgaben), `ki-16.test.tsx` (Hinweise), `workspace/nav-06.test.tsx` (Lieferant); übrige Seiten mit Phase 4 bis 9, Begehung Phase 10 |
 | Höchstens eine Karte „Als Nächstes“, kein Hauptknopf außerhalb; Formulare ein Hauptknopf | `components/ui/ux-20.test.tsx`, `start.test.tsx`, `ki-16.test.tsx`, `e2e/ux-20-phase-2.spec.ts` |
 | Ohne Kandidat keine Karte | `packages/shared/src/my-day.test.ts`, `api start/ux-20-phase-2.test.ts`, `start.test.tsx` |
 | Eingeklappt beim Laden, öffnet mit Klick und Tastatur | `components/ui/ux-20.test.tsx`, `e2e/ux-20-phase-1.spec.ts` |
@@ -135,7 +135,7 @@ Kriterien aus NAV-10 „Fertig, wenn“ und ihre Tests:
 | Lauf eines Agenten in den Aktivitäten als Reziproq | `api activities/nav-10.test.ts`, `api agents/ki-04.test.ts` |
 | Private Notiz nur für die Autorin | `api activities/nav-10.test.ts` |
 | ⌘K überall, „Frag“ auf dem Telefon, Frage mit Lieferant als Kontext | `prompt/plt-12.test.tsx`, `e2e/ux-20-phase-2.spec.ts` |
-| Lieferantenkopf mit vier Bereichen und „···“; jede Seite einem Bereich | `components/ui/ux-20.test.tsx`; Zuordnung aller Seiten mit Phase 3 |
+| Lieferantenkopf mit vier Bereichen und „···“; jede Seite einem Bereich | `components/ui/ux-20.test.tsx`, `workspace/tabs.test.ts`, `workspace/nav-06.test.tsx`, `e2e/ux-20-phase-3.spec.ts` |
 | Agenten nur über Einstellungen, KI | `activities/nav-10.test.tsx` |
 | Lieferant sieht weder Übersicht noch Mein Tag noch Aktivitäten | `customers/lif-02.test.tsx`, `activities/nav-10.test.tsx` |
 
@@ -156,6 +156,64 @@ Kriterien aus NAV-10 „Fertig, wenn“ und ihre Tests:
 | Einstellungen, Abschnitt KI (`E-Uebersicht`, `E-KI`, `KI-Agenten`, `KI-Baukasten`, `KI-Lauf`) | `/einstellungen/ki`, `/einstellungen/ki/agenten` vorhanden; `/agenten` als Hauptseite                                                | M                                                                                                                                                |
 
 ## Phase 3 · Lieferanten
+
+**Stand 24.11.2026: umgesetzt.**
+- **Liste** `/lieferanten` nach `Lieferanten`/`A-Lieferanten`: Umschalter Meine, Strategisch, Alle
+  (in der Adresse `meine=1` bzw. `fokus=1`, F-UX-18), Gruppen „Brauchen dich“ (aus
+  `/start/brauchen-dich`, F-UX-06) und „Laufen gut“ (nächster Termin, F-UX-19), Beendete als eigene
+  Gruppe. Jede Zeile mit Ampelpunkt, Status als Text und Grund. Detailleiste (LS-01) bleibt auf dem
+  Desktop; Matrix und Bewertungsrunde bleiben Ansichten wie bisher (Umbau mit Phase 5).
+- **Lieferantenkopf** (`SupplierHeader`) auf jeder Seite eines Lieferanten statt der lokalen Leiste:
+  „‹ Lieferanten“, Name, graue Zeile (Fokus, Segment, Haupt-Warengruppe, Schritt n von 7), Knopf
+  „···“ für das Profil, vier Bereiche, Unterseiten als Links. Auf Unterseiten trägt die Seite den
+  Titel; darunter steht nur noch „‹ Ebene darüber“, wo es eine gibt (z. B. „‹ Team“).
+- Alte Bereichsadressen (`/strategie`, `/beziehung`, `/plan`, `/umsetzung`, `/wirkung`) leiten auf
+  die erste Seite ihres neuen Bereichs weiter, statt auf Abschnitte des alten Überblicks.
+- **Überblick** nach `L-Ueberblick`/`A-Lieferant`/`A-Lieferant-Desktop`: vier Phasen (aus den sieben
+  Schritten des Zyklus), „Als Nächstes“ (scope `relationship`: fällige Aufgabe der Person, dann
+  Hinweis hoher Schwere, dann Zyklus: starten, JBP-Termin, nächster Zyklus, aktueller Schritt), Zeilen
+  mit Stand-Chip, Leistung aus der Scorecard, Zusammenfassung von Reziproq mit Chance und Risiko;
+  rechts Kennzahlen, Ergebnisse gegen Ziel (Ringpaar, AW-01), Termine und Fristen, Kontakte.
+- **Profil und Spend** nach `L-Profil`: „nur eure Seite“, „Profil bearbeiten“, „Das Wichtigste“,
+  Stammdaten, Kontakte (PLT-07b), Spend je Jahr als Säulen; Spend-Einträge unter `strategie/spend`
+  gehören zur Pille „Profil und Spend“.
+- API: `GET /start/als-naechstes?beziehung=`, `GET /start/termine?beziehung=` (nur mit Zugriff, sonst
+  leer), Kennzahlen `figures` im Überblick (`/suppliers/:id/overview`): Spend mit Veränderung, Anteil
+  an der Haupt-Warengruppe, größte Feedback-Lücke.
+- Neuer Baustein `StatusDot` (Ampelpunkt mit Text); `RowGroup` mit Label ist ein benannter Bereich;
+  `SupplierHeader` mit `nameAs`. Auf `/bausteine`.
+- `demo:setup`: Der Spend der Beispieldaten gehört einmalig der Haupt-Warengruppe (Summe gleich),
+  damit der Anteil an der Warengruppe sichtbar ist.
+- Screenshots: `docs/plan/screens/phase-3/` (Liste, Überblick, Profil und Spend, Kopf auf einer
+  Unterseite; je 390 und 1440 px, erzeugt mit `UX_SHOTS=… playwright test e2e/ux-20-phase-3.spec.ts`).
+
+Bewusste Abweichungen in Phase 3:
+- **Kontakte im Überblick** kommen aus den Kontaktpunkten (PLB-03) mit Ebene und Takt; vereinbarte
+  Formate ohne Kontaktpunkt erscheinen als „Lücke“. Stärke der Verbindung und Lücken zu Entscheidern
+  folgen mit dem Beziehungsnetz (F-UX-02, Phase 4).
+- **Zeile „Beziehungsnetz“** heißt bis Phase 4 „Team und Spielregeln“ (SRO, Teamgröße, Version der
+  Spielregeln). Die Zeile „Claims und Risiken“ fehlt, solange die Module aus sind.
+- **Zusätzliche Zeilen:** „Hinweise“ oben (KI-16: offene Hinweise oben im Überblick) und „Segment und
+  Strategie“ privat mit Schloss (WG-14 Vergaben, WG-20 Widersprüche, Ist → Soll aus SEG-06).
+- **Ergebnisse gegen Ziel** stehen als eigene Karte rechts (AW-01: Ringpaar, Ziel vorschlagen und
+  freigeben als Zweitknöpfe); die Vorlage zeigt nur die Zeile „Ergebnisse“ mit Prozent.
+- **Die sieben Schritte des Zyklus** (ZYK-01) stehen eingeklappt unter den Zeilen, mit Terminen,
+  Status, „Frühere Zyklen“ und „Termin festlegen“.
+- **„Zyklus starten“** ist eine eigene Seite `/lieferanten/<id>/zyklus/start` mit einem Hauptknopf,
+  weil „Als Nächstes“ ein Ziel braucht.
+- **Profil und Spend:** Unter dem Teil der Vorlage bleiben eigene Werte, Zuordnung (PLT-06), Beziehung
+  beenden, Finanzen (SPL-05) und Verlauf (PLT-08). Business Units stehen in der Zuordnung, nicht in den
+  Stammdaten.
+- **Detailleiste der Liste:** „Lieferant öffnen“ ist ein Zweitknopf; die eine Hauptaktion steht im
+  „Nächsten Schritt“ darüber (Vorlage: Hauptknopf).
+- **Leistung** zeigt bis zu fünf Kennzahlen mit Fortschritt von der Basis zum Ziel; der Titel zählt
+  „n von m auf Kurs“ statt eines frei formulierten Satzes.
+- **Unterseiten im Kopf brechen um**, statt seitlich zu scrollen (Vorlage `SupplierBar`: seitlich):
+  So bleibt auf dem Telefon jede Unterseite sichtbar, und nichts ragt über den Rand.
+- **Kennzahlen und Ringpaar in der rechten Spalte** stehen untereinander bzw. kompakt (Baustein
+  `ChartFigures` mit `stacked`, `GoalRings` mit `compact`), damit die schmale Spalte nicht überläuft.
+- **Umschalter Liste, Matrix, Bewertungsrunde** steht wie bisher über dem Titel der Liste; Portfolio
+  wird mit Phase 5 eine eigene Ansicht nach `PF-Portfolio`.
 
 | Seite oder Baustein                                              | Stand im Code                                                                     | Aufwand                                                                                                                                                                 |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

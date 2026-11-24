@@ -297,7 +297,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
     const today = new Date().toISOString().slice(0, 10);
     return Response.json({ from: today, to: today, items: [] });
   }
-  if (url === '/api/start/als-naechstes') return Response.json({ next: null });
+  if (url.startsWith('/api/start/als-naechstes')) return Response.json({ next: null });
   if (url === '/api/start/brauchen-dich') return Response.json({ items: [] });
   return Response.json({ statusCode: 404 }, { status: 404 });
 }

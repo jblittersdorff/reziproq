@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common';
+import { Controller, Get, Inject, ParseUUIDPipe, Query } from '@nestjs/common';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -34,15 +34,22 @@ export class StartController {
   /** Terminschiene (`timeline_item`) der nächsten Tage, Standard vier Wochen */
   @Get('termine')
   @Requires('start.sehen')
-  timeline(@CurrentUser() auth: AuthContext, @Query('tage', daysQuery) days: number | undefined) {
-    return this.start.timeline(auth, days ?? 28);
+  timeline(
+    @CurrentUser() auth: AuthContext,
+    @Query('tage', daysQuery) days: number | undefined,
+    @Query('beziehung', new ParseUUIDPipe({ optional: true })) relationshipId: string | undefined,
+  ) {
+    return this.start.timeline(auth, days ?? 28, relationshipId);
   }
 
-  /** „Als Nächstes“ über alle Bereiche (`next_action`, scope global) */
+  /** „Als Nächstes“ (`next_action`): scope global, mit `beziehung` scope relationship */
   @Get('als-naechstes')
   @Requires('start.sehen')
-  next(@CurrentUser() auth: AuthContext) {
-    return this.start.next(auth);
+  next(
+    @CurrentUser() auth: AuthContext,
+    @Query('beziehung', new ParseUUIDPipe({ optional: true })) relationshipId: string | undefined,
+  ) {
+    return this.start.next(auth, relationshipId);
   }
 
   /** Lieferanten, die die Person brauchen (F-UX-06) */

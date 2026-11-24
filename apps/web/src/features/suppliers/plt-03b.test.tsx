@@ -126,7 +126,8 @@ describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Sp
 
   it('Bearbeiten und Spend ändern führen über eigene Seiten zurück zur vorigen Ansicht', async () => {
     const router = renderAt(profile);
-    fireEvent.click(await screen.findByRole('link', { name: 'Bearbeiten' }));
+    // NAV-10 1.1 (L-Profil): „Profil bearbeiten“ als Zweitknopf im Kopf der Seite
+    fireEvent.click(await screen.findByRole('link', { name: 'Profil bearbeiten' }));
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Deine Werte bearbeiten' }),
     ).toBeDefined();
@@ -139,7 +140,8 @@ describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Sp
       notes: 'Rahmenvertrag bis 2027',
     });
 
-    fireEvent.click(await screen.findByRole('link', { name: /Spend je Jahr/ }));
+    // Die Karte „Spend je Jahr“ führt zu allen Einträgen.
+    fireEvent.click(await screen.findByRole('link', { name: 'Alle Einträge' }));
     const table = await screen.findByRole('table', { name: 'Einträge' });
     expect(
       within(table)
@@ -266,8 +268,9 @@ describe('Beenden und Rechte', () => {
           ? Response.json({ entries: [] })
           : undefined;
     renderAt(profile);
-    await screen.findByRole('heading', { level: 1, name: 'Profil' });
-    expect(screen.queryByRole('link', { name: 'Bearbeiten' })).toBeNull();
+    await screen.findByRole('heading', { level: 1, name: 'Profil und Spend' });
+    expect(screen.queryByRole('link', { name: 'Profil bearbeiten' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Jahr erfassen' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Beziehung beenden' })).toBeNull();
   });
 

@@ -164,7 +164,7 @@ describe('Formate je Sprache', () => {
   it('Profil und Spend zeigen auf Englisch Datum, Land und Betrag im englischen Format', async () => {
     api.me = { ...anna, locale: 'en' };
     renderAt(`/lieferanten/${id}/strategie/profil`);
-    await screen.findByRole('heading', { level: 1, name: 'Profile' });
+    await screen.findByRole('heading', { level: 1, name: 'Profile and spend' });
     expect(screen.getByText('Germany')).toBeDefined();
     expect(screen.getByText('1 Oct 2026')).toBeDefined();
 

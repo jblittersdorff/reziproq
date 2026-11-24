@@ -332,3 +332,14 @@ export const saveRoleDescriptionSchema = z
   })
   .strict();
 export type SaveRoleDescription = z.infer<typeof saveRoleDescriptionSchema>;
+
+/** GET /api/suppliers/:id/contacts: geschäftliche Kontakte des Lieferanten, nur beim Käufer (PLT-07b) */
+export const supplierContactSchema = z.object({
+  id: z.uuid(),
+  relationshipId: z.uuid(),
+  name: z.string(),
+  email: z.string(),
+  function: z.string().nullable(),
+  position: z.string().nullable(),
+});
+export type SupplierContact = z.infer<typeof supplierContactSchema>;

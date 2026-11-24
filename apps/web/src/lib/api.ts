@@ -290,6 +290,7 @@ import {
   strategyOverviewSchema,
   strategyStepSchema,
   supplierCategoriesSchema,
+  supplierContactSchema,
   supplierDetailSchema,
   supplierLookupResponseSchema,
   supplierMapSchema,
@@ -683,6 +684,15 @@ export const endSupplier = (accessToken: string, relationshipId: string) =>
   sendJson('POST', `/suppliers/${relationshipId}/beenden`, {}, supplierDetailSchema, accessToken);
 
 /** SPL-04: Spend-Entwicklung mit Kennzahlen, Summen und Zeilen; nur Käufer. */
+/** Geschäftliche Kontakte des Lieferanten (PLT-07b), für „Profil und Spend“ */
+export const supplierContactsQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['suppliers', relationshipId, 'kontakte'],
+    queryFn: () =>
+      getJson(`/suppliers/${relationshipId}/contacts`, z.array(supplierContactSchema), accessToken),
+    retry: retryUnlessDenied,
+  });
+
 export const spendOverviewQueryOptions = (accessToken: string, relationshipId: string) =>
   queryOptions({
     queryKey: ['suppliers', relationshipId, 'spend'],
@@ -2090,19 +2100,33 @@ export const myDayQueryOptions = (accessToken: string) =>
     retry: retryUnlessDenied,
   });
 
-export const timelineQueryOptions = (accessToken: string, days = 28) =>
+/** Terminschiene; mit `relationshipId` nur die Einträge dieses Lieferanten (NAV-10 1.1) */
+export const timelineQueryOptions = (accessToken: string, days = 28, relationshipId?: string) =>
   queryOptions({
-    queryKey: ['start', 'termine', days],
-    queryFn: () => getJson(`/start/termine?tage=${days}`, timelineSchema, accessToken),
+    queryKey: ['start', 'termine', days, relationshipId ?? 'alle'],
+    queryFn: () =>
+      getJson(
+        `/start/termine?tage=${days}${relationshipId ? `&beziehung=${relationshipId}` : ''}`,
+        timelineSchema,
+        accessToken,
+      ),
     retry: retryUnlessDenied,
   });
 
 const nextActionResponseSchema = z.object({ next: nextActionSchema.nullable() });
 
-export const nextActionQueryOptions = (accessToken: string) =>
+/** „Als Nächstes“ über alle Bereiche; mit `relationshipId` für einen Lieferanten */
+export const nextActionQueryOptions = (accessToken: string, relationshipId?: string) =>
   queryOptions({
-    queryKey: ['start', 'als-naechstes'],
-    queryFn: () => getJson('/start/als-naechstes', nextActionResponseSchema, accessToken),
+    queryKey: ['start', 'als-naechstes', relationshipId ?? 'alle'],
+    queryFn: () =>
+      getJson(
+        relationshipId
+          ? `/start/als-naechstes?beziehung=${relationshipId}`
+          : '/start/als-naechstes',
+        nextActionResponseSchema,
+        accessToken,
+      ),
     retry: retryUnlessDenied,
   });
 

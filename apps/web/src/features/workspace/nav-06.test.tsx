@@ -152,38 +152,38 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-const localBar = () => screen.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
+const header = () => document.querySelector('[data-slot="supplier-header"]') as HTMLElement;
+const areas = () => screen.getByRole('navigation', { name: 'Bereiche des Lieferanten' });
+const rows = () => screen.getByRole('region', { name: 'Stand der Beziehung' });
 
 describe('Arbeitsbereich eines Lieferanten', () => {
-  it('NAV-10: Die Lieferantenleiste zeigt vier Reiter und den Knopf Profil; Unterseiten als Pillen', async () => {
+  it('NAV-10 1.1: Der Lieferantenkopf zeigt vier Bereiche, den Knopf „···“ und die Unterseiten', async () => {
     const router = renderAt(base);
-    // Auf dem Überblick steht der Name des Lieferanten groß in der Bühne (PLT-10).
+    // Auf dem Überblick ist der Name der Titel der Seite.
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
-    const tabs = within(localBar()).getAllByRole('listitem');
-    expect(tabs.map((item) => item.textContent)).toEqual([
-      'Überblick',
-      'Aktivitäten',
-      'Plan',
-      'Ergebnisse',
-    ]);
-    // Der Name steht links in der Leiste und führt zum Überblick.
-    expect(within(localBar()).getByRole('link', { name: detail.name }).getAttribute('href')).toBe(
-      base,
+    expect(within(header()).getByRole('link', { name: 'Lieferanten' }).getAttribute('href')).toBe(
+      '/lieferanten',
     );
     expect(
-      within(localBar()).getByRole('link', { name: 'Überblick' }).getAttribute('aria-current'),
+      within(areas())
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Überblick', 'Aktivitäten', 'Plan', 'Ergebnisse']);
+    expect(
+      within(areas()).getByRole('link', { name: 'Überblick' }).getAttribute('aria-current'),
     ).toBe('page');
     for (const [label, path] of [
       ['Aktivitäten', 'aktivitaeten'],
       ['Plan', 'plan/vorbereitung'],
       ['Ergebnisse', 'wirkung/bruecke'],
-      ['Profil', 'strategie/profil'],
     ] as const) {
-      expect(within(localBar()).getByRole('link', { name: label }).getAttribute('href')).toBe(
+      expect(within(areas()).getByRole('link', { name: label }).getAttribute('href')).toBe(
         `${base}/${path}`,
       );
     }
-    fireEvent.click(within(localBar()).getByRole('link', { name: 'Profil' }));
+    const profile = within(header()).getByRole('link', { name: 'Profil, Segmentierung und Team' });
+    expect(profile.getAttribute('href')).toBe(`${base}/strategie/profil`);
+    fireEvent.click(profile);
     await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/strategie/profil`));
     const pages = await screen.findByRole('navigation', { name: 'Seiten im Bereich' });
     expect(
@@ -191,8 +191,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
         .getAllByRole('link')
         .map((link) => link.textContent),
     ).toEqual([
-      'Profil',
-      'Spend',
+      'Profil und Spend',
       'Segmentierung',
       'Warengruppen',
       'Lieferantenplan',
@@ -200,131 +199,152 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       'Spielregeln',
       'Kontaktpunkte',
     ]);
+    // Der Knopf „···“ ist markiert, kein Bereich; auf Unterseiten trägt die Seite den Titel.
+    expect(
+      within(header())
+        .getByRole('link', { name: 'Profil, Segmentierung und Team' })
+        .getAttribute('aria-current'),
+    ).toBe('page');
+    expect(within(areas()).queryByRole('link', { current: 'page' })).toBeNull();
+    await screen.findByRole('heading', { level: 1, name: 'Profil und Spend' });
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
-  it('Der Überblick zeigt je gebautem Bereich einen Abschnitt mit seinen Unterseiten als Zeilen, ohne Release-Hinweis (UMB-05)', async () => {
+  it('Der Überblick zeigt die Zeilen mit Stand und Ziel, ohne Release-Hinweis und ohne Claims', async () => {
     renderAt(base);
-    const expected: Record<string, string[]> = {
-      Strategie: ['Segmentierung', 'Warengruppen', 'Lieferantenplan', 'Spend', 'Profil'],
-      Beziehung: ['Team', 'Spielregeln', 'Feedback', 'Kontaktpunkte'],
-      'Gemeinsamer Plan': [
-        'Vorbereitung',
-        'Themen',
-        'Initiativen',
-        'Zusagen',
-        'Freigabe',
-        'Scorecard',
-      ],
-      Umsetzung: ['Termine', 'Maßnahmen'],
-    };
-    for (const [area, titles] of Object.entries(expected)) {
-      const section = await screen.findByRole('region', { name: area });
-      const list = within(section).getByRole('list', { name: area });
-      expect(
-        within(list)
-          .getAllByRole('link')
-          .map((link) => link.querySelector('span')?.textContent),
-      ).toEqual(titles);
-    }
-    // Ergebnisse (PNL-01, NAV-10: früher Wirkung) sind intern und führen zu den Initiativen.
-    const impact = screen.getByRole('region', { name: 'Ergebnisse' });
-    expect(impact.querySelector('[data-visibility="internal"]')).not.toBeNull();
-    expect(
-      within(impact)
-        .getByRole('link', { name: /^Ergebnisse je Initiative/ })
-        .getAttribute('href'),
-    ).toBe(`${base}/wirkung/initiativen`);
+    await screen.findByRole('region', { name: 'Stand der Beziehung' });
+    const links = within(rows()).getAllByRole('link');
+    expect(links.map((link) => link.querySelector('b')?.textContent)).toEqual([
+      'Ergebnisse',
+      'Aktivitäten',
+      'Gemeinsamer Plan',
+      'Team und Spielregeln',
+      'Segment und Strategie',
+    ]);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      `${base}/wirkung/bruecke`,
+      `${base}/aktivitaeten`,
+      `${base}/plan/vorbereitung`,
+      `${base}/beziehung/team`,
+      `${base}/strategie/segmentierung`,
+    ]);
+    // Strategie ist privat: grau mit Schloss und Text.
+    const strategy = links[4] as HTMLElement;
+    expect(strategy.querySelector('[data-visibility="internal"]')?.textContent).toBe(
+      'nur eure Seite',
+    );
     expect(document.body.textContent).not.toMatch(/Kommt (mit|nach) Release/);
+    // UX-20: Mit Modul „claims“ und „risk“ aus keine Zeile zu Claims und Risiken.
+    expect(document.body.textContent).not.toMatch(/Claims|Risiken/);
   });
 
-  it('Die Zeilen führen zu ihren Unterseiten; die alte Bereichsadresse führt zum Abschnitt', async () => {
-    const router = renderAt(base);
-    const strategy = await screen.findByRole('region', { name: 'Strategie' });
-    expect(
-      within(strategy)
-        .getByRole('link', { name: /^Segmentierung/ })
-        .getAttribute('href'),
-    ).toBe(`${base}/strategie/segmentierung`);
-    fireEvent.click(within(strategy).getByRole('link', { name: /^Spend/ }));
-    await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/strategie/spend`));
-
-    const again = renderAgain(`${base}/strategie`);
-    await waitFor(() => expect(again.state.location.pathname).toBe(base));
-    expect(again.state.location.hash).toBe('strategie');
-    await screen.findByRole('region', { name: 'Strategie' });
+  it('Die alten Bereichsadressen leiten auf die erste Seite ihres neuen Bereichs weiter', async () => {
+    for (const [old, target] of [
+      ['strategie', 'strategie/profil'],
+      ['beziehung', 'beziehung/team'],
+      ['plan', 'plan/vorbereitung'],
+      ['umsetzung', 'umsetzung/termine'],
+      ['wirkung', 'wirkung/bruecke'],
+    ] as const) {
+      const router = renderAgain(`${base}/${old}`);
+      await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/${target}`));
+    }
   });
 
-  it('Der Kopf zeigt die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft den Kopf.', async () => {
+  it('Kopf und Zeilen zeigen die Werte aus ihrem Ort. Ein Test ändert den SRO im Team und prüft die Zeile.', async () => {
     renderAt(base);
-    // Auf dem Überblick (A2): Spend und SRO groß unter dem Namen, Ist → Soll als Grafik daneben.
-    const big = await screen.findByLabelText('Stand der Beziehung');
-    expect(big.textContent).toMatch(/^Spend 2025.+SROLena Berger$/);
-    const figure = document.querySelector('[data-slot="type-figure"]') as HTMLElement;
-    expect(figure.textContent).toContain('Beziehungstyp');
-    expect(figure.textContent).toContain('noch offen');
+    await screen.findByRole('region', { name: 'Stand der Beziehung' });
+    // Graue Zeile im Kopf: ohne Segment „nicht bewertet“
+    expect(header().textContent).toContain('nicht bewertet');
+    await waitFor(() =>
+      expect(
+        within(rows()).getByRole('link', { name: /Team und Spielregeln/ }).textContent,
+      ).toContain('SRO Lena Berger · 2 Personen im Team'),
+    );
 
-    // Neuer SRO im Team: Der Kopf liest ihn dort, ohne eigene Kopie.
+    // Neuer SRO im Team: Der Überblick liest ihn dort, ohne eigene Kopie.
     const router = renderAgain(`${base}/beziehung/team/bearbeiten`);
     await screen.findByRole('list', { name: 'Team' });
     fireEvent.change(screen.getByRole('combobox', { name: 'Teamrolle: Lena Berger' }), {
       target: { value: 'member' },
     });
-
     fireEvent.change(screen.getByRole('combobox', { name: 'Teamrolle: Tom Krüger' }), {
       target: { value: 'sro' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/beziehung/team`));
-    // Auf allen Seiten außer dem Überblick steht der Kopf als schmale Zeile.
+    renderAgain(base);
     await waitFor(() =>
-      expect(screen.getByLabelText('Stand der Beziehung').textContent).toBe(
-        'Segmentnoch offenSROTom Krüger',
+      expect(screen.getByRole('link', { name: /Team und Spielregeln/ }).textContent).toContain(
+        'SRO Tom Krüger',
       ),
     );
   });
 
-  it('Die Zyklus-Leiste zeigt sieben Schritte und führt zum ersten offenen Schritt', async () => {
+  it('Die Schrittfolge zeigt vier Phasen; die sieben Schritte stehen eingeklappt darunter', async () => {
     cycle = sampleCycle();
     isFocus = true;
     const router = renderAt(base);
-    await screen.findByRole('heading', { level: 2, name: 'Zyklus 2026' });
-    expect(screen.getAllByText('Noch nicht verfügbar')).toHaveLength(6);
-    const next = screen.getByRole('link', {
-      name: 'Nächster Schritt: Segment konsolidieren',
-    });
-    expect(next.getAttribute('href')).toBe(`${base}/strategie/segmentierung`);
+    const chain = await screen.findByRole('navigation', { name: 'Jahreszyklus 2026' });
+    expect(
+      within(chain)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual(['1Segment · jetzt', '2Plan · offen', '3JBP · offen', '4Ergebnisse · offen']);
+    // Die Phase Segment öffnet den aktuellen Schritt; Phasen ohne Seite sind grau und ohne Link.
+    expect(within(chain).getAllByRole('link')).toHaveLength(1);
+    // Kopf: Schritt im Jahreszyklus
+    expect(header().textContent).toContain('Schritt 1 von 7: Segment');
+    const detail = screen
+      .getByText('Alle Schritte des Zyklus')
+      .closest('details') as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    expect(within(detail).getAllByText('Noch nicht verfügbar')).toHaveLength(6);
+    // „Als Nächstes“ führt in den aktuellen Schritt.
+    const next = await screen.findByRole('link', { name: 'Schritt öffnen' });
+    expect(next.closest('[data-slot="next-card"]')?.textContent).toContain('Segment konsolidieren');
     fireEvent.click(next);
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(`${base}/strategie/segmentierung`),
     );
   });
 
-  it('SRO/Admin können einen fehlenden Fokus-Zyklus starten', async () => {
+  it('SRO/Admin starten einen fehlenden Fokus-Zyklus über „Als Nächstes“ und eine eigene Seite', async () => {
     isFocus = true;
     canStartCycle = true;
-    renderAt(base);
-    fireEvent.click(await screen.findByRole('button', { name: 'Zyklus starten' }));
-    await screen.findByRole('heading', { level: 2, name: 'Zyklus 2026' });
+    const router = renderAt(base);
+    const next = await screen.findByRole('link', { name: 'Zyklus starten' });
+    expect(next.getAttribute('href')).toBe(`${base}/zyklus/start`);
+    fireEvent.click(next);
+    await screen.findByRole('heading', { level: 1, name: 'Jahreszyklus starten' });
+    fireEvent.click(screen.getByRole('button', { name: 'Zyklus starten' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe(base));
     expect(cycle).not.toBeNull();
-    expect(screen.queryByRole('button', { name: 'Zyklus starten' })).toBeNull();
+    await screen.findByRole('navigation', { name: 'Jahreszyklus 2026' });
+    expect(screen.queryByRole('link', { name: 'Zyklus starten' })).toBeNull();
   });
 
   it('Der Überblick speichert keine eigenen Daten; die Zeilen zeigen den Stand aus den Modulen.', async () => {
     renderAt(base);
-    const strategy = await screen.findByRole('region', { name: 'Strategie' });
+    await screen.findByRole('region', { name: 'Stand der Beziehung' });
     await waitFor(() =>
-      expect(screen.getByLabelText('Stand der Beziehung').textContent).toContain('Spend 2025'),
+      expect(screen.getByRole('link', { name: /Segment und Strategie/ }).textContent).toContain(
+        'Segment noch offen',
+      ),
     );
-    expect(strategy.textContent).toContain('Bewertung offen');
-    const relationship = screen.getByRole('region', { name: 'Beziehung' });
-    expect(relationship.textContent).toContain('2 Personen im Team');
+    expect(screen.getByRole('link', { name: /Gemeinsamer Plan/ }).textContent).toContain(
+      'Noch kein Gemeinsamer Plan',
+    );
+    // Kennzahlen ohne Daten: ein ruhiger Satz statt Nullen.
+    expect(screen.getByRole('complementary', { name: 'Kennzahlen' }).textContent).toContain(
+      'Noch keine Kennzahlen',
+    );
     // Der Überblick liest nur.
     expect(requests.filter((request) => request.method !== 'GET')).toEqual([]);
   });
 
-  it('Jede Seite im Bereich Strategie trägt das Kennzeichen „Intern“', async () => {
+  it('Die Seiten im Profil tragen „Intern“ bzw. „nur eure Seite“', async () => {
     const strategyPages: [path: string, title: string][] = [
-      ['strategie/profil', 'Profil'],
       ['strategie/profil/bearbeiten', 'Deine Werte bearbeiten'],
       ['strategie/spend', 'Spend'],
       ['strategie/spend/neu', 'Eintrag hinzufügen'],
@@ -336,59 +356,40 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       const badge = heading.closest('header')?.querySelector('[data-visibility="internal"]');
       expect(badge?.textContent, path).toBe('Intern');
     }
-    // Auf dem Überblick ist nur Strategie intern; die übrigen Bereiche sind mit dem Lieferanten geteilt.
-    renderAgain(base);
-    const strategy = await screen.findByRole('region', { name: 'Strategie' });
-    expect(strategy.querySelector('[data-visibility="internal"]')?.textContent).toBe('Intern');
-    for (const area of ['Beziehung', 'Gemeinsamer Plan', 'Umsetzung']) {
-      const section = screen.getByRole('region', { name: area });
-      expect(section.querySelector('[data-visibility="internal"]')).toBeNull();
-      expect(section.querySelector('[data-visibility="shared"]')?.textContent).toMatch(
-        /^Geteilt mit /,
-      );
-    }
+    renderAgain(`${base}/strategie/profil`);
+    const heading = await screen.findByRole('heading', { level: 1, name: 'Profil und Spend' });
+    expect(
+      heading.closest('header')?.querySelector('[data-visibility="internal"]')?.textContent,
+    ).toBe('nur eure Seite');
   });
 
-  it('Die Seiten aus PLT-03 und PLT-05 (Profil, Spend, Team) liegen im Arbeitsbereich und haben einen Pfad mit Zurück.', async () => {
+  it('Profil, Spend und Team liegen hinter „···“; tiefere Seiten haben einen Zurück-Link zur Ebene darüber', async () => {
     const pages = [
-      {
-        path: `${base}/strategie/profil`,
-        title: 'Profil',
-        area: 'Strategie',
-        hash: 'strategie',
-      },
-      {
-        path: `${base}/strategie/spend`,
-        title: 'Spend',
-        area: 'Strategie',
-        hash: 'strategie',
-      },
-      {
-        path: `${base}/beziehung/team`,
-        title: 'Team',
-        area: 'Beziehung',
-        hash: 'beziehung',
-      },
+      { path: `${base}/strategie/profil`, title: 'Profil und Spend', pill: 'Profil und Spend' },
+      { path: `${base}/strategie/spend`, title: 'Spend', pill: 'Profil und Spend' },
+      { path: `${base}/beziehung/team`, title: 'Team', pill: 'Team' },
     ];
     for (const page of pages) {
-      const router = renderAgain(page.path);
+      renderAgain(page.path);
       await screen.findByRole('heading', { level: 1, name: page.title });
-      // NAV-10: Profil, Spend und Team liegen hinter dem Knopf Profil; er ist markiert.
       expect(
-        within(localBar()).getByRole('link', { name: 'Profil' }).getAttribute('aria-current'),
+        within(header())
+          .getByRole('link', { name: 'Profil, Segmentierung und Team' })
+          .getAttribute('aria-current'),
       ).toBe('page');
-      const path = screen.getByRole('navigation', { name: 'Pfad' });
-      expect(
-        within(path)
-          .getAllByRole('link')
-          .map((link) => link.textContent)
-          .filter(Boolean),
-      ).toEqual(['Lieferanten', detail.name, page.area]);
-      fireEvent.click(within(path).getByRole('link', { name: `Zurück zu ${page.area}` }));
-      // Zurück führt zum Abschnitt des Bereichs auf dem Überblick (UMB-05).
-      await waitFor(() => expect(router.state.location.pathname).toBe(base));
-      expect(router.state.location.hash).toBe(page.hash);
+      const pills = screen.getByRole('navigation', { name: 'Seiten im Bereich' });
+      expect(within(pills).getByRole('link', { current: 'page' }).textContent).toBe(page.pill);
+      // Der Kopf zeigt Liste und Lieferant; ein Pfad darunter entfällt.
+      expect(screen.queryByRole('navigation', { name: 'Pfad' })).toBeNull();
     }
+    // Eine tiefere Seite: „‹ Team“ führt eine Ebene nach oben.
+    const router = renderAgain(`${base}/beziehung/team/bearbeiten`);
+    await screen.findByRole('list', { name: 'Team' });
+    const back = screen
+      .getAllByRole('link', { name: 'Team' })
+      .find((link) => !link.closest('[data-slot="supplier-header"]')) as HTMLElement;
+    fireEvent.click(back);
+    await waitFor(() => expect(router.state.location.pathname).toBe(`${base}/beziehung/team`));
   });
 });
 

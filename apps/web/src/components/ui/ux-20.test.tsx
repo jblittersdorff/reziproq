@@ -10,6 +10,7 @@ import { NextCard } from './next-card';
 import { ProcessChain } from './process-chain';
 import { Row, RowGroup } from './row-group';
 import { SoWhat } from './so-what';
+import { StatusDot } from './status-dot';
 import { TimelineRail } from './timeline-rail';
 
 // UX-20 Phase 1: Bausteine einmal gebaut, Kriterien aus UX-20 und NAV-10 je Baustein.
@@ -285,5 +286,55 @@ describe('TimelineRail und DateList (Phase 2)', () => {
     expect(
       screen.getAllByRole('listitem')[1]?.querySelector('[data-slot="date-circle"]'),
     ).toBeNull();
+  });
+});
+
+describe('Phase 3: Ampelpunkt, benannte Zeilengruppe, Name auf Unterseiten', () => {
+  it('StatusDot zeigt den Status immer als Text, der Punkt ist Schmuck', () => {
+    render(<StatusDot tone="danger" label="Zusage überfällig" />);
+    const dot = document.querySelector('[data-slot="status-dot"]') as HTMLElement;
+    expect(dot.textContent).toBe('Zusage überfällig');
+    expect(dot.dataset.tone).toBe('danger');
+    expect(dot.querySelector('[aria-hidden]')).not.toBeNull();
+  });
+
+  it('RowGroup mit Label ist ein benannter Bereich, ohne Label nicht', () => {
+    render(
+      <>
+        <RowGroup label="Stand der Beziehung">
+          <Row title="Ergebnisse" href="/x" />
+        </RowGroup>
+        <RowGroup>
+          <Row title="Ohne Label" />
+        </RowGroup>
+      </>,
+    );
+    expect(screen.getByRole('region', { name: 'Stand der Beziehung' })).toBeTruthy();
+    expect(screen.getAllByRole('region')).toHaveLength(1);
+  });
+
+  it('auf Unterseiten ist der Name im Kopf keine Überschrift; die Seite trägt den Titel', () => {
+    render(
+      <SupplierHeader
+        back={{ label: 'Lieferanten', href: '/lieferanten' }}
+        name="Rheintal Elektronik"
+        nameAs="p"
+        meta="Elektronik"
+        areasLabel="Bereiche des Lieferanten"
+        areas={[{ key: 'plan', label: 'Plan', href: '/plan' }]}
+        activeArea="plan"
+        pagesLabel="Seiten im Bereich"
+        pages={[
+          { key: 'themen', label: 'Themen', href: '/themen' },
+          { key: 'zusagen', label: 'Zusagen', href: '/zusagen' },
+        ]}
+        activePage="themen"
+        profile={{ label: 'Profil, Segmentierung und Team', href: '/p', active: false }}
+      />,
+    );
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+    expect(screen.getByText('Rheintal Elektronik').tagName).toBe('P');
+    const pages = screen.getByRole('navigation', { name: 'Seiten im Bereich' });
+    expect(within(pages).getByRole('link', { current: 'page' }).textContent).toBe('Themen');
   });
 });

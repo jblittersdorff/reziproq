@@ -22,6 +22,7 @@ import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
 import { Row, RowGroup } from '@/components/ui/row-group';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SoWhat, type SoWhatTone } from '@/components/ui/so-what';
+import { StatusDot } from '@/components/ui/status-dot';
 import { StatusLine } from '@/components/ui/status-line';
 import { TimelineRail } from '@/components/ui/timeline-rail';
 import { routerLink } from '@/features/shell/navigation';
@@ -229,6 +230,13 @@ export function BlocksPage() {
               }))}
             />
           </ChartCard>
+        </div>
+
+        {section('dots', t.sections.dots)}
+        <div className="flex flex-wrap gap-5 rounded-lg bg-card p-5 text-sm">
+          {t.dots.map(([tone, label]) => (
+            <StatusDot key={label} tone={tone} label={label} />
+          ))}
         </div>
 
         {section('chain', t.sections.chain)}

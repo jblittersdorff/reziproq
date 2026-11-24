@@ -96,7 +96,9 @@ describe('KI-17 Ergebnisse nach dem Termin', () => {
       ownerOrgId: orgs.buyer,
       type: 'quarterly_review' as const,
       title: 'QBR',
-      startsAt: new Date(`${isoDay(offset)}T08:00:00Z`),
+      // Relativ zur Uhrzeit des Laufs: „vor einem Tag“ heißt mindestens 24 Stunden zurück, auch
+      // wenn der Test früh am Morgen (UTC) läuft.
+      startsAt: new Date(today.getTime() + offset * 86_400_000 - 2 * 3_600_000),
       createdBy: users.sro,
       createdByName: 'Sara Ost',
     });

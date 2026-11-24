@@ -426,11 +426,11 @@ describe('AW-01 Lieferant · Überblick', () => {
       return undefined;
     };
     renderAt(`/lieferanten/${id}`);
-    expect(
-      await screen.findByRole('heading', { name: 'Preisgleitklausel nach Index' }),
-    ).toBeTruthy();
-    expect(screen.getByText('Größte Chance')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Wertpotenzial ansehen' }).getAttribute('href')).toBe(
+    // NAV-10 1.1: als Punkt „Chance“ in „Zusammengefasst von Reziproq“
+    const chance = await screen.findByRole('link', { name: /Preisgleitklausel nach Index/ });
+    expect(chance.textContent).toMatch(/^Chance/);
+    expect(chance.textContent).toMatch(/108.+bis.+180/);
+    expect(chance.getAttribute('href')).toBe(
       `/lieferanten/${id}/wirkung/wertpotenziale#potenzial-0190a0a0-0000-7000-8000-0000000000aa`,
     );
   });
@@ -472,9 +472,15 @@ describe('AW-01 Lieferant · Überblick', () => {
         name: '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter werdend',
       }),
     ).toBeTruthy();
-    expect(screen.getByText('Größtes Risiko')).toBeTruthy();
-    expect(screen.getByText('hoch')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Zum Hinweis' }).getAttribute('href')).toBe(
+    // NAV-10 1.1: Ein Hinweis hoher Schwere ist „Als Nächstes“, mit Schwere als Text; dazu der
+    // Punkt „Risiko“ in der Zusammenfassung.
+    const card = document.querySelector('[data-slot="next-card"]') as HTMLElement;
+    expect(card.textContent).toContain('hoch');
+    expect(within(card).getByRole('link', { name: 'Hinweis ansehen' }).getAttribute('href')).toBe(
+      '/hinweise?hinweis=0190a0a0-0000-7000-8000-0000000000bb',
+    );
+    const point = screen.getByRole('link', { name: /^Risiko/ });
+    expect(point.getAttribute('href')).toBe(
       '/hinweise?hinweis=0190a0a0-0000-7000-8000-0000000000bb',
     );
   });

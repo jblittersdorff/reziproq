@@ -76,11 +76,12 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 // LS-01: Zeilen der Liste; der volle Name steht im Tooltip des Anzeigenamens
+// NAV-10 1.1: Zeilen in den Gruppen „Brauchen dich“, „Laufen gut“ und „Beendet“, in dieser Folge
 const names = async () => {
-  const list = await screen.findByRole('list', { name: 'Lieferanten' });
-  return within(list)
-    .getAllByRole('listitem')
-    .map((row) => row.querySelector('[data-slot="supplier-name"]')?.getAttribute('title'));
+  await screen.findAllByRole('button', { pressed: false });
+  return [
+    ...document.querySelectorAll('[data-slot="supplier-row"] [data-slot="supplier-name"]'),
+  ].map((name) => name.getAttribute('title'));
 };
 
 describe('NAV-12 Filter der Lieferantenliste', () => {
@@ -112,7 +113,8 @@ describe('NAV-12 Filter der Lieferantenliste', () => {
 
   it('Filter stehen in der Adresse, und Zurück erhält sie', async () => {
     const router = renderAt('/lieferanten');
-    fireEvent.click(await screen.findByRole('switch', { name: 'Nur Fokus' }));
+    // NAV-10 1.1: Umschalter Meine, Strategisch (Fokuslieferanten), Alle
+    fireEvent.click(await screen.findByRole('radio', { name: 'Strategisch' }));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ fokus: 1 }));
     // LS-01: Zeile wählen, dann über die Detailleiste öffnen
     fireEvent.click(await screen.findByRole('button', { name: /Lieferant 1/ }));

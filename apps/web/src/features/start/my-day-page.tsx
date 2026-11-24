@@ -4,7 +4,7 @@ import type * as React from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Badge } from '@/components/ui/badge';
 import { ChartCard } from '@/components/ui/chart-card';
-import { DateList, type DateListTone } from '@/components/ui/date-list';
+import { DateList } from '@/components/ui/date-list';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { MeterBar } from '@/components/ui/meter-bar';
@@ -21,15 +21,7 @@ import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { dueTitle } from './due-title';
 import { dayTime } from './greeting';
 import { myDayMessages, timelineMessages } from './my-day-messages';
-import { NextActionCard, shortDate, timelineEntry, weekdayTime } from './next-action';
-
-const chipTone: Record<string, DateListTone> = {
-  meeting: 'shared',
-  deadline: 'warning',
-  approval: 'success',
-  commitment: 'neutral',
-  risk: 'danger',
-};
+import { NextActionCard, shortDate, timelineDateItem, weekdayTime } from './next-action';
 
 function preparedTitle(text: (typeof myDayMessages)['de'], draft: PreparedDraft) {
   const kinds = text.preparedKinds;
@@ -173,17 +165,7 @@ export function MyDayPage() {
               <DateList
                 locale={locale}
                 renderLink={routerLink}
-                items={data.timeline.map((item) => {
-                  const entry = timelineEntry(rail, item, locale);
-                  return {
-                    key: entry.key,
-                    date: entry.date,
-                    title: entry.title,
-                    sub: entry.sub,
-                    chip: { label: entry.kind, tone: chipTone[item.kind] ?? 'neutral' },
-                    ...(entry.href ? { href: entry.href } : {}),
-                  };
-                })}
+                items={data.timeline.map((item) => timelineDateItem(rail, item, locale))}
               />
             ) : (
               <p className="text-muted-foreground">{text.timelineEmpty}</p>

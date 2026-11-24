@@ -1,4 +1,5 @@
 import type { DueItem, NextAction, TimelineItem } from '@reziproq/shared';
+import type { DateListItem, DateListTone } from '@/components/ui/date-list';
 import { NextCard } from '@/components/ui/next-card';
 import type { TimelineRailItem, TimelineTone } from '@/components/ui/timeline-rail';
 import { routerLink } from '@/features/shell/navigation';
@@ -131,4 +132,29 @@ export function timelineEntry(
         sub: item.counterpart ?? undefined,
       };
   }
+}
+
+const chipTones: Record<TimelineItem['kind'], DateListTone> = {
+  meeting: 'shared',
+  deadline: 'warning',
+  approval: 'success',
+  commitment: 'neutral',
+  risk: 'danger',
+};
+
+/** Ein Eintrag aus `timeline_item` als Zeile mit Datumskreis und Art als Chip (Mein Tag, Lieferant) */
+export function timelineDateItem(
+  text: TimelineText,
+  item: TimelineItem,
+  locale: string,
+): DateListItem {
+  const entry = timelineEntry(text, item, locale);
+  return {
+    key: entry.key,
+    date: entry.date,
+    title: entry.title,
+    sub: entry.sub,
+    chip: { label: entry.kind, tone: chipTones[item.kind] ?? 'neutral' },
+    ...(entry.href ? { href: entry.href } : {}),
+  };
 }
