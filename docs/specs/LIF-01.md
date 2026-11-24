@@ -1,5 +1,7 @@
 # LIF-01 Lieferanten einladen
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: LP-01 (Einladung in einem Schritt plus Passkey, Vorlage `L5-Einladung`). Beim Lieferanten heißt die Rolle `sro` Key Account (E-K0-08). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PLT-02, PLT-03, QS-01 · deckt ab LIF-01, LIF-05
 
 ## Ziel

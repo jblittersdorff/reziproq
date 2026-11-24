@@ -1,5 +1,7 @@
 # PLT-03 Beziehungen und Lieferantenliste
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: BZ-01, AK-01. Das Datenmodell der Beziehung gilt weiter; Liste und Seiten nach BZ-01 unter `/beziehungen`. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-02, PLT-04, PLT-08, PLT-11 · überarbeitet am 31.10.2026: Seiten statt Dialog und Panel
 
 ## Ziel

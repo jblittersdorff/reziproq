@@ -1,5 +1,7 @@
 # JBP-05 Zusagen
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: ZQ-01, GP-01. Zusagen beider Seiten mit Quote; sie hängen an der Beziehung, nicht an der Planversion (E-K0-16). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf JBP-03
 
 ## Ziel

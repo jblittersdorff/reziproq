@@ -1,5 +1,7 @@
 # QBR-07 KI-Entwurf für den Pre-Read
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: TE-01, KI-07, LP-01. Die Vorbereitung des Lieferanten steht privat in seinem Termin (`L5-Termin`). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 1.0 · Soll · baut auf QBR-06, SEG-11 (`ai_draft`)
 
 ## Ziel

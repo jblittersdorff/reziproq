@@ -10,16 +10,19 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
   RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
   pnpm test, pnpm test:e2e
 - pnpm --filter @reziproq/db db:generate / db:migrate: Migrationen
-- pnpm db:seed: Beispieldaten; richtet sie danach mit pnpm demo:setup auf die echten Konten ein
-  (Käufer OEM 1 mit allen Rechten, Lieferant Lieferant 1), ohne erfundene Personen
+- pnpm db:seed: Beispieldaten der Test-Mandanten (Entwicklung und automatische Tests); richtet sie
+  danach mit pnpm demo:setup auf die echten Konten ein (Käufer OEM 1 mit allen Rechten, Lieferant
+  Lieferant 1), ohne erfundene Personen. Davon getrennt ist der Demo-Mandant Nordwind mit
+  synthetischen Personen nach DM-01 (E-K0-04, kommt mit Paket K1-b)
 - Automatische Tests schreiben nie in die Entwicklungsdatenbank, sondern in reziproq_test
 
 ## Lokaler Betrieb
 
 Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Minuten aufgebraucht).
-GitHub dient seit 23.11.2026 nur als Sicherung; die Workflows sind abgeschaltet (nur von Hand).
+Seit 24.11.2026 gilt G-1 aus `docs/entscheidungen.md`: kein `git push`, kein `gh`, keine GitHub
+Actions. Die Workflows bleiben abgeschaltet.
 
-- `git push` nur auf den aktuellen Arbeitsbranch zu `origin`, nie auf `main`, nie mit `--force`.
+- Kein `git push`, auch nicht auf den Arbeitsbranch (G-1).
 - Kein `gh`, keine Pull Requests, keine Issues, keine Releases, keine Aufrufe der GitHub-API.
 - Workflows nicht wieder einschalten (keine Trigger `push` oder `pull_request` in `.github/`).
 - Kein `git pull` und kein `git fetch`, außer der Gründer bittet darum.
@@ -37,6 +40,17 @@ GitHub dient seit 23.11.2026 nur als Sicherung; die Workflows sind abgeschaltet 
 - packages/db: Drizzle-Schema, SQL-Migrationen, Row-Level-Security-Policies
 - packages/shared: zod-Schemas und Typen für web und api
 - docs/specs: eine Spec je Anforderung, ID im Dateinamen (z. B. SEG-02.md)
+
+## Umbau KI-nativ (seit 24.11.2026)
+
+- Grundlage: `docs/umsetzungsplan.md` (Pakete K0 bis Z, ein Paket je Sitzung, nur nach Go des
+  Gründers), `docs/entscheidungen.md` (Entscheidungen E-… und Grundregeln G-1 bis G-10),
+  `docs/inventar.md`, Glossar und Rechte (Abschnitte „Umbau KI-nativ“).
+- Rangfolge bei Widersprüchen: Entscheidungen, dann Specs, dann Designsprache, dann
+  Bildvorlagen. Widersprüche melden und nach der höheren Quelle weiterarbeiten.
+- Bestand, Abweichungen und offene Punkte: `docs/k0-abweichungen.md`.
+- Nicht bauen: Claims, Risiko, Vertrag einschließlich Vertragsleck, eigene Agenten der Kunden
+  (G-4, E-K0-13).
 
 ## Regeln
 
@@ -58,9 +72,8 @@ GitHub dient seit 23.11.2026 nur als Sicherung; die Workflows sind abgeschaltet 
   Freigabe durch Controlling
 - EBIT-Wirkung nie mit Kostenvermeidung, Cash oder strategischem Wert addieren
 - Geldbeträge als Ganzzahl in Cent mit Währung, nie als Gleitkommazahl
-- Keine `WG`-Spec (Warengruppenmanagement, Release 1.1) anfangen, solange eine Spec des
-  Lieferantenmanagements offen ist; auch nichts dafür vorbauen. Ausnahme nur auf ausdrückliche
-  Anweisung des Gründers (docs/umsetzungsplan.md, Abschnitt 9)
+- Warengruppen kommen nach dem Lieferantenmanagement (G-9): Pakete K6 bis K8 erst nach K5-g;
+  auch nichts dafür vorbauen. Ausnahme nur auf ausdrückliche Anweisung des Gründers
 
 ## Oberfläche: Designsprache „Zwei Kreise“
 
@@ -78,17 +91,20 @@ Gilt für jede Änderung an der Oberfläche:
 3. Gibt es für eine Seite eine Vorlage in `docs/design/referenz/`, folgt die
    Seite ihr. Gibt es keine, gelten Regeln und Bausteine der Designsprache und
    die ähnlichste Vorlage.
-4. Die dreizehn Regeln der Designsprache gelten auf jeder Seite, besonders: Titel
+4. Die fünfzehn Regeln der Designsprache gelten auf jeder Seite, besonders: Titel
    nennt die Aufgabe. Höchstens eine Hauptaktion in der Tinte-Karte. Parteien,
    Termine und Schritte sind Kreise. Klickbares ist eine Pille. Privat grau
-   gestrichelt mit Schloss, geteilt Mint mit Doppelring, KI-Entwurf gestrichelt
-   Petrol mit Quellen. Status immer als Text.
+   gestrichelt mit Schloss, geteilt Mint mit Doppelring, KI-Entwurf mit dünnem
+   Mint-Rand, Zeile „Entwurf von Reziproq“ und Quellen. Status immer als Text.
+   Jede Nachricht in die Mitte trägt ihre Kennzeichnung.
 5. Jede Seite funktioniert auf Telefonbreite und mit Tastatur. Text hat
    mindestens 4,5:1 Kontrast. Die Seite scrollt nie seitwärts.
-6. Eine Spec beschreibt Inhalt und Verhalten, die Designsprache das Aussehen.
+6. Überlagerungen gibt es nur als Blatt, als „Frag Reziproq“ mit ⌘K und als die
+   Dialoge „So teilen“ und „Agenda freigeben“ (E-K0-01); sonst keine Pop-ups.
+7. Eine Spec beschreibt Inhalt und Verhalten, die Designsprache das Aussehen.
    Widersprechen sich beide im Aussehen, gilt die Designsprache. Melde mir den
    Widerspruch.
-7. Weicht eine Seite bewusst ab, steht der Grund als Kommentar im Code und
+8. Weicht eine Seite bewusst ab, steht der Grund als Kommentar im Code und
    in deiner Abschlussmeldung.
 
 Bevor eine Aufgabe mit Oberfläche als fertig gilt: Fundstellen von Hex-Werten

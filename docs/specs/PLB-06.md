@@ -1,5 +1,7 @@
 # PLB-06 Kontaktpunkte
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01. Kontakte stehen im Profil-Blatt, das Beziehungsnetz in Nur für dich aus Funktionen und Gesprächspaaren, ohne Haltung je Person (E-K0-21). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PLB-03, PLT-07 (Kontakte)
 
 ## Ziel

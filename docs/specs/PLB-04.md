@@ -1,5 +1,7 @@
 # PLB-04 Team beider Seiten
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01, LP-01. Das Team beider Seiten steht im Profil-Blatt; die Einladung entsteht als Entwurf; beim Lieferanten heißt die Rolle `sro` Key Account (E-K0-08). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PLT-05, LIF-02 · deckt ab PLB-04, PLB-05
 
 ## Ziel

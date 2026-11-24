@@ -1,5 +1,7 @@
 # NAV-05 Start
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: HE-01, NAV-10. Start und Mein Tag werden Heute; `/start` und `/mein-tag` leiten auf `/heute`. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 > Geändert durch UMB-05 (8.11.2026): Start als Aufgabenliste, nur gebaute Kacheln.
 > Geändert am 9.11.2026 (Handschrift Bühne A2): dunkle Bühne mit Lieferanten, im Fokus und offenen
 > Entscheidungen; darunter das Fragefeld ohne Symbol und vier Kacheln: nächste Aufgabe, nächster

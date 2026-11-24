@@ -1,5 +1,7 @@
 # UX-Umsetzung · Abweichungen zwischen Vorlagen, Specs und Code (Phase 0)
 
+> **Status 24.11.2026: abgelöst** durch `docs/k0-abweichungen.md` (E-K0-24). Die Abschnitte zu Phase 1 bis 3 dokumentieren den gebauten Stand.
+
 Stand 23.11.2026, geprüft auf `spec/PNL-11` nach Commit `be11239`.
 
 Grundlage:

@@ -1,5 +1,7 @@
 # QBR-04 Erinnerung und Eskalation
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: ZQ-01. Die Aufgabe „Zusagen nachhalten“ erinnert; an Zusagen des Lieferanten auf Stufe Erledigen, gekennzeichnet als Nachricht von Reziproq (E-K1-5). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf QBR-03, QS-01
 
 ## Ziel

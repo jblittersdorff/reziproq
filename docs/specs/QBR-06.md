@@ -1,5 +1,7 @@
 # QBR-06 Pre-Read als PDF
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: TE-01, DK-01. Der Pre-Read geht in Briefing und Deck auf. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf QBR-01, JBP-09 · legt den PDF-Baustein für alle späteren Exporte an
 
 ## Ziel

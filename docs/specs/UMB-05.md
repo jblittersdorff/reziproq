@@ -1,5 +1,7 @@
 # UMB-05 Einfachere Oberfläche
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: NAV-10, Designsprache 3.1. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Umbau · baut auf PLT-10, NAV-05, NAV-06 · ändert NAV-05, NAV-06 und NAV-10 · Entscheidung vom 8.11.2026 (Testlauf-Pfad, `docs/umsetzungsplan.md` Abschnitt 8) · Vorlage: Entwürfe „D · Einfacher“ auf der Design-Seite
 
 ## Ziel

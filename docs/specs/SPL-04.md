@@ -1,5 +1,7 @@
 # SPL-04 Spend-Entwicklung
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01. Stammdaten, Spend je Jahr und Finanzen stehen im Profil-Blatt. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PLT-03, PLT-06, PLT-07
 
 ## Ziel

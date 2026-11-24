@@ -1,5 +1,7 @@
 # Offene Fragen zur UX-Umsetzung
 
+> **Status 24.11.2026: geschlossen** (E-K0-24). F-UX-15 bis F-UX-18 sind als E-K0-18, E-K0-19, E-K0-17 und E-K0-09 entschieden; F-UX-19 entfällt mit BZ-01 (keine Gruppe „Laufen gut“); F-UX-03 entfällt durch TE-01, F-UX-02 geht in E-K0-21 auf. Neue Fragen stehen in `docs/k0-abweichungen.md` und `docs/entscheidungen.md`.
+
 Stand 23.11.2026 (Phase 0). Wo Vorlage und Spec sich widersprechen, gilt die Spec. Jede Frage
 nennt eine Empfehlung; bis zur Antwort baut die jeweilige Phase nach der Empfehlung, wenn sie
 nichts Unumkehrbares bewirkt.

@@ -93,6 +93,52 @@ Jede Spec verweist mit der Kennung (z. B. E-K2-4) auf diese Liste. Wer eine Ents
 | E-K8-6 | Muss der Lieferant Agenten-Verhandlungen zulassen? | ja, je Anfrage; Standard aus; ohne Zulassung gehen Runden als Entwurf an einen Menschen beim Lieferanten | – | VG-01, LP-01, LA-01 |
 | E-K8-7 | Wann entsteht die Review-Vorlage? | 10 Arbeitstage vor dem Review; nur Abweichungen und Entscheidungen | – | RV-01 |
 
+## Paket K0: Klärungen zum Bestand (24.11.2026)
+
+Aus der Prüfung der Specs gegen den Code (`docs/k0-abweichungen.md`, Fragen F-01 bis F-24 und Widersprüche C-01 bis C-17). Jan-Luka hat am 24.11. alle Empfehlungen übernommen. Die Nummer der Entscheidung entspricht der Frage (E-K0-01 = F-01); E-K0-25 bis E-K0-32 lösen Widersprüche zwischen Specs. Offen bleiben C-02 und C-07 (unten).
+
+| Kennung | Frage | Entscheidung | Folge, wenn anders | Specs |
+|---|---|---|---|---|
+| E-K0-01 | Blatt, Überlagerung und Dialoge, obwohl PLT-10 Pop-ups verbietet? | ja, eng: erlaubt sind nur das Blatt (620 px von rechts, Esc schließt, Fokus bleibt im Blatt, mobil volle Seite), die Überlagerung „Frag Reziproq“ (⌘K, mobil Vollbild) und die Dialoge „So teilen“ (DK-01) und „Agenda freigeben“ (BE-01). Toasts, Popover und andere Überlagerungen bleiben verboten; der Test gegen Pop-ups führt ab K1-d eine feste Liste dieser Bausteine | ohne Blatt werden Details wieder eigene Seiten, gegen G-8 | PLT-10, NAV-10, Designsprache, AK-01, DK-01, BE-01 |
+| E-K0-02 | Seitenleiste fixiert oder so hoch wie die Seite? | so hoch wie der Bildschirm; sie scrollt nicht mit, nur der Inhalt scrollt (Entscheidung vom 23.11. bleibt) | – | NAV-10, Designsprache |
+| E-K0-03 | Raum je Zeile (ZA-01): neue Spalte an allen Tabellen oder abgeleitet? | abgeleitet: Bestehende Tabellen bekommen `space` aus ihrer Ebene im Register, der besitzenden Seite und `visibility`; die Policies aus PLT-04 bleiben. Die technische Form (Spalte mit Trigger oder Sicht) legt K1-a fest. Neue Tabellen bekommen `space` als Spalte. `origin` und `confirm_state` werden echte Spalten an den Objekten, die die Specs nennen | Umbau aller 162 Tabellen und ihrer Policies | ZA-01 |
+| E-K0-04 | Demo-Mandant | Nordwind Antriebe ist ein eigener Demo-Mandant (`org.is_demo`) mit eigenem Seed und synthetischen Personen nach DM-01. Test-OEM, Zweit-OEM und Test-Lieferant bleiben Grundlage der automatischen Tests. `pnpm demo:setup` richtet weiter die echten Konten ein | – | DM-01, CLAUDE.md |
+| E-K0-05 | Rollenwechsel der Demo-Regie bei Anmeldung über Zitadel | Demo-Sitzung je Person ohne Zitadel, nur wenn `org.is_demo` gilt und nie in Produktion; Bestätigungslinks nutzen echte Passkeys | Konten je Person im Zitadel-Testmandanten | DM-01, SI-01 |
+| E-K0-06 | Passkey ohne Konto (BL-01) | beim ersten Öffnen ein Einmalcode an die Mailadresse der Person, dann Passkey anlegen; die Identität gehört zu Person und Link. Ein weitergeleiteter Link scheitert am Code | – | BL-01, BE-01, WK-01 |
+| E-K0-07 | Wer ist „Lead der Beziehung“? | der Lead der Haupt-Warengruppe der Beziehung; Vertretung je Lead unter Einstellungen › Organisation. Die Vertretung gilt auch für E-K6-2 und E-K8-3 | – | MD-01, DL-01, ST-01, SZ-01, VG-01 |
+| E-K0-08 | Rollen beim Lieferanten | die Teamrolle `sro` beim Lieferanten heißt Key Account (Migration, Rechte unverändert); Sponsor und Mitglied bleiben | – | LP-01, LIF-01 |
+| E-K0-09 | Wer ist „strategisch“? | Fokuslieferanten (SEG-02); gilt für die Pflicht zum Mandat (E-K2-4) und den Filter „Strategisch“ | Segment „Strategisch“ aus der Konsolidierung | MD-01, BZ-01 |
+| E-K0-10 | Geldbeträge in neuen Tabellen | Ganzzahl in Cent (`bigint`) mit Währung, Spannen als `low_cents` und `high_cents`, Anteile wie im Bestand in Basispunkten. Die SQL in den Specs ist eine Skizze | – | WK-01, DL-01, LA-01, MS-01, WZ-01, SZ-01, VG-01 |
+| E-K0-11 | Wertart „strategisch“ (im Code, nicht in WK-01) | bleibt als Wirkungsart ohne Euro; erscheint nicht in Kacheln, Pipeline oder Summen | – | WK-01, WT-01, PNL-07 |
+| E-K0-12 | Bestätigung durch das Controlling | per Link mit Token (E-K4-1) oder mit Konto und Recht Controlling | – | WK-01, PNL-06 |
+| E-K0-13 | Eigene Agenten (KI-09) sind gebaut | in K1-f Oberfläche und Routen entfernen, Funktion aus; die Tabellen bleiben, bis über KN-54 entschieden ist | – | KI-09, MA-01 |
+| E-K0-14 | Gilt der Pilotpfad vom 23.11. weiter? | ja, parallel: Durchstich D, sobald die Zugänge da sind; C1 bis C6 nach K2-g | Pilot erst nach Paket Z | Umsetzungsplan |
+| E-K0-15 | Offene Schritte des alten Plans | ruhen. 32 und 33 gehen in ST-01 auf, 35 (KI-19) entfällt, 36 und 37 gehen in DL-01 und SZ-01 auf, 38 in WB-01, 39 in LA-01; 34 (KI-18) wird Teil von K3-d; 31b wird nicht gebaut | – | Umsetzungsplan |
+| E-K0-16 | Freigegebener Plan nimmt keine neuen Zusagen an (JBP-06, F15) | Zusagen hängen an der Beziehung, nicht an der Planversion; ein freigegebener Plan blockiert keine Zusage | – | ZQ-01, GP-01, JBP-05, JBP-06 |
+| E-K0-17 | Gewicht des Segments in der Triage | Gewicht je Segmenttyp im Segmentmodell, Start 1,0, für den strategischen Typ 2,0; einstellbar unter Einstellungen › Segmentierung | – | HE-01, SEG-01 |
+| E-K0-18 | EBIT-Ziel je Warengruppe | die Initiative bekommt die Warengruppe; Ziel je Warengruppe in Cent | – | ST-01, WK-01 |
+| E-K0-19 | Termin der Freigabe einer Strategie | Feld „Freigabe geplant am“ an der Strategie-Version; erscheint als Chip und in den Terminen | – | ST-01 |
+| E-K0-20 | Widersprüche zwischen Specs | entschieden in E-K0-25 bis E-K0-32; C-02 und C-07 sind offen | – | – |
+| E-K0-21 | Beziehungsnetz und ältere Specs | das Netz zeigt Funktionen und Gesprächspaare mit „Draht“ (wie K2-Akte-Privat), keine Haltung je Person (CLAUDE.md: keine Bewertung einzelner Personen). Ältere Specs tragen einen Statuskopf „abgelöst“ oder „gilt weiter mit Änderungen“ | – | AK-01, Inventar T2-I25 und T2-I26 |
+| E-K0-22 | Umsetzungsnotizen der ersetzten KI-Specs | zurück als Abschnitt „Umsetzung bis 23.11.2026“ | – | KI-03, KI-07, KI-08, KI-09, KI-11, KI-15, KI-16, KI-17 |
+| E-K0-23 | CLAUDE.md | nachgezogen: kein Push (G-1), Demo (E-K0-04), fünfzehn Regeln, Rangfolge, Verweis auf diese Datei | – | CLAUDE.md |
+| E-K0-24 | UX-Plan in `docs/plan/` | abgelöst durch den Umsetzungsplan; F-UX-03 (JBP-Termin) entfällt durch TE-01, F-UX-02 (Beziehungsnetz) geht in E-K0-21 auf | – | – |
+| E-K0-25 | Akte-Kopf auf Termin und Plan (C-01) | nein (E-K2-7): Der Termin hat seinen eigenen Kopf (TE-01), der Gemeinsame Plan den Zurück-Link „‹ <Beziehung>“ und einen eigenen Titel. Wertkonto, Mandat und Deal behalten den Akte-Kopf | – | AK-01, GP-01 |
+| E-K0-26 | Gruppen der Ansicht Alles (C-03) | Für dich, Bei anderen, Zuordnen, Hinweise, Zusagen und Aufgaben; „Maßnahmen“ und „Weitere Hinweise“ im Inventar meinen diese Gruppen | – | HE-01, Inventar |
+| E-K0-27 | Zusage des Käufers aus einer Mail (C-04) | Fokus-Thema, nie Kurz prüfen (HE-01, PO-01); Drehbuch K2 öffnet den Entwurf aus Heute; das Board K2-Mail-Zusage gilt nur für den Aufbau | – | DM-01, PO-01, HE-01 |
+| E-K0-28 | Wer bestätigt einen Strategie-Teil (C-05) | der Lead der Warengruppe oder ein Commodity Manager im Team (ST-01); die Zeile der Rechte-Ergänzung ist angepasst | – | ST-01, Rechte |
+| E-K0-29 | Anfrage an einen neuen Lieferanten nach einer Entscheidung (C-06) | der Commodity Manager, im Demo Jonas Feld | – | SZ-01 |
+| E-K0-30 | Briefing in der Demo am Mo 23.11. (C-08) | der automatische Vorlauf bleibt 10 Tage; im Seed hat Jan-Luka das Briefing am Fr 20.11. von Hand gestartet (KI-07 erlaubt Läufe von Hand) | – | DM-01, TE-01 |
+| E-K0-31 | Bedeutung von „Von <Gegenüber>“ (C-09) | immer: was das Gegenüber aktiv geteilt hat (AK-01). Was der Lieferant im Wertkonto sieht, steht als Zeile „Was <Lieferant> sieht“ | – | WK-01 |
+| E-K0-32 | Designsprache in sich (C-10) | „Fünfzehn Regeln“; Bausteine, deren Board nicht beiliegt, folgen dem ähnlichsten Board (L-Ueberblick, W-Initiative, K6-Strategie) | – | Designsprache |
+
+**Offen, mit Empfehlung:**
+
+| Nr. | Frage | Empfehlung |
+|---|---|---|
+| C-02 | Segment-Matrix: BZ-01 und das Board K2-Segmente zeigen vier Felder („Versorgungsrisiko und Wertbeitrag“: Strategisch, Hebeln, Absichern, Entwickeln). Glossar, Designsprache, SEG-01 und der Code haben 3 × 3 (Business Impact × Beziehungsqualität) | Die Größe der Matrix wird je Segmentmodell einstellbar (2 × 2 oder 3 × 3), Achsen und Namen je Kunde. Standard bleibt 3 × 3; Nordwind nutzt 2 × 2 wie im Board |
+| C-07 | Monat des Wertberichts: WB-01 „am ersten Montag für den Vormonat“; DM-01 und das Board zeigen am Mo 23.11. einen Entwurf „November“ mit Frist Mo 30.11. und am Mo 21.12. „Dezember“; frühere Berichte laut Board „Oktober, gesendet 02.11.“ | Regel aus WB-01 bleibt (nach dem Monatsabschluss). Im Demo ist am Mo 23.11. der Bericht Oktober noch Entwurf (Frist Mo 30.11.), nach „Monat vorspulen“ der Bericht November; DM-01, T4-20 und das Board nennen dann Oktober und November |
+
 ## Festgelegte Grundregeln (ohne offene Frage, gelten überall)
 
 | Kennung | Regel |

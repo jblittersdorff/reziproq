@@ -72,7 +72,7 @@ Entfallene Seiten: Mein Tag, Alle Aufgaben, Hinweise, Neu eingegangen, Agenten, 
 | T2-I22 | U-Massnahmen, U-Massnahme | Maßnahmen geteilt und intern mit Verantwortung, Frist, Anlass, Ziel, Sichtbarkeit | Zusagen in Gemeinsam; Aufgaben in Nur für dich; Heute, Ansicht Alles |
 | T2-I23 | L-Lieferantenplan, L-Plan-Neu | Versionen, Freigabe, Ziele, Strategie in drei Sätzen, Beiträge der Funktionen, Änderungen zur Vorversion | Nur für dich, Lieferantenplan; Entwurf Version 3 |
 | T2-I24 | B-Team, B-Einladen | Personen beider Seiten mit Rolle und Status, Rechte je Rolle, Einladungstext, Ablauf der Einladung | Profil-Blatt, Team in Reziproq; Entwurf „Einladung“; Von Rheintal, „Rheintal in Reziproq“ |
-| T2-I25 | B-Person | Funktion, Berichtet an, Themen, Entscheider, Rolle, Haltung | Profil-Blatt, Kontakte (bearbeiten); Netz in Nur für dich |
+| T2-I25 | B-Person | Funktion, Berichtet an, Themen, Entscheider, Rolle (Haltung je Person entfällt, E-K0-21) | Profil-Blatt, Kontakte (bearbeiten); Netz in Nur für dich |
 | T2-I26 | B-Netz | Gesprächspaare, Entscheider, Draht, Linienstärke | Nur für dich, Beziehungsnetz |
 | T2-I27 | B-Spielregeln, B-Spielregeln-Teilen | Rechte, Pflichten, Formate, ungeteilte Änderungen, Vorschläge von Rheintal | Spielregeln-Blatt; Entwurf „Änderungen teilen“ |
 | T2-I28 | B-Feedback-Art, -Neu, -Start | Art, Fragen, Personen beider Seiten, Frist, Mail-Vorschau, Anonymität | Entwurf „Welle vorbereitet“ in Kurz prüfen |
@@ -109,7 +109,7 @@ Navigation: Alte Adressen leiten mit 301 weiter (NAV-10, AK-01, BZ-01).
 | T4-01 | W-Uebersicht | Ergebnisse 2026, Freigaben durch Controlling, Initiativen nach Reifegrad | Wert: Wertarten nebeneinander, Stufen R1 bis R5, „R5 vergibt das Controlling“; offene Freigabe als Mappe |
 | T4-02 | KI-Wert-Uebersicht | Potenzial je Lieferant (Kessler am größten) | Wert: Zeile Wertfinder mit 11 Potenzialen, 4 bei Kessler ohne freigegebenen Plan |
 | T4-03 | KI-Wert | Potenziale Rheintal 140 bis 200 T€ | Wertkonto Rheintal, Abschnitt Potenziale |
-| T4-04 | KI-Wert-Detail | Hebel mit Rechenweg, geprüfte Hebel, Marktsignale, Datenlücken, Sicht Rheintal | Wertkonto: Potenzial öffnet als Blatt; „Was der Wertfinder geprüft hat“ (9 Hebel, 4 Marktsignale, 2 Datenlücken); Sichten-Umschalter „Von Rheintal“ |
+| T4-04 | KI-Wert-Detail | Hebel mit Rechenweg, geprüfte Hebel, Marktsignale, Datenlücken, Sicht Rheintal | Wertkonto: Potenzial öffnet als Blatt; „Was der Wertfinder geprüft hat“ (9 Hebel, 4 Marktsignale, 2 Datenlücken); Zeile „Was Rheintal sieht“ (E-K0-31) |
 | T4-05 | P-Themen | Themen beider Seiten sammeln, reihen, parken | Gemeinsamer Plan: Themen ohne Initiative, geparkt mit Version; neue Themen kommen aus Protokoll und Beiträgen (Kapitel 3) |
 | T4-06 | P-Initiativen | Initiativen festlegen | Gemeinsamer Plan: Initiativen 2027 in Version 3; Anlegen aus dem Potenzial (Wertkonto) |
 | T4-07 | P-Kennzahl | Prognosetreue: Verlauf und Werte | Scorecard in der Akte (Zusagen und Scorecard); Verlauf je Kennzahl als Blatt aus der Zeile |

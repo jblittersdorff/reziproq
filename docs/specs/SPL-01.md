@@ -1,5 +1,7 @@
 # SPL-01 Lieferantenplan und Zielkategorien
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01. Der Lieferantenplan steht in der Akte unter Nur für dich; eine neue Version entsteht als Entwurf (UX-20, Ablauf 4). Inhalt und Freigabe gelten weiter. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf ZYK-01, SEG-06, PLT-06 · deckt ab SPL-01, SPL-02
 
 ## Ziel

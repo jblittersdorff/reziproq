@@ -15,16 +15,17 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 | Paket | Inhalt | Specs | Tests | Voraussetzung |
 |---|---|---|---|---|
 | **K0** | Prüfen: Specs gegen Code, Liste der Abweichungen und offenen Fragen. Kein Code. | alle | – | – |
-| **K1-a** | Datenräume, Status, Herkunft; `focus_item`, `worker_setting`, Felder an `org`; Migration | ZA-01, HE-01 (Daten), MA-01 (Daten) | ZA-01 T1-ZA* | Phase 1 |
-| **K1-b** | Gateway-Modi (`fake`, `record`, `replay`, live), Uhr je Mandant, Seed Demo-Mandant Nordwind | DM-01, KI-01 | DM-01 | K1-a |
+| **K0-b** | Klärungen aus K0 festhalten (E-K0-01 bis E-K0-32): Statusköpfe der älteren Specs, CLAUDE.md, Umsetzungsnotizen der KI-Specs, Anpassungen in Specs und Designsprache. Kein Code | alle | – | K0 |
+| **K1-a** | Datenräume, Status, Herkunft; `focus_item`, `worker_setting`, Felder an `org`; Migration; Uhr je Mandant als eine Funktion für alle Dienste und Jobs, dazu ein Test gegen das Lesen der Systemuhr außerhalb dieser Funktion (vorgezogen aus K1-b) | ZA-01, HE-01 (Daten), MA-01 (Daten), DM-01 (Uhr) | ZA-01 T1-ZA* | Phase 1, K0-b |
+| **K1-b** | Gateway-Modi (`fake`, `record`, `replay`, live), Seed Demo-Mandant Nordwind als eigener Mandant (E-K0-04), Demo-Sitzung je Person (E-K0-05) | DM-01, KI-01 | DM-01 | K1-a |
 | **K1-c** | Triage, Satzprüfung (`sentence_facts`), `next_action` als Sicht auf `focus_item` | HE-01 | HE-01 Triage | K1-a |
-| **K1-d** | Rahmen: Seitenleiste, Tab-Leiste, Frag Reziproq, Weiterleitungen, Startseiten | NAV-10 | NAV-10 Rahmen | K1-c |
+| **K1-d** | Rahmen: Seitenleiste, Tab-Leiste, Frag Reziproq, Startseiten; Blatt (`Sheet`) und Test gegen Pop-ups mit fester Liste erlaubter Bausteine (E-K0-01); Weiterleitungen alt → neu für alle Routen in einer Tabelle aus dem Routenbaum | NAV-10, UX-20 | NAV-10 Rahmen, TN-07 | K1-c |
+| **K2-h** | CI-Leitplanken, verkleinert: Build-Prüfungen T-CI1 bis T-CI3 (Palette und selbst ausgelieferte Schriften sind fertig) | Designsprache | T-CI1 bis T-CI3 | K1-d |
 | **K1-e** | Heute (Fokus und Alles), Kurz prüfen, Erledigt mit Rücknahme, Warum, Fokus-Mappe | HE-01, UX-20 §1 | HE-01 | K1-d |
 | **K1-f** | Mein Agent, KI-Einstellungen, Leitplanken-Tests | MA-01, KI-04 | MA-01 | K1-e |
 | **K1-g** | Demo-Regie, Drehbuch „Morgen mit Reziproq“ als E2E-Test | DM-01 | Drehbuch K1 | K1-b, K1-f |
 | **K2-a** | Zusagen (Migration der Maßnahmen), Akte-Daten, Row Level Security, Weiterleitungen | ZQ-01, AK-01, ZA-01 | ZQ-01, AK-01 Sicherheit | K1-g |
-| **K2-h** | CI-Leitplanken: Palette als CSS-Variablen, Schriften selbst ausliefern, Build-Prüfungen | Designsprache | T-CI1 bis T-CI3 | K2-a |
-| **K2-b** | Beziehungen mit Linsen, Sortierung, Mini-Spiegel; Zusagequote | BZ-01, ZQ-01 | BZ-01 | K2-h |
+| **K2-b** | Beziehungen mit Linsen, Sortierung, Mini-Spiegel; Zusagequote | BZ-01, ZQ-01 | BZ-01 | K2-a |
 | **K2-c** | Akte: Kopf, drei Sichten, Blätter, Aktionen am Objekt | AK-01, NAV-10 | AK-01 | K2-b |
 | **K2-d** | Postfach, „Mail rein, Zusage raus“, Schreiben, Bestätigen per Link | PO-01, BL-01, KI-03, KI-15 | PO-01, BL-01 | K2-c |
 | **K2-e** | Bewertung vorausfüllen, Segment-Mappe, Segment vorschlagen | BZ-01, KI-04, UX-20 §3 | BZ-01 Segmente | K2-d |
@@ -69,6 +70,27 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 | **K8-f** | Review nach Ausnahme | RV-01 | RV-01 | K8-a |
 | **K8-g** | Drehbuch „Warengruppe steuert sich“, Simulator für Saar Circuits | DM-01, SI-01 | Drehbuch K8 | K8-e, K8-f |
 | **Z** | Abnahme: alle Drehbücher aus DM-01 als E2E-Tests hintereinander, Sackgassen-Test, 390-px-Test über alle Seiten, Inventar-Tests aller Kapitel (`docs/inventar.md`) | alle | alle | K8-g |
+
+## Stand
+
+- K0 fertig am 24.11.2026 (Commit `5859a1e`, Bericht `docs/k0-abweichungen.md`).
+- K0-b fertig am 24.11.2026 (Entscheidungen E-K0-01 bis E-K0-32 in `docs/entscheidungen.md`). Offen: C-02 (Größe der Segment-Matrix), C-07 (Monat des Wertberichts).
+- Geändert nach K0 (Abschnitt f des Berichts): K0-b neu; Uhr je Mandant von K1-b nach K1-a; K2-h verkleinert und nach K1-d gezogen; Weiterleitungen gesammelt in K1-d.
+
+## Parallel: Pilotpfad (E-K0-14)
+
+Läuft neben den Paketen, sobald Zugänge oder Budget des Gründers da sind:
+
+| Schritt | Inhalt | Voraussetzung |
+|---|---|---|
+| D | Durchstich: echte Schnittstellen von Zitadel und Microsoft 365 ohne AWS | Testmandant Microsoft 365 und Zitadel-Zugang des Gründers |
+| C1 | Testumgebung AWS EU über OpenTofu (`infra/`) | K2-g |
+| C2 | Zitadel produktiv mit Firmenanmeldung | C1, D |
+| C3, C5 | Bedrock EU, Maildienst EU | C1 |
+| C4 | Microsoft Graph und Kalender echt | C1, D |
+| C6 | Pilot mit echten Konten | C1 bis C5 |
+
+Der frühere Plan ruht (E-K0-15): Die Schritte 32 und 33 gehen in ST-01 auf, 35 (KI-19) entfällt, 36 und 37 gehen in DL-01 und SZ-01 auf, 38 in WB-01, 39 in LA-01, 34 (KI-18) wird Teil von K3-d; 31b wird nicht gebaut. Seine Fassung steht in Git (Commit `77cc620`).
 
 ## Prompt je Paket
 

@@ -1,5 +1,7 @@
 # QBR-03 Maßnahmen
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: ZQ-01. Geteilte Maßnahmen werden Zusagen, interne werden Aufgaben (E-K2-1). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf QBR-01 · deckt ab QBR-03, QBR-05
 
 ## Ziel

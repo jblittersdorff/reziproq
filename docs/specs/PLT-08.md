@@ -1,5 +1,7 @@
 # PLT-08 Audit-Trail
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: NAV-10. Der Audit-Trail gilt weiter; in der Oberfläche heißt er Verlauf und steht in der Akte unter Nur für dich; Läufe von Reziproq verweisen auf Erledigt. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-04 · steht vor PLT-03, damit Beziehungen vom ersten Tag an im Verlauf landen
 
 ## Ziel

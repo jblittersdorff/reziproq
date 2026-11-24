@@ -1,5 +1,7 @@
 # PLT-12 Fragen-Seite
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: NAV-10. Die Seite `/fragen` wird die Überlagerung „Frag Reziproq“ mit ⌘K (E-K0-01); Werkzeuge, Rechte und Grenzen gelten weiter, Aufträge kommen dazu. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-11, PLT-03, PLT-05, PLT-06, NAV-06 · deckt ab PLT-12, NAV-11 · überarbeitet am 31.10.2026: eigene Seite statt Overlay
 
 ## Ziel

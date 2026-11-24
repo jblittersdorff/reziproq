@@ -1,5 +1,7 @@
 # QBR-01 Termine
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: TE-01, PR-01. Ein Termin ist die Seite `/termine/<id>` mit den Phasen Vorbereiten, Im Termin und Danach; die Reiter entfallen. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf PLB-03, LIF-02, NAV-05 · deckt ab QBR-01, QBR-02
 
 ## Ziel

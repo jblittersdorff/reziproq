@@ -1,5 +1,7 @@
 # ZYK-02 Planung rückwärts vom Joint Business Planning
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01, NAV-10. Der Jahreszyklus steht als graue Zeile im Akte-Kopf; die Zyklus-Leiste entfällt; Fristen werden `focus_item` und `timeline_item` (HE-01). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf ZYK-01, QS-01 · deckt ab ZYK-02, ZYK-06
 
 ## Ziel

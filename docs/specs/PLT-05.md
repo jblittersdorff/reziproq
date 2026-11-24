@@ -1,5 +1,7 @@
 # PLT-05 Rollen und Rechte
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: `docs/rechte.md` (Abschnitt „Umbau KI-nativ“). Neu sind der Lead der Beziehung mit Vertretung (E-K0-07) und beim Lieferanten die Rollen Sponsor, Key Account und Mitglied (E-K0-08). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-02, PLT-03 · zieht die Rechte für alles bisher Gebaute nach · überarbeitet am 31.10.2026: Team-Seite im Bereich Beziehung
 
 ## Ziel

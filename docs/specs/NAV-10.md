@@ -2,6 +2,8 @@
 
 Version 2.0 · alle Kapitel · Pakete K1-d (Rahmen), ergänzt in K2-c, K3-b, K4-b, K5-b, K6-f, K7-e · baut auf ZA-01, HE-01, MA-01 · **ersetzt Version 1.1** und NAV-05 (Start) · Bildvorlagen: Main, Fragen, A-MeinTag, Heute-Alles, A-Uebersicht, A-Lieferanten, A-Lieferant, A-Lieferant-Desktop, A-Warengruppen, A-Warengruppe, L5-Heute
 
+> **Klärungen aus K0 (24.11.2026, `docs/entscheidungen.md`):** Erlaubte Überlagerungen: Blatt, „Frag Reziproq“ mit ⌘K, die Dialoge „So teilen“ und „Agenda freigeben“; alles andere bleibt verboten (E-K0-01). Seitenleiste so hoch wie der Bildschirm (E-K0-02). Termin und Gemeinsamer Plan haben keinen Akte-Kopf (E-K0-25).
+
 ## Änderungen gegenüber 1.1
 
 - Hauptpunkte heißen Heute, Beziehungen, Warengruppen, Wert. Mein Tag wird Heute (HE-01), Übersicht wird Wert (WK-01), Lieferanten werden Beziehungen (BZ-01).
@@ -38,7 +40,7 @@ Reziproq ist kein Menüpunkt. Es erscheint als „Entwurf von Reziproq“, „Zu
 
 ## Rahmen
 
-**Seitenleiste** (ab 761 px): 236 px, Fläche `#eceeea`, so hoch wie die Seite. Von oben: Logo (zur Startseite), Feld „Frag Reziproq“ mit ⌘K, Heute mit Zahl der offenen Fokus-Themen, Beziehungen, Warengruppen, Wert; Abstand; Zeile „Im Hintergrund: …“ (13 px, Punkt Petrol, zeigt einen laufenden Lauf; Klick öffnet Erledigt); Mein Agent; Einstellungen; Person mit Initialen. Aktiver Punkt weiß mit leichtem Schatten, Symbol Petrol. Beim Lieferanten: Heute, Kunden; Mein Agent, Einstellungen; Person als „<Name> · <Firma>“.
+**Seitenleiste** (ab 761 px): 236 px, Fläche `#eceeea`, so hoch wie der Bildschirm; sie scrollt nicht mit, nur der Inhalt scrollt (E-K0-02). Von oben: Logo (zur Startseite), Feld „Frag Reziproq“ mit ⌘K, Heute mit Zahl der offenen Fokus-Themen, Beziehungen, Warengruppen, Wert; Abstand; Zeile „Im Hintergrund: …“ (13 px, Punkt Petrol, zeigt einen laufenden Lauf; Klick öffnet Erledigt); Mein Agent; Einstellungen; Person mit Initialen. Aktiver Punkt weiß mit leichtem Schatten, Symbol Petrol. Beim Lieferanten: Heute, Kunden; Mein Agent, Einstellungen; Person als „<Name> · <Firma>“.
 
 **Tab-Leiste** (bis 760 px): fest unten, weiß durchscheinend. Käufer: Heute, Beziehungen, Frag, Warengruppen, Wert. Lieferant: Heute, Kunden, Frag. Aktiv Petrol, Text 11 px, Inhalt unten 92 px Abstand. Mein Agent und Einstellungen erreichen beide Seiten mobil über die Person in Heute.
 

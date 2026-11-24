@@ -1,5 +1,7 @@
 # LIF-02 Arbeitsbereich des Lieferanten
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: LP-01. Heute, Kunden und die gespiegelte Akte mit drei Sichten ersetzen den Arbeitsbereich des Lieferanten. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf LIF-01, NAV-06, NAV-05
 
 ## Ziel

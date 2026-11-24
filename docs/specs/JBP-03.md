@@ -1,5 +1,7 @@
 # JBP-03 Initiativen und Roadmap
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: GP-01. Themen, Initiativen, Freigabe und Scorecard stehen auf der Seite des Gemeinsamen Plans; die nächste Version entwirft Reziproq aus dem Protokoll; der Verlauf einer Kennzahl öffnet als Blatt (E-K4-4). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf JBP-02 · deckt ab JBP-03, JBP-04
 
 ## Ziel

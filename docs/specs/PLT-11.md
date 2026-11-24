@@ -1,5 +1,7 @@
 # PLT-11 App-Rahmen, globale Leiste und Seitenmuster
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: NAV-10 (Rahmen mit Seitenleiste und Tab-Leiste, `AppShell`). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-10 · deckt ab PLT-11, NAV-01, NAV-02, NAV-03 · überarbeitet am 31.10.2026: Leiste oben statt Seitenleiste, keine Pop-ups
 
 ## Ziel

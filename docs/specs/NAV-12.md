@@ -1,5 +1,7 @@
 # NAV-12 Filter der Lieferantenliste
 
+> **Status 24.11.2026 (Umbau KI-nativ): abgelöst.** Maßgeblich: BZ-01. Filter-Chips Alle, Meine, Strategisch, Offene Zusagen und „Mehr Filter“; „Strategisch“ heißt Fokuslieferant (E-K0-09). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-03, PLT-06, SEG-06, SEG-02
 
 ## Ziel

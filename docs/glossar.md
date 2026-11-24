@@ -95,6 +95,10 @@ Ergänzung aus dem Spec-Paket vom 24.11.2026. Wo ein Begriff in diesem Glossar s
 - **Verhandlungsrahmen** — Vom Menschen freigegebenes Ziel, Argumente und Grenzen, in denen der Agent unverbindlich verhandeln darf; nur Käuferseite.
 - **Verhandlung der Agenten** — Unverbindliche Runden zwischen dem Agenten des Käufers und dem des Lieferanten, höchstens drei, nur wenn beide Seiten es zulassen.
 - **Review nach Ausnahme** — Vorlage fürs Gremium mit nur Abweichungen und Entscheidungen, 10 Arbeitstage vorher von Reziproq geschrieben.
+- **Lead der Beziehung** — Lead der Haupt-Warengruppe einer Beziehung; entscheidet außerhalb des Mandats (E-K5-2, E-K0-07).
+- **Vertretung** — Person, die für einen Lead entscheidet, eingestellt unter Einstellungen › Organisation (E-K0-07).
+- **Key Account** — Rolle beim Lieferanten, früher `sro` (E-K0-08); daneben Sponsor und Mitglied.
+- **Strategisch** — Fokuslieferant (SEG-02); Pflicht zum Mandat und Filter in Beziehungen (E-K0-09).
 
 ### Wörter, die in der Oberfläche nicht mehr vorkommen
 

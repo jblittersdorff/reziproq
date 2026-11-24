@@ -1,5 +1,7 @@
 # PUL-03 Auswertung und Wahrnehmungslücken
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01. Das Ergebnis zeigt je Frage einen Spiegel; Aufdecken erst ab der Mindestzahl je Seite, Freitext nur zusammengefasst. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PUL-02, LIF-02 · deckt ab PUL-03, PUL-04, PUL-05
 
 ## Ziel

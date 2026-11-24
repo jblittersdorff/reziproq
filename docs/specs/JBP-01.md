@@ -1,5 +1,7 @@
 # JBP-01 Vorbereitung des Joint Business Planning
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: TE-01, BE-01. Die Vorbereitung wird die Phase Vorbereiten am Termin. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf QBR-01, ZYK-02, SPL-07, SEG-10 · PUL-03 nur weich: Der Feedback-Abschnitt entfällt, bis Block F gebaut ist (Testlauf-Pfad, 8.11.2026)
 
 ## Ziel

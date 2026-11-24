@@ -1,5 +1,7 @@
 # PLT-09 Deutsch und Englisch
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: Glossar, Abschnitt „Umbau KI-nativ“. Die Tabelle mit Schlüsseln wird mit dem Umbau auf die neuen Begriffe umgestellt. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-11 · kann jederzeit nach PLT-11 kommen, weil alle Texte schon in der Übersetzungsdatei stehen
 
 ## Ziel

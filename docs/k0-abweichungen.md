@@ -2,6 +2,11 @@
 
 Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8, `reziproq-specs-v2.zip`) und der Code auf `spec/PNL-11` nach Commit `77cc620` (UX Phase 3). Paket K0 schreibt keinen Code. Bei Widersprüchen gilt die Rangfolge aus LIESMICH: Entscheidungen, dann Specs, dann Designsprache, dann Vorlagen.
 
+**Stand nach K0-b (24.11.2026):**
+- Alle Empfehlungen sind übernommen und als E-K0-01 bis E-K0-32 in `docs/entscheidungen.md` festgehalten. Offen bleiben C-02 und C-07, dort mit Empfehlung.
+- E-K0-03 legt nur das Prinzip fest. Eine generierte Spalte, wie in F-03 genannt, geht nicht, weil die besitzende Seite aus der Beziehung gelesen werden muss; ob es eine Spalte mit Trigger oder eine Sicht wird, entscheidet K1-a.
+- Neu beim Nachziehen: CLAUDE.md (Oberfläche, Regel 7) lässt bei Widersprüchen im Aussehen die Designsprache vor der Spec gelten, LIESMICH stellt die Specs allgemein vor die Designsprache. Ich lese Regel 7 als Sonderfall für das Aussehen; für Inhalt und Verhalten gilt LIESMICH (C-18).
+
 **Kurzfassung**
 - Vieles ist schon gebaut und lässt sich wiederverwenden: Datenräume mit Row Level Security, Entwürfe mit Quellen, Agenten und Läufe, Gateway, Hinweise mit Punktzahl, Zusagen, Segmente, Feedback, Termine mit Briefing, Ergebnissen und Transkript, Gemeinsamer Plan, Wirkung mit Baseline und Controlling, Wertfinder, Import, Einladung mit Passkey und das Warengruppenmanagement in zehn Schritten.
 - Grundlegend neu sind: `focus_item` mit Triage, Stufen je Person (`worker_setting`), Bestätigungs-Token für bindende Werkzeuge, Rücknahme (`undo_payload`), Uhr je Mandant, Modi `record` und `replay` sowie der Demo-Mandant Nordwind. Ebenfalls neu: Mandat, Deal, Bestätigen per Link, Wert-Engine mit Buchungen, Kanäle und die Objekte aus Kapitel 8.

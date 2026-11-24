@@ -1,5 +1,7 @@
 # ZYK-05 Neuer Zyklus
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01, NAV-10. Der Jahreszyklus steht als graue Zeile im Akte-Kopf; die Zyklus-Leiste entfällt; Fristen werden `focus_item` und `timeline_item` (HE-01). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 1.0 · baut auf ZYK-01, SPL-07, JBP-06
 
 ## Ziel

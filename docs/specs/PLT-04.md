@@ -1,5 +1,7 @@
 # PLT-04 Drei Datenebenen
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: ZA-01. Die Ebenen gelten weiter; der Raum je Zeile (`space`) wird daraus abgeleitet (E-K0-03). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-02 · Grundlage für jede weitere Tabelle
 
 ## Ziel

@@ -1,5 +1,7 @@
 # SEG-02 Fokuslieferanten
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: MD-01, BZ-01. Fokuslieferanten gelten als „strategisch“ für die Pflicht zum Mandat und den Filter „Strategisch“ (E-K0-09). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf SEG-07
 
 ## Ziel

@@ -9,6 +9,9 @@ import { permissions } from './permissions.js';
 const plannedKiNativeRights = [
   'Ergänzung aus dem Spec-Paket vom 24.11.2026 (`docs/entscheidungen.md`, Specs ab ZA-01). Sie geht den',
   'Abschnitten zu Warengruppenmanagement, KI und Anbindungen unten vor; Zeilen zu eigenen Agenten entfallen.',
+  'Klärungen aus K0: „Lead“ einer Beziehung ist der Lead ihrer Haupt-Warengruppe, mit Vertretung (E-K0-07);',
+  'beim Lieferanten heißt die Teamrolle `sro` Key Account (E-K0-08); das Controlling bestätigt per Link oder',
+  'mit Konto (E-K0-12).',
   '',
   'Grundsatz: Ein Lauf von Reziproq handelt immer mit den Rechten einer Person und nie über deren Stufe in Mein Agent hinaus; ein Mandat kann die Stufe nur senken.',
   '',
@@ -37,7 +40,7 @@ const plannedKiNativeRights = [
   '| Deal im Mandat senden oder bestätigen | ja | ja | ja (eigene Beziehung) | – | – |',
   '| Deal außerhalb des Mandats annehmen (E-K5-2) | – | ja (oder Vertretung) | – | – | – |',
   '| Strategie freigeben festhalten (E-K6-2) | – | Lead der Warengruppe | – | – | – |',
-  '| Strategie-Teil bestätigen | ja | ja | ja (im Team) | ja (im Team) | – |',
+  '| Strategie-Teil bestätigen (E-K0-28) | – | ja (Lead der Warengruppe) | – | ja (Commodity Manager im Team) | – |',
   '| Reibungs-Kostensätze ändern (E-K4-3) | – | ja | – | – | – |',
   '| Wertbericht senden | ja | ja | – | – | – |',
   '| Anteile einer Warengruppe entscheiden (E-K8-3) | – | Lead der Warengruppe (oder Vertretung) | – | – | – |',

@@ -29,7 +29,7 @@ Das Logo sind zwei Ringe, die sich überlappen. Das Motiv trägt das Produkt: zw
 - Petrol steht für das Gegenüber und für Aktionen. Beim Käufer ist der Lieferant Petrol, beim Lieferanten der Kunde.
 - Mint steht für das Geteilte und für „jetzt“.
 
-## Dreizehn Regeln
+## Fünfzehn Regeln
 
 1. Wer handelt, ist ein Kreis: Lieferanten, Personen, Termine, Schritte.
 2. Was Inhalt trägt, ist eine weiße Gruppe mit 16 bis 18 px Ecken, ohne Schatten. Listen sind Zeilen in einer Gruppe.
@@ -126,10 +126,12 @@ Bedienflächen sind mindestens 44 px hoch, Zeilen 56 px. Abstände in Schritten 
 
 ## Bausteine
 
+Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgaben`, `C-Claim`, `P-Zusagen`, `P-Scorecard`, `P-Initiativen`, `WG-Markt`, `WG-Ziele`), gilt das ähnlichste beiliegende Board, etwa `L-Ueberblick`, `W-Initiative` oder `K6-Strategie` (E-K0-32).
+
 | Baustein | Beschreibung | Referenz |
 |---|---|---|
 | Logo | Zwei Ringe (links Tinte, rechts Petrol, Strich 2), Überlappung Mint gefüllt, Wortmarke in Outfit 600 | `Main.dc.html` |
-| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Feld „Frag Reziproq“ mit ⌘K, vier Hauptpunkte mit Symbol 20 px (Heute mit Zahl), Zeile „Im Hintergrund“ (13 px, Punkt Petrol), Mein Agent, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; nicht fixiert. Beim Lieferanten Heute, Kunden und „<Name> · <Firma>“ | `Main.dc.html`, `L5-Heute.dc.html` |
+| Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Feld „Frag Reziproq“ mit ⌘K, vier Hauptpunkte mit Symbol 20 px (Heute mit Zahl), Zeile „Im Hintergrund“ (13 px, Punkt Petrol), Mein Agent, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; so hoch wie der Bildschirm, scrollt nicht mit (E-K0-02). Beim Lieferanten Heute, Kunden und „<Name> · <Firma>“ | `Main.dc.html`, `L5-Heute.dc.html` |
 | Tab-Leiste | unter 760 px fest unten, weiß 93 % mit Unschärfe, Symbol 24 px und Text 11 / 600, aktiv Petrol; Käufer fünf Ziele, Lieferant drei | `Main.dc.html`, `A-MeinTag.dc.html` |
 | Zurück-Link | Pfeil „‹“ und Name der Ebene darüber, Petrol 15 / 600, mindestens 32 px hoch | `SupplierBar.dc.html` |
 | Akte-Kopf | Zurück „‹ Beziehungen“ (beim Lieferanten „‹ Kunden“), Monogramm 56 px in der Farbe des Gegenübers, Name groß, graue Zeile (Segment, Warengruppen, Spend, Lead, Jahreszyklus), Aktionen von Reziproq als Zweitknöpfe, „···“ für Profil, Team, Mandat, darunter der Sichten-Umschalter | `SupplierBar.dc.html`, `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
@@ -173,7 +175,7 @@ Bedienflächen sind mindestens 44 px hoch, Zeilen 56 px. Abstände in Schritten 
 | Sichten-Umschalter | Segment-Umschalter mit Symbolen: Doppelring Gemeinsam, Schloss Nur für dich, Petrol-Punkt Von <Gegenüber>; setzt die Adresse | `K2-Akte-Privat.dc.html` |
 | Von <Gegenüber> | weiße Gruppe mit Petrol-Kante links 4 px | `K2-Akte-Geteilt.dc.html` |
 | Monogramm nach Seite | eigene Personen Tinte, Personen des Gegenübers Petrol; beim Lieferanten umgekehrt zugeordnet | `L5-Akte.dc.html` |
-| Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
+| Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite; erlaubt nach E-K0-01 | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
 | Datumskreis | Kreis 44 px mit Tag und Monat; Petrol, wenn das Gegenüber am Zug ist; im Termin-Kopf 56 px | `Termin-Briefing.dc.html` |
 | Phasen-Umschalter | Schrittkreise 22 px mit Linie: aktiv Tinte mit Mint-Ziffer, erledigt Petrol mit Haken, offen Ring `#b9bfba`; Text darunter | `Termin-Briefing.dc.html` |
 | Teile-Umschalter | wie Phasen-Umschalter, je Teil Stand als Text (bestätigt, jetzt, Entwurf) | `K6-Strategie.dc.html` |

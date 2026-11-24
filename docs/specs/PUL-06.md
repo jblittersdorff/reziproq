@@ -1,5 +1,7 @@
 # PUL-06 Maßnahmen aus Lücken und Verlauf
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01, ZQ-01. Aus einer Lücke entsteht eine Zusage oder ein JBP-Thema als Entwurf, keine Maßnahme. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf PUL-03, QBR-03 · deckt ab PUL-06, PUL-07
 
 ## Ziel

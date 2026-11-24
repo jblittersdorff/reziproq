@@ -1,5 +1,7 @@
 # LIF-03 Eigene Sicht des Lieferanten
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: LP-01, LA-01. Die eigene Sicht wird die Sicht „Nur für dich“ der Akte beim Lieferanten. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf LIF-02
 
 ## Ziel

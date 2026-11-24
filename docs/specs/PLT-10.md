@@ -1,5 +1,7 @@
 # PLT-10 Design und Styleguide
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: Designsprache 3.1, E-K0-01. Erlaubt sind nur das Blatt, die Überlagerung „Frag Reziproq“ mit ⌘K und die Dialoge „So teilen“ und „Agenda freigeben“; alle anderen Pop-ups bleiben verboten. Es gibt nur ein helles Thema. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf den Design-Regeln aus der Einrichtung (Tokens, `prinzipien.md`, `visualisierung.md`, Skill `ui-design`) · deckt ab PLT-10, NAV-04, NAV-10 · überarbeitet am 31.10.2026: keine Pop-ups · überarbeitet am 8.11.2026: Bühne mit eigener Handschrift
 
 ## Ziel

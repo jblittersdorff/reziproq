@@ -1,5 +1,7 @@
 # Prompts für Claude Code, je Phase einer
 
+> **Status 24.11.2026: abgelöst** durch `docs/umsetzungsplan.md` (Umbau KI-nativ, Pakete K0 bis Z; E-K0-24). Phase 1 bleibt Voraussetzung, die Phasen 2 bis 10 werden nicht mehr gebaut. Phase 2 und 3 sind gebaut; was davon bleibt, steht in `docs/k0-abweichungen.md` (B-12).
+
 Immer in einer neuen Sitzung starten. Am Ende jeder Phase: Tests grün, Screenshots bei 390 und 1440 px unter `docs/plan/screens/phase-<n>/`, ein lokaler Commit, offene Fragen in `docs/plan/fragen.md`.
 
 ## Phase 0 · Prüfen

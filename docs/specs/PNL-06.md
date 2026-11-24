@@ -1,5 +1,7 @@
 # PNL-06 Freigabe durch Controlling
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: WK-01. Die Rechengrundlage (Hebel, GuV-Zeile, Wirkungsart, eingefrorene Baseline, Reifegrad, Monatswerte) gilt weiter und wird die Wert-Engine; Seiten nach WK-01 (Wert, Wertkonto, Mappe „Wirkung freigeben“). Beträge in Cent (E-K0-10), Wertart „strategisch“ ohne Euro (E-K0-11), Bestätigung durch das Controlling per Link oder mit Konto (E-K0-12). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.3 · baut auf PNL-05, PLT-05
 
 ## Ziel

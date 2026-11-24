@@ -1,5 +1,7 @@
 # SEG-01 Segmentmodell
 
+> **Status 24.11.2026 (Umbau KI-nativ): gilt weiter, mit Änderungen.** Maßgeblich: BZ-01. Gewicht je Segmenttyp für die Triage (E-K0-17). Offen: Größe der Matrix (C-02 in `docs/entscheidungen.md`). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.1 · baut auf PLT-05, PLT-06
 
 ## Ziel

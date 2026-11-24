@@ -1,5 +1,7 @@
 # PLB-03 Spielregeln je Beziehung
 
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: AK-01. Spielregeln öffnen als Blatt; Änderungen gehen als Entwurf in Kurz prüfen und dann an den Lieferanten. Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+
 Release 0.2 · baut auf PLB-01, SEG-06
 
 ## Ziel
