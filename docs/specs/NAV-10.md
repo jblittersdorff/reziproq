@@ -136,9 +136,20 @@ Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Ein
   - Die API antwortet mit 301, bevor sie die App ausliefert; die App leitet beim Laden um.
   - Aktiv: `/mein-tag` und `/start` → `/heute`, `/uebersicht` und `/wirkung` → `/wert`, `/lieferanten` → `/beziehungen`, `/agenten` und `/einstellungen/ki/agenten` → `/mein-agent`.
   - Alle übrigen Adressen haben ihr Paket in der Tabelle und schalten mit ihm um.
-- **Bewusst offen:**
-  - Mein Agent beim Lieferanten kommt mit dem Lieferanten-Agenten (K5-e).
-  - Frag Reziproq als Überlagerung, das Blatt und die Liste erlaubter Überlagerungen kommen mit K1-d.2.
+- **Bewusst offen:** Mein Agent beim Lieferanten kommt mit dem Lieferanten-Agenten (K5-e).
+
+## Umsetzung von Frag Reziproq und Blatt (K1-d.2, 25.11.2026)
+
+- **Frag Reziproq** ist eine Überlagerung (`components/ui/ask-overlay.tsx`), keine Seite mehr.
+  - Öffnen: ⌘K oder Strg+K auf jeder Seite, das Feld in der Seitenleiste, „Frag“ in der Tab-Leiste. Ab 761 px oben über der Seite, bis 760 px Vollbild.
+  - Esc, der runde Knopf und Zurück schließen sie; sie ist offen, solange die Adresse `?frag=1` trägt.
+  - Auf der Seite einer Beziehung hat die Frage sie als Kontext, beim Lieferanten den Kunden.
+  - `/fragen` leitet auf `/heute?frag=1` (Frage und Kontext aus `q`, `lieferant`, `kunde`).
+  - Läuft die Anmeldung ab, steht der Hinweis zum neu Anmelden auch in der Überlagerung (UMB-02); nach der Rückkehr ist die getippte Frage wieder da.
+- **Blatt** (`components/ui/sheet.tsx`): 620 px von rechts, Hintergrund Tinte 25 % (Token `scrim`), Schatten `shadow-sheet`, mobil volle Seite; zu sehen auf `/bausteine`.
+- **Gemeinsam:** Beide nutzen das native `dialog` des Browsers (`components/ui/modal-dialog.ts`). Der Fokus bleibt darin, ein markiertes Feld bekommt ihn beim Öffnen, und beim Schließen geht er an das Element zurück, das ihn vorher hatte.
+- **Test gegen Pop-ups** (`no-popups.node.test.ts`): eine feste Liste erlaubter Überlagerungen nach E-K0-01 (Blatt, Frag Reziproq, später „So teilen“ und „Agenda freigeben“); er erkennt jetzt auch native Dialoge.
+- **Bewusst offen:** Aufträge in Frag Reziproq („Bereite das JBP vor“) enden als Mappe, Entwurf oder Erinnerung, sobald es Mappe und Kurz prüfen gibt (K1-e).
 
 ## Fertig, wenn
 
@@ -149,7 +160,7 @@ Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Ein
 - [ ] TN-05 Jede Seite hat höchstens eine Karte „Als Nächstes“ und außerhalb davon keinen Hauptknopf; ohne Kandidat erscheint keine Karte.
 - [x] TN-06 Ein Lead landet nach der Anmeldung in Wert, ein SRO in Heute; eine geänderte Startseite gilt ab der nächsten Anmeldung. (K1-d.1: `plt-11.test.tsx`)
 - [ ] TN-07 Jede alte Adresse aus der Liste leitet mit 301 auf die neue weiter. (K1-d.1: die Adressen der Hauptpunkte und der Agenten, `configure-app.test.ts`, `route-moves.node.test.ts`; die übrigen mit ihren Paketen nach `docs/weiterleitungen.md`)
-- [ ] TN-08 ⌘K öffnet Frag Reziproq auf jeder Seite; eine Frage auf einer Akte hat diese als Kontext; ein Auftrag endet als Mappe, Entwurf oder Erinnerung.
+- [ ] TN-08 ⌘K öffnet Frag Reziproq auf jeder Seite; eine Frage auf einer Akte hat diese als Kontext; ein Auftrag endet als Mappe, Entwurf oder Erinnerung. (K1-d.2: ⌘K und Kontext erfüllt, `plt-12.test.tsx`, `nav-10.test.tsx`, `e2e/plt-12.spec.ts`; Aufträge mit K1-e)
 - [ ] TN-09 Es gibt keine Seite Agenten und keine Ablauf-Leiste; jede frühere Schrittseite leitet auf ihr Objekt, ihre Mappe oder Kurz prüfen.
 - [x] TN-10 Ein Satz mit einer Zahl, die nicht in `sentence_facts` steht, wird nicht angezeigt. (K1-c, wie T1-HE2)
 - [ ] TN-11 Eine Handlung auf Stufe Erledigen steht in Erledigt und im Verlauf des Objekts.

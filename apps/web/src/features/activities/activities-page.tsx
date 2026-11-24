@@ -1,6 +1,5 @@
 import type { ActivityFeed, ActivityFilter, ActivityItem } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
 import { LockIcon } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { AiDraft } from '@/components/ui/ai-draft';
@@ -17,6 +16,7 @@ import { Monogram } from '@/components/ui/monogram';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
+import { useAsk } from '@/features/prompt/ask-context';
 import { useToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -190,10 +190,10 @@ function NoteForm({ relationshipId }: { relationshipId: string }) {
   );
 }
 
-/** Frage mit diesem Lieferanten als Kontext (NAV-10): öffnet Fragen mit ?lieferant=<id>. */
+/** Frage mit diesem Lieferanten als Kontext (NAV-10 TN-08): stellt sie in Frag Reziproq. */
 function AskSupplier({ relationshipId, name }: { relationshipId: string; name: string }) {
   const text = useT().activities;
-  const navigate = useNavigate();
+  const ask = useAsk();
   const [question, setQuestion] = useState('');
   return (
     <form
@@ -201,12 +201,7 @@ function AskSupplier({ relationshipId, name }: { relationshipId: string; name: s
       className="flex flex-wrap items-end gap-2 rounded-lg bg-card p-4 shadow-ask"
       onSubmit={(event: FormEvent) => {
         event.preventDefault();
-        if (question.trim()) {
-          void navigate({
-            to: '/fragen',
-            search: { q: question.trim(), lieferant: relationshipId },
-          });
-        }
+        if (question.trim()) ask({ question: question.trim(), supplier: relationshipId });
       }}
     >
       <FormField label={text.ask(name)} className="min-w-0 grow">

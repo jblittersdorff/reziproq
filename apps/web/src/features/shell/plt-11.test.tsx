@@ -36,11 +36,10 @@ afterEach(tearDownApp);
 const admin = { ...anna, orgRole: 'admin' as const };
 
 /**
- * NAV-10 2.0: Ziele der Seitenleiste: Frag Reziproq, vier Hauptpunkte, Mein Agent, Einstellungen,
- * Person.
+ * NAV-10 2.0: Ziele der Seitenleiste: vier Hauptpunkte, Mein Agent, Einstellungen, Person. Frag
+ * Reziproq ist ein Knopf, der die Überlagerung öffnet (plt-12.test.tsx).
  */
 const barTargets = [
-  { label: 'Frag Reziproq', path: '/fragen' },
   { label: 'Heute', path: '/heute' },
   { label: 'Beziehungen', path: '/beziehungen' },
   { label: 'Warengruppen', path: '/warengruppen' },
@@ -57,7 +56,6 @@ const routes = [
   { path: '/portfolio', title: 'Matrix' },
   { path: '/wert', title: 'Wert' },
   { path: '/mein-agent', title: 'Mein Agent' },
-  { path: '/fragen', title: 'Frag Reziproq' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
   { path: '/einstellungen/organisation', title: 'Organisation' },
@@ -111,13 +109,13 @@ describe('Nach dem Login landet der Nutzer auf seiner Startseite (TN-06)', () =>
     expect(await screen.findByText(`Donnerstag, 29. Oktober · ${greeting}`)).toBeDefined();
   });
 
-  it('auf Heute führt „Frag Reziproq“ zu /fragen (kein eigenes Fragefeld mehr)', async () => {
+  it('auf Heute öffnet „Frag Reziproq“ die Überlagerung (kein eigenes Fragefeld mehr)', async () => {
     const router = renderAt('/heute');
     await screen.findByRole('heading', { level: 1, name: 'Heute' });
     expect(screen.queryByRole('textbox', { name: 'Deine Frage an Reziproq' })).toBeNull();
-    fireEvent.click(within(bar()).getByRole('link', { name: 'Frag Reziproq' }));
-    await screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
-    expect(router.state.location.pathname).toBe('/fragen');
+    fireEvent.click(within(bar()).getByRole('button', { name: 'Frag Reziproq' }));
+    await screen.findByRole('dialog', { name: 'Frag Reziproq' });
+    expect(router.state.location.pathname).toBe('/heute');
   });
 });
 
@@ -176,7 +174,7 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
       '/warengruppen',
       '/wert',
       '/mein-agent',
-      '/fragen',
+      '/heute?frag=1',
       '/profil',
     ]);
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -338,10 +336,10 @@ describe('NAV-10 2.0: Seitenleiste und Tab-Leiste (TN-01, TN-02)', () => {
   it('TN-01: Heute, Beziehungen, Warengruppen, Wert in dieser Reihenfolge, darunter Mein Agent und Einstellungen', async () => {
     renderAt('/heute');
     await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    expect(within(bar()).getByRole('button', { name: 'Frag Reziproq' })).toBeDefined();
     await waitFor(() =>
       expect(hrefs(bar())).toEqual([
         '/',
-        '/fragen',
         '/heute',
         '/beziehungen',
         '/warengruppen',
@@ -356,8 +354,9 @@ describe('NAV-10 2.0: Seitenleiste und Tab-Leiste (TN-01, TN-02)', () => {
   it('TN-02: Die Tab-Leiste des Käufers hat fünf Ziele mit Frag in der Mitte', async () => {
     renderAt('/heute');
     await screen.findByRole('heading', { level: 1, name: 'Heute' });
-    expect(hrefs(tabs())).toEqual(['/heute', '/beziehungen', '/fragen', '/warengruppen', '/wert']);
-    expect(within(tabs()).getByRole('link', { name: /Frag/ })).toBeDefined();
+    const targets = [...tabs().querySelectorAll('a, button')].map((target) => target.textContent);
+    expect(targets).toEqual(['Heute', 'Beziehungen', 'Frag', 'Warengruppen', 'Wert']);
+    expect(within(tabs()).getByRole('button', { name: 'Frag' })).toBeDefined();
   });
 
   it('die Zahl an Heute gleicht den offenen Fokus-Themen; „Im Hintergrund“ nennt den laufenden Lauf', async () => {

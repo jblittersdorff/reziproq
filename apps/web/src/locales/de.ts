@@ -10,6 +10,7 @@ export const de = {
     skipToContent: 'Zum Inhalt springen',
     path: 'Pfad',
     backTo: (page: string) => `Zurück zu ${page}`,
+    close: 'Schließen',
   },
 
   // Ziele der Seitenleiste und der Tab-Leiste (NAV-10 2.0): Heute, Beziehungen, Warengruppen, Wert

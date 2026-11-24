@@ -7,11 +7,10 @@ import { BrandMark } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { useMe } from '@/features/auth/use-me';
 import { useToken } from '@/features/ratings/use-rating';
-import { PageHeader } from '@/features/shell/page-header';
-import { PagePath } from '@/features/shell/page-path';
 import { SupplierCard } from '@/features/suppliers/supplier-card';
 import { customerListQueryOptions } from '@/lib/api';
 import { useT } from '@/lib/i18n';
@@ -19,10 +18,11 @@ import { SearchHits } from './search-hits';
 import { type PromptTurn, usePromptConversation } from './use-prompt-conversation';
 
 /**
- * Fragen an Reziproq als eigene Seite (PLT-11, PLT-12): ein großes Feld, Vorschläge oder das
- * Gespräch, ein Hinweis. Cmd+K führt von jeder Seite hierher.
+ * Inhalt von Frag Reziproq (NAV-10 2.0, PLT-12, Vorlage `Fragen.dc.html`): ein großes Feld,
+ * Vorschläge oder das Gespräch, darunter der Hinweis auf die Daten. Steht in der Überlagerung
+ * (components/ui/ask-overlay.tsx); ⌘K öffnet sie von jeder Seite.
  */
-export function QuestionsPage({
+export function AskPanel({
   initialQuestion,
   customer,
   supplier,
@@ -34,14 +34,18 @@ export function QuestionsPage({
   customer?: string | undefined;
 }) {
   const me = useMe();
+  const t = useT();
+  // Erst wenn feststeht, welche Seite die Person hat, erscheint ein Feld: Die Lieferantenseite
+  // sieht nie die KI-Fragen des Käufers, auch nicht kurz.
+  if (!me.data) return <LoadingState label={t.user.loading} />;
   // Lieferantenseite (LIF-02, QS-05): Suche im aktuellen Kunden, ohne KI-Fragen.
-  if (me.data && !me.data.permissions.viewBuyerAreas && me.data.permissions.viewCustomers) {
-    return <SupplierSearchPage customer={customer} />;
+  if (!me.data.permissions.viewBuyerAreas && me.data.permissions.viewCustomers) {
+    return <SupplierSearch customer={customer} />;
   }
-  return <BuyerQuestionsPage initialQuestion={initialQuestion} supplier={supplier} />;
+  return <BuyerQuestions initialQuestion={initialQuestion} supplier={supplier} />;
 }
 
-function BuyerQuestionsPage({
+function BuyerQuestions({
   initialQuestion,
   supplier,
 }: {
@@ -92,10 +96,8 @@ function BuyerQuestionsPage({
   ];
 
   return (
-    // Vorlage Fragen.dc.html: schmale Spalte, Frage als Tinte-Blase, Antwort als Karte mit Logo.
-    <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-      <PagePath trail={[{ label: t.app.name, href: '/' }]} current={t.prompt.title} />
-      <PageHeader size="list" title={t.prompt.title} purpose={t.prompt.disclaimer} />
+    // Vorlage Fragen.dc.html: Frage als Tinte-Blase, Antwort als Karte mit Logo, Feld mit Hinweis.
+    <div className="flex flex-col gap-6">
       <form
         onSubmit={submit}
         className="flex items-center gap-2 rounded-lg bg-card py-2.5 pr-3.5 pl-4 shadow-ask focus-within:ring-3 focus-within:ring-ring/50"
@@ -104,6 +106,7 @@ function BuyerQuestionsPage({
         <Input
           ref={input}
           autoFocus
+          data-autofocus
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           aria-label={t.prompt.question}
@@ -120,6 +123,7 @@ function BuyerQuestionsPage({
           <ArrowUpIcon />
         </Button>
       </form>
+      <p className="-mt-3 text-muted-foreground text-sm">{t.prompt.disclaimer}</p>
 
       {/* QS-05: Treffer ohne KI über der Antwort, schon beim Tippen */}
       <SearchHits
@@ -276,7 +280,7 @@ function AnsweringDots() {
  * QS-05 für Lieferanten-Nutzer: Suchwort und Kunde; Treffer nur im gewählten Kunden. Die KI-Fragen
  * (PLT-12) gehören zur Käuferseite.
  */
-function SupplierSearchPage({ customer }: { customer?: string | undefined }) {
+function SupplierSearch({ customer }: { customer?: string | undefined }) {
   const t = useT();
   const text = t.prompt.search;
   const accessToken = useToken();
@@ -293,9 +297,8 @@ function SupplierSearchPage({ customer }: { customer?: string | undefined }) {
     list[0]?.relationshipId;
 
   return (
-    <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-      <PagePath trail={[{ label: t.app.name, href: '/' }]} current={text.supplierTitle} />
-      <PageHeader size="list" title={text.supplierTitle} purpose={text.supplierPurpose} />
+    <div className="flex flex-col gap-6">
+      <p className="text-muted-foreground">{text.supplierPurpose}</p>
       {customers.data && list.length === 0 ? (
         <p role="status" className="text-muted-foreground">
           {text.noCustomers}
@@ -325,6 +328,7 @@ function SupplierSearchPage({ customer }: { customer?: string | undefined }) {
                 <Input
                   {...field}
                   autoFocus
+                  data-autofocus
                   type="search"
                   value={term}
                   placeholder={text.supplierPlaceholder}

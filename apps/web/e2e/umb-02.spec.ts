@@ -71,6 +71,9 @@ const sessionStorageText = (page: Page) =>
 const question = 'Welche Lieferanten haben wir in Polen?';
 const questionField = (page: Page) =>
   page.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
+// Seit NAV-10 2.0 liegt das Fragefeld in der Überlagerung Frag Reziproq (E-K0-01); sie sperrt die
+// Seite, deshalb steht der Hinweis zum neu Anmelden auch darin.
+const overlay = (page: Page) => page.getByRole('dialog', { name: 'Frag Reziproq' });
 
 /**
  * Öffnet die Fragen, tippt eine Frage, ohne sie abzuschicken, und lässt die Erneuerung scheitern.
@@ -81,10 +84,10 @@ async function typeUntilRenewalFails(page: Page, zitadel: FakeZitadel) {
   zitadel.reply.expiresIn = 5;
   zitadel.reply.refreshWorks = false;
   await page.goto('/fragen');
-  await expect(page.locator('#inhalt h1')).toBeVisible();
+  await expect(overlay(page)).toBeVisible();
   await page.waitForLoadState('networkidle');
   await questionField(page).fill(question);
-  const notice = page.getByRole('alert').filter({ hasText: 'Bitte melde dich neu an' });
+  const notice = overlay(page).getByRole('alert').filter({ hasText: 'Bitte melde dich neu an' });
   await expect(notice).toBeVisible();
   return notice;
 }
@@ -98,14 +101,17 @@ test('Es öffnet sich kein Popup, und kein Element ist fest positioniert', async
 
   const notice = await typeUntilRenewalFails(page, zitadel);
 
-  // Der Hinweis steht im Seitenfluss, ganz oben; nichts auf der Seite ist fest positioniert.
+  // Der Hinweis steht im Fluss, ganz oben vor dem Feld; außer der erlaubten Überlagerung
+  // (E-K0-01) ist nichts fest positioniert.
   const fixed = await page.evaluate(() =>
     Array.from(document.querySelectorAll('*'))
       .filter((element) => getComputedStyle(element).position === 'fixed')
+      .filter((element) => !element.closest('dialog[data-slot="ask-overlay"]'))
       .map((element) => element.outerHTML.slice(0, 80)),
   );
   expect(fixed).toEqual([]);
-  expect((await notice.boundingBox())?.y).toBeLessThan(40);
+  const field = await questionField(page).boundingBox();
+  expect((await notice.boundingBox())?.y ?? 0).toBeLessThan(field?.y ?? 0);
 
   zitadel.reply.refreshWorks = true;
   zitadel.reply.expiresIn = 3600;
@@ -133,7 +139,7 @@ test('Nach der Neuanmeldung steht der eingegebene Text wieder im Feld', async ({
 
   // Eine echte Weiterleitung zu Zitadel und zurück auf dieselbe Adresse.
   await expect(page).toHaveURL(before);
-  expect(before).toBe('http://localhost:5174/fragen');
+  expect(before).toBe('http://localhost:5174/heute?frag=1');
   await expect(questionField(page)).toHaveValue(question);
   expect(pageLoads.some((url) => url.startsWith('http://localhost:5174/auth/callback'))).toBe(true);
   expect(zitadel.authorizeRequests).toHaveLength(2);

@@ -129,6 +129,8 @@
   --elevation-md: 0 4px 12px #1d1d1f14, 0 1px 3px #1d1d1f0a;
   --elevation-lg: 0 12px 32px #1d1d1f1a, 0 2px 6px #1d1d1f0a;
   --elevation-xl: 0 24px 64px #1d1d1f24, 0 4px 12px #1d1d1f0f;
+  /* Blatt (Designsprache, E-K0-01): Schatten nach links */
+  --elevation-sheet: -12px 0 40px #0f1b2233;
 
   /* Ruhige Bewegung */
   --motion-duration: 150ms;
@@ -180,6 +182,8 @@
   --popover-foreground: #14181b;
   /* Abdunkelung hinter eingeblendeten Flächen, z. B. der Seitenleiste in schmalen Fenstern */
   --overlay: #0f1b2266;
+  /* Hintergrund hinter Blatt und Frag Reziproq: Tinte 25 % (Designsprache, E-K0-01) */
+  --scrim: #0f1b2240;
   /* Neutrale Fläche (line-soft) mit Text auf neutraler Fläche (muted-strong) */
   --secondary: #eceeea;
   --secondary-foreground: #3f4a52;
@@ -342,6 +346,7 @@
   --shadow-md: var(--elevation-md);
   --shadow-lg: var(--elevation-lg);
   --shadow-xl: var(--elevation-xl);
+  --shadow-sheet: var(--elevation-sheet);
   --shadow-card: var(--elevation-card);
   --shadow-ask: var(--elevation-ask);
   --shadow-toggle: var(--elevation-toggle);
@@ -362,6 +367,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-overlay: var(--overlay);
+  --color-scrim: var(--scrim);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);

@@ -39,12 +39,13 @@ for (const width of [390, 760, 761, 1440]) {
     if (width <= 760) {
       await expect(sidebar).toBeHidden();
       await expect(tabBar).toBeVisible();
-      await expect(tabBar.getByRole('link')).toHaveText([
-        'Übersicht',
-        'Mein Tag',
-        'Lieferanten',
-        'Warengruppen',
+      // NAV-10 2.0: Frag in der Mitte, ein Knopf für die Überlagerung
+      await expect(tabBar.locator('a, button')).toHaveText([
+        'Heute',
+        'Beziehungen',
         'Frag',
+        'Warengruppen',
+        'Wert',
       ]);
       // Ganz unten liegt der letzte Inhalt über der Tab-Leiste, nicht dahinter
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -56,8 +57,8 @@ for (const width of [390, 760, 761, 1440]) {
       await expect(tabBar).toBeHidden();
       await expect(sidebar).toBeVisible();
       await expect(
-        sidebar.getByRole('link', { name: /Übersicht|Mein Tag|Lieferanten|Warengruppen/ }),
-      ).toHaveText(['Übersicht', /^Mein Tag/, 'Lieferanten', 'Warengruppen']);
+        sidebar.getByRole('link', { name: /^(Heute|Beziehungen|Warengruppen|Wert)/ }),
+      ).toHaveText([/^Heute/, 'Beziehungen', 'Warengruppen', 'Wert']);
       await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
       // Seitenleiste so hoch wie der Bildschirm; sie bleibt stehen, nur der Inhalt scrollt
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -84,5 +85,38 @@ for (const width of [390, 760, 761, 1440]) {
         fullPage: true,
       });
     }
+  });
+}
+
+// E-K0-01: Das Blatt liegt 620 px breit am rechten Rand, bis 760 px als volle Seite. Der Fokus
+// bleibt darin, Esc schließt es und gibt den Fokus an den Knopf zurück.
+for (const width of [390, 1440]) {
+  test(`Blatt bei ${width} px: Maße, Fokus und Esc`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await openBlocks(page);
+    const open = page.getByRole('button', { name: 'Blatt öffnen' });
+    await open.click();
+    const sheet = page.getByRole('dialog', { name: 'Profil Rheintal Elektronik' });
+    await expect(sheet).toBeVisible();
+    const box = await sheet.boundingBox();
+    expect(box?.height).toBe(900);
+    if (width > 760) {
+      expect(box?.width).toBe(620);
+      expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(width);
+    } else {
+      expect(box?.width).toBe(width);
+    }
+    for (let step = 0; step < 4; step += 1) {
+      await page.keyboard.press('Tab');
+      const inside = await page.evaluate(() => {
+        const dialog = document.querySelector('dialog[open]');
+        const active = document.activeElement;
+        return !active || active === document.body || !!dialog?.contains(active);
+      });
+      expect(inside, `Schritt ${step + 1}`).toBe(true);
+    }
+    await page.keyboard.press('Escape');
+    await expect(sheet).toHaveCount(0);
+    await expect(open).toBeFocused();
   });
 }

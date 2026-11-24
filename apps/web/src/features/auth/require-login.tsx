@@ -24,6 +24,16 @@ export function RequireLogin({ children }: { children: ReactNode }) {
   return <AuthGate>{children}</AuthGate>;
 }
 
+/** UMB-02: Die Erneuerung des Tokens im Hintergrund ist gescheitert; die Person muss neu anmelden. */
+function renewalHasFailed(auth: ReturnType<typeof useAuth>): boolean {
+  return !!auth.user && (!!auth.user.expired || auth.error?.source === 'renewSilent');
+}
+
+/** Für Flächen über der Seite (Frag Reziproq): Dort muss der Hinweis zum neu Anmelden mit hinein. */
+export function useRenewalFailed(): boolean {
+  return renewalHasFailed(useAuth());
+}
+
 function AuthGate({ children }: { children: ReactNode }) {
   const t = useT();
   const auth = useAuth();
@@ -84,7 +94,7 @@ function AuthGate({ children }: { children: ReactNode }) {
     );
   }
   // Erneuerung gescheitert: Seite bleibt stehen, oben im Seitenfluss der Hinweis zum neu Anmelden.
-  const renewalFailed = auth.user.expired || auth.error?.source === 'renewSilent';
+  const renewalFailed = renewalHasFailed(auth);
   return (
     <>
       {renewalFailed && <ReauthNotice />}

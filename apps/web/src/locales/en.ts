@@ -10,6 +10,7 @@ export const en: Messages = {
     skipToContent: 'Skip to content',
     path: 'Path',
     backTo: (page: string) => `Back to ${page}`,
+    close: 'Close',
   },
 
   nav: {

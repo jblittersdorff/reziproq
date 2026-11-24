@@ -1,23 +1,23 @@
-import { useNavigate } from '@tanstack/react-router';
 import { ArrowUpIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useAsk } from '@/features/prompt/ask-context';
 import { useT } from '@/lib/i18n';
 
 /**
- * Fragefeld auf Start (PLT-12): ruhige Fläche wie ein Chatfenster, ohne Symbol. Enter schickt die
- * Frage an /fragen, Umschalt+Enter macht eine neue Zeile.
+ * Fragefeld auf Start (PLT-12): ruhige Fläche wie ein Chatfenster, ohne Symbol. Enter stellt die
+ * Frage in Frag Reziproq (NAV-10 2.0), Umschalt+Enter macht eine neue Zeile.
  */
 export function PromptTrigger() {
   const t = useT();
-  const navigate = useNavigate();
+  const ask = useAsk();
   const form = useRef<HTMLFormElement>(null);
   const [question, setQuestion] = useState('');
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const text = question.trim();
-    if (text) void navigate({ to: '/fragen', search: { q: text } });
+    if (text) ask({ question: text });
   };
   return (
     <form

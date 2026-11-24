@@ -112,18 +112,19 @@ describe('QS-05 Suche', () => {
       },
     };
     api.permissions = ['organisation.sehen', 'start.sehen', 'kunden.sehen', 'suche.nutzen'];
+    // Früher die Seite /fragen; seit NAV-10 2.0 die Überlagerung mit dem Kunden als Kontext.
     renderAt(`/fragen?kunde=${idB}`);
-    expect(await screen.findByRole('heading', { level: 1, name: 'Suchen' })).toBeTruthy();
+    expect(await screen.findByRole('dialog', { name: 'Frag Reziproq' })).toBeTruthy();
+    const select = (await screen.findByLabelText('Kunde')) as HTMLSelectElement;
     // Keine KI-Fragen auf der Lieferantenseite
     expect(screen.queryByLabelText('Deine Frage an Reziproq')).toBeNull();
-    const select = (await screen.findByLabelText('Kunde')) as HTMLSelectElement;
     expect(select.value).toBe(idB);
     fireEvent.change(screen.getByLabelText('Suchwort'), { target: { value: 'Kosten' } });
     await waitFor(() => expect(searches.at(-1)).toBe(`/api/suche?q=Kosten&kunde=${idB}`));
     fireEvent.change(select, { target: { value: idA } });
     await waitFor(() => expect(searches.at(-1)).toBe(`/api/suche?q=Kosten&kunde=${idA}`));
     // Frag Reziproq steht in der Seitenleiste des Lieferanten, „Frag“ in der Tab-Leiste.
-    expect(screen.getAllByRole('link', { name: 'Frag Reziproq' }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('link', { name: 'Frag' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: 'Frag Reziproq' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: 'Frag' }).length).toBeGreaterThan(0);
   });
 });

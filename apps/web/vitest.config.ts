@@ -35,7 +35,8 @@ export function webProject(test: {
       // Feste Zeitzone, damit formatierte Uhrzeiten lokal und in der CI (UTC) gleich sind.
       env: { TZ: 'Europe/Berlin' },
       // Den gemeinsamen Anmeldezustand legt shared-auth.ts einmal je Worker an.
-      setupFiles: ['./src/testing/shared-auth.ts'],
+      // Dazu der Ersatz für showModal und close des nativen Elements dialog (E-K0-01).
+      setupFiles: ['./src/testing/shared-auth.ts', './src/testing/dialog.ts'],
     },
   });
 }

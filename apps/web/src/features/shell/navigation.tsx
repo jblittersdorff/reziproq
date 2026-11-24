@@ -56,7 +56,6 @@ const sections = (
     { prefix: '/mein-agent', key: 'myAgent' },
     { prefix: '/einstellungen/ki/agenten', key: 'myAgent' },
     { prefix: '/kunden', key: 'customers' },
-    { prefix: '/fragen', key: 'questions' },
     { prefix: '/profil', key: 'profile' },
     { prefix: '/einstellungen', key: 'settings' },
   ] satisfies { prefix: string; key: NavKey }[]
@@ -89,7 +88,8 @@ export function useNavTargets(): {
   const questions = {
     key: 'questions' as const,
     label: t.nav.searchOrAsk,
-    href: '/fragen',
+    // Frag Reziproq öffnet sich über der Seite; als Link (Menü) öffnet ?frag sie über Heute.
+    href: '/heute?frag=1',
     icon: MessageCircleQuestionIcon,
   };
   const profile = {
@@ -124,7 +124,10 @@ export function useNavTargets(): {
   // kommt mit dem Lieferanten-Agenten (K5-e).
   if (me.data?.permissions.viewCustomers) {
     const customer = /^\/kunden\/([0-9a-f-]{36})(?:\/|$)/.exec(pathname)?.[1];
-    const search = { ...questions, href: customer ? `/fragen?kunde=${customer}` : '/fragen' };
+    const search = {
+      ...questions,
+      href: customer ? `/heute?frag=1&kunde=${customer}` : '/heute?frag=1',
+    };
     const customers = {
       key: 'customers' as const,
       label: t.nav.customers,

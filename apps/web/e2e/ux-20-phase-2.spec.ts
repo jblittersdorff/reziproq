@@ -248,7 +248,7 @@ for (const target of pages) {
       const tabBar = page.locator('[data-slot="tab-bar"]');
       if (width <= 760) {
         await expect(sidebar).toBeHidden();
-        await expect(tabBar.getByRole('link')).toHaveText([
+        await expect(tabBar.locator('a, button')).toHaveText([
           'Heute',
           'Beziehungen',
           'Frag',
@@ -309,5 +309,8 @@ test('Heute: ⌘K öffnet „Frag Reziproq“, auf dem Telefon die Person die Ei
     page.locator('#inhalt').getByRole('link', { name: 'Einstellungen' }),
   ).toHaveAttribute('href', '/einstellungen');
   await page.keyboard.press('ControlOrMeta+k');
-  await expect(page).toHaveURL(/\/fragen/);
+  // NAV-10 2.0: auf dem Telefon als Vollbild über der Seite (E-K0-01)
+  const overlay = page.getByRole('dialog', { name: 'Frag Reziproq' });
+  await expect(overlay).toBeVisible();
+  expect((await overlay.boundingBox())?.width).toBe(390);
 });

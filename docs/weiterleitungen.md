@@ -2,8 +2,8 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (7): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (189): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **aktiv** (8): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (188): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
 - **bleibt** (74): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
@@ -83,7 +83,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/einstellungen/zyklus` | – | NAV-10 | bleibt |
 | `/feedback` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/feedback/$id` | offen (Feedback als Objekt) | K2-f | geplant |
-| `/fragen` | offen (wird die Überlagerung Frag Reziproq (⌘K)) | K1-d | geplant |
+| `/fragen` | `/heute?frag=1` (öffnet Frag Reziproq) | K1-d | aktiv |
 | `/heute` | – (zeigt bis K1-e Mein Tag) | K1-d | bleibt |
 | `/hinweise` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e | geplant |
 | `/hinweise/$id` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e | geplant |

@@ -15,7 +15,6 @@ import { Route as BausteineRouteImport } from './routes/bausteine'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
-import { Route as AppFragenRouteImport } from './routes/_app/fragen'
 import { Route as AppHeuteRouteImport } from './routes/_app/heute'
 import { Route as AppMeinAgentRouteImport } from './routes/_app/mein-agent'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
@@ -305,11 +304,6 @@ const StyleguideRoute = StyleguideRouteImport.update({
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
   path: '/$',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFragenRoute = AppFragenRouteImport.update({
-  id: '/fragen',
-  path: '/fragen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHeuteRoute = AppHeuteRouteImport.update({
@@ -1845,7 +1839,6 @@ export interface FileRoutesByFullPath {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
-  '/fragen': typeof AppFragenRoute
   '/heute': typeof AppHeuteRoute
   '/mein-agent': typeof AppMeinAgentRoute
   '/menu': typeof AppMenuRoute
@@ -2113,7 +2106,6 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
-  '/fragen': typeof AppFragenRoute
   '/heute': typeof AppHeuteRoute
   '/mein-agent': typeof AppMeinAgentRoute
   '/menu': typeof AppMenuRoute
@@ -2381,7 +2373,6 @@ export interface FileRoutesById {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
-  '/_app/fragen': typeof AppFragenRoute
   '/_app/heute': typeof AppHeuteRoute
   '/_app/mein-agent': typeof AppMeinAgentRoute
   '/_app/menu': typeof AppMenuRoute
@@ -2652,7 +2643,6 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/$'
-    | '/fragen'
     | '/heute'
     | '/mein-agent'
     | '/menu'
@@ -2920,7 +2910,6 @@ export interface FileRouteTypes {
     | '/design'
     | '/styleguide'
     | '/$'
-    | '/fragen'
     | '/heute'
     | '/mein-agent'
     | '/menu'
@@ -3187,7 +3176,6 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/_app/$'
-    | '/_app/fragen'
     | '/_app/heute'
     | '/_app/mein-agent'
     | '/_app/menu'
@@ -3504,13 +3492,6 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof AppSplatRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/fragen': {
-      id: '/_app/fragen'
-      path: '/fragen'
-      fullPath: '/fragen'
-      preLoaderRoute: typeof AppFragenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/heute': {
@@ -5779,7 +5760,6 @@ const AppLieferantenIdRouteRouteWithChildren =
 
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
-  AppFragenRoute: typeof AppFragenRoute
   AppHeuteRoute: typeof AppHeuteRoute
   AppMeinAgentRoute: typeof AppMeinAgentRoute
   AppMenuRoute: typeof AppMenuRoute
@@ -5889,7 +5869,6 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
-  AppFragenRoute: AppFragenRoute,
   AppHeuteRoute: AppHeuteRoute,
   AppMeinAgentRoute: AppMeinAgentRoute,
   AppMenuRoute: AppMenuRoute,

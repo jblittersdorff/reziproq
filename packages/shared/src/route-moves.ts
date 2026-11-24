@@ -44,11 +44,12 @@ export const routeMoves: readonly RouteMove[] = [
   move('/lieferanten', '/beziehungen', 'K1-d', 'aktiv'),
   move('/agenten', '/mein-agent', 'K1-d', 'aktiv'),
   move('/einstellungen/ki/agenten', '/mein-agent', 'K1-d', 'aktiv'),
+  // Frag Reziproq ist eine Überlagerung (E-K0-01); ?frag öffnet sie, q, lieferant und kunde bleiben.
+  move('/fragen', '/heute?frag=1', 'K1-d', 'aktiv', 'öffnet Frag Reziproq'),
   // Leitete schon in der App auf die Übersicht weiter (PNL-10); Sicht und Geschäftsjahr bleiben.
   move('/wirkung', '/wert', 'K1-d', 'aktiv'),
 
   // Heute (HE-01): Alle Aufgaben, Maßnahmen, Hinweise und Neu eingegangen gehen in die Ansicht Alles.
-  move('/fragen', null, 'K1-d', 'geplant', 'wird die Überlagerung Frag Reziproq (⌘K)'),
   move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e', 'geplant', 'Gruppe Zuordnen'),
   move('/start/faellig', '/heute?ansicht=alles', 'K1-e', 'geplant'),
   move('/start/massnahmen', '/heute?ansicht=alles', 'K1-e', 'geplant', 'Zusagen und Aufgaben'),

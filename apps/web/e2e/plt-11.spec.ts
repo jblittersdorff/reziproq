@@ -6,14 +6,14 @@ import { fakeZitadel } from './fake-zitadel.js';
 
 test.use({ locale: 'de-DE' });
 
-// NAV-10 2.0: vier Hauptpunkte, Mein Agent, Frag Reziproq und die Person
+// NAV-10 2.0: vier Hauptpunkte, Mein Agent und die Person; Frag Reziproq ist ein Knopf für die
+// Überlagerung (plt-12.spec.ts).
 const barTargets = [
   { name: 'Heute', path: '/heute' },
   { name: 'Beziehungen', path: '/beziehungen' },
   { name: 'Warengruppen', path: '/warengruppen' },
   { name: 'Wert', path: '/wert' },
   { name: 'Mein Agent', path: '/mein-agent' },
-  { name: 'Frag Reziproq', path: '/fragen' },
   { name: 'Profil', path: '/profil' },
 ];
 
@@ -24,7 +24,6 @@ const routes = [
   { path: '/portfolio', title: 'Matrix' },
   // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
   { path: '/uebersicht/ergebnisse', title: 'Ergebnisse', empty: 'Noch keine Ergebnisse' },
-  { path: '/fragen', title: 'Frag Reziproq', empty: 'Vorschläge' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
   { path: '/einstellungen/organisation', title: 'Organisation' },
@@ -218,8 +217,16 @@ test.describe('Bei 390 px Breite', () => {
       );
       expect(overflow, `waagerechte Scrollleiste auf ${route.path}`).toBe(0);
       // Bis 760 px die Tab-Leiste mit fünf Zielen statt der Seitenleiste (NAV-10 2.0, TN-02)
-      for (const name of ['Heute', 'Beziehungen', 'Frag', 'Warengruppen', 'Wert']) {
-        await expect(tabs(page).getByRole('link', { name, exact: true })).toBeInViewport();
+      // Frag ist ein Knopf für die Überlagerung, die anderen sind Links.
+      await expect(tabs(page).locator('a, button')).toHaveText([
+        'Heute',
+        'Beziehungen',
+        'Frag',
+        'Warengruppen',
+        'Wert',
+      ]);
+      for (const target of await tabs(page).locator('a, button').all()) {
+        await expect(target).toBeInViewport();
       }
     }
     await tabs(page).getByRole('link', { name: 'Heute' }).click();
@@ -374,10 +381,13 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     expect(visited[index]?.startsWith(name), `${index}: ${visited[index]}`).toBe(true);
   });
 
-  // Enter auf „Frag Reziproq“ öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
-  await bar(page).getByRole('link', { name: 'Frag Reziproq' }).focus();
+  // Enter auf „Frag Reziproq“ öffnet die Überlagerung, Esc schließt sie; Profil und Formular
+  // gehen ebenso per Tastatur.
+  await bar(page).getByRole('button', { name: 'Frag Reziproq' }).focus();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(url('/fragen'));
+  await expect(page.getByRole('dialog', { name: 'Frag Reziproq' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goto('/profil/sprache');
   await pageSettled(page);
   await page.getByRole('radio', { name: 'Deutsch' }).focus();

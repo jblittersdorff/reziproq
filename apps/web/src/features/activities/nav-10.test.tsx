@@ -145,12 +145,20 @@ describe('NAV-10 Navigation', () => {
     expect(router.state.location.search).toMatchObject({ ansicht: 'matrix', wg: group });
   });
 
-  it('⌘K auf der Seite eines Lieferanten öffnet Fragen mit dem Lieferanten als Kontext', async () => {
+  it('TN-08: ⌘K auf der Seite eines Lieferanten öffnet Frag Reziproq mit ihm als Kontext', async () => {
     const router = renderAt(`${base}/aktivitaeten`);
     await screen.findByRole('heading', { level: 1, name: 'Aktivitäten' });
     fireEvent.keyDown(window, { key: 'k', metaKey: true });
-    await waitFor(() => expect(router.state.location.pathname).toBe('/fragen'));
-    expect(router.state.location.search).toEqual({ lieferant: id });
+    const overlay = await screen.findByRole('dialog', { name: 'Frag Reziproq' });
+    expect(router.state.location.pathname).toBe(`${base}/aktivitaeten`);
+    fireEvent.change(
+      await within(overlay).findByRole('textbox', { name: 'Deine Frage an Reziproq' }),
+      { target: { value: 'Was ist offen?' } },
+    );
+    fireEvent.click(within(overlay).getByRole('button', { name: 'Fragen' }));
+    await waitFor(() =>
+      expect(api.promptRequests.at(-1)).toMatchObject({ context: { relationshipId: id } }),
+    );
   });
 
   it('TN-13: die Lieferantenseite sieht Heute und Kunden, weder Warengruppen noch Wert', async () => {
@@ -233,7 +241,7 @@ describe('NAV-10 Aktivitäten', () => {
     );
   });
 
-  it('eine Frage zu diesem Lieferanten geht mit Kontext an Fragen', async () => {
+  it('eine Frage zu diesem Lieferanten geht mit Kontext an Frag Reziproq', async () => {
     const router = renderAt(`${base}/aktivitaeten`);
     const ask = await screen.findByRole('form', {
       name: 'Frag Reziproq zu Rheintal Elektronik GmbH',
@@ -242,10 +250,13 @@ describe('NAV-10 Aktivitäten', () => {
       target: { value: 'Was wurde zugesagt?' },
     });
     fireEvent.click(within(ask).getByRole('button', { name: 'Fragen' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/fragen'));
-    expect(router.state.location.search).toEqual({ q: 'Was wurde zugesagt?', lieferant: id });
+    expect(await screen.findByRole('dialog', { name: 'Frag Reziproq' })).toBeDefined();
+    expect(router.state.location.pathname).toBe(`${base}/aktivitaeten`);
     await waitFor(() =>
-      expect(api.promptRequests.at(-1)).toMatchObject({ context: { relationshipId: id } }),
+      expect(api.promptRequests.at(-1)).toMatchObject({
+        messages: [{ role: 'user', content: 'Was wurde zugesagt?' }],
+        context: { relationshipId: id },
+      }),
     );
   });
 });

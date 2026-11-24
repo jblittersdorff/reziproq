@@ -42,6 +42,8 @@ export const colorGroups = {
     'secondary',
     'accent',
     'overlay',
+    // Hintergrund hinter Blatt und Frag Reziproq (E-K0-01)
+    'scrim',
     'border',
     'input',
   ],

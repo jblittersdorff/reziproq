@@ -1,5 +1,6 @@
 import {
   ChartScatterIcon,
+  CircleDotDashedIcon,
   HouseIcon,
   LayersIcon,
   MessageCircleQuestionIcon,
@@ -8,6 +9,8 @@ import {
 } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { AppShell, ShellContent } from '@/components/ui/app-shell';
+import { AskOverlay } from '@/components/ui/ask-overlay';
+import { Button } from '@/components/ui/button';
 import { ChartBars, ChartCard, ChartColumns, ChartFigures } from '@/components/ui/chart-card';
 import { Collapsible } from '@/components/ui/collapsible';
 import { DateList } from '@/components/ui/date-list';
@@ -20,6 +23,7 @@ import { NextCard } from '@/components/ui/next-card';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
 import { Row, RowGroup } from '@/components/ui/row-group';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Sheet } from '@/components/ui/sheet';
 import { SoWhat, type SoWhatTone } from '@/components/ui/so-what';
 import { StatusDot } from '@/components/ui/status-dot';
 import { StatusLine } from '@/components/ui/status-line';
@@ -40,17 +44,14 @@ export function BlocksPage() {
   const t = useMessages(blocksMessages);
   const { locale, setLocale } = useLocale();
   const [sent, setSent] = useState(false);
+  const [sheet, setSheet] = useState(false);
+  const [ask, setAsk] = useState(false);
   useEffect(() => {
     document.title = `${t.title} – Reziproq`;
   }, [t]);
 
+  // NAV-10 2.0: Heute, Beziehungen, Warengruppen, Wert
   const items = [
-    {
-      key: 'overview',
-      label: t.nav.overview,
-      href: '/wert',
-      icon: <ChartScatterIcon aria-hidden />,
-    },
     {
       key: 'myDay',
       label: t.nav.myDay,
@@ -70,7 +71,20 @@ export function BlocksPage() {
       href: '/warengruppen',
       icon: <LayersIcon aria-hidden />,
     },
+    {
+      key: 'overview',
+      label: t.nav.overview,
+      href: '/wert',
+      icon: <ChartScatterIcon aria-hidden />,
+    },
   ];
+  const askTab = {
+    key: 'ask',
+    label: t.nav.ask,
+    href: '/bausteine',
+    icon: <MessageCircleQuestionIcon aria-hidden />,
+    onSelect: () => setAsk(true),
+  };
   const section = (id: string, label: string) => (
     <h2
       id={id}
@@ -85,8 +99,23 @@ export function BlocksPage() {
       label={t.nav.label}
       brand="Reziproq"
       brandHref="/bausteine"
-      search={{ key: 'ask', label: t.nav.search, href: '/fragen', shortcut: '⌘K' }}
+      search={{
+        key: 'ask',
+        label: t.nav.search,
+        href: '/bausteine',
+        shortcut: '⌘K',
+        onOpen: () => setAsk(true),
+      }}
       items={items}
+      background={{ label: t.nav.background, href: '/bausteine' }}
+      footer={[
+        {
+          key: 'myAgent',
+          label: t.nav.myAgent,
+          href: '/bausteine',
+          icon: <CircleDotDashedIcon aria-hidden />,
+        },
+      ]}
       settings={{
         key: 'settings',
         label: t.nav.settings,
@@ -94,15 +123,7 @@ export function BlocksPage() {
         icon: <SettingsIcon aria-hidden />,
       }}
       person={{ initials: 'JL', name: 'Jan-Luka', href: '/profil', label: t.nav.profile }}
-      tabs={[
-        ...items,
-        {
-          key: 'ask',
-          label: t.nav.ask,
-          href: '/fragen',
-          icon: <MessageCircleQuestionIcon aria-hidden />,
-        },
-      ]}
+      tabs={[...items.slice(0, 2), askTab, ...items.slice(2)]}
       activeKey="myDay"
       renderLink={routerLink}
     >
@@ -341,6 +362,44 @@ export function BlocksPage() {
           profile={{ label: t.supplier.profile, href: '/beziehungen', active: false }}
           renderLink={routerLink}
         />
+
+        {section('sheet', t.sections.sheet)}
+        <div className="flex flex-col items-start gap-2">
+          <Button type="button" variant="secondary" onClick={() => setSheet(true)}>
+            {t.sheet.open}
+          </Button>
+          <p className="text-muted-foreground text-sm">{t.sheet.hint}</p>
+        </div>
+        <Sheet
+          open={sheet}
+          onClose={() => setSheet(false)}
+          title={t.sheet.title}
+          closeLabel={t.sheet.close}
+        >
+          <RowGroup>
+            {t.sheet.rows.map(([label, value]) => (
+              <Row key={label} title={label} value={value} />
+            ))}
+          </RowGroup>
+        </Sheet>
+
+        {section('ask', t.sections.ask)}
+        <Button
+          type="button"
+          variant="secondary"
+          className="self-start"
+          onClick={() => setAsk(true)}
+        >
+          {t.ask.open}
+        </Button>
+        <AskOverlay
+          open={ask}
+          onClose={() => setAsk(false)}
+          title={t.ask.title}
+          closeLabel={t.ask.close}
+        >
+          <p className="text-base">{t.ask.body}</p>
+        </AskOverlay>
 
         {section('category', t.sections.category)}
         <CategoryHeader

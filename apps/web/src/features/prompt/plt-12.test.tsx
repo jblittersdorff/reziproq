@@ -12,7 +12,8 @@ import {
   tearDownApp,
 } from '@/testing/app-harness';
 
-// Oberflächentests zu docs/specs/PLT-12.md. Seit PLT-11 eine eigene Seite /fragen statt Fenster.
+// Oberflächentests zu docs/specs/PLT-12.md. Seit NAV-10 2.0 (K1-d) ist Frag Reziproq eine
+// Überlagerung über der Seite (E-K0-01), mit ⌘K von überall; /fragen leitet dorthin (TN-07).
 
 const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
@@ -31,9 +32,9 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-const pages = ['/heute', '/beziehungen', '/portfolio', '/wert', '/profil', '/gibt-es-nicht'];
+const pages = ['/heute', '/beziehungen', '/warengruppen', '/wert', '/profil', '/gibt-es-nicht'];
 
-const questionsPage = () => screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
+const questionsPage = () => screen.findByRole('dialog', { name: 'Frag Reziproq' });
 const field = () => screen.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
 
 async function openWithShortcut(path = '/heute') {
@@ -50,36 +51,62 @@ async function askQuestion(question: string) {
 }
 
 describe('Öffnen', () => {
-  it.each(pages)('Ctrl+K öffnet /fragen von %s, der Fokus liegt im Feld', async (path) => {
+  it.each(pages)('Ctrl+K öffnet Frag Reziproq über %s, der Fokus liegt im Feld', async (path) => {
     const router = await openWithShortcut(path);
-    expect(router.state.location.pathname).toBe('/fragen');
+    // Die Seite bleibt, Frag Reziproq liegt darüber (TN-08).
+    expect(router.state.location.pathname).toBe(path);
     expect(document.activeElement).toBe(field());
-    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
   });
 
-  it('Cmd+K öffnet die Seite ebenso', async () => {
+  it('Schließen gibt die Seite frei; /fragen leitet auf die Überlagerung über Heute', async () => {
+    const opened = await openWithShortcut('/beziehungen');
+    // Offen, solange ?frag in der Adresse steht; Schließen geht im Verlauf zurück.
+    expect(opened.state.location.searchStr).toBe('?frag=1');
+    fireEvent.click(screen.getByRole('button', { name: 'Schließen' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(opened.state.location.searchStr).toBe(''));
+    expect(opened.state.location.pathname).toBe('/beziehungen');
+    tearDownApp();
+    setUpApp();
+    api.prompt.events = [{ type: 'text', delta: 'Antwort aus dem Link.' }, { type: 'done' }];
+    const router = renderAt('/fragen?q=Wie%20steht%20Rheintal%3F');
+    await questionsPage();
+    await screen.findByText('Antwort aus dem Link.');
+    expect(router.state.location.pathname).toBe('/heute');
+    // Die Frage aus dem Link steht danach nicht mehr in der Adresse, die offene Überlagerung schon.
+    expect(router.state.location.searchStr).toBe('?frag=1');
+    expect(api.promptRequests[0]).toEqual({
+      messages: [{ role: 'user', content: 'Wie steht Rheintal?' }],
+    });
+  });
+
+  it('Cmd+K öffnet die Überlagerung ebenso', async () => {
     renderAt('/beziehungen');
     await screen.findByRole('heading', { level: 1 });
     fireEvent.keyDown(window, { key: 'k', metaKey: true });
     expect(await questionsPage()).toBeDefined();
   });
 
-  it('„Frag Reziproq“ in der Seitenleiste öffnet /fragen und fragt dort', async () => {
+  it('„Frag Reziproq“ in der Seitenleiste öffnet die Überlagerung und fragt dort', async () => {
     // NAV-10 1.1: Das Fragefeld auf Start entfällt; gefragt wird über die Seitenleiste (⌘K)
     // und auf dem Telefon über „Frag“ in der Tab-Leiste.
     api.prompt.events = [{ type: 'text', delta: 'Antwort auf Start.' }, { type: 'done' }];
     const router = renderAt('/heute');
     const sidebar = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
-    fireEvent.click(within(sidebar).getByRole('link', { name: 'Frag Reziproq' }));
+    fireEvent.click(within(sidebar).getByRole('button', { name: 'Frag Reziproq' }));
     await questionsPage();
     await askQuestion('Wie geht es meinen Lieferanten?');
     await screen.findByText('Antwort auf Start.');
-    expect(router.state.location.pathname).toBe('/fragen');
+    expect(router.state.location.pathname).toBe('/heute');
     expect(api.promptRequests[0]).toEqual({
       messages: [{ role: 'user', content: 'Wie geht es meinen Lieferanten?' }],
     });
     const tabs = screen.getByRole('navigation', { name: 'Tab-Leiste' });
-    expect(within(tabs).getByRole('link', { name: 'Frag' }).getAttribute('href')).toBe('/fragen');
+    fireEvent.click(screen.getByRole('button', { name: 'Schließen' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    fireEvent.click(within(tabs).getByRole('button', { name: 'Frag' }));
+    expect(await questionsPage()).toBeDefined();
   });
 });
 
@@ -118,9 +145,12 @@ describe('Antworten', () => {
     const router = await openWithShortcut();
     await askQuestion('Öffne das Portfolio');
     const open = await screen.findByRole('link', { name: 'Bereich öffnen' });
-    expect(router.state.location.pathname).toBe('/fragen');
+    expect(router.state.location.pathname).toBe('/heute');
     fireEvent.click(open);
-    await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio'));
+    // Der Link schließt die Überlagerung und führt zur Seite.
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    // /portfolio ist die Matrix der Beziehungen (NAV-10 2.0)
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
     expect(await screen.findByRole('heading', { level: 1, name: 'Matrix' })).toBeDefined();
   });
 
@@ -241,13 +271,13 @@ describe('Verlauf', () => {
     expect(screen.getByRole('region', { name: 'Vorschläge' })).toBeDefined();
   });
 
-  it('beginnt nach dem Verlassen der Seite wieder leer', async () => {
+  it('beginnt nach dem Schließen wieder leer', async () => {
     api.prompt.events = [{ type: 'text', delta: 'Erste Antwort.' }, { type: 'done' }];
-    const router = await openWithShortcut();
+    await openWithShortcut();
     await askQuestion('Erste Frage');
     await screen.findByText('Erste Antwort.');
-    await router.navigate({ to: '/heute' });
-    await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    fireEvent.click(screen.getByRole('button', { name: 'Schließen' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
     await questionsPage();
     expect(screen.queryByText('Erste Antwort.')).toBeNull();
