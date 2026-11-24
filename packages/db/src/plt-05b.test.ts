@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { generatedLayerTables } from './layers.js';
-import { seed, seedBuyers } from './seed.js';
+import { seedBuyers } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-05.md, Teil b, direkt in der Datenbank: Team je Beziehung.
 
@@ -21,9 +21,7 @@ describe('PLT-05b: Team je Beziehung in der Datenbank', () => {
     ).catch((caught: unknown) => caught as Error);
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
   });
 
   afterAll(async () => {

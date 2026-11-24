@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-09.md direkt in der Datenbank: Sprache je Person.
 
@@ -27,8 +27,7 @@ describe('PLT-09: Sprache in der Datenbank', () => {
     ).rows[0]?.locale;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
+    temp = await createTempDatabase({ from: 'migrated' });
   });
 
   afterAll(async () => {

@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Breadcrumb } from './breadcrumb';
 import { ConfirmButton } from './confirm-button';
 import { CheckboxGroup, FormField } from './form-field';
-import { GlobalBar } from './global-bar';
 import { Stage, StageMetrics } from './stage';
 import { StatusLine } from './status-line';
 import { StepProgress } from './step-progress';
@@ -132,28 +131,6 @@ describe('Formularseite', () => {
 });
 
 describe('Navigation', () => {
-  it('markiert in der globalen Leiste die aktive Seite und hat einen Menüknopf', () => {
-    render(
-      <GlobalBar
-        label="Hauptnavigation"
-        brand="Reziproq"
-        brandHref="/start"
-        items={[
-          { key: 'start', label: 'Start', href: '/start' },
-          { key: 'suppliers', label: 'Lieferanten', href: '/lieferanten' },
-        ]}
-        activeKey="suppliers"
-        menuHref="/menu"
-        menuLabel="Menü öffnen"
-      />,
-    );
-    expect(screen.getByRole('link', { name: 'Lieferanten' }).getAttribute('aria-current')).toBe(
-      'page',
-    );
-    expect(screen.getByRole('link', { name: 'Start' }).getAttribute('aria-current')).toBeNull();
-    expect(screen.getByRole('link', { name: 'Menü öffnen' }).getAttribute('href')).toBe('/menu');
-  });
-
   it('führt im Pfad mit dem Zurück-Pfeil eine Ebene zurück', () => {
     render(
       <Breadcrumb

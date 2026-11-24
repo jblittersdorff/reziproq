@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { currentTime, systemTime, withDemoClock } from './clock.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // DM-01, K1-a.2: Uhr je Mandant gegen eine echte PostgreSQL-Datenbank.
 
@@ -25,8 +25,7 @@ describe('Uhr je Mandant (DM-01)', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
+    temp = await createTempDatabase({ from: 'migrated' });
     await temp.db.execute(sql`
       insert into organization (id, name, is_demo, demo_now) values
         (${demoOrg}, 'Nordwind (Demo)', true, ${demoNow.toISOString()}::timestamptz)

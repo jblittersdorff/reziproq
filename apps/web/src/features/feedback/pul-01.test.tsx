@@ -12,7 +12,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/PUL-01.md in der Oberfläche: zwei Kacheln, Fragen nach Dimension mit
 // Schalter, aktiv nur mit beiden Sprachen, Vorschau wie für Teilnehmende in beiden Sprachen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

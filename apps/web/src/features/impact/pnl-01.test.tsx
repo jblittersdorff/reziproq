@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/PNL-01.md und PNL-03.md in der Oberfläche: Liste, nur erlaubte
 // Wirkungsarten, Baseline in Euro mit Einfrieren, Reifegrad nur mit Nachweis.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

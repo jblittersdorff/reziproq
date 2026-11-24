@@ -2,9 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
-import { seed, seedBuyers } from './seed.js';
+import { seedBuyers } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLB-01.md in der Datenbank: Standardkatalog und Trennung je Organisation.
 describe('PLB-01 Kataloge in der Datenbank', () => {
@@ -19,9 +19,7 @@ describe('PLB-01 Kataloge in der Datenbank', () => {
     );
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     await temp.db.execute(
       sql`insert into organization (id, name) values (${fresh}, 'Neuer Käufer')`,
     );

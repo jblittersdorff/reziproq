@@ -20,7 +20,7 @@ import {
 // Tests zu docs/specs/PUL-02.md, Teil a, in der Oberfläche: Liste mit Rücklauf als Anzahl, Neue
 // Welle in drei Schritten mit Vorschlägen, beim Lieferanten nur eigene Einladungen und Abschluss.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

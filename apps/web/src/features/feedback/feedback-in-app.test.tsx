@@ -15,7 +15,7 @@ import {
 // Feedback in der App (Änderung zu PUL-02b): Start zeigt den Fragebogen als Aufgabe, beantwortet
 // wird angemeldet unter /feedback/<einladung>, auf beiden Seiten; die Wellen-Seite weist darauf hin.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

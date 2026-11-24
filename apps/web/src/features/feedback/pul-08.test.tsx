@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/PUL-08.md in der Oberfläche: Entwurf als KI-Entwurf mit Übernehmen, danach
 // die Zusammenfassung über den Freitexten; unter drei Freitexten kein Knopf.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

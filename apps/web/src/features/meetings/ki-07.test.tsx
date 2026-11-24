@@ -13,7 +13,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // nächstem Schritt, Zielen „nur für euch“, Agenda mit Zeiten, Fragen in drei Gruppen, Risiken und
 // offenen Punkten; Agenda übernehmen, Frage senden, Bearbeiten rechnet die Zeiten neu.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

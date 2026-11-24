@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { layerRegister } from './layers.js';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { withTenant } from './tenant.js';
 import { createTempDatabase, migrateTo } from './testing/temp-database.js';
 
@@ -165,9 +165,7 @@ describe('ZA-01 Datenräume mit den Beispieldaten', () => {
   ];
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     tables = await relationshipTables(temp.db);
   });
 
@@ -250,15 +248,24 @@ describe('ZA-01 Datenräume mit den Beispieldaten', () => {
       values (${org}, 'demo-test-oem-1', 'share', 'action', '00000000-0000-7000-8000-00000000f002', now() + interval '15 minutes')
     `);
     const seen = (userId: string, organizationId: string, customer?: string) =>
-      withTenant(temp.db, { userId, organizationId, customerOrganizationId: customer ?? null }, async (tx) => {
-        const counts = await tx.execute<{ focus: number; levels: number; tokens: number; next: number }>(sql`
+      withTenant(
+        temp.db,
+        { userId, organizationId, customerOrganizationId: customer ?? null },
+        async (tx) => {
+          const counts = await tx.execute<{
+            focus: number;
+            levels: number;
+            tokens: number;
+            next: number;
+          }>(sql`
           select (select count(*)::int from focus_item) as focus,
                  (select count(*)::int from worker_setting) as levels,
                  (select count(*)::int from confirm_token) as tokens,
                  (select count(*)::int from next_action) as next
         `);
-        return counts.rows[0];
-      });
+          return counts.rows[0];
+        },
+      );
     expect(await seen('demo-test-oem-1', org)).toEqual({ focus: 1, levels: 1, tokens: 1, next: 1 });
     expect(await seen('demo-test-oem-2', org)).toEqual({ focus: 0, levels: 0, tokens: 0, next: 0 });
     expect(await seen(supplierUser, seedSupplierOrg.id, org)).toEqual({

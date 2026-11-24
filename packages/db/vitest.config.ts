@@ -8,6 +8,8 @@ export default defineProject({
   },
   test: {
     name: 'db',
+    // Vorlagen für die Testdatenbanken, einmal je Lauf (testing/global-setup.ts)
+    globalSetup: ['./src/testing/global-setup.ts'],
     // Jeder Migrationstest legt eine eigene Datenbank an und spielt alle Migrationen ein; unter
     // der Last von pnpm check dauert das länger als die üblichen 5 Sekunden. Gleiches gilt für
     // beforeAll, das die Hilfsdatenbank mit über hundert Migrationen aufbaut.

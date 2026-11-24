@@ -11,7 +11,7 @@ import { expectPageLimits } from '@/testing/page-limits';
 // daneben; Portfolio mit Pipeline je Wirkungsart ohne Gesamtsumme; Sicht und Geschäftsjahr in der
 // Adresse; jede Zeile führt zur Beziehung bzw. Initiative.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

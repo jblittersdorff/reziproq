@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/QBR-01.md, Teil b, in der Oberfläche: Live-Abschnitte, Abschließen mit
 // Bestätigung auf der Seite, eingefrorener Stand.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

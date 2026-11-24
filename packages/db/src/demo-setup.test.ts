@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { demoSetup } from './demo-setup.js';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // pnpm demo:setup: Beispieldaten gehören danach den echten Konten, erfundene Personen und
 // Reste aus Testläufen verschwinden.
@@ -12,9 +12,7 @@ describe('demo:setup', () => {
     (await temp.db.execute<T>(statement)).rows;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     // Echte Konten, wie sie beim ersten Login über Zitadel entstehen.
     await temp.db.execute(sql`
       insert into app_user (id, name, email, organization_id, org_role) values

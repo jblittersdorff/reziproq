@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-06.md direkt in der Datenbank: Business Units, Warengruppen, Zuordnung.
 
@@ -23,9 +23,7 @@ describe('PLT-06: Business Units und Warengruppen in der Datenbank', () => {
   const failure = (result: unknown) => String((result as Error).cause ?? result);
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
   });
 
   afterAll(async () => {

@@ -48,7 +48,8 @@ for (const width of [390, 760, 761, 1440]) {
       ]);
       // Ganz unten liegt der letzte Inhalt über der Tab-Leiste, nicht dahinter
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      const lastBox = await page.locator('[data-slot="flow-bar"]').boundingBox();
+      // Letzter Baustein der Seite ist der Warengruppenkopf (die Ablauf-Leiste ist entfernt).
+      const lastBox = await page.locator('[data-slot="category-header"]').boundingBox();
       const tabBox = await tabBar.boundingBox();
       expect((lastBox?.y ?? 0) + (lastBox?.height ?? 0)).toBeLessThanOrEqual(tabBox?.y ?? 0);
     } else {

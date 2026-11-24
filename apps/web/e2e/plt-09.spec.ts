@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { de } from '../src/locales/de.js';
 import { en } from '../src/locales/en.js';
-import { allRoutes, id, signIn } from './route-walk.js';
+import { allRoutes, id, routeChunks, signIn } from './route-walk.js';
 
 // Tests zu docs/specs/PLT-09.md, die einen echten Browser brauchen: jede Route auf Englisch,
 // Sprache bleibt nach Abmelden und erneutem Anmelden.
 
 const url = (path: string) => `http://localhost:5174${path}`;
+/** Teile des Rundgangs über alle Routen; jeder Teil läuft in einem eigenen Worker. */
+const walkParts = 8;
 
 /** Schlüsselpfade und Texte eines Katalogs; Funktionen liefern ihre festen Textteile. */
 function leaves(value: unknown, prefix = ''): [string, string[]][] {
@@ -61,35 +63,37 @@ test.describe('auf Englisch', () => {
     expect(keyPaths).toContain('workspace.areas.plan');
   });
 
-  test('Ein Playwright-Test besucht jede Route auf Englisch. Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.', async ({
-    page,
-  }) => {
-    // Rund 60 Routen; auf dem langsameren CI-Rechner braucht der Rundgang mehrere Minuten.
-    test.setTimeout(900_000);
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await signIn(page, { locale: 'en' });
-    const findings: string[] = [];
-    for (const path of allRoutes()) {
-      await page.goto(path);
-      // Weich, damit ein Lauf alle Routen ohne Titel meldet statt nur die erste.
-      await expect
-        .soft(page.locator('#inhalt h1, main h1, h1').first(), path)
-        .toBeVisible({ timeout: 15_000 });
-      await page.waitForLoadState('networkidle');
-      // Dateinamen in <code> (z. B. auf /design „Lieferanten.dc.html“) sind keine Übersetzungen.
-      const text = await page.evaluate(() => {
-        const body = document.body.cloneNode(true) as HTMLElement;
-        for (const code of body.querySelectorAll('code')) code.remove();
-        return body.textContent ?? '';
-      });
-      for (const german of germanIn(text)) findings.push(`${path}: „${german}“`);
-      for (const key of keyPaths.filter((key) => text.includes(key))) {
-        findings.push(`${path}: Schlüssel ${key}`);
+  // Der Rundgang läuft in Teilen parallel; zusammen besuchen sie jede Route genau einmal.
+  for (const [index, paths] of routeChunks(walkParts).entries()) {
+    test(`Ein Playwright-Test besucht jede Route auf Englisch (Teil ${index + 1} von ${walkParts}). Keine Seite zeigt einen rohen Schlüssel oder deutschen Text aus der Übersetzungsdatei.`, async ({
+      page,
+    }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await signIn(page, { locale: 'en' });
+      const findings: string[] = [];
+      for (const path of paths) {
+        await page.goto(path);
+        // Weich, damit ein Lauf alle Routen ohne Titel meldet statt nur die erste.
+        await expect
+          .soft(page.locator('#inhalt h1, main h1, h1').first(), path)
+          .toBeVisible({ timeout: 15_000 });
+        await page.waitForLoadState('networkidle');
+        // Dateinamen in <code> (z. B. auf /design „Lieferanten.dc.html“) sind keine Übersetzungen.
+        const text = await page.evaluate(() => {
+          const body = document.body.cloneNode(true) as HTMLElement;
+          for (const code of body.querySelectorAll('code')) code.remove();
+          return body.textContent ?? '';
+        });
+        for (const german of germanIn(text)) findings.push(`${path}: „${german}“`);
+        for (const key of keyPaths.filter((key) => text.includes(key))) {
+          findings.push(`${path}: Schlüssel ${key}`);
+        }
+        expect(await page.evaluate(() => document.documentElement.lang), path).toBe('en');
       }
-      expect(await page.evaluate(() => document.documentElement.lang), path).toBe('en');
-    }
-    expect(findings).toEqual([]);
-  });
+      expect(findings).toEqual([]);
+    });
+  }
 });
 
 test.describe('mit deutschem Browser', () => {

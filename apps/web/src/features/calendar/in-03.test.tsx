@@ -17,7 +17,7 @@ import type { OutlookAdapter } from './outlook-adapter';
 // Zuordnen, Bei beiden, Als Ereignis, Ignorieren; Kachel in Mein Tag; Eingangsadresse mit
 // zugelassenen Absendern; Outlook-Add-in speichert mit Typ und Schaltern.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 const outlook = vi.hoisted(() => ({ adapter: null as unknown }));
 vi.mock('./outlook-adapter', () => ({ outlookAdapter: async () => outlook.adapter }));
 vi.mock('react-oidc-context', () => ({

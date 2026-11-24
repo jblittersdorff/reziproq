@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/JBP-07.md in der Oberfläche: Tabelle mit Ziel, Termin, Verantwortlichen und
 // „Nutzen für“; höchstens zehn Kennzahlen; Unterschreiben auf eigener Seite; gesperrt nach beiden.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

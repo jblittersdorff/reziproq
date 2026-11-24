@@ -3,6 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // Drei Viertel der Kerne statt der Hälfte: Die Tests spielen API und Zitadel im Browser nach und
+  // brauchen keine Datenbank, also kaum etwas außer Rechenzeit.
+  ...(process.env.CI ? {} : { workers: '75%' }),
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',

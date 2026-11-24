@@ -21,7 +21,7 @@ import { awardMonths } from './awards-section';
 // Tests zu docs/specs/WG-14.md in der Oberfläche: Vergabeplan in Schritt 8 als Zeitachse, gebündelt,
 // Warnung bei Soll „beenden“, nur vergabefähige Lieferanten wählbar, Einstellung für Admins.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

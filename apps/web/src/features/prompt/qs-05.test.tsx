@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/QS-05.md in der Oberfläche: Treffer über der KI-Antwort ab drei Zeichen,
 // gruppiert nach Art, ein Klick führt zum Ort; Lieferanten suchen nur im aktuellen Kunden.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

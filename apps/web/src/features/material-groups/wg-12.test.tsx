@@ -20,7 +20,7 @@ import {
 // Tests zu docs/specs/WG-12.md in der Oberfläche: Scorecard in Schritt 7 nach Fristen gruppiert,
 // Warnung bei Hebel ohne Initiative, Formular mit Ziel und Hebel, Fortschritt, Quartals-Review.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

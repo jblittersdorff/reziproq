@@ -17,7 +17,7 @@ import {
 // Anhängen, Text zum Aufklappen und Filter „Mails“; weitergeleitete Mail in „Neu eingegangen“
 // ohne Termintyp; Outlook-Add-in legt eine gelesene Mail mit Sichtbarkeit ab.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 const outlook = vi.hoisted(() => ({ adapter: null as unknown }));
 vi.mock('@/features/calendar/outlook-adapter', () => ({
   outlookAdapter: async () => outlook.adapter,

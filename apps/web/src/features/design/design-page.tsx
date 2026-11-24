@@ -1,4 +1,4 @@
-import { ArrowRightIcon, MessageCircleQuestionIcon } from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 import type * as React from 'react';
 import { useEffect } from 'react';
 
@@ -9,9 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardTitle, Figure } from '@/components/ui/card';
 import { Chain } from '@/components/ui/chain';
 import { DateCircle } from '@/components/ui/date-circle';
-import { GlobalBar } from '@/components/ui/global-bar';
 import { GuideQuestions } from '@/components/ui/guide-questions';
-import { LayerItem, LayerPanel } from '@/components/ui/layer-panel';
 import {
   ListCard,
   ListCardHeader,
@@ -51,7 +49,6 @@ const blocks: { id: SectionId; reference: string | null; files: string[] }[] = [
     reference: 'Uebersicht.dc.html, D-Diagramme.dc.html',
     files: ['insight.tsx', 'goal-rings.tsx'],
   },
-  { id: 'header', reference: 'Header.dc.html', files: ['global-bar.tsx'] },
   { id: 'supplierBar', reference: 'SupplierBar.dc.html', files: ['local-bar.tsx'] },
   { id: 'flow', reference: 'Flow.dc.html', files: ['step-progress.tsx'] },
   { id: 'logo', reference: 'Header.dc.html', files: ['brand-mark.tsx'] },
@@ -67,7 +64,6 @@ const blocks: { id: SectionId; reference: string | null; files: string[] }[] = [
   },
   { id: 'date', reference: 'Main.dc.html', files: ['date-circle.tsx'] },
   { id: 'list', reference: 'Aufgaben.dc.html', files: ['list-card.tsx'] },
-  { id: 'layers', reference: 'L-Ueberblick.dc.html', files: ['layer-panel.tsx'] },
   { id: 'draft', reference: 'WG-Markt.dc.html', files: ['ai-draft.tsx'] },
   { id: 'questions', reference: 'WG-Intern.dc.html', files: ['guide-questions.tsx'] },
   { id: 'table', reference: 'P-Scorecard.dc.html', files: ['table.tsx'] },
@@ -92,7 +88,6 @@ export function DesignPage() {
 
   const examples: Record<SectionId, React.ReactNode> = {
     insights: <InsightExample />,
-    header: <HeaderExample />,
     supplierBar: <SupplierBarExample />,
     flow: <FlowExample />,
     logo: (
@@ -109,7 +104,6 @@ export function DesignPage() {
     steps: <StepsExample />,
     date: <DateExample locale={locale} />,
     list: <ListExample />,
-    layers: <LayersExample />,
     draft: <DraftExample />,
     questions: (
       <GuideQuestions
@@ -380,34 +374,6 @@ function ListExample() {
   );
 }
 
-function LayersExample() {
-  const s = useMessages(designMessages).samples;
-  return (
-    <div className="flex flex-wrap gap-5">
-      <LayerPanel
-        layer="private"
-        headingAs="h3"
-        className="min-w-0 flex-1 basis-80"
-        title={s.privateTitle}
-        chip={s.privateChip}
-        description={s.privateText}
-      >
-        <LayerItem layer="private" title={s.privateItem} detail={s.privateItemDetail} />
-      </LayerPanel>
-      <LayerPanel
-        layer="shared"
-        headingAs="h3"
-        className="min-w-0 flex-1 basis-80"
-        title={s.sharedTitle}
-        chip={s.sharedChip}
-        description={s.sharedText}
-      >
-        <LayerItem layer="shared" title={s.sharedItem} detail={s.sharedItemDetail} />
-      </LayerPanel>
-    </div>
-  );
-}
-
 function DraftExample() {
   const s = useMessages(designMessages).samples;
   const sources = [
@@ -573,35 +539,6 @@ function CardExample() {
         <Figure label={s.figureLabel} value={s.figureValue} note={s.figureNote} />
         <Figure label={s.figureLabelB} value="–" note={s.figureNoteB} />
       </div>
-    </div>
-  );
-}
-
-function HeaderExample() {
-  const s = useMessages(designMessages).samples;
-  const app = useT();
-  return (
-    // Schmal zeigt die Kopfleiste nur den Menüknopf; das Beispiel steht in einem Rahmen.
-    <div className="overflow-hidden rounded-lg shadow-card">
-      <GlobalBar
-        sticky={false}
-        label={s.navLabel}
-        brand={app.app.name}
-        brandHref="#header"
-        items={s.navItems.map((label, index) => ({ key: `n${index}`, label, href: '#header' }))}
-        activeKey="n1"
-        actions={[
-          {
-            key: 'q',
-            label: s.questionsLink,
-            href: '#header',
-            icon: <MessageCircleQuestionIcon aria-hidden />,
-          },
-          { key: 'p', label: s.profile, href: '#header', icon: null, initials: 'AS' },
-        ]}
-        menuHref="#header"
-        menuLabel={s.menu}
-      />
     </div>
   );
 }

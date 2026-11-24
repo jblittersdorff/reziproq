@@ -16,7 +16,7 @@ import {
 // Abschnitten, Stand als Text, Verwalten mit Teilen und Trennen mit Bestätigung, letzte Ereignisse;
 // Profil › Meine Verbindungen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

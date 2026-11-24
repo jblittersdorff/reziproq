@@ -26,6 +26,18 @@ export function allRoutes(): string[] {
   );
 }
 
+/**
+ * Alle Routen in gleich große Teile, damit der Rundgang auf mehrere Worker verteilt parallel läuft
+ * (ein Rundgang am Stück dauerte über vier Minuten und hielt einen Worker die ganze Zeit fest).
+ */
+export function routeChunks(count: number): string[][] {
+  const routes = allRoutes();
+  const size = Math.ceil(routes.length / count);
+  return Array.from({ length: count }, (_, index) =>
+    routes.slice(index * size, (index + 1) * size),
+  ).filter((chunk) => chunk.length > 0);
+}
+
 export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
   const zitadel = await fakeZitadel(page);
   // Alles, was ein Test nicht nachspielt, antwortet sofort mit 404: kein Proxy-Fehler, keine

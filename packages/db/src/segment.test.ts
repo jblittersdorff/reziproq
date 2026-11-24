@@ -3,14 +3,13 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import * as schema from './schema/index.js';
 import { seed, seedBuyers } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 describe('SEG-01 Segmentmodell in der Mandanten-Session', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
+    temp = await createTempDatabase({ from: 'migrated' });
     await seed(temp.db, { nodeEnv: 'test' });
   });
 

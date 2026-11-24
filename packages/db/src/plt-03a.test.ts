@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { generatedLayerTables, layerRegister } from './layers.js';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { type TenantSession, withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-03.md, Teil a, direkt in der Datenbank mit den Beispieldaten.
 // Die allgemeinen Prüfungen aus PLT-04 laufen für relationship_side und relationship_spend in
@@ -35,9 +35,7 @@ describe('PLT-03a: Beziehungen in der Datenbank', () => {
     temp.db.execute(sql`update relationship set status = ${status} where id = ${id}`);
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
   });
 
   afterAll(async () => {

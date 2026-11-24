@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-02.md direkt in der Datenbank: Mandanten-Session, Rollen, RLS mit FORCE,
 // eindeutige Kennungen und die Zuordnung zur Organisation beim Login.
@@ -10,9 +10,7 @@ describe('PLT-02 in der Datenbank', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
   });
 
   afterAll(async () => {

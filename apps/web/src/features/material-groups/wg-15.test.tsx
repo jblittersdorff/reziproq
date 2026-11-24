@@ -16,7 +16,7 @@ import {
 // Ist sind Text, der Rest ist zusammengefasst und aufklappbar, der Soll-Typ nutzt nur Segmente aus
 // SEG, ohne Zieljahr kommt die Meldung, fertig führt zur Übergabe an das Lieferantenmanagement.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

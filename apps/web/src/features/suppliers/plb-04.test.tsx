@@ -16,7 +16,7 @@ import {
 // Geteilt, Rollenbeschreibung des SRO auf eigener Seite, gespiegelte Seite beim Lieferanten mit
 // Key Account Manager, Sichtbarkeit beim Bearbeiten, Einstellungen › Rollen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

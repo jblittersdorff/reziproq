@@ -8,7 +8,7 @@ import { api, renderAt, setUpApp, tearDownApp } from '@/testing/app-harness';
 // Seite mit Fortschritt, Ist und Soll mit „Kann ich nicht beurteilen“, Zwischenstand auf dem Gerät,
 // einmal absenden; ungültige, benutzte und abgelaufene Links mit klarem Hinweis.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

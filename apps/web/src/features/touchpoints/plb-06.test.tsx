@@ -16,7 +16,7 @@ import {
 // (auch 20), Lücken oben, „geprüft“, Teilen mit Bestätigung, eine geteilte Zeile ohne Kontakt,
 // beim Lieferanten nur lesend.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

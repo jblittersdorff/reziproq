@@ -16,7 +16,7 @@ import {
 // leerer Zustand mit zwei Wegen, Baum mit Lead und Zahlen, Team und Produktgruppen für den Lead,
 // Import nur ohne Fehler.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

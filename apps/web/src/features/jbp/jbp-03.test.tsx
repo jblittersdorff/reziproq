@@ -8,7 +8,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Zeiträumen und Meilensteinen, nach der Freigabe nur Status und Meilensteine, Verlauf, und
 // Zusammenführen von Themen beider Seiten zu einer neuen Initiative.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

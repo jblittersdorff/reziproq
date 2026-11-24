@@ -13,7 +13,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Termin mit Dauer, Sprechern und Löschdatum, Grund mit Upload, Rohtext mit Fundstellen;
 // Einstellungen › Anbindungen mit Betriebsvereinbarung vor dem Einschalten.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

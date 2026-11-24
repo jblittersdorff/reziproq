@@ -14,7 +14,7 @@ import {
 
 // Oberflächentests zu docs/specs/PLT-12.md. Seit PLT-11 eine eigene Seite /fragen statt Fenster.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

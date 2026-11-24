@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/KI-01.md in der Oberfläche: Einstellungen KI mit EU immer an, Beträge in
 // Euro, Verbrauch je Funktion für Admins, nur das Kontingent für andere Käufer.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

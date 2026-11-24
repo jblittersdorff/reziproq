@@ -20,7 +20,7 @@ import {
 
 // Oberflächentests zu docs/specs/SEG-10.md: teilen beim Käufer, lesen beim Lieferanten.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

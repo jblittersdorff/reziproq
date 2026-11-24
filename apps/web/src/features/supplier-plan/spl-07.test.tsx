@@ -8,7 +8,7 @@ import { compareVersions } from './approval-pages';
 // Tests zu docs/specs/SPL-07.md in der Oberfläche: Zur Freigabe mit Hinweisen, Freigeben und
 // Zurückgeben mit Pflichtbegründung, Vergleich zweier Versionen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

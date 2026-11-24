@@ -9,7 +9,7 @@ import { expectPageLimits } from '@/testing/page-limits';
 // Tests zu docs/specs/JBP-09.md in der Oberfläche: Stand mit Symbol und Text, Kennzahl-Seite mit
 // Verlauf und Werten, Wert erfassen nur für die verantwortliche Seite, Import mit Vorschau.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

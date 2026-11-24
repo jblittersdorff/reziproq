@@ -131,6 +131,8 @@ async function pageSettled(page: Page) {
   await page.waitForLoadState('networkidle');
 }
 
+/** Ausgangsseiten für den Test der Hauptnavigation: Start, Lieferanten, Einstellungen */
+const barSources = ['/start', '/lieferanten', '/einstellungen'];
 const bar = (page: Page) => page.getByRole('navigation', { name: 'Hauptnavigation' });
 const tabs = (page: Page) => page.getByRole('navigation', { name: 'Tab-Leiste' });
 const url = (path: string) => `http://localhost:5174${path}`;
@@ -180,12 +182,12 @@ test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
 test('Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreichbar. Die aktive Seite ist markiert.', async ({
   page,
 }) => {
-  // Zehn Seiten mal sechs Ziele, je mit Anmeldung über das nachgebaute Zitadel.
-  // Jede Seite mal jedes Ziel; auf dem langsameren CI-Rechner braucht das mehrere Minuten.
-  test.setTimeout(480_000);
+  // Die Leiste ist auf jeder Seite derselbe Baustein (AppShell); drei Ausgangsseiten aus
+  // verschiedenen Bereichen genügen, statt zehn Seiten mal sechs Ziele (39 s).
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
-  for (const from of routes) {
+  for (const from of routes.filter((route) => barSources.includes(route.path))) {
     for (const target of barTargets) {
       await page.goto(from.path);
       await expect(page.locator('#inhalt h1')).toBeVisible({ timeout: 15_000 });

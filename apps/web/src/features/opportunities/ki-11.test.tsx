@@ -18,7 +18,7 @@ import { expectPageLimits } from '@/testing/page-limits';
 // Sicherheit, Rechenweg; Summen ohne low; ohne Recherche sagt die Seite das; Übernehmen zeigt erst,
 // was der Lieferant sieht; Verwerfen braucht einen Grund.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

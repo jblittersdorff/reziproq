@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/WG-20.md in der Oberfläche: Warengruppen des Lieferanten mit Summenzeile,
 // Widerspruch als nächster Schritt und Lösen mit Notiz, Vorschlag für das Gesamtsegment.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

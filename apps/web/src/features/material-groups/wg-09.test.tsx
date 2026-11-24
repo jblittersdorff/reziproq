@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/WG-09.md in der Oberfläche: Kopf mit Stand, Entwurf gestrichelt mit Quellen
 // und Bestätigen, bestätigte Kraft mit Namen, neuer Entwurf daneben, Ausfüllen von Hand.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

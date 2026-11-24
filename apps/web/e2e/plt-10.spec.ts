@@ -63,7 +63,6 @@ const subsections = [
   'Schatten',
   'Breakpoints',
   'Bewegung',
-  'Globale Leiste',
   'Lokale Leiste eines Lieferanten',
   'Pfad mit Zurück-Pfeil',
   'Kachel',
@@ -142,15 +141,7 @@ for (const mode of ['Hell'] as const) {
     }
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(4);
 
-    // Navigation (PLT-10): globale und lokale Leiste, Pfad mit Zurück-Pfeil
-    const globalBar = page.getByRole('navigation', {
-      name: 'Hauptnavigation (Beispiel)',
-      exact: true,
-    });
-    await expect(globalBar.getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    // Navigation (PLT-10): lokale Leiste und Pfad mit Zurück-Pfeil
     const localBar = page.getByRole('navigation', {
       name: 'Bereiche des Lieferanten (Beispiel)',
       exact: true,

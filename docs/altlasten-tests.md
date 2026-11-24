@@ -2,6 +2,20 @@
 
 Stand 24.11.2026, geprüft auf `spec/PNL-11` nach K1-a.1. Grundlage: der letzte vollständige `pnpm check` und der Code. Es gibt 276 Testdateien für Unit- und API-Tests (3.786 Tests, 127 s) sowie 66 E2E-Dateien der App (202 Tests, 6,1 min mit 4 Workern) und die Website-Tests (47 Tests, 5 s).
 
+**Aufgeräumt am 24.11.2026:**
+- **Unit- und API-Tests: 140 s → 51 s.**
+  - Web- und API-Tests teilen sich je Worker die geladenen Module. Ein gemeinsamer Anmeldezustand (`apps/web/src/testing/shared-auth.ts`) macht das möglich.
+  - Sechs Dateien mit eigenen Modul-Ersetzungen laufen isoliert in `web-isolated` und `api-isolated`.
+  - Datenbanktests kopieren Vorlagen, die einmal je Lauf entstehen (`packages/db/src/testing/global-setup.ts`). Nur die Tests der Migrationen spielen sie selbst ein.
+- **E2E der App: 6,0 min → 2,8 min**, gemessen inklusive Bau der App.
+  - Der Rundgang „Kommt mit Release“ (4,1 min) ist eine Prüfung der Sprachdateien (`src/locales/umb-05.test.ts`).
+  - Der englische Rundgang läuft in acht Teilen parallel.
+  - Die Navigation wird von drei statt zehn Seiten geprüft; Playwright nutzt 75 % der Kerne.
+  - Ein eigener Wartehelfer statt `networkidle` war schneller, blieb aber unter voller Last hängen; der Rundgang wartet deshalb weiter mit `networkidle`.
+- **`pnpm check` gesamt: rund 9 min → 4 min 16 s** (3814 Unit- und API-Tests, 3 Zeitmessungen, 208 + 47 E2E-Tests).
+- **Unbenutzte Bausteine entfernt:** `Label`, `FlowBar`, `LayerPanel`, `GlobalBar` samt ihren Beispielen und Tests. `Range` bleibt: Die Website nutzt ihn.
+- **Offen:** Die drei Testseiten für Bausteine werden mit K1-d zu `/bausteine` zusammengelegt. Dann ziehen die Prüfungen aus PLT-10 dorthin um.
+
 **Regel:** Ein Test fällt nur zusammen mit dem Code, den er schützt. Solange eine Seite oder ein Dienst läuft, bleibt sein Test. Fällt eine Seite weg, tritt an die Stelle ihres E2E-Tests der Inventar-Test (`docs/inventar.md`) und der Test der Weiterleitung. Prüfungen für Rechte, Datenräume und Mandanten (RLS, Cross-Tenant, Leitplanken) werden nie abgeschwächt.
 
 ## 1. Sofort entfernbar: toter Code samt Test

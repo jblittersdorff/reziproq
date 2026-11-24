@@ -13,7 +13,7 @@ import {
 
 // Oberflächentests zu docs/specs/PLT-02.md und PLT-03.md (Teil a): Lieferantenliste und Hinweise.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

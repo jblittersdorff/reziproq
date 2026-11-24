@@ -14,7 +14,7 @@ import {
 // Tests zu docs/specs/LS-01.md in der Oberfläche: gleiche Zeilenhöhe, Anzeigename, „nicht
 // bewertet“, Balken, Auswahl in der Adresse, Tastatur und eigene Ansicht unter 760 px.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

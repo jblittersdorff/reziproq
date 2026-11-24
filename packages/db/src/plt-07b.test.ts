@@ -2,7 +2,7 @@ import { eq, schema, sql } from '@reziproq/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { seed, seedBuyers } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 const relationshipId = 'de300000-0000-7000-8000-000000000201';
 const testOem = seedBuyers.testOem.id;
@@ -13,8 +13,7 @@ describe('PLT-07b: geschäftliche Lieferantenkontakte', () => {
   let supplierOrganizationId: string;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
+    temp = await createTempDatabase({ from: 'migrated' });
     await seed(temp.db, { nodeEnv: 'test' });
     const [relationship] = await temp.db
       .select({ supplierOrganizationId: schema.relationship.supplierOrgId })

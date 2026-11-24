@@ -9,9 +9,9 @@ import {
   type LayerKind,
   layerRegister,
 } from './layers.js';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-04.md gegen eine echte PostgreSQL-Datenbank.
 //
@@ -236,9 +236,7 @@ describe('PLT-04: Drei Datenebenen', () => {
   };
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     // Nur die Beziehungen des Gerüsts, damit jede sichtbare Zeile aus dem Gerüst stammt.
     await temp.db.execute(sql`delete from segment_decision`);
     await temp.db.execute(sql`delete from rating`);

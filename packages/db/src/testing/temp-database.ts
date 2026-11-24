@@ -5,20 +5,38 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
+import { inject } from 'vitest';
 import { createDatabase, type Database } from '../client.js';
 import { databaseUrl } from '../env.js';
 
 const migrationsFolder = fileURLToPath(new URL('../../drizzle', import.meta.url));
 
 /**
- * Legt für einen Test eine eigene, leere Datenbank auf demselben Server an und löscht sie danach.
- * So beeinflussen sich Tests und lokale Entwicklungsdaten nicht.
+ * Vorlagen, die global-setup.ts einmal je Testlauf baut: migrated (alle Migrationen) und seeded
+ * (dazu die Beispieldaten für die Entwicklung). Eine Kopie entsteht in Sekundenbruchteilen statt in
+ * mehreren Sekunden für über hundert Migrationen.
  */
-export async function createTempDatabase() {
+export type DatabaseTemplate = 'migrated' | 'seeded';
+
+declare module 'vitest' {
+  export interface ProvidedContext {
+    databaseTemplates: Record<DatabaseTemplate, string>;
+  }
+}
+
+/**
+ * Legt für einen Test eine eigene Datenbank auf demselben Server an und löscht sie danach. So
+ * beeinflussen sich Tests und lokale Entwicklungsdaten nicht. Ohne Vorlage ist sie leer; mit
+ * `from` ist sie eine Kopie der migrierten Vorlage, auf Wunsch mit Beispieldaten.
+ */
+export async function createTempDatabase(options: { from?: DatabaseTemplate } = {}) {
   const base = new URL(databaseUrl());
   const name = `reziproq_test_${randomUUID().replaceAll('-', '')}`;
   const admin = new Pool({ connectionString: base.toString(), max: 1 });
-  await admin.query(`create database ${name}`);
+  const template = options.from ? inject('databaseTemplates')[options.from] : null;
+  await admin.query(
+    template ? `create database ${name} template ${template}` : `create database ${name}`,
+  );
 
   const url = new URL(base);
   url.pathname = `/${name}`;

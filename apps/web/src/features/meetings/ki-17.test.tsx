@@ -8,7 +8,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // auswerten, Entwürfe mit Fundstelle und Schalter „Für den Lieferanten sichtbar“, Alle geteilten
 // übernehmen, Protokoll als Vorschau und Teilen erst nach Bestätigung.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

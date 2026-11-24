@@ -18,7 +18,7 @@ import { spendOverviewOf } from '@/testing/spend';
 
 // Oberflächentests zu docs/specs/PLT-09.md: Sprache wählen, Formate je Sprache, Fehler der API.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

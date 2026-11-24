@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { makeAdmin } from './org-link.js';
-import { seed, seedBuyers } from './seed.js';
+import { seedBuyers } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-05.md, Teil a, direkt in der Datenbank: Rollen, Übernahme aus Zitadel,
 // Rollen ändern nur als Admin, und der letzte Admin bleibt.
@@ -37,9 +37,7 @@ describe('PLT-05a: Rollen in der Datenbank', () => {
     ).catch((caught: unknown) => caught as Error);
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     await temp.db.execute(
       sql`update organization set zitadel_org_id = 'zitadel-test-oem' where id = ${testOem}`,
     );

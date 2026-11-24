@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/IN-06.md in der Oberfläche: Profil › Benachrichtigungen mit Teams verbinden,
 // Kanal und Häufigkeit je Anlass, Ruhezeiten; Admins schalten Teams-App und Mail der Organisation.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

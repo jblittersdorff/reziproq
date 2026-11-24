@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/QBR-03.md in der Oberfläche: Liste mit Filtern in der Adresse, Status in der
 // Zeile, Überfällige markiert, neue Maßnahme aus einem Termin, /start/massnahmen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

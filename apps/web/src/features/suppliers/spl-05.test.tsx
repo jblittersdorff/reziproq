@@ -8,7 +8,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // als große Zahl und Hinweis bei anderer Währung, Kennzahl nur mit Quelle, Quoten in Basispunkten,
 // Import mit markierten Zeilen, Geschäftsleitung als Liste.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

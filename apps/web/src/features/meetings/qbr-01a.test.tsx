@@ -14,7 +14,7 @@ import {
 
 // Oberflächentests zu docs/specs/QBR-01.md, Teil a: Termine beim Käufer und beim Lieferanten.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

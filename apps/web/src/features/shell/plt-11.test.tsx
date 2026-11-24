@@ -15,7 +15,7 @@ import {
 // ein echter Browser zeigt (390 px, Tastatur, Zurück-Knopf), prüft e2e/plt-11.spec.ts.
 
 // Nachgebauter Login: react-oidc-context liefert den Zustand, den der Test vorgibt.
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

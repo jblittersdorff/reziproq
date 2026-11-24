@@ -21,7 +21,7 @@ import {
 // zehn Ringen, Ablauf-Leiste mit Stand aus den Daten und frei anspringbaren Schritten, Ziele mit
 // Kennzahl und begründetem Zurückstellen, Lesen ohne Bearbeiten.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

@@ -7,7 +7,7 @@ import { LocaleProvider } from '@/lib/i18n';
 import { api, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
 import { CommentsSection, mentionQuery } from './comments-section';
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

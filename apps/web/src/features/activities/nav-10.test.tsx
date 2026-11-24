@@ -16,7 +16,7 @@ import {
 // Weiterleitungen alter Adressen, Aktivitäten mit privater Notiz und Einträgen von Reziproq,
 // ⌘K mit Lieferant als Kontext, nichts davon für die Lieferantenseite.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

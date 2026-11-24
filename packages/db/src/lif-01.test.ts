@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { seed, seedBuyers } from './seed.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { seedBuyers } from './seed.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/LIF-01.md (Teil a) direkt in der Datenbank: Lesen und Annehmen einer
 // Einladung ohne Login über app_einladung_lesen und app_einladung_annehmen.
@@ -58,9 +58,7 @@ describe('LIF-01a in der Datenbank', () => {
   };
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     await temp.db.execute(sql`
       insert into organization (id, name, country) values (${supplierId}, 'Neuer Lieferant', 'DE')
     `);

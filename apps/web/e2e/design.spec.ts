@@ -30,7 +30,6 @@ async function openDesign(page: Page) {
 
 const blocks = [
   'Aussage, Beleg und Daten',
-  'Kopfleiste',
   'Lieferanten-Leiste',
   'Ablauf-Leiste',
   'Logo',
@@ -42,7 +41,6 @@ const blocks = [
   'Schrittfolge',
   'Datumskreis',
   'Listenkarte',
-  'Privat und Geteilt',
   'KI-Entwurf',
   'Leitfragen',
   'Tabelle',
@@ -89,15 +87,7 @@ test('/design zeigt jeden Baustein mit Vorlage und Datei', async ({ page }) => {
   await expect(
     page.locator('[data-slot="ai-draft"][data-confirmed] [data-slot="brand-mark"]'),
   ).toHaveCount(0);
-  await expect(page.locator('[data-layer="private"]')).toHaveCSS('border-top-style', 'dashed');
   await expect(page.getByRole('table', { name: 'Initiativen 2027' })).toContainText('läuft');
-  // Kopfleiste: aktiver Punkt markiert, Profil als Kreis mit Initialen und Namen
-  const header = page.getByRole('navigation', { name: 'Hauptnavigation (Beispiel)' });
-  await expect(header.getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
-    'aria-current',
-    'page',
-  );
-  await expect(header.getByRole('link', { name: 'Profil' })).toHaveText('AS');
   // Lieferanten-Leiste: Bereich und Unterseite markiert, Kette mit Text
   await expect(
     page

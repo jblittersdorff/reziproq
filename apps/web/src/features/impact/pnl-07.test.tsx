@@ -16,7 +16,7 @@ import {
 // Gesamtsumme, Kennzeichen für Teilung und Savings-Tracking, Anteile ergeben 100 %, beim
 // Lieferanten Wirkung erst nach Bestätigung und eigener Nutzen nur für ihn.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

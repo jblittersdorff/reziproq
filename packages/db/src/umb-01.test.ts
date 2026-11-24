@@ -1,9 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { setOperator } from './org-link.js';
-import { seed } from './seed.js';
 import { withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/UMB-01.md direkt in der Datenbank: Betreiber-Flag und Protokoll.
 
@@ -20,9 +19,7 @@ describe('UMB-01: Betreiber in der Datenbank', () => {
     });
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     await temp.db.execute(sql`
       insert into app_user (id, name, email) values ('olaf', 'Olaf Betrieb', 'olaf@reziproq.test')
     `);

@@ -13,7 +13,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/PUL-06.md in der Oberfläche: Maßnahme aus einer Lücke mit vorbefüllter Seite
 // und richtiger Quelle, Abschnitt „Ihr habt gesagt, wir haben gehandelt“, Verlauf je Art.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

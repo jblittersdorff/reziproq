@@ -1,15 +1,14 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { seed } from './seed.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // PLT-02: pnpm db:seed legt Test-OEM, Zweit-OEM, Test-Lieferant, 15 Lieferanten und die Beziehungen an.
 describe('db:seed', () => {
   let temp: Awaited<ReturnType<typeof createTempDatabase>>;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
+    temp = await createTempDatabase({ from: 'migrated' });
     await temp.db.execute(
       sql`insert into app_user (id, name, email) values ('nutzer-1', 'Anna Schmidt', 'anna@example.com')`,
     );

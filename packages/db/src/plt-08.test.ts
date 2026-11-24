@@ -9,9 +9,9 @@ import {
   type OutboxEmailPayload,
 } from './audit.js';
 import { privateColumns } from './layers.js';
-import { seed, seedBuyers, seedSupplierOrg } from './seed.js';
+import { seedBuyers, seedSupplierOrg } from './seed.js';
 import { type TenantTransaction, withTenant } from './tenant.js';
-import { createTempDatabase, migrateTo } from './testing/temp-database.js';
+import { createTempDatabase } from './testing/temp-database.js';
 
 // Tests zu docs/specs/PLT-08.md gegen eine echte PostgreSQL-Datenbank. Bis PLT-03b gibt es noch
 // kein Fachobjekt mit Verlauf; der Test legt deshalb ein geteiltes Probe-Objekt an, wie jede neue
@@ -96,9 +96,7 @@ describe('PLT-08: Verlauf in der Datenbank', () => {
     ).rows;
 
   beforeAll(async () => {
-    temp = await createTempDatabase();
-    await migrateTo(temp.db);
-    await seed(temp.db, { nodeEnv: 'development' });
+    temp = await createTempDatabase({ from: 'seeded' });
     const relationship = async (buyer: string) => {
       const result = await temp.db.execute<{ id: string }>(sql`
         update relationship set status = 'active'

@@ -1,8 +1,7 @@
-import { ArrowRightIcon, CircleHelpIcon, UserIcon } from 'lucide-react';
+import { ArrowRightIcon } from 'lucide-react';
 
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { GlobalBar } from '@/components/ui/global-bar';
 import { LocalBar } from '@/components/ui/local-bar';
 import { useMessages } from '@/lib/i18n';
 import { styleguideMessages } from './messages';
@@ -18,38 +17,6 @@ export function NavigationSection() {
 
   return (
     <>
-      <Subsection
-        title={n.globalBar}
-        description={n.globalBarHint}
-        files={['src/components/ui/global-bar.tsx']}
-      >
-        <div className="overflow-hidden rounded-xl shadow-sm">
-          <GlobalBar
-            label={n.globalBarLabel}
-            brand={n.brand}
-            brandHref={here}
-            sticky={false}
-            activeKey="suppliers"
-            items={(['start', 'suppliers', 'portfolio', 'impact'] as const).map((key) => ({
-              key,
-              label: n.items[key],
-              href: here,
-            }))}
-            actions={[
-              {
-                key: 'questions',
-                label: n.questions,
-                href: here,
-                icon: <CircleHelpIcon aria-hidden />,
-              },
-              { key: 'profile', label: n.profile, href: here, icon: <UserIcon aria-hidden /> },
-            ]}
-            menuHref={here}
-            menuLabel={n.menu}
-          />
-        </div>
-      </Subsection>
-
       <Subsection
         title={n.localBar}
         description={n.localBarHint}

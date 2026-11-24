@@ -17,7 +17,7 @@ import { expectPageLimits } from '@/testing/page-limits';
 // Tests zu docs/specs/AW-01.md und NAV-10 in der Oberfläche: Übersicht mit einem Ringpaar, zwei
 // Zeilen und drei Fragevorschlägen; ohne Jahresziel kein äußerer Ring; Ringpaar des Lieferanten.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

@@ -7,7 +7,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/JBP-01.md in der Oberfläche: Anlegen mit Termin aus dem Zyklus, Agenda mit
 // Stand je Punkt, Hinweis nur beim Käufer, eigenes Geschäftsupdate auf eigener Seite.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

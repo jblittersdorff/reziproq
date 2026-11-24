@@ -24,7 +24,7 @@ import { spendOverviewOf } from '@/testing/spend';
 // UX-20 Phase 3 (NAV-10 1.1): Lieferantenliste mit Umschalter und Gruppen, Überblick des
 // Lieferanten, Profil und Spend. Höchstens eine Karte „Als Nächstes“, außerhalb kein Hauptknopf.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

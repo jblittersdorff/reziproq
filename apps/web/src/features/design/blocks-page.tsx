@@ -12,7 +12,6 @@ import { ChartBars, ChartCard, ChartColumns, ChartFigures } from '@/components/u
 import { Collapsible } from '@/components/ui/collapsible';
 import { DateList } from '@/components/ui/date-list';
 import { CategoryHeader, SupplierHeader } from '@/components/ui/entity-header';
-import { FlowBar } from '@/components/ui/flow-bar';
 import { FormField } from '@/components/ui/form-field';
 import { FormGroup, FormPage } from '@/components/ui/form-page';
 import { Input } from '@/components/ui/input';
@@ -355,28 +354,6 @@ export function BlocksPage() {
             href: '/warengruppen',
           }))}
           activeArea={t.category.areaNames[1]}
-          renderLink={routerLink}
-        />
-
-        {section('flow', t.sections.flow)}
-        <FlowBar
-          title={t.flow.title}
-          stepLabel={t.flow.step}
-          context={t.flow.context}
-          prev={{ label: t.flow.prev, href: '/lieferanten' }}
-          next={{ label: t.flow.next, href: '/lieferanten' }}
-          steps={t.flow.steps.map((label, index) => {
-            const state = stateOf(index, 1);
-            return {
-              key: label,
-              label,
-              href: '/lieferanten',
-              state,
-              stateLabel: t.flow.states[state],
-            };
-          })}
-          doneWhenLabel={t.flow.doneWhenLabel}
-          doneWhen={t.flow.doneWhen}
           renderLink={routerLink}
         />
       </ShellContent>

@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/WG-10.md in der Oberfläche: Profil mit Kürzeln und Herkunft, Paarung nur aus
 // internem und externem Eintrag, Begründung für einen gewählten Hebel, Katalog mit Markierung.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

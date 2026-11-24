@@ -8,7 +8,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // Tests zu docs/specs/SPL-04.md in der Oberfläche: Daten des Diagramms (Plan-Jahre, feste
 // Reihenfolge, Weitere, ohne Zuordnung), Kennzahlen, Umschalter in der Adresse, Erfassen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

@@ -15,6 +15,11 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
   Lieferant 1), ohne erfundene Personen. Davon getrennt ist der Demo-Mandant Nordwind mit
   synthetischen Personen nach DM-01 (E-K0-04, kommt mit Paket K1-b)
 - Automatische Tests schreiben nie in die Entwicklungsdatenbank, sondern in reziproq_test
+- Testlauf: Web- und API-Tests teilen sich je Worker die geladenen Module (isolate: false). Ein Test,
+  der Module mit vi.mock ersetzt oder eigenen Zustand in einer Ersetzung hält, gehört in
+  `isolatedTests` in apps/web/vitest.config.ts bzw. apps/api/vitest.config.ts. Datenbanktests
+  kopieren die Vorlage mit createTempDatabase({ from: 'migrated' | 'seeded' }) statt selbst zu
+  migrieren; nur Tests der Migrationen spielen sie selbst ein
 
 ## Lokaler Betrieb
 

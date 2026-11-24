@@ -11,7 +11,6 @@ export const designMessages = defineMessages({
     everywhere: 'überall',
     sections: {
       insights: 'Aussage, Beleg und Daten',
-      header: 'Kopfleiste',
       supplierBar: 'Lieferanten-Leiste',
       flow: 'Ablauf-Leiste',
       logo: 'Logo',
@@ -23,7 +22,6 @@ export const designMessages = defineMessages({
       steps: 'Schrittfolge',
       date: 'Datumskreis',
       list: 'Listenkarte',
-      layers: 'Privat und Geteilt',
       draft: 'KI-Entwurf',
       questions: 'Leitfragen',
       table: 'Tabelle',
@@ -35,8 +33,6 @@ export const designMessages = defineMessages({
     descriptions: {
       insights:
         'Eine belegte Aussage führt zum Ringpaar. Über die Zeile oder eine Frage öffnet sich der Rechenweg.',
-      header:
-        'Grund paper, 68 px. Navigation als Schalter, der aktive Punkt weiß; Profil als Tinte-Kreis mit Initialen.',
       supplierBar:
         'Weiß; Monogramm mit Petrol-Innenrand, Name in Outfit, rechts die Kette. Bereiche als Reiter, Unterseiten als Pillen.',
       flow: 'Weiße Karte mit Schritt n von m, Zurück und Weiter, Ringen und der Zeile „Fertig, wenn …“.',
@@ -51,8 +47,6 @@ export const designMessages = defineMessages({
       steps: 'Ringe 32 bis 36 px mit Linie, Haken oder Ziffer.',
       date: 'Kreis 56 px; der nächste Termin in Tinte mit Mint.',
       list: 'Karte ohne Innenabstand, Abschnittslabel ohne Fläche, Zeilen mit feinem Trenner.',
-      layers:
-        'Privat grau, gestrichelt, mit Schloss. Geteilt Mint mit Doppelring. Nie nur über Farbe.',
       draft: 'Gestrichelter Petrol-Rand, Quellen als graue Pillen. Bestätigt wird der Rand fest.',
       questions: 'Mint-Fläche mit Innenrand, jede Frage mit Petrol-Ring und Ziffer.',
       table: 'Kopf 12 / 600, feine Zeilentrenner, Tabellenziffern; scrollt waagerecht im Rahmen.',
@@ -207,7 +201,6 @@ export const designMessages = defineMessages({
     everywhere: 'everywhere',
     sections: {
       insights: 'Statement, evidence and data',
-      header: 'Header',
       supplierBar: 'Supplier bar',
       flow: 'Flow bar',
       logo: 'Logo',
@@ -219,7 +212,6 @@ export const designMessages = defineMessages({
       steps: 'Step sequence',
       date: 'Date circle',
       list: 'List card',
-      layers: 'Private and shared',
       draft: 'AI draft',
       questions: 'Guiding questions',
       table: 'Table',
@@ -231,8 +223,6 @@ export const designMessages = defineMessages({
     descriptions: {
       insights:
         'A sourced statement leads to the pair of rings. Open the calculation from the result row or a question.',
-      header:
-        'Paper background, 68 px. Navigation as a toggle, the active item white; profile as an ink circle with initials.',
       supplierBar:
         'White; monogram with a petrol inner ring, name in Outfit, the chain on the right. Areas as tabs, pages as pills.',
       flow: 'White card with step n of m, back and next, rings and the line “Done when …”.',
@@ -247,8 +237,6 @@ export const designMessages = defineMessages({
       steps: 'Rings of 32 to 36 px joined by a line, with a check mark or number.',
       date: 'Circle of 56 px; the next meeting in ink with mint.',
       list: 'Card without padding, section labels without fill, rows with a fine divider.',
-      layers:
-        'Private grey, dashed, with a lock. Shared mint with a double ring. Never colour alone.',
       draft: 'Dashed petrol border, sources as grey pills. Once confirmed, the border is solid.',
       questions: 'Mint surface with an inner border, each question with a petrol ring and number.',
       table: 'Header 12 / 600, fine row dividers, tabular figures; scrolls sideways in its frame.',

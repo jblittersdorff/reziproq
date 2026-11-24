@@ -6,7 +6,7 @@ import { anna, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/
 
 // Oberflächentests zu docs/specs/LIF-02.md: Arbeitsbereich der Lieferantenseite.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

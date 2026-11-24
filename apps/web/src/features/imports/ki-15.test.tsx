@@ -15,7 +15,7 @@ import {
 // Tests zu docs/specs/KI-15.md in der Oberfläche: Import anlegen, Spalten bestätigen, Prüfen mit
 // Vorschlag und Begründung, Entscheidungen, Übernehmen und Rückgängig.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

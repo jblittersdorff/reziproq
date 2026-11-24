@@ -17,7 +17,7 @@ import {
 // (Mandant, Domains mit DNS-Eintrag, Standardrolle, nur SSO), Anmeldeseite mit Mail, Hinweis
 // „wartet auf Freigabe“, Freigabe durch den Admin.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,

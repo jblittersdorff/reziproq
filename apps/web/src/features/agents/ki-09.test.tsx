@@ -13,7 +13,7 @@ import { actionsFor, api, renderAt, setUpApp, signedIn, tearDownApp } from '@/te
 // fünf Abschnitten mit nur sichtbaren Datenbereichen, Testlauf vor dem Aktivieren, Freigabe durch
 // Admins, gesperrte Aufgabe mit Grund, Ergebnisse als Entwürfe zum Übernehmen.
 
-const auth = vi.hoisted(() => ({ state: {} as Record<string, unknown> }));
+const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
   useAuth: () => auth.state,
   AuthProvider: ({ children }: { children: unknown }) => children,
