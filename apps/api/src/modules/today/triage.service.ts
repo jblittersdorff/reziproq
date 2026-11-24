@@ -164,6 +164,7 @@ export class TriageService {
         openFocus: 0,
         review: { count: 0, minutes: 0 },
         done: { count: 0 },
+        background: null,
       });
     }
     const candidates = await this.refresh(auth);
@@ -191,6 +192,22 @@ export class TriageService {
           0,
         );
         const topics = visible.rows.map((row) => topicOf(row, candidates, locale));
+        const [running] = (
+          await tx.execute<{ id: string; task: string; counterpart: string | null }>(sql`
+            select r.id, a.name as task, coalesce(side.display_name, o.name) as counterpart
+            from agent_run r
+            join agent_version v on v.org_id = r.org_id and v.id = r.agent_version_id
+            join agent a on a.org_id = v.org_id and a.id = v.agent_id
+            left join relationship rel on rel.id = r.context_relationship_id
+            left join organization o on o.id = case
+              when rel.buyer_org_id = r.org_id then rel.supplier_org_id else rel.buyer_org_id end
+            left join relationship_side side
+              on side.relationship_id = rel.id and side.org_id = r.org_id
+            where r.org_id = ${session.organizationId} and r.acting_user_id = ${session.userId}
+              and r.status in ('queued', 'running') and not r.is_test
+            order by r.created_at desc
+            limit 1`)
+        ).rows;
         return todaySchema.parse({
           today,
           next: topics[0] ?? null,
@@ -198,6 +215,9 @@ export class TriageService {
           openFocus: counts?.open_focus ?? 0,
           review: { count: review.rows.length, minutes: Math.ceil(seconds / 60) },
           done: { count: counts?.done ?? 0 },
+          background: running
+            ? { runId: running.id, task: running.task, counterpart: running.counterpart }
+            : null,
         });
       },
       { readOnly: true },

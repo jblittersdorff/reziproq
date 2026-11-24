@@ -80,7 +80,7 @@ export function fixPath(ruleKey: AnyHintRuleKey, relationshipId: string | null, 
     case 'feedback_drop':
       return `${base}/beziehung/feedback`;
     case 'public_event':
-      return base || '/lieferanten';
+      return base || '/beziehungen';
     case 'segment_spend_only':
     case 'unexplained_deviation':
       return `${base}/strategie/segmentierung`;

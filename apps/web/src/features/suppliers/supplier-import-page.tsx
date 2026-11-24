@@ -152,7 +152,7 @@ export function SupplierImportPage() {
 
   const pageHead = <PageHeader size="list" title={copy.title} purpose={copy.purpose} />;
   const pagePath = (
-    <PagePath trail={[{ label: t.suppliers.title, href: '/lieferanten' }]} current={copy.title} />
+    <PagePath trail={[{ label: t.suppliers.title, href: '/beziehungen' }]} current={copy.title} />
   );
 
   if (me.isError || permissions.isError) {
@@ -268,7 +268,7 @@ export function SupplierImportPage() {
             <p className="mt-1">{summaryText(finished, t)}</p>
           </div>
           <Button asChild className="w-fit">
-            <Link to="/lieferanten">{copy.goToSuppliers}</Link>
+            <Link to="/beziehungen">{copy.goToSuppliers}</Link>
           </Button>
         </section>
       </>

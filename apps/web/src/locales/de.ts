@@ -12,16 +12,16 @@ export const de = {
     backTo: (page: string) => `Zurück zu ${page}`,
   },
 
-  // Ziele der globalen Leiste (PLT-11)
+  // Ziele der Seitenleiste und der Tab-Leiste (NAV-10 2.0): Heute, Beziehungen, Warengruppen, Wert
   nav: {
-    overview: 'Übersicht',
-    myDay: 'Mein Tag',
+    overview: 'Wert',
+    myDay: 'Heute',
     homePage: 'Startseite',
     roleDefault: 'Nach Rolle',
     list: 'Liste',
-    searchOrAsk: 'Suchen oder fragen',
+    searchOrAsk: 'Frag Reziproq',
     start: 'Start',
-    suppliers: 'Lieferanten',
+    suppliers: 'Beziehungen',
     materialGroups: 'Warengruppen',
     portfolio: 'Portfolio',
     impact: 'Ergebnisse',
@@ -31,6 +31,8 @@ export const de = {
     // NAV-10 1.1: Seitenleiste und Tab-Leiste
     settings: 'Einstellungen',
     ask: 'Frag',
+    myAgent: 'Mein Agent',
+    background: (task: string) => `Im Hintergrund: ${task}`,
   },
 
   menu: {
@@ -760,7 +762,7 @@ export const de = {
   // IN-06: Profil › Benachrichtigungen
   notifications: {
     title: 'Benachrichtigungen',
-    purpose: 'Was in Mein Tag wichtig ist, in Teams oder per Mail. Wenig, aber das Richtige.',
+    purpose: 'Was heute wichtig ist, in Teams oder per Mail. Wenig, aber das Richtige.',
     linkDescription: 'Teams und Mail, Ruhezeiten',
     loading: 'Einstellungen werden geladen …',
     failed: 'Die Einstellungen konnten nicht geladen werden.',
@@ -4058,7 +4060,7 @@ export const de = {
       whatFollows: 'Was daraus wird',
       follows: [
         'Zusagen im Gemeinsamen Plan, Maßnahmen bei den Verantwortlichen',
-        'Fälligkeiten erscheinen in Mein Tag',
+        'Fälligkeiten erscheinen in Heute',
         'Das nächste Briefing liest die Ergebnisse',
       ],
       errors: {
@@ -4384,17 +4386,17 @@ export const de = {
       todo: 'Was ihr tun solltet',
     } as Record<string, string>,
     view: 'Ansehen',
-    toMyDay: 'Zu Mein Tag',
+    toMyDay: 'Zu Heute',
     chanceTitle: 'Größte Chance',
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} bis ${high}`} ${impact} im Jahr · ${confidence}`,
     chanceLink: 'Wertpotenzial ansehen',
     riskTitle: 'Größtes Risiko',
     riskLink: 'Zum Hinweis',
-    overviewTitle: 'Übersicht',
+    overviewTitle: 'Wert',
     overviewPurpose: (year: number) => `Was wir im Geschäftsjahr ${year} erreicht haben, belegt.`,
-    loading: 'Übersicht wird geladen …',
-    failed: 'Die Übersicht konnte nicht geladen werden.',
+    loading: 'Wert wird geladen …',
+    failed: 'Wert konnte nicht geladen werden.',
     yearLabel: 'Geschäftsjahr',
     evidenceTitle: (secured: string, goal: string | null) =>
       goal ? `Gesichert sind ${secured} von ${goal} EBIT.` : `Gesichert sind ${secured} EBIT.`,
@@ -5239,7 +5241,7 @@ export const de = {
       detailLoading: 'Lieferant wird geladen …',
       detailLabel: (name: string) => `Details zu ${name}`,
     },
-    title: 'Lieferanten',
+    title: 'Beziehungen',
     purpose:
       'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
     count: (count: number) => (count === 1 ? '1 Lieferant' : `${count} Lieferanten`),
@@ -5899,8 +5901,8 @@ export const de = {
     nextStep: 'Nächster Schritt',
     sources: 'Quellen',
     outbound: 'Externe Anfragen',
-    title: 'Agenten',
-    purpose: 'Systemagenten und ihre Läufe verwalten.',
+    title: 'Mein Agent',
+    purpose: 'Was Reziproq für dich erledigt: Agenten und ihre Läufe.',
     builtin: 'Agenten von Reziproq',
     qbrName: 'Termin-Briefing',
     qbrDescription:

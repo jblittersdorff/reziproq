@@ -58,6 +58,7 @@ export * from './portfolio.js';
 export * from './prompt.js';
 export * from './ratings.js';
 export * from './rounds.js';
+export * from './route-moves.js';
 export * from './rule-sets.js';
 export * from './scorecard.js';
 export * from './search.js';

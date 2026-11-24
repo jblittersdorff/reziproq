@@ -31,8 +31,8 @@ export function SuppliersPage() {
   const t = useT();
   const format = useFormat();
   const { me, allowed, data, isPending, isError, error } = useSuppliers();
-  const search = useSearch({ from: '/_app/lieferanten/' });
-  const navigate = useNavigate({ from: '/lieferanten/' });
+  const search = useSearch({ from: '/_app/beziehungen/' });
+  const navigate = useNavigate({ from: '/beziehungen/' });
   // Tippen ersetzt den Eintrag im Verlauf, statt für jeden Buchstaben einen neuen anzulegen.
   const update = (next: Partial<SupplierSearch>) =>
     void navigate({ search: (prev) => ({ ...prev, ...next }), replace: true });

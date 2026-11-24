@@ -7,7 +7,7 @@ const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 export const supplierMessages = defineMessages({
   de: {
     header: {
-      back: 'Lieferanten',
+      back: 'Beziehungen',
       areas: 'Bereiche des Lieferanten',
       pages: 'Seiten im Bereich',
       profile: 'Profil, Segmentierung und Team',
@@ -191,7 +191,7 @@ export const supplierMessages = defineMessages({
   },
   en: {
     header: {
-      back: 'Suppliers',
+      back: 'Relationships',
       areas: 'Supplier areas',
       pages: 'Pages in this area',
       profile: 'Profile, segmentation and team',

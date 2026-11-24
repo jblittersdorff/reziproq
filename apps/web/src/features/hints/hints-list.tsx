@@ -81,7 +81,7 @@ export function HintsPage({ selectedId }: { selectedId?: string | undefined }) {
   return (
     <>
       <PageTitle
-        back={<BackLink label={t.nav.myDay} href="/mein-tag" renderLink={routerLink} />}
+        back={<BackLink label={t.nav.myDay} href="/heute" renderLink={routerLink} />}
         title={text.title}
         where={query.data ? text.sorted(openCount) : text.purpose}
       />

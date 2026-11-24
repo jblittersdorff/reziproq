@@ -37,7 +37,7 @@ export function SupplierFrame({
     <>
       <PagePath
         trail={[
-          { label: t.suppliers.title, href: '/lieferanten' },
+          { label: t.suppliers.title, href: '/beziehungen' },
           { label: data.name, href: workspacePath(relationshipId) },
           { label: t.workspace.areas[area], href: workspacePath(relationshipId, area) },
           ...trail(data),

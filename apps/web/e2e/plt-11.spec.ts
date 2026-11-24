@@ -6,20 +6,21 @@ import { fakeZitadel } from './fake-zitadel.js';
 
 test.use({ locale: 'de-DE' });
 
+// NAV-10 2.0: vier Hauptpunkte, Mein Agent, Frag Reziproq und die Person
 const barTargets = [
-  { name: 'Übersicht', path: '/uebersicht' },
-  { name: 'Mein Tag', path: '/mein-tag' },
-  { name: 'Lieferanten', path: '/lieferanten' },
+  { name: 'Heute', path: '/heute' },
+  { name: 'Beziehungen', path: '/beziehungen' },
   { name: 'Warengruppen', path: '/warengruppen' },
-  { name: 'Suchen oder fragen', path: '/fragen' },
+  { name: 'Wert', path: '/wert' },
+  { name: 'Mein Agent', path: '/mein-agent' },
+  { name: 'Frag Reziproq', path: '/fragen' },
   { name: 'Profil', path: '/profil' },
 ];
 
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
-  // NAV-10 1.1: /start führt zu Mein Tag
-  { path: '/start', title: 'Mein Tag' },
-  { path: '/lieferanten', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
+  { path: '/heute', title: 'Heute' },
+  { path: '/beziehungen', title: 'Beziehungen', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Matrix' },
   // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
   { path: '/uebersicht/ergebnisse', title: 'Ergebnisse', empty: 'Noch keine Ergebnisse' },
@@ -132,7 +133,7 @@ async function pageSettled(page: Page) {
 }
 
 /** Ausgangsseiten für den Test der Hauptnavigation: Start, Lieferanten, Einstellungen */
-const barSources = ['/start', '/lieferanten', '/einstellungen'];
+const barSources = ['/heute', '/beziehungen', '/einstellungen'];
 const bar = (page: Page) => page.getByRole('navigation', { name: 'Hauptnavigation' });
 const tabs = (page: Page) => page.getByRole('navigation', { name: 'Tab-Leiste' });
 const url = (path: string) => `http://localhost:5174${path}`;
@@ -160,7 +161,7 @@ async function tooSmallTargets(page: Page) {
   });
 }
 
-test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
+test('Nach dem Login landet der Nutzer auf Heute (TN-06)', async ({ page }) => {
   const zitadel = await signIn(page);
   zitadel.session.active = false;
   await page.goto('/');
@@ -170,9 +171,9 @@ test('Nach dem Login landet der Nutzer auf /start', async ({ page }) => {
   zitadel.session.active = true;
   const state = zitadel.authorizeRequests[0]?.get('state');
   await page.goto(`/auth/callback?code=code-1&state=${state}`, { waitUntil: 'commit' });
-  await expect(page).toHaveURL(url('/mein-tag'));
+  await expect(page).toHaveURL(url('/heute'));
   await expect(
-    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Mein Tag' }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Heute' }),
   ).toBeVisible();
   await expect(
     page.locator('#inhalt').getByText(/· Guten (Morgen|Tag|Abend), Anna\.$/),
@@ -216,13 +217,13 @@ test.describe('Bei 390 px Breite', () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow, `waagerechte Scrollleiste auf ${route.path}`).toBe(0);
-      // Bis 760 px die Tab-Leiste mit fünf Zielen statt der Seitenleiste (NAV-10 1.1)
-      for (const name of ['Übersicht', 'Mein Tag', 'Lieferanten', 'Warengruppen', 'Frag']) {
+      // Bis 760 px die Tab-Leiste mit fünf Zielen statt der Seitenleiste (NAV-10 2.0, TN-02)
+      for (const name of ['Heute', 'Beziehungen', 'Frag', 'Warengruppen', 'Wert']) {
         await expect(tabs(page).getByRole('link', { name, exact: true })).toBeInViewport();
       }
     }
-    await tabs(page).getByRole('link', { name: 'Mein Tag' }).click();
-    await expect(page).toHaveURL(url('/mein-tag'));
+    await tabs(page).getByRole('link', { name: 'Heute' }).click();
+    await expect(page).toHaveURL(url('/heute'));
   });
 });
 
@@ -237,9 +238,18 @@ test('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel u
     ).toBeVisible();
     if (route.empty) await expect(page.locator('#inhalt').getByText(route.empty)).toBeVisible();
   }
-  // Die frühere Startseite leitet weiter.
-  await page.goto('/wirkung');
-  await expect(page).toHaveURL(url('/uebersicht'));
+  // TN-07: Die alten Adressen leiten weiter (NAV-10 2.0).
+  for (const [from, to] of [
+    ['/start', '/heute'],
+    ['/mein-tag', '/heute'],
+    ['/uebersicht', '/wert'],
+    ['/wirkung', '/wert'],
+    ['/lieferanten', '/beziehungen'],
+    ['/agenten', '/mein-agent'],
+  ]) {
+    await page.goto(from ?? '');
+    await expect(page).toHaveURL(url(to ?? ''));
+  }
 });
 
 test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, auch nach Speichern und Abbrechen', async ({
@@ -247,10 +257,10 @@ test('Drei Ebenen hin und zurück, mit Zurück-Pfeil und mit Browser-Zurück, au
 }) => {
   await signIn(page, { admin: true });
   const path = page.getByRole('navigation', { name: 'Pfad' });
-  const levels = ['/mein-tag', '/profil', '/einstellungen', '/einstellungen/organisation'];
+  const levels = ['/heute', '/profil', '/einstellungen', '/einstellungen/organisation'];
 
   const goDown = async () => {
-    await page.goto('/start');
+    await page.goto('/heute');
     await pageSettled(page);
     await bar(page).getByRole('link', { name: 'Profil', exact: true }).click();
     await page.getByRole('link', { name: 'Alle Einstellungen' }).click();
@@ -323,19 +333,20 @@ for (const width of [1440, 390]) {
 test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page);
-  await page.goto('/start');
+  await page.goto('/heute');
   await pageSettled(page);
 
-  // Seitenleiste von oben: Logo, Suchen oder fragen, vier Hauptpunkte, Einstellungen, Person;
-  // danach der Knopf der Karte „Als Nächstes“.
+  // Seitenleiste von oben: Logo, Frag Reziproq, vier Hauptpunkte, Mein Agent, Einstellungen,
+  // Person; danach der Knopf der Karte „Als Nächstes“.
   const expected = [
     'Zum Inhalt springen',
     'Reziproq',
-    'Suchen oder fragen',
-    'Übersicht',
-    'Mein Tag',
-    'Lieferanten',
+    'Frag Reziproq',
+    'Heute',
+    'Beziehungen',
     'Warengruppen',
+    'Wert',
+    'Mein Agent',
     'Einstellungen',
     'Profil',
     'Rheintal',
@@ -363,8 +374,8 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     expect(visited[index]?.startsWith(name), `${index}: ${visited[index]}`).toBe(true);
   });
 
-  // Enter auf „Suchen oder fragen“ öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
-  await bar(page).getByRole('link', { name: 'Suchen oder fragen' }).focus();
+  // Enter auf „Frag Reziproq“ öffnet die Fragen; Profil und Formular gehen ebenso per Tastatur.
+  await bar(page).getByRole('link', { name: 'Frag Reziproq' }).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(url('/fragen'));
   await page.goto('/profil/sprache');
@@ -376,7 +387,7 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
 
 test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page }) => {
   await signIn(page);
-  await page.goto('/start');
+  await page.goto('/heute');
   await pageSettled(page);
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
@@ -397,12 +408,12 @@ test('Es gibt nur ein helles Thema, auch bei dunkler Systemeinstellung', async (
 
 test('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', async ({ page }) => {
   await signIn(page);
-  for (const path of ['/gibt-es-nicht', '/beziehungen', '/puls', '/pnl']) {
+  for (const path of ['/gibt-es-nicht', '/akten', '/puls', '/pnl']) {
     await page.goto(path);
     await expect(
       page.getByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
     ).toBeVisible();
   }
   await page.getByRole('link', { name: 'Zu Start' }).click();
-  await expect(page).toHaveURL(url('/mein-tag'));
+  await expect(page).toHaveURL(url('/heute'));
 });

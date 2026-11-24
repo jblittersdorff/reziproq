@@ -28,7 +28,7 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   const supplier = useSupplier(relationshipId);
   const overview = useOverview(relationshipId);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const root = { label: t.suppliers.title, href: '/lieferanten' };
+  const root = { label: t.suppliers.title, href: '/beziehungen' };
 
   if (supplier.notFound) {
     return (
@@ -68,7 +68,7 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   return (
     <SupplierScope.Provider value={{ relationshipId }}>
       <SupplierHeader
-        back={{ label: text.header.back, href: '/lieferanten' }}
+        back={{ label: text.header.back, href: '/beziehungen' }}
         name={supplier.data.name}
         nameAs={tab === 'overview' && !page ? 'h1' : 'p'}
         meta={headerMeta(text, t.workspace.cycle.steps, supplier.data, overview.data)}

@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { z } from 'zod';
 
-// NAV-10: /portfolio ist die Ansicht Matrix der Lieferanten. WG-18: ?warengruppe=<id> (oder wg)
+// NAV-10: /portfolio ist die Ansicht Matrix der Beziehungen (2.0: Linse Segmente mit K2-b). WG-18: ?warengruppe=<id> (oder wg)
 // filtert die Matrix nach Warengruppe.
 export const Route = createFileRoute('/_app/portfolio/')({
   validateSearch: z.object({
@@ -13,7 +13,7 @@ export const Route = createFileRoute('/_app/portfolio/')({
     const group = warengruppe ?? wg;
     return (
       <Navigate
-        to="/lieferanten"
+        to="/beziehungen"
         search={{ ansicht: 'matrix', ...(group ? { wg: group } : {}) }}
         replace
       />

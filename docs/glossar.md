@@ -6,8 +6,8 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 
 | Deutsch | Englisch | Schlüssel |
 |---|---|---|
-| Lieferant | Supplier | nav.suppliers, workspace.label, workspace.pages.supplierPlan.title |
-| Beziehung | Relationship | workspace.areas.relationship, team.noSro |
+| Lieferant | Supplier | workspace.label, workspace.pages.supplierPlan.title |
+| Beziehung | Relationship | nav.suppliers, workspace.areas.relationship, team.noSro |
 | Beziehungspuls | Relationship Pulse | – |
 | Warengruppe | Category | styleguide:forms.commodity, styleguide:table.commodity |
 | Business Unit | Business Unit | – |

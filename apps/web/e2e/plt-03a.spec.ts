@@ -66,8 +66,8 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
   page,
 }) => {
   await signIn(page);
-  await page.goto('/lieferanten');
-  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
+  await page.goto('/beziehungen');
+  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
   await expect(page.locator('#inhalt header')).toContainText(
     '4 Lieferanten · 10.230.000 € Jahresspend 2025',
   );
@@ -92,15 +92,15 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
   // Neuladen stellt dieselbe Ansicht wieder her.
   await page.reload();
   // Nach dem Neuladen holt eine Weiterleitung zu Zitadel die Sitzung (PLT-01); erst danach lesen.
-  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
+  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
   await expect.poll(() => cardNames(page)).toEqual(['Lombardia Fonderie S.p.A. (Demo)']);
   await expect(page.getByRole('searchbox')).toHaveValue('fonderie');
   await expect(page.getByRole('combobox', { name: 'Sortieren' })).toHaveValue('name');
   await expect(page.getByRole('switch', { name: 'Beendete zeigen' })).toBeChecked();
 
   // Ein Lesezeichen mit Filter öffnet direkt diese Ansicht.
-  await page.goto('/lieferanten?sortierung=name');
-  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
+  await page.goto('/beziehungen?sortierung=name');
+  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
   await expect
     .poll(() => cardNames(page))
     .toEqual([
@@ -115,14 +115,14 @@ test('Zurück führt nach der Lieferantenliste zur Seite davor, nicht durch jede
   page,
 }) => {
   await signIn(page);
-  await page.goto('/start');
+  await page.goto('/heute');
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Lieferanten' })
+    .getByRole('link', { name: 'Beziehungen' })
     .click();
   await page.getByRole('searchbox').pressSequentially('silesia');
   await expect(page).toHaveURL(/suche=silesia/);
   await page.goBack();
-  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
+  await expect(page).toHaveURL('http://localhost:5174/heute');
 });

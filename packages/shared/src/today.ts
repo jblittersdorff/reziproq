@@ -47,6 +47,10 @@ export const todaySchema = z.object({
   review: z.object({ count: z.number().int().min(0), minutes: z.number().int().min(0) }),
   /** Erledigt im Hintergrund, heute nach der Uhr des Mandanten */
   done: z.object({ count: z.number().int().min(0) }),
+  /** NAV-10: Zeile „Im Hintergrund“ der Seitenleiste; der jüngste laufende Lauf der Person */
+  background: z
+    .object({ runId: z.uuid(), task: z.string(), counterpart: z.string().nullable() })
+    .nullable(),
 });
 export type Today = z.infer<typeof todaySchema>;
 

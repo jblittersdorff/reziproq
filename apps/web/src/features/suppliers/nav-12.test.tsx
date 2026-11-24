@@ -112,7 +112,7 @@ describe('NAV-12 Filter der Lieferantenliste', () => {
   });
 
   it('Filter stehen in der Adresse, und Zurück erhält sie', async () => {
-    const router = renderAt('/lieferanten');
+    const router = renderAt('/beziehungen');
     // NAV-10 1.1: Umschalter Meine, Strategisch (Fokuslieferanten), Alle
     fireEvent.click(await screen.findByRole('radio', { name: 'Strategisch' }));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ fokus: 1 }));
@@ -121,7 +121,7 @@ describe('NAV-12 Filter der Lieferantenliste', () => {
     fireEvent.click(await screen.findByRole('link', { name: 'Lieferant öffnen' }));
     await waitFor(() => expect(router.state.location.pathname).toContain('/lieferanten/0190'));
     act(() => router.history.back());
-    await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
     expect(router.state.location.search).toMatchObject({ fokus: 1 });
     expect(await names()).toEqual(['Lieferant 1', 'Lieferant 4']);
   });

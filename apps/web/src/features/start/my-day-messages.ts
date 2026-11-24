@@ -6,9 +6,9 @@ const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 export const myDayMessages = defineMessages({
   de: {
-    title: 'Mein Tag',
-    loading: 'Mein Tag wird geladen …',
-    failed: 'Mein Tag konnte nicht geladen werden.',
+    title: 'Heute',
+    loading: 'Heute wird geladen …',
+    failed: 'Heute konnte nicht geladen werden.',
     where: (date: string, greeting: string) => `${date} · ${greeting}`,
     progress: (done: number, total: number) => `${done} von ${total} für heute erledigt`,
     settings: 'Einstellungen',
@@ -87,9 +87,9 @@ export const myDayMessages = defineMessages({
     },
   },
   en: {
-    title: 'My day',
-    loading: 'Loading my day …',
-    failed: 'My day could not be loaded.',
+    title: 'Today',
+    loading: 'Loading today …',
+    failed: 'Today could not be loaded.',
     where: (date: string, greeting: string) => `${date} · ${greeting}`,
     progress: (done: number, total: number) => `${done} of ${total} done for today`,
     settings: 'Settings',
@@ -181,7 +181,7 @@ export const timelineMessages = defineMessages({
     roundProgress: (done: number, total: number) => `${done} von ${total} abgegeben`,
     commitmentBy: (owner: string) => `von ${owner}`,
     today: 'Heute',
-    todayTitle: (n: number) => `${n} ${plural(n, 'Ding', 'Dinge')} in Mein Tag`,
+    todayTitle: (n: number) => `${n} ${plural(n, 'Ding', 'Dinge')} für heute`,
     todaySub: (overdue: number) =>
       overdue > 0 ? `davon ${overdue} überfällig` : 'nichts überfällig',
   },
@@ -198,14 +198,14 @@ export const timelineMessages = defineMessages({
     roundProgress: (done: number, total: number) => `${done} of ${total} submitted`,
     commitmentBy: (owner: string) => `by ${owner}`,
     today: 'Today',
-    todayTitle: (n: number) => `${n} ${plural(n, 'item', 'items')} in my day`,
+    todayTitle: (n: number) => `${n} ${plural(n, 'item', 'items')} for today`,
     todaySub: (overdue: number) => (overdue > 0 ? `${overdue} of them overdue` : 'nothing overdue'),
   },
 });
 
 export const overviewMessages = defineMessages({
   de: {
-    title: 'Übersicht',
+    title: 'Wert',
     where: (org: string, year: number, date: string) => `${org} · ${year} · Stand ${date}`,
     period: 'Zeitraum',
     periods: { quarter: 'Quartal', year: 'Jahr', all: 'Seit Start' },
@@ -251,7 +251,7 @@ export const overviewMessages = defineMessages({
     },
   },
   en: {
-    title: 'Overview',
+    title: 'Value',
     where: (org: string, year: number, date: string) => `${org} · ${year} · as of ${date}`,
     period: 'Period',
     periods: { quarter: 'Quarter', year: 'Year', all: 'Since start' },

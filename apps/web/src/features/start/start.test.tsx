@@ -146,17 +146,17 @@ function day(): MyDay {
   });
 }
 
-describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
+describe('NAV-10 2.0 Heute, bis K1-e mit dem Inhalt von Mein Tag (Vorlage Main.dc.html)', () => {
   it('Kopf: Titel, Datum mit Begrüßung und „n von m für heute erledigt“', async () => {
-    renderAt('/mein-tag');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Mein Tag' })).toBeTruthy();
+    renderAt('/heute');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Heute' })).toBeTruthy();
     // erledigt 1, offen heute: die überfällige und die von heute
     expect((await screen.findAllByText('1 von 3 für heute erledigt')).length).toBeGreaterThan(0);
     expect(screen.getByText(/· Guten (Morgen|Tag|Abend), Anna\.$/)).toBeTruthy();
   });
 
   it('genau eine Karte „Als Nächstes“ mit Zeitbedarf und einem Knopf zum Ort der Aufgabe', async () => {
-    renderAt('/mein-tag');
+    renderAt('/heute');
     const card = (
       await screen.findByText('Als Nächstes · überfällig seit 2 Tagen · 2 Min.')
     ).closest('[data-slot="next-card"]') as HTMLElement;
@@ -169,13 +169,13 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
 
   it('ohne Kandidat erscheint keine Karte, statt einer leeren', async () => {
     myDay = myDayResponse();
-    renderAt('/mein-tag');
+    renderAt('/heute');
     expect(await screen.findByText('Für heute ist nichts fällig.')).toBeTruthy();
     expect(document.querySelector('[data-slot="next-card"]')).toBeNull();
   });
 
   it('Heute, Diese Woche mit Datum als Chip und der Link „Alle n Aufgaben“', async () => {
-    renderAt('/mein-tag');
+    renderAt('/heute');
     await screen.findByText('Heute · 1 weitere');
     expect(screen.getByRole('link', { name: /Maßnahme · Aufgabe 2/ }).getAttribute('href')).toBe(
       task(2, offset(0)).href,
@@ -188,7 +188,7 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
   });
 
   it('rechts Termine und Fristen, Wartet auf andere (überfällig rot) und Hinweise', async () => {
-    renderAt('/mein-tag');
+    renderAt('/heute');
     const aside = await screen.findByRole('complementary', { name: 'Termine und Fristen' });
     const meeting = within(aside).getByRole('link', { name: /QBR Rheintal/ });
     expect(meeting.getAttribute('href')).toBe(myDay.timeline[0]?.href);
@@ -201,7 +201,7 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
   });
 
   it('Von Reziproq vorbereitet: Entwürfe mit „RZ“, je Objekt eine Zeile', async () => {
-    renderAt('/mein-tag');
+    renderAt('/heute');
     await screen.findByText('Von Reziproq vorbereitet · 1 Entwurf');
     const row = screen.getByRole('link', { name: /Briefing JBP Rheintal/ });
     expect(row.getAttribute('href')).toBe(myDay.prepared[0]?.href);
@@ -209,7 +209,7 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
   });
 
   it('auf dem Telefon kommt die rechte Spalte nach „Heute“; die Person führt zu den Einstellungen', async () => {
-    renderAt('/mein-tag');
+    renderAt('/heute');
     const today = await screen.findByText('Heute · 1 weitere');
     const aside = screen.getByRole('complementary', { name: 'Termine und Fristen' });
     const prepared = screen.getByText('Von Reziproq vorbereitet · 1 Entwurf');
@@ -222,7 +222,7 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
     );
   });
 
-  it('Alle Aufgaben: Zurück zu Mein Tag, drei Ansichten und die volle Liste nach Frist', async () => {
+  it('Alle Aufgaben: Zurück zu Heute, drei Ansichten und die volle Liste nach Frist', async () => {
     myDay = myDayResponse();
     renderAt('/start/faellig');
     await waitFor(() =>
@@ -230,8 +230,8 @@ describe('NAV-10 1.1 Mein Tag (Vorlage Main.dc.html)', () => {
     );
     expect(screen.getByRole('heading', { level: 1, name: 'Alle Aufgaben' })).toBeTruthy();
     expect(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Mein Tag' }).getAttribute('href'),
-    ).toBe('/mein-tag');
+      within(screen.getByRole('main')).getByRole('link', { name: 'Heute' }).getAttribute('href'),
+    ).toBe('/heute');
     const views = screen.getByRole('navigation', { name: 'Ansichten' });
     expect(
       within(views)

@@ -94,7 +94,7 @@ function BuyerQuestionsPage({
   return (
     // Vorlage Fragen.dc.html: schmale Spalte, Frage als Tinte-Blase, Antwort als Karte mit Logo.
     <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-      <PagePath trail={[{ label: t.app.name, href: '/start' }]} current={t.prompt.title} />
+      <PagePath trail={[{ label: t.app.name, href: '/' }]} current={t.prompt.title} />
       <PageHeader size="list" title={t.prompt.title} purpose={t.prompt.disclaimer} />
       <form
         onSubmit={submit}
@@ -294,7 +294,7 @@ function SupplierSearchPage({ customer }: { customer?: string | undefined }) {
 
   return (
     <div className="mx-auto flex w-full max-w-200 flex-col gap-6">
-      <PagePath trail={[{ label: t.app.name, href: '/start' }]} current={text.supplierTitle} />
+      <PagePath trail={[{ label: t.app.name, href: '/' }]} current={text.supplierTitle} />
       <PageHeader size="list" title={text.supplierTitle} purpose={text.supplierPurpose} />
       {customers.data && list.length === 0 ? (
         <p role="status" className="text-muted-foreground">

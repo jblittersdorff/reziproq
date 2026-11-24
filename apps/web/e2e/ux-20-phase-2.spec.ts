@@ -1,7 +1,8 @@
 import { expect, type Page, test } from '@playwright/test';
 import { signIn } from './route-walk.js';
 
-// UX-20 Phase 2 (NAV-10 1.1): Mein Tag, Übersicht und Alle Aufgaben im neuen Rahmen. Ab 761 px
+// UX-20 Phase 2, seit K1-d nach NAV-10 2.0: Heute (bisher Mein Tag), Wert (bisher Übersicht) und
+// Alle Aufgaben im Rahmen. Ab 761 px
 // Seitenleiste mit vier Hauptpunkten und Einstellungen, bis 760 px Tab-Leiste mit fünf Zielen, die
 // nichts verdeckt; bei 390 px kein seitliches Scrollen der Seite. Die Zahlen sind Testdaten.
 
@@ -77,6 +78,16 @@ async function mock(page: Page) {
   );
   const json = (path: string, body: unknown) =>
     page.route(path, (route) => route.fulfill({ json: body }));
+  // HE-01: Zahl an Heute aus der Triage
+  await json('**/api/heute', {
+    today: day(0),
+    next: null,
+    more: [],
+    openFocus: 3,
+    review: { count: 0, minutes: 0 },
+    done: { count: 0 },
+    background: null,
+  });
   await json('**/api/start/mein-tag', {
     today: day(0),
     next: { scope: 'global', item: tasks[0], overdueDays: 2, minutes: 2 },
@@ -208,9 +219,9 @@ async function mock(page: Page) {
       sources: [{ key: 'ledger', label: 'Ergebnisse' }],
     },
     sentences: [
-      { kind: 'good', text: 'Rheintal trägt 180.000 € bei, 30 % des Ziels.', href: '/mein-tag' },
+      { kind: 'good', text: 'Rheintal trägt 180.000 € bei, 30 % des Ziels.', href: '/heute' },
       { kind: 'stuck', text: 'Bei Silesia Guss: Liefertreue unter Ziel.', href: '/hinweise' },
-      { kind: 'todo', text: 'Zusage Musterteile ist seit 3 Tagen offen.', href: '/mein-tag' },
+      { kind: 'todo', text: 'Zusage Musterteile ist seit 3 Tagen offen.', href: '/heute' },
     ],
   });
 }
@@ -219,9 +230,9 @@ const sideScroll = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 const pages = [
-  { path: '/mein-tag', title: 'Mein Tag', active: /^Mein Tag/, shot: 'mein-tag' },
-  { path: '/uebersicht', title: 'Übersicht', active: 'Übersicht', shot: 'uebersicht' },
-  { path: '/start/faellig', title: 'Alle Aufgaben', active: /^Mein Tag/, shot: 'aufgaben' },
+  { path: '/heute', title: 'Heute', active: /^Heute/, shot: 'heute' },
+  { path: '/wert', title: 'Wert', active: 'Wert', shot: 'wert' },
+  { path: '/start/faellig', title: 'Alle Aufgaben', active: /^Heute/, shot: 'aufgaben' },
 ];
 
 for (const target of pages) {
@@ -238,11 +249,11 @@ for (const target of pages) {
       if (width <= 760) {
         await expect(sidebar).toBeHidden();
         await expect(tabBar.getByRole('link')).toHaveText([
-          'Übersicht',
-          'Mein Tag',
-          'Lieferanten',
-          'Warengruppen',
+          'Heute',
+          'Beziehungen',
           'Frag',
+          'Warengruppen',
+          'Wert',
         ]);
         // nichts hinter der Tab-Leiste: das Ende des Inhalts liegt darüber
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -252,8 +263,8 @@ for (const target of pages) {
       } else {
         await expect(tabBar).toBeHidden();
         await expect(
-          sidebar.getByRole('link', { name: /^(Übersicht|Mein Tag|Lieferanten|Warengruppen)/ }),
-        ).toHaveText(['Übersicht', /^Mein Tag/, 'Lieferanten', 'Warengruppen']);
+          sidebar.getByRole('link', { name: /^(Heute|Beziehungen|Warengruppen|Wert)/ }),
+        ).toHaveText(['Heute3', 'Beziehungen', 'Warengruppen', 'Wert']);
         await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
         await expect(sidebar.locator('[aria-current="page"]')).toHaveText(target.active);
       }
@@ -270,12 +281,12 @@ for (const target of pages) {
   }
 }
 
-test('Übersicht: Terminschiene scrollt auf dem Telefon in ihrem Rahmen, nicht die Seite', async ({
+test('Wert: Terminschiene scrollt auf dem Telefon in ihrem Rahmen, nicht die Seite', async ({
   page,
 }) => {
   await mock(page);
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/uebersicht');
+  await page.goto('/wert');
   const rail = page.getByRole('list', { name: 'Termine und Fristen der nächsten vier Wochen' });
   await expect(rail.getByRole('listitem')).toHaveCount(1 + timeline.length);
   expect(await rail.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
@@ -287,13 +298,13 @@ test('Übersicht: Terminschiene scrollt auf dem Telefon in ihrem Rahmen, nicht d
   );
 });
 
-test('Mein Tag: ⌘K öffnet „Suchen oder fragen“, auf dem Telefon die Person die Einstellungen', async ({
+test('Heute: ⌘K öffnet „Frag Reziproq“, auf dem Telefon die Person die Einstellungen', async ({
   page,
 }) => {
   await mock(page);
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/mein-tag');
-  await expect(page.getByRole('heading', { level: 1, name: 'Mein Tag' })).toBeVisible();
+  await page.goto('/heute');
+  await expect(page.getByRole('heading', { level: 1, name: 'Heute' })).toBeVisible();
   await expect(
     page.locator('#inhalt').getByRole('link', { name: 'Einstellungen' }),
   ).toHaveAttribute('href', '/einstellungen');

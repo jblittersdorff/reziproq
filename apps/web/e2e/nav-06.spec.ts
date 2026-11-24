@@ -110,15 +110,15 @@ test('Der Lieferantenkopf steht oben auf jeder Seite; die Seite scrollt darunter
   await page.goto(base);
   await expect(page.getByRole('region', { name: 'Stand der Beziehung' })).toBeVisible();
   // Kopf und Bereiche gehören zur Seite (Vorlage SupplierBar), nicht zur Seitenleiste
-  await expect(header(page).getByRole('link', { name: 'Lieferanten' })).toHaveAttribute(
+  await expect(header(page).getByRole('link', { name: 'Beziehungen' })).toHaveAttribute(
     'href',
-    '/lieferanten',
+    '/beziehungen',
   );
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
   // Die Seitenleiste bleibt stehen, der Inhalt scrollt (Entscheidung vom 23.11.2026).
   await expect(
-    page.locator('[data-slot="sidebar"]').getByRole('link', { name: 'Lieferanten' }),
+    page.locator('[data-slot="sidebar"]').getByRole('link', { name: 'Beziehungen' }),
   ).toBeInViewport();
 });
 

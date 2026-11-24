@@ -619,7 +619,7 @@ export function MyActionsPage() {
   useDocumentTitle(text.title);
   return (
     <>
-      <PagePath trail={[{ label: t.start.title, href: '/start' }]} current={text.title} />
+      <PagePath trail={[{ label: t.start.title, href: '/heute' }]} current={text.title} />
       <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={t.actions.failed} />

@@ -22,7 +22,7 @@ export function NotFoundPage() {
         <p className="text-muted-foreground">{t.notFound.description}</p>
       </div>
       <Button asChild>
-        <Link to="/start">{t.notFound.back}</Link>
+        <Link to="/">{t.notFound.back}</Link>
       </Button>
     </section>
   );

@@ -15,6 +15,7 @@ export function shownByHeader(relationshipId: string, href: string) {
   const base = `/lieferanten/${relationshipId}`;
   const path = href.split(/[?#]/)[0]?.replace(/\/$/, '') ?? '';
   return (
+    path === '/beziehungen' ||
     path === '/lieferanten' ||
     path === base ||
     workspaceAreas.some((area) => path === `${base}/${area.segment}`)

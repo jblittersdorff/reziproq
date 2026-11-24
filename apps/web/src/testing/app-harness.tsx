@@ -7,6 +7,7 @@ import type {
   Supplier,
   SuppliersResponse,
   MyDay,
+  Today,
 } from '@reziproq/shared';
 import { defaultOrgModules } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -226,6 +227,8 @@ export const api = {
     | undefined,
   /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-support-org (oder null). */
   requests: [] as { url: string; customer: string | null }[],
+  /** Antwort von GET /api/heute (HE-01, NAV-10 2.0): Zahl an Heute und „Im Hintergrund“ */
+  today: undefined as Today | undefined,
 };
 
 /** Streamt Ereignisse als NDJSON, eine Zeile je Ereignis, wie die echte API. */
@@ -299,7 +302,22 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   }
   if (url.startsWith('/api/start/als-naechstes')) return Response.json({ next: null });
   if (url === '/api/start/brauchen-dich') return Response.json({ items: [] });
+  if (url === '/api/heute') return Response.json(api.today ?? todayResponse());
   return Response.json({ statusCode: 404 }, { status: 404 });
+}
+
+/** Antwort von /api/heute; ohne Angaben nichts offen und nichts im Hintergrund */
+export function todayResponse(overrides: Partial<Today> = {}): Today {
+  return {
+    today: new Date().toISOString().slice(0, 10),
+    next: null,
+    more: [],
+    openFocus: 0,
+    review: { count: 0, minutes: 0 },
+    done: { count: 0 },
+    background: null,
+    ...overrides,
+  };
 }
 
 /** Antwort von /api/start/mein-tag; ohne Angaben ein ruhiger Tag ohne Aufgaben */
@@ -334,6 +352,7 @@ export function setUpApp() {
   api.requests = [];
   api.organization = sampleOrganization;
   api.handle = undefined;
+  api.today = undefined;
   sessionStorage.clear();
   // jsdom kennt kein Scrollen; der Router springt zu Abschnitten wie #strategie (UMB-05).
   if (typeof Element.prototype.scrollIntoView !== 'function') {

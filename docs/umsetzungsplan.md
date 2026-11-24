@@ -78,6 +78,7 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 - K1-a.1 fertig am 24.11.2026: Datenräume, Herkunft, Bestätigung, Token-Schutz, `focus_item`, `worker_setting`, Felder an `org` (ZA-01 T1-ZA1 bis T1-ZA6). 
 - K1-a.2 fertig am 24.11.2026: Uhr je Mandant (`currentTime`, `app_now`), Wächter gegen die Systemuhr in Diensten und Jobs. Offen für K1-b: Zeitpläne der Worker und Jobs außerhalb einer Transaktion je Mandant, Demo-Uhr in der Oberfläche.
 - K1-c fertig am 24.11.2026: Triage, Punktzahl mit Segmentgewicht, Satzprüfung, `next_action` mit der Uhr je Mandant, `GET /api/heute`, „Morgen erinnern“, Lauf um 06:00 (HE-01 T1-HE2, Daten von T1-HE1, NAV-10 TN-10). „Als Nächstes“ auf Start und Mein Tag kommt aus der Triage.
+- K1-d.1 fertig am 24.11.2026: Seitenleiste und Tab-Leiste nach NAV-10 2.0, neue Adressen `/heute`, `/beziehungen`, `/wert`, `/mein-agent`, Startseite nach Rolle, Tabelle alt → neu für alle Routen mit 301 (`docs/weiterleitungen.md`). Offen in K1-d: Frag Reziproq als Überlagerung und Blatt (K1-d.2), eine Bausteinseite statt drei (K1-d.3).
 - Reihenfolge am 24.11. auf Wunsch des Gründers geändert: K1-b (Demo-Technik) kommt nach K1-f, direkt vor K1-g; zuerst die sichtbaren Pakete K1-c bis K1-f.
 - Aufgeräumt am 24.11.: `pnpm check` von rund 9 auf gut 4 Minuten (`docs/altlasten-tests.md`).
 - Geändert nach K0 (Abschnitt f des Berichts): K0-b neu; Uhr je Mandant von K1-b nach K1-a; K2-h verkleinert und nach K1-d gezogen; Weiterleitungen gesammelt in K1-d.

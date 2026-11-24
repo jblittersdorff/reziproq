@@ -121,7 +121,7 @@ function Unavailable({ invitation }: { invitation: PublicInvitation }) {
         description={text.usedDescription}
         action={
           <Button asChild>
-            <Link to="/start">{text.login}</Link>
+            <Link to="/">{text.login}</Link>
           </Button>
         }
       />

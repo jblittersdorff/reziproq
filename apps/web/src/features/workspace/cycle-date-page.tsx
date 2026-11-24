@@ -29,7 +29,7 @@ export function CycleDatePage({ relationshipId }: { relationshipId: string }) {
     <>
       <PagePath
         trail={[
-          { label: t.suppliers.title, href: '/lieferanten' },
+          { label: t.suppliers.title, href: '/beziehungen' },
           { label: supplier.data.name, href: `/lieferanten/${relationshipId}` },
         ]}
         current={t.workspace.cycle.dateTitle}

@@ -10,6 +10,8 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
   RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
   pnpm test, pnpm test:e2e
 - pnpm --filter @reziproq/db db:generate / db:migrate: Migrationen
+- pnpm weiterleitungen: docs/weiterleitungen.md aus der Tabelle alt → neu (`packages/shared/src/route-moves.ts`) neu schreiben;
+  ein Test prüft, dass jede Route der App einer Regel folgt
 - pnpm db:seed: Beispieldaten der Test-Mandanten (Entwicklung und automatische Tests); richtet sie
   danach mit pnpm demo:setup auf die echten Konten ein (Käufer OEM 1 mit allen Rechten, Lieferant
   Lieferant 1), ohne erfundene Personen. Davon getrennt ist der Demo-Mandant Nordwind mit

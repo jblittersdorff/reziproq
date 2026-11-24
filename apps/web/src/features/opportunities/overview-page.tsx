@@ -45,7 +45,7 @@ export function ValueOverviewPage() {
   const header = (
     <>
       <PagePath
-        trail={[{ label: t.insights.overviewTitle, href: '/uebersicht' }]}
+        trail={[{ label: t.insights.overviewTitle, href: '/wert' }]}
         current={text.pageTitle}
       />
       <PageHeader size="list" title={overview.title} purpose={overview.purpose} />

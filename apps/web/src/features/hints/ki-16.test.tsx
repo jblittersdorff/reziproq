@@ -204,8 +204,8 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     expect(within(summary).getAllByRole('link').length).toBeLessThanOrEqual(3);
     expect(within(summary).getByText('Nach Schwere')).toBeTruthy();
     expect(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Mein Tag' }).getAttribute('href'),
-    ).toBe('/mein-tag');
+      within(screen.getByRole('main')).getByRole('link', { name: 'Heute' }).getAttribute('href'),
+    ).toBe('/heute');
   });
 
   it('ein Klick öffnet die Leiste mit Beleg, Begründung, nächstem Schritt, In Arbeit und Bewertung', async () => {
@@ -239,7 +239,7 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     );
   });
 
-  it('Mein Tag zeigt die Zeile „Hinweise“ mit offenen und hohen; sie führt zu allen Hinweisen', async () => {
+  it('Heute zeigt die Zeile „Hinweise“ mit offenen und hohen; sie führt zu allen Hinweisen', async () => {
     // NAV-10 1.1 (Vorlage Main.dc.html): statt der Karte „Wo du handeln musst“ eine Zeile; die
     // wichtigsten Hinweise stehen auf /hinweise oben in „Als Nächstes“ und „Das Wichtigste“.
     const handle = api.handle;
@@ -247,7 +247,7 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
       request.url === '/api/start/mein-tag'
         ? Response.json(myDayResponse({ hints: { open: 5, high: 2 } }))
         : handle?.(request);
-    renderAt('/mein-tag');
+    renderAt('/heute');
     const row = await screen.findByRole('link', { name: /^Hinweise/ });
     expect(row.getAttribute('href')).toBe('/hinweise');
     expect(within(row).getByText('5 offen, 2 mit hoher Wirkung')).toBeTruthy();

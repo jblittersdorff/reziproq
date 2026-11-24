@@ -94,7 +94,7 @@ const field = (label: string) => screen.getByLabelText(label, { exact: false });
 
 describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.', () => {
   it('der Knopf „Lieferant hinzufügen“ öffnet /lieferanten/neu, Abbrechen führt zurück', async () => {
-    const router = renderAt('/lieferanten');
+    const router = renderAt('/beziehungen');
     fireEvent.click(await screen.findByRole('link', { name: 'Lieferant hinzufügen' }));
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Lieferant hinzufügen' }),
@@ -102,7 +102,7 @@ describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Sp
     expect(router.state.location.pathname).toBe('/lieferanten/neu');
     expect(screen.queryByRole('dialog')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
   });
 
   it('Speichern legt an und führt zum neuen Lieferanten, mit Rückmeldung', async () => {
@@ -254,7 +254,7 @@ describe('Beenden und Rechte', () => {
 
   it('zeigt ohne Recht weder Hinzufügen noch Bearbeiten, Beenden oder Jahr hinzufügen', async () => {
     api.permissions = actionsFor.viewer;
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     await screen.findByText(/^4 Lieferanten/);
     expect(screen.queryByRole('link', { name: 'Lieferant hinzufügen' })).toBeNull();
     tearDownApp();
@@ -282,7 +282,7 @@ describe('Beenden und Rechte', () => {
   });
 
   it('die Zeilen der Liste führen über die Detailleiste in den Arbeitsbereich (LS-01)', async () => {
-    const router = renderAt('/lieferanten');
+    const router = renderAt('/beziehungen');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
     fireEvent.click(within(list).getAllByRole('button')[0] as HTMLElement);
     fireEvent.click(await screen.findByRole('link', { name: 'Lieferant öffnen' }));

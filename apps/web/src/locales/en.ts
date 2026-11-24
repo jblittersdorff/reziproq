@@ -13,14 +13,14 @@ export const en: Messages = {
   },
 
   nav: {
-    overview: 'Overview',
-    myDay: 'My day',
+    overview: 'Value',
+    myDay: 'Today',
     homePage: 'Home page',
     roleDefault: 'Role default',
     list: 'List',
-    searchOrAsk: 'Search or ask',
+    searchOrAsk: 'Ask Reziproq',
     start: 'Start',
-    suppliers: 'Suppliers',
+    suppliers: 'Relationships',
     materialGroups: 'Material groups',
     portfolio: 'Portfolio',
     impact: 'Results',
@@ -29,6 +29,8 @@ export const en: Messages = {
     profile: 'Profile',
     settings: 'Settings',
     ask: 'Ask',
+    myAgent: 'My agent',
+    background: (task: string) => `In the background: ${task}`,
   },
 
   menu: {
@@ -739,7 +741,7 @@ export const en: Messages = {
 
   notifications: {
     title: 'Notifications',
-    purpose: 'What matters in My day, in Teams or by mail. Little, but the right things.',
+    purpose: 'What matters today, in Teams or by mail. Little, but the right things.',
     linkDescription: 'Teams and mail, quiet hours',
     loading: 'Loading settings …',
     failed: 'The settings could not be loaded.',
@@ -3952,7 +3954,7 @@ export const en: Messages = {
       whatFollows: 'What happens next',
       follows: [
         'Commitments in the joint plan, actions with their owners',
-        'Due dates appear in My day',
+        'Due dates appear in Today',
         'The next briefing reads the results',
       ],
       errors: {
@@ -4274,17 +4276,17 @@ export const en: Messages = {
       todo: 'What you should do',
     } as Record<string, string>,
     view: 'View',
-    toMyDay: 'Go to My day',
+    toMyDay: 'Go to Today',
     chanceTitle: 'Biggest opportunity',
     chanceValue: (low: string, high: string, impact: string, confidence: string) =>
       `${low === high ? low : `${low} to ${high}`} ${impact} per year · ${confidence}`,
     chanceLink: 'View value opportunity',
     riskTitle: 'Biggest risk',
     riskLink: 'Open hint',
-    overviewTitle: 'Overview',
+    overviewTitle: 'Value',
     overviewPurpose: (year: number) => `What we achieved in fiscal year ${year}, with evidence.`,
-    loading: 'Loading overview …',
-    failed: 'The overview could not be loaded.',
+    loading: 'Loading value …',
+    failed: 'Value could not be loaded.',
     yearLabel: 'Fiscal year',
     evidenceTitle: (secured: string, goal: string | null) =>
       goal ? `${secured} of ${goal} EBIT secured.` : `${secured} EBIT secured.`,
@@ -5107,7 +5109,7 @@ export const en: Messages = {
       detailLoading: 'Loading supplier …',
       detailLabel: (name: string) => `Details on ${name}`,
     },
-    title: 'Suppliers',
+    title: 'Relationships',
     purpose:
       'Which suppliers really matter – by business impact and relationship quality, not just spend.',
     count: (count: number) => (count === 1 ? '1 supplier' : `${count} suppliers`),
@@ -5751,8 +5753,8 @@ export const en: Messages = {
     nextStep: 'Next step',
     sources: 'Sources',
     outbound: 'External requests',
-    title: 'Agents',
-    purpose: 'Manage system agents and their runs.',
+    title: 'My agent',
+    purpose: 'What Reziproq does for you: agents and their runs.',
     builtin: 'Reziproq agents',
     qbrName: 'Meeting briefing',
     qbrDescription:

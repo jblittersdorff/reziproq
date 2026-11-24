@@ -14,7 +14,7 @@ export function useSupportSwitch() {
     setSupportCustomer(customer);
     // Leert alle Daten und lädt die sichtbaren sofort neu, nun für den neuen Kunden.
     void queryClient.resetQueries();
-    void navigate({ to: '/start' });
+    void navigate({ to: '/' });
   };
 
   return { enter: (customer: SupportCustomer) => go(customer), leave: () => go(null) };

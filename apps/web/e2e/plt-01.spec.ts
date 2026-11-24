@@ -66,7 +66,7 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
   await fakeApi(page);
 
   // 1. Ohne Sitzung direkt eine Unterseite öffnen: Die App leitet ohne Klick zu Zitadel weiter.
-  await page.goto('/lieferanten?suche=guss');
+  await page.goto('/beziehungen?suche=guss');
   await expect(page.getByText('Zitadel-Login')).toBeVisible();
   const params = zitadel.authorizeRequests[0];
   expect(params?.get('response_type')).toBe('code');
@@ -84,9 +84,9 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
     waitUntil: 'commit',
   });
 
-  await expect(page).toHaveURL('http://localhost:5174/lieferanten?suche=guss');
+  await expect(page).toHaveURL('http://localhost:5174/beziehungen?suche=guss');
   await expect(
-    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Lieferanten' }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Beziehungen' }),
   ).toBeVisible();
   expect(zitadel.tokenRequests[0]).toMatchObject({ grantType: 'authorization_code' });
   expect(zitadel.tokenRequests[0]?.codeVerifier).toBeTruthy();
@@ -97,7 +97,7 @@ test('Tokens liegen nur im Speicher; nach dem Neuladen holt eine Weiterleitung d
 }) => {
   const zitadel = await fakeZitadel(page);
   await fakeApi(page);
-  await page.goto('/start');
+  await page.goto('/heute');
   await expect(page.locator('#inhalt h1')).toBeVisible();
 
   const stored = await storedEverywhere(page);
@@ -107,7 +107,7 @@ test('Tokens liegen nur im Speicher; nach dem Neuladen holt eine Weiterleitung d
 
   await page.reload();
   await expect(page.locator('#inhalt h1')).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
+  await expect(page).toHaveURL('http://localhost:5174/heute');
   expect(zitadel.authorizeRequests).toHaveLength(2);
 });
 
@@ -125,7 +125,7 @@ test('Geschützte Seiten zeigen vor abgeschlossener Anmeldung keine Inhalte', as
     return route.fallback();
   });
 
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   await expect(page.getByRole('status')).toHaveText('Anmeldung wird geprüft …');
   await page.waitForTimeout(300);
   await expect(page.locator('#inhalt')).toHaveCount(0);
@@ -143,7 +143,7 @@ test('Die App erneuert ein abgelaufenes Token ohne Neuanmeldung', async ({ page 
   zitadel.reply.expiresIn = 5;
   const apiTokens = await fakeApi(page);
 
-  await page.goto('/start');
+  await page.goto('/heute');
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await expect
     .poll(() => zitadel.tokenRequests.filter((r) => r.grantType === 'refresh_token').length)
@@ -155,7 +155,7 @@ test('Die App erneuert ein abgelaufenes Token ohne Neuanmeldung', async ({ page 
   // Die nächste Anfrage an die API kommt mit dem neuen Token; Zitadel wurde nicht erneut gefragt.
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Lieferanten' })
+    .getByRole('link', { name: 'Beziehungen' })
     .click();
   await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
   expect(apiTokens.at(-1)).toMatch(/^access-token-erneuert-\d+$/);
@@ -171,7 +171,7 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
   zitadel.reply.refreshWorks = false;
   await fakeApi(page);
 
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   // Erst tippen, wenn die Liste nach der Anmeldung steht – wie ein Mensch auch.
   await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
   await page.waitForLoadState('networkidle');
@@ -191,7 +191,7 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
 
   // Zurück auf dieselbe Adresse; seit PLT-03 steht die Suche auch darin.
   await expect(page).toHaveURL(before);
-  expect(before).toBe('http://localhost:5174/lieferanten?suche=Silesia');
+  expect(before).toBe('http://localhost:5174/beziehungen?suche=Silesia');
   await expect(search).toHaveValue('Silesia');
   await expect(notice).toHaveCount(0);
 });

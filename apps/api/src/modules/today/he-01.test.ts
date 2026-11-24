@@ -235,6 +235,9 @@ describe('HE-01 Triage über die API', () => {
     await db.execute(sql`delete from ai_draft where org_id in ${orgIds}`);
     await db.execute(sql`delete from segment_decision where relationship_id in ${ids}`);
     await db.execute(sql`delete from segment_model where org_id in ${orgIds}`);
+    await db.execute(sql`delete from agent_run where org_id in ${orgIds}`);
+    await db.execute(sql`delete from agent_version where org_id in ${orgIds}`);
+    await db.execute(sql`delete from agent where org_id in ${orgIds}`);
     await deleteRelationships(db, orgIds);
     await db.execute(sql`delete from app_user where organization_id in ${orgIds}`);
     await db.execute(sql`delete from organization_feature where organization_id in ${orgIds}`);
@@ -381,6 +384,54 @@ describe('HE-01 Triage über die API', () => {
     });
     await db.execute(sql`update action set status = 'open', done_at = null where id = ${id}`);
     expect((await today(users.member)).openFocus).toBe(7);
+  });
+
+  it('NAV-10: „Im Hintergrund“ nennt den laufenden Lauf der Person, sonst nichts', async () => {
+    expect((await today(users.member)).background).toBeNull();
+    const [agent] = await db
+      .insert(schema.agent)
+      .values({
+        orgId: orgs.oem,
+        key: `he1-${run}`,
+        name: 'Termin-Briefing',
+        description: 'Test',
+        kind: 'system',
+        status: 'active',
+      })
+      .returning({ id: schema.agent.id });
+    const [version] = await db
+      .insert(schema.agentVersion)
+      .values({
+        orgId: orgs.oem,
+        agentId: agent?.id as string,
+        version: 1,
+        instructions: 'Test',
+        tools: [],
+        trigger: 'schedule',
+        schedule: '*/15 * * * *',
+        outputTarget: 'meeting_brief',
+        reviewerRule: 'sro',
+        modelClass: 'standard',
+        budgetCents: 100,
+        maxSteps: 10,
+      })
+      .returning({ id: schema.agentVersion.id });
+    await db.insert(schema.agentRun).values({
+      orgId: orgs.oem,
+      agentVersionId: version?.id as string,
+      actingUserId: users.member,
+      startedBy: 'system:meeting-brief',
+      trigger: 'schedule',
+      contextRelationshipId: rels.strategic,
+      status: 'running',
+    });
+    expect((await today(users.member)).background).toMatchObject({
+      task: 'Termin-Briefing',
+      counterpart: `HE1-Strategisch ${run}`,
+    });
+    expect((await today(users.other)).background).toBeNull();
+    await db.execute(sql`update agent_run set status = 'done' where org_id = ${orgs.oem}`);
+    expect((await today(users.member)).background).toBeNull();
   });
 
   it('TN-12: Ohne Zugriff auf eine Beziehung keine Zahl, keine Zeile und keine Karte', async () => {

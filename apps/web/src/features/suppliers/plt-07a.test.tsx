@@ -89,7 +89,7 @@ describe('PLT-07a Importseite', () => {
     await screen.findByRole('heading', { level: 2, name: 'Import abgeschlossen' });
     expect(screen.getByText('1 neu · 0 geändert · 0 unverändert · 1 fehlerhaft')).toBeDefined();
     fireEvent.click(screen.getByRole('link', { name: 'Zu den Lieferanten' }));
-    await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
   });
 
   it('zeigt Lesern die Vorlagen, aber keine Importdatei oder Importaktion', async () => {

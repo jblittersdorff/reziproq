@@ -259,7 +259,7 @@ export function AiSettingsPage() {
       />
       <PageHeader title={text.title} purpose={text.purpose} />
       <Link
-        to="/einstellungen/ki/agenten"
+        to="/mein-agent"
         className="inline-flex min-h-11 items-center self-start font-medium underline"
       >
         {t.agents.title}

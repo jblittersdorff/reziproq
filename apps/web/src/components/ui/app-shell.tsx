@@ -14,9 +14,10 @@ export interface ShellItem {
 }
 
 /**
- * Rahmen jeder angemeldeten Seite (UX-20 `AppShell`, NAV-10 1.1, Vorlage `Main.dc.html`):
- * - ab 761 px Seitenleiste (236 px, so hoch wie der Bildschirm, bleibt beim Scrollen stehen) mit Logo, „Suchen oder fragen“ mit ⌘K, den
- *   Hauptpunkten, Einstellungen und der Person; der aktive Punkt weiß, Symbol Petrol;
+ * Rahmen jeder angemeldeten Seite (UX-20 `AppShell`, NAV-10 2.0, Vorlage `Main.dc.html`):
+ * - ab 761 px Seitenleiste (236 px, so hoch wie der Bildschirm, bleibt beim Scrollen stehen, E-K0-02)
+ *   mit Logo, „Frag Reziproq“ mit ⌘K, den Hauptpunkten, nach dem Abstand „Im Hintergrund“, Mein
+ *   Agent, Einstellungen und der Person; der aktive Punkt weiß, Symbol Petrol;
  * - bis 760 px Tab-Leiste fest unten (weiß, durchscheinend, Unschärfe) mit fünf Zielen;
  * - Inhalt bis 1200 px; unter der Tab-Leiste 92 px Abstand, damit nichts verdeckt wird.
  */
@@ -27,6 +28,8 @@ function AppShell({
   brandHref,
   search,
   items,
+  background,
+  footer = [],
   settings,
   person,
   tabs,
@@ -43,6 +46,10 @@ function AppShell({
   /** „Suchen oder fragen“ mit Kürzel; ohne Eintrag kein Suchfeld */
   search?: { key: string; label: string; href: string; shortcut?: string };
   items: ShellItem[];
+  /** Zeile „Im Hintergrund: …“ (13 px, Punkt Petrol), solange Reziproq für die Person arbeitet */
+  background?: { label: string; href: string };
+  /** Punkte nach dem Abstand, vor den Einstellungen, z. B. Mein Agent */
+  footer?: ShellItem[];
   settings?: ShellItem;
   /** Person unten in der Seitenleiste; führt zum Profil */
   person?: { initials: string; name: string; href: string; label: string };
@@ -112,7 +119,24 @@ function AppShell({
             {sideItem(item)}
           </span>
         ))}
-        <span className="flex-1" />
+        <span className="min-h-6 flex-1" />
+        {background &&
+          renderLink({
+            href: background.href,
+            className:
+              'mb-1.5 flex min-h-11 gap-2 rounded-nav p-2.5 text-muted-strong text-sm leading-snug no-underline hover:bg-control hover:text-ink',
+            children: (
+              <>
+                <span aria-hidden className="mt-1.25 size-2 shrink-0 rounded-full bg-petrol" />
+                <span className="min-w-0">{background.label}</span>
+              </>
+            ),
+          })}
+        {footer.map((item) => (
+          <span key={item.key} className="contents">
+            {sideItem(item)}
+          </span>
+        ))}
         {settings && sideItem(settings)}
         {person &&
           renderLink({

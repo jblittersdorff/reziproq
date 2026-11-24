@@ -9,6 +9,7 @@ import {
   setUpApp,
   signedIn,
   tearDownApp,
+  todayResponse,
 } from '@/testing/app-harness';
 
 // Tests zu docs/specs/PLT-11.md: globale Leiste, Routen, Profil, Pfad und Seitenmuster. Was nur
@@ -34,23 +35,28 @@ afterEach(tearDownApp);
 
 const admin = { ...anna, orgRole: 'admin' as const };
 
-/** NAV-10 1.1: Ziele der Seitenleiste: Suchen oder fragen, vier Hauptpunkte, Einstellungen, Person. */
+/**
+ * NAV-10 2.0: Ziele der Seitenleiste: Frag Reziproq, vier Hauptpunkte, Mein Agent, Einstellungen,
+ * Person.
+ */
 const barTargets = [
-  { label: 'Suchen oder fragen', path: '/fragen' },
-  { label: 'Übersicht', path: '/uebersicht' },
-  { label: 'Mein Tag', path: '/mein-tag' },
-  { label: 'Lieferanten', path: '/lieferanten' },
+  { label: 'Frag Reziproq', path: '/fragen' },
+  { label: 'Heute', path: '/heute' },
+  { label: 'Beziehungen', path: '/beziehungen' },
   { label: 'Warengruppen', path: '/warengruppen' },
+  { label: 'Wert', path: '/wert' },
+  { label: 'Mein Agent', path: '/mein-agent' },
   { label: 'Einstellungen', path: '/einstellungen' },
   { label: 'Profil', path: '/profil' },
 ];
 
-/** Alle Routen dieser Spec mit ihrem Titel (h1). Start begrüßt statt eines Titels. */
+/** Alle Routen dieser Spec mit ihrem Titel (h1). */
 const routes = [
-  { path: '/start', title: 'Mein Tag' },
-  { path: '/lieferanten', title: 'Lieferanten' },
+  { path: '/heute', title: 'Heute' },
+  { path: '/beziehungen', title: 'Beziehungen' },
   { path: '/portfolio', title: 'Matrix' },
-  { path: '/wirkung', title: 'Übersicht' },
+  { path: '/wert', title: 'Wert' },
+  { path: '/mein-agent', title: 'Mein Agent' },
   { path: '/fragen', title: 'Frag Reziproq' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
@@ -60,21 +66,29 @@ const routes = [
 
 const bar = () => screen.getByRole('navigation', { name: 'Hauptnavigation' });
 
-describe('Nach dem Login landet der Nutzer auf /start', () => {
-  it('leitet / und die frühere Übersicht auf /start um', async () => {
-    for (const path of ['/', '/start']) {
+describe('Nach dem Login landet der Nutzer auf seiner Startseite (TN-06)', () => {
+  it('ein Mitglied startet in Heute; die alten Adressen führen dorthin', async () => {
+    for (const path of ['/', '/start', '/mein-tag']) {
       const router = renderAt(path);
-      await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
-      expect(router.state.location.pathname).toBe('/mein-tag');
+      await screen.findByRole('heading', { level: 1, name: 'Heute' });
+      expect(router.state.location.pathname).toBe('/heute');
       tearDownApp();
       setUpApp();
     }
   });
 
+  it('ein Admin startet in Wert (E-K1-1)', async () => {
+    api.me = admin;
+    api.permissions = actionsFor.admin;
+    const router = renderAt('/');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/wert'));
+  });
+
   it.each([
-    [true, null, '/uebersicht'],
-    [true, 'my_day', '/mein-tag'],
-    [false, 'overview', '/uebersicht'],
+    [true, null, '/wert'],
+    [true, 'my_day', '/heute'],
+    [false, 'overview', '/wert'],
+    [false, null, '/heute'],
   ] as const)(
     'beachtet Rollenstandard %s und Auswahl %s',
     async (defaultOverview, startPage, destination) => {
@@ -91,17 +105,17 @@ describe('Nach dem Login landet der Nutzer auf /start', () => {
   ])('begrüßt um %i Uhr mit „%s“', async (hour, greeting) => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 29, hour, 0));
-    renderAt('/start');
-    // NAV-10 1.1: Titel „Mein Tag“, darunter Wochentag und Datum mit Begrüßung
-    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
+    renderAt('/heute');
+    // NAV-10 2.0: Titel „Heute“, darunter Wochentag und Datum mit Begrüßung
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
     expect(await screen.findByText(`Donnerstag, 29. Oktober · ${greeting}`)).toBeDefined();
   });
 
-  it('auf Mein Tag führt „Suchen oder fragen“ zu /fragen (kein eigenes Fragefeld mehr)', async () => {
-    const router = renderAt('/start');
-    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
+  it('auf Heute führt „Frag Reziproq“ zu /fragen (kein eigenes Fragefeld mehr)', async () => {
+    const router = renderAt('/heute');
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
     expect(screen.queryByRole('textbox', { name: 'Deine Frage an Reziproq' })).toBeNull();
-    fireEvent.click(within(bar()).getByRole('link', { name: 'Suchen oder fragen' }));
+    fireEvent.click(within(bar()).getByRole('link', { name: 'Frag Reziproq' }));
     await screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
     expect(router.state.location.pathname).toBe('/fragen');
   });
@@ -120,7 +134,7 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
   });
 
   it.each(barTargets)('ein Klick auf $label öffnet $path und markiert es', async (target) => {
-    const router = renderAt('/start');
+    const router = renderAt('/heute');
     await screen.findByRole('heading', { level: 1 });
     const link = within(bar())
       .getAllByRole('link')
@@ -156,7 +170,15 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
       within(menu)
         .getAllByRole('link')
         .map((link) => link.getAttribute('href')),
-    ).toEqual(['/uebersicht', '/mein-tag', '/lieferanten', '/warengruppen', '/fragen', '/profil']);
+    ).toEqual([
+      '/heute',
+      '/beziehungen',
+      '/warengruppen',
+      '/wert',
+      '/mein-agent',
+      '/fragen',
+      '/profil',
+    ]);
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
@@ -175,7 +197,7 @@ describe('Jedes Ziel der globalen Leiste ist mit einem Klick erreichbar, die akt
   });
 
   it('bietet als erstes Tab-Ziel den Sprung zum Inhalt', async () => {
-    renderAt('/start');
+    renderAt('/heute');
     const skip = await screen.findByRole('link', { name: 'Zum Inhalt springen' });
     expect(skip.getAttribute('href')).toBe('#inhalt');
     expect(document.querySelectorAll('a[href], button')[0]).toBe(skip);
@@ -297,19 +319,85 @@ describe('Pfad mit Zurück-Pfeil', () => {
 });
 
 describe('Unbekannte Adressen zeigen die Nicht-gefunden-Seite', () => {
-  it.each(['/gibt-es-nicht', '/beziehungen', '/puls', '/jbp', '/qbr', '/pnl'])(
-    '%s',
-    async (path) => {
-      renderAt(path);
-      expect(
-        await screen.findByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
-      ).toBeDefined();
-      expect(screen.getByRole('link', { name: 'Zu Start' }).getAttribute('href')).toBe('/start');
-    },
-  );
+  it.each(['/gibt-es-nicht', '/akten', '/puls', '/jbp', '/qbr', '/pnl'])('%s', async (path) => {
+    renderAt(path);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Diese Seite gibt es nicht' }),
+    ).toBeDefined();
+    expect(screen.getByRole('link', { name: 'Zu Start' }).getAttribute('href')).toBe('/');
+  });
+});
+
+describe('NAV-10 2.0: Seitenleiste und Tab-Leiste (TN-01, TN-02)', () => {
+  const tabs = () => screen.getByRole('navigation', { name: 'Tab-Leiste' });
+  const hrefs = (nav: HTMLElement) =>
+    within(nav)
+      .getAllByRole('link')
+      .map((link) => link.getAttribute('href'));
+
+  it('TN-01: Heute, Beziehungen, Warengruppen, Wert in dieser Reihenfolge, darunter Mein Agent und Einstellungen', async () => {
+    renderAt('/heute');
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    await waitFor(() =>
+      expect(hrefs(bar())).toEqual([
+        '/',
+        '/fragen',
+        '/heute',
+        '/beziehungen',
+        '/warengruppen',
+        '/wert',
+        '/mein-agent',
+        '/einstellungen',
+        '/profil',
+      ]),
+    );
+  });
+
+  it('TN-02: Die Tab-Leiste des Käufers hat fünf Ziele mit Frag in der Mitte', async () => {
+    renderAt('/heute');
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    expect(hrefs(tabs())).toEqual(['/heute', '/beziehungen', '/fragen', '/warengruppen', '/wert']);
+    expect(within(tabs()).getByRole('link', { name: /Frag/ })).toBeDefined();
+  });
+
+  it('die Zahl an Heute gleicht den offenen Fokus-Themen; „Im Hintergrund“ nennt den laufenden Lauf', async () => {
+    api.today = todayResponse({
+      openFocus: 4,
+      background: {
+        runId: '550e8400-e29b-41d4-a716-446655440099',
+        task: 'Termin-Briefing',
+        counterpart: 'Rheintal Elektronik',
+      },
+    });
+    renderAt('/heute');
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    const today = within(bar()).getByRole('link', { name: /^Heute/ });
+    await waitFor(() => expect(today.textContent).toBe('Heute4'));
+    const running = within(bar()).getByRole('link', {
+      name: 'Im Hintergrund: Termin-Briefing · Rheintal Elektronik',
+    });
+    expect(running.getAttribute('href')).toBe('/mein-agent');
+  });
+
+  it('ohne offene Fokus-Themen keine Zahl, ohne Lauf keine Zeile „Im Hintergrund“', async () => {
+    renderAt('/heute');
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/heute', expect.anything()));
+    expect(within(bar()).getByRole('link', { name: /^Heute/ }).textContent).toBe('Heute');
+    expect(within(bar()).queryByRole('link', { name: /Im Hintergrund/ })).toBeNull();
+  });
 });
 
 describe('Ohne Login', () => {
+  it('eine alte Adresse führt erst zur neuen und merkt sich diese für die Anmeldung (TN-07)', async () => {
+    const signinRedirect = vi.fn();
+    auth.state = { ...signedIn, user: null, signinRedirect };
+    renderAt('/uebersicht');
+    await waitFor(() =>
+      expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/wert' } }),
+    );
+  });
+
   // Seit PLT-01: geschützte Seiten leiten direkt zu Zitadel weiter und merken sich die Seite.
   it.each([...routes.map((route) => route.path), '/gibt-es-nicht'])(
     '%s leitet zur Anmeldung weiter und zeigt bis dahin keine Inhalte',

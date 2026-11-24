@@ -62,7 +62,7 @@ async function switchTo(page: Page, name: string) {
 test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const seen = await signInAsOperator(page);
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   // Ohne eigene Organisation sieht ein Betreiber nur den Hinweis, bis er einen Kunden wählt (PLT-02).
   await expect(page.locator('#inhalt').getByRole('status')).toContainText(
     'In einen Kunden wechseln',
@@ -74,13 +74,13 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
     'Betreiber-Ansicht: Zweit-OEM (Demo). Alle Zugriffe werden protokolliert.',
   );
   await expect(banner).toBeVisible();
-  await expect(page).toHaveURL('http://localhost:5174/mein-tag');
+  await expect(page).toHaveURL('http://localhost:5174/heute');
   expect(seen.at(-1)).toBe(customers[1]?.id);
 
   // Die Ansicht bleibt beim Navigieren bestehen.
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Lieferanten' })
+    .getByRole('link', { name: 'Beziehungen' })
     .click();
   await expect(banner).toBeVisible();
 

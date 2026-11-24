@@ -58,7 +58,7 @@ export function InboxPage() {
   const data = query.data;
   return (
     <>
-      <PagePath trail={[{ label: t.nav.myDay, href: '/mein-tag' }]} current={text.navTitle} />
+      <PagePath trail={[{ label: t.nav.myDay, href: '/heute' }]} current={text.navTitle} />
       <PageHeader title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />

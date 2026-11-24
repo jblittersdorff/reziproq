@@ -48,20 +48,20 @@ export function BlocksPage() {
     {
       key: 'overview',
       label: t.nav.overview,
-      href: '/uebersicht',
+      href: '/wert',
       icon: <ChartScatterIcon aria-hidden />,
     },
     {
       key: 'myDay',
       label: t.nav.myDay,
-      href: '/mein-tag',
+      href: '/heute',
       icon: <HouseIcon aria-hidden />,
       badge: 3,
     },
     {
       key: 'suppliers',
       label: t.nav.suppliers,
-      href: '/lieferanten',
+      href: '/beziehungen',
       icon: <UsersRoundIcon aria-hidden />,
     },
     {
@@ -130,7 +130,7 @@ export function BlocksPage() {
           kicker={t.next.kicker}
           title={t.next.title}
           text={t.next.text}
-          action={{ label: t.next.action, href: '/lieferanten' }}
+          action={{ label: t.next.action, href: '/beziehungen' }}
           renderLink={routerLink}
         />
 
@@ -143,7 +143,7 @@ export function BlocksPage() {
             status,
             text,
             tone: tones[index] ?? 'neutral',
-            ...(index < 2 ? { href: '/mein-tag' } : {}),
+            ...(index < 2 ? { href: '/heute' } : {}),
           }))}
           aside={
             <ChartCard title={t.soWhat.figuresTitle} source={t.soWhat.figuresSource}>
@@ -187,7 +187,7 @@ export function BlocksPage() {
               kind: t.rail.today[0],
               title: t.rail.today[1],
               sub: t.rail.today[2],
-              href: '/mein-tag',
+              href: '/heute',
             }}
             items={t.rail.items.map(([kind, title, sub, tone, day]) => ({
               key: title,
@@ -196,7 +196,7 @@ export function BlocksPage() {
               title,
               sub,
               tone,
-              href: '/lieferanten',
+              href: '/beziehungen',
             }))}
             renderLink={routerLink}
           />
@@ -213,7 +213,7 @@ export function BlocksPage() {
                 title,
                 sub,
                 chip: { label: chip, tone: 'shared' as const },
-                href: '/lieferanten',
+                href: '/beziehungen',
               }))}
               renderLink={routerLink}
             />
@@ -245,7 +245,7 @@ export function BlocksPage() {
           steps={t.chain.steps.map((label, index) => ({
             key: label,
             label,
-            href: '/lieferanten',
+            href: '/beziehungen',
             state: stateOf(index, 3),
             // Ohne Recht: grau und ohne Link (UX-20)
             ...(index === 5 ? { allowed: false } : {}),
@@ -258,7 +258,7 @@ export function BlocksPage() {
           steps={t.chain.phaseSteps.map((label, index) => ({
             key: label,
             label,
-            href: '/lieferanten',
+            href: '/beziehungen',
             state: stateOf(index, 1),
           }))}
           renderLink={routerLink}
@@ -269,7 +269,7 @@ export function BlocksPage() {
           {t.rows.items.map(([code, title, detail]) => (
             <Row
               key={title}
-              href="/mein-tag"
+              href="/heute"
               lead={<Monogram name={code} />}
               title={title}
               detail={detail}
@@ -329,16 +329,16 @@ export function BlocksPage() {
 
         {section('supplier', t.sections.supplier)}
         <SupplierHeader
-          back={{ label: t.supplier.back, href: '/lieferanten' }}
+          back={{ label: t.supplier.back, href: '/beziehungen' }}
           name={t.supplier.name}
           meta={t.supplier.meta}
           areasLabel={t.supplier.areas}
-          areas={t.supplier.areaNames.map((label) => ({ key: label, label, href: '/lieferanten' }))}
+          areas={t.supplier.areaNames.map((label) => ({ key: label, label, href: '/beziehungen' }))}
           activeArea={t.supplier.areaNames[2]}
           pagesLabel={t.supplier.pages}
-          pages={t.supplier.pageNames.map((label) => ({ key: label, label, href: '/lieferanten' }))}
+          pages={t.supplier.pageNames.map((label) => ({ key: label, label, href: '/beziehungen' }))}
           activePage={t.supplier.pageNames[1]}
-          profile={{ label: t.supplier.profile, href: '/lieferanten', active: false }}
+          profile={{ label: t.supplier.profile, href: '/beziehungen', active: false }}
           renderLink={routerLink}
         />
 

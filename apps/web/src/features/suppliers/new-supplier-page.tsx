@@ -25,7 +25,7 @@ export function NewSupplierPage() {
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const navigate = useNavigate();
-  const goBack = useGoBack('/lieferanten');
+  const goBack = useGoBack('/beziehungen');
   const refresh = useRefreshSupplier();
 
   const [form, setForm] = useState({
@@ -112,7 +112,7 @@ export function NewSupplierPage() {
   return (
     <>
       <PagePath
-        trail={[{ label: t.suppliers.title, href: '/lieferanten' }]}
+        trail={[{ label: t.suppliers.title, href: '/beziehungen' }]}
         current={t.suppliers.newTitle}
       />
       <PageHeader title={t.suppliers.newTitle} purpose={t.suppliers.newPurpose} />

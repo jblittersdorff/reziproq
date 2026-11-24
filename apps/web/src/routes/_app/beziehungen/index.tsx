@@ -8,7 +8,7 @@ import { supplierSearchSchema } from '@/features/suppliers/search';
 import { SuppliersPage } from '@/features/suppliers/suppliers-page';
 import { useT } from '@/lib/i18n';
 
-export const Route = createFileRoute('/_app/lieferanten/')({
+export const Route = createFileRoute('/_app/beziehungen/')({
   validateSearch: supplierSearchSchema,
   component: SupplierViews,
 });

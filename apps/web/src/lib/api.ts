@@ -308,6 +308,7 @@ import {
   type TeamRequest,
   teamResponseSchema,
   timelineSchema,
+  todaySchema,
   touchpointListSchema,
   touchpointSchema,
   transcriptSettingsSchema,
@@ -2082,6 +2083,15 @@ export const startQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['start'],
     queryFn: () => getJson('/start', startSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+// HE-01, NAV-10 2.0: Heute aus der Triage; die Seitenleiste liest daraus die Zahl an Heute und die
+// Zeile „Im Hintergrund“.
+export const todayQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['heute'],
+    queryFn: () => getJson('/heute', todaySchema, accessToken),
     retry: retryUnlessDenied,
   });
 

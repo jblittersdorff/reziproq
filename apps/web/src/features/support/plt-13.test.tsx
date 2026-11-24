@@ -88,7 +88,7 @@ describe('In einen Kunden wechseln', () => {
     fireEvent.click(within(list).getByRole('button', { name: 'In Zweit-OEM (Demo) wechseln' }));
 
     expect(await screen.findByText(banner('Zweit-OEM (Demo)'))).toBeDefined();
-    await waitFor(() => expect(router.state.location.pathname).toBe('/mein-tag'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/heute'));
     await waitFor(() =>
       expect(api.requests.filter((r) => r.url === '/api/me').at(-1)?.customer).toBe('org-2'),
     );
@@ -97,7 +97,7 @@ describe('In einen Kunden wechseln', () => {
 
   it('weist Betreiber ohne eigene Organisation auf „In einen Kunden wechseln“ hin', async () => {
     api.me = operator;
-    renderAt('/start');
+    renderAt('/heute');
     expect(
       await screen.findByText(
         'Du bist keiner Organisation zugeordnet. Wähle als Betreiber auf deinem Profil „In einen Kunden wechseln“.',
@@ -116,7 +116,7 @@ describe('Betreiber-Ansicht', () => {
     setSupportCustomer({ id: 'org-2', name: 'Zweit-OEM (Demo)' });
   });
 
-  it.each(['/start', '/lieferanten', '/portfolio', '/profil', '/einstellungen', '/gibt-es-nicht'])(
+  it.each(['/heute', '/beziehungen', '/portfolio', '/profil', '/einstellungen', '/gibt-es-nicht'])(
     'zeigt die Hinweisleiste auf %s und schickt den Kunden bei jeder Anfrage mit',
     async (path) => {
       renderAt(path);
@@ -129,7 +129,7 @@ describe('Betreiber-Ansicht', () => {
 
   it('„Verlassen“ beendet die Ansicht; danach geht kein Kunde mehr mit', async () => {
     api.me = { ...operator, supportView: false };
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     fireEvent.click(await screen.findByRole('button', { name: 'Verlassen' }));
     await waitFor(() => expect(screen.queryByText(banner('Zweit-OEM (Demo)'))).toBeNull());
     // Nach dem Verlassen lädt die App /me neu, diesmal ohne Kunden.
@@ -150,7 +150,7 @@ describe('Betreiber-Ansicht', () => {
       }
       return original ? original(input, init) : Response.json({});
     });
-    renderAt('/start');
+    renderAt('/heute');
     await waitFor(() => expect(sessionStorage.getItem('reziproq-support-org')).toBeNull());
     expect(screen.queryByText(banner('Zweit-OEM (Demo)'))).toBeNull();
   });

@@ -8,7 +8,7 @@ import { fakeZitadel } from './fake-zitadel.js';
 test.use({ locale: 'de-DE' });
 
 // NAV-10: die neuen Adressen; die alten leiten weiter und hätten kein eigenes Zurück-Ziel.
-const pages = ['/mein-tag', '/lieferanten', '/uebersicht', '/profil', '/einstellungen'];
+const pages = ['/heute', '/beziehungen', '/wert', '/profil', '/einstellungen'];
 
 async function signIn(page: Page) {
   // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
@@ -95,7 +95,7 @@ test('„Frag“ in der Tab-Leiste öffnet auf dem Telefon /fragen und stellt do
   // NAV-10 1.1: kein Fragefeld mehr auf Start; auf dem Telefon „Frag“, am Schreibtisch ⌘K
   await page.setViewportSize({ width: 390, height: 844 });
   await signIn(page);
-  await page.goto('/start');
+  await page.goto('/heute');
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await page
     .getByRole('navigation', { name: 'Tab-Leiste' })
@@ -106,7 +106,7 @@ test('„Frag“ in der Tab-Leiste öffnet auf dem Telefon /fragen und stellt do
   await page.keyboard.press('Enter');
   await expect(questions(page).getByText('Hier ist der Link zu Portfolio.')).toBeVisible();
   await page.getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL(/\/lieferanten\?ansicht=matrix$/);
+  await expect(page).toHaveURL(/\/beziehungen\?ansicht=matrix$/);
 });
 
 test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen', async ({
@@ -130,7 +130,7 @@ test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen',
   await page.keyboard.press('Enter');
   await expect(questions(page).getByRole('link', { name: 'Bereich öffnen' })).toBeVisible();
   await questions(page).getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL(/\/lieferanten\?ansicht=matrix$/);
+  await expect(page).toHaveURL(/\/beziehungen\?ansicht=matrix$/);
 });
 
 for (const width of [1440, 390]) {

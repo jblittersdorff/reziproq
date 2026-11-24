@@ -42,7 +42,7 @@ export function DuePage({ view = 'mine' }: { view?: 'mine' | 'waiting' }) {
   const header = (
     <>
       <PageTitle
-        back={<BackLink label={text.title} href="/mein-tag" renderLink={routerLink} />}
+        back={<BackLink label={text.title} href="/heute" renderLink={routerLink} />}
         title={tasks.title}
         where={tasks.where}
       />

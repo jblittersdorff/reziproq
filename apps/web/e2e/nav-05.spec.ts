@@ -118,13 +118,13 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   }
 }
 
-test('NAV-05/NAV-10 1.1: /start führt zu Mein Tag; Mein Tag und alle Aufgaben ohne Überlauf', async ({
+test('NAV-10 2.0: /start führt zu Heute; Heute und alle Aufgaben ohne Überlauf', async ({
   page,
 }, testInfo) => {
   await mock(page);
   await page.goto('/start');
-  await expect(page).toHaveURL(/\/mein-tag$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Mein Tag' })).toBeVisible();
+  await expect(page).toHaveURL(/\/heute$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Heute' })).toBeVisible();
   await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
   await shoot(page, testInfo, 'start');
 

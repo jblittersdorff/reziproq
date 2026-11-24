@@ -31,12 +31,12 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-const pages = ['/start', '/lieferanten', '/portfolio', '/wirkung', '/profil', '/gibt-es-nicht'];
+const pages = ['/heute', '/beziehungen', '/portfolio', '/wert', '/profil', '/gibt-es-nicht'];
 
 const questionsPage = () => screen.findByRole('heading', { level: 1, name: 'Frag Reziproq' });
 const field = () => screen.getByRole('textbox', { name: 'Deine Frage an Reziproq' });
 
-async function openWithShortcut(path = '/start') {
+async function openWithShortcut(path = '/heute') {
   const router = renderAt(path);
   await screen.findByRole('heading', { level: 1 });
   fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
@@ -58,19 +58,19 @@ describe('Öffnen', () => {
   });
 
   it('Cmd+K öffnet die Seite ebenso', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     await screen.findByRole('heading', { level: 1 });
     fireEvent.keyDown(window, { key: 'k', metaKey: true });
     expect(await questionsPage()).toBeDefined();
   });
 
-  it('„Suchen oder fragen“ in der Seitenleiste öffnet /fragen und fragt dort', async () => {
+  it('„Frag Reziproq“ in der Seitenleiste öffnet /fragen und fragt dort', async () => {
     // NAV-10 1.1: Das Fragefeld auf Start entfällt; gefragt wird über die Seitenleiste (⌘K)
     // und auf dem Telefon über „Frag“ in der Tab-Leiste.
     api.prompt.events = [{ type: 'text', delta: 'Antwort auf Start.' }, { type: 'done' }];
-    const router = renderAt('/mein-tag');
+    const router = renderAt('/heute');
     const sidebar = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
-    fireEvent.click(within(sidebar).getByRole('link', { name: 'Suchen oder fragen' }));
+    fireEvent.click(within(sidebar).getByRole('link', { name: 'Frag Reziproq' }));
     await questionsPage();
     await askQuestion('Wie geht es meinen Lieferanten?');
     await screen.findByText('Antwort auf Start.');
@@ -246,8 +246,8 @@ describe('Verlauf', () => {
     const router = await openWithShortcut();
     await askQuestion('Erste Frage');
     await screen.findByText('Erste Antwort.');
-    await router.navigate({ to: '/start' });
-    await screen.findByRole('heading', { level: 1, name: 'Mein Tag' });
+    await router.navigate({ to: '/heute' });
+    await screen.findByRole('heading', { level: 1, name: 'Heute' });
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
     await questionsPage();
     expect(screen.queryByText('Erste Antwort.')).toBeNull();

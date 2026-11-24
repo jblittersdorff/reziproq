@@ -118,21 +118,43 @@ Tabellen und Code dürfen alte Namen behalten.
 
 Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Einladung, Seiten per Link); Zwei-Fenster-Modus der Demo (SI-01).
 
+## Umsetzung des Rahmens (K1-d.1, 24.11.2026)
+
+- **Seitenleiste und Tab-Leiste** nach 2.0 (`components/ui/app-shell.tsx`, `features/shell/navigation.tsx`).
+  - Seitenleiste: Frag Reziproq, Heute, Beziehungen, Warengruppen, Wert, „Im Hintergrund“, Mein Agent, Einstellungen, Person.
+  - Die Zahl an Heute sind die offenen Fokus-Themen aus `GET /api/heute`.
+  - „Im Hintergrund“ nennt den jüngsten laufenden Lauf der Person und führt bis K1-e zu Mein Agent (danach zu Erledigt).
+  - Tab-Leiste: Käufer Heute, Beziehungen, Frag, Warengruppen, Wert; Lieferant Heute, Kunden, Frag.
+- **Neue Adressen** `/heute`, `/beziehungen`, `/wert`, `/mein-agent`. Bis zu ihren Paketen zeigen sie die bisherigen Seiten:
+  - Heute: Mein Tag, beim Lieferanten den Start (bis K1-e);
+  - Beziehungen: die Lieferantenliste (bis K2-b);
+  - Wert: die Übersicht (bis K4-b);
+  - Mein Agent: die Agenten (bis K1-f).
+  - Titel, Zurück-Links und Pfade nennen schon die neuen Namen.
+- **Startseite** (TN-06): Lead und Admin landen in Wert, alle anderen in Heute; die eigene Wahl geht vor. Die Werte bleiben im Code `overview` und `my_day`.
+- **Weiterleitungen** (TN-07): Tabelle alt → neu für alle Routen in `packages/shared/src/route-moves.ts`, ausführlich in `docs/weiterleitungen.md` (`pnpm weiterleitungen`).
+  - Die API antwortet mit 301, bevor sie die App ausliefert; die App leitet beim Laden um.
+  - Aktiv: `/mein-tag` und `/start` → `/heute`, `/uebersicht` und `/wirkung` → `/wert`, `/lieferanten` → `/beziehungen`, `/agenten` und `/einstellungen/ki/agenten` → `/mein-agent`.
+  - Alle übrigen Adressen haben ihr Paket in der Tabelle und schalten mit ihm um.
+- **Bewusst offen:**
+  - Mein Agent beim Lieferanten kommt mit dem Lieferanten-Agenten (K5-e).
+  - Frag Reziproq als Überlagerung, das Blatt und die Liste erlaubter Überlagerungen kommen mit K1-d.2.
+
 ## Fertig, wenn
 
-- [ ] TN-01 Ab 761 px zeigt jede Käuferseite die Seitenleiste mit Heute, Beziehungen, Warengruppen, Wert in dieser Reihenfolge, darunter „Im Hintergrund“, Mein Agent, Einstellungen.
-- [ ] TN-02 Bis 760 px ist die Seitenleiste verborgen; die Tab-Leiste zeigt beim Käufer fünf, beim Lieferanten drei Ziele und verdeckt keinen Inhalt.
+- [x] TN-01 Ab 761 px zeigt jede Käuferseite die Seitenleiste mit Heute, Beziehungen, Warengruppen, Wert in dieser Reihenfolge, darunter „Im Hintergrund“, Mein Agent, Einstellungen. (K1-d.1: `plt-11.test.tsx`, `e2e/plt-11.spec.ts`)
+- [x] TN-02 Bis 760 px ist die Seitenleiste verborgen; die Tab-Leiste zeigt beim Käufer fünf, beim Lieferanten drei Ziele und verdeckt keinen Inhalt. (K1-d.1: `plt-11.test.tsx`, `e2e/ux-20-phase-2.spec.ts`)
 - [ ] TN-03 Bei 390 px ist auf keiner Seite ein waagerechter Bildlauf der Seite möglich.
 - [ ] TN-04 Jede Seite außer den Startseiten hat einen Zurück-Link mit dem Namen der Ebene darüber.
 - [ ] TN-05 Jede Seite hat höchstens eine Karte „Als Nächstes“ und außerhalb davon keinen Hauptknopf; ohne Kandidat erscheint keine Karte.
-- [ ] TN-06 Ein Lead landet nach der Anmeldung in Wert, ein SRO in Heute; eine geänderte Startseite gilt ab der nächsten Anmeldung.
-- [ ] TN-07 Jede alte Adresse aus der Liste leitet mit 301 auf die neue weiter.
+- [x] TN-06 Ein Lead landet nach der Anmeldung in Wert, ein SRO in Heute; eine geänderte Startseite gilt ab der nächsten Anmeldung. (K1-d.1: `plt-11.test.tsx`)
+- [ ] TN-07 Jede alte Adresse aus der Liste leitet mit 301 auf die neue weiter. (K1-d.1: die Adressen der Hauptpunkte und der Agenten, `configure-app.test.ts`, `route-moves.node.test.ts`; die übrigen mit ihren Paketen nach `docs/weiterleitungen.md`)
 - [ ] TN-08 ⌘K öffnet Frag Reziproq auf jeder Seite; eine Frage auf einer Akte hat diese als Kontext; ein Auftrag endet als Mappe, Entwurf oder Erinnerung.
 - [ ] TN-09 Es gibt keine Seite Agenten und keine Ablauf-Leiste; jede frühere Schrittseite leitet auf ihr Objekt, ihre Mappe oder Kurz prüfen.
 - [x] TN-10 Ein Satz mit einer Zahl, die nicht in `sentence_facts` steht, wird nicht angezeigt. (K1-c, wie T1-HE2)
 - [ ] TN-11 Eine Handlung auf Stufe Erledigen steht in Erledigt und im Verlauf des Objekts.
 - [ ] TN-12 Ein Käufer ohne Zugriff auf eine Beziehung sieht sie in keiner Zahl, keiner Zeile und keiner Karte „Als Nächstes“. (K1-c: Heute und „Als Nächstes“ erfüllt, `he-01.test.ts`; die übrigen Seiten mit ihren Paketen)
-- [ ] TN-13 Die Navigation des Lieferanten enthält weder Warengruppen noch Wert (T5-LP1).
+- [x] TN-13 Die Navigation des Lieferanten enthält weder Warengruppen noch Wert (T5-LP1). (K1-d.1: `nav-10.test.tsx`, `lif-02.test.tsx`)
 
 ## Nicht Teil
 

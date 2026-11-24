@@ -135,14 +135,14 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   page,
 }) => {
   await signIn(page);
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   await page.getByRole('link', { name: 'Lieferant hinzufügen' }).click();
   await expect(page).toHaveURL(url('/lieferanten/neu'));
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   // Abbrechen führt zur Liste zurück.
   await page.getByRole('button', { name: 'Abbrechen' }).click();
-  await expect(page).toHaveURL(url('/lieferanten'));
+  await expect(page).toHaveURL(url('/beziehungen'));
 
   // Anlegen führt zum neuen Lieferanten; Zurück führt danach zur Liste, nicht ins Formular.
   await page.getByRole('link', { name: 'Lieferant hinzufügen' }).click();
@@ -152,7 +152,7 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
   await expect(page.getByText('Gespeichert.')).toBeVisible();
   await page.goBack();
-  await expect(page).toHaveURL(url('/lieferanten'));
+  await expect(page).toHaveURL(url('/beziehungen'));
   await page.goForward();
   await expect(page).toHaveURL(url(`/lieferanten/${id}/strategie/profil`));
 

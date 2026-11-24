@@ -76,12 +76,12 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
-  it('die globale Leiste zeigt Start, Kunden, Fragen (seit QS-05) und Profil, aber keine Käuferbereiche', async () => {
+  it('die Seitenleiste zeigt Heute, Kunden, Frag Reziproq (seit QS-05) und Profil, aber keine Käuferbereiche', async () => {
     renderAt('/kunden');
     const nav = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
     await waitFor(() => expect(within(nav).getByRole('link', { name: 'Kunden' })).toBeDefined());
-    expect(within(nav).getByRole('link', { name: 'Start' })).toBeDefined();
-    for (const buyer of ['Lieferanten', 'Portfolio', 'Wirkung']) {
+    expect(within(nav).getByRole('link', { name: 'Heute' })).toBeDefined();
+    for (const buyer of ['Beziehungen', 'Warengruppen', 'Wert', 'Mein Agent']) {
       expect(within(nav).queryByRole('link', { name: buyer })).toBeNull();
     }
   });
@@ -148,8 +148,8 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
     ).toBeDefined();
   });
 
-  it('Start nennt die Kunden und führt in ihren Arbeitsbereich, ohne Fragefeld', async () => {
-    renderAt('/start');
+  it('Heute nennt die Kunden und führt in ihren Arbeitsbereich, ohne Fragefeld', async () => {
+    renderAt('/heute');
     expect(await screen.findByRole('heading', { level: 2, name: 'Meine Kunden' })).toBeDefined();
     expect(screen.getByRole('link', { name: /^Zweit-OEM \(Demo\)/ }).getAttribute('href')).toBe(
       `/kunden/${idB}`,

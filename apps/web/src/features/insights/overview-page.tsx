@@ -148,7 +148,7 @@ export function OverviewPage() {
             kind: rail.today,
             title: rail.todayTitle(dueToday.length),
             sub: rail.todaySub(overdue),
-            href: '/mein-tag',
+            href: '/heute',
           }}
           items={railItems}
           renderLink={routerLink}
@@ -391,7 +391,7 @@ function SuppliersCard({
       source={text.suppliers.source(matrix.spendYear, matrix.points.length)}
       link={{
         label: needsYou ? text.suppliers.link(needsYou) : text.suppliers.linkNone,
-        href: '/lieferanten',
+        href: '/beziehungen',
       }}
       renderLink={routerLink}
     >

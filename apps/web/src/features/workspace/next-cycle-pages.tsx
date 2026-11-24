@@ -24,7 +24,7 @@ function useTrail(relationshipId: string) {
   const t = useT();
   const supplier = useSupplier(relationshipId);
   return [
-    { label: t.suppliers.title, href: '/lieferanten' },
+    { label: t.suppliers.title, href: '/beziehungen' },
     { label: supplier.data?.name ?? '…', href: `/lieferanten/${relationshipId}` },
   ];
 }

@@ -99,32 +99,39 @@ afterEach(tearDownApp);
 const bar = () => screen.getByRole('navigation', { name: 'Hauptnavigation' });
 
 describe('NAV-10 Navigation', () => {
-  it('die Kopfzeile zeigt genau vier Hauptpunkte in fester Reihenfolge', async () => {
-    renderAt('/lieferanten');
+  it('die Seitenleiste zeigt genau vier Hauptpunkte in fester Reihenfolge (NAV-10 2.0)', async () => {
+    renderAt('/beziehungen');
     await screen.findByRole('heading', { level: 1 });
     const main = within(bar())
       .getAllByRole('link')
       .map((link) => link.textContent?.trim())
       .filter((label) =>
         [
+          'Heute',
+          'Beziehungen',
+          'Warengruppen',
+          'Wert',
           'Übersicht',
           'Mein Tag',
           'Lieferanten',
-          'Warengruppen',
           'Portfolio',
           'Ergebnisse',
           'Start',
         ].includes(label ?? ''),
       );
-    expect(main).toEqual(['Übersicht', 'Mein Tag', 'Lieferanten', 'Warengruppen']);
+    expect(main).toEqual(['Heute', 'Beziehungen', 'Warengruppen', 'Wert']);
   });
 
   it.each([
-    ['/wirkung', '/uebersicht'],
-    ['/start', '/mein-tag'],
-    ['/portfolio', '/lieferanten'],
-    ['/agenten', '/einstellungen/ki/agenten'],
-  ])('die alte Adresse %s leitet auf %s weiter', async (from, to) => {
+    ['/wirkung', '/wert'],
+    ['/uebersicht', '/wert'],
+    ['/start', '/heute'],
+    ['/mein-tag', '/heute'],
+    ['/lieferanten', '/beziehungen'],
+    ['/portfolio', '/beziehungen'],
+    ['/agenten', '/mein-agent'],
+    ['/einstellungen/ki/agenten', '/mein-agent'],
+  ])('TN-07: die alte Adresse %s leitet auf %s weiter', async (from, to) => {
     const router = renderAt(from);
     await waitFor(() => expect(router.state.location.pathname).toBe(to));
     if (from === '/portfolio')
@@ -134,7 +141,7 @@ describe('NAV-10 Navigation', () => {
   it('WG-18: /portfolio?warengruppe=<id> führt zur Matrix mit Filter Warengruppe', async () => {
     const group = '0190a0a0-0000-7000-8000-000000000077';
     const router = renderAt(`/portfolio?warengruppe=${group}`);
-    await waitFor(() => expect(router.state.location.pathname).toBe('/lieferanten'));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
     expect(router.state.location.search).toMatchObject({ ansicht: 'matrix', wg: group });
   });
 
@@ -146,7 +153,7 @@ describe('NAV-10 Navigation', () => {
     expect(router.state.location.search).toEqual({ lieferant: id });
   });
 
-  it('die Lieferantenseite sieht weder Übersicht noch Mein Tag noch Aktivitäten', async () => {
+  it('TN-13: die Lieferantenseite sieht Heute und Kunden, weder Warengruppen noch Wert', async () => {
     api.me = {
       ...anna,
       permissions: {
@@ -163,9 +170,10 @@ describe('NAV-10 Navigation', () => {
         .getAllByRole('link')
         .map((link) => link.getAttribute('aria-label') ?? link.textContent);
     await waitFor(() => expect(labels()).toContain('Kunden'));
-    expect(labels()).not.toContain('Übersicht');
-    expect(labels()).not.toContain('Mein Tag');
-    expect(labels()).not.toContain('Lieferanten');
+    expect(labels()).toContain('Heute');
+    for (const buyerOnly of ['Wert', 'Warengruppen', 'Beziehungen', 'Mein Agent']) {
+      expect(labels()).not.toContain(buyerOnly);
+    }
   });
 });
 

@@ -373,7 +373,7 @@ export class InsightsService {
       sentences.push({
         kind: 'todo',
         fallback: `Als Nächstes: ${actions.slice(0, 2).join(' und ')}.`,
-        href: '/mein-tag',
+        href: '/heute',
       });
     }
 

@@ -29,7 +29,8 @@ import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { CustomAgentsSection, CustomRunResults } from './custom-agent-pages';
 
-const home = '/einstellungen/ki/agenten';
+// NAV-10 2.0: Liste der Agenten unter Mein Agent (bis K1-f)
+const home = '/mein-agent';
 const pending = (run?: AgentRun) => run?.status === 'queued' || run?.status === 'running';
 
 function AgentRunList({ title, runs }: { title: string; runs: AgentRun[] }) {
@@ -72,10 +73,7 @@ export function AgentsPage() {
   const query = useQuery({ ...agentsQueryOptions(token), enabled: token !== '' });
   return (
     <>
-      <PagePath
-        trail={[{ label: messages.aiSettings.navTitle, href: '/einstellungen/ki' }]}
-        current={t.title}
-      />
+      {/* NAV-10 2.0, Vorlage Mein-Agent.dc.html: Mein Agent steht in der Seitenleiste, ohne Zurück-Link. */}
       <PageHeader title={t.title} purpose={t.purpose} />
       {query.isError ? (
         <ErrorState title={t.failed} />

@@ -98,11 +98,11 @@ describe('NAV-10 1.1 Übersicht', () => {
   });
 
   it('Ring nur mit Jahresziel, daneben Zahl, Ziel und was fehlt; Säulen je Quartal; Cash getrennt', async () => {
-    renderAt('/uebersicht');
+    renderAt('/wert');
     expect(
       await screen.findByText(/von 600.000 € Jahresziel\. Es fehlen 188.000 €\./),
     ).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: 'Wert' })).toBeTruthy();
     expect(outerRing()).not.toBeNull();
     const columns = screen.getByRole('list', { name: 'EBIT gesichert je Quartal' });
     expect(within(columns).getAllByRole('listitem')).toHaveLength(4);
@@ -116,7 +116,7 @@ describe('NAV-10 1.1 Übersicht', () => {
   });
 
   it('der Zeitraum Quartal zeigt das laufende Quartal ohne Ring, Seit Start die ganze Summe', async () => {
-    renderAt('/uebersicht');
+    renderAt('/wert');
     fireEvent.click(await screen.findByRole('radio', { name: 'Quartal' }));
     expect(await screen.findByText('Ergebnisse Q4 · nur vom Controlling bestätigt')).toBeTruthy();
     expect(outerRing()).toBeNull();
@@ -126,7 +126,7 @@ describe('NAV-10 1.1 Übersicht', () => {
 
   it('ohne Jahresziel kein Ring; Admin oder Lead legt es fest', async () => {
     overview = { ...overview, goalEbitCents: null };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     expect(await screen.findByText('Ohne Jahresziel gibt es keinen Ring.')).toBeTruthy();
     expect(outerRing()).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Ziel festlegen' }));
@@ -139,7 +139,7 @@ describe('NAV-10 1.1 Übersicht', () => {
 
   it('ohne Recht kein Knopf „Ziel festlegen“', async () => {
     overview = { ...overview, goalEbitCents: null, canSetGoal: false };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     expect(await screen.findByText('Ohne Jahresziel gibt es keinen Ring.')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Ziel festlegen' })).toBeNull();
   });
@@ -176,7 +176,7 @@ describe('NAV-10 1.1 Übersicht', () => {
       }
       return handle?.(request);
     };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     const box = (await screen.findByText('Gesichert sind 69 % des Jahresziels.')).closest(
       '[data-slot="so-what"]',
     ) as HTMLElement;
@@ -203,7 +203,7 @@ describe('NAV-10 1.1 Übersicht', () => {
         { kind: 'todo', text: 'Als Nächstes: das Jahresziel festlegen.', href: '/mein-tag' },
       ],
     };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     expect(await screen.findByText('Ergebnisse, Hinweise und Fristen im Überblick')).toBeTruthy();
     expect(screen.queryByText(/Stimmt nicht/)).toBeNull();
   });
@@ -237,7 +237,7 @@ describe('NAV-10 1.1 Übersicht', () => {
       }
       return handle?.(request);
     };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     await screen.findByText('Als Nächstes · heute fällig · 2 Min.');
     expect(document.querySelectorAll('[data-slot="next-card"]')).toHaveLength(1);
     const rail = screen.getByRole('list', { name: 'Termine und Fristen der nächsten vier Wochen' });
@@ -321,12 +321,12 @@ describe('NAV-10 1.1 Übersicht', () => {
       }
       return handle?.(request);
     };
-    renderAt('/uebersicht');
+    renderAt('/wert');
     expect(await screen.findByText('1 von 2 Strategien sind freigegeben')).toBeTruthy();
     expect(await screen.findByText('Strategisch trägt 60 % des Spend')).toBeTruthy();
     expect(
       screen.getByRole('link', { name: /1 Lieferant braucht dich/ }).getAttribute('href'),
-    ).toBe('/lieferanten');
+    ).toBe('/beziehungen');
     const cards = [...document.querySelectorAll('[data-slot="chart-card"]')].map(
       (card) => card.querySelector('span')?.textContent,
     );

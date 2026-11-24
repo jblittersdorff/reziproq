@@ -469,7 +469,7 @@ export class NotificationsService {
         single && action
           ? [{ action, label: text.buttons[action] ?? action, notificationId: latest.id }]
           : [],
-      openUrl: `${env.WEB_APP_URL}${single ? latest.href : '/mein-tag'}`,
+      openUrl: `${env.WEB_APP_URL}${single ? latest.href : '/heute'}`,
       openLabel: text.open,
     };
   }
@@ -498,7 +498,7 @@ export class NotificationsService {
       .returning({ id: schema.auditEvent.id });
     if (!event) throw new Error('Verlaufseintrag für Benachrichtigung fehlt');
     // Links ohne Abfrage und Anker (Regel der Outbox)
-    const link = content.link.split(/[?#]/)[0] || '/mein-tag';
+    const link = content.link.split(/[?#]/)[0] || '/heute';
     const email = this.emails.prepare({
       template,
       locale: person.locale,
@@ -605,7 +605,7 @@ export class NotificationsService {
               .map((item) => item.title)
               .join(' · ')
               .slice(0, 300),
-            href: '/mein-tag',
+            href: '/heute',
             sentAt: now,
           })
           .returning({ id: schema.notification.id });
@@ -626,7 +626,7 @@ export class NotificationsService {
           await this.mail(tx, orgId, person, row.id, 'digest', {
             title,
             message: items.map((item) => `• ${item.title}`).join('\n'),
-            link: '/mein-tag',
+            link: '/heute',
           });
         }
       });

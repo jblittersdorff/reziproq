@@ -151,7 +151,7 @@ export const blocksMessages = defineMessages({
       sent: 'Einladung wäre jetzt gesendet. Auf der Testseite geht nichts hinaus.',
     },
     supplier: {
-      back: 'Lieferanten',
+      back: 'Beziehungen',
       name: 'Rheintal Elektronik',
       meta: 'Hoher Impact · ausbaufähig · Elektronik · Schritt 4 von 6: Plan',
       areas: 'Bereiche des Lieferanten',
@@ -334,7 +334,7 @@ export const blocksMessages = defineMessages({
       sent: 'The invitation would be sent now. Nothing leaves the test page.',
     },
     supplier: {
-      back: 'Suppliers',
+      back: 'Relationships',
       name: 'Rheintal Elektronik',
       meta: 'High impact · developing · electronics · step 4 of 6: plan',
       areas: 'Areas of the supplier',

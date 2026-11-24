@@ -47,16 +47,16 @@ const suppliersRequested = () =>
 
 describe('Lieferantenseite', () => {
   it('Anzahl und Gesamtspend aus der API stehen oben, ohne beendete Beziehungen', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(await screen.findByText(/^4 Lieferanten/)).toBeDefined();
-    const heading = screen.getByRole('heading', { level: 1, name: 'Lieferanten' });
+    const heading = screen.getByRole('heading', { level: 1, name: 'Beziehungen' });
     expect(text(heading.closest('header'))).toContain(
       '4 Lieferanten · 10.230.000 € Jahresspend 2025',
     );
   });
 
   it('LS-01: Zeilen zeigen Anzeigename ohne Rechtsform, Demo, Land und Spend in Mio. €', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     const list = await screen.findByRole('list', { name: 'Lieferanten' });
     const rows = within(list).getAllByRole('listitem');
     expect(rows).toHaveLength(4);
@@ -77,7 +77,7 @@ describe('Lieferantenseite', () => {
   });
 
   it('sortiert standardmäßig nach Spend, absteigend, ohne Spend zuletzt', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(await cardNames()).toEqual([
       'Rheintal Elektronik GmbH (Demo)',
       'Silesia Guss Sp. z o.o. (Demo)',
@@ -88,7 +88,7 @@ describe('Lieferantenseite', () => {
   });
 
   it('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse', async () => {
-    const router = renderAt('/lieferanten');
+    const router = renderAt('/beziehungen');
     await cardNames();
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Sortieren' }), {
@@ -147,7 +147,7 @@ describe('Lieferantenseite', () => {
   });
 
   it('sagt, wenn die Suche nichts findet', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     await cardNames();
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Holz' } });
     expect(await screen.findByText('Keine Lieferanten zu „Holz“.')).toBeDefined();
@@ -158,7 +158,7 @@ describe('Lieferantenseite', () => {
       status: 200,
       body: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 },
     };
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(await screen.findByText('Noch keine Lieferanten.')).toBeDefined();
     expect(screen.getByText('Füge den ersten hinzu oder importiere eine Liste.')).toBeDefined();
     expect(screen.queryByRole('searchbox')).toBeNull();
@@ -166,14 +166,14 @@ describe('Lieferantenseite', () => {
 
   it('zeigt ohne Käufer-Rolle einen Hinweis und fragt die Liste nicht an', async () => {
     api.me = { ...anna, permissions: { ...anna.permissions, viewSuppliers: false } };
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(await screen.findByText('Dir fehlt eine Rolle')).toBeDefined();
     expect(suppliersRequested()).toBe(false);
   });
 
   it('zeigt den Rollen-Hinweis auch, wenn die API mit keine_berechtigung antwortet', async () => {
     api.suppliers = { status: 403, body: { statusCode: 403, code: 'keine_berechtigung' } };
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(await screen.findByText('Dir fehlt eine Rolle')).toBeDefined();
   });
 });
@@ -182,7 +182,7 @@ describe('Wenn /api/me scheitert', () => {
   // Die App versucht es zweimal erneut; danach muss ein Fehler statt „lädt …“ erscheinen.
   it('zeigt die Lieferantenseite einen Fehler statt endlos „lädt …“', async () => {
     api.meStatus = 503;
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     expect(
       await screen.findByText(
         'Die Lieferanten konnten nicht geladen werden. Lade die Seite neu.',
@@ -196,7 +196,7 @@ describe('Wenn /api/me scheitert', () => {
 // Seit PLT-02 (neuer Zuschnitt): ohne Organisation nur der Hinweis, ohne Feature buyer der Hinweis
 // zum Lieferantenzugang. Profil und Einstellungen bleiben erreichbar. Seit PLT-11 fehlen dann die
 // Käuferziele in der globalen Leiste.
-const areaLinks = ['Start', 'Lieferanten', 'Portfolio', 'Wirkung', 'Fragen'];
+const areaLinks = ['Heute', 'Beziehungen', 'Warengruppen', 'Wert', 'Mein Agent', 'Frag Reziproq'];
 const visibleAreaLinks = () => {
   const navigation = screen.getByRole('navigation', { name: 'Hauptnavigation' });
   return areaLinks.filter((name) => within(navigation).queryByRole('link', { name }) !== null);
@@ -219,7 +219,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
     };
   };
 
-  it.each(['/start', '/lieferanten', '/portfolio', '/wirkung', '/fragen', '/gibt-es-nicht'])(
+  it.each(['/heute', '/beziehungen', '/portfolio', '/wert', '/fragen', '/gibt-es-nicht'])(
     'sieht auf %s nur den Hinweis, keine Bereiche',
     async (path) => {
       withoutOrganization();
@@ -240,7 +240,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
   });
 
   it('sieht keinen Hinweis, wenn eine Organisation zugeordnet ist', async () => {
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
     await screen.findByText(/^4 Lieferanten/);
     expect(screen.queryByText(missing)).toBeNull();
   });
@@ -249,7 +249,7 @@ describe('Ein Nutzer ohne Organisation sieht den Hinweis', () => {
 describe('Ein Nutzer ohne Feature buyer sieht die Käuferbereiche nicht', () => {
   const soon = 'Der Lieferantenzugang kommt bald.';
 
-  it.each(['/start', '/lieferanten', '/wirkung'])(
+  it.each(['/heute', '/beziehungen', '/wert'])(
     'sieht auf %s den Hinweis zum Lieferantenzugang',
     async (path) => {
       api.me = {

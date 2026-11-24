@@ -124,7 +124,7 @@ export function MatrixContent({
   return (
     <>
       {!embedded && (
-        <PagePath trail={[{ label: t.nav.suppliers, href: '/lieferanten' }]} current={text.title} />
+        <PagePath trail={[{ label: t.nav.suppliers, href: '/beziehungen' }]} current={text.title} />
       )}
       <PageHeader
         size="list"

@@ -52,7 +52,8 @@ import { useT } from '@/lib/i18n';
  * zählen erst nach dem Übernehmen.
  */
 
-const home = '/einstellungen/ki/agenten';
+// NAV-10 2.0: Die Liste der Agenten steht bis K1-f unter Mein Agent.
+const home = '/mein-agent';
 const pendingStatus = (status?: string) => status === 'queued' || status === 'running';
 const codeOf = (error: unknown) => (error as { body?: { code?: string } } | null)?.body?.code;
 

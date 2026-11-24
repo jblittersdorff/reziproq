@@ -385,7 +385,7 @@ const primaryOutsideNext = (page: Page) =>
   );
 
 const pages = [
-  { path: '/lieferanten', title: 'Lieferanten', shot: 'lieferanten' },
+  { path: '/beziehungen', title: 'Beziehungen', shot: 'beziehungen' },
   { path: base, title: 'Rheintal Elektronik', shot: 'ueberblick' },
   { path: `${base}/strategie/profil`, title: 'Profil und Spend', shot: 'profil' },
   { path: `${base}/plan/themen`, title: 'Themen', shot: 'kopf-unterseite' },
@@ -416,7 +416,7 @@ for (const target of pages) {
       expect(await primaryOutsideNext(page)).toBe(0);
       if (target.path.startsWith(base)) {
         const header = page.locator('[data-slot="supplier-header"]');
-        await expect(header.getByRole('link', { name: 'Lieferanten', exact: true })).toBeVisible();
+        await expect(header.getByRole('link', { name: 'Beziehungen', exact: true })).toBeVisible();
         await expect(
           header.getByRole('navigation', { name: 'Bereiche des Lieferanten' }).getByRole('link'),
         ).toHaveText(['Überblick', 'Aktivitäten', 'Plan', 'Ergebnisse']);
@@ -440,7 +440,7 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
 }) => {
   await mock(page);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   const needs = page.getByRole('list', { name: 'Brauchen dich' });
   await expect(needs.locator('[data-slot="supplier-name"]')).toHaveText([
     'Pearl River Components',
@@ -488,7 +488,7 @@ test('Liste auf dem Telefon: Umschalter Meine, Strategisch, Alle; Zeile öffnet 
 }) => {
   await mock(page);
   await page.setViewportSize({ width: 390, height: 900 });
-  await page.goto('/lieferanten');
+  await page.goto('/beziehungen');
   await page.getByText('Strategisch', { exact: true }).click();
   await expect(page).toHaveURL(/fokus=1/);
   await expect(page.locator('[data-slot="supplier-name"]')).toHaveText([

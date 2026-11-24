@@ -51,7 +51,7 @@ export function CycleStartPage({ relationshipId }: { relationshipId: string }) {
     <>
       <PagePath
         trail={[
-          { label: t.suppliers.title, href: '/lieferanten' },
+          { label: t.suppliers.title, href: '/beziehungen' },
           { label: supplier.data?.name ?? '…', href: base },
         ]}
         current={text.title}

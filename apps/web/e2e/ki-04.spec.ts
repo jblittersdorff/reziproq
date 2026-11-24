@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { id, signIn } from './route-walk.js';
 
-const path = '/einstellungen/ki/agenten';
+// NAV-10 2.0: die Liste der Agenten steht bis K1-f unter Mein Agent
+const path = '/mein-agent';
 const run = {
   id,
   agentName: 'Termin-Briefing',
@@ -62,7 +63,7 @@ for (const width of [390, 1440]) {
       }),
     );
     await page.goto(path);
-    await expect(page.getByRole('heading', { level: 1, name: 'Agenten' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Mein Agent' })).toBeVisible();
     await expect(page.getByText('Agenten von Reziproq')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     await page.screenshot({ path: testInfo.outputPath(`agenten-${width}.png`), fullPage: true });

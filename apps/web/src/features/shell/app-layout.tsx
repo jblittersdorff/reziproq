@@ -7,7 +7,7 @@ import { RequireLogin } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
 import { useToken } from '@/features/ratings/use-rating';
 import { SupportBanner } from '@/features/support/support-banner';
-import { ApiError, dueQueryOptions } from '@/lib/api';
+import { ApiError, todayQueryOptions } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import { LocalBarSlotProvider } from './local-bar-slot';
 import { type NavTarget, routerLink, useActiveNavKey, useNavTargets } from './navigation';
@@ -23,20 +23,25 @@ export function AppLayout() {
 }
 
 /**
- * Rahmen nach NAV-10 1.1 (UX-20 `AppShell`): ab 761 px Seitenleiste mit den Hauptpunkten,
- * Einstellungen und Person, darunter die Tab-Leiste mit fünf Zielen. Darin die lokale Leiste eines
- * Lieferanten (falls die Seite eine hat), die Bühne und der Inhalt.
+ * Rahmen nach NAV-10 2.0 (UX-20 `AppShell`): ab 761 px Seitenleiste mit den Hauptpunkten, „Im
+ * Hintergrund“, Mein Agent, Einstellungen und Person, bis 760 px die Tab-Leiste (Käufer fünf Ziele,
+ * Lieferant drei). Darin die lokale Leiste eines Lieferanten (falls die Seite eine hat), die Bühne
+ * und der Inhalt.
  */
 function Shell() {
   const t = useT();
-  const { main, actions } = useNavTargets();
+  const { main, agent, actions } = useNavTargets();
   const activeKey = useActiveNavKey();
   const me = useMe();
   const accessToken = useToken();
   const buyer = !!me.data?.permissions.viewBuyerAreas;
-  const due = useQuery({ ...dueQueryOptions(accessToken), enabled: buyer && accessToken !== '' });
-  const today = new Date().toISOString().slice(0, 10);
-  const dueToday = due.data?.items.filter((item) => item.dueDate <= today).length ?? 0;
+  // HE-01: Zahl an Heute = offene Fokus-Themen; dazu der Lauf, an dem Reziproq gerade arbeitet.
+  const today = useQuery({
+    ...todayQueryOptions(accessToken),
+    enabled: !!me.data?.organization && accessToken !== '',
+  });
+  const openFocus = today.data?.openFocus ?? 0;
+  const running = today.data?.background;
   const initials = me.data ? personInitials(me.data.name) : undefined;
   const [localBarSlot, setLocalBarSlot] = useState<HTMLDivElement | null>(null);
   const [stageSlot, setStageSlot] = useState<HTMLDivElement | null>(null);
@@ -52,10 +57,17 @@ function Shell() {
     label: target.label,
     href: target.href,
     icon: icon(target),
-    ...(target.key === 'myDay' && dueToday > 0 ? { badge: dueToday } : {}),
+    ...(target.key === 'myDay' && openFocus > 0 ? { badge: openFocus } : {}),
   }));
   const questions = actions.find((target) => target.key === 'questions');
   const profile = actions.find((target) => target.key === 'profile');
+  const questionsTab = questions
+    ? [{ key: 'questions', label: t.nav.ask, href: questions.href, icon: icon(questions) }]
+    : [];
+  // TN-02: Käufer Heute, Beziehungen, Frag, Warengruppen, Wert; Lieferant Heute, Kunden, Frag.
+  const tabs = buyer
+    ? [...items.slice(0, 2), ...questionsTab, ...items.slice(2)]
+    : [...items, ...questionsTab];
 
   return (
     <LocalBarSlotProvider value={localBarSlot}>
@@ -83,6 +95,21 @@ function Shell() {
               }
             : {})}
           items={items}
+          {...(running
+            ? {
+                background: {
+                  label: t.nav.background(
+                    running.counterpart ? `${running.task} · ${running.counterpart}` : running.task,
+                  ),
+                  href: '/mein-agent',
+                },
+              }
+            : {})}
+          footer={
+            agent
+              ? [{ key: agent.key, label: agent.label, href: agent.href, icon: icon(agent) }]
+              : []
+          }
           {...(buyer || me.data?.permissions.viewOrganizationSettings
             ? {
                 settings: {
@@ -106,19 +133,7 @@ function Shell() {
                 },
               }
             : {})}
-          tabs={[
-            ...items,
-            ...(questions
-              ? [
-                  {
-                    key: 'questions',
-                    label: t.nav.ask,
-                    href: questions.href,
-                    icon: icon(questions),
-                  },
-                ]
-              : []),
-          ]}
+          tabs={tabs}
           activeKey={activeKey}
           renderLink={routerLink}
         >
@@ -189,7 +204,7 @@ function useQuestionsShortcut() {
 const alwaysOpen = ['/profil', '/einstellungen', '/menu', '/betreiber'];
 
 /** Was die Lieferantenseite sieht (LIF-02); alles andere gehört dem Käufer. */
-const supplierPaths = ['/start', '/kunden', '/fragen', '/feedback'];
+const supplierPaths = ['/heute', '/start', '/kunden', '/fragen', '/feedback'];
 
 /**
  * Zeigt die Seite nur, wenn die Organisation sie freigibt (PLT-02). Ohne Organisation erscheint nur
@@ -210,7 +225,7 @@ function ContentGate() {
   const rejected = rejection ? t.organization.signInRejected[rejection] : undefined;
   if (rejected) return <Notice>{rejected}</Notice>;
   // Solange /me lädt oder scheitert, entscheiden die Seiten selbst (Lade- und Fehlerzustand).
-  if (!me.data && within(['/mein-tag', '/uebersicht']))
+  if (!me.data && within(['/heute', '/wert']))
     return <Notice>{me.isError ? t.user.failed : t.user.loading}</Notice>;
   if (!me.data || open) return <Outlet />;
 

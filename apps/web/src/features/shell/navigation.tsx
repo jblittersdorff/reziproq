@@ -1,28 +1,30 @@
-import { type AreaKey, areas } from '@reziproq/shared';
+import type { AreaKey } from '@reziproq/shared';
 import { useRouter, useRouterState } from '@tanstack/react-router';
 import {
   BoxesIcon,
   BuildingIcon,
   ChartScatterIcon,
+  CircleDotDashedIcon,
   FactoryIcon,
   HouseIcon,
   type LucideIcon,
   MessageCircleQuestionIcon,
-  ReceiptEuroIcon,
   UserRoundIcon,
 } from 'lucide-react';
 import type { NavItem, RenderLink } from '@/components/ui/nav-link';
 import { useMe } from '@/features/auth/use-me';
 import { useT } from '@/lib/i18n';
 
-// Ziele der globalen Leiste (PLT-11): Start, Lieferanten, Portfolio und Wirkung aus
-// @reziproq/shared, rechts Fragen und Profil. Die Lieferantenseite hat Start, Kunden und Profil
-// (LIF-02). Leiste und Menüseite lesen von hier.
+// Ziele der Seitenleiste und der Tab-Leiste (NAV-10 2.0): beim Käufer Heute, Beziehungen,
+// Warengruppen und Wert, darunter Mein Agent; beim Lieferanten Heute und Kunden (LP-01). Dazu
+// Frag Reziproq und die Person. Leisten und Menüseite lesen von hier. Die Schlüssel behalten ihre
+// Namen aus 1.1 (overview = Wert, myDay = Heute, suppliers = Beziehungen), NAV-10 erlaubt das.
 
 export type NavKey =
   | AreaKey
   | 'overview'
   | 'myDay'
+  | 'myAgent'
   | 'customers'
   | 'questions'
   | 'profile'
@@ -33,29 +35,32 @@ export interface NavTarget extends NavItem {
   icon: LucideIcon;
 }
 
-const areaIcons: Record<AreaKey, LucideIcon> = {
-  start: HouseIcon,
-  suppliers: FactoryIcon,
-  materialGroups: BoxesIcon,
-  portfolio: ChartScatterIcon,
-  impact: ReceiptEuroIcon,
-};
-
-/** Welche Adressen zu welchem Ziel gehören; die längste passende gewinnt. */
-const sections: { prefix: string; key: NavKey }[] = [
-  { prefix: '/uebersicht', key: 'overview' },
-  { prefix: '/mein-tag', key: 'myDay' },
-  // Alle Aufgaben, Maßnahmen und Hinweise liegen unter Mein Tag (Vorlagen Aufgaben, Hinweise)
-  { prefix: '/start', key: 'myDay' },
-  { prefix: '/hinweise', key: 'myDay' },
-  { prefix: '/portfolio', key: 'suppliers' },
-  { prefix: '/wirkung', key: 'overview' },
-  ...areas.map((area) => ({ prefix: area.path, key: area.key })),
-  { prefix: '/kunden', key: 'customers' },
-  { prefix: '/fragen', key: 'questions' },
-  { prefix: '/profil', key: 'profile' },
-  { prefix: '/einstellungen', key: 'settings' },
-];
+/**
+ * Welche Adressen zu welchem Ziel gehören; die längste passende gewinnt. Alte Adressen, die noch
+ * Seiten haben (Tabelle in packages/shared/src/route-moves.ts), gehören zu ihrem neuen Ziel.
+ */
+const sections = (
+  [
+    // Heute; bis K1-e liegen Alle Aufgaben, Maßnahmen, Hinweise und Neu eingegangen noch darunter.
+    { prefix: '/heute', key: 'myDay' },
+    { prefix: '/mein-tag', key: 'myDay' },
+    { prefix: '/start', key: 'myDay' },
+    { prefix: '/hinweise', key: 'myDay' },
+    { prefix: '/beziehungen', key: 'suppliers' },
+    { prefix: '/lieferanten', key: 'suppliers' },
+    { prefix: '/portfolio', key: 'suppliers' },
+    { prefix: '/warengruppen', key: 'materialGroups' },
+    { prefix: '/wert', key: 'overview' },
+    { prefix: '/uebersicht', key: 'overview' },
+    { prefix: '/wirkung', key: 'overview' },
+    { prefix: '/mein-agent', key: 'myAgent' },
+    { prefix: '/einstellungen/ki/agenten', key: 'myAgent' },
+    { prefix: '/kunden', key: 'customers' },
+    { prefix: '/fragen', key: 'questions' },
+    { prefix: '/profil', key: 'profile' },
+    { prefix: '/einstellungen', key: 'settings' },
+  ] satisfies { prefix: string; key: NavKey }[]
+).sort((a, b) => b.prefix.length - a.prefix.length);
 
 export function activeNavKey(pathname: string): NavKey | undefined {
   return sections.find(({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`))
@@ -68,23 +73,22 @@ export function useActiveNavKey(): NavKey | undefined {
 
 /**
  * Die Ziele für diese Person. Ohne Organisation oder ohne Feature buyer fehlen die Käuferziele
- * und Fragen (PLT-02); das Profil bleibt immer erreichbar. Solange /me lädt, alle zeigen, damit
+ * und Mein Agent (PLT-02); das Profil bleibt immer erreichbar. Solange /me lädt, alle zeigen, damit
  * die Leiste nicht springt.
  */
-export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
+export function useNavTargets(): {
+  main: NavTarget[];
+  agent: NavTarget | undefined;
+  actions: NavTarget[];
+} {
   const t = useT();
   const me = useMe();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const buyer = !me.data || (me.data.organization !== null && me.data.permissions.viewBuyerAreas);
-  const main = areas.map((area) => ({
-    key: area.key,
-    label: t.nav[area.key],
-    href: area.path,
-    icon: areaIcons[area.key],
-  }));
+  const today = { key: 'myDay' as const, label: t.nav.myDay, href: '/heute', icon: HouseIcon };
   const questions = {
     key: 'questions' as const,
-    label: t.nav.questions,
+    label: t.nav.searchOrAsk,
     href: '/fragen',
     icon: MessageCircleQuestionIcon,
   };
@@ -94,30 +98,42 @@ export function useNavTargets(): { main: NavTarget[]; actions: NavTarget[] } {
     href: '/profil',
     icon: UserRoundIcon,
   };
-  // NAV-10: vier Hauptpunkte; solange /me lädt, ebenfalls, damit die Leiste nicht springt.
+  // NAV-10 2.0, TN-01: vier Hauptpunkte in dieser Reihenfolge, darunter Mein Agent.
   if (buyer)
     return {
       main: [
-        { key: 'overview', label: t.nav.overview, href: '/uebersicht', icon: ChartScatterIcon },
-        { key: 'myDay', label: t.nav.myDay, href: '/mein-tag', icon: HouseIcon },
-        ...main.filter((target) => target.key === 'suppliers' || target.key === 'materialGroups'),
+        today,
+        { key: 'suppliers', label: t.nav.suppliers, href: '/beziehungen', icon: FactoryIcon },
+        {
+          key: 'materialGroups',
+          label: t.nav.materialGroups,
+          href: '/warengruppen',
+          icon: BoxesIcon,
+        },
+        { key: 'overview', label: t.nav.overview, href: '/wert', icon: ChartScatterIcon },
       ],
-      actions: [{ ...questions, label: t.nav.searchOrAsk }, profile],
+      agent: {
+        key: 'myAgent',
+        label: t.nav.myAgent,
+        href: '/mein-agent',
+        icon: CircleDotDashedIcon,
+      },
+      actions: [questions, profile],
     };
-  // Lieferantenseite (LIF-02): Start, Kunden und Fragen (QS-05: Suche im aktuellen Kunden).
+  // Lieferantenseite (LP-01): Heute und Kunden, Frag sucht im aktuellen Kunden (QS-05). Mein Agent
+  // kommt mit dem Lieferanten-Agenten (K5-e).
   if (me.data?.permissions.viewCustomers) {
     const customer = /^\/kunden\/([0-9a-f-]{36})(?:\/|$)/.exec(pathname)?.[1];
     const search = { ...questions, href: customer ? `/fragen?kunde=${customer}` : '/fragen' };
-    const start = main.find((target) => target.key === 'start');
     const customers = {
       key: 'customers' as const,
       label: t.nav.customers,
       href: '/kunden',
       icon: BuildingIcon,
     };
-    return { main: start ? [start, customers] : [customers], actions: [search, profile] };
+    return { main: [today, customers], agent: undefined, actions: [search, profile] };
   }
-  return { main: [], actions: [profile] };
+  return { main: [], agent: undefined, actions: [profile] };
 }
 
 /**

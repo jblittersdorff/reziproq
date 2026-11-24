@@ -257,7 +257,7 @@ describe('IN-06 Benachrichtigungen in Teams und per Mail', () => {
         kind: 'meeting_reminder',
         objectType: 'meeting',
         title: 'QBR beginnt in 10 Minuten',
-        href: '/mein-tag',
+        href: '/heute',
       }),
     );
     expect(cards()).toHaveLength(1);

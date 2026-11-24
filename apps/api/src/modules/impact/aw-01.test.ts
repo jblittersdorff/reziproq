@@ -445,7 +445,7 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     );
     expect(sentences.find((entry) => entry.kind === 'todo')).toMatchObject({
       text: `Als Nächstes: den JBP mit AW01-B ${run} freigeben.`,
-      href: '/mein-tag',
+      href: '/heute',
     });
   });
 

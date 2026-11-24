@@ -27,6 +27,7 @@
     "org:link": "pnpm --filter @reziproq/db org:link",
     "operator:set": "pnpm --filter @reziproq/db operator:set",
     "rechte": "pnpm --filter @reziproq/api rechte",
+    "weiterleitungen": "WEITERLEITUNGEN_SCHREIBEN=1 vitest run --project web route-moves",
     "demo:setup": "pnpm --filter @reziproq/db demo:setup && pnpm --filter @reziproq/api demo:ki",
     "durchstich:pruefen": "pnpm --filter @reziproq/db durchstich:pruefen",
     "durchstich:graph": "pnpm --filter @reziproq/api durchstich:graph"

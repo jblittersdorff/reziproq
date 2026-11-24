@@ -48,7 +48,7 @@ describe('Nach dem Abmelden', () => {
     const signinRedirect = vi.fn();
     auth.state = { ...signedIn, user: null, signinRedirect };
     signedOut.mark();
-    renderAt('/start');
+    renderAt('/heute');
 
     const button = await screen.findByRole('button', { name: 'Anmelden' });
     expect(signinRedirect).not.toHaveBeenCalled();
@@ -56,7 +56,7 @@ describe('Nach dem Abmelden', () => {
 
     // Ein Klick startet die nächste Anmeldung und vergisst den Merker.
     fireEvent.click(button);
-    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/start' } });
+    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/heute' } });
     expect(signedOut.isSet()).toBe(false);
   });
 });
@@ -104,10 +104,10 @@ describe('Erneuerung gescheitert', () => {
     const signinRedirect = vi.fn();
     auth.state = { ...renewFailed, signinPopup, signinRedirect };
     const open = vi.spyOn(window, 'open');
-    renderAt('/lieferanten');
+    renderAt('/beziehungen');
 
     fireEvent.click(await screen.findByRole('button', { name: 'Neu anmelden' }));
-    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/lieferanten' } });
+    expect(signinRedirect).toHaveBeenCalledWith({ state: { returnTo: '/beziehungen' } });
     expect(signinPopup).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
   });

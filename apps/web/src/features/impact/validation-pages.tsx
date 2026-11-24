@@ -55,7 +55,10 @@ export function ValidationsPage() {
   );
   return (
     <>
-      <PagePath trail={[{ label: text.title, href: '/wirkung' }]} current={text.validationsTitle} />
+      <PagePath
+        trail={[{ label: t.nav.overview, href: '/wert' }]}
+        current={text.validationsTitle}
+      />
       <PageHeader size="list" title={text.validationsTitle} purpose={text.validationsPurpose} />
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {query.isError ? (
@@ -153,7 +156,7 @@ export function ValidationReviewPage({ validationId }: { validationId: string })
     <>
       <PagePath
         trail={[
-          { label: text.title, href: '/wirkung' },
+          { label: t.nav.overview, href: '/wert' },
           { label: text.validationsTitle, href: listPath },
         ]}
         current={title}
