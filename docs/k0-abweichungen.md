@@ -18,6 +18,8 @@ Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8
   - Nicht zugeordneter Eingang (E-K0-26) kommt mit der Ansicht Alles (K1-e).
   - Handlungen auf Stufe Erledigen schreiben `undo_payload` erst ab K1-e und K1-f. Bis dahin ist „Erledigt im Hintergrund“ leer.
 
+**Stand nach K2-h (25.11.2026), Farben:** Abschnitt d nannte die Design-Tokens vollständig. Sie enthielten aber 13 Farben, die die Designsprache nicht kennt. K2-h hat sie auf Werte der Palette gesetzt: Schatten in Tinte statt `#1d1d1f`, Status-Text nach der Status-Tabelle (gut, Achtung, kritisch), Grau der Diagramme `ring-open`, Folgeskala aus Mint und Petrol, Flächen auf Tinte `dark-2`, Rand auf Tinte `input-border`, Hover-Fläche `line`. T-CI1 verhindert neue Abweichungen.
+
 **Kurzfassung**
 - Vieles ist schon gebaut und lässt sich wiederverwenden: Datenräume mit Row Level Security, Entwürfe mit Quellen, Agenten und Läufe, Gateway, Hinweise mit Punktzahl, Zusagen, Segmente, Feedback, Termine mit Briefing, Ergebnissen und Transkript, Gemeinsamer Plan, Wirkung mit Baseline und Controlling, Wertfinder, Import, Einladung mit Passkey und das Warengruppenmanagement in zehn Schritten.
 - Grundlegend neu sind: `focus_item` mit Triage, Stufen je Person (`worker_setting`), Bestätigungs-Token für bindende Werkzeuge, Rücknahme (`undo_payload`), Uhr je Mandant, Modi `record` und `replay` sowie der Demo-Mandant Nordwind. Ebenfalls neu: Mandat, Deal, Bestätigen per Link, Wert-Engine mit Buchungen, Kanäle und die Objekte aus Kapitel 8.

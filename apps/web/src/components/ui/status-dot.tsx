@@ -28,7 +28,8 @@ function StatusDot({
         className={cn(
           'size-2 shrink-0 rounded-full',
           tone === 'success' && 'bg-success',
-          tone === 'warning' && 'bg-warning',
+          // Designsprache, Farben: „Ampelpunkt Achtung“ ist amber (nie als Textfarbe)
+          tone === 'warning' && 'bg-signal-amber',
           tone === 'danger' && 'bg-destructive',
           tone === 'neutral' && 'bg-ring-open',
         )}

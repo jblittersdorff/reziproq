@@ -10,11 +10,14 @@ import { graphicPairs, textPairs } from './token-pairs.js';
 const webRoot = fileURLToPath(new URL('../../', import.meta.url));
 const tokensFile = join(webRoot, 'src/styles/tokens.css');
 
-// Diese Dateien dürfen feste Werte enthalten: die Tokens selbst und Tests mit Beispielfarben.
+// Diese Dateien dürfen feste Werte enthalten: die Tokens selbst und Tests mit Beispielfarben, dazu
+// die Prüfungen beim Bauen (T-CI1 bis T-CI3) mit ihren Gegenproben.
 const allowed = new Set([
   tokensFile,
   fileURLToPath(import.meta.url),
   join(webRoot, 'src/lib/contrast.test.ts'),
+  join(webRoot, 'src/testing/build-checks.ts'),
+  join(webRoot, 'src/styles/build-checks.node.test.ts'),
 ]);
 const skipped = new Set([join(webRoot, 'src/routeTree.gen.ts')]);
 

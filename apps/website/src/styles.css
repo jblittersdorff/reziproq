@@ -4,6 +4,10 @@
 
 /* WEB-01: Bausteine der App mit einlesen, damit ihre Klassen in der Website gebaut werden */
 @source "../../web/src/components/ui";
+/* T-CI1: Tests liefern keine Klassen in den Build (siehe apps/web/src/index.css) */
+@source not "../../web/src/components/ui/**/*.test.*";
+@source not "./**/*.test.*";
+@source not "../e2e";
 
 html {
   scroll-behavior: smooth;

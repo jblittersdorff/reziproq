@@ -4,6 +4,14 @@
 @import "./styles/tokens.css";
 
 /*
+ * T-CI1: Tests und ihre Hilfen liefern keine Klassen in den Build. Sonst landen Beispielwerte aus
+ * Prüfungen (etwa eine verbotene Farbe als Gegenprobe) im ausgelieferten CSS.
+ */
+@source not "./**/*.test.*";
+@source not "./testing";
+@source not "../e2e";
+
+/*
  * Bühne (PLT-10, Handschrift Bühne): Innerhalb einer dunklen Fläche gelten die Bühnenfarben.
  * So passen Text, Knöpfe, Felder und Fokus ohne eigene Varianten.
  */

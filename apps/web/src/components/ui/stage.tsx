@@ -87,7 +87,8 @@ function StageMetrics({
           <dd
             className={cn(
               'row-start-1 truncate font-display font-semibold text-figure tabular-nums tracking-section',
-              item.accent && 'text-petrol',
+              // Akzent: Petrol auf heller Fläche, Mint auf Tinte (stage-scope setzt primary)
+              item.accent && 'text-primary',
             )}
           >
             {item.value}

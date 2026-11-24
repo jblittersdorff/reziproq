@@ -271,6 +271,14 @@ Vorlage mit allen Formen: `D-Diagramme.dc.html`.
 - Eingeklappte Bereiche sind echte `<details>`-Elemente oder gleichwertig mit Tastatur bedienbar.
 - Die feste Tab-Leiste verdeckt keinen Inhalt. Der Inhalt hat unten 92 px Abstand.
 
+## Prüfungen beim Bauen (T-CI1 bis T-CI3)
+
+Die Palette sind alle Hex-Werte dieses Dokuments. Eine neue Farbe kommt zuerst hierher, dann in `tokens.css`. Die Prüfungen laufen in `pnpm check` an den Quellen (`apps/web/src/styles/build-checks.node.test.ts`) und am ausgelieferten Build von App und Website (`e2e/t-ci.spec.ts`).
+
+- **T-CI1 Farben:** `tokens.css` enthält jede Farbe der Palette und keine andere. Im gebauten CSS steht nur eine Farbe der Palette, auch mit Deckkraft (etwa Tinte 25 %). Benannte Farben wie `red`, Farbfunktionen mit festen Werten und andere Hex-Werte sind Fehler.
+- **T-CI2 Schriften:** Figtree und Outfit liegen als woff2 im Build und laden im Browser vom eigenen Server. Keine andere eigene Schrift, kein `@import` und keine Datei von außen, kein Schriftendienst wie Google Fonts.
+- **T-CI3 Ein helles Thema:** kein dunkles Thema, auch nicht über `prefers-color-scheme`; `color-scheme: light`; kein Farbverlauf. Schatten mit Unschärfe nur in Tinte. Ränder, die als Schatten ohne Unschärfe gezeichnet sind, dürfen jede Farbe der Palette haben. Auch bei dunkel eingestelltem System bleibt die Seite hell.
+
 ## Stand der Vorlagen
 
 `docs/design/referenz/` enthält nur die gültigen Boards aus dem Canvas (Version 1795540849-2ac5), ohne Archiv, ohne Claims, Risiko und Vertrag und ohne verworfene Varianten. Jede Spec nennt im Kopf ihre Bildvorlagen. Die Baustein-Boards `GroupBar`, `Flow` und `Header` sind abgelöst und liegen nicht mehr bei; `SupplierBar` zeigt den Akte-Kopf und bleibt.

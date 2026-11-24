@@ -123,12 +123,13 @@
   /* Weißer Außenrand um überlappende Ringe der Kette und Meilensteine */
   --elevation-ring-gap: 0 0 0 2px #ffffff;
   --elevation-ring-gap-paper: 0 0 0 2px #f4f5f2;
-  /* Sanfte Schatten: nur für Flächen, die über anderen liegen (Overlays, Menüs, Umschalter) */
-  --elevation-xs: 0 1px 2px #1d1d1f0f;
-  --elevation-sm: 0 1px 3px #1d1d1f14, 0 1px 2px #1d1d1f0a;
-  --elevation-md: 0 4px 12px #1d1d1f14, 0 1px 3px #1d1d1f0a;
-  --elevation-lg: 0 12px 32px #1d1d1f1a, 0 2px 6px #1d1d1f0a;
-  --elevation-xl: 0 24px 64px #1d1d1f24, 0 4px 12px #1d1d1f0f;
+  /* Sanfte Schatten: nur für Flächen, die über anderen liegen (Overlays, Menüs, Umschalter).
+     Wie jeder Schatten der Designsprache in Tinte (T-CI3: kein farbiger Schatten). */
+  --elevation-xs: 0 1px 2px #0f1b220f;
+  --elevation-sm: 0 1px 3px #0f1b2214, 0 1px 2px #0f1b220a;
+  --elevation-md: 0 4px 12px #0f1b2214, 0 1px 3px #0f1b220a;
+  --elevation-lg: 0 12px 32px #0f1b221a, 0 2px 6px #0f1b220a;
+  --elevation-xl: 0 24px 64px #0f1b2224, 0 4px 12px #0f1b220f;
   /* Blatt (Designsprache, E-K0-01): Schatten nach links */
   --elevation-sheet: -12px 0 40px #0f1b2233;
 
@@ -187,8 +188,8 @@
   /* Neutrale Fläche (line-soft) mit Text auf neutraler Fläche (muted-strong) */
   --secondary: #eceeea;
   --secondary-foreground: #3f4a52;
-  /* shadcn-Name: Hover-Fläche, nicht die Akzentfarbe */
-  --accent: #e2e5e0;
+  /* shadcn-Name: Hover-Fläche (line, wie beim Zweitknopf), nicht die Akzentfarbe */
+  --accent: #dfe2dd;
   --accent-foreground: #14181b;
   --border: #dfe2dd;
   /* Rahmen von Eingabefeldern: mindestens 3:1 zum Hintergrund */
@@ -205,30 +206,32 @@
   --stage: #0f1b22;
   --stage-foreground: #f4f5f2;
   --stage-muted: #a9b4b9;
-  --stage-raised: #1a2830;
+  /* Erhabene Flächen und Zweitknopf auf Tinte: dark-2 (Designsprache, Vorlagen) */
+  --stage-raised: #2e3e47;
   --stage-border: #2e3e47;
-  /* Rahmen von Feldern und umrandeten Knöpfen auf der Bühne: mindestens 3:1 */
-  --stage-input: #7f8b91;
+  /* Rahmen von Feldern und umrandeten Knöpfen auf der Bühne (input-border): mindestens 3:1 */
+  --stage-input: #7b8389;
   --stage-accent: #4fd1b4;
   --stage-accent-foreground: #0f1b22;
 
-  /* Gedämpfte Statusfarben – nur für Status mit Bedeutung. Grün ist Blattgrün, nicht Petrol. */
-  --success: #3a7524;
+  /* Statusfarben – nur für Status mit Bedeutung. Text wie in der Status-Tabelle der Designsprache
+     (gut, Achtung, kritisch); der Ampelpunkt Achtung ist signal-amber. Grün ist Blattgrün. */
+  --success: #2f5f1d;
   --success-soft: #e8f1df;
   --success-soft-foreground: #2f5f1d;
-  --warning: #8f600a;
+  --warning: #74500a;
   --warning-soft: #f8eed6;
   --warning-soft-foreground: #74500a;
-  --destructive: #b3261e;
+  --destructive: #94201a;
   --destructive-foreground: #ffffff;
   --destructive-soft: #fae6e3;
   --destructive-soft-foreground: #94201a;
 
-  /* Diagramme */
-  --chart-context: #a3aaa6;
+  /* Diagramme. Regel 3 der Designsprache: Petrol für das, was zählt, Grau (ring-open) für den Rest */
+  --chart-context: #b9bfba;
   --chart-accent: #0b7a6a;
   --chart-strong: #3f4a52;
-  --chart-negative: #bcc1bd;
+  --chart-negative: #b9bfba;
   --chart-grid: #dfe2dd;
   --chart-axis: #5a636b;
   --chart-label: #14181b;
@@ -240,16 +243,17 @@
   --chart-tooltip-border: #dfe2dd;
   --chart-buyer: #0b7a6a;
   --chart-supplier: #3f4a52;
-  /* Folgeskala von hell nach dunkel, mit passender Schriftfarbe je Stufe */
-  --chart-seq-1: #e6f4f0;
-  --chart-seq-2: #bfe3d8;
-  --chart-seq-3: #7fc6b3;
-  --chart-seq-4: #2f9681;
+  /* Folgeskala von hell nach dunkel aus der Palette (mint-soft, mint-line, mint, petrol,
+     petrol-dark), mit passender Schriftfarbe je Stufe */
+  --chart-seq-1: #e1f3ed;
+  --chart-seq-2: #9fd9c8;
+  --chart-seq-3: #4fd1b4;
+  --chart-seq-4: #0b7a6a;
   --chart-seq-5: #0a5c50;
   --chart-seq-label-1: #14181b;
   --chart-seq-label-2: #14181b;
   --chart-seq-label-3: #14181b;
-  --chart-seq-label-4: #14181b;
+  --chart-seq-label-4: #ffffff;
   --chart-seq-label-5: #ffffff;
 }
 
