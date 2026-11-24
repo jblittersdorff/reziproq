@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, desc, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
 import {
   type ActivityFeed,
   type ActivityFilter,
@@ -314,7 +314,7 @@ export class ActivitiesService {
         .set({
           ...(change.text !== undefined ? { text: change.text } : {}),
           ...(change.pinned !== undefined ? { pinned: change.pinned } : {}),
-          updatedAt: new Date(),
+          updatedAt: currentTime(),
         })
         .where(eq(schema.note.id, id));
       return this.feedIn(tx, auth, relationshipId);

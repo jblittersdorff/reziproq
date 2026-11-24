@@ -11,7 +11,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { and, auditedChange, desc, eq, schema, sql } from '@reziproq/db';
+import { and, auditedChange, currentTime, desc, eq, schema, sql } from '@reziproq/db';
 import {
   type AiSettings,
   type AiSettingsResponse,
@@ -103,7 +103,7 @@ export class AiSettingsController {
               })
               .onConflictDoUpdate({
                 target: [schema.orgSetting.orgId, schema.orgSetting.key],
-                set: { value, updatedBy: auth.userId, updatedAt: sql`now()` },
+                set: { value, updatedBy: auth.userId, updatedAt: sql`app_now()` },
               });
           }
           const pick = (settings: AiSettings) =>
@@ -146,14 +146,14 @@ export class AiUsageController {
           .where(
             and(
               eq(schema.modelCall.orgId, organization.id),
-              sql`${schema.modelCall.createdAt} >= date_trunc('month', now())`,
+              sql`${schema.modelCall.createdAt} >= date_trunc('month', app_now())`,
             ),
           )
           .groupBy(schema.modelCall.feature)
           .orderBy(sql`3 desc`);
         const totalMicrocents = rows.reduce((sum, row) => sum + Number(row.microcents), 0);
         return {
-          month: new Date().toISOString().slice(0, 7),
+          month: currentTime().toISOString().slice(0, 7),
           budgetMonthCents: settings.budgetMonthCents,
           usedCents: centsFromMicrocents(totalMicrocents),
           calls: rows.reduce((sum, row) => sum + Number(row.calls), 0),

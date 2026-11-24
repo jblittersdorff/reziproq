@@ -6,7 +6,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type CustomAgent,
   type CustomAgentDetail,
@@ -104,7 +113,7 @@ export class CustomAgentsService {
   ) {}
 
   /** Für Tests: feste Uhrzeit */
-  clock: () => Date = () => new Date();
+  clock: () => Date = () => currentTime();
 
   private session(auth: AuthContext) {
     if (!auth.organization?.buyer || !can(auth, 'lieferanten.sehen') || auth.supportOrganization)
@@ -403,7 +412,7 @@ export class CustomAgentsService {
       if (data.decision === 'approve') {
         await tx
           .update(agentVersion)
-          .set({ approvedBy: auth.userId, approvedAt: new Date() })
+          .set({ approvedBy: auth.userId, approvedAt: currentTime() })
           .where(eq(agentVersion.id, version.id));
       }
       const [updated] = await tx
@@ -597,7 +606,7 @@ export class CustomAgentsService {
       await this.tenant.run({ organizationId: job.orgId, userId: job.userId }, (tx) =>
         tx
           .update(agentRun)
-          .set({ status: 'failed', finishedAt: new Date() })
+          .set({ status: 'failed', finishedAt: currentTime() })
           .where(and(eq(agentRun.id, job.runId), eq(agentRun.status, 'queued'))),
       );
     }
@@ -696,7 +705,7 @@ export class CustomAgentsService {
     const claimed = await this.tenant.run(session, (tx) =>
       tx
         .update(aiDraft)
-        .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: new Date() })
+        .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: currentTime() })
         .where(and(eq(aiDraft.id, draftId), eq(aiDraft.status, 'draft')))
         .returning({ id: aiDraft.id }),
     );
@@ -764,7 +773,7 @@ export class CustomAgentsService {
       if (content.reviewer !== auth.userId && auth.orgRole !== 'admin') throw forbidden();
       await tx
         .update(aiDraft)
-        .set({ status: 'discarded', decidedBy: auth.userId, decidedAt: new Date() })
+        .set({ status: 'discarded', decidedBy: auth.userId, decidedAt: currentTime() })
         .where(eq(aiDraft.id, draftId));
     });
   }

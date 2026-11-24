@@ -11,6 +11,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   schema,
@@ -70,7 +71,7 @@ export interface WaveScope {
 
 type WaveRow = typeof schema.surveyWave.$inferSelect;
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => currentTime().toISOString().slice(0, 10);
 const isFunction = (value: string | null): value is SurveyFunction =>
   value !== null && (surveyFunctions as readonly string[]).includes(value);
 

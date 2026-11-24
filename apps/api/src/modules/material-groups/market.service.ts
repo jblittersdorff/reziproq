@@ -10,6 +10,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -443,13 +444,13 @@ export class MarketService {
       }
       const settings = await readAiSettings(tx, orgId);
       const research = settings.publicResearch && env.NODE_ENV !== 'production';
-      const asOf = new Date().toISOString().slice(0, 10);
+      const asOf = currentTime().toISOString().slice(0, 10);
       const runId = await this.startRun(tx, orgId, auth.userId, strategyId);
       const steps = await this.insertSteps(tx, orgId, runId);
       const finish = (seq: number, detail: Record<string, unknown>) =>
         tx
           .update(schema.agentStep)
-          .set({ status: 'done', finishedAt: new Date(), detail })
+          .set({ status: 'done', finishedAt: currentTime(), detail })
           .where(and(eq(schema.agentStep.runId, runId), eq(schema.agentStep.seq, seq)));
 
       // 1 Plan: Suchfragen nur mit Warengruppe und Technologie, nie mit eigenen Zahlen
@@ -630,7 +631,7 @@ export class MarketService {
           // Neu recherchieren ersetzt bestätigte Kräfte nie, der Entwurf liegt daneben (WG-09).
           await tx
             .update(schema.materialGroupMarketForce)
-            .set({ proposal: assessment, updatedAt: new Date() })
+            .set({ proposal: assessment, updatedAt: currentTime() })
             .where(eq(schema.materialGroupMarketForce.id, row.id));
         } else {
           await tx
@@ -641,7 +642,7 @@ export class MarketService {
                 schema.materialGroupMarketForce.strategyId,
                 schema.materialGroupMarketForce.force,
               ],
-              set: { ...assessment, status: 'draft', updatedAt: new Date() },
+              set: { ...assessment, status: 'draft', updatedAt: currentTime() },
             });
         }
       }
@@ -743,7 +744,7 @@ export class MarketService {
       await finish(7, created);
       await tx
         .update(schema.agentRun)
-        .set({ status: 'done', finishedAt: new Date(), stepsUsed: 7 })
+        .set({ status: 'done', finishedAt: currentTime(), stepsUsed: 7 })
         .where(eq(schema.agentRun.id, runId));
       await this.strategies.touchedIn(tx, strategy);
       return this.view(tx, strategyId, true);
@@ -812,7 +813,7 @@ export class MarketService {
         contextType: 'category_strategy',
         contextId: strategyId,
         status: 'running',
-        startedAt: new Date(),
+        startedAt: currentTime(),
       })
       .returning({ id: schema.agentRun.id });
     if (!run) throw notFound();
@@ -834,7 +835,7 @@ export class MarketService {
   private async failRun(tx: TenantTransaction, runId: string) {
     await tx
       .update(schema.agentRun)
-      .set({ status: 'failed', finishedAt: new Date() })
+      .set({ status: 'failed', finishedAt: currentTime() })
       .where(eq(schema.agentRun.id, runId));
   }
 
@@ -863,7 +864,7 @@ export class MarketService {
       }
       await tx
         .update(schema.materialGroupMarketForce)
-        .set({ status: 'confirmed', confirmedBy: auth.userId, confirmedAt: new Date() })
+        .set({ status: 'confirmed', confirmedBy: auth.userId, confirmedAt: currentTime() })
         .where(eq(schema.materialGroupMarketForce.id, row.id));
       await this.strategies.touchedIn(tx, strategy);
       return this.view(tx, strategyId, true);
@@ -893,8 +894,8 @@ export class MarketService {
         points: value.points.map((text) => ({ text, sourceIds: sourcesOf(text) })),
         status: 'confirmed' as const,
         confirmedBy: auth.userId,
-        confirmedAt: new Date(),
-        updatedAt: new Date(),
+        confirmedAt: currentTime(),
+        updatedAt: currentTime(),
       };
       await tx
         .insert(schema.materialGroupMarketForce)
@@ -932,10 +933,10 @@ export class MarketService {
                 proposal: null,
                 status: 'confirmed',
                 confirmedBy: auth.userId,
-                confirmedAt: new Date(),
-                updatedAt: new Date(),
+                confirmedAt: currentTime(),
+                updatedAt: currentTime(),
               }
-            : { proposal: null, updatedAt: new Date() },
+            : { proposal: null, updatedAt: currentTime() },
         )
         .where(eq(schema.materialGroupMarketForce.id, row.id));
       await this.strategies.touchedIn(tx, strategy);
@@ -968,7 +969,7 @@ export class MarketService {
       await auditedChange(tx, actor, aiDraftAudit, async () => {
         await tx
           .update(schema.aiDraft)
-          .set({ status: decision, decidedBy: auth.userId, decidedAt: new Date() })
+          .set({ status: decision, decidedBy: auth.userId, decidedAt: currentTime() })
           .where(eq(schema.aiDraft.id, draft.id));
         return {
           relationshipId: null,
@@ -998,7 +999,7 @@ export class MarketService {
                 schema.materialGroupNote.step,
                 schema.materialGroupNote.view,
               ],
-              set: { text, notApplicable: false, updatedBy: auth.userId, updatedAt: new Date() },
+              set: { text, notApplicable: false, updatedBy: auth.userId, updatedAt: currentTime() },
             });
         }
       }

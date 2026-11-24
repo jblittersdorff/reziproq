@@ -8,7 +8,7 @@ import {
   NotFoundException,
   type OnModuleInit,
 } from '@nestjs/common';
-import { and, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type AddinDetect,
   type FiledMailBody,
@@ -411,7 +411,7 @@ export class MailsService implements OnModuleInit {
       fromEmail: originalFrom,
       fromName: null,
       toEmails: [...(original?.to ?? []), ...(original?.cc ?? [])],
-      sentAt: text('sentAt') ? new Date(text('sentAt')) : new Date(),
+      sentAt: text('sentAt') ? new Date(text('sentAt')) : currentTime(),
       subject,
       bodyText: body,
       attachments,

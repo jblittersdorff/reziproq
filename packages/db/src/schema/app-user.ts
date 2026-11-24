@@ -38,8 +38,8 @@ export const appUser = pgTable(
     }),
     // Zeitpunkt der letzten abgeschlossenen Anmeldung; die App meldet sie nach jedem Login (PLT-01).
     lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     // Rollen liegen in der Datenbank, nicht in Zitadel (PLT-05).
     orgRole: text('org_role', { enum: orgRoles }).notNull().default('viewer'),
     // Zusatzrolle Controlling, kombinierbar mit jeder Rolle; gibt später GuV-Wirkungen frei (PNL-06).

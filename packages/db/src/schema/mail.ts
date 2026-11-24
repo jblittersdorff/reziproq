@@ -46,7 +46,7 @@ export const filedMail = pgTable(
     // Zwei Sätze der KI als Entwurf (ai_draft, Art mail_summary); leer, wenn verworfen
     summaryDraftId: uuid(),
     source: text({ enum: filedMailSources }).notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('filed_mail_visibility', sql`${table.visibility} in ('team', 'private')`),
@@ -81,7 +81,7 @@ export const filedMailAttachment = pgTable(
     fileKey: text(),
     // KI-18: Dokument des Lieferanten, sobald es Dokumente gibt
     documentId: uuid(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('filed_mail_attachment_visibility', sql`${table.visibility} in ('team', 'private')`),

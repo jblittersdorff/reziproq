@@ -14,7 +14,7 @@ export const supplierContact = pgTable(
     email: text().notNull(),
     function: text(),
     position: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     uniqueIndex('supplier_contact_email').on(table.relationshipId, sql`lower(${table.email})`),

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { systemTime } from '@reziproq/db';
 import type { PromptEvent, PromptRequest } from '@reziproq/shared';
 import { ActivitiesService } from '../activities/activities.service.js';
 import { gatewayContext, gatewayProvider, ModelGateway } from '../ai-gateway/model-gateway.js';
@@ -85,7 +86,7 @@ export class PromptService {
       emit({ type: 'error', message: promptFailure });
     } finally {
       this.log.write({
-        zeitpunkt: new Date().toISOString(),
+        zeitpunkt: systemTime().toISOString(),
         nutzerId: auth.userId,
         organisationId: auth.organization?.id ?? null,
         dauerMs: Math.round(performance.now() - started),

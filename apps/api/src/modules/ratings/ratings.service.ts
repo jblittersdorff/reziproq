@@ -5,7 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   calculateSegment,
   type DueItem,
@@ -514,7 +523,7 @@ export class RatingsService implements OverviewMetricSource {
         ...(input.ist !== undefined ? { ist: input.ist } : {}),
         ...(input.soll !== undefined ? { soll: input.soll } : {}),
         ...(input.comment !== undefined ? { comment: input.comment || null } : {}),
-        updatedAt: new Date(),
+        updatedAt: currentTime(),
       };
       await tx
         .insert(schema.rating)
@@ -566,7 +575,7 @@ export class RatingsService implements OverviewMetricSource {
       }
       await tx
         .update(schema.rating)
-        .set({ submittedAt: sql`coalesce(${schema.rating.submittedAt}, now())` })
+        .set({ submittedAt: sql`coalesce(${schema.rating.submittedAt}, app_now())` })
         .where(eq(schema.rating.assignmentId, id));
       await tx
         .update(schema.ratingAssignment)

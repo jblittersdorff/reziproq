@@ -42,7 +42,7 @@ export const ruleCatalogItem = pgTable(
     }),
     minImpactLevel: smallint().notNull(),
     position: integer().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('rule_catalog_item_kind', sql`${table.kind} in ('right', 'obligation')`),
@@ -78,7 +78,7 @@ export const formatCatalogItem = pgTable(
     // Leer: für jede Beziehungsqualität.
     forQualityLevels: smallint().array().notNull().default(sql`'{}'::smallint[]`),
     position: integer().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -106,5 +106,5 @@ export const catalogSetup = pgTable('catalog_setup', {
   orgId: uuid()
     .primaryKey()
     .references(() => organization.id),
-  seededAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  seededAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
 });

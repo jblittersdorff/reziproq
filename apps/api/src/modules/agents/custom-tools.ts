@@ -134,7 +134,7 @@ export class CustomAgentTools {
               group by status`);
             const overdue = await rows<{ title: string; due_date: string }>(sql`
               select title, due_date::text from action where relationship_id = ${relationshipId}
-                and status in ('open', 'in_progress') and due_date < current_date
+                and status in ('open', 'in_progress') and due_date < app_now()::date
               order by due_date limit 5`);
             return { counts, overdue };
           }
@@ -142,10 +142,10 @@ export class CustomAgentTools {
             return {
               upcoming: await rows<{ title: string; type: string; starts_at: string }>(sql`
                 select title, type, starts_at::text from meeting where relationship_id = ${relationshipId}
-                  and starts_at >= now() and status <> 'cancelled' order by starts_at limit 3`),
+                  and starts_at >= app_now() and status <> 'cancelled' order by starts_at limit 3`),
               last: await rows<{ title: string; type: string; starts_at: string }>(sql`
                 select title, type, starts_at::text from meeting where relationship_id = ${relationshipId}
-                  and starts_at < now() and status <> 'cancelled' order by starts_at desc limit 3`),
+                  and starts_at < app_now() and status <> 'cancelled' order by starts_at desc limit 3`),
             };
           case 'feedback':
             return {

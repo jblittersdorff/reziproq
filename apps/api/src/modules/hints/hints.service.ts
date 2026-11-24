@@ -9,6 +9,7 @@ import {
   and,
   auditedChange,
   auditedObject,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -271,7 +272,7 @@ export class HintsService {
       ...early,
     ];
     const existing = await tx.select().from(schema.hint).where(eq(schema.hint.orgId, orgId));
-    const now = new Date();
+    const now = currentTime();
     const active = (row: HintRow) => row.status === 'open' || row.status === 'in_progress';
     const seen = new Set<string>();
     const highHints: {
@@ -624,7 +625,7 @@ export class HintsService {
       const sorted = [...visible].sort((a, b) => rank(a) - rank(b) || b.score - a.score);
       return hintListSchema.parse({
         hints: await this.view(tx, auth, sorted),
-        checkedAt: new Date().toISOString(),
+        checkedAt: currentTime().toISOString(),
       });
     });
   }
@@ -653,7 +654,7 @@ export class HintsService {
       const { row, hint } = await this.decidable(tx, auth, id);
       if (!hint.canAccept || !row.relationshipId) throw forbidden();
       const actor = await actorOf(tx, auth, orgId);
-      const due = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
+      const due = new Date(currentTime().getTime() + 14 * 86_400_000).toISOString().slice(0, 10);
       const relationshipId = row.relationshipId;
       await auditedChange(tx, actor, actionInternalAudit, async () => {
         const [action] = await tx
@@ -699,7 +700,7 @@ export class HintsService {
       await auditedChange(tx, actor, hintAudit, async () => {
         await tx
           .update(schema.hint)
-          .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: new Date() })
+          .set({ status: 'accepted', decidedBy: auth.userId, decidedAt: currentTime() })
           .where(eq(schema.hint.id, row.id));
         return {
           relationshipId,
@@ -731,7 +732,7 @@ export class HintsService {
             status: 'dismissed',
             reason: input.reason,
             decidedBy: auth.userId,
-            decidedAt: new Date(),
+            decidedAt: currentTime(),
           })
           .where(eq(schema.hint.id, row.id));
         return {
@@ -768,7 +769,7 @@ export class HintsService {
         })
         .onConflictDoUpdate({
           target: [schema.orgSetting.orgId, schema.orgSetting.key],
-          set: { value: input.maxFocusPerSro, updatedBy: auth.userId, updatedAt: new Date() },
+          set: { value: input.maxFocusPerSro, updatedBy: auth.userId, updatedAt: currentTime() },
         });
       return { maxFocusPerSro: await this.maxFocusPerSro(tx, orgId) };
     });
@@ -973,7 +974,7 @@ export class HintsService {
           .values({ orgId, key, value, updatedBy: auth.userId })
           .onConflictDoUpdate({
             target: [schema.orgSetting.orgId, schema.orgSetting.key],
-            set: { value, updatedBy: auth.userId, updatedAt: new Date() },
+            set: { value, updatedBy: auth.userId, updatedAt: currentTime() },
           });
       }
     });
@@ -982,5 +983,5 @@ export class HintsService {
 }
 
 function isoToday() {
-  return new Date().toISOString().slice(0, 10);
+  return currentTime().toISOString().slice(0, 10);
 }

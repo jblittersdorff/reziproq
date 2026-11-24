@@ -918,6 +918,20 @@
       "when": 1795548703336,
       "tag": "0130_k1a_datenraeume",
       "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "7",
+      "when": 1795550313365,
+      "tag": "0131_k1a_uhr",
+      "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1795550357252,
+      "tag": "0132_k1a_uhr_standardwerte",
+      "breakpoints": true
     }
   ]
 }

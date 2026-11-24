@@ -25,7 +25,7 @@ export const dataExport = pgTable(
     fileName: text(),
     file: bytea(),
     expiresAt: timestamp({ withTimezone: true }),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     finishedAt: timestamp({ withTimezone: true }),
   },
   (table) => [

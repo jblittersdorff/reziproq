@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   schema,
@@ -89,7 +90,7 @@ export class SharingService {
           ruleText: input.ruleText || null,
           proposedBy: auth.userId,
           proposedByName: actor.name,
-          proposedAt: new Date(),
+          proposedAt: currentTime(),
           supplierConfirmedByName: null,
           agreedAt: null,
         };

@@ -1,5 +1,14 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  auditedChange,
+  currentTime,
+  desc,
+  eq,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type AccountPlan,
   accountPlanSchema,
@@ -113,7 +122,7 @@ export class AccountPlanService {
             ...change,
             updatedBy: scope.auth.userId,
             updatedByName: actor.name,
-            updatedAt: new Date(),
+            updatedAt: currentTime(),
           })
           .where(eq(schema.supplierAccountPlan.id, before.id));
       } else {

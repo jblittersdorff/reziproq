@@ -5,7 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type CategoryReview,
   type CategoryScorecard,
@@ -427,7 +436,7 @@ export class ScorecardService {
    * Täglicher Job: je freigegebener Strategie alle drei Monate nach der Freigabe genau ein Review
    * (je Fälligkeit eines, die Datenbank verhindert Doppelte). Gibt die Zahl neuer Reviews zurück.
    */
-  async createDueReviews(orgId: string, now = new Date()): Promise<number> {
+  async createDueReviews(orgId: string, now = currentTime()): Promise<number> {
     return this.tenant.run({ userId: 'system:warengruppen', organizationId: orgId }, async (tx) => {
       const strategies = await tx
         .select({
@@ -599,7 +608,7 @@ export class ScorecardService {
       if (!current.canHold) throw forbidden();
       await tx
         .update(schema.materialGroupReview)
-        .set({ heldAt: new Date(), heldBy: auth.userId, summary: input.summary })
+        .set({ heldAt: currentTime(), heldBy: auth.userId, summary: input.summary })
         .where(eq(schema.materialGroupReview.id, reviewId));
       return this.reviewIn(tx, auth, organization.id, reviewId);
     });

@@ -8,7 +8,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, auditedChange, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  auditedChange,
+  desc,
+  eq,
+  schema,
+  sql,
+  systemTime,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type AcceptInvitationRequest,
   type AcceptInvitationResponse,
@@ -67,7 +76,7 @@ function statusOf(row: {
 }): InvitationStatus {
   if (row.acceptedAt) return 'accepted';
   if (row.revokedAt) return 'revoked';
-  if (row.expiresAt.getTime() <= Date.now()) return 'expired';
+  if (row.expiresAt.getTime() <= systemTime().getTime()) return 'expired';
   return 'open';
 }
 
@@ -234,13 +243,15 @@ export class InvitationsService {
             sql`lower(${schema.invitation.email}) = ${email}`,
             sql`${schema.invitation.acceptedAt} is null`,
             sql`${schema.invitation.revokedAt} is null`,
-            sql`${schema.invitation.expiresAt} > now()`,
+            sql`${schema.invitation.expiresAt} > app_system_now()`,
           ),
         );
       if (open) throw conflict('already_invited', 'Diese Person ist schon eingeladen.');
 
       const token = randomBytes(32).toString('base64url');
-      const expiresAt = new Date(Date.now() + invitationValidDays * 24 * 60 * 60 * 1000);
+      const expiresAt = new Date(
+        systemTime().getTime() + invitationValidDays * 24 * 60 * 60 * 1000,
+      );
       const actor = await actorOf(tx, auth, organization.id);
       const message = input.message ? input.message : undefined;
       await auditedChange(tx, actor, supplierInvitationAudit, async () => {
@@ -308,7 +319,7 @@ export class InvitationsService {
       await auditedChange(tx, actor, supplierInvitationAudit, async () => {
         await tx
           .update(schema.invitation)
-          .set({ revokedAt: new Date() })
+          .set({ revokedAt: systemTime() })
           .where(eq(schema.invitation.id, invitationId));
         return {
           objectId: invitationId,

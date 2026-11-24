@@ -27,7 +27,7 @@ export const supplierAccountPlan = pgTable(
     customerImportance: smallint(),
     updatedBy: text().notNull(),
     updatedByName: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -57,7 +57,7 @@ export const supplierAccountObjective = pgTable(
     ownerUserId: text(),
     ownerName: text(),
     targetYear: integer().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('supplier_account_objective_text', sql`length(trim(${table.text})) between 1 and 500`),

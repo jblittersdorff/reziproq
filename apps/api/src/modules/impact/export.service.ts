@@ -1,5 +1,14 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, asc, desc, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   amountInRange,
   effectTypes,
@@ -75,7 +84,7 @@ export class ExportService {
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
       const startMonth = await this.portfolio.startMonth(tx, organization.id);
       const fiscalYear =
-        selection.fiscalYear ?? fiscalYearOf(new Date().toISOString().slice(0, 10), startMonth);
+        selection.fiscalYear ?? fiscalYearOf(currentTime().toISOString().slice(0, 10), startMonth);
       const relationships = await this.scope(tx, auth, organization.id, selection);
       const facts = await factsOf(
         tx,
@@ -95,7 +104,7 @@ export class ExportService {
             ? `GJ ${fiscalYear}`
             : 'Jahreswirkung';
       const fileName =
-        `Wirkung ${organization.name} ${label} ${new Date().toISOString().slice(0, 10)}.xlsx`
+        `Wirkung ${organization.name} ${label} ${currentTime().toISOString().slice(0, 10)}.xlsx`
           .replace(/[^\p{L}\p{N} ._-]/gu, '')
           .replace(/\s+/g, '_');
       return { fileName, buffer: Buffer.from(await workbook.xlsx.writeBuffer()) };

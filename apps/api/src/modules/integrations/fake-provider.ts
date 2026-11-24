@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
+import { currentTime, systemTime } from '@reziproq/db';
 import type { ConnectorDefinition, ItemKind } from './connectors.js';
 
 /** Ein Element, das ein Anbieter liefert; external_id macht den Abgleich wiederholbar */
@@ -73,7 +74,7 @@ export class FakeProvider implements ConnectorProvider {
     if (context.personal && context.parts.includes('calendar')) {
       const supplier = context.relationships.find((entry) => entry.domains.length > 0);
       if (!supplier) return [];
-      const start = new Date(Date.now() + 3 * 86_400_000);
+      const start = new Date(currentTime().getTime() + 3 * 86_400_000);
       start.setUTCHours(9, 0, 0, 0);
       return [
         {
@@ -135,7 +136,8 @@ export class FakeProvider implements ConnectorProvider {
     this.issued.push(token);
     return {
       token,
-      expiresAt: connector.secretKind === 'oauth' ? new Date(Date.now() + 60 * 60 * 1000) : null,
+      expiresAt:
+        connector.secretKind === 'oauth' ? new Date(systemTime().getTime() + 60 * 60 * 1000) : null,
     };
   }
 }

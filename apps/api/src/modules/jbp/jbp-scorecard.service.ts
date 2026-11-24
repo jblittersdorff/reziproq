@@ -10,6 +10,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -591,7 +592,7 @@ export class JbpScorecardService {
             source,
             enteredBy: scope.auth.userId,
             enteredByName: actor.name,
-            enteredAt: new Date(),
+            enteredAt: currentTime(),
           })
           .where(eq(schema.kpiValue.id, before.id));
       } else {

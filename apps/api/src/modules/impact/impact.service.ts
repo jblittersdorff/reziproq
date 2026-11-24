@@ -10,6 +10,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -361,7 +362,7 @@ export class ImpactService {
       if (before) {
         await tx
           .update(schema.initiativeImpact)
-          .set({ ...values, updatedAt: new Date() })
+          .set({ ...values, updatedAt: currentTime() })
           .where(eq(schema.initiativeImpact.id, before.id));
       } else {
         await tx.insert(schema.initiativeImpact).values({

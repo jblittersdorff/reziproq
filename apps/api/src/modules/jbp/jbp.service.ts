@@ -4,6 +4,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -155,7 +156,7 @@ export class JbpService {
 
   /** WG-20: Warengruppen des Lieferanten ohne Strategie im laufenden Jahr, offene Widersprüche */
   private async categoryWarnings(tx: TenantTransaction, relationshipId: string) {
-    const year = new Date().getFullYear();
+    const year = currentTime().getFullYear();
     const missing = await tx.execute<{ name: string }>(sql`
       select g.name from material_group g
       where g.active and g.id in (
@@ -451,7 +452,7 @@ export class JbpService {
       if (before) {
         await tx
           .update(schema.jbpBusinessUpdate)
-          .set({ text, updatedAt: new Date() })
+          .set({ text, updatedAt: currentTime() })
           .where(eq(schema.jbpBusinessUpdate.id, before.id));
       } else {
         await tx.insert(schema.jbpBusinessUpdate).values({

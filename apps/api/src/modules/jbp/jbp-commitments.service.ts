@@ -10,6 +10,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -40,7 +41,7 @@ const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gef
 type CommitmentRow = typeof schema.commitment.$inferSelect;
 
 /** Heute als ISO-Datum; überfällig ist eine offene Zusage mit Frist vor heute. */
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => currentTime().toISOString().slice(0, 10);
 
 async function currentPlan(tx: TenantTransaction, relationshipId: string) {
   const [row] = await tx
@@ -252,7 +253,7 @@ export class JbpCommitmentsService {
     if (before.visibility === 'shared') return;
     await scope.tx
       .update(schema.commitment)
-      .set({ visibility: 'shared', updatedAt: new Date() })
+      .set({ visibility: 'shared', updatedAt: currentTime() })
       .where(eq(schema.commitment.id, commitmentId));
   }
 
@@ -292,7 +293,7 @@ export class JbpCommitmentsService {
     await auditedChange(tx, actor, commitmentAudit, async () => {
       await tx
         .update(schema.commitment)
-        .set({ ...next, updatedAt: new Date() })
+        .set({ ...next, updatedAt: currentTime() })
         .where(eq(schema.commitment.id, before.id));
       return {
         objectId: before.id,

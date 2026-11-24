@@ -40,7 +40,7 @@ export const jbp = pgTable(
     status: text({ enum: jbpStatuses }).notNull().default('draft'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('jbp_status', sql`${table.status} in ('draft', 'in_review', 'approved')`),
@@ -87,7 +87,7 @@ export const jbpBusinessUpdate = pgTable(
       .references(() => jbp.id, { onDelete: 'cascade' }),
     side: text({ enum: ['buyer', 'supplier'] }).notNull(),
     text: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('jbp_business_update_side', sql`${table.side} in ('buyer', 'supplier')`),
@@ -126,8 +126,8 @@ export const jbpTopic = pgTable(
     parkReason: text(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft und Bestätigung
     ...originColumns(),
     ...confirmColumns(),
@@ -192,7 +192,7 @@ export const jbpApproval = pgTable(
     userName: text().notNull(),
     decision: text({ enum: ['approved', 'returned'] }).notNull(),
     comment: text(),
-    decidedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('jbp_approval_side', sql`${table.side} in ('buyer', 'supplier')`),
@@ -224,7 +224,7 @@ export const jbpVersion = pgTable(
       .references(() => jbp.id, { onDelete: 'cascade' }),
     version: integer().notNull(),
     content: jsonb().notNull(),
-    approvedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    approvedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft und Bestätigung
     ...originColumns(),
     ...confirmColumns(),

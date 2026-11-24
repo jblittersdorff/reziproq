@@ -59,7 +59,7 @@ export const importBatch = pgTable(
     undo: jsonb().$type<Record<string, unknown>>(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     committedBy: text(),
     committedAt: timestamp({ withTimezone: true }),
     revertedAt: timestamp({ withTimezone: true }),
@@ -172,7 +172,7 @@ export const supplierAlias = pgTable(
     nameVariant: text(),
     createdFromRowId: uuid(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -201,7 +201,7 @@ export const categoryRule = pgTable(
     pattern: text().notNull(),
     createdFromRowId: uuid(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(

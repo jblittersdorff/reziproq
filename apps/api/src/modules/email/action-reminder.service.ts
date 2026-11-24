@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
 import { offsetCycleDate, type UserLocale } from '@reziproq/shared';
 import { ActionDueStore, TenantDatabase } from '../../common/database.module.js';
 import { readReminderDays } from '../actions/action-settings.js';
@@ -36,7 +36,7 @@ export class ActionReminderService {
     @Inject(EmailService) private readonly emails: EmailService,
   ) {}
 
-  async runDaily(today = new Date().toISOString().slice(0, 10)): Promise<number> {
+  async runDaily(today = currentTime().toISOString().slice(0, 10)): Promise<number> {
     let queued = 0;
     const from = offsetCycleDate(today, -1);
     const to = offsetCycleDate(today, maxReminderDays);

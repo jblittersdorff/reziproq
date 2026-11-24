@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
+import { auditedChange, currentTime, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
 import {
   type DecideValidation,
   type DueItem,
@@ -134,7 +134,7 @@ export class ValidationService {
             status: input.decision,
             decidedBy: auth.userId,
             decidedByName: actor.name,
-            decidedAt: new Date(),
+            decidedAt: currentTime(),
             comment: input.comment,
           })
           .where(eq(schema.initiativeValidation.id, id));

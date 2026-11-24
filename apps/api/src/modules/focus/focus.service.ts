@@ -1,5 +1,13 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, auditedChange, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  auditedChange,
+  currentTime,
+  eq,
+  inArray,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type FocusDetail,
   type FocusList,
@@ -204,7 +212,7 @@ export class FocusService {
           isFocus: request.isFocus,
           focusReason: request.reason,
           focusSetBy: auth.userId,
-          focusSetAt: new Date(),
+          focusSetAt: currentTime(),
         };
         await tx
           .insert(relationshipSide)

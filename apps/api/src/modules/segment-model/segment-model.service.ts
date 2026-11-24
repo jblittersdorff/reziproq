@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, asc, currentTime, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import type {
   SegmentAxis,
   SegmentModel,
@@ -226,7 +226,7 @@ export class SegmentModelService {
         );
       await tx
         .update(schema.segmentModel)
-        .set({ status: 'active', activatedAt: new Date() })
+        .set({ status: 'active', activatedAt: currentTime() })
         .where(eq(schema.segmentModel.id, draft.id));
     });
     return this.get(auth);

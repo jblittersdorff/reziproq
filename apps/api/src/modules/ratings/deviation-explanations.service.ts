@@ -8,6 +8,7 @@ import {
 import {
   and,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -346,7 +347,7 @@ export class DeviationExplanationsService {
         });
       }
       const actor = await actorOf(tx, auth, organization.id);
-      const now = new Date();
+      const now = currentTime();
       if (decision === 'accepted') {
         // Je Kriterium gilt eine übernommene Erklärung; die vorige tritt zurück.
         await tx

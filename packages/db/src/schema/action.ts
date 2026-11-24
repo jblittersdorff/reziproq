@@ -47,8 +47,8 @@ export const action = pgTable(
     doneAt: timestamp({ withTimezone: true }),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft
     ...originColumns(),
   },
@@ -106,7 +106,7 @@ export const actionNotification = pgTable(
       .references(() => organization.id),
     kind: text({ enum: actionNotificationKinds }).notNull(),
     dueDate: date().notNull(),
-    sentAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    sentAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('action_notification_kind', sql`${table.kind} in ('reminder', 'escalation')`),
@@ -172,7 +172,7 @@ export const orgSetting = pgTable(
     key: text({ enum: orgSettingKeys }).notNull(),
     value: jsonb().notNull(),
     updatedBy: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(

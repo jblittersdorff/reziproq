@@ -54,8 +54,8 @@ export const initiative = pgTable(
       .default('jbp'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft
     ...originColumns(),
   },
@@ -162,8 +162,8 @@ export const commitment = pgTable(
     status: text({ enum: commitmentStatuses }).notNull().default('open'),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft und Bestätigung
     ...originColumns(),
     ...confirmColumns(),
@@ -204,7 +204,7 @@ export const scorecard = pgTable(
       .references(() => jbp.id, { onDelete: 'cascade' }),
     version: integer().notNull().default(1),
     status: text({ enum: scorecardStatuses }).notNull().default('draft'),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('scorecard_status', sql`${table.status} in ('draft', 'signed')`),
@@ -242,7 +242,7 @@ export const scorecardKpi = pgTable(
     ownerUserId: text(),
     ownerName: text().notNull(),
     benefitFor: text({ enum: ['buyer', 'supplier', 'both'] }).notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('scorecard_kpi_direction', sql`${table.direction} in ('higher', 'lower')`),
@@ -276,7 +276,7 @@ export const scorecardSignature = pgTable(
     side: text({ enum: ['buyer', 'supplier'] }).notNull(),
     userId: text().notNull(),
     userName: text().notNull(),
-    signedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    signedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('scorecard_signature_side', sql`${table.side} in ('buyer', 'supplier')`),
@@ -310,7 +310,7 @@ export const kpiValue = pgTable(
     source: text({ enum: ['manual', 'csv'] }).notNull(),
     enteredBy: text().notNull(),
     enteredByName: text().notNull(),
-    enteredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    enteredAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft und Bestätigung
     ...originColumns(),
     ...confirmColumns(),
@@ -333,7 +333,7 @@ export const scorecardSetting = pgTable(
       .notNull()
       .references(() => organization.id),
     tolerancePercent: integer().notNull().default(10),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('scorecard_setting_tolerance', sql`${table.tolerancePercent} between 0 and 50`),

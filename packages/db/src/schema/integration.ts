@@ -31,11 +31,13 @@ export const connection = pgTable(
     connectorKey: text().notNull(),
     scope: text({ enum: ['org', 'user'] }).notNull(),
     userId: text(),
-    status: text({ enum: ['pending', 'active', 'error', 'revoked'] }).notNull().default('pending'),
+    status: text({ enum: ['pending', 'active', 'error', 'revoked'] })
+      .notNull()
+      .default('pending'),
     parts: jsonb().$type<string[]>().notNull().default([]),
     settings: jsonb().$type<Record<string, unknown>>().notNull().default({}),
     connectedBy: text().notNull(),
-    connectedAt: time().notNull().defaultNow(),
+    connectedAt: time().notNull().default(sql`app_now()`),
     revokedAt: time(),
   },
   (table) => [
@@ -77,14 +79,16 @@ export const syncJob = pgTable(
       .notNull()
       .references(() => connection.id, { onDelete: 'cascade' }),
     kind: text().notNull(),
-    status: text({ enum: ['queued', 'running', 'done', 'failed'] }).notNull().default('queued'),
+    status: text({ enum: ['queued', 'running', 'done', 'failed'] })
+      .notNull()
+      .default('queued'),
     itemsIn: integer().notNull().default(0),
     itemsOk: integer().notNull().default(0),
     itemsFailed: integer().notNull().default(0),
     startedAt: time(),
     finishedAt: time(),
     error: text(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     check('sync_job_status', sql`${table.status} in ('queued', 'running', 'done', 'failed')`),
@@ -109,11 +113,14 @@ export const syncEvent = pgTable(
     objectId: uuid(),
     status: text({ enum: ['applied', 'ignored', 'rejected', 'failed'] }).notNull(),
     reason: text(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     check('sync_event_direction', sql`${table.direction} in ('in', 'out')`),
-    check('sync_event_status', sql`${table.status} in ('applied', 'ignored', 'rejected', 'failed')`),
+    check(
+      'sync_event_status',
+      sql`${table.status} in ('applied', 'ignored', 'rejected', 'failed')`,
+    ),
     uniqueIndex('sync_event_applied_once')
       .on(table.connectionId, table.kind, table.externalId)
       .where(sql`${table.status} = 'applied'`),
@@ -151,7 +158,7 @@ export const apiKey = pgTable(
     hash: text().notNull(),
     scopes: jsonb().$type<string[]>().notNull().default([]),
     createdBy: text().notNull(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
     lastUsedAt: time(),
     revokedAt: time(),
   },

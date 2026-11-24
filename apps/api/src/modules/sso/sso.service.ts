@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, schema, type TenantTransaction } from '@reziproq/db';
+import { and, eq, schema, systemTime, type TenantTransaction } from '@reziproq/db';
 import {
   type SaveSso,
   type SsoHint,
@@ -136,7 +136,7 @@ export class SsoService {
       const zitadelOrgId = await this.zitadelOrgOf(tx, orgId);
       if (!entry.verifiedAt && (await this.provisioner.confirmDomain({ zitadelOrgId, domain }))) {
         const domains = row.domains.map((item) =>
-          item.domain === domain ? { ...item, verifiedAt: new Date().toISOString() } : item,
+          item.domain === domain ? { ...item, verifiedAt: systemTime().toISOString() } : item,
         );
         const updated = await this.store(tx, row, { ...row, domains, updatedBy: auth.userId });
         await this.activate(tx, updated, zitadelOrgId);
@@ -154,7 +154,7 @@ export class SsoService {
     const [row] = existing
       ? await tx
           .update(schema.orgSso)
-          .set({ ...rest, updatedAt: new Date() })
+          .set({ ...rest, updatedAt: systemTime() })
           .where(eq(schema.orgSso.id, existing.id))
           .returning()
       : await tx.insert(schema.orgSso).values(values).returning();

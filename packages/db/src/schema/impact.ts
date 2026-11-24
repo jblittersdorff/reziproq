@@ -59,8 +59,8 @@ export const initiativeImpact = pgTable(
     effectType: text().notNull(),
     effectiveFrom: date(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -90,7 +90,7 @@ export const initiativeBaseline = pgTable(
     version: integer().notNull(),
     leverTemplateVersion: integer().notNull(),
     inputs: jsonb().notNull(),
-    frozenAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    frozenAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     frozenBy: text().notNull(),
     frozenByName: text().notNull(),
     changeReason: text(),
@@ -128,7 +128,7 @@ export const maturityStep = pgTable(
     evidenceLink: text(),
     decidedBy: text().notNull(),
     decidedByName: text().notNull(),
-    decidedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('maturity_step_levels', sql`${table.toLevel} = ${table.fromLevel} + 1`),
@@ -155,7 +155,7 @@ export const initiativeInputMonth = pgTable(
     source: text({ enum: ['manual', 'csv'] }).notNull(),
     enteredBy: text().notNull(),
     enteredByName: text().notNull(),
-    enteredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    enteredAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('initiative_input_month_kind', sql`${table.kind} in ('plan', 'actual')`),
@@ -192,7 +192,7 @@ export const initiativeValue = pgTable(
     valueCents: bigint({ mode: 'number' }).notNull(),
     currency: text().notNull().default('EUR'),
     effectType: text().notNull(),
-    computedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    computedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('initiative_value_kind', sql`${table.kind} in ('plan', 'actual')`),
@@ -218,7 +218,7 @@ export const initiativeValidation = pgTable(
     status: text({ enum: validationStatuses }).notNull().default('requested'),
     requestedBy: text().notNull(),
     requestedByName: text().notNull(),
-    requestedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    requestedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     decidedBy: text(),
     decidedByName: text(),
     decidedAt: timestamp({ withTimezone: true }),
@@ -265,7 +265,7 @@ export const initiativeShare = pgTable(
     ruleText: text(),
     proposedBy: text().notNull(),
     proposedByName: text().notNull(),
-    proposedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    proposedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     supplierConfirmedByName: text(),
     agreedAt: timestamp({ withTimezone: true }),
   },
@@ -299,7 +299,7 @@ export const supplierBenefit = pgTable(
     currency: text().notNull().default('EUR'),
     note: text(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('supplier_benefit_je_monat').on(table.initiativeId, table.month),
@@ -325,7 +325,7 @@ export const savingsReference = pgTable(
     system: text().notNull(),
     reference: text().notNull(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('savings_reference_je_initiative').on(table.initiativeId),

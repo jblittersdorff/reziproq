@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -448,7 +449,7 @@ export class PlanSummaryDraftService {
             content: decision === 'accepted' && row.claims !== null ? content : row.content,
             dismissReason: decision === 'discarded' && row.claims !== null ? reason || null : null,
             decidedBy: auth.userId,
-            decidedAt: new Date(),
+            decidedAt: currentTime(),
           })
           .where(eq(schema.aiDraft.id, row.id));
         return {

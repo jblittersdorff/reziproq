@@ -5,7 +5,7 @@ import {
   type OnApplicationShutdown,
   type OnModuleInit,
 } from '@nestjs/common';
-import { jobsDatabaseUrl, sql } from '@reziproq/db';
+import { currentTime, jobsDatabaseUrl, sql } from '@reziproq/db';
 import type { MeetingType } from '@reziproq/shared';
 import { PgBoss } from 'pg-boss';
 import { AccountStore, ActionDueStore, TenantDatabase } from '../../common/database.module.js';
@@ -110,7 +110,7 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
   }
 
   /** Ein Durchlauf; organizationIds und now nur für Tests. Liefert die Zahl gestarteter Läufe. */
-  async runDue(organizationIds?: string[], now = new Date()): Promise<number> {
+  async runDue(organizationIds?: string[], now = currentTime()): Promise<number> {
     const organizations = organizationIds ?? (await this.store.hintOrganizations());
     let started = 0;
     for (const orgId of organizations) {
@@ -139,7 +139,7 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
    * KI-17: Einen Tag nach dem Termin bekommt der SRO die Aufgabe „Ergebnisse erfassen“, falls noch
    * keine Notizen da sind. Höchstens zwei Wochen zurück, genau eine Aufgabe je Termin.
    */
-  async captureDue(organizationIds?: string[], now = new Date()): Promise<number> {
+  async captureDue(organizationIds?: string[], now = currentTime()): Promise<number> {
     const organizations = organizationIds ?? (await this.store.hintOrganizations());
     const dayBefore = new Date(now.getTime() - 86_400_000).toISOString();
     const twoWeeks = new Date(now.getTime() - 14 * 86_400_000).toISOString();

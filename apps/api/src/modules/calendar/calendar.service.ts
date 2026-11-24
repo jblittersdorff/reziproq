@@ -5,7 +5,18 @@ import {
   NotFoundException,
   type OnModuleInit,
 } from '@nestjs/common';
-import { and, desc, eq, gte, inArray, or, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  gte,
+  inArray,
+  or,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type AddinDetect,
   type AddinRegister,
@@ -304,7 +315,7 @@ export class CalendarIntakeService implements OnModuleInit {
                     sql`${schema.addinRegistration.matchedMeetingId} is null`,
                     gte(
                       schema.addinRegistration.createdAt,
-                      new Date(Date.now() - registrationWindowMs),
+                      new Date(currentTime().getTime() - registrationWindowMs),
                     ),
                   ),
                 )
@@ -364,7 +375,7 @@ export class CalendarIntakeService implements OnModuleInit {
             suggestedType: type,
             status: 'auto_assigned',
             ownerUserId: organizerUserId,
-            assignedAt: new Date(),
+            assignedAt: currentTime(),
             objectType: 'meeting',
             objectIds: [meetingId],
             registrationId: registration?.id ?? null,
@@ -558,7 +569,7 @@ export class CalendarIntakeService implements OnModuleInit {
           )
           .orderBy(desc(schema.inboundItem.receivedAt))
           .limit(100);
-        const startOfDay = new Date();
+        const startOfDay = currentTime();
         startOfDay.setHours(0, 0, 0, 0);
         const today = await tx
           .select()
@@ -710,7 +721,7 @@ export class CalendarIntakeService implements OnModuleInit {
             .set({
               status: 'assigned',
               assignedBy: auth.userId,
-              assignedAt: new Date(),
+              assignedAt: currentTime(),
               objectType: 'filed_mail',
               objectIds: mailId ? [mailId] : [],
             })
@@ -721,7 +732,7 @@ export class CalendarIntakeService implements OnModuleInit {
         await this.tenant.run(session, (tx) =>
           tx
             .update(schema.inboundItem)
-            .set({ status: 'ignored', assignedBy: auth.userId, assignedAt: new Date() })
+            .set({ status: 'ignored', assignedBy: auth.userId, assignedAt: currentTime() })
             .where(eq(schema.inboundItem.id, id)),
         );
       }
@@ -798,7 +809,7 @@ export class CalendarIntakeService implements OnModuleInit {
           .set({
             status: 'assigned',
             assignedBy: auth.userId,
-            assignedAt: new Date(),
+            assignedAt: currentTime(),
             objectType: 'meeting',
             objectIds: meetingIds,
           })
@@ -813,10 +824,10 @@ export class CalendarIntakeService implements OnModuleInit {
               ? {
                   status: 'assigned',
                   assignedBy: auth.userId,
-                  assignedAt: new Date(),
+                  assignedAt: currentTime(),
                   objectType: 'event',
                 }
-              : { status: 'ignored', assignedBy: auth.userId, assignedAt: new Date() },
+              : { status: 'ignored', assignedBy: auth.userId, assignedAt: currentTime() },
           )
           .where(eq(schema.inboundItem.id, id)),
       );

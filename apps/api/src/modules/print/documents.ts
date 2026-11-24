@@ -1,3 +1,4 @@
+import { currentTime } from '@reziproq/db';
 import type {
   Commitments,
   Initiatives,
@@ -206,7 +207,7 @@ export function supplierPlanHtml(
   plan: SupplierPlan,
   supplierName: string,
   locale: PrintLocale,
-  now = new Date(),
+  now = currentTime(),
 ): string {
   const t = copy[locale];
   const p = t.plan;
@@ -263,7 +264,7 @@ export function jbpHtml(
   },
   counterpart: string,
   locale: PrintLocale,
-  now = new Date(),
+  now = currentTime(),
 ): string {
   const t = copy[locale];
   const j = t.jbp;
@@ -323,7 +324,7 @@ export function feedbackHtml(
   detail: SurveyWaveDetail,
   counterpart: string,
   locale: PrintLocale,
-  now = new Date(),
+  now = currentTime(),
 ): string {
   const t = copy[locale];
   const f = t.feedback;

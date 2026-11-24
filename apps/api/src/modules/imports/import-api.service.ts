@@ -9,7 +9,7 @@ import {
   PayloadTooLargeException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, eq, schema, sql, systemTime, type TenantTransaction } from '@reziproq/db';
 import {
   type ApiBatchRequest,
   type ApiBatchResponse,
@@ -44,7 +44,7 @@ export class KeyRateLimit {
   constructor(private readonly limit = apiCallsPerMinute) {}
 
   /** Sekunden bis zum nächsten erlaubten Aufruf; 0, wenn der Aufruf zählt */
-  take(key: string, now = Date.now()): number {
+  take(key: string, now = systemTime().getTime()): number {
     const recent = (this.calls.get(key) ?? []).filter((time) => now - time < 60_000);
     if (recent.length >= this.limit) {
       this.calls.set(key, recent);
@@ -101,7 +101,7 @@ export class ImportApiService {
             eq(schema.importBatch.orgId, principal.orgId),
             eq(schema.importBatch.apiKeyId, principal.keyId),
             sql`${schema.importBatch.apiResponse} ? ${input.idempotency_key}`,
-            sql`${schema.importBatch.createdAt} > now() - make_interval(hours => ${idempotencyHours})`,
+            sql`${schema.importBatch.createdAt} > app_system_now() - make_interval(hours => ${idempotencyHours})`,
           ),
         );
       const replay = earlier?.response?.[input.idempotency_key];

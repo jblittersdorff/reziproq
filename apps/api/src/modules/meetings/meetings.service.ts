@@ -7,7 +7,16 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { and, asc, auditedChange, desc, eq, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  auditedChange,
+  currentTime,
+  desc,
+  eq,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   agendaTemplates,
   type CreateMeeting,
@@ -246,7 +255,11 @@ export class MeetingsService {
         objectId: row.id,
         relationshipId: scope.relationshipId,
         action: 'created' as const,
-        after: { title: input.title, starts_at: input.startsAt.toISOString(), source: input.source },
+        after: {
+          title: input.title,
+          starts_at: input.startsAt.toISOString(),
+          source: input.source,
+        },
         result: row.id,
       };
     });
@@ -431,7 +444,7 @@ export class MeetingsService {
       .from(schema.meeting)
       .where(eq(schema.meeting.relationshipId, scope.relationshipId))
       .orderBy(asc(schema.meeting.startsAt));
-    const now = Date.now();
+    const now = currentTime().getTime();
     const summaries = rows.map((row) => this.summary(scope, row));
     return meetingListSchema.parse({
       upcoming: summaries.filter(
@@ -791,7 +804,7 @@ export class MeetingsService {
         })
         .onConflictDoUpdate({
           target: [schema.meetingNote.meetingId, schema.meetingNote.orgId],
-          set: { text: input.text, updatedAt: new Date() },
+          set: { text: input.text, updatedAt: currentTime() },
         });
     }
     return this.detail(scope, meetingId);

@@ -1,5 +1,5 @@
 import { Body, Controller, ForbiddenException, Get, Inject, Put } from '@nestjs/common';
-import { auditedChange, eq, schema } from '@reziproq/db';
+import { auditedChange, currentTime, eq, schema } from '@reziproq/db';
 import {
   defaultKpiTolerance,
   type ScorecardSetting,
@@ -55,7 +55,7 @@ export class ScorecardSettingsController {
         if (before) {
           await tx
             .update(schema.scorecardSetting)
-            .set({ tolerancePercent: body.tolerancePercent, updatedAt: new Date() })
+            .set({ tolerancePercent: body.tolerancePercent, updatedAt: currentTime() })
             .where(eq(schema.scorecardSetting.id, before.id));
         } else {
           await tx

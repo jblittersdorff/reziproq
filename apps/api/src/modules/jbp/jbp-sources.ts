@@ -1,4 +1,14 @@
-import { and, asc, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import { kpiTrack, type LiveSection, type OverviewMetric } from '@reziproq/shared';
 import type { AuthContext } from '../auth/auth.guard.js';
 import type { MeetingLiveSource } from '../meetings/live-sections.js';
@@ -54,7 +64,7 @@ export class CommitmentsLiveSource implements MeetingLiveSource {
       .orderBy(desc(schema.jbp.version))
       .limit(1);
     if (!plan) return null;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     const rows = await tx
       .select({
         id: schema.commitment.id,

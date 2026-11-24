@@ -22,8 +22,8 @@ export const note = pgTable(
     kind: text({ enum: ['note', 'call'] }).notNull(),
     text: text().notNull(),
     pinned: boolean().notNull().default(false),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // ZA-01: Herkunft
     ...originColumns(),
   },

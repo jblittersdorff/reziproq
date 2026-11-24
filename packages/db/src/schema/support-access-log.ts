@@ -13,5 +13,5 @@ export const supportAccessLog = pgTable('support_access_log', {
   organizationId: uuid().references(() => organization.id, { onDelete: 'set null' }),
   // Methode und Pfad, z. B. GET /api/suppliers
   action: text().notNull(),
-  occurredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  occurredAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
 });

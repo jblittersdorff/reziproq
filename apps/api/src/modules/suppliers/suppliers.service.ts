@@ -8,6 +8,7 @@ import {
 import {
   and,
   auditedChange,
+  currentTime,
   desc,
   eq,
   isNull,
@@ -361,7 +362,7 @@ export class SuppliersService {
       await auditedChange(tx, actor, relationshipAudit, async () => {
         await tx
           .update(schema.relationship)
-          .set({ status: 'ended', endedAt: new Date() })
+          .set({ status: 'ended', endedAt: currentTime() })
           .where(eq(schema.relationship.id, relationshipId));
         return {
           objectId: relationshipId,

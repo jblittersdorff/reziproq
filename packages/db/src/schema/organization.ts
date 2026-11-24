@@ -19,7 +19,7 @@ export const organization = pgTable(
     duns: text().unique('organization_duns_eindeutig'),
     // Resource ID der Organisation in Zitadel; darüber ordnet der Login Nutzer zu (PLT-02).
     zitadelOrgId: text('zitadel_org_id').unique('organization_zitadel_org_id_eindeutig'),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     // DM-01: Demo-Mandant mit eigener Uhr und Modus der Modellantworten. Nur ein Demo-Mandant darf
     // von „live“ abweichen oder eine eigene Uhr haben (CHECK unten). Umschalten nur der Betrieb.
     isDemo: boolean('is_demo').notNull().default(false),
@@ -52,7 +52,7 @@ export const organizationFeature = pgTable(
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
     feature: text().$type<OrganizationFeature>().notNull(),
-    enabledAt: timestamp('enabled_at', { withTimezone: true }).notNull().defaultNow(),
+    enabledAt: timestamp('enabled_at', { withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [primaryKey({ columns: [table.organizationId, table.feature] })],
 );
@@ -75,7 +75,7 @@ export const orgModule = pgTable(
       .references(() => organization.id, { onDelete: 'cascade' }),
     module: text({ enum: orgModules }).notNull(),
     enabled: boolean().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     primaryKey({ columns: [table.orgId, table.module] }),

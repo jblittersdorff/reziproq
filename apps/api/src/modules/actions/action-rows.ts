@@ -1,10 +1,10 @@
-import { and, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
 
 /** Offen heißt noch zu tun: open oder in_progress (QBR-03). */
 export const openStatuses = ['open', 'in_progress'] as const;
 
 /** Heute als JJJJ-MM-TT; überfällig ist, was davor fällig war und noch offen ist. */
-export const today = () => new Date().toISOString().slice(0, 10);
+export const today = () => currentTime().toISOString().slice(0, 10);
 
 export const isOverdue = (row: { dueDate: string; status: string }) =>
   (openStatuses as readonly string[]).includes(row.status) && row.dueDate < today();
@@ -36,7 +36,7 @@ export async function countOpenActions(tx: TenantTransaction, relationshipId: st
   const [row] = await tx
     .select({
       open: sql<number>`count(*)::int`,
-      overdue: sql<number>`count(*) filter (where ${schema.action.dueDate} < current_date)::int`,
+      overdue: sql<number>`count(*) filter (where ${schema.action.dueDate} < app_now()::date)::int`,
     })
     .from(schema.action)
     .where(

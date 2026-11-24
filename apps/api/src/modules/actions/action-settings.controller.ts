@@ -55,7 +55,7 @@ export class ActionSettingsController {
           })
           .onConflictDoUpdate({
             target: [schema.orgSetting.orgId, schema.orgSetting.key],
-            set: { value: body.reminderDays, updatedBy: auth.userId, updatedAt: sql`now()` },
+            set: { value: body.reminderDays, updatedBy: auth.userId, updatedAt: sql`app_now()` },
           });
         return {
           objectId: organization.id,

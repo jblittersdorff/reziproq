@@ -41,7 +41,7 @@ export const segmentationRound = pgTable(
     createdBy: text('created_by')
       .notNull()
       .references(() => appUser.id),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     startedAt: timestamp('started_at', { withTimezone: true }),
     closedAt: timestamp('closed_at', { withTimezone: true }),
     // Gesetzt von der Konsolidierung (SEG-06); danach sehen alle Käufer-Nutzer alle Bewertungen.
@@ -81,7 +81,7 @@ export const ratingAssignment = pgTable(
     // Im Entwurf darf die Stelle noch unbesetzt sein; beim Start muss jede besetzt sein.
     raterUserId: text('rater_user_id').references(() => appUser.id),
     status: text({ enum: assignmentStatuses }).notNull().default('open'),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('rating_assignment_status', sql`${table.status} in ('open', 'in_progress', 'submitted')`),
@@ -118,7 +118,7 @@ export const rating = pgTable(
     ist: integer(),
     soll: integer(),
     comment: text(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
   },
   (table) => [
@@ -156,7 +156,7 @@ export const segmentDecision = pgTable(
     decidedBy: text('decided_by')
       .notNull()
       .references(() => appUser.id),
-    decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     version: integer().notNull(),
     origin: text({ enum: decisionOrigins }).notNull().default('round'),
   },

@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query, Res } from '@nestjs/common';
-import { eq, schema, type TenantTransaction } from '@reziproq/db';
+import { currentTime, eq, schema, type TenantTransaction } from '@reziproq/db';
 import type { Response } from 'express';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
@@ -19,7 +19,7 @@ import { SupplierPlansService } from '../supplier-plans/supplier-plans.service.j
 import { SuppliersService } from '../suppliers/suppliers.service.js';
 
 const localeQuery = new ZodValidationPipe(z.enum(['de', 'en']).default('de'));
-const day = () => new Date().toISOString().slice(0, 10);
+const day = () => currentTime().toISOString().slice(0, 10);
 
 /** Name der anderen Seite, wie die eigene Seite ihn sieht (Organisation, PLT-04). */
 async function counterpart(tx: TenantTransaction, scope: JbpScope): Promise<string> {

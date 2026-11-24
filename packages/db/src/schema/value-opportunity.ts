@@ -62,7 +62,7 @@ export const valueOpportunity = pgTable(
     dismissReason: text(),
     adoptedTopicId: uuid(),
     initiativeId: uuid(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
     decidedBy: text(),
     decidedAt: time(),
   },
@@ -116,7 +116,7 @@ export const valueMarketSignal = pgTable(
       .notNull(),
     outcome: text({ enum: valueSignalOutcomes }).notNull(),
     outcomeReason: text().notNull(),
-    observedAt: time().notNull().defaultNow(),
+    observedAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -151,7 +151,7 @@ export const valueDataGap = pgTable(
     status: text({ enum: ['open', 'requested', 'closed'] })
       .notNull()
       .default('open'),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     check('value_data_gap_status', sql`${table.status} in ('open', 'requested', 'closed')`),

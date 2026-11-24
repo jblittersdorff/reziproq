@@ -37,7 +37,7 @@ export const comment = pgTable(
     body: text().notNull(),
     // Erwähnte Personen (IDs); die Mail und der Eintrag auf Start laufen über comment_mention.
     mentions: text().array().notNull().default(sql`'{}'::text[]`),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     editedAt: timestamp({ withTimezone: true }),
     deletedAt: timestamp({ withTimezone: true }),
   },
@@ -75,7 +75,7 @@ export const commentMention = pgTable(
       .references(() => organization.id),
     userId: text().notNull(),
     openedAt: timestamp({ withTimezone: true }),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('comment_mention_je_person').on(table.commentId, table.userId),

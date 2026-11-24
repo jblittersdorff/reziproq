@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, schema, sql } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql, systemTime } from '@reziproq/db';
 import { type AiFeature, aiFeatureClasses, type DueItem } from '@reziproq/shared';
 import type { LanguageModel } from 'ai';
 import { createLanguageModel } from '../../common/ai-language-model.js';
@@ -72,7 +72,7 @@ export class ModelGateway {
           .where(
             and(
               eq(schema.modelCall.orgId, context.orgId),
-              sql`${schema.modelCall.createdAt} >= date_trunc('month', now())`,
+              sql`${schema.modelCall.createdAt} >= date_trunc('month', app_now())`,
             ),
           );
         return Number(row?.total ?? 0);
@@ -139,13 +139,13 @@ export class ModelGateway {
       throw new BudgetExhaustedError();
     }
 
-    const started = Date.now();
+    const started = systemTime().getTime();
     return (usage?: GatewayUsage) =>
       this.record(context, {
         ...base,
         outcome: usage ? 'ok' : 'failed',
         ...(usage && { usage }),
-        latencyMs: Date.now() - started,
+        latencyMs: systemTime().getTime() - started,
       });
   }
 
@@ -186,7 +186,7 @@ export class ModelGateway {
       (await this.monthMicrocents(context)) < settings.budgetMonthCents * 800_000
     )
       return [];
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     const month = today.slice(0, 7);
     return [
       {

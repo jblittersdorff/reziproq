@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   schema,
@@ -194,7 +195,9 @@ export class JbpApprovalService {
         ),
       )
       .orderBy(asc(schema.invitation.email));
-    const deadline = new Date(Date.now() + reviewDays * 86_400_000).toISOString().slice(0, 10);
+    const deadline = new Date(currentTime().getTime() + reviewDays * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
     for (const recipient of recipients) {
       await auditedChange(tx, actor, jbpReviewRequestAudit, async () => ({
         objectId: `${plan.id}:${recipient.userId}`,
@@ -349,7 +352,7 @@ export class JbpApprovalService {
           )
           .orderBy(desc(schema.jbpApproval.decidedAt))
           .limit(1);
-        const due = new Date((submitted?.at ?? new Date()).getTime() + reviewDays * 86_400_000);
+        const due = new Date((submitted?.at ?? currentTime()).getTime() + reviewDays * 86_400_000);
         items.push({
           id: plan.id,
           kind: 'review',

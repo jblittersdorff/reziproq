@@ -9,7 +9,18 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, ne, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  ne,
+  schema,
+  sql,
+  systemTime,
+  type TenantTransaction,
+} from '@reziproq/db';
 import type { DueItem, Integrations } from '@reziproq/shared';
 import { z } from 'zod';
 import { IntegrationStore, TenantDatabase } from '../../common/database.module.js';
@@ -20,9 +31,9 @@ import { can } from '../auth/can.js';
 import { actorIn } from './actor.js';
 import { type ConnectorDefinition, connectorOf, connectors } from './connectors.js';
 import { type ConnectorProvider, FakeProvider, type ProviderItem } from './fake-provider.js';
-import { MicrosoftLiveProvider } from './microsoft-provider.js';
 import { IntegrationQueue, type QueuedJob } from './integration-queue.js';
 import { ItemHandlers } from './item-handlers.js';
+import { MicrosoftLiveProvider } from './microsoft-provider.js';
 import { SecretBox } from './secret-box.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
@@ -112,7 +123,9 @@ export class IntegrationsService {
 
   /** Anbieter einer Anbindung: echt, wo freigeschaltet, sonst fake */
   private providerFor(connector: ConnectorDefinition): ConnectorProvider {
-    return connector.key === 'microsoft365' && this.microsoftLive ? this.microsoftLive : this.provider;
+    return connector.key === 'microsoft365' && this.microsoftLive
+      ? this.microsoftLive
+      : this.provider;
   }
 
   constructor(
@@ -428,7 +441,11 @@ export class IntegrationsService {
   }
 
   /** IN-03: zugelassene Absender-Domains der Eingangsadresse (nur Admins) */
-  async updateInboundSettings(auth: AuthContext, id: string, allowedDomains: string[]): Promise<void> {
+  async updateInboundSettings(
+    auth: AuthContext,
+    id: string,
+    allowedDomains: string[],
+  ): Promise<void> {
     const session = this.session(auth);
     await this.tenant.run(session, async (tx) => {
       const row = await this.ownConnection(tx, auth, id);
@@ -450,43 +467,53 @@ export class IntegrationsService {
     connectorKey: string,
     work: (token: string) => Promise<T>,
   ): Promise<T | null> {
-    const token = await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
-      const [row] = await tx
-        .select({ secret: schema.connectionSecret })
-        .from(schema.connection)
-        .innerJoin(
-          schema.connectionSecret,
-          eq(schema.connectionSecret.connectionId, schema.connection.id),
-        )
-        .where(
-          and(
-            eq(schema.connection.connectorKey, connectorKey),
-            eq(schema.connection.scope, 'user'),
-            eq(schema.connection.userId, userId),
-            eq(schema.connection.status, 'active'),
-            eq(schema.connectionSecret.kind, 'oauth'),
-          ),
-        );
-      if (!row) return null;
-      const plain = this.box.open(row.secret.ciphertext, row.secret.keyRef);
-      const connector = connectorOf(connectorKey);
-      // Läuft der Zugang bald ab, vorher erneuern
-      if (plain && connector && row.secret.expiresAt && row.secret.expiresAt.getTime() < Date.now() + 5 * 60_000) {
-        const fresh = await this.providerFor(connector).refresh(connector, plain).catch(() => null);
-        if (!fresh) return null;
-        await tx
-          .update(schema.connectionSecret)
-          .set({
-            ciphertext: this.box.seal(fresh.token),
-            keyRef: this.box.keyRef,
-            expiresAt: fresh.expiresAt,
-            rotatedAt: new Date(),
-          })
-          .where(eq(schema.connectionSecret.id, row.secret.id));
-        return fresh.token;
-      }
-      return plain;
-    });
+    const token = await this.tenant.run(
+      { userId: systemUser, organizationId: orgId },
+      async (tx) => {
+        const [row] = await tx
+          .select({ secret: schema.connectionSecret })
+          .from(schema.connection)
+          .innerJoin(
+            schema.connectionSecret,
+            eq(schema.connectionSecret.connectionId, schema.connection.id),
+          )
+          .where(
+            and(
+              eq(schema.connection.connectorKey, connectorKey),
+              eq(schema.connection.scope, 'user'),
+              eq(schema.connection.userId, userId),
+              eq(schema.connection.status, 'active'),
+              eq(schema.connectionSecret.kind, 'oauth'),
+            ),
+          );
+        if (!row) return null;
+        const plain = this.box.open(row.secret.ciphertext, row.secret.keyRef);
+        const connector = connectorOf(connectorKey);
+        // Läuft der Zugang bald ab, vorher erneuern
+        if (
+          plain &&
+          connector &&
+          row.secret.expiresAt &&
+          row.secret.expiresAt.getTime() < systemTime().getTime() + 5 * 60_000
+        ) {
+          const fresh = await this.providerFor(connector)
+            .refresh(connector, plain)
+            .catch(() => null);
+          if (!fresh) return null;
+          await tx
+            .update(schema.connectionSecret)
+            .set({
+              ciphertext: this.box.seal(fresh.token),
+              keyRef: this.box.keyRef,
+              expiresAt: fresh.expiresAt,
+              rotatedAt: systemTime(),
+            })
+            .where(eq(schema.connectionSecret.id, row.secret.id));
+          return fresh.token;
+        }
+        return plain;
+      },
+    );
     return token ? work(token) : null;
   }
 
@@ -529,10 +556,12 @@ export class IntegrationsService {
           ),
         );
       for (const row of previous) {
-        await tx.delete(schema.connectionSecret).where(eq(schema.connectionSecret.connectionId, row.id));
+        await tx
+          .delete(schema.connectionSecret)
+          .where(eq(schema.connectionSecret.connectionId, row.id));
         await tx
           .update(schema.connection)
-          .set({ status: 'revoked', revokedAt: new Date() })
+          .set({ status: 'revoked', revokedAt: systemTime() })
           .where(eq(schema.connection.id, row.id));
       }
       const [created] = await tx
@@ -562,7 +591,9 @@ export class IntegrationsService {
   }
 
   /** IN-03: Eingangsadresse und zugelassene Absender des Kunden; null ohne aktive Eingangsadresse */
-  async inboundMailOf(orgId: string): Promise<{ address: string; allowedDomains: string[] } | null> {
+  async inboundMailOf(
+    orgId: string,
+  ): Promise<{ address: string; allowedDomains: string[] } | null> {
     return this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
       const [row] = await tx
         .select({ settings: schema.connection.settings })
@@ -635,11 +666,11 @@ export class IntegrationsService {
       await tx.delete(schema.inboundHook).where(eq(schema.inboundHook.connectionId, id));
       await tx
         .update(schema.connection)
-        .set({ status: 'revoked', revokedAt: new Date() })
+        .set({ status: 'revoked', revokedAt: systemTime() })
         .where(eq(schema.connection.id, id));
       await tx
         .update(schema.syncJob)
-        .set({ status: 'failed', error: 'getrennt', finishedAt: new Date() })
+        .set({ status: 'failed', error: 'getrennt', finishedAt: systemTime() })
         .where(and(eq(schema.syncJob.connectionId, id), eq(schema.syncJob.status, 'queued')));
       await this.log(tx, session.organizationId, id, 'out', 'disconnect', 'applied');
       return {
@@ -653,7 +684,9 @@ export class IntegrationsService {
     for (const token of tokens) {
       if (!token) continue;
       // Widerruf beim Anbieter, wo möglich; scheitert er, sind die Zugangsdaten trotzdem gelöscht
-      await this.providerFor(connector).revoke(connector, token).catch(() => undefined);
+      await this.providerFor(connector)
+        .revoke(connector, token)
+        .catch(() => undefined);
     }
   }
 
@@ -675,7 +708,7 @@ export class IntegrationsService {
       }
       await tx
         .update(schema.syncJob)
-        .set({ status: 'running', startedAt: new Date() })
+        .set({ status: 'running', startedAt: systemTime() })
         .where(eq(schema.syncJob.id, job.jobId));
       const [secret] = await tx
         .select()
@@ -821,7 +854,11 @@ export class IntegrationsService {
           item,
         );
         await record(outcome.status, outcome.reason ?? null, outcome.objectId ?? null);
-        return outcome.status === 'failed' ? 'failed' : outcome.status === 'applied' ? 'applied' : 'ignored';
+        return outcome.status === 'failed'
+          ? 'failed'
+          : outcome.status === 'applied'
+            ? 'applied'
+            : 'ignored';
       } catch (error) {
         await record('failed', reasonOf(error));
         return 'failed';
@@ -861,7 +898,7 @@ export class IntegrationsService {
   ) {
     await tx
       .update(schema.syncJob)
-      .set({ status, error, finishedAt: new Date() })
+      .set({ status, error, finishedAt: systemTime() })
       .where(eq(schema.syncJob.id, jobId));
   }
 
@@ -907,7 +944,7 @@ export class IntegrationsService {
           ),
         );
       if (!connection) return;
-      const now = new Date();
+      const now = systemTime();
       await tx.insert(schema.syncJob).values({
         orgId,
         connectionId: connection.id,
@@ -976,7 +1013,7 @@ export class IntegrationsService {
       }
       await tx
         .update(schema.inboundHook)
-        .set({ lastSeenAt: new Date() })
+        .set({ lastSeenAt: systemTime() })
         .where(eq(schema.inboundHook.pathToken, token));
       const jobId = await this.createJob(tx, hook.orgId, hook.connectionId, 'webhook');
       return { jobId, items: payload.items };
@@ -997,7 +1034,7 @@ export class IntegrationsService {
    * Erneuert Zugangsdaten, die bald ablaufen. Scheitert das, wechselt die Verbindung auf error;
    * die Person bekommt auf der Startseite die Aufgabe „Verbindung erneuern“.
    */
-  async refreshDue(orgId: string, now = new Date()): Promise<number> {
+  async refreshDue(orgId: string, now = systemTime()): Promise<number> {
     const system = { userId: systemUser, organizationId: orgId };
     const due = await this.tenant.run(system, (tx) =>
       tx
@@ -1021,7 +1058,9 @@ export class IntegrationsService {
       const token = this.box.open(secret.ciphertext, secret.keyRef);
       let fresh: Awaited<ReturnType<FakeProvider['refresh']>> | null = null;
       if (connector && token) {
-        fresh = await this.providerFor(connector).refresh(connector, token).catch(() => null);
+        fresh = await this.providerFor(connector)
+          .refresh(connector, token)
+          .catch(() => null);
       }
       await this.tenant.run(system, async (tx) => {
         if (!fresh) {
@@ -1040,7 +1079,7 @@ export class IntegrationsService {
             ciphertext: this.box.seal(fresh.token),
             keyRef: this.box.keyRef,
             expiresAt: fresh.expiresAt,
-            rotatedAt: new Date(),
+            rotatedAt: systemTime(),
           })
           .where(eq(schema.connectionSecret.id, secret.id));
         await this.log(tx, orgId, secret.connectionId, 'out', 'token_refresh', 'applied');
@@ -1069,7 +1108,7 @@ export class IntegrationsService {
           .where(eq(schema.connection.status, 'error')),
       { readOnly: true },
     );
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     return rows
       .filter((row) => (row.scope === 'org' ? admin : row.userId === auth.userId))
       .map((row) => ({

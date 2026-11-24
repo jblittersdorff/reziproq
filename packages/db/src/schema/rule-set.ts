@@ -44,7 +44,7 @@ export const ruleSet = pgTable(
     typeName: text().notNull(),
     // Wie im Verlauf: ID und Name ohne Fremdschlüssel, denn app_user ist für die andere Seite privat.
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     approvedBy: text(),
     approvedByName: text(),
     approvedAt: timestamp({ withTimezone: true }),
@@ -162,7 +162,7 @@ export const relationshipTarget = pgTable(
       .notNull()
       .references(() => ruleSet.id),
     ruleSetVersion: integer().notNull(),
-    sharedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    sharedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // Wie im Verlauf: ID und Name ohne Fremdschlüssel auf app_user.
     sharedBy: text().notNull(),
     sharedByName: text().notNull(),
@@ -194,7 +194,7 @@ export const relationshipEbitTarget = pgTable(
     proposedBy: text().notNull(),
     approvedBy: text(),
     approvedAt: timestamp({ withTimezone: true }),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('relationship_ebit_target_amount', sql`${table.ebitTargetCents} > 0`),

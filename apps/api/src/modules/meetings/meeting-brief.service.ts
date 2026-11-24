@@ -7,7 +7,16 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   agendaMinutes,
   type BriefAgendaItem,
@@ -174,7 +183,11 @@ export class MeetingBriefService {
   }
 
   /** Alles, was das Briefing liest, im Umfang der Session des Käufers */
-  async inputs(scope: MeetingScope, meetingId: string, today = new Date()): Promise<BriefInputs> {
+  async inputs(
+    scope: MeetingScope,
+    meetingId: string,
+    today = currentTime(),
+  ): Promise<BriefInputs> {
     const { tx, relationshipId, orgId } = scope;
     const meeting = await this.meetingRow(scope, meetingId);
     const meetingDay = berlinDay.format(meeting.startsAt);
@@ -548,7 +561,7 @@ export class MeetingBriefService {
         sources: [ownDraftSource('scorecard_kpi', kpi.id, kpi.name, kpi.period)],
       });
     }
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     for (const entry of inputs.commitments.filter((item) => item.dueOn < today)) {
       risks.push({
         text: `Zusage „${entry.title}“ (${entry.side === 'buyer' ? 'eure Seite' : inputs.supplier}) war am ${day(entry.dueOn)} fällig.`,
@@ -577,7 +590,7 @@ export class MeetingBriefService {
   /** Ziele mit „Erreicht, wenn …“, je mit Verweis auf das Objekt; Schwerpunkt nach Termintyp */
   private candidates(inputs: BriefInputs) {
     const supplier = inputs.supplier;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     const byKind: Record<string, Candidate[]> = {
       kpi: inputs.kpis.map((kpi) => ({
         goal: {
@@ -992,7 +1005,7 @@ export class MeetingBriefService {
         claims: risks,
       };
     }
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     if (inputs.commitments.length > 0) {
       parts.openPoints = {
         data: {
@@ -1059,7 +1072,7 @@ export class MeetingBriefService {
           status: 'discarded',
           dismissReason: 'neuer Lauf',
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(
           and(
@@ -1256,7 +1269,7 @@ export class MeetingBriefService {
           status: decision.status,
           dismissReason: decision.status === 'discarded' ? decision.reason : null,
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(eq(schema.aiDraft.id, draftId));
       return this.view(scope, meetingId);
@@ -1383,7 +1396,7 @@ export class MeetingBriefService {
       }
       const due = new Date(meeting.startsAt);
       due.setUTCDate(due.getUTCDate() - 1);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = currentTime().toISOString().slice(0, 10);
       // Fällig am Tag vor dem Termin, aber nie in der Vergangenheit (ISO-Daten sortieren richtig)
       const dueDate = [today, due.toISOString().slice(0, 10)].sort().at(-1) as string;
       const action = await this.actions.create(

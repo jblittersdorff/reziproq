@@ -40,8 +40,8 @@ export const touchpoint = pgTable(
     cadence: text({ enum: touchpointCadences }).notNull(),
     notes: text(),
     createdBy: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -77,7 +77,7 @@ export const touchpointReview = pgTable(
       .references(() => cycle.id),
     reviewedBy: text().notNull(),
     reviewedByName: text().notNull(),
-    reviewedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    reviewedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [unique('touchpoint_review_je_zyklus').on(table.cycleId)],
 );

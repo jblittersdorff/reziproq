@@ -34,7 +34,7 @@ export const surveyTemplate = pgTable(
     createdBy: text(),
     createdByName: text(),
     note: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('survey_template_version').on(table.orgId, table.kind, table.version),
@@ -71,7 +71,7 @@ export const surveyWave = pgTable(
     revealedAt: timestamp({ withTimezone: true }),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('survey_wave_kind', sql`${table.kind} in ('pulse', 'annual')`),
@@ -106,7 +106,7 @@ export const surveyParticipant = pgTable(
     function: text().notNull(),
     tokenHash: text().notNull(),
     invitedBy: text().notNull(),
-    invitedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    invitedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     completedAt: timestamp({ withTimezone: true }),
   },
   (table) => [

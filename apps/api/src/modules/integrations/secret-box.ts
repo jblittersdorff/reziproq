@@ -6,6 +6,7 @@ import {
   randomBytes,
   timingSafeEqual,
 } from 'node:crypto';
+import { systemTime } from '@reziproq/db';
 
 /**
  * IN-01: Zugangsdaten der Anbindungen, verschlüsselt mit AES-256-GCM. Der Schlüssel kommt aus
@@ -33,9 +34,9 @@ export class SecretBox {
 
   /** Signierter, zeitlich begrenzter Wert, z. B. der state einer Anmeldung bei Microsoft */
   sign(payload: Record<string, unknown>, ttlMs: number): string {
-    const body = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + ttlMs })).toString(
-      'base64url',
-    );
+    const body = Buffer.from(
+      JSON.stringify({ ...payload, exp: systemTime().getTime() + ttlMs }),
+    ).toString('base64url');
     return `${body}.${createHmac('sha256', this.macKey).update(body).digest('base64url')}`;
   }
 
@@ -51,7 +52,9 @@ export class SecretBox {
         string,
         unknown
       >;
-      return typeof payload.exp === 'number' && payload.exp > Date.now() ? payload : null;
+      return typeof payload.exp === 'number' && payload.exp > systemTime().getTime()
+        ? payload
+        : null;
     } catch {
       return null;
     }

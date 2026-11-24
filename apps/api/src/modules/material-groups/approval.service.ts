@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, asc, currentTime, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type ApprovalSettings,
   type ApprovalSettingsView,
@@ -289,7 +289,7 @@ export class ApprovalService {
       if (existing) {
         await tx
           .update(schema.materialGroupRelevance)
-          .set({ scores, score, updatedBy: auth.userId, updatedAt: new Date() })
+          .set({ scores, score, updatedBy: auth.userId, updatedAt: currentTime() })
           .where(eq(schema.materialGroupRelevance.id, existing.id));
       } else {
         await tx.insert(schema.materialGroupRelevance).values({
@@ -323,7 +323,7 @@ export class ApprovalService {
         override,
         overrideReason: override ? reason : null,
         updatedBy: auth.userId,
-        updatedAt: new Date(),
+        updatedAt: currentTime(),
       };
       const existing = await this.relevanceOf(tx, access.group, access.strategy.year);
       if (existing) {
@@ -352,7 +352,7 @@ export class ApprovalService {
         ...parsed.data,
         status: 'draft' as const,
         updatedBy: auth.userId,
-        updatedAt: new Date(),
+        updatedAt: currentTime(),
       };
       const [existing] = await tx
         .select({ id: schema.materialGroupSummary.id })
@@ -386,7 +386,7 @@ export class ApprovalService {
       }
       await tx
         .update(schema.materialGroupSummary)
-        .set({ status: 'confirmed', updatedBy: auth.userId, updatedAt: new Date() })
+        .set({ status: 'confirmed', updatedBy: auth.userId, updatedAt: currentTime() })
         .where(eq(schema.materialGroupSummary.id, summary.id));
       return this.viewIn(tx, auth, organization.id, strategyId);
     });
@@ -415,7 +415,7 @@ export class ApprovalService {
         });
       }
       const route = context.route as NonNullable<typeof context.route>;
-      const now = new Date();
+      const now = currentTime();
       const rows: { role: 'lead' | 'commodity_manager' | 'approver'; userId: string }[] = [
         { role: 'lead', userId: auth.userId },
       ];
@@ -480,7 +480,7 @@ export class ApprovalService {
   sign(auth: AuthContext, approvalId: string): Promise<ApprovalView> {
     return this.run(auth, async (tx, organization) => {
       const { row, strategy, current } = await this.ownOpen(tx, auth, approvalId);
-      const now = new Date();
+      const now = currentTime();
       await tx
         .update(schema.materialGroupApproval)
         .set({ status: 'signed', decidedAt: now })
@@ -507,7 +507,7 @@ export class ApprovalService {
       if (row.role !== 'approver') throw forbidden();
       await tx
         .update(schema.materialGroupApproval)
-        .set({ status: 'returned', comment: parsed.data.comment, decidedAt: new Date() })
+        .set({ status: 'returned', comment: parsed.data.comment, decidedAt: currentTime() })
         .where(eq(schema.materialGroupApproval.id, row.id));
       await tx
         .update(schema.materialGroupStrategy)
@@ -582,7 +582,7 @@ export class ApprovalService {
    * Vorjahrs genau ein Entwurf für das neue Jahr, wenn es für die Warengruppe noch keine Strategie
    * dieses Jahres gibt. Ersteller ist, wer die Vorlage angelegt hat.
    */
-  async createNextYearDrafts(orgId: string, now = new Date()) {
+  async createNextYearDrafts(orgId: string, now = currentTime()) {
     const year = now.getUTCFullYear();
     return this.tenant.run(
       { userId: 'system:jahreswechsel', organizationId: orgId },
@@ -663,7 +663,7 @@ export class ApprovalService {
         .values({ orgId: organization.id, key: 'category_approval', value, updatedBy: auth.userId })
         .onConflictDoUpdate({
           target: [schema.orgSetting.orgId, schema.orgSetting.key],
-          set: { value, updatedBy: auth.userId, updatedAt: new Date() },
+          set: { value, updatedBy: auth.userId, updatedAt: currentTime() },
         });
       return this.settingsIn(tx, auth, organization.id);
     });

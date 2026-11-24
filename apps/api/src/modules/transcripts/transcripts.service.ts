@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {
   and,
+  currentTime,
   desc,
   eq,
   gte,
@@ -111,7 +112,7 @@ export class TranscriptsService {
   ) {}
 
   /** Für Tests: feste Uhrzeit */
-  clock: () => Date = () => new Date();
+  clock: () => Date = () => currentTime();
 
   private system(orgId: string) {
     return { userId: systemUser, organizationId: orgId };
@@ -158,7 +159,7 @@ export class TranscriptsService {
       .values({ orgId, key, value, updatedBy: userId })
       .onConflictDoUpdate({
         target: [schema.orgSetting.orgId, schema.orgSetting.key],
-        set: { value, updatedBy: userId, updatedAt: new Date() },
+        set: { value, updatedBy: userId, updatedAt: currentTime() },
       });
   }
 

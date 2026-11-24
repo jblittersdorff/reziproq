@@ -39,12 +39,16 @@ export const orgSso = pgTable(
     tenantId: text(),
     hostedDomain: text(),
     domains: jsonb().$type<SsoDomain[]>().notNull().default([]),
-    defaultRole: text({ enum: ['admin', 'member', 'viewer'] }).notNull().default('viewer'),
+    defaultRole: text({ enum: ['admin', 'member', 'viewer'] })
+      .notNull()
+      .default('viewer'),
     passwordLoginAllowed: boolean().notNull().default(true),
-    status: text({ enum: ['draft', 'active'] }).notNull().default('draft'),
+    status: text({ enum: ['draft', 'active'] })
+      .notNull()
+      .default('draft'),
     idpRef: text(),
     updatedBy: text().notNull(),
-    updatedAt: time().notNull().defaultNow(),
+    updatedAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('org_sso_provider').on(table.orgId, table.provider),
@@ -72,7 +76,7 @@ export const userIdentity = pgTable(
     provider: text({ enum: ['entra', 'google'] }).notNull(),
     subject: text().notNull(),
     email: text().notNull(),
-    lastLoginAt: time().notNull().defaultNow(),
+    lastLoginAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('user_identity_subject').on(table.provider, table.subject),

@@ -644,7 +644,7 @@ export class RuleSetsService {
             status: 'approved',
             approvedBy: auth.userId,
             approvedByName: actor.name,
-            approvedAt: sql`now()`,
+            approvedAt: sql`app_now()`,
           })
           .where(eq(schema.ruleSet.id, current.id));
         return {

@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -235,7 +236,7 @@ export class TouchpointsService {
     return auditedChange(scope.tx, actor, auditOf(input.visibility), async () => {
       const [row] = await scope.tx
         .update(schema.touchpoint)
-        .set({ ...values, updatedAt: new Date() })
+        .set({ ...values, updatedAt: currentTime() })
         .where(eq(schema.touchpoint.id, id))
         .returning();
       if (!row) throw notFound();
@@ -261,7 +262,7 @@ export class TouchpointsService {
     return auditedChange(scope.tx, actor, touchpointAudit, async () => {
       const [row] = await scope.tx
         .update(schema.touchpoint)
-        .set({ visibility: 'shared', supplierContactId: null, updatedAt: new Date() })
+        .set({ visibility: 'shared', supplierContactId: null, updatedAt: currentTime() })
         .where(eq(schema.touchpoint.id, id))
         .returning();
       if (!row) throw notFound();

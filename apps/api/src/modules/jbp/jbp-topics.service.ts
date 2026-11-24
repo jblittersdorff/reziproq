@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -297,7 +298,7 @@ export class JbpTopicsService {
     await auditedChange(tx, actor, jbpTopicAudit, async () => {
       await tx
         .update(schema.jbpTopic)
-        .set({ ...next, updatedAt: new Date() })
+        .set({ ...next, updatedAt: currentTime() })
         .where(eq(schema.jbpTopic.id, before.id));
       return {
         objectId: before.id,
@@ -343,7 +344,7 @@ export class JbpTopicsService {
     for (const [index, id] of ids.entries()) {
       await tx
         .update(schema.jbpTopic)
-        .set({ priority: index + 1, updatedAt: new Date() })
+        .set({ priority: index + 1, updatedAt: currentTime() })
         .where(eq(schema.jbpTopic.id, id));
     }
     return this.topics(scope);

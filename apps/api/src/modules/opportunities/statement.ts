@@ -1,4 +1,5 @@
 import type { TenantTransaction } from '@reziproq/db';
+import { currentTime } from '@reziproq/db';
 import type { InsightStatement } from '@reziproq/shared';
 import type { InsightFact, InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -51,7 +52,7 @@ export async function valueStatement(
     pageKey: input.pageKey,
     scopeType: input.scopeId ? 'relationship' : 'org',
     scopeId: input.scopeId,
-    period: new Date().toISOString().slice(0, 7),
+    period: currentTime().toISOString().slice(0, 7),
     facts,
     fallback: { headline, body },
   });

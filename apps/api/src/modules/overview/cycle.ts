@@ -1,4 +1,14 @@
-import { and, desc, eq, gte, inArray, or, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  gte,
+  inArray,
+  or,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type CycleScheduleStep,
   type CycleStepKey,
@@ -180,7 +190,7 @@ export async function readCycleSettings(tx: TenantTransaction) {
 export const segmentCycleStepSource: CycleStepSource = {
   key: 'segment',
   async cycleStepStatus(cycle, tx) {
-    const twelveMonthsAgo = new Date();
+    const twelveMonthsAgo = currentTime();
     twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
     const decisions = await tx
       .select({ id: schema.segmentDecision.id })
@@ -209,7 +219,7 @@ export async function ensureActiveCycle(tx: TenantTransaction, relationshipId: s
     .limit(1);
   if (existing) return existing;
 
-  const startedAt = new Date();
+  const startedAt = currentTime();
   await tx
     .insert(schema.cycle)
     .values({
@@ -246,7 +256,7 @@ export async function readActiveCycle(
   const deadlines = new Map(
     schedule.map(({ step, dueDate }): [CycleScheduleStep, string | null] => [step, dueDate]),
   );
-  const today = new Date().toISOString().slice(0, 10);
+  const today = currentTime().toISOString().slice(0, 10);
 
   return {
     id: cycle.id,

@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, auditedChange, desc, eq, inArray, schema } from '@reziproq/db';
+import { and, asc, auditedChange, currentTime, desc, eq, inArray, schema } from '@reziproq/db';
 import {
   type AcceptPreRead,
   limitWords,
@@ -388,7 +388,7 @@ export class PreReadDraftService {
       if (row.status !== 'draft') {
         throw new ConflictException({ statusCode: 409, code: 'schon_entschieden' });
       }
-      const now = new Date();
+      const now = currentTime();
       if (decision.status === 'accepted') {
         await scope.tx
           .update(schema.aiDraft)

@@ -6,7 +6,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   calculateSegment,
   type DueItem,
@@ -316,7 +325,7 @@ export class MergeService {
           status: parsed.data.status,
           note: parsed.data.note,
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(eq(schema.materialGroupConflict.id, conflict.id));
       return this.viewIn(tx, auth, organization, conflict.relationshipId);

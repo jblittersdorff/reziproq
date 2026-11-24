@@ -8,6 +8,7 @@ import {
 import {
   and,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -21,18 +22,19 @@ import {
   displayNameOf,
   type OpportunityImpactType,
   type OpportunityInput,
-  type SendDataRequest,
-  type ValueAssumption,
   type OpportunityTemplateKey,
   opportunityImpactTypes,
   opportunityInputSchema,
   opportunityTemplateKeys,
+  type SendDataRequest,
+  type ValueAssumption,
   type ValueOpportunities,
   valueOpportunitiesSchema,
 } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
 import { env } from '../../config/env.js';
+import { ActionsService } from '../actions/actions.service.js';
 import { readAiSettings } from '../ai-gateway/ai-settings.js';
 import { BudgetExhaustedError } from '../ai-gateway/gateway-errors.js';
 import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
@@ -41,7 +43,6 @@ import { actorOf } from '../audit/actor.js';
 import { valueOpportunityAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
-import { ActionsService } from '../actions/actions.service.js';
 import { type JbpScope, JbpService } from '../jbp/jbp.service.js';
 import { JbpTopicsService } from '../jbp/jbp-topics.service.js';
 import {
@@ -58,6 +59,8 @@ import {
   queryAllowed,
   reasonAllowed,
 } from './market.js';
+import { syncRealized } from './realized.js';
+import { valueStatement } from './statement.js';
 import {
   dataGapDescriptions,
   templateAssumptions,
@@ -65,8 +68,6 @@ import {
   templateSupplierEffect,
   templateTitles,
 } from './templates.js';
-import { syncRealized } from './realized.js';
-import { valueStatement } from './statement.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
@@ -115,7 +116,7 @@ const signalReasons = {
 type OpportunityRow = typeof schema.valueOpportunity.$inferSelect;
 type Results = Awaited<ReturnType<typeof calculateOpportunities>>;
 
-const isoDate = () => new Date().toISOString().slice(0, 10);
+const isoDate = () => currentTime().toISOString().slice(0, 10);
 const euros = (cents: number) => Math.round(cents / 100);
 
 /**
@@ -439,7 +440,7 @@ export class OpportunitiesService {
           contextType: 'relationship',
           contextId: relationshipId,
           status: 'running',
-          startedAt: new Date(),
+          startedAt: currentTime(),
         })
         .returning({ id: schema.agentRun.id });
       if (!run) throw notFound();
@@ -483,13 +484,13 @@ export class OpportunitiesService {
       const results = await calculateOpportunities(tx, facts, { relationshipId, asOf });
       await tx
         .update(schema.agentStep)
-        .set({ status: 'done', finishedAt: new Date(), detail: {} })
+        .set({ status: 'done', finishedAt: currentTime(), detail: {} })
         .where(and(eq(schema.agentStep.runId, run.id), inArray(schema.agentStep.seq, [1, 2, 3])));
       await tx
         .update(schema.agentStep)
         .set({
           status: 'done',
-          finishedAt: new Date(),
+          finishedAt: currentTime(),
           detail: {
             results: results.map((result) => ({ template: result.template, kind: result.kind })),
           },
@@ -521,7 +522,7 @@ export class OpportunitiesService {
       await this.tenant.run({ userId: auth.userId, organizationId: prepared.orgId }, async (tx) => {
         await tx
           .update(schema.agentStep)
-          .set({ status: 'failed', finishedAt: new Date() })
+          .set({ status: 'failed', finishedAt: currentTime() })
           .where(
             and(eq(schema.agentStep.runId, prepared.runId), eq(schema.agentStep.status, 'running')),
           );
@@ -529,7 +530,7 @@ export class OpportunitiesService {
           .update(schema.agentRun)
           .set({
             status: error instanceof BudgetExhaustedError ? 'aborted_budget' : 'failed',
-            finishedAt: new Date(),
+            finishedAt: currentTime(),
           })
           .where(eq(schema.agentRun.id, prepared.runId));
       });
@@ -650,7 +651,7 @@ export class OpportunitiesService {
     }
     await tx
       .update(schema.agentStep)
-      .set({ status: 'done', finishedAt: new Date() })
+      .set({ status: 'done', finishedAt: currentTime() })
       .where(and(eq(schema.agentStep.runId, runId), inArray(schema.agentStep.seq, [5, 6])));
     const [cost] = await tx
       .select({ total: sql<string>`coalesce(sum(${schema.modelCall.costMicrocents}), 0)` })
@@ -660,7 +661,7 @@ export class OpportunitiesService {
       .update(schema.agentRun)
       .set({
         status: 'done',
-        finishedAt: new Date(),
+        finishedAt: currentTime(),
         stepsUsed: runSteps.length,
         costMicrocents: Number(cost?.total ?? 0),
       })
@@ -959,7 +960,7 @@ export class OpportunitiesService {
             status: 'dismissed',
             dismissReason: reason,
             decidedBy: auth.userId,
-            decidedAt: new Date(),
+            decidedAt: currentTime(),
           })
           .where(eq(schema.valueOpportunity.id, id));
         return {
@@ -1011,7 +1012,7 @@ export class OpportunitiesService {
             status: 'adopted',
             adoptedTopicId: topic.id,
             decidedBy: auth.userId,
-            decidedAt: new Date(),
+            decidedAt: currentTime(),
           })
           .where(eq(schema.valueOpportunity.id, id));
         return {
@@ -1120,7 +1121,7 @@ export class OpportunitiesService {
           edited:
             input.title !== prepared.draft.subject || input.description !== prepared.draft.content,
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(eq(schema.aiDraft.id, prepared.draft.id));
       await scope.tx
@@ -1138,7 +1139,7 @@ export class OpportunitiesService {
       if (!draft) throw notFound();
       await scope.tx
         .update(schema.aiDraft)
-        .set({ status: 'discarded', decidedBy: auth.userId, decidedAt: new Date() })
+        .set({ status: 'discarded', decidedBy: auth.userId, decidedAt: currentTime() })
         .where(eq(schema.aiDraft.id, draft.id));
     });
     return this.list(auth, relationshipId);

@@ -4,6 +4,7 @@ import {
   asc,
   auditedChange,
   auditedObject,
+  currentTime,
   desc,
   eq,
   schema,
@@ -33,8 +34,8 @@ import {
   readCycleSettings,
   segmentCycleStepSource,
 } from './cycle.js';
-import { nextCycleDue } from './next-cycle.service.js';
 import { overviewFigures } from './figures.js';
+import { nextCycleDue } from './next-cycle.service.js';
 import { OVERVIEW_METRIC_SOURCES, type OverviewMetricSource } from './overview-metric.js';
 
 /** Der Überblick liest die Werte am Ursprung; der separate Zyklusstart schreibt buyer-private. */
@@ -106,7 +107,7 @@ export class OverviewService {
 
   /** LS-01: Zahlen für die Detailleiste der Lieferantenliste */
   private async listCounts(tx: TenantTransaction, relationshipId: string) {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     const [overdue] = await tx
       .select({ n: sql<number>`count(*)::int` })
       .from(schema.commitment)

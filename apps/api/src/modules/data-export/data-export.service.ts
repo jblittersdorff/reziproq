@@ -2,6 +2,7 @@ import { GoneException, Inject, Injectable, Logger, NotFoundException } from '@n
 import {
   and,
   auditedChange,
+  currentTime,
   desc,
   eq,
   layerRegister,
@@ -92,7 +93,7 @@ export class DataExportService {
     return { userId: auth.userId, organizationId: organization.id };
   }
 
-  async list(auth: AuthContext, now = new Date()): Promise<DataExportList> {
+  async list(auth: AuthContext, now = currentTime()): Promise<DataExportList> {
     const rows = await this.tenant.run(this.session(auth), (tx) =>
       tx
         .select({
@@ -141,7 +142,7 @@ export class DataExportService {
   }
 
   /** Herunterladen: nur fertig und nur 24 Stunden lang. */
-  async download(auth: AuthContext, exportId: string, now = new Date()) {
+  async download(auth: AuthContext, exportId: string, now = currentTime()) {
     const [row] = await this.tenant.run(this.session(auth), (tx) =>
       tx.select().from(schema.dataExport).where(eq(schema.dataExport.id, exportId)),
     );
@@ -153,7 +154,7 @@ export class DataExportService {
   }
 
   /** Der Job: Datei bauen, ablegen, Mail schreiben. */
-  async process(job: DataExportJob, now = new Date()): Promise<void> {
+  async process(job: DataExportJob, now = currentTime()): Promise<void> {
     const session: TenantSession = { userId: job.userId, organizationId: job.orgId };
     const [claimed] = await this.tenant.run(session, (tx) =>
       tx

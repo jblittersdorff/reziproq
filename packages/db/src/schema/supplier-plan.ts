@@ -53,7 +53,7 @@ export const supplierPlan = pgTable(
     version: integer().notNull().default(1),
     status: text({ enum: planStatuses }).notNull().default('draft'),
     summary: text().notNull().default(''),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     // SPL-07: Freigaberunde (zählt jede Einreichung), eingereicht und freigegeben am.
     reviewRound: integer('review_round').notNull().default(0),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
@@ -130,7 +130,7 @@ export const planContribution = pgTable(
     dueDate: date('due_date', { mode: 'string' }).notNull(),
     status: text({ enum: contributionStatuses }).notNull().default('open'),
     doneAt: timestamp('done_at', { withTimezone: true }),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     foreignKey({
@@ -229,7 +229,7 @@ export const planApproval = pgTable(
     role: text({ enum: planApprovalRoles }).notNull(),
     decision: text({ enum: planApprovalDecisions }).notNull(),
     comment: text(),
-    decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp('decided_at', { withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     foreignKey({

@@ -9,6 +9,7 @@ import {
 import {
   and,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -281,7 +282,7 @@ export class FeedbackThemesService {
     content: string,
     reason?: string,
   ) {
-    const now = new Date();
+    const now = currentTime();
     if (decision === 'accepted') {
       // Je Welle gilt eine übernommene Zusammenfassung; die vorige tritt zurück.
       await tx

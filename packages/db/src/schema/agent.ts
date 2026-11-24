@@ -155,7 +155,7 @@ export const agentRun = pgTable(
     status: text({ enum: runStatuses }).notNull().default('queued'),
     stepsUsed: integer().notNull().default(0),
     costMicrocents: bigint({ mode: 'number' }).notNull().default(0),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
     startedAt: time(),
     finishedAt: time(),
     cancelRequestedAt: time(),
@@ -206,7 +206,7 @@ export const agentStep = pgTable(
     detail: jsonb().$type<Record<string, unknown>>(),
     toolKey: text(),
     costMicrocents: bigint({ mode: 'number' }).notNull().default(0),
-    startedAt: time().notNull().defaultNow(),
+    startedAt: time().notNull().default(sql`app_now()`),
     finishedAt: time(),
     status: text({ enum: stepStatuses }).notNull().default('running'),
   },
@@ -236,7 +236,7 @@ export const agentOutboundQuery = pgTable(
     stepId: uuid().notNull(),
     text: text().notNull(),
     provider: text().notNull(),
-    sentAt: time().notNull().defaultNow(),
+    sentAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     foreignKey({

@@ -1,5 +1,15 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, gte, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  gte,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   defaultNotificationModes,
   defaultQuietHours,
@@ -167,7 +177,7 @@ export class NotificationsService {
   }
 
   /** Für Tests: feste Uhrzeit */
-  clock: () => Date = () => new Date();
+  clock: () => Date = () => currentTime();
 
   private system(orgId: string) {
     return { userId: systemUser, organizationId: orgId };
@@ -854,7 +864,7 @@ export class NotificationsService {
                 schema.notificationPref.channel,
                 schema.notificationPref.kind,
               ],
-              set: { mode: modes[kind][channel], quietHours, updatedAt: new Date() },
+              set: { mode: modes[kind][channel], quietHours, updatedAt: currentTime() },
             });
         }
       }
@@ -933,7 +943,7 @@ export class NotificationsService {
           .values({ orgId: session.organizationId, key, value, updatedBy: auth.userId })
           .onConflictDoUpdate({
             target: [schema.orgSetting.orgId, schema.orgSetting.key],
-            set: { value, updatedBy: auth.userId, updatedAt: new Date() },
+            set: { value, updatedBy: auth.userId, updatedAt: currentTime() },
           });
       }
     });

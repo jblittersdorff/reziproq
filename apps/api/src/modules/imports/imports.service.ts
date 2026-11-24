@@ -7,7 +7,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   autoMatchScore,
   type ColumnMap,
@@ -1022,7 +1031,7 @@ export class ImportsService {
       }
       await tx
         .update(schema.importBatch)
-        .set({ status: 'committed', committedBy: auth.userId, committedAt: new Date(), undo })
+        .set({ status: 'committed', committedBy: auth.userId, committedAt: currentTime(), undo })
         .where(eq(schema.importBatch.id, id));
       // KI-09: Ereignis „Spend-Import fertig“ für eigene Agenten
       if (batch.kind === 'spend')
@@ -1241,7 +1250,7 @@ export class ImportsService {
     await this.tenant.run(session, async (tx) => {
       const batch = await this.batchRow(tx, session.organizationId, id);
       if (batch.status !== 'committed' || !batch.committedAt) throw conflict('nicht_uebernommen');
-      if (Date.now() - batch.committedAt.getTime() > revertDays * 86_400_000) {
+      if (currentTime().getTime() - batch.committedAt.getTime() > revertDays * 86_400_000) {
         throw conflict('frist_abgelaufen');
       }
       const undo = (batch.undo ?? {}) as {
@@ -1301,7 +1310,7 @@ export class ImportsService {
       }
       await tx
         .update(schema.importBatch)
-        .set({ status: 'reverted', revertedAt: new Date() })
+        .set({ status: 'reverted', revertedAt: currentTime() })
         .where(eq(schema.importBatch.id, id));
     });
     return this.get(auth, id);
@@ -1516,7 +1525,7 @@ export class ImportsService {
             admin &&
             batch.status === 'committed' &&
             committedAt !== null &&
-            Date.now() - committedAt.getTime() <= revertDays * 86_400_000,
+            currentTime().getTime() - committedAt.getTime() <= revertDays * 86_400_000,
           revertUntil: committedAt
             ? new Date(committedAt.getTime() + revertDays * 86_400_000).toISOString()
             : null,

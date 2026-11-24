@@ -9,6 +9,7 @@ import {
 import {
   and,
   asc,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -405,7 +406,7 @@ export class StrategyService {
     return editable.find((step) => states[step - 1] !== 'done') ?? null;
   }
 
-  overview(auth: AuthContext, year = strategyYearOf(new Date())): Promise<StrategyOverview> {
+  overview(auth: AuthContext, year = strategyYearOf(currentTime())): Promise<StrategyOverview> {
     return this.run(auth, async (tx, org) => {
       const groups = await tx
         .select()
@@ -476,7 +477,7 @@ export class StrategyService {
   context(
     auth: AuthContext,
     groupId: string,
-    year = strategyYearOf(new Date()),
+    year = strategyYearOf(currentTime()),
     version?: number,
   ): Promise<StrategyContextResponse> {
     return this.run(auth, async (tx, org) => {
@@ -806,7 +807,7 @@ export class StrategyService {
             text: note.text,
             notApplicable: note.notApplicable,
             updatedBy: auth.userId,
-            updatedAt: new Date(),
+            updatedAt: currentTime(),
           },
         });
       await this.touched(tx, strategy);

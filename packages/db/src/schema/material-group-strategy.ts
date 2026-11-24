@@ -45,7 +45,7 @@ export const materialGroupStrategy = pgTable(
     createdBy: text()
       .notNull()
       .references(() => appUser.id),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -93,7 +93,7 @@ export const materialGroupNote = pgTable(
     text: text().notNull().default(''),
     notApplicable: boolean().notNull().default(false),
     updatedBy: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('material_group_note_step', sql`${table.step} between 1 and 10`),
@@ -168,7 +168,7 @@ export const materialGroupGoal = pgTable(
     targetYear: integer(),
     deferred: boolean().notNull().default(false),
     deferredReason: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -211,7 +211,7 @@ export const materialGroupAnalysis = pgTable(
     updatedBy: text()
       .notNull()
       .references(() => appUser.id),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -248,7 +248,7 @@ export const materialGroupViewAssignment = pgTable(
     assignedBy: text()
       .notNull()
       .references(() => appUser.id),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('material_group_view_assignment_once').on(table.strategyId, table.view, table.userId),
@@ -272,14 +272,11 @@ export const materialGroupViewComment = pgTable(
       .notNull()
       .references(() => appUser.id),
     body: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     index('material_group_view_comment_strategy').on(table.strategyId, table.view),
-    check(
-      'material_group_view_comment_body',
-      sql`length(trim(${table.body})) between 1 and 2000`,
-    ),
+    check('material_group_view_comment_body', sql`length(trim(${table.body})) between 1 and 2000`),
   ],
 );
 
@@ -302,7 +299,7 @@ export const materialGroupCandidate = pgTable(
     currency: text().notNull().default('EUR'),
     isSupplier: boolean().notNull().default(false),
     comment: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('material_group_candidate_name', sql`length(trim(${table.name})) > 0`),
@@ -351,7 +348,7 @@ export const materialGroupMarketForce = pgTable(
     confirmedAt: timestamp({ withTimezone: true }),
     // Neuer Entwurf neben bestätigtem Stand: { today, future, relevant, points, draftId }
     proposal: jsonb(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -394,7 +391,7 @@ export const materialGroupSwotItem = pgTable(
     status: text({ enum: ['draft', 'confirmed'] })
       .notNull()
       .default('confirmed'),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -423,7 +420,7 @@ export const strategyLever = pgTable(
     custom: boolean().notNull().default(false),
     // Ein eigener Hebel verlangt eine Begründung (WG-10).
     reason: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('lever_name', sql`length(trim(${table.name})) > 0`),
@@ -458,7 +455,7 @@ export const materialGroupLeverChoice = pgTable(
       .references(() => strategyLever.id),
     reason: text().notNull().default(''),
     status: text({ enum: leverChoiceStatuses }).notNull().default('chosen'),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -502,7 +499,7 @@ export const materialGroupInitiative = pgTable(
     targetYear: integer(),
     // Fortschritt in Prozent, meldet die verantwortliche Person
     progress: integer().notNull().default(0),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('material_group_initiative_name', sql`length(trim(${table.name})) between 1 and 200`),
@@ -553,7 +550,7 @@ export const materialGroupReview = pgTable(
     heldAt: timestamp({ withTimezone: true }),
     heldBy: text().references(() => appUser.id),
     summary: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('material_group_review_once').on(table.strategyId, table.dueOn),
@@ -563,7 +560,6 @@ export const materialGroupReview = pgTable(
     ),
   ],
 );
-
 
 /**
  * WG-15: Zeile der Supplier Map je Strategie und Lieferant (Beziehung). Standort, Umsatzanteil Soll
@@ -589,7 +585,7 @@ export const materialGroupSupplierMapRow = pgTable(
     targetYear: integer(),
     ended: boolean().notNull().default(false),
     updatedBy: text().references(() => appUser.id),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('material_group_supplier_map_row_once').on(table.strategyId, table.relationshipId),
@@ -625,7 +621,7 @@ export const materialGroupAward = pgTable(
     requestTo: date(),
     awardDate: date(),
     bundleKey: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('material_group_award_name', sql`length(trim(${table.name})) > 0`),
@@ -693,7 +689,7 @@ export const materialGroupRelevance = pgTable(
     override: text({ enum: ['high', 'low'] }),
     overrideReason: text(),
     updatedBy: text().references(() => appUser.id),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('material_group_relevance_once').on(table.materialGroupId, table.year),
@@ -724,7 +720,7 @@ export const materialGroupSummary = pgTable(
     /** Stand der drei Teile bei der letzten Vorlage, für „geändert seit der letzten Vorlage“ */
     submitted: jsonb(),
     updatedBy: text().references(() => appUser.id),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('material_group_summary_once').on(table.strategyId),
@@ -801,15 +797,22 @@ export const materialGroupConflict = pgTable(
     note: text(),
     decidedBy: text().references(() => appUser.id),
     decidedAt: timestamp({ withTimezone: true }),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
-    unique('material_group_conflict_once').on(table.relationshipId, table.ruleKey, table.fingerprint),
+    unique('material_group_conflict_once').on(
+      table.relationshipId,
+      table.ruleKey,
+      table.fingerprint,
+    ),
     check(
       'material_group_conflict_rule',
       sql`${table.ruleKey} in ('phase_out_vs_growth', 'relationship_mixed', 'concentration', 'award_vs_target')`,
     ),
-    check('material_group_conflict_status', sql`${table.status} in ('open', 'aligned', 'accepted')`),
+    check(
+      'material_group_conflict_status',
+      sql`${table.status} in ('open', 'aligned', 'accepted')`,
+    ),
     check(
       'material_group_conflict_note',
       sql`${table.status} = 'open' or length(trim(coalesce(${table.note}, ''))) > 0`,

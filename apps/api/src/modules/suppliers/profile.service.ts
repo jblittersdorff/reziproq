@@ -3,6 +3,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   schema,
@@ -122,7 +123,7 @@ export class ProfileService {
         .where(eq(schema.supplierProfile.relationshipId, relationshipId))
         .orderBy(desc(schema.supplierProfile.updatedAt))
         .limit(1);
-      const stamp = { updatedBy: auth.userId, updatedByName: actor.name, updatedAt: new Date() };
+      const stamp = { updatedBy: auth.userId, updatedByName: actor.name, updatedAt: currentTime() };
       await auditedChange(tx, actor, supplierProfileAudit, async () => {
         if (before) {
           await tx
@@ -325,7 +326,7 @@ export class ProfileService {
       currency: input.currency,
       source: input.source,
       updatedBy: userId,
-      updatedAt: new Date(),
+      updatedAt: currentTime(),
     };
     return tx
       .insert(schema.supplierFinancial)

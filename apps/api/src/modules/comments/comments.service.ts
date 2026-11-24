@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   eq,
   inArray,
   isNull,
@@ -248,7 +249,7 @@ export class CommentsService {
     scope: CommentScope,
     type: CommentObjectType,
     objectId: string,
-    now = new Date(),
+    now = currentTime(),
   ): Promise<CommentList> {
     const object = await this.object(scope, type, objectId);
     const rows = await scope.tx
@@ -375,7 +376,7 @@ export class CommentsService {
     objectId: string,
     id: string,
     input: EditComment,
-    now = new Date(),
+    now = currentTime(),
   ): Promise<CommentList> {
     const row = await this.own(scope, type, objectId, id);
     if (now.getTime() - row.createdAt.getTime() >= commentEditHours * 60 * 60 * 1000) {
@@ -410,7 +411,7 @@ export class CommentsService {
     const row = await this.own(scope, type, objectId, id);
     const actor = await actorOf(scope.tx, scope.auth, scope.orgId);
     const audit = row.visibility === 'internal' ? commentInternalAudit : commentAudit;
-    const now = new Date();
+    const now = currentTime();
     await auditedChange(scope.tx, actor, audit, async () => {
       await scope.tx
         .update(schema.comment)

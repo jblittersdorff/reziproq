@@ -10,6 +10,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
+import { currentTime } from '@reziproq/db';
 import {
   type AcceptPreRead,
   acceptPreReadSchema,
@@ -60,7 +61,7 @@ abstract class PreReadEndpoints {
       this.side === 'buyer'
         ? await this.meetings.buyer(auth, id, read)
         : await this.meetings.supplier(auth, id, read);
-    const buffer = await this.pdf.render(preReadHtml(detail, locale, new Date(), summary));
+    const buffer = await this.pdf.render(preReadHtml(detail, locale, currentTime(), summary));
     const fileName = preReadFileName(detail, locale);
     response
       .type('application/pdf')

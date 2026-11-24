@@ -1,5 +1,5 @@
 import { UnprocessableEntityException } from '@nestjs/common';
-import { and, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
 import { type AiDraft, type DraftSource, draftSourceSchema } from '@reziproq/shared';
 import { z } from 'zod';
 
@@ -103,7 +103,7 @@ export async function draftEvidence(tx: TenantTransaction, rows: DraftRow[]) {
         ).map(({ id, name }) => [id, name])
       : [],
   );
-  const cutoff = new Date();
+  const cutoff = currentTime();
   cutoff.setUTCFullYear(cutoff.getUTCFullYear() - 1);
   const cutoffDate = cutoff.toISOString().slice(0, 10);
   return (row: DraftRow): DraftEvidence => {

@@ -1,4 +1,5 @@
 import { BadGatewayException, Logger } from '@nestjs/common';
+import { systemTime } from '@reziproq/db';
 import { z } from 'zod';
 import type { ConnectorDefinition } from './connectors.js';
 import type {
@@ -94,7 +95,7 @@ export class MicrosoftLiveProvider implements ConnectorProvider {
     const parsed = tokenResponse.parse(await response.json());
     return {
       token: JSON.stringify({ access: parsed.access_token, refresh: parsed.refresh_token }),
-      expiresAt: new Date(Date.now() + parsed.expires_in * 1000),
+      expiresAt: new Date(systemTime().getTime() + parsed.expires_in * 1000),
     };
   }
 
@@ -122,7 +123,7 @@ export class MicrosoftLiveProvider implements ConnectorProvider {
   /** Kalender der Person: Termine der nächsten 30 Tage als Elemente für IN-03 */
   async fetch(context: FetchContext, token: string): Promise<ProviderItem[]> {
     if (!context.personal || !context.parts.includes('calendar')) return [];
-    const start = new Date();
+    const start = systemTime();
     const end = new Date(start.getTime() + 30 * 86_400_000);
     const url = `${graph}/me/calendarView?startDateTime=${start.toISOString()}&endDateTime=${end.toISOString()}&$top=100&$select=iCalUId,subject,start,end,location,attendees,isCancelled`;
     const events = z
@@ -275,7 +276,7 @@ export class MicrosoftGraphClient implements GraphClient {
       },
       to: message.toRecipients.map((entry) => entry.emailAddress.address),
       cc: message.ccRecipients.map((entry) => entry.emailAddress.address),
-      sentAt: message.sentDateTime ?? new Date().toISOString(),
+      sentAt: message.sentDateTime ?? systemTime().toISOString(),
       body: message.body?.content ?? '',
       bodyIsHtml: (message.body?.contentType ?? 'html').toLowerCase() === 'html',
       // Nur Dateien; eingebettete Mails und Verweise werden nicht übernommen
@@ -292,7 +293,7 @@ export class MicrosoftGraphClient implements GraphClient {
 
   /** Durchstich: nächster Termin der Person, dessen Betreff den Text enthält */
   async findEvent(token: string, subject: string): Promise<{ id: string; subject: string } | null> {
-    const start = new Date();
+    const start = systemTime();
     const end = new Date(start.getTime() + 30 * 86_400_000);
     const events = z
       .object({

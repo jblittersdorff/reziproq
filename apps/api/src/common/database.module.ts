@@ -61,11 +61,14 @@ export interface AccountSync {
   /** Browsersprache beim Login; gilt nur, solange keine Sprache gespeichert ist (PLT-09). */
   browserLocale: UserLocale | null;
   /** IN-02: Anmeldung über die Firmen-Domain; nur beim Anlegen einer neuen Person wirksam */
-  sso?: {
-    defaultRole: OrgRole;
-    pending: boolean;
-    identity: { provider: 'entra' | 'google'; subject: string };
-  } | null | undefined;
+  sso?:
+    | {
+        defaultRole: OrgRole;
+        pending: boolean;
+        identity: { provider: 'entra' | 'google'; subject: string };
+      }
+    | null
+    | undefined;
 }
 
 /** Organisation einer Person mit ihrer Rolle darin (PLT-05). */
@@ -127,7 +130,9 @@ export class AccountStore {
   /** IN-02: Anmeldung über Microsoft oder Google für eine bestätigte Domain (Anmeldeseite, Sperre) */
   async ssoOfDomain(
     domain: string,
-  ): Promise<{ provider: 'entra' | 'google'; passwordLoginAllowed: boolean; idpRef: string | null }[]> {
+  ): Promise<
+    { provider: 'entra' | 'google'; passwordLoginAllowed: boolean; idpRef: string | null }[]
+  > {
     const result = await this.db.execute<{
       provider: 'entra' | 'google';
       password_login_allowed: boolean;
@@ -161,9 +166,22 @@ export class AccountStore {
     await this.db.execute(sql`select app_sprache_setzen(${userId}, ${locale})`);
   }
 
+  /** DM-01: Demo-Uhr einer Organisation; null, wenn sie kein Demo-Mandant ist oder keine Uhr hat. */
+  async demoNowOf(orgId: string): Promise<Date | null> {
+    const result = await this.db.execute<{ demo_now: string | Date | null }>(
+      sql`select app_org_demo_now(${orgId}::uuid) as demo_now`,
+    );
+    const value = result.rows[0]?.demo_now ?? null;
+    return value === null ? null : new Date(value);
+  }
+
   async membershipOf(userId: string): Promise<AccountMembership | null> {
     const result = await this.db.execute<
-      AccountOrganization & { org_role: OrgRole; is_controlling: boolean; approval_pending: boolean }
+      AccountOrganization & {
+        org_role: OrgRole;
+        is_controlling: boolean;
+        approval_pending: boolean;
+      }
     >(
       sql`select id, name, country, buyer, org_role, is_controlling, approval_pending from app_organisation_des_nutzers(${userId})`,
     );
@@ -339,7 +357,9 @@ export class IntegrationStore {
       scopes: string[];
       created_by: string;
       revoked_at: string | null;
-    }>(sql`select id::text, org_id::text, scopes, created_by, revoked_at from app_api_key(${hash})`);
+    }>(
+      sql`select id::text, org_id::text, scopes, created_by, revoked_at from app_api_key(${hash})`,
+    );
     const row = result.rows[0];
     return row
       ? {

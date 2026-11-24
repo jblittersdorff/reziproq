@@ -61,7 +61,7 @@ export const supplierDomain = pgTable(
     domain: text().notNull(),
     source: text({ enum: ['contact', 'manual', 'learned'] }).notNull(),
     createdBy: text(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('supplier_domain_eindeutig').on(table.orgId, table.relationshipId, table.domain),
@@ -106,7 +106,7 @@ export const inboundItem = pgTable(
       .notNull()
       .default('meeting'),
     source: text({ enum: ['outlook_addin', 'inbound_mail', 'calendar_sync'] }).notNull(),
-    receivedAt: time().notNull().defaultNow(),
+    receivedAt: time().notNull().default(sql`app_now()`),
     fromEmail: text(),
     subject: text().notNull(),
     icalUid: text(),
@@ -158,7 +158,7 @@ export const addinRegistration = pgTable(
     transcriptOptIn: boolean().notNull().default(false),
     insertAgenda: boolean().notNull().default(false),
     eventId: text(),
-    createdAt: time().notNull().defaultNow(),
+    createdAt: time().notNull().default(sql`app_now()`),
     matchedMeetingId: uuid(),
   },
   (table) => [

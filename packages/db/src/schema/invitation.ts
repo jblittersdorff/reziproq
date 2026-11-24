@@ -30,7 +30,7 @@ export const invitation = pgTable(
     invitedBy: text()
       .notNull()
       .references(() => appUser.id),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     acceptedAt: timestamp({ withTimezone: true }),
     acceptedUserId: text().references(() => appUser.id),

@@ -4,6 +4,7 @@ import {
   asc,
   auditedChange,
   auditedObject,
+  currentTime,
   desc,
   eq,
   gte,
@@ -40,7 +41,7 @@ const cycleAudit = auditedObject({
 });
 
 /** Elf Monate nach dem JBP-Termin (ZYK-05); ohne Termin nie. */
-export function nextCycleDue(jbpDate: string | null, today = new Date()): boolean {
+export function nextCycleDue(jbpDate: string | null, today = currentTime()): boolean {
   if (!jbpDate) return false;
   const due = new Date(`${jbpDate}T00:00:00Z`);
   due.setUTCMonth(due.getUTCMonth() + nextCycleAfterMonths);
@@ -199,7 +200,7 @@ export class NextCycleService {
       const old = await this.activeCycle(tx, relationshipId);
       if (!old) throw conflict('zyklus_nicht_aktiv');
       const actor = await actorOf(tx, auth, organization.id);
-      const now = new Date();
+      const now = currentTime();
 
       // Der alte Zyklus wird geschlossen; sonst bleibt alles an ihm unverändert.
       await auditedChange(tx, actor, cycleAudit, async () => {
@@ -270,7 +271,7 @@ export class NextCycleService {
           .orderBy(desc(schema.cycle.startedAt));
         const result = [];
         for (const cycle of cycles) {
-          const end = cycle.closedAt ?? new Date();
+          const end = cycle.closedAt ?? currentTime();
           const plans = await tx
             .select()
             .from(schema.supplierPlan)

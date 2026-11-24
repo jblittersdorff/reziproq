@@ -1,5 +1,14 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  currentTime,
+  desc,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   amountInRange,
   type EbitGoalRequest,
@@ -144,7 +153,7 @@ export class InsightsService {
     if (!organization?.buyer || !can(auth, 'wirkung.sehen')) throw forbidden();
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
       const startMonth = await this.portfolio.startMonth(tx, organization.id);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = currentTime().toISOString().slice(0, 10);
       const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
       const [from, to] = fiscalYearRange(fiscalYear, startMonth);
       const focus = await focusRelationships(tx, organization.id);
@@ -407,7 +416,7 @@ export class InsightsService {
         })
         .onConflictDoUpdate({
           target: [schema.orgSetting.orgId, schema.orgSetting.key],
-          set: { value: goals, updatedBy: auth.userId, updatedAt: new Date() },
+          set: { value: goals, updatedBy: auth.userId, updatedAt: currentTime() },
         });
     });
   }
@@ -421,7 +430,7 @@ export class InsightsService {
     return this.impact.run(auth, relationshipId, async (scope) => {
       const { tx } = scope;
       const startMonth = await this.portfolio.startMonth(tx, scope.orgId);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = currentTime().toISOString().slice(0, 10);
       const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
       const [from, to] = fiscalYearRange(fiscalYear, startMonth);
       const facts = await factsOf(tx, [relationshipId], true);
@@ -591,7 +600,7 @@ export class InsightsService {
     return this.impact.run(auth, relationshipId, async (scope) => {
       const { tx } = scope;
       const startMonth = await this.portfolio.startMonth(tx, scope.orgId);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = currentTime().toISOString().slice(0, 10);
       const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
       const [from, to] = fiscalYearRange(fiscalYear, startMonth);
       const facts = await factsOf(tx, [relationshipId], true);
@@ -767,7 +776,7 @@ export class InsightsService {
       }
       await scope.tx
         .update(schema.relationshipEbitTarget)
-        .set({ approvedBy: auth.userId, approvedAt: new Date() })
+        .set({ approvedBy: auth.userId, approvedAt: currentTime() })
         .where(
           and(
             eq(schema.relationshipEbitTarget.relationshipId, relationshipId),

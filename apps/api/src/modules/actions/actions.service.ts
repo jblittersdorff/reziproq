@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   eq,
   inArray,
   schema,
@@ -358,7 +359,7 @@ export class ActionsService {
         ownerSide: input.ownerSide,
         ...owner,
         dueDate: input.dueDate,
-        updatedAt: new Date(),
+        updatedAt: currentTime(),
       };
       await tx.update(schema.action).set(next).where(eq(schema.action.id, actionId));
       return {
@@ -388,7 +389,11 @@ export class ActionsService {
       if (own) {
         await tx
           .update(schema.action)
-          .set({ status, doneAt: status === 'done' ? new Date() : null, updatedAt: new Date() })
+          .set({
+            status,
+            doneAt: status === 'done' ? currentTime() : null,
+            updatedAt: currentTime(),
+          })
           .where(eq(schema.action.id, actionId));
       } else {
         await tx.execute(sql`select app_massnahme_status(${actionId}, ${status})`);

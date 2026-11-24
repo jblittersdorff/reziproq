@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, schema, sql } from '@reziproq/db';
+import { and, asc, currentTime, eq, schema, sql } from '@reziproq/db';
 import {
   compareDue,
   type DueItem,
@@ -58,7 +58,7 @@ import {
 
 const limit = 5;
 
-const isoToday = () => new Date().toISOString().slice(0, 10);
+const isoToday = () => currentTime().toISOString().slice(0, 10);
 const addDays = (date: string, days: number) => {
   const value = new Date(`${date}T00:00:00Z`);
   value.setUTCDate(value.getUTCDate() + days);
@@ -153,7 +153,8 @@ export class StartService {
       organization?.buyer && auth.orgRole === 'admin'
         ? await this.tenant.run(
             { userId: auth.userId, organizationId: organization.id },
-            (tx) => hintRuleReviewDue(tx, organization.id, new Date().toISOString().slice(0, 10)),
+            (tx) =>
+              hintRuleReviewDue(tx, organization.id, currentTime().toISOString().slice(0, 10)),
             { readOnly: true },
           )
         : [];
@@ -183,7 +184,7 @@ export class StartService {
                 kind: 'agent_approval' as const,
                 supplier: '',
                 detail: row.name,
-                dueDate: new Date().toISOString().slice(0, 10),
+                dueDate: currentTime().toISOString().slice(0, 10),
                 href: `/einstellungen/ki/agenten/eigene/${row.id}`,
               })),
             { readOnly: true },

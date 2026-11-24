@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -175,13 +176,19 @@ export class PlanApprovalsService {
       if (team.find((member) => member.userId === auth.userId)?.teamRole !== 'sro')
         throw forbidden();
       const supplier = await this.supplierName(tx, organizationId, relationshipId);
-      const deadline = new Date(Date.now() + reviewDays * 86_400_000).toISOString().slice(0, 10);
+      const deadline = new Date(currentTime().getTime() + reviewDays * 86_400_000)
+        .toISOString()
+        .slice(0, 10);
       const actor = await actorOf(tx, auth, organizationId);
       const recipients = team.filter((member) => member.email);
       await auditedChange(tx, actor, supplierPlanAudit, async () => {
         await tx
           .update(schema.supplierPlan)
-          .set({ status: 'in_review', reviewRound: plan.reviewRound + 1, submittedAt: new Date() })
+          .set({
+            status: 'in_review',
+            reviewRound: plan.reviewRound + 1,
+            submittedAt: currentTime(),
+          })
           .where(eq(schema.supplierPlan.id, plan.id));
         return {
           objectId: plan.id,
@@ -269,7 +276,7 @@ export class PlanApprovalsService {
         if (status !== 'in_review') {
           await tx
             .update(schema.supplierPlan)
-            .set({ status, ...(status === 'approved' ? { approvedAt: new Date() } : {}) })
+            .set({ status, ...(status === 'approved' ? { approvedAt: currentTime() } : {}) })
             .where(eq(schema.supplierPlan.id, planId));
         }
         return {
@@ -443,7 +450,7 @@ export class PlanApprovalsService {
               ),
             );
           if (decided) continue;
-          const submitted = row.submittedAt ?? new Date();
+          const submitted = row.submittedAt ?? currentTime();
           items.push({
             id: row.planId,
             kind: 'approval',

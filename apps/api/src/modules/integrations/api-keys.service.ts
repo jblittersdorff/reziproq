@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { and, desc, eq, isNull, schema, type TenantTransaction } from '@reziproq/db';
+import { and, desc, eq, isNull, schema, systemTime, type TenantTransaction } from '@reziproq/db';
 import type { ApiKeys, ApiObjectType, CreateApiKey, CreatedApiKey } from '@reziproq/shared';
 import { IntegrationStore, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -15,7 +15,8 @@ import { actorIn } from './actor.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
-const unauthorized = () => new UnauthorizedException({ statusCode: 401, code: 'schluessel_ungueltig' });
+const unauthorized = () =>
+  new UnauthorizedException({ statusCode: 401, code: 'schluessel_ungueltig' });
 
 export const hashApiKey = (secret: string) => createHash('sha256').update(secret).digest('hex');
 
@@ -117,7 +118,7 @@ export class ApiKeysService {
     return this.tenant.run(session, async (tx) => {
       const [revoked] = await tx
         .update(schema.apiKey)
-        .set({ revokedAt: new Date() })
+        .set({ revokedAt: systemTime() })
         .where(and(eq(schema.apiKey.id, id), isNull(schema.apiKey.revokedAt)))
         .returning({ id: schema.apiKey.id });
       if (!revoked) throw notFound();
@@ -136,7 +137,7 @@ export class ApiKeysService {
       async (tx) => {
         const [row] = await tx
           .update(schema.apiKey)
-          .set({ lastUsedAt: new Date() })
+          .set({ lastUsedAt: systemTime() })
           .where(eq(schema.apiKey.id, key.id))
           .returning({ name: schema.apiKey.name });
         return { name: row?.name ?? '', actor: await actorIn(tx, key.orgId, key.createdBy) };

@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { and, eq, schema, sql } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql } from '@reziproq/db';
 import {
   type CycleStatus,
   type CycleStatusQuery,
@@ -141,5 +141,5 @@ export class CycleStatusService {
 }
 
 function isoToday() {
-  return new Date().toISOString().slice(0, 10);
+  return currentTime().toISOString().slice(0, 10);
 }

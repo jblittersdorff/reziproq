@@ -1,4 +1,4 @@
-import { schema, type TenantTransaction } from '@reziproq/db';
+import { currentTime, schema, type TenantTransaction } from '@reziproq/db';
 
 // ZA-01 Regel 3, G-5: Ein Objekt wechselt aus einem privaten Raum in die Mitte nur mit dem
 // Bestätigungs-Token eines Menschen. Die Datenbank setzt das für Läufe von Reziproq durch
@@ -26,7 +26,7 @@ export async function issueConfirmToken(
   tx: TenantTransaction,
   input: ConfirmTokenInput,
 ): Promise<string> {
-  const now = input.now ?? new Date();
+  const now = input.now ?? currentTime();
   const [row] = await tx
     .insert(schema.confirmToken)
     .values({

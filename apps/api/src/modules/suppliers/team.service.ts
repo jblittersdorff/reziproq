@@ -6,7 +6,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, auditedChange, eq, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  auditedChange,
+  currentTime,
+  eq,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   defaultSroDescription,
   defaultTeamVisibility,
@@ -200,7 +208,7 @@ export class TeamService {
               doesNot: input.doesNot,
               updatedBy: auth.userId,
               updatedByName: actor.name,
-              updatedAt: new Date(),
+              updatedAt: currentTime(),
             },
           });
         return {

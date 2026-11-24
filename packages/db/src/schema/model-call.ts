@@ -31,7 +31,7 @@ export const modelCall = pgTable(
     outputTokens: integer().notNull().default(0),
     costMicrocents: bigint({ mode: 'number' }).notNull().default(0),
     latencyMs: integer().notNull().default(0),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('model_call_class', sql`${table.modelClass} in ('small', 'standard', 'synthesis')`),

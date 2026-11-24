@@ -9,6 +9,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   eq,
   inArray,
   schema,
@@ -51,7 +52,7 @@ const pastDue = () => fail(400, 'due_date_past', 'Die Frist liegt in der Vergang
 
 const notDraft = () => fail(409, 'round_not_draft', 'Nur ein Entwurf lässt sich ändern.');
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => currentTime().toISOString().slice(0, 10);
 
 function translate(error: unknown): never {
   const cause = (error as { cause?: { code?: string; message?: string } }).cause;
@@ -654,7 +655,7 @@ export class RoundsService {
       await auditedChange(tx, actor, segmentationRoundAudit, async () => {
         await tx
           .update(schema.segmentationRound)
-          .set({ status: 'open', modelVersion: model.version, startedAt: new Date() })
+          .set({ status: 'open', modelVersion: model.version, startedAt: currentTime() })
           .where(eq(schema.segmentationRound.id, id));
         return {
           objectId: id,
@@ -712,7 +713,7 @@ export class RoundsService {
           scope: 'category',
           materialGroupId: input.materialGroupId,
           modelVersion: model.version,
-          startedAt: new Date(),
+          startedAt: currentTime(),
           createdBy: auth.userId,
         })
         .returning();
@@ -782,7 +783,7 @@ export class RoundsService {
       await auditedChange(tx, actor, segmentationRoundAudit, async () => {
         await tx
           .update(schema.segmentationRound)
-          .set({ status: 'closed', closedAt: new Date() })
+          .set({ status: 'closed', closedAt: currentTime() })
           .where(eq(schema.segmentationRound.id, id));
         return {
           objectId: id,

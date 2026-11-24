@@ -3,6 +3,7 @@ import {
   and,
   asc,
   auditedChange,
+  currentTime,
   desc,
   eq,
   inArray,
@@ -237,7 +238,7 @@ export class PortfolioService {
     requestedYear: number | undefined,
     startMonth: number,
   ): Bridge {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = currentTime().toISOString().slice(0, 10);
     const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
     const counted = facts.filter((fact) => !fact.excluded && fact.effectType);
     const amount = (fact: InitiativeFacts) =>
@@ -295,7 +296,7 @@ export class PortfolioService {
     if (!organization?.buyer || !can(auth, 'wirkung.sehen')) throw forbidden();
     return this.tenant.run({ userId: auth.userId, organizationId: organization.id }, async (tx) => {
       const startMonth = await this.startMonth(tx, organization.id);
-      const today = new Date().toISOString().slice(0, 10);
+      const today = currentTime().toISOString().slice(0, 10);
       const fiscalYear = requestedYear ?? fiscalYearOf(today, startMonth);
       // Fokuslieferanten des Käufers (SEG-02), aktive Beziehungen.
       const focus = await focusRelationships(tx, organization.id);
@@ -412,7 +413,7 @@ export class PortfolioService {
           })
           .onConflictDoUpdate({
             target: [schema.orgSetting.orgId, schema.orgSetting.key],
-            set: { value: input.startMonth, updatedBy: auth.userId, updatedAt: sql`now()` },
+            set: { value: input.startMonth, updatedBy: auth.userId, updatedAt: sql`app_now()` },
           });
         return {
           objectId: organization.id,

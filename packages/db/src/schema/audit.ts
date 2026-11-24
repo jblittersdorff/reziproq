@@ -18,7 +18,7 @@ export const auditEvent = pgTable(
   'audit_event',
   {
     id: uuid().primaryKey().default(sql`uuidv7()`),
-    occurredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    occurredAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     actorUserId: text().notNull(),
     // Beim Eintrag festgehalten: Fremde Nutzer kann die andere Seite nicht lesen (RLS).
     actorName: text().notNull(),
@@ -45,7 +45,7 @@ export const outboxEvent = pgTable(
   'outbox_event',
   {
     id: uuid().primaryKey().default(sql`uuidv7()`),
-    occurredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    occurredAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     eventType: text().notNull(),
     objectType: text().notNull(),
     objectId: text().notNull(),
@@ -114,8 +114,8 @@ export const emailLog = pgTable(
   {
     id: uuid().primaryKey().default(sql`uuidv7()`),
     outboxEventId: uuid().notNull().unique(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     sentAt: timestamp({ withTimezone: true }),
     template: text({
       enum: [

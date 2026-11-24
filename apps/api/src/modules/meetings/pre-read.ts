@@ -1,3 +1,4 @@
+import { currentTime } from '@reziproq/db';
 import type { MeetingDetail, MeetingSide } from '@reziproq/shared';
 import { escapeHtml, printDocument } from '../print/print-document.js';
 
@@ -119,7 +120,7 @@ export function preReadFileName(detail: MeetingDetail, locale: PrintLocale): str
 export function preReadHtml(
   detail: MeetingDetail,
   locale: PrintLocale,
-  now = new Date(),
+  now = currentTime(),
   /** QBR-07: übernommene Zusammenfassung der eigenen Seite */
   summary: string | null = null,
 ): string {

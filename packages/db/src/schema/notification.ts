@@ -48,7 +48,7 @@ export const notificationPref = pgTable(
     mode: text({ enum: notificationModes }).notNull(),
     // Gleich für alle Zeilen einer Person; gespeichert wird sie mit jeder Änderung
     quietHours: jsonb().$type<QuietHours>(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('notification_pref_channel', sql`${table.channel} in ('teams', 'mail')`),
@@ -66,7 +66,7 @@ export const notificationChannel = pgTable(
     userId: userId(),
     channel: text({ enum: notificationChannels }).notNull(),
     conversationRef: text().notNull(),
-    linkedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    linkedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [unique('notification_channel_eindeutig').on(table.userId, table.channel)],
 );
@@ -96,7 +96,7 @@ export const notification = pgTable(
     reason: text(),
     sentAt: timestamp({ withTimezone: true }),
     actionTaken: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('notification_channel', sql`${table.channel} in ('teams', 'mail')`),

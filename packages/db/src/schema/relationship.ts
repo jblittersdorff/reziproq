@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   bigint,
   boolean,
   check,
@@ -14,7 +15,6 @@ import {
   unique,
   uniqueIndex,
   uuid,
-  type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 import { appUser, userFunctions } from './app-user.js';
 import { businessUnit, materialGroup, materialGroupProductGroup } from './master-data.js';
@@ -42,7 +42,7 @@ export const relationship = pgTable(
       .notNull()
       .references(() => organization.id),
     status: text({ enum: relationshipStatuses }).notNull().default('draft'),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     endedAt: timestamp({ withTimezone: true }),
   },
   (table) => [
@@ -94,7 +94,7 @@ export const cycle = pgTable(
       .notNull()
       .references(() => relationship.id),
     label: text().notNull(),
-    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     jbpDate: date('jbp_date'),
     status: text({ enum: cycleStatuses }).notNull().default('active'),
     /** ZYK-05: wann der nächste Zyklus diesen abgelöst hat; offen bei aktiven Zyklen */
@@ -152,7 +152,7 @@ export const cycleReminderSent = pgTable(
       .references(() => relationship.id),
     step: text({ enum: cycleSettingSteps }).notNull(),
     dueDate: date('due_date').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('cycle_reminder_sent_je_faelligkeit').on(table.cycleId, table.step, table.dueDate),
@@ -226,7 +226,7 @@ export const relationshipMember = pgTable(
     userId: text().notNull(),
     teamRole: text({ enum: teamRoles }).notNull().default('member'),
     function: text({ enum: userFunctions }),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     /** PLB-04: Seite der Person (geteilte Ebene); gleich org_id, ein Trigger füllt es */
     ownerOrgId: uuid().references(() => organization.id),
     /** PLB-04: geteilt sieht die andere Seite; Standard intern, SRO und Sponsoren geteilt */
@@ -272,7 +272,7 @@ export const roleDescription = pgTable(
     doesNot: jsonb().notNull(),
     updatedBy: text().notNull(),
     updatedByName: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('role_description_role').on(table.orgId, table.role),

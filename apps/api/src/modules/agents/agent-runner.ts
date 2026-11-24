@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import { type AgentRun, centsFromMicrocents, saveCustomAgentSchema } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { z } from 'zod';
@@ -169,7 +169,7 @@ export class AgentRunner {
         .where(
           and(
             eq(charges.orgId, job.orgId),
-            sql`${charges.createdAt} >= date_trunc('month', now())`,
+            sql`${charges.createdAt} >= date_trunc('month', app_now())`,
           ),
         );
       if (
@@ -185,7 +185,7 @@ export class AgentRunner {
         .values({ orgId: job.orgId, runId: job.runId, seq, kind, title: phase })
         .onConflictDoUpdate({
           target: [steps.orgId, steps.runId, steps.seq],
-          set: { status: 'running', finishedAt: null, startedAt: new Date() },
+          set: { status: 'running', finishedAt: null, startedAt: currentTime() },
         });
       return null;
     });
@@ -207,7 +207,7 @@ export class AgentRunner {
               ? 'failed'
               : 'done',
           detail,
-          finishedAt: new Date(),
+          finishedAt: currentTime(),
           costMicrocents: Math.max(0, cost - run.costMicrocents),
         })
         .where(
@@ -233,7 +233,7 @@ export class AgentRunner {
     await this.tenant.run(this.session(job), async (tx) => {
       await tx
         .update(steps)
-        .set({ status: 'failed', finishedAt: new Date() })
+        .set({ status: 'failed', finishedAt: currentTime() })
         .where(
           and(eq(steps.orgId, job.orgId), eq(steps.runId, job.runId), eq(steps.status, 'running')),
         );
@@ -241,7 +241,7 @@ export class AgentRunner {
         .update(runs)
         .set({
           status,
-          finishedAt: status === 'waiting_input' ? null : new Date(),
+          finishedAt: status === 'waiting_input' ? null : currentTime(),
           costMicrocents: await runCost(tx, job.orgId, job.runId),
         })
         .where(and(whereRun(job), eq(runs.status, 'running')));
@@ -254,7 +254,7 @@ export class AgentRunner {
       if (!run || (run.status !== 'queued' && run.status !== 'running')) return null;
       await tx
         .update(runs)
-        .set({ status: 'running', startedAt: run.startedAt ?? new Date() })
+        .set({ status: 'running', startedAt: run.startedAt ?? currentTime() })
         .where(whereRun(job));
       const [version] = await tx
         .select()
@@ -481,7 +481,7 @@ export class AgentRunner {
         await this.tenant.run(this.session(job), (tx) =>
           tx
             .update(schema.agentVersion)
-            .set({ testRunId: job.runId, testPassedAt: new Date() })
+            .set({ testRunId: job.runId, testPassedAt: currentTime() })
             .where(
               and(eq(schema.agentVersion.orgId, job.orgId), eq(schema.agentVersion.id, version.id)),
             ),

@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import {
   type SupplierMap,
   type SupplierMapUpdate,
@@ -221,7 +221,7 @@ export class SupplierMapService {
         targetYear: request.targetYear,
         ended,
         updatedBy: auth.userId,
-        updatedAt: new Date(),
+        updatedAt: currentTime(),
       };
       if (current) await tx.update(t).set(values).where(eq(t.id, current.id));
       else {

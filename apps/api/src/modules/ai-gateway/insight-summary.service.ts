@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, eq, isNull, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, isNull, schema, sql, type TenantTransaction } from '@reziproq/db';
 import type { InsightStatement } from '@reziproq/shared';
 import { generateText } from 'ai';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -109,7 +109,7 @@ export class InsightSummaryService {
     const [existing] = await tx.select().from(table).where(where);
     const recent =
       existing &&
-      existing.generatedAt.getTime() > Date.now() - 60 * 60 * 1000 &&
+      existing.generatedAt.getTime() > currentTime().getTime() - 60 * 60 * 1000 &&
       !this.testModelText;
     if (existing?.factsHash === hash) return this.view(existing, request, candidates);
     if (existing && recent) {
@@ -187,7 +187,7 @@ export class InsightSummaryService {
       sentences,
       status: shown ? ('shown' as const) : ('suppressed' as const),
       suppressedReason: shown ? null : 'zahl_oder_name_ohne_fakt',
-      generatedAt: new Date(),
+      generatedAt: currentTime(),
     };
     const [row] = await tx
       .insert(table)
@@ -245,7 +245,7 @@ export class InsightSummaryService {
     if (!organization) return false;
     const rows = await tx
       .update(schema.insightSummary)
-      .set({ reportedAt: sql`now()` })
+      .set({ reportedAt: sql`app_now()` })
       .where(
         and(
           eq(schema.insightSummary.id, id),

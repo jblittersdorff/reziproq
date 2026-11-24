@@ -60,7 +60,7 @@ export const meetingTranscript = pgTable(
     // Rohtext auch für Teilnehmer der Käuferseite, wenn der SRO ihn freigibt
     releasedToParticipants: boolean().notNull().default(false),
     createdBy: text(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('meeting_transcript_source', sql`${table.source} in ('teams', 'meet', 'upload')`),

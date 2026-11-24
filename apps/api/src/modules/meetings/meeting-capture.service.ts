@@ -7,7 +7,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { and, desc, eq, inArray, schema, sql } from '@reziproq/db';
+import { and, currentTime, desc, eq, inArray, schema, sql } from '@reziproq/db';
 import {
   type CaptureItem,
   captureDraftKinds,
@@ -237,7 +237,7 @@ export class MeetingCaptureService {
     const items = drafts.map((draft) => draft.item);
     const notGoal = items.filter((item) => item.kind !== 'goal_check');
     return meetingCaptureSchema.parse({
-      open: meeting.startsAt.getTime() <= Date.now() || meeting.status !== 'planned',
+      open: meeting.startsAt.getTime() <= currentTime().getTime() || meeting.status !== 'planned',
       canCapture: await this.canCapture(scope, ctx.participants),
       canDecide: this.canDecide(scope),
       notes: capture
@@ -325,7 +325,7 @@ export class MeetingCaptureService {
     return this.meetings.buyer(auth, relationshipId, async (scope) => {
       const { meeting, ctx } = await this.context(scope, meetingId);
       if (!(await this.canCapture(scope, ctx.participants))) throw forbidden();
-      if (meeting.startsAt.getTime() > Date.now() && meeting.status === 'planned') {
+      if (meeting.startsAt.getTime() > currentTime().getTime() && meeting.status === 'planned') {
         throw conflict('termin_noch_nicht');
       }
       const [me] = await scope.tx
@@ -357,7 +357,7 @@ export class MeetingCaptureService {
           status: 'discarded',
           dismissReason: 'neue Auswertung',
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(
           and(
@@ -521,7 +521,7 @@ export class MeetingCaptureService {
           status: 'discarded',
           dismissReason: reason,
           decidedBy: auth.userId,
-          decidedAt: new Date(),
+          decidedAt: currentTime(),
         })
         .where(eq(schema.aiDraft.id, draftId));
       return this.view(scope, meetingId);
@@ -607,7 +607,7 @@ export class MeetingCaptureService {
         status: 'accepted',
         content: JSON.stringify({ ...item, createdId }),
         decidedBy: scope.auth.userId,
-        decidedAt: new Date(),
+        decidedAt: currentTime(),
       })
       .where(eq(schema.aiDraft.id, row.id));
   }
@@ -677,7 +677,7 @@ export class MeetingCaptureService {
       if (capture) {
         await scope.tx
           .update(schema.meetingCapture)
-          .set({ protocolSharedAt: new Date() })
+          .set({ protocolSharedAt: currentTime() })
           .where(eq(schema.meetingCapture.id, capture.id));
       }
       return this.view(scope, meetingId);

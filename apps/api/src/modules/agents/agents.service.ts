@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, desc, eq, or, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, desc, eq, or, schema, sql, type TenantTransaction } from '@reziproq/db';
 import { type AgentRun, agentStepKeys, type StartAgent } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { readAiSettings } from '../ai-gateway/ai-settings.js';
@@ -399,7 +399,7 @@ export class AgentsService {
       await this.tenant.run({ organizationId: job.orgId, userId: job.userId }, async (tx) => {
         await tx
           .update(agentRun)
-          .set({ status: 'failed', finishedAt: new Date() })
+          .set({ status: 'failed', finishedAt: currentTime() })
           .where(
             and(
               eq(agentRun.id, job.runId),
@@ -541,10 +541,10 @@ export class AgentsService {
       if (run.status === 'queued' || run.status === 'waiting_input') {
         await tx
           .update(agentRun)
-          .set({ status: 'cancelled', finishedAt: new Date() })
+          .set({ status: 'cancelled', finishedAt: currentTime() })
           .where(filter);
       } else if (run.status === 'running') {
-        await tx.update(agentRun).set({ cancelRequestedAt: new Date() }).where(filter);
+        await tx.update(agentRun).set({ cancelRequestedAt: currentTime() }).where(filter);
       }
     });
     return this.detail(auth, id);

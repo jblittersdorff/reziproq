@@ -11,6 +11,7 @@ import {
   asc,
   auditedChange,
   auditedObject,
+  currentTime,
   eq,
   inArray,
   schema,
@@ -420,7 +421,7 @@ export class MaterialGroupsService {
             .values({ orgId: org.id, key, value, updatedBy: auth.userId })
             .onConflictDoUpdate({
               target: [schema.orgSetting.orgId, schema.orgSetting.key],
-              set: { value, updatedBy: auth.userId, updatedAt: new Date() },
+              set: { value, updatedBy: auth.userId, updatedAt: currentTime() },
             });
         }
         return {

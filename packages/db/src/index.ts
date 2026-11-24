@@ -9,11 +9,8 @@ export {
   type OutboxEmailPayload,
 } from './audit.js';
 export { loadDefaultCatalog, seedDefaultCatalog } from './catalog.js';
-export {
-  loadMaterialGroupDefaults,
-  seedMaterialGroupDefaults,
-} from './material-group-defaults.js';
 export { createDatabase, type Database } from './client.js';
+export { currentTime, systemTime, withDemoClock } from './clock.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {
   checkLayers,
@@ -23,6 +20,10 @@ export {
   layerRegister,
   privateColumns,
 } from './layers.js';
+export {
+  loadMaterialGroupDefaults,
+  seedMaterialGroupDefaults,
+} from './material-group-defaults.js';
 export { ensureApiRole } from './roles.js';
 export * as schema from './schema/index.js';
 export { type TenantSession, type TenantTransaction, withTenant } from './tenant.js';

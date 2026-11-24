@@ -62,7 +62,7 @@ export const meeting = pgTable(
     protocol: text(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // IN-03: Herkunft und Kalenderdaten; Termine aus Outlook und Kalender sind intern (F6)
     source: text({ enum: ['reziproq', 'outlook_addin', 'inbound_mail', 'calendar_sync'] })
       .notNull()
@@ -161,7 +161,7 @@ export const meetingNote = pgTable(
       .notNull()
       .references(() => organization.id),
     text: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [unique('meeting_note_per_org').on(table.meetingId, table.orgId)],
 );
@@ -190,7 +190,7 @@ export const meetingCapture = pgTable(
     runId: uuid(),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     // Wann der SRO das Protokoll aus dieser Auswertung geteilt hat
     protocolSharedAt: timestamp({ withTimezone: true }),
     // ZA-01: Herkunft
@@ -219,7 +219,7 @@ export const meetingSnapshot = pgTable(
       .notNull()
       .references(() => meeting.id, { onDelete: 'cascade' }),
     ...sharedColumns(),
-    frozenAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    frozenAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     content: jsonb().notNull(),
   },
   // Je Termin einer: Die API setzt erst den Status auf closed (geht nur einmal, Trigger

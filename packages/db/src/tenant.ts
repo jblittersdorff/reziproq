@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { Database } from './client.js';
+import { withDemoClock } from './clock.js';
 
 export type TenantTransaction = Parameters<Parameters<Database['transaction']>[0]>[0];
 
@@ -38,14 +39,17 @@ export function withTenant<T>(
   return db.transaction(
     async (tx) => {
       await tx.execute(sql`set local role reziproq_app`);
-      // Eine Abfrage für alle Werte der Session, damit jede Transaktion nur einen Umlauf mehr hat.
-      await tx.execute(sql`select
+      // Eine Abfrage für alle Werte der Session, damit jede Transaktion nur einen Umlauf mehr hat;
+      // sie liefert zugleich die Demo-Uhr der Organisation (DM-01, app_demo_now nach set_config).
+      const result = await tx.execute<{ demo_now: string | Date | null }>(sql`select
         set_config('app.user_id', ${session.userId}, true),
         set_config('app.org_id', ${session.organizationId ?? ''}, true),
         set_config('app.customer_org_id', ${session.customerOrganizationId ?? ''}, true),
         set_config('app.run_id', ${session.runId ?? ''}, true),
-        set_config('app.confirm_token', ${session.confirmToken ?? ''}, true)`);
-      return work(tx);
+        set_config('app.confirm_token', ${session.confirmToken ?? ''}, true),
+        app_org_demo_now(${session.organizationId ?? null}::uuid) as demo_now`);
+      const demoNow = result.rows[0]?.demo_now ?? null;
+      return withDemoClock(demoNow === null ? null : new Date(demoNow), () => work(tx));
     },
     options.readOnly ? { accessMode: 'read only' } : undefined,
   );

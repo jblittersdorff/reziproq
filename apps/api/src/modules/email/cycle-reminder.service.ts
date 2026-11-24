@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, desc, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import { calculateCycleDeadlines, offsetCycleDate, type UserLocale } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import {
@@ -38,7 +38,7 @@ export class CycleReminderService {
     @Inject(CYCLE_STEP_SOURCES) private readonly cycleSteps: CycleStepSource[],
   ) {}
 
-  async runDaily(today = new Date().toISOString().slice(0, 10)): Promise<number> {
+  async runDaily(today = currentTime().toISOString().slice(0, 10)): Promise<number> {
     let queued = 0;
     for (const organizationId of await this.outbox.reminderOrganizations()) {
       queued += await this.processOrganization(organizationId, today);

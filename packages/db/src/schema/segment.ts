@@ -28,7 +28,7 @@ export const segmentModel = pgTable(
     deviationThreshold: smallint('deviation_threshold').notNull().default(30),
     // SEG-02: Fokus-Vorschlag, wenn die größten Lieferanten zusammen diesen Prozentsatz des Spends ausmachen.
     focusSpendShare: smallint('focus_spend_share').notNull().default(80),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     activatedAt: timestamp('activated_at', { withTimezone: true }),
   },
   (table) => [

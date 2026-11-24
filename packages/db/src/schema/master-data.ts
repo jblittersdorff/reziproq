@@ -30,7 +30,7 @@ export const businessUnit = pgTable(
     name: text().notNull(),
     code: text().notNull(),
     active: boolean().notNull().default(true),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     // Codes sind je Organisation eindeutig, ohne Rücksicht auf Groß- und Kleinschreibung.
@@ -54,7 +54,7 @@ export const materialGroup = pgTable(
     description: text(),
     leadUserId: text().references(() => appUser.id),
     commodityManagerUserId: text().references(() => appUser.id),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     uniqueIndex('material_group_code').on(table.orgId, sql`lower(${table.code})`),

@@ -6,7 +6,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, eq, inArray, schema, sql, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  eq,
+  inArray,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type AnalysisComputed,
   type AnalysisData,
@@ -545,7 +554,7 @@ export class AnalysisService {
         })
         .onConflictDoUpdate({
           target: [schema.materialGroupAnalysis.strategyId, schema.materialGroupAnalysis.view],
-          set: { data: parsed.data, updatedBy: auth.userId, updatedAt: new Date() },
+          set: { data: parsed.data, updatedBy: auth.userId, updatedAt: currentTime() },
         });
       await this.strategies.touchedIn(tx, strategy);
       return this.stepIn(tx, auth, organization.id, strategyId, step);

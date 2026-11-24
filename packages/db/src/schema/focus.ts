@@ -61,7 +61,7 @@ export const focusItem = pgTable(
     snoozedUntil: timestamp({ withTimezone: true }),
     state: text({ enum: focusStates }).notNull().default('open'),
     runId: uuid(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('focus_item_level', sql`${table.level} in ('focus', 'review', 'done')`),
@@ -95,7 +95,7 @@ export const workerSetting = pgTable(
       .references(() => appUser.id, { onDelete: 'cascade' }),
     agentKey: text().notNull(),
     level: text({ enum: workerLevels }).notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     primaryKey({ columns: [table.orgId, table.userId, table.agentKey] }),
@@ -119,7 +119,7 @@ export const confirmToken = pgTable(
     purpose: text().notNull(),
     objectType: text().notNull(),
     objectId: uuid().notNull(),
-    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     usedAt: timestamp({ withTimezone: true }),
   },

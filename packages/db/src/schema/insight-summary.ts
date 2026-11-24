@@ -27,7 +27,7 @@ export const insightSummary = pgTable(
     status: text({ enum: ['shown', 'suppressed'] }).notNull(),
     suppressedReason: text(),
     reportedAt: timestamp({ withTimezone: true }),
-    generatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    generatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('insight_summary_status', sql`${table.status} in ('shown', 'suppressed')`),

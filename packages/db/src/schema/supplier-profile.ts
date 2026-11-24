@@ -31,7 +31,7 @@ export const supplierProfile = pgTable(
     implications: text(),
     updatedBy: text().notNull(),
     updatedByName: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check(
@@ -86,7 +86,7 @@ export const supplierFinancial = pgTable(
     currency: text(),
     source: text().notNull(),
     updatedBy: text().notNull(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     unique('supplier_financial_je_jahr').on(table.relationshipId, table.year, table.metric),

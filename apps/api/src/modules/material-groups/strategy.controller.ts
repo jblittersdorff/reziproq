@@ -13,6 +13,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { currentTime } from '@reziproq/db';
 import {
   createStrategySchema,
   type GoalRequest,
@@ -52,7 +53,7 @@ export class StrategyController {
   @Get('strategien')
   @Requires('warengruppen.sehen')
   overview(@CurrentUser() auth: AuthContext, @Query('jahr', yearQuery) year: number | undefined) {
-    return this.strategies.overview(auth, year ?? strategyYearOf(new Date()));
+    return this.strategies.overview(auth, year ?? strategyYearOf(currentTime()));
   }
 
   @Get('kennzahlen')
@@ -176,7 +177,7 @@ export class StrategyController {
     @Query('jahr', yearQuery) year: number | undefined,
     @Query('version', versionQuery) version: number | undefined,
   ) {
-    return this.strategies.context(auth, id, year ?? strategyYearOf(new Date()), version);
+    return this.strategies.context(auth, id, year ?? strategyYearOf(currentTime()), version);
   }
 
   @Post(':id/strategie')

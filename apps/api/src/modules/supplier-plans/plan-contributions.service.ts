@@ -5,7 +5,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, auditedChange, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  auditedChange,
+  currentTime,
+  eq,
+  inArray,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type ContributionDetail,
   type ContributionObjectiveRequest,
@@ -32,7 +41,7 @@ const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_b
 const conflict = (code: string, message: string) =>
   new ConflictException({ statusCode: 409, code, message });
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => currentTime().toISOString().slice(0, 10);
 
 // Passende Funktionen je Bezug für den Vorschlag der Person (SPL-03).
 const businessUnitFunctions = ['programs', 'engineering', 'after_sales'] as const;
@@ -440,7 +449,7 @@ export class PlanContributionsService {
       await auditedChange(tx, actor, planContributionAudit, async () => {
         await tx
           .update(schema.planContribution)
-          .set({ status: 'done', doneAt: new Date() })
+          .set({ status: 'done', doneAt: currentTime() })
           .where(eq(schema.planContribution.id, contributionId));
         return {
           objectId: contributionId,

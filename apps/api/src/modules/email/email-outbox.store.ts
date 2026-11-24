@@ -43,9 +43,9 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
           AND o.email_template IS NOT NULL
           AND (
             l.id IS NULL
-            OR (l.status = 'failed' AND l.next_attempt_at <= now())
+            OR (l.status = 'failed' AND l.next_attempt_at <= app_system_now())
             OR (l.status = 'sending' AND l.attempt_count < 8
-              AND l.updated_at < now() - interval '5 minutes')
+              AND l.updated_at < app_system_now() - interval '5 minutes')
           )
         ORDER BY o.occurred_at, o.id
         FOR UPDATE OF o SKIP LOCKED
@@ -73,11 +73,11 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
         INSERT INTO email_log (
           outbox_event_id, template, status, recipient_hash, attempt_count, updated_at
         )
-        VALUES (${delivery.id}, ${delivery.template}, 'sending', ${recipientHash}, 1, now())
+        VALUES (${delivery.id}, ${delivery.template}, 'sending', ${recipientHash}, 1, app_system_now())
         ON CONFLICT (outbox_event_id) DO UPDATE
           SET status = 'sending',
               attempt_count = email_log.attempt_count + 1,
-              updated_at = now(),
+              updated_at = app_system_now(),
               next_attempt_at = NULL
       `);
       return delivery;
@@ -88,7 +88,7 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
     await this.db.transaction(async (tx) => {
       const log = await tx.execute(sql`
         UPDATE email_log
-        SET status = 'sent', sent_at = now(), updated_at = now(), next_attempt_at = NULL
+        SET status = 'sent', sent_at = app_system_now(), updated_at = app_system_now(), next_attempt_at = NULL
         WHERE outbox_event_id = ${id} AND status = 'sending'
         RETURNING id
       `);
@@ -96,7 +96,7 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
 
       const event = await tx.execute(sql`
         UPDATE outbox_event
-        SET processed_at = now(),
+        SET processed_at = app_system_now(),
             email_template = NULL,
             email_locale = NULL,
             email_recipient = NULL,
@@ -117,9 +117,9 @@ export class PostgresEmailOutboxStore implements EmailOutboxStore, OnApplication
     const result = await this.db.execute(sql`
       UPDATE email_log
       SET status = 'failed',
-          updated_at = now(),
+          updated_at = app_system_now(),
           next_attempt_at = CASE
-            WHEN attempt_count < 8 THEN now() + make_interval(
+            WHEN attempt_count < 8 THEN app_system_now() + make_interval(
               secs => least(3600, (30 * power(2, least(attempt_count - 1, 7)))::int)
             )
             ELSE NULL

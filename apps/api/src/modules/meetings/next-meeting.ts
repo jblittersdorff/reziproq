@@ -1,4 +1,13 @@
-import { and, asc, gte, inArray, ne, schema, type TenantTransaction } from '@reziproq/db';
+import {
+  and,
+  asc,
+  currentTime,
+  gte,
+  inArray,
+  ne,
+  schema,
+  type TenantTransaction,
+} from '@reziproq/db';
 
 /**
  * Termin-Quelle (QBR-01b) für Start und den Kopf: der nächste offene Termin dieser Beziehungen.
@@ -19,7 +28,7 @@ export async function nextMeetingOf(tx: TenantTransaction, relationshipIds: stri
       and(
         inArray(schema.meeting.relationshipId, relationshipIds),
         ne(schema.meeting.status, 'closed'),
-        gte(schema.meeting.startsAt, new Date()),
+        gte(schema.meeting.startsAt, currentTime()),
       ),
     )
     .orderBy(asc(schema.meeting.startsAt))
