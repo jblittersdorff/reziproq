@@ -12,12 +12,20 @@ export interface TenantSession {
    * leer sieht die Lieferantenseite nichts Beziehungsbezogenes.
    */
   customerOrganizationId?: string | null;
+  /**
+   * ZA-01 Regel 3: Lauf von Reziproq, für den die Transaktion arbeitet. Mit gesetztem Lauf wechselt
+   * ein Objekt nur mit confirmToken in die Mitte (Trigger app_guard_shared, Migration 0130).
+   */
+  runId?: string | null;
+  /** Bestätigungs-Token eines Menschen für genau ein Objekt (confirm_token) */
+  confirmToken?: string | null;
 }
 
 /**
  * Mandanten-Session: Jeder Zugriff auf Fachdaten läuft hier hindurch (CLAUDE.md, PLT-02).
  * Die Transaktion wechselt auf die Rolle reziproq_app, für die Row-Level Security gilt, und setzt
- * app.user_id, app.org_id und app.customer_org_id, nach denen die Policies filtern (PLT-04). Alles
+ * app.user_id, app.org_id und app.customer_org_id, nach denen die Policies filtern (PLT-04), dazu
+ * app.run_id und app.confirm_token für den Token-Schutz der Mitte (ZA-01). Alles
  * endet mit der Transaktion. Mit readOnly scheitert jeder Schreibversuch, z. B. für Seiten, die
  * nur lesen und nichts speichern dürfen (NAV-06).
  */
@@ -30,11 +38,13 @@ export function withTenant<T>(
   return db.transaction(
     async (tx) => {
       await tx.execute(sql`set local role reziproq_app`);
-      await tx.execute(sql`select set_config('app.user_id', ${session.userId}, true)`);
-      await tx.execute(sql`select set_config('app.org_id', ${session.organizationId ?? ''}, true)`);
-      await tx.execute(
-        sql`select set_config('app.customer_org_id', ${session.customerOrganizationId ?? ''}, true)`,
-      );
+      // Eine Abfrage für alle Werte der Session, damit jede Transaktion nur einen Umlauf mehr hat.
+      await tx.execute(sql`select
+        set_config('app.user_id', ${session.userId}, true),
+        set_config('app.org_id', ${session.organizationId ?? ''}, true),
+        set_config('app.customer_org_id', ${session.customerOrganizationId ?? ''}, true),
+        set_config('app.run_id', ${session.runId ?? ''}, true),
+        set_config('app.confirm_token', ${session.confirmToken ?? ''}, true)`);
       return work(tx);
     },
     options.readOnly ? { accessMode: 'read only' } : undefined,

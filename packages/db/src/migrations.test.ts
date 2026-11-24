@@ -31,6 +31,10 @@ describe('Migrationen', () => {
       'vat_id',
       'duns',
       'zitadel_org_id',
+      // DM-01, K1-a
+      'is_demo',
+      'ai_mode',
+      'demo_now',
     ]);
     expect(await columns('organization_feature')).toEqual([
       'organization_id',

@@ -4,6 +4,7 @@ import {
   check,
   date,
   index,
+  integer,
   jsonb,
   pgTable,
   text,
@@ -57,8 +58,14 @@ export const aiDraftKinds = [
   'mail_summary',
   // KI-09: Ergebnis eines eigenen Agenten (object_type agent_run), je Lieferant ein Entwurf
   'agent_result',
+  // ZA-01 Regel 3: Ein Lauf wollte ein Objekt ohne Token in die Mitte stellen; ein Mensch prüft
+  // (object_type ist die Tabelle des Objekts)
+  'share_request',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
+/** AU-01: Kennzeichnung beim Senden in die Mitte */
+export const authorKinds = ['mensch', 'mit_reziproq', 'reziproq'] as const;
+export type AuthorKind = (typeof authorKinds)[number];
 
 export const aiDraft = pgTable(
   'ai_draft',
@@ -84,13 +91,24 @@ export const aiDraft = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     decidedBy: text(),
     decidedAt: timestamp({ withTimezone: true }),
+    // HE-01: geschätzte Sekunden zum Prüfen und Reihenfolge in Kurz prüfen; AU-01: Kennzeichnung,
+    // sobald der Entwurf gesendet ist. Der Status heißt weiter „accepted“ (HE-01 schreibt „adopted“;
+    // Tabellen und Code dürfen alte Namen behalten, NAV-10).
+    reviewSeconds: integer(),
+    reviewOrder: integer(),
+    authorKind: text({ enum: authorKinds }),
   },
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary', 'agent_result')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary', 'agent_result', 'share_request')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
+    check(
+      'ai_draft_author_kind',
+      sql`${table.authorKind} is null or ${table.authorKind} in ('mensch', 'mit_reziproq', 'reziproq')`,
+    ),
+    check('ai_draft_review_seconds', sql`${table.reviewSeconds} is null or ${table.reviewSeconds} >= 0`),
     index('ai_draft_run').on(table.orgId, table.runId),
     index('ai_draft_object').on(table.orgId, table.kind, table.objectId),
   ],

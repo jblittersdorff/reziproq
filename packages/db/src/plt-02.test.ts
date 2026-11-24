@@ -111,6 +111,7 @@ describe('PLT-02 in der Datenbank', () => {
       'comment',
       'comment_mention',
       'commitment',
+      'confirm_token',
       'connection',
       'connection_secret',
       'cycle',
@@ -120,6 +121,7 @@ describe('PLT-02 in der Datenbank', () => {
       'email_log',
       'filed_mail',
       'filed_mail_attachment',
+      'focus_item',
       'format_catalog_item',
       'hint',
       'import_batch',
@@ -252,6 +254,7 @@ describe('PLT-02 in der Datenbank', () => {
       'value_data_gap',
       'value_market_signal',
       'value_opportunity',
+      'worker_setting',
     ]);
     expect(tables.rows.filter((row) => !row.rls || !row.force)).toEqual([]);
   });

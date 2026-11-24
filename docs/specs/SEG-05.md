@@ -1,6 +1,6 @@
 # SEG-05 Segmentierung je Lieferant mit Abweichungen
 
-> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: BZ-01. Die Runde entsteht als Entwurf, Bewertungen kommen in Kurz prüfen, die Konsolidierung wird die Segment-Mappe, das Portfolio die Linse Segmente. Die Regeln gelten wörtlich weiter. Offen: Größe der Matrix (C-02 in `docs/entscheidungen.md`). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
+> **Status 24.11.2026 (Umbau KI-nativ): Oberfläche abgelöst, Regeln und Daten gelten weiter.** Maßgeblich: BZ-01. Die Runde entsteht als Entwurf, Bewertungen kommen in Kurz prüfen, die Konsolidierung wird die Segment-Mappe, das Portfolio die Linse Segmente. Die Regeln gelten wörtlich weiter. Größe der Matrix je Segmentmodell (E-K0-33). Bei Widerspruch gelten `docs/entscheidungen.md` und die genannten Specs; Begriffe nach NAV-10 (Heute, Beziehungen, Wert, Mein Agent, Verlauf, Zusage).
 
 Release 0.1 · baut auf SEG-04, NAV-06 · deckt ab SEG-05, SEG-09
 

@@ -74,7 +74,8 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 ## Stand
 
 - K0 fertig am 24.11.2026 (Commit `5859a1e`, Bericht `docs/k0-abweichungen.md`).
-- K0-b fertig am 24.11.2026 (Entscheidungen E-K0-01 bis E-K0-32 in `docs/entscheidungen.md`). Offen: C-02 (Größe der Segment-Matrix), C-07 (Monat des Wertberichts).
+- K0-b fertig am 24.11.2026 (Entscheidungen E-K0-01 bis E-K0-32 in `docs/entscheidungen.md`). C-02, C-07 und C-18 nachentschieden (E-K0-33 bis E-K0-35); Push des Arbeitsbranchs wieder erlaubt (E-K0-36).
+- K1-a.1 fertig am 24.11.2026: Datenräume, Herkunft, Bestätigung, Token-Schutz, `focus_item`, `worker_setting`, Felder an `org` (ZA-01 T1-ZA1 bis T1-ZA6). K1-a.2 (Uhr je Mandant) folgt.
 - Geändert nach K0 (Abschnitt f des Berichts): K0-b neu; Uhr je Mandant von K1-b nach K1-a; K2-h verkleinert und nach K1-d gezogen; Weiterleitungen gesammelt in K1-d.
 
 ## Parallel: Pilotpfad (E-K0-14)

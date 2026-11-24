@@ -233,6 +233,8 @@ export class JbpApprovalService {
           jbpId: plan.id,
           version: plan.version,
           content: await this.content(tx, plan.id),
+          // ZA-01: Eine Version entsteht erst mit der Freigabe der zweiten Seite.
+          confirmState: 'both_confirmed',
         });
       }
       await this.transition(tx, plan.id, to);

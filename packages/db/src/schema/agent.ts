@@ -163,6 +163,11 @@ export const agentRun = pgTable(
     inputText: text(),
     // KI-07: Prüfsumme über die gelesenen Objekte; gleiche Eingaben starten keinen neuen Lauf
     inputChecksum: text(),
+    // HE-01: Was eine Handlung auf Stufe Erledigen rückgängig macht, vorher geschrieben; Rücknahme
+    // bis 30 Tage, solange das Objekt unverändert ist. Bindende Handlungen haben keinen Eintrag.
+    undoPayload: jsonb(),
+    undoneAt: timestamp({ withTimezone: true }),
+    undoneBy: text(),
   },
   (table) => [
     unique('agent_run_org_id').on(table.orgId, table.id),

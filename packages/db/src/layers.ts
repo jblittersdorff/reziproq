@@ -72,6 +72,13 @@ export const layerRegister: Record<string, LayerEntry> = {
     manual: 'Spalte organization_id; nur lesen, Freischaltungen setzt der Betrieb',
   },
   user_setting: { kind: 'org_private', manual: 'Private Startseite je Person und Organisation' },
+  // K1-a (HE-01, MA-01, ZA-01): nur die Person selbst, zusätzliche Policy *_own (Migration 0130)
+  focus_item: { kind: 'org_private', manual: 'HE-01: Fokus-Themen nur für die Person selbst' },
+  worker_setting: { kind: 'org_private', manual: 'MA-01: Stufen nur für die Person selbst' },
+  confirm_token: {
+    kind: 'org_private',
+    manual: 'ZA-01: Token nur für die Person selbst, nur anlegen; verbraucht wird es im Trigger',
+  },
   // UX-20: Module je Organisation; ohne id-Spalte, nur lesen, umschalten nur der Betrieb
   org_module: { kind: 'org_private', manual: 'Spalte org_id; nur lesen, Module setzt der Betrieb' },
   app_user: {

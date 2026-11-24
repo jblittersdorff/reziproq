@@ -19,10 +19,11 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 ## Lokaler Betrieb
 
 Bis der Gründer es ausdrücklich aufhebt, läuft alles lokal (GitHub-Actions-Minuten aufgebraucht).
-Seit 24.11.2026 gilt G-1 aus `docs/entscheidungen.md`: kein `git push`, kein `gh`, keine GitHub
-Actions. Die Workflows bleiben abgeschaltet.
+Es gilt G-1 aus `docs/entscheidungen.md`: kein `gh`, keine GitHub Actions; GitHub dient nur als
+Sicherung (E-K0-36). Die Workflows bleiben abgeschaltet.
 
-- Kein `git push`, auch nicht auf den Arbeitsbranch (G-1).
+- `git push` nur auf den aktuellen Arbeitsbranch zu `origin`, nach jedem grünen Commit, nie auf
+  `main`, nie mit `--force`.
 - Kein `gh`, keine Pull Requests, keine Issues, keine Releases, keine Aufrufe der GitHub-API.
 - Workflows nicht wieder einschalten (keine Trigger `push` oder `pull_request` in `.github/`).
 - Kein `git pull` und kein `git fetch`, außer der Gründer bittet darum.

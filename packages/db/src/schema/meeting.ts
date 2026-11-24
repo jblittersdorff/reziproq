@@ -11,6 +11,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { confirmColumns, confirmConstraint, originColumns, originConstraint } from './columns.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 import { ruleSetItem } from './rule-set.js';
@@ -120,8 +121,15 @@ export const meetingAgendaItem = pgTable(
     position: integer().notNull(),
     linkedObjectType: text(),
     linkedObjectId: uuid(),
+    // ZA-01: Herkunft und Bestätigung
+    ...originColumns(),
+    ...confirmColumns(),
   },
-  (table) => [index('meeting_agenda_item_meeting').on(table.meetingId)],
+  (table) => [
+    originConstraint('meeting_agenda_item', table.origin),
+    confirmConstraint('meeting_agenda_item', table.confirmState),
+    index('meeting_agenda_item_meeting').on(table.meetingId),
+  ],
 );
 
 export const meetingDecision = pgTable(
@@ -185,8 +193,11 @@ export const meetingCapture = pgTable(
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     // Wann der SRO das Protokoll aus dieser Auswertung geteilt hat
     protocolSharedAt: timestamp({ withTimezone: true }),
+    // ZA-01: Herkunft
+    ...originColumns(),
   },
   (table) => [
+    originConstraint('meeting_capture', table.origin),
     check(
       'meeting_capture_source',
       sql`${table.source} in ('typed', 'pasted', 'file', 'transcript')`,

@@ -16,6 +16,10 @@ describe('organization', () => {
       'duns',
       'zitadel_org_id',
       'created_at',
+      // DM-01, K1-a: Demo-Mandant
+      'is_demo',
+      'ai_mode',
+      'demo_now',
     ]);
   });
 

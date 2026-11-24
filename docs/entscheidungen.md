@@ -95,7 +95,7 @@ Jede Spec verweist mit der Kennung (z. B. E-K2-4) auf diese Liste. Wer eine Ents
 
 ## Paket K0: Klärungen zum Bestand (24.11.2026)
 
-Aus der Prüfung der Specs gegen den Code (`docs/k0-abweichungen.md`, Fragen F-01 bis F-24 und Widersprüche C-01 bis C-17). Jan-Luka hat am 24.11. alle Empfehlungen übernommen. Die Nummer der Entscheidung entspricht der Frage (E-K0-01 = F-01); E-K0-25 bis E-K0-32 lösen Widersprüche zwischen Specs. Offen bleiben C-02 und C-07 (unten).
+Aus der Prüfung der Specs gegen den Code (`docs/k0-abweichungen.md`, Fragen F-01 bis F-24 und Widersprüche C-01 bis C-17). Jan-Luka hat am 24.11. alle Empfehlungen übernommen. Die Nummer der Entscheidung entspricht der Frage (E-K0-01 = F-01); E-K0-25 bis E-K0-32 lösen Widersprüche zwischen Specs. C-02, C-07 und C-18 sind am selben Tag nachentschieden (E-K0-33 bis E-K0-35).
 
 | Kennung | Frage | Entscheidung | Folge, wenn anders | Specs |
 |---|---|---|---|---|
@@ -118,7 +118,7 @@ Aus der Prüfung der Specs gegen den Code (`docs/k0-abweichungen.md`, Fragen F-0
 | E-K0-17 | Gewicht des Segments in der Triage | Gewicht je Segmenttyp im Segmentmodell, Start 1,0, für den strategischen Typ 2,0; einstellbar unter Einstellungen › Segmentierung | – | HE-01, SEG-01 |
 | E-K0-18 | EBIT-Ziel je Warengruppe | die Initiative bekommt die Warengruppe; Ziel je Warengruppe in Cent | – | ST-01, WK-01 |
 | E-K0-19 | Termin der Freigabe einer Strategie | Feld „Freigabe geplant am“ an der Strategie-Version; erscheint als Chip und in den Terminen | – | ST-01 |
-| E-K0-20 | Widersprüche zwischen Specs | entschieden in E-K0-25 bis E-K0-32; C-02 und C-07 sind offen | – | – |
+| E-K0-20 | Widersprüche zwischen Specs | entschieden in E-K0-25 bis E-K0-35 | – | – |
 | E-K0-21 | Beziehungsnetz und ältere Specs | das Netz zeigt Funktionen und Gesprächspaare mit „Draht“ (wie K2-Akte-Privat), keine Haltung je Person (CLAUDE.md: keine Bewertung einzelner Personen). Ältere Specs tragen einen Statuskopf „abgelöst“ oder „gilt weiter mit Änderungen“ | – | AK-01, Inventar T2-I25 und T2-I26 |
 | E-K0-22 | Umsetzungsnotizen der ersetzten KI-Specs | zurück als Abschnitt „Umsetzung bis 23.11.2026“ | – | KI-03, KI-07, KI-08, KI-09, KI-11, KI-15, KI-16, KI-17 |
 | E-K0-23 | CLAUDE.md | nachgezogen: kein Push (G-1), Demo (E-K0-04), fünfzehn Regeln, Rangfolge, Verweis auf diese Datei | – | CLAUDE.md |
@@ -132,18 +132,20 @@ Aus der Prüfung der Specs gegen den Code (`docs/k0-abweichungen.md`, Fragen F-0
 | E-K0-31 | Bedeutung von „Von <Gegenüber>“ (C-09) | immer: was das Gegenüber aktiv geteilt hat (AK-01). Was der Lieferant im Wertkonto sieht, steht als Zeile „Was <Lieferant> sieht“ | – | WK-01 |
 | E-K0-32 | Designsprache in sich (C-10) | „Fünfzehn Regeln“; Bausteine, deren Board nicht beiliegt, folgen dem ähnlichsten Board (L-Ueberblick, W-Initiative, K6-Strategie) | – | Designsprache |
 
-**Offen, mit Empfehlung:**
+**Am 24.11. nachentschieden (Jan-Luka: „Empfehlungen übernehmen“):**
 
-| Nr. | Frage | Empfehlung |
-|---|---|---|
-| C-02 | Segment-Matrix: BZ-01 und das Board K2-Segmente zeigen vier Felder („Versorgungsrisiko und Wertbeitrag“: Strategisch, Hebeln, Absichern, Entwickeln). Glossar, Designsprache, SEG-01 und der Code haben 3 × 3 (Business Impact × Beziehungsqualität) | Die Größe der Matrix wird je Segmentmodell einstellbar (2 × 2 oder 3 × 3), Achsen und Namen je Kunde. Standard bleibt 3 × 3; Nordwind nutzt 2 × 2 wie im Board |
-| C-07 | Monat des Wertberichts: WB-01 „am ersten Montag für den Vormonat“; DM-01 und das Board zeigen am Mo 23.11. einen Entwurf „November“ mit Frist Mo 30.11. und am Mo 21.12. „Dezember“; frühere Berichte laut Board „Oktober, gesendet 02.11.“ | Regel aus WB-01 bleibt (nach dem Monatsabschluss). Im Demo ist am Mo 23.11. der Bericht Oktober noch Entwurf (Frist Mo 30.11.), nach „Monat vorspulen“ der Bericht November; DM-01, T4-20 und das Board nennen dann Oktober und November |
+| Kennung | Frage | Entscheidung | Folge, wenn anders | Specs |
+|---|---|---|---|---|
+| E-K0-33 | Segment-Matrix (C-02): BZ-01 und Board K2-Segmente zeigen 2 × 2 („Versorgungsrisiko und Wertbeitrag“: Strategisch, Hebeln, Absichern, Entwickeln), Glossar, Designsprache, SEG-01 und Code 3 × 3 | Die Größe der Matrix ist je Segmentmodell einstellbar (2 × 2 oder 3 × 3), Achsen und Namen je Kunde. Standard bleibt 3 × 3 (Business Impact × Beziehungsqualität); Nordwind nutzt 2 × 2 wie im Board | ein festes Raster für alle Kunden | BZ-01, SEG-01, Designsprache, Glossar |
+| E-K0-34 | Monat des Wertberichts (C-07) | Regel aus WB-01: am ersten Montag für den Vormonat, nach dem Monatsabschluss. Im Demo ist am Mo 23.11. der Bericht Oktober noch Entwurf (Frist Mo 30.11.), nach „Monat vorspulen“ der Bericht November | Bericht für den laufenden Monat | WB-01, DM-01 |
+| E-K0-35 | Designsprache oder Spec (C-18) | Im Aussehen gilt die Designsprache vor der Spec (CLAUDE.md, Oberfläche, Regel 7); für Inhalt und Verhalten gilt die Rangfolge aus LIESMICH | – | CLAUDE.md |
+| E-K0-36 | Push trotz G-1 | Jan-Luka erlaubt am 24.11. wieder den Push des Arbeitsbranchs zu `origin` nach jedem grünen Commit (Sicherung); nie `main`, nie `--force`, weiter kein `gh` und keine GitHub Actions. G-1 ist angepasst | nur lokal | CLAUDE.md |
 
 ## Festgelegte Grundregeln (ohne offene Frage, gelten überall)
 
 | Kennung | Regel |
 |---|---|
-| G-1 | Lokal entwickeln: kein `git push`, kein `gh`, keine GitHub Actions. Keine Zugangsdaten im Repo; der Modell-Schlüssel steht nur in der lokalen Konfiguration. |
+| G-1 | Lokal entwickeln: kein `gh`, keine GitHub Actions; `git push` nur des Arbeitsbranchs zu `origin` nach grünem `pnpm check`, nie `main`, nie `--force` (geändert am 24.11., E-K0-36). Keine Zugangsdaten im Repo; der Modell-Schlüssel steht nur in der lokalen Konfiguration. |
 | G-2 | Lieferanten sehen nie private Daten der Käuferseite, und die Käuferseite sieht nie die private Seite des Lieferanten. Durchgesetzt in der Datenbank (Row Level Security), nicht nur in der Oberfläche. |
 | G-3 | Wertarten (EBIT, Kostenvermeidung, Cash) werden nie addiert, in keiner Sicht, keinem Export, keinem Satz. |
 | G-4 | Claims, Risiko und Vertrag bleiben ausgeschaltet und werden nicht umgesetzt (KN-39 Vertragsleck ebenfalls nicht). |

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { boolean, check, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { appUser } from './app-user.js';
+import { originColumns, originConstraint } from './columns.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -23,8 +24,11 @@ export const note = pgTable(
     pinned: boolean().notNull().default(false),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft
+    ...originColumns(),
   },
   (table) => [
+    originConstraint('note', table.origin),
     check('note_visibility', sql`${table.visibility} in ('team','private')`),
     check('note_kind', sql`${table.kind} in ('note','call')`),
     index('note_relationship_date').on(table.relationshipId, table.createdAt),

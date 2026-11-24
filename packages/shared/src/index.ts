@@ -73,3 +73,4 @@ export * from './survey.js';
 export * from './touchpoints.js';
 export * from './transcripts.js';
 export * from './workspace.js';
+export * from './workers.js';

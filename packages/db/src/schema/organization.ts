@@ -20,9 +20,25 @@ export const organization = pgTable(
     // Resource ID der Organisation in Zitadel; darüber ordnet der Login Nutzer zu (PLT-02).
     zitadelOrgId: text('zitadel_org_id').unique('organization_zitadel_org_id_eindeutig'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    // DM-01: Demo-Mandant mit eigener Uhr und Modus der Modellantworten. Nur ein Demo-Mandant darf
+    // von „live“ abweichen oder eine eigene Uhr haben (CHECK unten). Umschalten nur der Betrieb.
+    isDemo: boolean('is_demo').notNull().default(false),
+    aiMode: text('ai_mode', { enum: ['fake', 'record', 'replay', 'live'] })
+      .notNull()
+      .default('live'),
+    demoNow: timestamp('demo_now', { withTimezone: true }),
   },
-  (table) => [check('organization_country_iso', sql`${table.country} ~ '^[A-Z]{2}$'`)],
+  (table) => [
+    check('organization_country_iso', sql`${table.country} ~ '^[A-Z]{2}$'`),
+    check('organization_ai_mode', sql`${table.aiMode} in ('fake', 'record', 'replay', 'live')`),
+    check('organization_demo_modus', sql`${table.aiMode} = 'live' or ${table.isDemo}`),
+    check('organization_demo_uhr', sql`${table.demoNow} is null or ${table.isDemo}`),
+  ],
 );
+
+/** DM-01, KI-01: Modus der Modellantworten je Organisation */
+export const aiModes = ['fake', 'record', 'replay', 'live'] as const;
+export type AiMode = (typeof aiModes)[number];
 
 /** Funktionen, die eine Organisation freigeschaltet hat (CLAUDE.md: Freischalt-Tabelle). */
 export const organizationFeatures = ['buyer'] as const;

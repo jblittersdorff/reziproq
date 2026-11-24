@@ -10,6 +10,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { originColumns, originConstraint } from './columns.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -48,8 +49,11 @@ export const action = pgTable(
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft
+    ...originColumns(),
   },
   (table) => [
+    originConstraint('action', table.origin),
     check('action_status', sql`${table.status} in ('open', 'in_progress', 'done', 'cancelled')`),
     check('action_owner_side', sql`${table.ownerSide} in ('buyer', 'supplier')`),
     check(

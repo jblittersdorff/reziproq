@@ -10,6 +10,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { confirmColumns, confirmConstraint, originColumns, originConstraint } from './columns.js';
 import { meeting } from './meeting.js';
 import { organization } from './organization.js';
 import { cycle, relationship } from './relationship.js';
@@ -127,8 +128,13 @@ export const jbpTopic = pgTable(
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft und Bestätigung
+    ...originColumns(),
+    ...confirmColumns(),
   },
   (table) => [
+    originConstraint('jbp_topic', table.origin),
+    confirmConstraint('jbp_topic', table.confirmState),
     check('jbp_topic_side', sql`${table.side} in ('buyer', 'supplier')`),
     check('jbp_topic_status', sql`${table.status} in ('proposed', 'merged', 'parked')`),
     check('jbp_topic_title', sql`length(trim(${table.title})) between 1 and 200`),
@@ -219,6 +225,13 @@ export const jbpVersion = pgTable(
     version: integer().notNull(),
     content: jsonb().notNull(),
     approvedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft und Bestätigung
+    ...originColumns(),
+    ...confirmColumns(),
   },
-  (table) => [index('jbp_version_jbp').on(table.jbpId, table.version)],
+  (table) => [
+    originConstraint('jbp_version', table.origin),
+    confirmConstraint('jbp_version', table.confirmState),
+    index('jbp_version_jbp').on(table.jbpId, table.version),
+  ],
 );

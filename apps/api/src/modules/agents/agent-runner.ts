@@ -101,8 +101,9 @@ export class AgentRunner {
     @Inject(CustomAgentTools) private readonly customTools: CustomAgentTools,
   ) {}
 
+  /** ZA-01: Ein Lauf trägt seine ID in der Session; ohne Token stellt er nichts in die Mitte. */
   private session(job: AgentJob) {
-    return { organizationId: job.orgId, userId: job.userId };
+    return { organizationId: job.orgId, userId: job.userId, runId: job.runId };
   }
 
   private async actor(job: AgentJob): Promise<AuthContext> {

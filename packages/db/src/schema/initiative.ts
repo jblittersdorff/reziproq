@@ -10,6 +10,7 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { confirmColumns, confirmConstraint, originColumns, originConstraint } from './columns.js';
 import { jbp, jbpTopic } from './jbp.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
@@ -55,8 +56,11 @@ export const initiative = pgTable(
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft
+    ...originColumns(),
   },
   (table) => [
+    originConstraint('initiative', table.origin),
     check('initiative_status', sql`${table.status} in ('planned', 'running', 'done', 'stopped')`),
     check('initiative_source', sql`${table.source} in ('jbp', 'action', 'supplier_idea')`),
     check('initiative_title', sql`length(trim(${table.title})) between 1 and 200`),
@@ -160,8 +164,13 @@ export const commitment = pgTable(
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft und Bestätigung
+    ...originColumns(),
+    ...confirmColumns(),
   },
   (table) => [
+    originConstraint('commitment', table.origin),
+    confirmConstraint('commitment', table.confirmState),
     check('commitment_side', sql`${table.side} in ('buyer', 'supplier')`),
     check('commitment_status', sql`${table.status} in ('open', 'kept', 'missed')`),
     check('commitment_title', sql`length(trim(${table.title})) between 1 and 200`),
@@ -302,8 +311,13 @@ export const kpiValue = pgTable(
     enteredBy: text().notNull(),
     enteredByName: text().notNull(),
     enteredAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    // ZA-01: Herkunft und Bestätigung
+    ...originColumns(),
+    ...confirmColumns(),
   },
   (table) => [
+    originConstraint('kpi_value', table.origin),
+    confirmConstraint('kpi_value', table.confirmState),
     check('kpi_value_source', sql`${table.source} in ('manual', 'csv')`),
     check('kpi_value_period', sql`extract(day from ${table.period}) = 1`),
     index('kpi_value_kpi').on(table.kpiId, table.period),
