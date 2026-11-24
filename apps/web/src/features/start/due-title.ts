@@ -18,13 +18,13 @@ export function dueTitle(t: ReturnType<typeof useT>, item: DueItem) {
     const names = t.integrations.names;
     return `${t.start.kind.connection_renew}: ${(item.detail && names[item.detail]) ?? item.detail ?? ''}`;
   }
-  if (item.kind === 'hint_rule_review') {
+  if (item.kind === 'hint_rule_review' || item.kind === 'hint') {
     const rules = t.hints.rules;
     const rule =
       item.detail && Object.hasOwn(rules, item.detail)
         ? rules[item.detail as keyof typeof rules]
         : (item.detail ?? '');
-    return `${t.start.kind.hint_rule_review}: ${rule}`;
+    return `${t.start.kind[item.kind]}: ${rule}`;
   }
   if (item.kind === 'cycle') {
     const steps = t.workspace.cycle.steps;

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import {
   defaultSegmentCriteria,
   defaultSegmentTypes,
+  defaultTriageWeight,
   demoSupplierImportRows,
 } from '@reziproq/shared';
 import { eq, inArray, sql } from 'drizzle-orm';
@@ -405,9 +406,13 @@ export async function seed(
       await tx
         .insert(segmentCriterion)
         .values(defaultSegmentCriteria.map((criterion) => ({ ...criterion, modelId: model.id })));
-      await tx
-        .insert(segmentType)
-        .values(defaultSegmentTypes.map((type) => ({ ...type, modelId: model.id })));
+      await tx.insert(segmentType).values(
+        defaultSegmentTypes.map((type) => ({
+          ...type,
+          modelId: model.id,
+          triageWeight: defaultTriageWeight(type),
+        })),
+      );
     }
 
     await tx

@@ -35,6 +35,7 @@ import {
   type MeetingType,
   meetingBriefSchema,
   meetingTypes,
+  numbersIn,
   planAgendaMinutes,
   progressFromBaseline,
   type SurveyDimension,
@@ -1500,10 +1501,8 @@ export function acceptedSummary(summary: string, sentences: { text: string }[]):
   const text = summary.trim();
   if (!text || splitSentences(text).length > 3 || text.split(/(?<=[.!?])\s+/).length > 3)
     return null;
-  const digits = (value: string) =>
-    (value.match(/\d[\d.,]*/g) ?? []).map((entry) => entry.replace(/[.,]/g, ''));
-  const allowed = new Set(digits(sentences.map((sentence) => sentence.text).join(' ')));
-  return digits(text).every((entry) => allowed.has(entry)) ? text : null;
+  const allowed = new Set(numbersIn(sentences.map((sentence) => sentence.text).join(' ')));
+  return numbersIn(text).every((entry) => allowed.has(entry)) ? text : null;
 }
 
 export { partOfKind };

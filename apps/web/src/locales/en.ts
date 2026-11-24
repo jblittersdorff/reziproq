@@ -136,6 +136,7 @@ export const en: Messages = {
       category_conflict: 'Conflict between material groups',
       overall_segment_check: 'Review overall segment',
       hint_rule_review: 'Review a hint rule threshold',
+      hint: 'Decide on a hint',
       connection_renew: 'Renew a connection',
       member_review: 'Review a new person',
       rating: 'Submit rating',

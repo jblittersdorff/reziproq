@@ -202,6 +202,17 @@ export const defaultSegmentTypes: readonly SegmentType[] = impactNames.flatMap(
     })),
 );
 
+/**
+ * HE-01, E-K0-17: Startgewicht eines Segmenttyps in der Triage. Der strategische Typ, also höchste
+ * Wirkung und beste Beziehung, zählt doppelt; einstellbar je Modell.
+ */
+export function defaultTriageWeight(
+  type: Pick<SegmentType, 'impactLevel' | 'qualityLevel'>,
+  size = 3,
+): number {
+  return type.impactLevel === size && type.qualityLevel === size ? 2 : 1;
+}
+
 export function calculateSegment(
   model: Readonly<Pick<SegmentModel, 'lowMax' | 'midMax'>> & {
     readonly criteria: readonly SegmentCriterion[];

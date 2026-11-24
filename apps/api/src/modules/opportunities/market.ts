@@ -1,4 +1,4 @@
-import type { OpportunityInput } from '@reziproq/shared';
+import { numbersIn, type OpportunityInput } from '@reziproq/shared';
 
 export interface MarketSource {
   title: string;
@@ -145,9 +145,6 @@ export function fakeMarketFindings(asOf: string, materialGroup: string): MarketF
 }
 
 /** Ziffernfolgen einer Zeichenkette, Tausender- und Dezimaltrenner entfernt */
-const numbersIn = (text: string) =>
-  (text.match(/\d[\d.,]*/g) ?? []).map((value) => value.replace(/[.,]/g, '')).filter(Boolean);
-
 /**
  * Filter vor dem Senden (KI-11): Eine Suchanfrage darf keine Zahl aus dem Spend oder aus Angaben
  * des Lieferanten enthalten. Verglichen wird ohne Trennzeichen, damit „1.250.000“ und „1250000“

@@ -31,8 +31,8 @@ export type FocusState = (typeof focusStates)[number];
 export interface SentenceFact {
   key: string;
   value: number | string;
-  unit?: string;
-  source: { objectType: string; objectId?: string; label: string };
+  unit?: string | undefined;
+  source: { objectType: string; objectId?: string | undefined; label: string };
 }
 
 export const focusItem = pgTable(
@@ -52,12 +52,14 @@ export const focusItem = pgTable(
     sentenceFacts: jsonb().$type<SentenceFact[]>().notNull().default([]),
     objectType: text().notNull(),
     objectId: uuid(),
-    relationshipId: uuid().references(() => relationship.id),
+    relationshipId: uuid().references(() => relationship.id, { onDelete: 'cascade' }),
     sourceType: text().notNull(),
     sourceId: uuid().notNull(),
     /** Punktzahl der Triage: Wirkung × Dringlichkeit × Segmentgewicht (HE-01, K1-c) */
     score: bigint({ mode: 'number' }).notNull().default(0),
     dueAt: timestamp({ withTimezone: true }),
+    /** Ort der Erledigung in der App (K1-c); die Fokus-Mappe kommt mit K1-e */
+    href: text(),
     snoozedUntil: timestamp({ withTimezone: true }),
     state: text({ enum: focusStates }).notNull().default('open'),
     runId: uuid(),
@@ -72,6 +74,7 @@ export const focusItem = pgTable(
     check('focus_item_state', sql`${table.state} in ('open', 'decided', 'snoozed', 'dismissed')`),
     check('focus_item_title', sql`length(trim(${table.title})) between 1 and 300`),
     check('focus_item_facts', sql`jsonb_typeof(${table.sentenceFacts}) = 'array'`),
+    check('focus_item_href', sql`${table.href} is null or left(${table.href}, 1) = '/'`),
     unique('focus_item_quelle').on(table.orgId, table.userId, table.sourceType, table.sourceId),
     index('focus_item_person').on(table.orgId, table.userId, table.level, table.state),
   ],

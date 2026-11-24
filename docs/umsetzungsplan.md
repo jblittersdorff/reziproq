@@ -17,12 +17,12 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 | **K0** | Prüfen: Specs gegen Code, Liste der Abweichungen und offenen Fragen. Kein Code. | alle | – | – |
 | **K0-b** | Klärungen aus K0 festhalten (E-K0-01 bis E-K0-32): Statusköpfe der älteren Specs, CLAUDE.md, Umsetzungsnotizen der KI-Specs, Anpassungen in Specs und Designsprache. Kein Code | alle | – | K0 |
 | **K1-a** | Datenräume, Status, Herkunft; `focus_item`, `worker_setting`, Felder an `org`; Migration; Uhr je Mandant als eine Funktion für alle Dienste und Jobs, dazu ein Test gegen das Lesen der Systemuhr außerhalb dieser Funktion (vorgezogen aus K1-b) | ZA-01, HE-01 (Daten), MA-01 (Daten), DM-01 (Uhr) | ZA-01 T1-ZA* | Phase 1, K0-b |
-| **K1-b** | Gateway-Modi (`fake`, `record`, `replay`, live), Seed Demo-Mandant Nordwind als eigener Mandant (E-K0-04), Demo-Sitzung je Person (E-K0-05) | DM-01, KI-01 | DM-01 | K1-a |
 | **K1-c** | Triage, Satzprüfung (`sentence_facts`), `next_action` als Sicht auf `focus_item` | HE-01 | HE-01 Triage | K1-a |
 | **K1-d** | Rahmen: Seitenleiste, Tab-Leiste, Frag Reziproq, Startseiten; Blatt (`Sheet`) und Test gegen Pop-ups mit fester Liste erlaubter Bausteine (E-K0-01); Weiterleitungen alt → neu für alle Routen in einer Tabelle aus dem Routenbaum | NAV-10, UX-20 | NAV-10 Rahmen, TN-07 | K1-c |
 | **K2-h** | CI-Leitplanken, verkleinert: Build-Prüfungen T-CI1 bis T-CI3 (Palette und selbst ausgelieferte Schriften sind fertig) | Designsprache | T-CI1 bis T-CI3 | K1-d |
 | **K1-e** | Heute (Fokus und Alles), Kurz prüfen, Erledigt mit Rücknahme, Warum, Fokus-Mappe | HE-01, UX-20 §1 | HE-01 | K1-d |
 | **K1-f** | Mein Agent, KI-Einstellungen, Leitplanken-Tests | MA-01, KI-04 | MA-01 | K1-e |
+| **K1-b** | Gateway-Modi (`fake`, `record`, `replay`, live), Seed Demo-Mandant Nordwind als eigener Mandant (E-K0-04), Demo-Sitzung je Person (E-K0-05). Liegt seit 24.11. direkt vor K1-g: nur die Demo-Regie braucht es | DM-01, KI-01 | DM-01 | K1-f |
 | **K1-g** | Demo-Regie, Drehbuch „Morgen mit Reziproq“ als E2E-Test | DM-01 | Drehbuch K1 | K1-b, K1-f |
 | **K2-a** | Zusagen (Migration der Maßnahmen), Akte-Daten, Row Level Security, Weiterleitungen | ZQ-01, AK-01, ZA-01 | ZQ-01, AK-01 Sicherheit | K1-g |
 | **K2-b** | Beziehungen mit Linsen, Sortierung, Mini-Spiegel; Zusagequote | BZ-01, ZQ-01 | BZ-01 | K2-a |
@@ -77,6 +77,9 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 - K0-b fertig am 24.11.2026 (Entscheidungen E-K0-01 bis E-K0-32 in `docs/entscheidungen.md`). C-02, C-07 und C-18 nachentschieden (E-K0-33 bis E-K0-35); Push des Arbeitsbranchs wieder erlaubt (E-K0-36).
 - K1-a.1 fertig am 24.11.2026: Datenräume, Herkunft, Bestätigung, Token-Schutz, `focus_item`, `worker_setting`, Felder an `org` (ZA-01 T1-ZA1 bis T1-ZA6). 
 - K1-a.2 fertig am 24.11.2026: Uhr je Mandant (`currentTime`, `app_now`), Wächter gegen die Systemuhr in Diensten und Jobs. Offen für K1-b: Zeitpläne der Worker und Jobs außerhalb einer Transaktion je Mandant, Demo-Uhr in der Oberfläche.
+- K1-c fertig am 24.11.2026: Triage, Punktzahl mit Segmentgewicht, Satzprüfung, `next_action` mit der Uhr je Mandant, `GET /api/heute`, „Morgen erinnern“, Lauf um 06:00 (HE-01 T1-HE2, Daten von T1-HE1, NAV-10 TN-10). „Als Nächstes“ auf Start und Mein Tag kommt aus der Triage.
+- Reihenfolge am 24.11. auf Wunsch des Gründers geändert: K1-b (Demo-Technik) kommt nach K1-f, direkt vor K1-g; zuerst die sichtbaren Pakete K1-c bis K1-f.
+- Aufgeräumt am 24.11.: `pnpm check` von rund 9 auf gut 4 Minuten (`docs/altlasten-tests.md`).
 - Geändert nach K0 (Abschnitt f des Berichts): K0-b neu; Uhr je Mandant von K1-b nach K1-a; K2-h verkleinert und nach K1-d gezogen; Weiterleitungen gesammelt in K1-d.
 
 ## Parallel: Pilotpfad (E-K0-14)

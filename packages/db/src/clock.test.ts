@@ -118,4 +118,17 @@ describe('Uhr je Mandant (DM-01)', () => {
     `);
     expect(functions.rows.map((row) => row.name)).toEqual(['app_now', ...realTimeFunctions].sort());
   });
+
+  it('Keine Sicht liest die Systemuhr (K1-c: next_action rechnet mit app_now)', async () => {
+    const views = await temp.db.execute<{ name: string }>(sql`
+      select viewname as name from pg_views
+      where schemaname = 'public'
+        and definition ~* '(^|[^_a-z])(now\\(\\)|current_date|current_timestamp)'
+    `);
+    expect(views.rows).toEqual([]);
+    const next = await temp.db.execute<{ definition: string }>(
+      sql`select definition from pg_views where schemaname = 'public' and viewname = 'next_action'`,
+    );
+    expect(next.rows[0]?.definition).toContain('app_now()');
+  });
 });

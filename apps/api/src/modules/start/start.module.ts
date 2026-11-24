@@ -35,5 +35,6 @@ import { StartService } from './start.service.js';
   ],
   controllers: [StartController],
   providers: [StartService],
+  exports: [StartService],
 })
 export class StartModule {}

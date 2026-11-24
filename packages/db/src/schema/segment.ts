@@ -84,8 +84,14 @@ export const segmentType = pgTable(
     qualityLevel: smallint('quality_level').notNull(),
     name: text().notNull(),
     description: text().notNull(),
+    // HE-01, E-K0-17: Gewicht des Segmenttyps in der Punktzahl der Triage. Start 1,0, für den
+    // strategischen Typ (höchste Wirkung, beste Beziehung) 2,0; je Modell einstellbar.
+    triageWeight: numeric('triage_weight', { precision: 4, scale: 2, mode: 'number' })
+      .notNull()
+      .default(1),
   },
   (table) => [
+    check('segment_type_triage_weight', sql`${table.triageWeight} between 0.1 and 10`),
     check(
       'segment_type_levels',
       sql`${table.impactLevel} between 1 and 3 and ${table.qualityLevel} between 1 and 3`,

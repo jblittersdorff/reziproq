@@ -31,6 +31,7 @@ import {
   hintEvidenceSchema,
   hintListSchema,
   hintSchema,
+  numbersIn,
 } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
@@ -608,6 +609,26 @@ export class HintsService {
     );
   }
 
+  /**
+   * HE-01 (K1-c): offene Hinweise, die die Person sieht, für die Triage. Liest nur, prüft die Regeln
+   * nicht neu (das macht der tägliche Job und die Liste).
+   */
+  async openFor(auth: AuthContext): Promise<Hint[]> {
+    const { orgId, session } = this.buyer(auth);
+    return this.tenant.run(
+      session,
+      async (tx) => {
+        const rows = await tx
+          .select()
+          .from(schema.hint)
+          .where(and(eq(schema.hint.orgId, orgId), eq(schema.hint.status, 'open')))
+          .orderBy(desc(schema.hint.score));
+        return this.view(tx, auth, await this.visibleTo(tx, auth, rows));
+      },
+      { readOnly: true },
+    );
+  }
+
   /** Liste: prüft die Regeln und zeigt offene zuerst, dann Entschiedenes. */
   async list(auth: AuthContext, today = isoToday()): Promise<HintList> {
     const { orgId, session } = this.buyer(auth);
@@ -822,9 +843,7 @@ export class HintsService {
         evidence.period ?? '',
         ...(evidence.values ?? []).flatMap((value) => [value.label, value.value]),
       ].join(' ');
-      const digits = (text: string) =>
-        (text.match(/\d[\d.,]*/g) ?? []).map((value) => value.replace(/[.,]/g, ''));
-      const allowed = new Set(digits(allowedText));
+      const allowed = new Set(numbersIn(allowedText));
       const values = (evidence.values ?? [])
         .map((value) => `${value.label}: ${value.value}`)
         .join(', ');
@@ -875,7 +894,7 @@ export class HintsService {
         continue;
       }
       // Jede Zahl im Text muss im Beleg vorkommen, sonst wird der Text verworfen.
-      if (!text || !digits(text).every((value) => allowed.has(value))) continue;
+      if (!text || !numbersIn(text).every((value) => allowed.has(value))) continue;
       const draftId = await createBuyerDraft(
         tx,
         {

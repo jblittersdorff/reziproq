@@ -129,9 +129,9 @@ Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Ein
 - [ ] TN-07 Jede alte Adresse aus der Liste leitet mit 301 auf die neue weiter.
 - [ ] TN-08 ⌘K öffnet Frag Reziproq auf jeder Seite; eine Frage auf einer Akte hat diese als Kontext; ein Auftrag endet als Mappe, Entwurf oder Erinnerung.
 - [ ] TN-09 Es gibt keine Seite Agenten und keine Ablauf-Leiste; jede frühere Schrittseite leitet auf ihr Objekt, ihre Mappe oder Kurz prüfen.
-- [ ] TN-10 Ein Satz mit einer Zahl, die nicht in `sentence_facts` steht, wird nicht angezeigt.
+- [x] TN-10 Ein Satz mit einer Zahl, die nicht in `sentence_facts` steht, wird nicht angezeigt. (K1-c, wie T1-HE2)
 - [ ] TN-11 Eine Handlung auf Stufe Erledigen steht in Erledigt und im Verlauf des Objekts.
-- [ ] TN-12 Ein Käufer ohne Zugriff auf eine Beziehung sieht sie in keiner Zahl, keiner Zeile und keiner Karte „Als Nächstes“.
+- [ ] TN-12 Ein Käufer ohne Zugriff auf eine Beziehung sieht sie in keiner Zahl, keiner Zeile und keiner Karte „Als Nächstes“. (K1-c: Heute und „Als Nächstes“ erfüllt, `he-01.test.ts`; die übrigen Seiten mit ihren Paketen)
 - [ ] TN-13 Die Navigation des Lieferanten enthält weder Warengruppen noch Wert (T5-LP1).
 
 ## Nicht Teil

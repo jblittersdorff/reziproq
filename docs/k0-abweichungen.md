@@ -7,6 +7,17 @@ Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8
 - E-K0-03 legt nur das Prinzip fest. Eine generierte Spalte, wie in F-03 genannt, geht nicht, weil die besitzende Seite aus der Beziehung gelesen werden muss; ob es eine Spalte mit Trigger oder eine Sicht wird, entscheidet K1-a.
 - Neu beim Nachziehen: CLAUDE.md (Oberfläche, Regel 7) lässt bei Widersprüchen im Aussehen die Designsprache vor der Spec gelten, LIESMICH stellt die Specs allgemein vor die Designsprache. Ich lese Regel 7 als Sonderfall für das Aussehen; für Inhalt und Verhalten gilt LIESMICH (C-18).
 
+**Stand nach K1-c (24.11.2026), Auslegungen der Triage:**
+- **Strategischer Typ (E-K0-17).** Die Segmenttypen sind eine Matrix; einen Typ „strategisch“ gibt es nicht, und „Strategisch“ heißt sonst Fokuslieferant (E-K0-09).
+  - Als strategischer Typ gilt deshalb die Zelle mit höchster Wirkung und bester Beziehung, bei 3 × 3 also 3/3. Sie startet mit dem Gewicht 2,0.
+  - Das Gewicht ist je Typ gespeichert. Ändern lässt es sich erst mit der Segment-Mappe (K2-e).
+- **Punktzahl.** Die Triage rechnet nach HE-01 ohne den Faktor 2 für Fokuslieferanten aus KI-16. Die Liste der Hinweise sortiert weiter nach ihrer alten Punktzahl.
+- **Neue Spalte.** `focus_item` hat zusätzlich `href` (Ort der Erledigung), bis die Fokus-Mappe kommt (K1-e). Fokus-Themen verschwinden mit ihrer Beziehung.
+- **„Heute“ für Fristen.** Die Fristen zählen wie bisher auf Start nach dem Datum in UTC. 06:00 und 07:00 gelten in Berlin. Alles auf das Datum in Berlin umzustellen, gehört zu K1-e.
+- **Noch nicht in der Triage.**
+  - Nicht zugeordneter Eingang (E-K0-26) kommt mit der Ansicht Alles (K1-e).
+  - Handlungen auf Stufe Erledigen schreiben `undo_payload` erst ab K1-e und K1-f. Bis dahin ist „Erledigt im Hintergrund“ leer.
+
 **Kurzfassung**
 - Vieles ist schon gebaut und lässt sich wiederverwenden: Datenräume mit Row Level Security, Entwürfe mit Quellen, Agenten und Läufe, Gateway, Hinweise mit Punktzahl, Zusagen, Segmente, Feedback, Termine mit Briefing, Ergebnissen und Transkript, Gemeinsamer Plan, Wirkung mit Baseline und Controlling, Wertfinder, Import, Einladung mit Passkey und das Warengruppenmanagement in zehn Schritten.
 - Grundlegend neu sind: `focus_item` mit Triage, Stufen je Person (`worker_setting`), Bestätigungs-Token für bindende Werkzeuge, Rücknahme (`undo_payload`), Uhr je Mandant, Modi `record` und `replay` sowie der Demo-Mandant Nordwind. Ebenfalls neu: Mandat, Deal, Bestätigen per Link, Wert-Engine mit Buchungen, Kanäle und die Objekte aus Kapitel 8.

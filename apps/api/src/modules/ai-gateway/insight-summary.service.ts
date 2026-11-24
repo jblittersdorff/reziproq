@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, currentTime, eq, isNull, schema, sql, type TenantTransaction } from '@reziproq/db';
-import type { InsightStatement } from '@reziproq/shared';
+import { type InsightStatement, numbersIn } from '@reziproq/shared';
 import { generateText } from 'ai';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { estimateTokens, ModelGateway } from './model-gateway.js';
@@ -42,8 +42,6 @@ export interface InsightResult {
   sentences: { kind: SentenceCandidate['kind']; text: string; href: string }[];
 }
 
-const digitsIn = (text: string) =>
-  (text.match(/\d[\d.,]*/g) ?? []).map((value) => value.replace(/[.,]/g, '')).filter(Boolean);
 const words = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 
 /**
@@ -61,8 +59,8 @@ export class InsightSummaryService {
 
   /** Prüft einen Text gegen die Fakten: Zahlen und bekannte Namen nur aus den Fakten */
   static valid(text: string, facts: InsightFact[], knownNames: string[] = []) {
-    const allowed = new Set(facts.flatMap((fact) => digitsIn(`${fact.display} ${fact.label}`)));
-    if (!digitsIn(text).every((value) => allowed.has(value))) return false;
+    const allowed = new Set(facts.flatMap((fact) => numbersIn(`${fact.display} ${fact.label}`)));
+    if (!numbersIn(text).every((value) => allowed.has(value))) return false;
     const factText = facts.map((fact) => `${fact.display} ${fact.label}`).join(' ');
     return knownNames.every((name) => !text.includes(name) || factText.includes(name));
   }

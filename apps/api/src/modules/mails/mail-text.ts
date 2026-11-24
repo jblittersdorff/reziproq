@@ -2,6 +2,8 @@
 // Lieferanten: Er wird nur gespeichert und angezeigt; an ein Modell geht er nur für die
 // Zusammenfassung, deren Ergebnis gegen den Text geprüft wird.
 
+import { numbersIn } from '@reziproq/shared';
+
 const entities: Record<string, string> = {
   amp: '&',
   lt: '<',
@@ -63,9 +65,6 @@ export function cleanMailText(body: string, isHtml: boolean): string {
   return text.slice(0, 100_000);
 }
 
-const digits = (text: string) =>
-  (text.match(/\d[\d.,]*/g) ?? []).map((value) => value.replace(/[.,]/g, '')).filter(Boolean);
-
 /**
  * Zusammenfassung prüfen: höchstens zwei Sätze, keine Links, jede Zahl steht im Mailtext oder
  * Betreff. Sonst wird sie verworfen (null).
@@ -76,8 +75,8 @@ export function validSummary(summary: string, source: string): string | null {
   if (/(https?:\/\/|www\.)/i.test(text)) return null;
   const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
   if (sentences.length > 2) return null;
-  const allowed = new Set(digits(source));
-  if (!digits(text).every((value) => allowed.has(value))) return null;
+  const allowed = new Set(numbersIn(source));
+  if (!numbersIn(text).every((value) => allowed.has(value))) return null;
   return text;
 }
 

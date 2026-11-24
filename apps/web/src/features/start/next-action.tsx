@@ -35,10 +35,15 @@ export function weekdayTime(locale: string, iso: string) {
   return `${weekdayOf(locale, value)} ${time}`;
 }
 
-/** Kurzzeile der Karte: „Als Nächstes · überfällig seit 2 Tagen · 2 Min.“ */
+/**
+ * Kurzzeile der Karte: „Als Nächstes · überfällig seit 2 Tagen · 2 Min.“. Ein Hinweis aus der
+ * Triage (HE-01) hat keine Frist; seine Zeile nennt nur den Zeitbedarf.
+ */
 export function nextKicker(text: MyDayText, next: NextAction, locale: string) {
   const when =
-    next.overdueDays > 0
+    next.item.kind === 'hint'
+      ? null
+      : next.overdueDays > 0
       ? text.next.overdue(next.overdueDays)
       : next.overdueDays === 0
         ? text.next.today

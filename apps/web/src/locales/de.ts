@@ -141,6 +141,7 @@ export const de = {
       category_conflict: 'Widerspruch zwischen Warengruppen',
       overall_segment_check: 'Gesamtsegment prüfen',
       hint_rule_review: 'Schwelle einer Hinweisregel prüfen',
+      hint: 'Hinweis entscheiden',
       connection_renew: 'Verbindung erneuern',
       member_review: 'Neue Person prüfen',
       rating: 'Bewertung abgeben',

@@ -225,7 +225,7 @@ export async function doneToday(
 }
 
 /** Wohin ein Entwurf von Reziproq führt; ohne bekanntes Ziel die Aktivitäten des Lieferanten */
-function preparedHref(kind: string, objectId: string, relationshipId: string): string {
+export function preparedHref(kind: string, objectId: string, relationshipId: string): string {
   const base = `/lieferanten/${relationshipId}`;
   if (kind.startsWith('brief_') || kind === 'pre_read') {
     return `${base}/umsetzung/termine/${objectId}`;

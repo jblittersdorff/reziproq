@@ -12,7 +12,6 @@ import {
   type NextAction,
   type NextMeeting,
   needsYouSchema,
-  nextActionSchema,
   pickNextAction,
   relationshipOfHref,
   type StartData,
@@ -109,8 +108,11 @@ export class StartService {
     @Inject(OrganizationService) private readonly organizations: OrganizationService,
   ) {}
 
-  /** Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. */
-  private async dueItems(auth: AuthContext): Promise<DueItem[]> {
+  /**
+   * Alle Aufgaben der Person, nach Frist sortiert. Weitere Module melden sich hier an. Die Triage
+   * (HE-01, modules/today) macht aus jeder ein Fokus-Thema.
+   */
+  async dueItems(auth: AuthContext): Promise<DueItem[]> {
     const subject = {
       orgRole: auth.orgRole,
       isControlling: auth.isControlling,
@@ -445,45 +447,14 @@ export class StartService {
     );
   }
 
-  /** Wirkung je Aufgabe: Spend des Lieferanten, zu dem sie gehört; dazu die sichtbaren Lieferanten */
-  private async weigh(auth: AuthContext, viewer: Viewer) {
-    return this.tenant.run(
-      { userId: auth.userId, organizationId: viewer.orgId },
-      async (tx) => {
-        const relationships = await visibleRelationships(tx, viewer);
-        const weights = await spendWeights(tx, [...relationships.keys()]);
-        return {
-          visible: new Set(relationships.keys()),
-          weight: (item: DueItem) => weights.get(relationshipOfHref(item.href) ?? '') ?? 0,
-        };
-      },
-      { readOnly: true },
-    );
-  }
-
   /**
-   * „Als Nächstes“ über alle Bereiche (scope global) oder für einen Lieferanten (scope
-   * relationship, NAV-10 1.1). Ohne Zugriff auf den Lieferanten gibt es keine Karte.
+   * Mein Tag (NAV-05). „Als Nächstes“ wählt seit K1-c die Triage (HE-01, `pick`); ohne `pick` gilt
+   * die Reihenfolge nach Frist und Spend.
    */
-  async next(auth: AuthContext, relationshipId?: string): Promise<{ next: NextAction | null }> {
-    const viewer = this.buyerViewer(auth);
-    if (relationshipId && !viewer) return { next: null };
-    const weighed = viewer ? await this.weigh(auth, viewer) : undefined;
-    if (relationshipId && !weighed?.visible.has(relationshipId)) return { next: null };
-    const due = await this.dueItems(auth);
-    const next = pickNextAction(due, isoToday(), {
-      ...(weighed ? { weight: weighed.weight } : {}),
-      ...(relationshipId
-        ? {
-            scope: 'relationship' as const,
-            filter: (item: DueItem) => relationshipOfHref(item.href) === relationshipId,
-          }
-        : {}),
-    });
-    return { next: next ? nextActionSchema.parse(next) : null };
-  }
-
-  async myDay(auth: AuthContext): Promise<MyDay> {
+  async myDay(
+    auth: AuthContext,
+    pick?: (due: DueItem[]) => Promise<NextAction | null>,
+  ): Promise<MyDay> {
     const today = isoToday();
     const due = await this.dueItems(auth);
     const viewer = this.buyerViewer(auth);
@@ -523,7 +494,7 @@ export class StartService {
         )
       : null;
     const weight = extras?.weight ?? (() => 0);
-    const next = pickNextAction(due, today, { weight });
+    const next = pick ? await pick(due) : pickNextAction(due, today, { weight });
     const rest = due.filter((item) => item.id !== next?.item.id).sort(compareDue(today, weight));
     const sunday = endOfWeek(today);
     return myDaySchema.parse({

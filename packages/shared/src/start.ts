@@ -39,6 +39,9 @@ export const dueKinds = [
   'category_conflict',
   // WG-20: Segment einer Warengruppe neuer als das Gesamtsegment (SRO)
   'overall_segment_check',
+  // HE-01 (K1-c): offener Hinweis als Fokus-Thema; nur in „Als Nächstes“, nie in der Liste der
+  // Fristen. detail ist die Regel.
+  'hint',
 ] as const;
 
 export const dueItemSchema = z.object({

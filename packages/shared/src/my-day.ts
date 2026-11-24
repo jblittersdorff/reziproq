@@ -35,6 +35,7 @@ export const dueMinutes: Partial<Record<DueKind, number>> = {
   category_approval: 5,
   category_conflict: 10,
   overall_segment_check: 5,
+  hint: 5,
 };
 
 const uuidPattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';

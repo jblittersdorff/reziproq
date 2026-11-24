@@ -24,13 +24,6 @@ export class StartController {
     return this.start.due(auth);
   }
 
-  /** NAV-10 1.1: Mein Tag mit „Als Nächstes“, Heute, Diese Woche, Wartet auf andere */
-  @Get('mein-tag')
-  @Requires('start.sehen')
-  myDay(@CurrentUser() auth: AuthContext) {
-    return this.start.myDay(auth);
-  }
-
   /** Terminschiene (`timeline_item`) der nächsten Tage, Standard vier Wochen */
   @Get('termine')
   @Requires('start.sehen')
@@ -42,15 +35,7 @@ export class StartController {
     return this.start.timeline(auth, days ?? 28, relationshipId);
   }
 
-  /** „Als Nächstes“ (`next_action`): scope global, mit `beziehung` scope relationship */
-  @Get('als-naechstes')
-  @Requires('start.sehen')
-  next(
-    @CurrentUser() auth: AuthContext,
-    @Query('beziehung', new ParseUUIDPipe({ optional: true })) relationshipId: string | undefined,
-  ) {
-    return this.start.next(auth, relationshipId);
-  }
+  // Mein Tag und „Als Nächstes“ liegen seit K1-c in modules/today (Triage, HE-01).
 
   /** Lieferanten, die die Person brauchen (F-UX-06) */
   @Get('brauchen-dich')
