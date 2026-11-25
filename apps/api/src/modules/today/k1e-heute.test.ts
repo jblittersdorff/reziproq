@@ -312,4 +312,63 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
       sql`update focus_item set state = 'open', snoozed_until = null where id = ${first?.id ?? ''}`,
     );
   });
+
+  // K1-e.4: Warum und Fokus-Mappe
+  const raw = async (path: string, user = users.me) => {
+    const response = await fetch(`${testApp.baseUrl}/api${path}`, {
+      headers: { authorization: `Bearer ${await testApp.signToken({ subject: user })}` },
+    });
+    return { status: response.status, body: (await response.json()) as Record<string, unknown> };
+  };
+
+  it('Warum zu einem Fokus-Thema: Rechenweg aus den Fakten, Platz und belegter Satz', async () => {
+    const view = await all();
+    const first = view.forYou.find((topic) => topic.title === `Eins ${run}`);
+    const why = await raw(`/warum/${first?.id}`);
+    expect(why.status).toBe(200);
+    expect(why.body).toMatchObject({
+      kind: 'topic',
+      rank: 1,
+      topic: { id: first?.id, sentence: 'Seit 3 Tagen überfällig.' },
+    });
+    const facts = (why.body.topic as { facts: { key: string; value: number }[] }).facts;
+    expect(facts).toEqual([expect.objectContaining({ key: 'overdue_days', value: 3 })]);
+  });
+
+  it('Warum zu einem Hinweis: das Fokus-Thema und der Hinweis selbst führen zum Hinweis; fremde nicht', async () => {
+    const view = await all();
+    const own = view.forYou.find((topic) => topic.title === `Hinweis eigen ${run}`);
+    const viaTopic = await raw(`/warum/${own?.id}`);
+    expect(viaTopic.body).toEqual({ kind: 'hint', hintId: own?.objectId });
+    const team = view.hints[0];
+    expect((await raw(`/warum/${team?.id}`)).body).toEqual({ kind: 'hint', hintId: team?.id });
+    const [foreign] = (
+      await db.execute<{ id: string }>(
+        sql`select id from hint where title = ${`Hinweis fremd ${run}`}`,
+      )
+    ).rows;
+    expect((await raw(`/warum/${foreign?.id}`)).status).toBe(404);
+    // Ein fremdes Fokus-Thema ist ebenso unsichtbar
+    expect((await raw(`/warum/${own?.id}`, users.colleague)).status).toBe(404);
+  });
+
+  it('Fokus-Mappe: Thema mit Platz und Zeitpunkt; beim Hinweis dessen ID; nur eigene Fokus-Themen', async () => {
+    const view = await all();
+    const first = view.forYou.find((topic) => topic.title === `Eins ${run}`);
+    const map = await raw(`/mappe/${first?.id}`);
+    expect(map.status).toBe(200);
+    expect(map.body).toMatchObject({
+      topic: { id: first?.id, art: 'aufgabe' },
+      state: 'open',
+      rank: 1,
+      hintId: null,
+      recommendation: null,
+    });
+    const hint = view.forYou.find((topic) => topic.title === `Hinweis eigen ${run}`);
+    expect((await raw(`/mappe/${hint?.id}`)).body).toMatchObject({ hintId: hint?.objectId });
+    expect((await raw(`/mappe/${first?.id}`, users.colleague)).status).toBe(404);
+    // Ein Entwurf hat keine Mappe, er steht in Kurz prüfen
+    const draft = (await page()).drafts[0];
+    expect((await raw(`/mappe/${draft?.id}`)).status).toBe(404);
+  });
 });

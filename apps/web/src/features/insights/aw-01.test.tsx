@@ -477,11 +477,11 @@ describe('AW-01 Lieferant · Überblick', () => {
     const card = document.querySelector('[data-slot="next-card"]') as HTMLElement;
     expect(card.textContent).toContain('hoch');
     expect(within(card).getByRole('link', { name: 'Hinweis ansehen' }).getAttribute('href')).toBe(
-      '/hinweise?hinweis=0190a0a0-0000-7000-8000-0000000000bb',
+      '/warum/0190a0a0-0000-7000-8000-0000000000bb',
     );
     const point = screen.getByRole('link', { name: /^Risiko/ });
     expect(point.getAttribute('href')).toBe(
-      '/hinweise?hinweis=0190a0a0-0000-7000-8000-0000000000bb',
+      '/warum/0190a0a0-0000-7000-8000-0000000000bb',
     );
   });
 });

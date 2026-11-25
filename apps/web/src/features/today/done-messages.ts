@@ -73,6 +73,7 @@ export const doneMessages = defineMessages({
     detail: (task: string, counterpart: string | null) => join(task, counterpart),
     undo: 'Zurücknehmen',
     view: 'Ansehen',
+    why: 'Warum',
     undone: 'zurückgenommen',
     failedChip: 'fehlgeschlagen',
     blocked: {
@@ -135,6 +136,7 @@ export const doneMessages = defineMessages({
     detail: (task: string, counterpart: string | null) => join(task, counterpart),
     undo: 'Undo',
     view: 'View',
+    why: 'Why',
     undone: 'undone',
     failedChip: 'failed',
     blocked: {

@@ -364,7 +364,8 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
     expect(stuck?.text).toBe(
       `Bei AW01-A ${run}: „Liefertreue“ seit 3 Monaten unter Ziel und schlechter.`,
     );
-    expect(stuck?.href).toMatch(/^\/hinweise\?hinweis=/);
+    // HE-01 (K1-e.4): ein Hinweis öffnet sein Warum
+    expect(stuck?.href).toMatch(/^\/warum\//);
     // Die folgenden Tests prüfen die Sätze ohne Hinweise.
     await db.execute(sql`delete from hint where org_id = ${orgs.oem}`);
   });

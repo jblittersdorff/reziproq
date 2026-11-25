@@ -6,12 +6,13 @@ import { DoneService } from './done.service.js';
 import { TodayController } from './today.controller.js';
 import { TriageService } from './triage.service.js';
 import { TriageWorker } from './triage.worker.js';
+import { WhyService } from './why.service.js';
 
 /** Heute (HE-01): Triage, Fokus-Themen und „Als Nächstes“ */
 @Module({
   imports: [StartModule, HintsModule, CalendarModule],
   controllers: [TodayController],
-  providers: [TriageService, TriageWorker, DoneService],
+  providers: [TriageService, TriageWorker, DoneService, WhyService],
   exports: [TriageService, TriageWorker],
 })
 export class TodayModule {}

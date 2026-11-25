@@ -366,7 +366,7 @@ function SupplierPanel({
       key: 'hints',
       label: text.hints,
       value: text.hintsValue(data?.openHints ?? 0),
-      href: '/hinweise',
+      href: '/heute?ansicht=alles',
     },
     {
       key: 'commitments',

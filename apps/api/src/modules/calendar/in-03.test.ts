@@ -722,9 +722,7 @@ describe('IN-03 Termine aus Outlook und Google', () => {
     expect(await meetingsWith(uid)).toEqual([]);
     expect(await itemsWith(uid)).toMatchObject([{ status: 'needs_review' }]);
     // Ein zweites Mal geht nicht; die Zeile zeigt „zurückgenommen“
-    expect((await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status).toBe(
-      409,
-    );
+    expect((await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status).toBe(409);
     expect((await doneOf(users.anna)).rows.find((entry) => entry.id === row?.id)).toMatchObject({
       status: 'undone',
       undo: { possible: false, blocker: 'zurueckgenommen' },
@@ -733,6 +731,16 @@ describe('IN-03 Termine aus Outlook und Google', () => {
     expect((await call(users.carla, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status).toBe(
       404,
     );
+    // K1-e.4, Inventar T1-I15: Warum zum Lauf mit Aufgabe, Zeit, Schritten, Kosten und Rechten
+    const why = await call(users.anna, 'GET', `/warum/${row?.id}`);
+    expect(why.status).toBe(200);
+    expect(why.body).toMatchObject({
+      kind: 'run',
+      run: { id: row?.id, task: 'inbox', taskName: 'Postfach', trigger: 'event', undone: true },
+      steps: [],
+    });
+    expect((why.body as { run: { tools: string[] } }).run.tools).toContain('mail.assign');
+    expect((await call(users.carla, 'GET', `/warum/${row?.id}`)).status).toBe(404);
   });
 
   it('T1-HE4: Nach einer Änderung am Termin lehnt die Rücknahme mit Grund ab; nach 30 Tagen ebenso', async () => {

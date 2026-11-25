@@ -222,7 +222,12 @@ function DoneEntry({ row }: { row: DoneRow }) {
       <Button variant="secondary" asChild>
         {routerLink({ href: row.href, className: 'no-underline', children: text.view })}
       </Button>
-    ) : undefined;
+    ) : (
+      // Ohne Ziel und ohne Rücknahme: die Herleitung des Laufs (K1-e.4)
+      <Button variant="secondary" asChild>
+        {routerLink({ href: `/warum/${row.id}`, className: 'no-underline', children: text.why })}
+      </Button>
+    );
   return (
     <div data-slot="row" className="flex min-h-14 items-start gap-3 px-3.5 py-2.5">
       <span className="w-14 shrink-0 pt-0.5 font-semibold text-muted-strong text-sm tabular-nums">

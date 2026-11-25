@@ -127,7 +127,7 @@ export function OverviewRows({
           title={text.hints}
           detail={risk ? hintWhy({ ruleKey: risk.ruleKey, detail: risk.detail }) : undefined}
           value={<Badge variant="warning">{text.hintsOpen(hints)}</Badge>}
-          href={risk ? `/hinweise?hinweis=${risk.hintId}` : '/hinweise'}
+          href={risk ? `/warum/${risk.hintId}` : '/heute?ansicht=alles'}
           renderLink={routerLink}
         />
       )}
@@ -315,7 +315,7 @@ export function SummaryCard({ relationshipId }: { relationshipId: string }) {
       status: text.risk,
       tone: data.risk.severity === 'high' ? 'danger' : 'warning',
       text: hintWhy({ ruleKey: data.risk.ruleKey, detail: data.risk.detail }),
-      href: `/hinweise?hinweis=${data.risk.hintId}`,
+      href: `/warum/${data.risk.hintId}`,
     });
   }
   if (!statement && points.length === 0) return null;

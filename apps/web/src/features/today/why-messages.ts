@@ -1,0 +1,195 @@
+import { defineMessages } from '@/lib/i18n';
+
+// HE-01 Warum und Fokus-Mappe (K1-e.4, Vorlagen K1-Warum und K1-Mappe)
+
+const join = (...parts: (string | null | undefined | false)[]) => parts.filter(Boolean).join(' · ');
+
+export const whyMessages = defineMessages({
+  de: {
+    back: 'Heute',
+    loading: 'Die Herleitung wird geladen …',
+    failed: 'Die Herleitung konnte nicht geladen werden.',
+    retry: 'Erneut versuchen',
+    hint: {
+      title: 'Warum dieser Hinweis?',
+      where: (rule: string, since: string, supplier: string | null) =>
+        join(rule, `offen seit ${since}`, supplier),
+    },
+    run: {
+      title: (task: string) => `Warum: ${task}`,
+      where: (at: string, counterpart: string | null) =>
+        join(at, counterpart, 'jede Zahl aus dem Lauf, nicht formuliert'),
+      stepsLabel: 'Was Reziproq getan hat',
+      noSteps: 'Der Lauf hat keine einzelnen Schritte festgehalten.',
+      saidLabel: 'Was Reziproq formuliert hat',
+      saidNote:
+        'Jede Aussage nennt ihre Quellen. Eine Aussage mit einer Zahl ohne Beleg zeigt Reziproq nicht an.',
+      runLabel: 'Lauf',
+      task: 'Aufgabe',
+      when: (at: string, steps: number, cost: string) =>
+        join(at, `${steps} ${steps === 1 ? 'Schritt' : 'Schritte'}`, cost),
+      trigger: 'Ausgelöst durch',
+      triggers: { manual: 'von Hand', schedule: 'Zeitplan', event: 'Ereignis' },
+      may: 'Darf',
+      mayNothing: 'nichts senden, nichts teilen',
+      undone: 'zurückgenommen',
+      status: {
+        done: 'erledigt',
+        failed: 'fehlgeschlagen',
+        running: 'läuft',
+        queued: 'wartet',
+      } as Record<string, string>,
+    },
+    topic: {
+      title: 'Warum steht das hier?',
+      where: (title: string) => title,
+      mathLabel: 'Rechenweg',
+      noFactsTitle: 'Ohne Zahlen',
+      noFacts:
+        'Dieses Thema hat keine Zahlen. Es steht hier wegen Wirkung, Frist und Segment der Beziehung.',
+      factKeys: {
+        overdue_days: 'Tage überfällig, aus der Frist',
+        days_left: 'Tage bis zur Frist',
+      } as Record<string, string>,
+      scoreLabel: 'Punktzahl der Triage',
+      score: (score: number) => `${score}`,
+      scoreDetail: 'Wirkung × Dringlichkeit × Segmentgewicht',
+      rank: (rank: number) => `Platz ${rank} unter deinen Fokus-Themen`,
+      saidLabel: 'Was Reziproq formuliert hat',
+      saidNote:
+        'Jede Zahl im Satz steht oben im Rechenweg. Fehlt eine, zeigt Reziproq den Satz nicht an.',
+    },
+    sourcesLabel: 'Quellen',
+    noSources: 'Keine Quellen außer den eigenen Daten.',
+    map: {
+      // Der Titel nennt die Aufgabe (Designsprache Regel 4); Titel der Themen tragen ihr Verb schon
+      title: (what: string) => what,
+      where: (counterpart: string | null, group: string | null, due: string | null) =>
+        join(counterpart, group, due),
+      due: (date: string) => `Frist ${date}`,
+      kickerRecommended: 'Als Nächstes · Empfehlung von Reziproq',
+      kickerStep: 'Als Nächstes · dein Schritt',
+      open: 'Zum Ort',
+      openLabel: (title: string) => `${title} öffnen`,
+      decideHint: 'Hinweis entscheiden',
+      snooze: 'Morgen erinnern',
+      aboutLabel: 'Worum es geht',
+      aboutHeading: 'Zusammengefasst von Reziproq',
+      evidenceLabel: 'Belege',
+      evidence: (count: number) => `Herleitung und Quellen · ${count}`,
+      evidenceDetail: 'Rechenweg, Satz von Reziproq, Quellen',
+      optionsLabel: 'Optionen',
+      optionNow: (step: string) => `A · ${step}`,
+      optionNowDetail: 'am Ort der Erledigung',
+      optionLater: 'B · Morgen erinnern',
+      optionLaterDetail: 'kommt morgen um 07:00 wieder in den Fokus',
+      optionDismiss: 'C · Nicht relevant',
+      optionDismissDetail: 'mit Grund, im Warum zum Hinweis',
+      recommended: 'Empfohlen',
+      valueLater: 'Werte für beide Seiten zeigt die Mappe, sobald die Wert-Engine rechnet.',
+      nextLabel: 'So geht es weiter',
+      stepFound: 'Reziproq erkennt das Thema',
+      stepDecide: 'Du entscheidest',
+      stepDecideWhen: 'heute',
+      stepDone: 'Erledigt verschwindet es aus dem Fokus',
+      stepDoneDetail: 'nachzulesen in Erledigt und im Verlauf',
+      privateTitle: 'Nur für dich',
+      privateChip: 'privat',
+      privateText: 'Rechenweg, Punktzahl und Quellen dieser Mappe bleiben auf deiner Seite.',
+      closed: 'Dieses Thema ist schon entschieden.',
+      snoozed: 'Zurückgestellt bis morgen 07:00.',
+    },
+  },
+  en: {
+    back: 'Today',
+    loading: 'Loading the derivation …',
+    failed: 'The derivation could not be loaded.',
+    retry: 'Try again',
+    hint: {
+      title: 'Why this hint?',
+      where: (rule: string, since: string, supplier: string | null) =>
+        join(rule, `open since ${since}`, supplier),
+    },
+    run: {
+      title: (task: string) => `Why: ${task}`,
+      where: (at: string, counterpart: string | null) =>
+        join(at, counterpart, 'every number from the run, not phrased'),
+      stepsLabel: 'What Reziproq did',
+      noSteps: 'The run did not record individual steps.',
+      saidLabel: 'What Reziproq phrased',
+      saidNote:
+        'Every statement names its sources. A statement with an unbacked number is not shown.',
+      runLabel: 'Run',
+      task: 'Task',
+      when: (at: string, steps: number, cost: string) =>
+        join(at, `${steps} ${steps === 1 ? 'step' : 'steps'}`, cost),
+      trigger: 'Triggered by',
+      triggers: { manual: 'by hand', schedule: 'schedule', event: 'event' },
+      may: 'May',
+      mayNothing: 'send nothing, share nothing',
+      undone: 'undone',
+      status: { done: 'done', failed: 'failed', running: 'running', queued: 'waiting' } as Record<
+        string,
+        string
+      >,
+    },
+    topic: {
+      title: 'Why is this here?',
+      where: (title: string) => title,
+      mathLabel: 'Calculation',
+      noFactsTitle: 'No numbers',
+      noFacts:
+        'This topic has no numbers. It is here because of impact, deadline and segment of the relationship.',
+      factKeys: {
+        overdue_days: 'days overdue, from the deadline',
+        days_left: 'days until the deadline',
+      } as Record<string, string>,
+      scoreLabel: 'Triage score',
+      score: (score: number) => `${score}`,
+      scoreDetail: 'impact × urgency × segment weight',
+      rank: (rank: number) => `Place ${rank} among your focus topics`,
+      saidLabel: 'What Reziproq phrased',
+      saidNote:
+        'Every number in the sentence is in the calculation above. If one is missing, Reziproq does not show the sentence.',
+    },
+    sourcesLabel: 'Sources',
+    noSources: 'No sources besides your own data.',
+    map: {
+      title: (what: string) => what,
+      where: (counterpart: string | null, group: string | null, due: string | null) =>
+        join(counterpart, group, due),
+      due: (date: string) => `deadline ${date}`,
+      kickerRecommended: 'Up next · recommended by Reziproq',
+      kickerStep: 'Up next · your step',
+      open: 'Go there',
+      openLabel: (title: string) => `Open ${title}`,
+      decideHint: 'Decide hint',
+      snooze: 'Remind me tomorrow',
+      aboutLabel: 'What it is about',
+      aboutHeading: 'Summarised by Reziproq',
+      evidenceLabel: 'Evidence',
+      evidence: (count: number) => `Derivation and sources · ${count}`,
+      evidenceDetail: 'calculation, sentence by Reziproq, sources',
+      optionsLabel: 'Options',
+      optionNow: (step: string) => `A · ${step}`,
+      optionNowDetail: 'where it gets done',
+      optionLater: 'B · Remind me tomorrow',
+      optionLaterDetail: 'comes back into focus tomorrow at 7 am',
+      optionDismiss: 'C · Not relevant',
+      optionDismissDetail: 'with a reason, in the hint’s why',
+      recommended: 'Recommended',
+      valueLater: 'Values for both sides appear once the value engine calculates.',
+      nextLabel: 'What happens next',
+      stepFound: 'Reziproq spots the topic',
+      stepDecide: 'You decide',
+      stepDecideWhen: 'today',
+      stepDone: 'Once done, it leaves your focus',
+      stepDoneDetail: 'traceable in Done and in the history',
+      privateTitle: 'Only for you',
+      privateChip: 'private',
+      privateText: 'Calculation, score and sources of this folder stay on your side.',
+      closed: 'This topic has already been decided.',
+      snoozed: 'Put off until tomorrow 7 am.',
+    },
+  },
+});

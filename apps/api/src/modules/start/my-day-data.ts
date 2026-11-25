@@ -238,7 +238,7 @@ export function preparedHref(kind: string, objectId: string, relationshipId: str
     case 'plan_summary':
       return `${base}/strategie/lieferantenplan`;
     case 'hint_explanation':
-      return `/hinweise?hinweis=${objectId}`;
+      return `/warum/${objectId}`;
     default:
       return `${base}/aktivitaeten`;
   }

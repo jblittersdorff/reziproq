@@ -38,6 +38,8 @@ export const routeMoves: readonly RouteMove[] = [
   move('/mein-agent', '/mein-agent', 'K1-d', 'bleibt', 'zeigt bis K1-f die Seite Agenten'),
   move('/kurz-pruefen', '/kurz-pruefen', 'K1-e.2', 'bleibt', 'Kurz prüfen'),
   move('/erledigt', '/erledigt', 'K1-e.3', 'bleibt', 'Erledigt im Hintergrund'),
+  move('/warum/$id', '/warum/$id', 'K1-e.4', 'bleibt', 'Warum'),
+  move('/mappe/$art/$id', '/mappe/$art/$id', 'K1-e.4', 'bleibt', 'Fokus-Mappe'),
 
   // Aktiv seit K1-d
   move('/mein-tag', '/heute', 'K1-d', 'aktiv'),
@@ -53,15 +55,15 @@ export const routeMoves: readonly RouteMove[] = [
 
   // Heute (HE-01): Alle Aufgaben, Maßnahmen, Hinweise und Neu eingegangen gehen in die Ansicht Alles.
   // Neu eingegangen geht seit K1-e.3 in Heute auf: Zuordnungen in Kurz prüfen, „Heute selbst
-  // zugeordnet“ in Erledigt, „Wie Termine ankommen“ unter Anbindungen. Die Hinweise schalten mit
-  // Warum um (K1-e.4). Alle
+  // zugeordnet“ in Erledigt, „Wie Termine ankommen“ unter Anbindungen. Die Hinweise gehen seit K1-e.4
+  // in Alles (Liste) und Warum (ein Hinweis) auf. Alle
   // Aufgaben und Maßnahmen braucht der Start der Lieferantenseite bis K5-b; der Käufer erreicht sie
   // von Heute aus nicht mehr.
   move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e.3', 'aktiv', 'Gruppe Zuordnen'),
   move('/start/faellig', '/heute?ansicht=alles', 'K5-b', 'geplant', 'beim Käufer schon Alles'),
   move('/start/massnahmen', '/heute?ansicht=alles', 'K5-b', 'geplant', 'Zusagen und Aufgaben'),
-  move('/hinweise', '/heute?ansicht=alles', 'K1-e.4', 'geplant', 'Gruppe Hinweise'),
-  move('/hinweise/$id', '/warum/$id', 'K1-e.4', 'geplant', 'Warum zum Hinweis'),
+  move('/hinweise', '/heute?ansicht=alles', 'K1-e.4', 'aktiv', 'Gruppe Hinweise'),
+  move('/hinweise/$id', '/warum/$id', 'K1-e.4', 'aktiv', 'Warum zum Hinweis'),
 
   // Mein Agent (MA-01); eigene Agenten entfallen (E-K0-13).
   move('/einstellungen/ki/agenten/*', '/mein-agent', 'K1-f', 'geplant'),

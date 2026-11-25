@@ -210,7 +210,7 @@ export class ActivitiesService {
           title: '',
           code: hint.ruleKey,
           meta: hint.status,
-          href: '/hinweise',
+          href: `/warum/${hint.id}`,
           visibility: 'team',
           pinned: false,
           mine: false,

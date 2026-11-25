@@ -105,6 +105,8 @@ export function HintPanel({
           : list,
       );
       setMessage(done);
+      // HE-01: Heute, Alles und die Zahl an Heute folgen der Entscheidung (Warum zum Hinweis)
+      void queryClient.invalidateQueries({ queryKey: ['heute'] });
     } catch {
       setFailed(true);
     } finally {

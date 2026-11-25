@@ -120,7 +120,7 @@ function TodayHeader({ view, where }: { view: TodayView; where: React.ReactNode 
 }
 
 /** Titel eines Fokus-Themas: je Art aus der Frist des Moduls, sonst der Titel der Triage */
-function useTopicTitle() {
+export function useTopicTitle() {
   const t = useT();
   return (topic: Pick<FocusTopic, 'item' | 'title' | 'objectType'>) => {
     if (topic.item) return dueTitle(t, topic.item);
@@ -213,8 +213,8 @@ function FocusView() {
 }
 
 /**
- * „Als Nächstes“: das Fokus-Thema mit der höchsten Punktzahl. Der Hauptknopf führt zum Ort der
- * Erledigung, bis die Fokus-Mappe kommt (K1-e.4); „Morgen erinnern“ stellt es bis 07:00 zurück.
+ * „Als Nächstes“: das Fokus-Thema mit der höchsten Punktzahl. „Mappe öffnen“ führt in die
+ * Fokus-Mappe; „Morgen erinnern“ stellt es bis 07:00 zurück.
  */
 function NextTopic({ data, topic }: { data: TodayPageData; topic: FocusTopic }) {
   const text = useMessages(todayMessages);
@@ -227,14 +227,15 @@ function NextTopic({ data, topic }: { data: TodayPageData; topic: FocusTopic }) 
     onSuccess: () => client.invalidateQueries({ queryKey: ['heute'] }),
   });
   const shown = 1 + data.more.length;
-  const href = topic.href ?? '/heute?ansicht=alles';
+  // HE-01 (K1-e.4): „Als Nächstes“ öffnet die Fokus-Mappe des Themas
+  const href = `/mappe/${topic.art}/${topic.id}`;
   return (
     <div className="flex flex-col gap-2">
       <NextCard
         kicker={text.next.kicker(1, shown, topic.counterpart)}
         title={title}
         text={topic.sentence}
-        action={{ label: text.next.open, href, ariaLabel: text.next.openLabel(title) }}
+        action={{ label: text.next.openMap, href, ariaLabel: text.next.openLabel(title) }}
         secondary={
           <Button
             variant="dark"
@@ -755,6 +756,12 @@ function AllAside({ data }: { data: TodayAll }) {
             {text.all.whyNot.say(title(fourth))}
           </p>
           <p className="text-muted-strong text-sm leading-relaxed">{text.all.whyNot.text}</p>
+          {routerLink({
+            href: `/warum/${fourth.id}`,
+            className:
+              'inline-flex min-h-11 items-center self-start font-semibold text-base text-petrol no-underline hover:text-petrol-dark focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+            children: `${text.all.whyNot.derivation} ›`,
+          })}
         </section>
       )}
       <RowGroup label={text.all.more.label}>

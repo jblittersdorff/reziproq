@@ -14,6 +14,7 @@ import { Requires } from '../auth/requires.decorator.js';
 import { StartService } from '../start/start.service.js';
 import { DoneService } from './done.service.js';
 import { TriageService } from './triage.service.js';
+import { WhyService } from './why.service.js';
 
 // HE-01 (K1-c): Heute aus der Triage; seit K1-e mit den Ansichten Fokus und Alles. Start und Mein Tag
 // lesen „Als Nächstes“ weiter von hier (NAV-10 1.1, gleiche Pfade wie bisher).
@@ -24,6 +25,7 @@ export class TodayController {
     @Inject(TriageService) private readonly triage: TriageService,
     @Inject(StartService) private readonly start: StartService,
     @Inject(DoneService) private readonly done: DoneService,
+    @Inject(WhyService) private readonly whyService: WhyService,
   ) {}
 
   /** Heute, Ansicht Fokus: „Als Nächstes“, höchstens zwei weitere Fokus-Themen, Kurz prüfen, Erledigt */
@@ -53,6 +55,20 @@ export class TodayController {
   @Requires('start.sehen')
   undo(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.done.undo(auth, id);
+  }
+
+  /** Warum (K1-e.4): Herleitung zu einem Fokus-Thema, einem Hinweis oder einem Lauf */
+  @Get('warum/:id')
+  @Requires('start.sehen')
+  why(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.whyService.why(auth, id);
+  }
+
+  /** Fokus-Mappe (K1-e.4): ein Fokus-Thema als Entscheidung in fünf Teilen */
+  @Get('mappe/:id')
+  @Requires('start.sehen')
+  map(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.whyService.map(auth, id);
   }
 
   /** „Morgen erinnern“: bis zum nächsten Tag 07:00 */

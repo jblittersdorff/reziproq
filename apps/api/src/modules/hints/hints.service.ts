@@ -367,7 +367,8 @@ export class HintsService {
         objectId: hint.id,
         title: hint.title,
         line: hint.supplier,
-        href: '/hinweise',
+        // HE-01 (K1-e.4): Warum zum Hinweis
+        href: `/warum/${hint.id}`,
         relationshipId: hint.relationshipId,
       });
     }

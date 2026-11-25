@@ -38,8 +38,6 @@ import { Route as AppEinstellungenRollenRouteImport } from './routes/_app/einste
 import { Route as AppEinstellungenZyklusRouteImport } from './routes/_app/einstellungen/zyklus'
 import { Route as AppFeedbackIndexRouteImport } from './routes/_app/feedback/index'
 import { Route as AppFeedbackIdRouteImport } from './routes/_app/feedback/$id'
-import { Route as AppHinweiseIndexRouteImport } from './routes/_app/hinweise/index'
-import { Route as AppHinweiseIdRouteImport } from './routes/_app/hinweise/$id'
 import { Route as AppKundenIndexRouteImport } from './routes/_app/kunden/index'
 import { Route as AppKundenIdRouteRouteImport } from './routes/_app/kunden/$id/route'
 import { Route as AppLieferantenIdRouteRouteImport } from './routes/_app/lieferanten/$id/route'
@@ -57,6 +55,7 @@ import { Route as AppStartMassnahmenRouteImport } from './routes/_app/start/mass
 import { Route as AppUebersichtErgebnisseRouteImport } from './routes/_app/uebersicht/ergebnisse'
 import { Route as AppUebersichtWertpotenzialeRouteImport } from './routes/_app/uebersicht/wertpotenziale'
 import { Route as AppWarengruppenIndexRouteImport } from './routes/_app/warengruppen/index'
+import { Route as AppWarumIdRouteImport } from './routes/_app/warum/$id'
 import { Route as AppWertIndexRouteImport } from './routes/_app/wert/index'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
 import { Route as EinladungTokenNameRouteImport } from './routes/einladung/$token/name'
@@ -89,6 +88,7 @@ import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/
 import { Route as AppKundenIdIndexRouteImport } from './routes/_app/kunden/$id/index'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
 import { Route as AppLieferantenIdAktivitaetenRouteImport } from './routes/_app/lieferanten/$id/aktivitaeten'
+import { Route as AppMappeArtIdRouteImport } from './routes/_app/mappe/$art/$id'
 import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfolio/fokus/index'
 import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio/fokus/$id'
 import { Route as AppPortfolioRundenIndexRouteImport } from './routes/_app/portfolio/runden/index'
@@ -426,16 +426,6 @@ const AppFeedbackIdRoute = AppFeedbackIdRouteImport.update({
   path: '/feedback/$id',
   getParentRoute: () => AppRoute,
 } as any)
-const AppHinweiseIndexRoute = AppHinweiseIndexRouteImport.update({
-  id: '/hinweise/',
-  path: '/hinweise/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHinweiseIdRoute = AppHinweiseIdRouteImport.update({
-  id: '/hinweise/$id',
-  path: '/hinweise/$id',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppKundenIndexRoute = AppKundenIndexRouteImport.update({
   id: '/kunden/',
   path: '/kunden/',
@@ -522,6 +512,11 @@ const AppUebersichtWertpotenzialeRoute =
 const AppWarengruppenIndexRoute = AppWarengruppenIndexRouteImport.update({
   id: '/warengruppen/',
   path: '/warengruppen/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWarumIdRoute = AppWarumIdRouteImport.update({
+  id: '/warum/$id',
+  path: '/warum/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppWertIndexRoute = AppWertIndexRouteImport.update({
@@ -709,6 +704,11 @@ const AppLieferantenIdAktivitaetenRoute =
     path: '/aktivitaeten',
     getParentRoute: () => AppLieferantenIdRouteRoute,
   } as any)
+const AppMappeArtIdRoute = AppMappeArtIdRouteImport.update({
+  id: '/mappe/$art/$id',
+  path: '/mappe/$art/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPortfolioFokusIndexRoute = AppPortfolioFokusIndexRouteImport.update({
   id: '/portfolio/fokus/',
   path: '/portfolio/fokus/',
@@ -1865,7 +1865,6 @@ export interface FileRoutesByFullPath {
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/feedback/$id': typeof AppFeedbackIdRoute
-  '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -1877,13 +1876,13 @@ export interface FileRoutesByFullPath {
   '/start/massnahmen': typeof AppStartMassnahmenRoute
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
+  '/warum/$id': typeof AppWarumIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
   '/beziehungen/': typeof AppBeziehungenIndexRoute
   '/einstellungen/': typeof AppEinstellungenIndexRoute
   '/feedback/': typeof AppFeedbackIndexRoute
-  '/hinweise/': typeof AppHinweiseIndexRoute
   '/kunden/': typeof AppKundenIndexRoute
   '/portfolio/': typeof AppPortfolioIndexRoute
   '/profil/': typeof AppProfilIndexRoute
@@ -1907,6 +1906,7 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
+  '/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -2131,7 +2131,6 @@ export interface FileRoutesByTo {
   '/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/feedback/$id': typeof AppFeedbackIdRoute
-  '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -2143,13 +2142,13 @@ export interface FileRoutesByTo {
   '/start/massnahmen': typeof AppStartMassnahmenRoute
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
+  '/warum/$id': typeof AppWarumIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
   '/beziehungen': typeof AppBeziehungenIndexRoute
   '/einstellungen': typeof AppEinstellungenIndexRoute
   '/feedback': typeof AppFeedbackIndexRoute
-  '/hinweise': typeof AppHinweiseIndexRoute
   '/kunden': typeof AppKundenIndexRoute
   '/portfolio': typeof AppPortfolioIndexRoute
   '/profil': typeof AppProfilIndexRoute
@@ -2173,6 +2172,7 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
+  '/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -2401,7 +2401,6 @@ export interface FileRoutesById {
   '/_app/einstellungen/rollen': typeof AppEinstellungenRollenRoute
   '/_app/einstellungen/zyklus': typeof AppEinstellungenZyklusRoute
   '/_app/feedback/$id': typeof AppFeedbackIdRoute
-  '/_app/hinweise/$id': typeof AppHinweiseIdRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
@@ -2413,13 +2412,13 @@ export interface FileRoutesById {
   '/_app/start/massnahmen': typeof AppStartMassnahmenRoute
   '/_app/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/_app/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
+  '/_app/warum/$id': typeof AppWarumIdRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
   '/_app/beziehungen/': typeof AppBeziehungenIndexRoute
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
   '/_app/feedback/': typeof AppFeedbackIndexRoute
-  '/_app/hinweise/': typeof AppHinweiseIndexRoute
   '/_app/kunden/': typeof AppKundenIndexRoute
   '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
@@ -2443,6 +2442,7 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
   '/_app/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
+  '/_app/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
   '/_app/warengruppen/$id/segmentierung': typeof AppWarengruppenIdSegmentierungRoute
@@ -2672,7 +2672,6 @@ export interface FileRouteTypes {
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/feedback/$id'
-    | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
     | '/portfolio/matrix'
@@ -2684,13 +2683,13 @@ export interface FileRouteTypes {
     | '/start/massnahmen'
     | '/uebersicht/ergebnisse'
     | '/uebersicht/wertpotenziale'
+    | '/warum/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen/'
     | '/beziehungen/'
     | '/einstellungen/'
     | '/feedback/'
-    | '/hinweise/'
     | '/kunden/'
     | '/portfolio/'
     | '/profil/'
@@ -2714,6 +2713,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
     | '/lieferanten/$id/aktivitaeten'
+    | '/mappe/$art/$id'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
     | '/warengruppen/$id/segmentierung'
@@ -2938,7 +2938,6 @@ export interface FileRouteTypes {
     | '/einstellungen/rollen'
     | '/einstellungen/zyklus'
     | '/feedback/$id'
-    | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
     | '/portfolio/matrix'
@@ -2950,13 +2949,13 @@ export interface FileRouteTypes {
     | '/start/massnahmen'
     | '/uebersicht/ergebnisse'
     | '/uebersicht/wertpotenziale'
+    | '/warum/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen'
     | '/beziehungen'
     | '/einstellungen'
     | '/feedback'
-    | '/hinweise'
     | '/kunden'
     | '/portfolio'
     | '/profil'
@@ -2980,6 +2979,7 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
     | '/lieferanten/$id/aktivitaeten'
+    | '/mappe/$art/$id'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
     | '/warengruppen/$id/segmentierung'
@@ -3207,7 +3207,6 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/rollen'
     | '/_app/einstellungen/zyklus'
     | '/_app/feedback/$id'
-    | '/_app/hinweise/$id'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
     | '/_app/portfolio/matrix'
@@ -3219,13 +3218,13 @@ export interface FileRouteTypes {
     | '/_app/start/massnahmen'
     | '/_app/uebersicht/ergebnisse'
     | '/_app/uebersicht/wertpotenziale'
+    | '/_app/warum/$id'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
     | '/_app/beziehungen/'
     | '/_app/einstellungen/'
     | '/_app/feedback/'
-    | '/_app/hinweise/'
     | '/_app/kunden/'
     | '/_app/portfolio/'
     | '/_app/profil/'
@@ -3249,6 +3248,7 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/vergabe'
     | '/_app/einstellungen/zielkategorien/neu'
     | '/_app/lieferanten/$id/aktivitaeten'
+    | '/_app/mappe/$art/$id'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
     | '/_app/warengruppen/$id/segmentierung'
@@ -3667,20 +3667,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedbackIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/hinweise/': {
-      id: '/_app/hinweise/'
-      path: '/hinweise'
-      fullPath: '/hinweise/'
-      preLoaderRoute: typeof AppHinweiseIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/hinweise/$id': {
-      id: '/_app/hinweise/$id'
-      path: '/hinweise/$id'
-      fullPath: '/hinweise/$id'
-      preLoaderRoute: typeof AppHinweiseIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/kunden/': {
       id: '/_app/kunden/'
       path: '/kunden'
@@ -3798,6 +3784,13 @@ declare module '@tanstack/react-router' {
       path: '/warengruppen'
       fullPath: '/warengruppen/'
       preLoaderRoute: typeof AppWarengruppenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/warum/$id': {
+      id: '/_app/warum/$id'
+      path: '/warum/$id'
+      fullPath: '/warum/$id'
+      preLoaderRoute: typeof AppWarumIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/wert/': {
@@ -4023,6 +4016,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lieferanten/$id/aktivitaeten'
       preLoaderRoute: typeof AppLieferantenIdAktivitaetenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
+    }
+    '/_app/mappe/$art/$id': {
+      id: '/_app/mappe/$art/$id'
+      path: '/mappe/$art/$id'
+      fullPath: '/mappe/$art/$id'
+      preLoaderRoute: typeof AppMappeArtIdRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/portfolio/fokus/': {
       id: '/_app/portfolio/fokus/'
@@ -5796,7 +5796,6 @@ interface AppRouteChildren {
   AppEinstellungenRollenRoute: typeof AppEinstellungenRollenRoute
   AppEinstellungenZyklusRoute: typeof AppEinstellungenZyklusRoute
   AppFeedbackIdRoute: typeof AppFeedbackIdRoute
-  AppHinweiseIdRoute: typeof AppHinweiseIdRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
@@ -5808,11 +5807,11 @@ interface AppRouteChildren {
   AppStartMassnahmenRoute: typeof AppStartMassnahmenRoute
   AppUebersichtErgebnisseRoute: typeof AppUebersichtErgebnisseRoute
   AppUebersichtWertpotenzialeRoute: typeof AppUebersichtWertpotenzialeRoute
+  AppWarumIdRoute: typeof AppWarumIdRoute
   AppBewertungenIndexRoute: typeof AppBewertungenIndexRoute
   AppBeziehungenIndexRoute: typeof AppBeziehungenIndexRoute
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
-  AppHinweiseIndexRoute: typeof AppHinweiseIndexRoute
   AppKundenIndexRoute: typeof AppKundenIndexRoute
   AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
@@ -5834,6 +5833,7 @@ interface AppRouteChildren {
   AppEinstellungenWarengruppenNeuRoute: typeof AppEinstellungenWarengruppenNeuRoute
   AppEinstellungenWarengruppenVergabeRoute: typeof AppEinstellungenWarengruppenVergabeRoute
   AppEinstellungenZielkategorienNeuRoute: typeof AppEinstellungenZielkategorienNeuRoute
+  AppMappeArtIdRoute: typeof AppMappeArtIdRoute
   AppPortfolioFokusIdRoute: typeof AppPortfolioFokusIdRoute
   AppPortfolioRundenNeuRoute: typeof AppPortfolioRundenNeuRoute
   AppWarengruppenIdSegmentierungRoute: typeof AppWarengruppenIdSegmentierungRoute
@@ -5906,7 +5906,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenRollenRoute: AppEinstellungenRollenRoute,
   AppEinstellungenZyklusRoute: AppEinstellungenZyklusRoute,
   AppFeedbackIdRoute: AppFeedbackIdRoute,
-  AppHinweiseIdRoute: AppHinweiseIdRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
@@ -5918,11 +5917,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppStartMassnahmenRoute: AppStartMassnahmenRoute,
   AppUebersichtErgebnisseRoute: AppUebersichtErgebnisseRoute,
   AppUebersichtWertpotenzialeRoute: AppUebersichtWertpotenzialeRoute,
+  AppWarumIdRoute: AppWarumIdRoute,
   AppBewertungenIndexRoute: AppBewertungenIndexRoute,
   AppBeziehungenIndexRoute: AppBeziehungenIndexRoute,
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppFeedbackIndexRoute: AppFeedbackIndexRoute,
-  AppHinweiseIndexRoute: AppHinweiseIndexRoute,
   AppKundenIndexRoute: AppKundenIndexRoute,
   AppPortfolioIndexRoute: AppPortfolioIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
@@ -5955,6 +5954,7 @@ const AppRouteChildren: AppRouteChildren = {
     AppEinstellungenWarengruppenVergabeRoute,
   AppEinstellungenZielkategorienNeuRoute:
     AppEinstellungenZielkategorienNeuRoute,
+  AppMappeArtIdRoute: AppMappeArtIdRoute,
   AppPortfolioFokusIdRoute: AppPortfolioFokusIdRoute,
   AppPortfolioRundenNeuRoute: AppPortfolioRundenNeuRoute,
   AppWarengruppenIdSegmentierungRoute: AppWarengruppenIdSegmentierungRoute,

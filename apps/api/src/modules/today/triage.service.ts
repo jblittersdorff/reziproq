@@ -290,8 +290,8 @@ export class TriageService {
             materialGroup: hint.materialGroup,
             openSince: hint.createdAt,
             suggestedAction: hint.suggestedAction,
-            // Warum zum Hinweis kommt mit K1-e.4; bis dahin die Seite des Hinweises
-            href: `/hinweise/${hint.id}`,
+            // Warum zum Hinweis (K1-e.4): Beleg, Begründung, Regel und die Entscheidung
+            href: `/warum/${hint.id}`,
           }));
         const assign: AllAssign[] = inbox.map((item) => {
           const review = view.reviewBySource.get(`inbound:${item.id}`);
@@ -332,6 +332,43 @@ export class TriageService {
             .sort((a, b) => a.name.localeCompare(b.name)),
           materialGroups: [...groups].sort((a, b) => a.localeCompare(b)),
         });
+      },
+      { readOnly: true },
+    );
+  }
+
+  /**
+   * Ein Fokus-Thema der Person für Warum und Mappe (K1-e.4): nach der Triage, mit Zustand, Zeitpunkt
+   * und Platz unter den offenen Fokus-Themen. null, wenn es nicht ihres ist.
+   */
+  async topicFor(auth: AuthContext, id: string) {
+    const session = this.session(auth);
+    if (!session) return null;
+    const { candidates } = await this.collect(auth);
+    return this.tenant.run(
+      session,
+      async (tx) => {
+        const own = sql`org_id = ${session.organizationId} and user_id = ${session.userId}`;
+        const [row] = (
+          await tx.execute<TopicRow>(sql`select * from focus_item where ${own} and id = ${id}`)
+        ).rows;
+        if (!row) return null;
+        const locale = await localeOf(tx, auth.userId);
+        const groups = row.relationship_id
+          ? await primaryGroups(tx, [row.relationship_id])
+          : new Map<string, string>();
+        const order = await tx.execute<{ id: string }>(sql`
+          select id from focus_item where ${own} and level = 'focus' and state = 'open'
+          order by score desc, due_at asc nulls last, created_at, id`);
+        const position = order.rows.findIndex((entry) => entry.id === row.id);
+        return {
+          topic: topicOf(row, candidates, locale, groups),
+          state: row.state as 'open' | 'decided' | 'snoozed' | 'dismissed',
+          createdAt: new Date(row.created_at),
+          rank: position >= 0 ? position + 1 : null,
+          sourceType: row.source_type,
+          sourceId: row.source_id,
+        };
       },
       { readOnly: true },
     );

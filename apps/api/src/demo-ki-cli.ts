@@ -132,7 +132,7 @@ async function main() {
       return { written, open: Number(open?.count ?? 0) };
     });
     console.log(
-      `Hinweise: ${result.open} offen, ${result.written} neue Begründungen. Zu sehen unter Mein Tag und /hinweise.`,
+      `Hinweise: ${result.open} offen, ${result.written} neue Begründungen. Zu sehen unter Heute, Ansicht Alles.`,
     );
 
     // 5. Ergebnisse nach dem Werksbesuch (KI-17): Beispielnotizen auswerten, wenn noch keine da sind

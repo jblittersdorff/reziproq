@@ -56,7 +56,7 @@ export function HintsAttention({
                 <Monogram name={supplier} tone={hint.isFocus ? 'shared' : 'neutral'} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   {routerLink({
-                    href: `/hinweise?hinweis=${hint.id}`,
+                    href: `/warum/${hint.id}`,
                     className:
                       'font-semibold text-sm text-text no-underline hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
                     children: title,
@@ -86,7 +86,7 @@ export function HintsAttention({
       )}
       <div className="flex flex-col gap-1 border-line-soft border-t px-5.5 py-3">
         {routerLink({
-          href: '/hinweise',
+          href: '/heute?ansicht=alles',
           className: cn(buttonVariants({ variant: 'link' }), 'self-start px-0 has-[>svg]:px-0'),
           children: (
             <>

@@ -113,17 +113,26 @@ async function mock(page: Page) {
     const id = new URL(route.request().url()).pathname.split('/').pop();
     return route.fulfill({ json: hints.find((hint) => hint.id === id) });
   });
+  // HE-01 (K1-e.4): Warum zum Hinweis ersetzt Liste und Seite des Hinweises
+  await page.route('**/api/warum/*', (route) => {
+    const id = new URL(route.request().url()).pathname.split('/').pop();
+    return route.fulfill({ json: { kind: 'hint', hintId: id } });
+  });
 }
 
 for (const width of [390, 1440]) {
   for (const colorScheme of ['light', 'dark'] as const) {
-    test(`Hinweise ohne seitliches Scrollen (${width}, ${colorScheme})`, async ({ page }) => {
+    test(`Warum zum Hinweis ohne seitliches Scrollen (${width}, ${colorScheme})`, async ({
+      page,
+    }) => {
       await page.emulateMedia({ colorScheme });
       await page.setViewportSize({ width, height: 900 });
       await mock(page);
-      await page.goto('/hinweise');
-      await expect(page.getByRole('heading', { level: 1, name: 'Hinweise prüfen' })).toBeVisible();
-      await expect(page.getByRole('list', { name: 'Hinweise' })).toBeVisible();
+      await page.goto(`/warum/${hints[0]?.id}`);
+      await expect(
+        page.getByRole('heading', { level: 1, name: 'Warum dieser Hinweis?' }),
+      ).toBeVisible();
+      await expect(page.locator('[data-slot="next-step"]')).toBeVisible();
       await page.waitForLoadState('networkidle');
       const overflow = () =>
         page.evaluate(
@@ -132,23 +141,13 @@ for (const width of [390, 1440]) {
       expect(await overflow()).toBe(0);
       if (process.env.FS01_SHOTS)
         await page.screenshot({
-          path: `${process.env.FS01_SHOTS}/hinweise-${width}-${colorScheme}.png`,
+          path: `${process.env.FS01_SHOTS}/warum-hinweis-${width}-${colorScheme}.png`,
           fullPage: true,
         });
 
-      // KI-16: Ein Klick öffnet am Schreibtisch die Leiste rechts, auf dem Telefon die eigene Seite.
-      await page.locator('[data-slot="hint-row"]').first().click();
-      await expect(page.getByRole('region', { name: /^Hinweis: / })).toBeVisible();
-      expect(await overflow()).toBe(0);
-      if (process.env.FS01_SHOTS)
-        await page.screenshot({
-          path: `${process.env.FS01_SHOTS}/hinweis-leiste-${width}-${colorScheme}.png`,
-          fullPage: true,
-        });
-
-      await page.goto(`/hinweise/${hints[2]?.id}`);
+      await page.goto(`/warum/${hints[2]?.id}`);
       await expect(
-        page.getByRole('heading', { level: 1, name: 'Hinweis entscheiden' }),
+        page.getByRole('heading', { level: 1, name: 'Warum dieser Hinweis?' }),
       ).toBeVisible();
       await expect(page.getByRole('button', { name: 'Nicht relevant' })).toBeDisabled();
       expect(await overflow()).toBe(0);

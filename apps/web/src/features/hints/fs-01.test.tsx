@@ -21,8 +21,8 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
   zitadelSettings: { issuer: 'https://zitadel.test', clientId: 'web-client' },
 }));
 
-// FS-01 für die Oberfläche: Liste mit „warum“ und nächstem Schritt (seit KI-16 nach score), Annehmen,
-// Verwerfen nur mit Begründung, Schwellwert nur für Admins.
+// FS-01 für die Oberfläche: seit K1-e.4 im Warum zum Hinweis mit „warum“ und nächstem Schritt,
+// Annehmen, Verwerfen nur mit Begründung; Schwellwert nur für Admins.
 
 const relationshipId = '550e8400-e29b-41d4-a716-446655440010';
 const planHint = {
@@ -79,6 +79,10 @@ beforeEach(() => {
   accepted = 0;
   saved = null;
   api.handle = (request) => {
+    // HE-01 (K1-e.4): Warum zum Hinweis liest erst die Art, dann den Hinweis
+    if (request.url.startsWith('/api/warum/')) {
+      return Response.json({ kind: 'hint', hintId: request.url.split('/').pop() });
+    }
     if (request.url === '/api/hinweise') return Response.json({ hints, checkedAt: null });
     if (request.url === '/api/hinweise/einstellungen') {
       if (request.method === 'PUT') {
@@ -118,29 +122,25 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('FS-01 Hinweise', () => {
-  it('zeigt die Hinweise mit Satz, warum, Lieferant und nächstem Schritt (seit KI-16 nach score)', async () => {
-    renderAt('/hinweise');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Hinweise prüfen' })).toBeTruthy();
-    const list = await screen.findByRole('list', { name: 'Hinweise' });
-    const plan = within(list)
-      .getByText(/Das Joint Business Planning ist am/)
-      .closest('li') as HTMLElement;
-    expect(within(plan).getByText('Lieferant 1 · Lieferantenplan fehlt')).toBeTruthy();
+  it('Warum zum Hinweis zeigt Satz, warum, Regel mit Datum und den nächsten Schritt', async () => {
+    renderAt(`/warum/${planHint.id}`);
     expect(
-      within(plan)
-        .getByRole('link', { name: /^Plan anfordern/ })
-        .getAttribute('href'),
-    ).toBe(`/lieferanten/${relationshipId}/lieferantenplan`);
-    expect(
-      within(list).getByText('Anna Berg betreut 9 Fokuslieferanten, eingestellt sind höchstens 8.'),
+      await screen.findByRole('heading', { level: 1, name: 'Warum dieser Hinweis?' }),
     ).toBeTruthy();
     expect(
-      within(list).getByText('Ganze Organisation · Zu viele Fokuslieferanten je SRO'),
+      await screen.findByText(/^Lieferantenplan fehlt · offen seit .* · Lieferant 1$/),
     ).toBeTruthy();
+    expect(await screen.findByText(/Das Joint Business Planning ist am/)).toBeTruthy();
+    // Nächster Schritt als Tinte-Karte mit dem Weg zum Ort der Behebung
+    const next = document.querySelector('[data-slot="next-step"]') as HTMLElement;
+    expect(within(next).getByText('Plan anfordern')).toBeTruthy();
+    expect(within(next).getByRole('link').getAttribute('href')).toBe(
+      `/lieferanten/${relationshipId}/lieferantenplan`,
+    );
   });
 
   it('Annehmen legt die interne Maßnahme an und verlinkt sie', async () => {
-    renderAt(`/hinweise/${planHint.id}`);
+    renderAt(`/warum/${planHint.id}`);
     fireEvent.click(await screen.findByRole('button', { name: 'Annehmen' }));
     await waitFor(() => expect(accepted).toBe(1));
     expect(await screen.findByText('Angenommen. Die interne Maßnahme ist angelegt.')).toBeTruthy();
@@ -148,7 +148,7 @@ describe('FS-01 Hinweise', () => {
   });
 
   it('Verwerfen geht nur mit Begründung; der Organisations-Hinweis lässt sich nur verwerfen', async () => {
-    renderAt(`/hinweise/${sroHint.id}`);
+    renderAt(`/warum/${sroHint.id}`);
     expect(
       await screen.findByText(
         'Dieser Hinweis betrifft keine einzelne Beziehung; er lässt sich nur verwerfen.',

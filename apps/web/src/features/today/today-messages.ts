@@ -88,7 +88,8 @@ export const todayMessages = defineMessages({
       kicker: (rank: number, total: number, counterpart: string | null) =>
         join('Als Nächstes', `Fokus ${rank} von ${total}`, counterpart),
       open: 'Öffnen',
-      openLabel: (title: string) => `${title} öffnen`,
+      openMap: 'Mappe öffnen',
+      openLabel: (title: string) => `Mappe öffnen: ${title}`,
       snooze: 'Morgen erinnern',
       snoozeFailed: 'Das hat nicht geklappt. Bitte noch einmal versuchen.',
     },
@@ -202,6 +203,7 @@ export const todayMessages = defineMessages({
         label: 'Warum nicht im Fokus?',
         say: (title: string) => `„${title}“ steht auf Platz 4.`,
         text: 'Die drei Themen davor haben eine höhere Punktzahl aus Wirkung, Frist und Segment. Es rückt nach, sobald eines davon erledigt ist.',
+        derivation: 'Herleitung',
       },
       more: {
         label: 'Was sonst noch hierher gehört',
@@ -228,7 +230,8 @@ export const todayMessages = defineMessages({
       kicker: (rank: number, total: number, counterpart: string | null) =>
         join('Up next', `Focus ${rank} of ${total}`, counterpart),
       open: 'Open',
-      openLabel: (title: string) => `Open ${title}`,
+      openMap: 'Open folder',
+      openLabel: (title: string) => `Open folder: ${title}`,
       snooze: 'Remind me tomorrow',
       snoozeFailed: 'That did not work. Please try again.',
     },
@@ -339,6 +342,7 @@ export const todayMessages = defineMessages({
         label: 'Why not in focus?',
         say: (title: string) => `“${title}” is in place 4.`,
         text: 'The three topics before it have a higher score from impact, deadline and segment. It moves up as soon as one of them is done.',
+        derivation: 'Derivation',
       },
       more: {
         label: 'What else belongs here',

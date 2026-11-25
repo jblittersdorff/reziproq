@@ -45,7 +45,7 @@ export function SupplierNextCard({
       kicker={`${text.kicker} · ${t.hints.severityOf(t.hints.severities[risk.severity])}`}
       title={hintWhy({ ruleKey: risk.ruleKey, detail: risk.detail })}
       text={t.hints.nextSteps[risk.ruleKey]}
-      action={{ label: text.hint, href: `/hinweise?hinweis=${risk.hintId}` }}
+      action={{ label: text.hint, href: `/warum/${risk.hintId}` }}
       renderLink={routerLink}
     />
   );

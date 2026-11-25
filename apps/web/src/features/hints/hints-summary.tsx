@@ -97,7 +97,7 @@ export function HintsSummary({ hints }: { hints: Hint[] }) {
           status: text.chips[hint.severity],
           tone: tones[hint.severity],
           text: label(hint),
-          href: `/hinweise?hinweis=${hint.id}`,
+          href: `/warum/${hint.id}`,
         }))}
         aside={
           <ChartCard

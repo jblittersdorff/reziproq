@@ -14,7 +14,6 @@ import { hintSettingsQueryOptions, saveHintSettings } from '@/lib/api';
 import { useT } from '@/lib/i18n';
 
 export { useHintWhy } from './hint-panel';
-export { HintPage, HintsPage } from './hints-list';
 
 function useAccessToken() {
   const auth = useAuth();

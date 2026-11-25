@@ -2,9 +2,9 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (9): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (187): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
-- **bleibt** (76): Die Adresse gilt auch nach NAV-10 2.0.
+- **aktiv** (11): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (185): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **bleibt** (78): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
 |---|---|---|---|
@@ -86,8 +86,8 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/feedback/$id` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/fragen` | `/heute?frag=1` (öffnet Frag Reziproq) | K1-d | aktiv |
 | `/heute` | – (Fokus und Alles) | K1-e | bleibt |
-| `/hinweise` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e.4 | geplant |
-| `/hinweise/$id` | `/warum/$id` (Warum zum Hinweis) | K1-e.4 | geplant |
+| `/hinweise` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e.4 | aktiv |
+| `/hinweise/$id` | `/warum/$id` (Warum zum Hinweis) | K1-e.4 | aktiv |
 | `/kunden` | – | LIF-02 | bleibt |
 | `/kunden/$id` | – | LIF-02 | bleibt |
 | `/kunden/$id/beziehung` | offen (gespiegelte Akte) | K5-b | geplant |
@@ -241,6 +241,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/$id/zyklus/termin` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
 | `/lieferanten/importieren` | offen | K2-b | geplant |
 | `/lieferanten/neu` | offen | K2-b | geplant |
+| `/mappe/$art/$id` | – (Fokus-Mappe) | K1-e.4 | bleibt |
 | `/mein-agent` | – (zeigt bis K1-f die Seite Agenten) | K1-d | bleibt |
 | `/mein-tag` | `/heute` | K1-d | aktiv |
 | `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | aktiv |
@@ -276,6 +277,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/warengruppen/$id/segmentierung` | offen | K6-f | geplant |
 | `/warengruppen/$id/strategie` | `/warengruppen/$id/strategie` | K6-a | geplant |
 | `/warengruppen/$id/strategie/$step` | `/warengruppen/$id/strategie` | K6-a | geplant |
+| `/warum/$id` | – (Warum) | K1-e.4 | bleibt |
 | `/wert` | – (zeigt bis K4-b die Übersicht) | K1-d | bleibt |
 | `/wirkung` | `/wert` | K1-d | aktiv |
 | `/wirkung/freigaben` | offen (Mappe Wirkung freigeben) | K4-c | geplant |

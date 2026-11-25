@@ -26,6 +26,13 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
       ['/lieferanten?ansicht=matrix', '/beziehungen?ansicht=matrix'],
       ['/agenten', '/mein-agent'],
       ['/einstellungen/ki/agenten', '/mein-agent'],
+      // HE-01 (K1-e): Neu eingegangen und Hinweise gehen in Heute auf
+      ['/mein-tag/eingang', '/heute?ansicht=alles'],
+      ['/hinweise', '/heute?ansicht=alles'],
+      [
+        '/hinweise/550e8400-e29b-41d4-a716-446655440030',
+        '/warum/550e8400-e29b-41d4-a716-446655440030',
+      ],
     ];
     for (const [from, to] of moves) {
       const response = await open(from);
@@ -40,7 +47,8 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
       '/heute',
       '/lieferanten/550e8400-e29b-41d4-a716-446655440010/plan',
       '/einstellungen/ki/agenten/neu',
-      '/hinweise',
+      '/kurz-pruefen',
+      '/kunden/550e8400-e29b-41d4-a716-446655440010/plan',
     ]) {
       expect((await open(path)).status, path).not.toBe(301);
     }

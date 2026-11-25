@@ -71,7 +71,9 @@ const hints = [
 ];
 
 for (const width of [390, 1440]) {
-  test(`KI-16 Hinweise und Einstellungen ohne seitliches Scrollen (${width})`, async ({ page }) => {
+  test(`KI-16 Warum zum Hinweis und Einstellungen ohne seitliches Scrollen (${width})`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 950 });
     await signIn(page, { locale: 'de' });
     await page.route('**/api/me/permissions', (route) =>
@@ -125,14 +127,27 @@ for (const width of [390, 1440]) {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
 
-    await page.goto('/hinweise');
-    await expect(page.getByText('Das Wichtigste')).toBeVisible();
-    await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
+    // HE-01 (K1-e.4): ein Hinweis steht in seinem Warum, die Liste in Heute, Ansicht Alles
+    await page.route('**/api/warum/*', (route) => {
+      const id = new URL(route.request().url()).pathname.split('/').pop();
+      return route.fulfill({ json: { kind: 'hint', hintId: id } });
+    });
+    await page.route('**/api/hinweise/*', (route) => {
+      const id = new URL(route.request().url()).pathname.split('/').pop();
+      return id === 'regeln'
+        ? route.fallback()
+        : route.fulfill({ json: hints.find((hint) => hint.id === id) });
+    });
+    await page.goto(`/warum/${hints[0]?.id}`);
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Warum dieser Hinweis?' }),
+    ).toBeVisible();
+    await expect(page.locator('[data-slot="next-step"]')).toBeVisible();
     await page.waitForLoadState('networkidle');
     expect(await overflow()).toBe(0);
     if (process.env.KI16_SHOTS)
       await page.screenshot({
-        path: `${process.env.KI16_SHOTS}/hinweise-${width}.png`,
+        path: `${process.env.KI16_SHOTS}/warum-hinweis-${width}.png`,
         fullPage: true,
       });
 

@@ -107,6 +107,7 @@ import {
   fiscalYearSettingSchema,
   focusDetailSchema,
   focusListSchema,
+  focusMapSchema,
   forbiddenCodes,
   type GoalRequest,
   type HintRuleSettings,
@@ -335,6 +336,7 @@ import {
   validationListSchema,
   valueOpportunitiesSchema,
   valueOverviewSchema,
+  whyViewSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -2117,6 +2119,22 @@ export const reviewStackQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['heute', 'kurz-pruefen'],
     queryFn: () => getJson('/kurz-pruefen', reviewStackSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** HE-01 Warum (K1-e.4): Herleitung zu einem Fokus-Thema, Hinweis oder Lauf */
+export const whyQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['heute', 'warum', id],
+    queryFn: () => getJson(`/warum/${id}`, whyViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** HE-01 Fokus-Mappe (K1-e.4): ein Fokus-Thema als Entscheidung */
+export const focusMapQueryOptions = (accessToken: string, id: string) =>
+  queryOptions({
+    queryKey: ['heute', 'mappe', id],
+    queryFn: () => getJson(`/mappe/${id}`, focusMapSchema, accessToken),
     retry: retryUnlessDenied,
   });
 

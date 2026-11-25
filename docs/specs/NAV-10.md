@@ -149,7 +149,7 @@ Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Ein
 - **Blatt** (`components/ui/sheet.tsx`): 620 px von rechts, Hintergrund Tinte 25 % (Token `scrim`), Schatten `shadow-sheet`, mobil volle Seite; zu sehen auf `/bausteine`.
 - **Gemeinsam:** Beide nutzen das native `dialog` des Browsers (`components/ui/modal-dialog.ts`). Der Fokus bleibt darin, ein markiertes Feld bekommt ihn beim Öffnen, und beim Schließen geht er an das Element zurück, das ihn vorher hatte.
 - **Test gegen Pop-ups** (`no-popups.node.test.ts`): eine feste Liste erlaubter Überlagerungen nach E-K0-01 (Blatt, Frag Reziproq, später „So teilen“ und „Agenda freigeben“); er erkennt jetzt auch native Dialoge.
-- **Bewusst offen:** Aufträge in Frag Reziproq („Bereite das JBP vor“) enden als Mappe, Entwurf oder Erinnerung, sobald es Mappe und Kurz prüfen gibt (K1-e).
+- **Bewusst offen:** Aufträge in Frag Reziproq („Bereite das JBP vor“) enden als Mappe, Entwurf oder Erinnerung. Mappe und Kurz prüfen gibt es seit K1-e; die Erkennung des Auftrags in Frag Reziproq steht noch aus.
 
 ## Fertig, wenn
 

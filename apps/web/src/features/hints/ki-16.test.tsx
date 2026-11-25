@@ -118,6 +118,10 @@ beforeEach(() => {
   posted = [];
   rulesSaved = null;
   api.handle = (request) => {
+    // HE-01 (K1-e.4): Warum zum Hinweis liest erst die Art, dann den Hinweis
+    if (request.url.startsWith('/api/warum/')) {
+      return Response.json({ kind: 'hint', hintId: request.url.split('/').pop() });
+    }
     if (request.url === '/api/hinweise') return Response.json({ hints, checkedAt: null });
     if (request.url === '/api/hinweise/regeln') {
       if (request.method === 'PUT') {
@@ -162,63 +166,22 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('KI-16 Hinweise mit Frühwarnung', () => {
-  it('die Liste folgt dem score; Filter nach Schwere und eigenen Beziehungen', async () => {
-    renderAt('/hinweise');
-    const list = await screen.findByRole('list', { name: 'Hinweise' });
-    const rows = within(list).getAllByRole('listitem');
-    expect(rows[0]?.textContent).toContain(
-      '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter werdend',
-    );
-    expect(rows[1]?.textContent).toContain(
-      '72 % der Warengruppe Elektronik, kein zweiter Lieferant',
-    );
-    expect(rows[2]?.textContent).toContain('fällt von 3,8 auf 3,3');
-    // Schwere als Text
-    expect(within(rows[0] as HTMLElement).getByText('hoch')).toBeTruthy();
+  // Die Liste der Hinweise ist seit K1-e.4 in Heute aufgegangen: Reihenfolge und Filter Schwere
+  // prüft features/today/he-01.test.tsx (Inventar T1-I05), „Als Nächstes“ die Seite Heute.
+
+  it('T1-I06, T1-I07: Warum zum Hinweis zeigt Beleg, Begründung mit Quellen, nächsten Schritt, In Arbeit und die Frage nach Hilfe', async () => {
+    renderAt(`/warum/${drop.id}`);
     expect(
-      screen.getByText('5 offen · sortiert nach Wirkung: Schwere, Spend und Segment'),
+      await screen.findByRole('heading', { level: 1, name: 'Warum dieser Hinweis?' }),
     ).toBeTruthy();
-
-    fireEvent.change(screen.getByLabelText('Schwere'), { target: { value: 'high' } });
-    expect(within(list).getAllByRole('listitem')).toHaveLength(1);
-    fireEvent.change(screen.getByLabelText('Schwere'), { target: { value: '' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Meine Beziehungen' }));
-    expect(within(list).queryByText(/Warengruppe Elektronik/)).toBeNull();
-    fireEvent.change(screen.getByLabelText('Warengruppe'), { target: { value: 'Elektronik' } });
-    expect(await screen.findByText('Kein Hinweis passt zu diesen Filtern.')).toBeTruthy();
-  });
-
-  it('oben Ablauf, genau eine Karte „Als Nächstes“ mit dem wichtigsten Hinweis und „Das Wichtigste“', async () => {
-    renderAt('/hinweise');
-    await screen.findByRole('list', { name: 'Hinweise' });
-    expect(screen.getByRole('navigation', { name: 'Ablauf Maßnahme' })).toBeTruthy();
-    const cards = document.querySelectorAll('[data-slot="next-card"]');
-    expect(cards).toHaveLength(1);
-    const card = cards[0] as HTMLElement;
-    expect(within(card).getByText('Als Nächstes · hohe Wirkung')).toBeTruthy();
-    expect(within(card).getByRole('link', { name: 'Maßnahme anlegen' }).getAttribute('href')).toBe(
-      drop.href,
-    );
-    const summary = document.querySelector('[data-slot="so-what"]') as HTMLElement;
-    expect(within(summary).getByText(/^5 Hinweise, \d mit hoher Wirkung/)).toBeTruthy();
-    expect(within(summary).getAllByRole('link').length).toBeLessThanOrEqual(3);
-    expect(within(summary).getByText('Nach Schwere')).toBeTruthy();
-    expect(
-      within(screen.getByRole('main')).getByRole('link', { name: 'Heute' }).getAttribute('href'),
-    ).toBe('/heute');
-  });
-
-  it('ein Klick öffnet die Leiste mit Beleg, Begründung, nächstem Schritt, In Arbeit und Bewertung', async () => {
-    renderAt('/hinweise');
-    const list = await screen.findByRole('list', { name: 'Hinweise' });
-    fireEvent.click(within(list).getAllByRole('button')[0] as HTMLElement);
-    const panel = await screen.findByRole('region', { name: /^Hinweis: „Liefertreue“/ });
-    expect(within(panel).getByText('86 %')).toBeTruthy();
-    expect(within(panel).getByText('Ziel 95 %')).toBeTruthy();
-    const draft = panel.querySelector('[data-slot="ai-draft"]') as HTMLElement;
+    // T1-I05: Regel und Datum im Kopf
+    expect(await screen.findByText(/^Leistung kippt · offen seit /)).toBeTruthy();
+    expect(await screen.findByText('86 %')).toBeTruthy();
+    expect(screen.getByText('Ziel 95 %')).toBeTruthy();
+    const draft = document.querySelector('[data-slot="ai-draft"]') as HTMLElement;
     expect(within(draft).getByText(/im Oktober 86 % statt 95 %/)).toBeTruthy();
     expect(within(draft).getByText('Scorecard Liefertreue')).toBeTruthy();
-    const next = panel.querySelector('[data-slot="next-step"]') as HTMLElement;
+    const next = document.querySelector('[data-slot="next-step"]') as HTMLElement;
     expect(within(next).getByText('Maßnahme anlegen')).toBeTruthy();
     expect(
       within(next)
@@ -226,14 +189,14 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
         .getAttribute('href'),
     ).toBe(drop.href);
 
-    fireEvent.click(within(panel).getByRole('button', { name: 'In Arbeit' }));
+    fireEvent.click(screen.getByRole('button', { name: 'In Arbeit' }));
     await waitFor(() => expect(posted[0]?.url).toBe(`/api/hinweise/${drop.id}/in-arbeit`));
-    expect(await within(panel).findByText('Auf „In Arbeit“ gesetzt.')).toBeTruthy();
+    expect(await screen.findByText('Auf „In Arbeit“ gesetzt.')).toBeTruthy();
 
-    fireEvent.click(within(panel).getByRole('button', { name: 'Nein' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nein' }));
     await waitFor(() => expect(posted[1]?.body).toEqual({ helpful: false }));
     await waitFor(() =>
-      expect(within(panel).getByRole('button', { name: 'Nein' }).getAttribute('aria-pressed')).toBe(
+      expect(screen.getByRole('button', { name: 'Nein' }).getAttribute('aria-pressed')).toBe(
         'true',
       ),
     );

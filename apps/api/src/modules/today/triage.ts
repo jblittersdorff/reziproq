@@ -195,7 +195,8 @@ export function fromHint(hint: Hint, today: string, locale: Locale): TriageCandi
     relationshipId: hint.relationshipId,
     counterpart: hint.supplier,
     dueDate: null,
-    href: hint.href.startsWith('/') ? hint.href : null,
+    // Entschieden wird ein Hinweis in seinem Warum (K1-e.4)
+    href: `/warum/${hint.id}`,
     severity,
     reviewSeconds: null,
     dueItem: {

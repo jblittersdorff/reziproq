@@ -348,7 +348,9 @@ describe('HE-01 Heute, Ansicht Fokus (Vorlage Main)', () => {
       within(card).getByRole('heading', { name: 'Wirkung freigeben · Preis Leiterplatten' }),
     ).toBeTruthy();
     const open = within(card).getByRole('link', { name: /öffnen/ });
-    expect(open.getAttribute('href')).toBe(validation.href);
+    // K1-e.4: „Mappe öffnen“ führt in die Fokus-Mappe des Themas
+    expect(open.textContent).toBe('Mappe öffnen');
+    expect(open.getAttribute('href')).toBe(`/mappe/${validation.art}/${validation.id}`);
     expect(within(card).getByRole('button', { name: 'Morgen erinnern' })).toBeTruthy();
     // „Das Wichtigste“ zeigt die übrigen zwei, zusammen mit der Karte drei
     const important = screen.getByRole('region', { name: 'Das Wichtigste' });

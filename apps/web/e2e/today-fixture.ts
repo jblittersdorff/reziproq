@@ -600,3 +600,31 @@ export async function mockDone(page: Page) {
     route.fulfill({ json: { state: 'undone' } }),
   );
 }
+
+/** Fokus-Mappe und Warum zum ersten Fokus-Thema (Wirkung freigeben · Preis Leiterplatten) */
+export async function mockMapAndWhy(page: Page) {
+  const first = topics[0] as (typeof topics)[number];
+  const withFacts = {
+    ...first,
+    sentence: 'Heute fällig.',
+    facts: [],
+  };
+  await page.route(`**/api/mappe/${first.id}`, (route) =>
+    route.fulfill({
+      json: {
+        topic: withFacts,
+        state: 'open',
+        since: at(-2, '06:00'),
+        rank: 1,
+        hintId: null,
+        recommendation: null,
+        sources: [{ title: 'Frist', href: null }],
+      },
+    }),
+  );
+  await page.route(`**/api/warum/${first.id}`, (route) =>
+    route.fulfill({
+      json: { kind: 'topic', topic: withFacts, rank: 1, sources: [{ title: 'Frist', href: null }] },
+    }),
+  );
+}

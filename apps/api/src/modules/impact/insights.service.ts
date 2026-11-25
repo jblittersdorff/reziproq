@@ -363,7 +363,7 @@ export class InsightsService {
         sentences.push({
           kind: 'stuck',
           fallback: `Bei ${name}: ${hint.title.replace(/[.\s]+$/, '')}.`,
-          href: `/hinweise?hinweis=${hint.id}`,
+          href: `/warum/${hint.id}`,
         });
         if (hint.suggested_action) actions.push(`bei ${name}: ${hint.suggested_action}`);
       }

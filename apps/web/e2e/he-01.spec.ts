@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { signIn } from './route-walk.js';
-import { mockDone, mockReview, mockToday } from './today-fixture.js';
+import { mockDone, mockMapAndWhy, mockReview, mockToday } from './today-fixture.js';
 
 // HE-01 (K1-e.1): Heute mit den Ansichten Fokus und Alles im Browser. T1-HE6: bei 390 px kein
 // waagerechter Bildlauf; Fokus mit genau einer Karte „Als Nächstes“, Alles ohne. Mit UX_SHOTS
@@ -140,6 +140,41 @@ for (const width of [390, 1440]) {
         path: `${process.env.UX_SHOTS}/erledigt-${width}.png`,
         fullPage: true,
       });
+    }
+  });
+}
+
+for (const width of [390, 1440]) {
+  test(`Mappe und Warum bei ${width} px: aus Heute über „Mappe öffnen“, ohne seitliches Scrollen`, async ({
+    page,
+  }) => {
+    await signIn(page, { locale: 'de' });
+    await mockToday(page);
+    await mockMapAndWhy(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/heute');
+    await page
+      .locator('[data-slot="next-card"]')
+      .getByRole('link', { name: /Mappe öffnen/ })
+      .click();
+    await expect(page).toHaveURL(/\/mappe\/wert\//);
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Wirkung freigeben · Preis Leiterplatten' }),
+    ).toBeVisible();
+    await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
+    await page.waitForLoadState('networkidle');
+    expect(await sideScroll(page)).toBe(0);
+    if (process.env.UX_SHOTS) {
+      await page.screenshot({ path: `${process.env.UX_SHOTS}/mappe-${width}.png`, fullPage: true });
+    }
+    await page.getByRole('region', { name: 'Belege' }).getByRole('link').click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Warum steht das hier?' }),
+    ).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(await sideScroll(page)).toBe(0);
+    if (process.env.UX_SHOTS) {
+      await page.screenshot({ path: `${process.env.UX_SHOTS}/warum-${width}.png`, fullPage: true });
     }
   });
 }
