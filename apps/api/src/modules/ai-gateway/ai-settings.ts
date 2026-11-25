@@ -8,8 +8,6 @@ export const aiSettingKeys = {
   budgetMonthCents: 'ai_budget_month_cents',
   budgetRunCents: 'ai_budget_run_cents',
   maxSteps: 'ai_max_steps',
-  customAgentRoles: 'ai_custom_agent_roles',
-  customAgentApproval: 'ai_custom_agent_approval',
   agentBudgetOverrides: 'ai_agent_budget_overrides',
   valueFinderSegments: 'ai_value_finder_segments',
   valueAssumptions: 'ai_value_assumptions',

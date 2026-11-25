@@ -101,8 +101,10 @@ Weitere Punkte:
   - Die Seite Agenten gibt es noch (`/agenten`, `/einstellungen/ki/agenten/…`).
   - Stand K1-f.1 (25.11.2026): Stufen je Person, Obergrenze und An/Aus je Aufgabe sind gebaut. Das Postfach wirkt auf allen drei Stufen. Die anderen Aufgaben wirken zunächst nur auf ihrer heutigen Stufe (`liveLevels`, MA-01). Das Token für bindende Werkzeuge folgt in K1-f.2, das Entfernen der Seite Agenten in K1-f.4.
   - Stand K1-f.2 (25.11.2026): Der Wächter für bindende Werkzeuge mit Bestätigungs-Token ist gebaut (`runTool`, `app_use_confirm_token`). Die Werkzeuge selbst kommen mit ihren Paketen.
+  - Stand K1-f.5 (25.11.2026): Die Seite Agenten ist entfernt; alte Adressen leiten weiter (T1-MA5).
 - **B-06 Eigene Agenten sind gebaut (KI-09).** Gebaut am 23.11. als Schritt 19 des alten Plans: `features/agents/custom-agent-pages.tsx:49`, `apps/api/src/modules/agents/custom-tools.ts`, Migration 0122, Freigabe `ai_custom_agent_approval`.
   - Das Paket stellt KI-09 zurück, MA-01 ersetzt den Baukasten (F-13).
+  - Stand K1-f.5 (25.11.2026): Oberfläche, Routen und API der eigenen Agenten sind entfernt, die Funktion ist aus. Die Tabellen bleiben (E-K0-13).
 - **B-07 Demo-Technik (DM-01, KI-01).**
   - Es fehlen `org.ai_mode`, die Modi `record`/`replay`, `model_call_recording`, `org.is_demo`, `org.demo_now`, `demo_event`, `demo_snapshot` und die Seite `/demo`.
   - Es gibt keine Uhr je Mandant. In der API stehen 201 `new Date()`, 21 `Date.now()` und 45 `now()` in SQL, dazu Standardwerte `defaultNow()` und Zeitpläne in zehn Workern. Das ist der breiteste Umbau des Pakets (Abschnitt f).

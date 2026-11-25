@@ -232,16 +232,6 @@ function Turn({ turn }: { turn: PromptTurn }) {
             </Button>
           )}
 
-          {/* KI-09: Die Frage als Aufgabe eines eigenen Agenten übernehmen */}
-          {turn.answer && turn.status !== 'answering' && (
-            <Link
-              to="/einstellungen/ki/agenten/neu"
-              search={{ aufgabe: turn.question.slice(0, 2000) }}
-              className="min-h-11 w-fit py-3 font-semibold text-petrol text-sm underline"
-            >
-              {t.agents.custom.fromQuestion}
-            </Link>
-          )}
           {turn.status === 'failed' && (
             <p role="alert" className="text-destructive">
               {t.prompt.failed}

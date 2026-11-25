@@ -800,7 +800,8 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
       and (d.relationship_id is not null or d.kind = 'binding_request')
       and (d.kind in ('share_request', 'binding_request') or d.claims is not null)
       -- Die Begründung eines Hinweises gehört zum Hinweis (Warum), nicht in Kurz prüfen (K1-e.2).
-      and d.kind <> 'hint_explanation'
+      -- Ergebnisse eigener Agenten: KI-09 ist aus (E-K0-13, K1-f.5).
+      and d.kind not in ('hint_explanation', 'agent_result')
       and (${admin} or d.kind = 'binding_request' or exists (
         select 1 from relationship_member m
         where m.relationship_id = d.relationship_id and m.org_id = d.org_id

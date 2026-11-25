@@ -59,7 +59,6 @@ const sections = (
     { prefix: '/uebersicht', key: 'overview' },
     { prefix: '/wirkung', key: 'overview' },
     { prefix: '/mein-agent', key: 'myAgent' },
-    { prefix: '/einstellungen/ki/agenten', key: 'myAgent' },
     { prefix: '/kunden', key: 'customers' },
     { prefix: '/profil', key: 'profile' },
     { prefix: '/einstellungen', key: 'settings' },

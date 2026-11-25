@@ -8,7 +8,7 @@ describe('KI-01 Einstellungen KI', () => {
       budgetMonthCents: 15_000,
       budgetRunCents: 200,
       maxSteps: 60,
-      customAgentApproval: true,
+      workers: {},
     });
   });
 

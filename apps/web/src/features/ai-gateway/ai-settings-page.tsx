@@ -1,6 +1,5 @@
 import {
   type AiSettings,
-  aiCustomAgentRoleValues,
   aiFeatureValues,
   aiSettingsSchema,
   aiSourceKindValues,
@@ -65,8 +64,6 @@ type Draft = {
   budgetMonth: string;
   budgetRun: string;
   maxSteps: string;
-  customAgentRoles: AiSettings['customAgentRoles'];
-  customAgentApproval: boolean;
   overrides: Record<string, string>[];
   valueFinderSegments: string[];
   /** Annahmen der Hebel-Vorlagen in Prozent, Schlüssel „vorlage.feld“ */
@@ -99,8 +96,6 @@ const draftOf = (settings: AiSettings, locale: string): Draft => ({
   budgetMonth: euroText(settings.budgetMonthCents, locale),
   budgetRun: euroText(settings.budgetRunCents, locale, true),
   maxSteps: String(settings.maxSteps),
-  customAgentRoles: settings.customAgentRoles,
-  customAgentApproval: settings.customAgentApproval,
   workers: settings.workers,
   overrides: settings.agentBudgetOverrides.map((entry) => ({
     agentKey: entry.agentKey,
@@ -125,8 +120,6 @@ const settingsOf = (draft: Draft) =>
     budgetMonthCents: centsOf(draft.budgetMonth),
     budgetRunCents: centsOf(draft.budgetRun),
     maxSteps: Number(draft.maxSteps),
-    customAgentRoles: draft.customAgentRoles,
-    customAgentApproval: draft.customAgentApproval,
     workers: draft.workers,
     agentBudgetOverrides: draft.overrides
       .filter((row) => row.agentKey)
@@ -370,10 +363,13 @@ export function AiSettingsPage() {
                         label: text.overrideAgent,
                         type: 'select',
                         span: 3,
-                        options: aiFeatureValues.map((value) => ({
-                          value,
-                          label: text.features[value] ?? value,
-                        })),
+                        // KI-09 ist aus (E-K0-13): keine Funktionen eigener Agenten mehr
+                        options: aiFeatureValues
+                          .filter((value) => value !== 'agent_check' && value !== 'custom_agent')
+                          .map((value) => ({
+                            value,
+                            label: text.features[value] ?? value,
+                          })),
                       },
                       { key: 'budget', label: text.overrideBudget, type: 'text', span: 2 },
                     ]}
@@ -449,38 +445,6 @@ export function AiSettingsPage() {
                     );
                   })}
                 </div>
-              </SettingsGroup>
-              <SettingsGroup title={text.customTitle}>
-                <SettingsRow label={text.customRoles} htmlFor="ki-anlegen">
-                  <NativeSelect
-                    id="ki-anlegen"
-                    value={current.customAgentRoles}
-                    disabled={readOnly}
-                    onChange={(e) =>
-                      update({
-                        customAgentRoles: e.target.value as AiSettings['customAgentRoles'],
-                      })
-                    }
-                  >
-                    {aiCustomAgentRoleValues.map((value) => (
-                      <option key={value} value={value}>
-                        {text.customRoleOptions[value]}
-                      </option>
-                    ))}
-                  </NativeSelect>
-                </SettingsRow>
-                <SettingsRow
-                  label={text.customApproval}
-                  description={text.customApprovalHint}
-                  htmlFor="ki-freigabe"
-                >
-                  <Switch
-                    id="ki-freigabe"
-                    checked={current.customAgentApproval}
-                    disabled={readOnly}
-                    onCheckedChange={(value) => update({ customAgentApproval: value })}
-                  />
-                </SettingsRow>
               </SettingsGroup>
               {!readOnly && (
                 <Button type="submit" className="self-start" loading={busy}>

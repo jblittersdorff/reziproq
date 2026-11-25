@@ -66,7 +66,10 @@ export const routeMoves: readonly RouteMove[] = [
   move('/hinweise/$id', '/warum/$id', 'K1-e.4', 'aktiv', 'Warum zum Hinweis'),
 
   // Mein Agent (MA-01); eigene Agenten entfallen (E-K0-13).
-  move('/einstellungen/ki/agenten/*', '/mein-agent', 'K1-f', 'geplant'),
+  // MA-01 T1-MA5 (K1-f.5): keine Seite Agenten mehr; der Lauf steht im Warum (K1-e.4), eigene
+  // Agenten sind aus (E-K0-13)
+  move('/einstellungen/ki/agenten/laeufe/$id', '/warum/$id', 'K1-f.5', 'aktiv', 'Warum zum Lauf'),
+  move('/einstellungen/ki/agenten/*', '/mein-agent', 'K1-f.5', 'aktiv'),
 
   // Bausteine: eine Seite statt drei; eigener kleiner Schritt K1-d.3 (steht nicht im Paket K1-d)
   move('/bausteine', '/bausteine', 'UX-20', 'bleibt'),

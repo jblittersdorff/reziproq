@@ -11,10 +11,6 @@ import { AgentTools } from './agent-tools.js';
 import { AgentsController } from './agents.controller.js';
 import { AgentsService } from './agents.service.js';
 import { AgentsWorker } from './agents.worker.js';
-import { CustomAgentsController } from './custom-agents.controller.js';
-import { CustomAgentsService } from './custom-agents.service.js';
-import { CustomAgentsWorker } from './custom-agents.worker.js';
-import { CustomAgentTools } from './custom-tools.js';
 import { MeetingBriefWorker } from './meeting-brief.worker.js';
 import { MyAgentController } from './my-agent.controller.js';
 import { MyAgentService } from './my-agent.service.js';
@@ -29,7 +25,7 @@ import { MyAgentService } from './my-agent.service.js';
     RatingsModule,
     SuppliersModule,
   ],
-  controllers: [AgentsController, CustomAgentsController, MyAgentController],
+  controllers: [AgentsController, MyAgentController],
   providers: [
     AgentRunner,
     AgentTools,
@@ -37,11 +33,6 @@ import { MyAgentService } from './my-agent.service.js';
     AgentsWorker,
     MeetingBriefWorker,
     MyAgentService,
-    CustomAgentTools,
-    CustomAgentsService,
-    CustomAgentsWorker,
   ],
-  // HE-01 Kurz prüfen (K1-e.2): Ergebnisse eigener Agenten übernehmen, bis K1-f sie abschaltet
-  exports: [CustomAgentsService],
 })
 export class AgentsModule {}

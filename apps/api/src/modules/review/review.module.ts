@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AgentsModule } from '../agents/agents.module.js';
 import { CalendarModule } from '../calendar/calendar.module.js';
 import { FeedbackModule } from '../feedback/feedback.module.js';
 import { MeetingsModule } from '../meetings/meetings.module.js';
@@ -17,7 +16,6 @@ import { ReviewService } from './review.service.js';
     SupplierPlansModule,
     FeedbackModule,
     RatingsModule,
-    AgentsModule,
     CalendarModule,
   ],
   controllers: [ReviewController],

@@ -9,7 +9,6 @@ export * from './audit.js';
 export * from './calendar.js';
 export * from './comments.js';
 export * from './commitments.js';
-export * from './custom-agents.js';
 export * from './customers.js';
 export * from './cycle.js';
 export * from './cycle-status.js';

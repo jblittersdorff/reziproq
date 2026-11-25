@@ -44,17 +44,12 @@ export const aiSourceKindValues = [
   'trade_press',
 ] as const;
 
-/** Wer eigene Agenten anlegen darf (KI-09) */
-export const aiCustomAgentRoleValues = ['buyers_with_access', 'admins'] as const;
-
 export const aiSettingsSchema = z.object({
   publicResearch: z.boolean(),
   sourceKinds: z.array(z.enum(aiSourceKindValues)).max(aiSourceKindValues.length),
   budgetMonthCents: z.number().int().min(0).max(100_000_000),
   budgetRunCents: z.number().int().min(1).max(1_000_000),
   maxSteps: z.number().int().min(1).max(500),
-  customAgentRoles: z.enum(aiCustomAgentRoleValues),
-  customAgentApproval: z.boolean(),
   agentBudgetOverrides: z
     .array(
       z.object({
@@ -72,15 +67,13 @@ export const aiSettingsSchema = z.object({
 });
 export type AiSettings = z.infer<typeof aiSettingsSchema>;
 
-/** Startwerte aus KI-01: Recherche aus, 150 € im Monat, 2,00 € je Lauf, 60 Schritte, Freigabe an. */
+/** Startwerte aus KI-01: Recherche aus, 150 € im Monat, 2,00 € je Lauf, 60 Schritte. */
 export const defaultAiSettings: AiSettings = {
   publicResearch: false,
   sourceKinds: [...aiSourceKindValues],
   budgetMonthCents: 15_000,
   budgetRunCents: 200,
   maxSteps: 60,
-  customAgentRoles: 'buyers_with_access',
-  customAgentApproval: true,
   agentBudgetOverrides: [],
   valueFinderSegments: [],
   valueAssumptions: [],

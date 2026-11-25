@@ -2,8 +2,8 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (11): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (185): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **aktiv** (13): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (181): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
 - **bleibt** (78): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
@@ -45,10 +45,8 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/einstellungen/hinweise` | – | NAV-10 | bleibt |
 | `/einstellungen/ki` | – | NAV-10 | bleibt |
 | `/einstellungen/ki/agenten` | `/mein-agent` | K1-d | aktiv |
-| `/einstellungen/ki/agenten/$id` | `/mein-agent` | K1-f | geplant |
-| `/einstellungen/ki/agenten/eigene/$id` | `/mein-agent` | K1-f | geplant |
-| `/einstellungen/ki/agenten/laeufe/$id` | `/mein-agent` | K1-f | geplant |
-| `/einstellungen/ki/agenten/neu` | `/mein-agent` | K1-f | geplant |
+| `/einstellungen/ki/agenten/*` | `/mein-agent` | K1-f.5 | aktiv |
+| `/einstellungen/ki/agenten/laeufe/$id` | `/warum/$id` (Warum zum Lauf) | K1-f.5 | aktiv |
 | `/einstellungen/organisation` | – | NAV-10 | bleibt |
 | `/einstellungen/organisation/$nutzer` | – | NAV-10 | bleibt |
 | `/einstellungen/rollen` | – | NAV-10 | bleibt |

@@ -26,7 +26,6 @@ import {
   reviewStackSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
-import { CustomAgentsService } from '../agents/custom-agents.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CalendarIntakeService } from '../calendar/calendar.service.js';
 import { FeedbackThemesService } from '../feedback/feedback-themes.service.js';
@@ -129,7 +128,6 @@ export class ReviewService {
     @Inject(FeedbackThemesService) private readonly themes: FeedbackThemesService,
     @Inject(DeviationExplanationsService)
     private readonly deviations: DeviationExplanationsService,
-    @Inject(CustomAgentsService) private readonly customAgents: CustomAgentsService,
     @Inject(CalendarIntakeService) private readonly intake: CalendarIntakeService,
   ) {}
 
@@ -498,28 +496,9 @@ export class ReviewService {
           text,
         );
         return;
-      case 'agent_result':
-        if (accepted) await this.customAgents.accept(auth, draftId);
-        else {
-          await this.customAgents.discard(auth, draftId);
-          await this.keepReason(auth, draftId, reason);
-        }
-        return;
       default:
         await this.decideOwn(auth, draftId, accepted, reason);
     }
-  }
-
-  /** Verwerfen merkt sich den Grund, auch wo das Modul selbst keinen kennt */
-  private async keepReason(auth: AuthContext, draftId: string, reason: string | undefined) {
-    const session = this.session(auth);
-    if (!session || !reason) return;
-    await this.tenant.run(session, (tx) =>
-      tx
-        .update(schema.aiDraft)
-        .set({ dismissReason: reason })
-        .where(and(eq(schema.aiDraft.id, draftId), eq(schema.aiDraft.status, 'discarded'))),
-    );
   }
 
   /**

@@ -23,7 +23,6 @@ import {
   addinDetectSchema,
   addinRegisteredSchema,
   adoptOpportunitySchema,
-  agentDetailSchema,
   agentRunDetailSchema,
   agentsResponseSchema,
   aiSettingsResponseSchema,
@@ -67,11 +66,6 @@ import {
   contributionSuggestionsResponseSchema,
   createdApiKeySchema,
   createSupplierResponseSchema,
-  customAgentDetailSchema,
-  customAgentListSchema,
-  customAgentOptionsSchema,
-  customAgentRunResultsSchema,
-  customAgentSchema,
   customerImpactSchema,
   customerListSchema,
   customerRuleSetSchema,
@@ -208,7 +202,6 @@ import {
   type RequestContributions,
   type RequestValidation,
   type ResolveConflict,
-  type ReviewCustomAgent,
   type ReviewDecision,
   ratingAssignmentListSchema,
   ratingDetailSchema,
@@ -231,7 +224,6 @@ import {
   type SaveCapture,
   type SaveComment,
   type SaveCommitment,
-  type SaveCustomAgent,
   type SaveFinancial,
   type SaveFormatItem,
   type SaveImpactMonth,
@@ -3786,35 +3778,9 @@ export const agentsQueryOptions = (accessToken: string) =>
     queryFn: () => getJson(agentsPath, agentsResponseSchema, accessToken),
     retry: retryUnlessDenied,
   });
-export const agentQueryOptions = (accessToken: string, id: string) =>
-  queryOptions({
-    queryKey: ['agents', 'definition', id],
-    queryFn: () => getJson(`${agentsPath}/${id}`, agentDetailSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-export const agentRunQueryOptions = (accessToken: string, id: string) =>
-  queryOptions({
-    queryKey: ['agents', 'run', id],
-    queryFn: () => getJson(`${agentsPath}/laeufe/${id}`, agentRunDetailSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-export const activateAgent = (accessToken: string, id: string, enabled: boolean) =>
-  sendJson('PUT', `${agentsPath}/${id}/aktivierung`, { enabled }, agentDetailSchema, accessToken);
+// Termin-Briefing von Hand starten (KI-07); die Seite Agenten gibt es nicht mehr (K1-f.5)
 export const startAgent = (accessToken: string, id: string, input: StartAgent) =>
   sendJson('POST', `${agentsPath}/${id}/starten`, input, agentRunDetailSchema, accessToken);
-export const actOnAgentRun = (
-  accessToken: string,
-  id: string,
-  action: 'abbrechen' | 'fortsetzen',
-  payload: { answer?: string } = {},
-) =>
-  sendJson(
-    'POST',
-    `${agentsPath}/laeufe/${id}/${action}`,
-    payload,
-    agentRunDetailSchema,
-    accessToken,
-  );
 
 /** KI-11: Wertpotenziale eines Lieferanten */
 export const valueOpportunitiesQueryOptions = (accessToken: string, relationshipId: string) =>
@@ -4454,77 +4420,6 @@ export async function uploadTranscript(
     );
   return meetingTranscriptStateSchema.parse(await res.json());
 }
-
-/** KI-09: eigene Agenten */
-const customAgents = '/ki/eigene-agenten';
-
-export const customAgentsQueryOptions = (accessToken: string) =>
-  queryOptions({
-    queryKey: ['ki', 'eigene-agenten'],
-    queryFn: () => getJson(customAgents, customAgentListSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-
-export const customAgentOptionsQueryOptions = (accessToken: string) =>
-  queryOptions({
-    queryKey: ['ki', 'eigene-agenten', 'optionen'],
-    queryFn: () => getJson(`${customAgents}/optionen`, customAgentOptionsSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-
-export const customAgentQueryOptions = (accessToken: string, id: string) =>
-  queryOptions({
-    queryKey: ['ki', 'eigene-agenten', id],
-    queryFn: () => getJson(`${customAgents}/${id}`, customAgentDetailSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-
-export const customAgentResultsQueryOptions = (accessToken: string, runId: string) =>
-  queryOptions({
-    queryKey: ['ki', 'eigene-agenten', 'laeufe', runId],
-    queryFn: () =>
-      getJson(
-        `${customAgents}/laeufe/${runId}/ergebnisse`,
-        customAgentRunResultsSchema,
-        accessToken,
-      ),
-    retry: false,
-  });
-
-export const createCustomAgent = (accessToken: string, input: SaveCustomAgent) =>
-  sendJson('POST', customAgents, input, customAgentSchema, accessToken);
-
-export const updateCustomAgent = (accessToken: string, id: string, input: SaveCustomAgent) =>
-  sendJson('PUT', `${customAgents}/${id}`, input, customAgentSchema, accessToken);
-
-export const startCustomAgent = (accessToken: string, id: string, isTest: boolean) =>
-  sendJson(
-    'POST',
-    `${customAgents}/${id}/starten`,
-    { isTest },
-    z.object({ runId: z.uuid() }),
-    accessToken,
-  );
-
-export const activateCustomAgent = (accessToken: string, id: string) =>
-  sendJson('POST', `${customAgents}/${id}/aktivieren`, {}, customAgentSchema, accessToken);
-
-export const pauseCustomAgent = (accessToken: string, id: string) =>
-  sendJson('POST', `${customAgents}/${id}/pausieren`, {}, customAgentSchema, accessToken);
-
-export const reviewCustomAgent = (accessToken: string, id: string, input: ReviewCustomAgent) =>
-  sendJson('POST', `${customAgents}/${id}/pruefung`, input, customAgentSchema, accessToken);
-
-export const deleteCustomAgent = (accessToken: string, id: string) =>
-  sendNoContent(accessToken, 'DELETE', `${customAgents}/${id}`, {});
-
-export const decideCustomAgentResult = (accessToken: string, draftId: string, accept: boolean) =>
-  sendNoContent(
-    accessToken,
-    'POST',
-    `${customAgents}/entwuerfe/${draftId}/${accept ? 'uebernehmen' : 'verwerfen'}`,
-    {},
-  );
 
 /** WG-12 (Schritt 27): Scorecard der Warengruppe und Quartals-Review */
 export const categoryScorecardQueryOptions = (accessToken: string, strategyId: string) =>

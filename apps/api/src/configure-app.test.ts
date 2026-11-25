@@ -33,6 +33,14 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
         '/hinweise/550e8400-e29b-41d4-a716-446655440030',
         '/warum/550e8400-e29b-41d4-a716-446655440030',
       ],
+      // MA-01 T1-MA5 (K1-f.5): keine Seite Agenten mehr; ein Lauf steht im Warum
+      ['/einstellungen/ki/agenten/neu', '/mein-agent'],
+      ['/einstellungen/ki/agenten/eigene/550e8400-e29b-41d4-a716-446655440040', '/mein-agent'],
+      ['/einstellungen/ki/agenten/550e8400-e29b-41d4-a716-446655440041', '/mein-agent'],
+      [
+        '/einstellungen/ki/agenten/laeufe/550e8400-e29b-41d4-a716-446655440042',
+        '/warum/550e8400-e29b-41d4-a716-446655440042',
+      ],
     ];
     for (const [from, to] of moves) {
       const response = await open(from);
@@ -46,8 +54,9 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
     for (const path of [
       '/heute',
       '/lieferanten/550e8400-e29b-41d4-a716-446655440010/plan',
-      '/einstellungen/ki/agenten/neu',
       '/kurz-pruefen',
+      '/mein-agent',
+      '/einstellungen/ki',
       '/kunden/550e8400-e29b-41d4-a716-446655440010/plan',
     ]) {
       expect((await open(path)).status, path).not.toBe(301);

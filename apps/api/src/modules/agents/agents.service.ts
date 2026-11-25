@@ -41,7 +41,6 @@ function viewRun(
   return {
     id: run.id,
     agentName: row.name,
-    custom: row.kind === 'custom',
     version: row.version,
     status: run.status,
     isTest: run.isTest,
@@ -446,8 +445,8 @@ export class AgentsService {
     );
     if (!row) throw notFound();
     const run = viewRun(auth, row);
-    // KI-09: Lauf eines eigenen Agenten: Schritte für die startende Person und Admins, das
-    // Ergebnis liefert /ki/eigene-agenten/laeufe/:id/ergebnisse
+    // Lauf ohne Kontext (früher eigene Agenten, KI-09 ist aus): Schritte für die startende Person
+    // und Admins
     if (row.run.contextType === null) {
       const allowed = run.isOwn || auth.orgRole === 'admin';
       const steps = allowed
@@ -473,7 +472,6 @@ export class AgentsService {
         })),
         draftHref: null,
         testResult: null,
-        customAgentId: row.agentId,
       };
     }
     const context = await this.contextAllowed(auth, row.run);

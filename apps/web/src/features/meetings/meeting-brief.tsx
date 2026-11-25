@@ -564,7 +564,8 @@ export function MeetingBriefPanel({
             )}
             {brief.freshness.runId &&
               routerLink({
-                href: `/einstellungen/ki/agenten/laeufe/${brief.freshness.runId}`,
+                // Warum zum Lauf (K1-e.4); die Seite eines Agentenlaufs gibt es nicht mehr (K1-f.5)
+                href: `/warum/${brief.freshness.runId}`,
                 className: buttonVariants({ size: 'sm', variant: 'ghost' }),
                 children: text.runLog,
               })}
