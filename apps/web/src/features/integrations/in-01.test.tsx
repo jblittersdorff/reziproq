@@ -37,20 +37,88 @@ const connection = (n: number, parts: string[], failed = 0) => ({
   hookPath: '/api/anbindungen/eingang/abc',
   inboundAddress: null,
   allowedDomains: [],
-  lastJob: { status: 'done' as const, itemsIn: 3, itemsOk: 3 - failed, itemsFailed: failed, finishedAt: '2026-11-23T05:00:00Z' },
+  lastJob: {
+    status: 'done' as const,
+    itemsIn: 3,
+    itemsOk: 3 - failed,
+    itemsFailed: failed,
+    finishedAt: '2026-11-23T05:00:00Z',
+  },
 });
 const overview = (overrides: Partial<Integrations> = {}): Integrations => ({
   connectors: [
-    { key: 'microsoft365', group: 'workplace', stage: 1, parts: ['login', 'calendar', 'outlook', 'teams', 'transcripts'], personal: true, provider: 'fake', connection: connection(10, ['login', 'calendar']) },
-    { key: 'inbound_mail', group: 'workplace', stage: 1, parts: ['meetings', 'notes'], personal: false, provider: 'fake', connection: null },
-    { key: 'google_workspace', group: 'workplace', stage: 1, parts: ['login', 'calendar', 'meet', 'drive'], personal: true, provider: 'fake', connection: null },
-    { key: 'slack', group: 'workplace', stage: 2, parts: ['hints'], personal: false, provider: 'fake', connection: null },
-    { key: 'import_api', group: 'purchasing', stage: 1, parts: ['spend', 'suppliers'], personal: false, provider: 'fake', connection: connection(11, ['spend', 'suppliers'], 1) },
-    { key: 'sap_s4', group: 'purchasing', stage: 2, parts: ['orders'], personal: false, provider: 'fake', connection: null },
+    {
+      key: 'microsoft365',
+      group: 'workplace',
+      stage: 1,
+      parts: ['login', 'calendar', 'outlook', 'teams', 'transcripts'],
+      personal: true,
+      provider: 'fake',
+      connection: connection(10, ['login', 'calendar']),
+    },
+    {
+      key: 'inbound_mail',
+      group: 'workplace',
+      stage: 1,
+      parts: ['meetings', 'notes'],
+      personal: false,
+      provider: 'fake',
+      connection: null,
+    },
+    {
+      key: 'google_workspace',
+      group: 'workplace',
+      stage: 1,
+      parts: ['login', 'calendar', 'meet', 'drive'],
+      personal: true,
+      provider: 'fake',
+      connection: null,
+    },
+    {
+      key: 'slack',
+      group: 'workplace',
+      stage: 2,
+      parts: ['hints'],
+      personal: false,
+      provider: 'fake',
+      connection: null,
+    },
+    {
+      key: 'import_api',
+      group: 'purchasing',
+      stage: 1,
+      parts: ['spend', 'suppliers'],
+      personal: false,
+      provider: 'fake',
+      connection: connection(11, ['spend', 'suppliers'], 1),
+    },
+    {
+      key: 'sap_s4',
+      group: 'purchasing',
+      stage: 2,
+      parts: ['orders'],
+      personal: false,
+      provider: 'fake',
+      connection: null,
+    },
   ],
   events: [
-    { id: uuid(20), connectorKey: 'import_api', kind: 'note', status: 'failed', reason: 'beziehung_fehlt', createdAt: '2026-11-23T05:00:00Z' },
-    { id: uuid(21), connectorKey: 'microsoft365', kind: 'token_refresh', status: 'applied', reason: null, createdAt: '2026-11-20T05:00:00Z' },
+    {
+      id: uuid(20),
+      connectorKey: 'import_api',
+      kind: 'note',
+      status: 'failed',
+      reason: 'beziehung_fehlt',
+      createdAt: '2026-11-23T05:00:00Z',
+    },
+    {
+      id: uuid(21),
+      connectorKey: 'microsoft365',
+      kind: 'token_refresh',
+      status: 'applied',
+      reason: null,
+      createdAt: '2026-11-20T05:00:00Z',
+    },
   ],
   issue: { kind: 'failed_items', connectorKey: 'import_api', count: 1 },
   ...overrides,
@@ -86,7 +154,15 @@ beforeEach(() => {
       if (request.method !== 'GET') {
         sent.push({ url: request.url, method: request.method, body: request.body });
         mine = request.url.endsWith('/verbinden')
-          ? { ...mine, connections: [{ connectorKey: 'microsoft365', connection: { ...connection(30, ['calendar']), scope: 'user' } }] }
+          ? {
+              ...mine,
+              connections: [
+                {
+                  connectorKey: 'microsoft365',
+                  connection: { ...connection(30, ['calendar']), scope: 'user' },
+                },
+              ],
+            }
           : { ...mine, connections: [] };
       }
       return Response.json(mine);
@@ -102,7 +178,9 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
     renderAt('/einstellungen/anbindungen');
     expect(await screen.findByRole('heading', { level: 1, name: 'Anbindungen' })).toBeTruthy();
     expect(await screen.findByText('1 Element aus Import-API mit Fehler')).toBeTruthy();
-    const workplace = screen.getByRole('heading', { level: 2, name: 'Arbeitsplatz' }).closest('section') as HTMLElement;
+    const workplace = screen
+      .getByRole('heading', { level: 2, name: 'Arbeitsplatz' })
+      .closest('section') as HTMLElement;
     expect(within(workplace).getByText('Microsoft 365')).toBeTruthy();
     expect(within(workplace).getByText('verbunden')).toBeTruthy();
     expect(within(workplace).getAllByText('nicht verbunden')).toHaveLength(2);
@@ -112,7 +190,9 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
     expect(within(slack).queryByRole('button')).toBeNull();
     // Aktive Teile als Chips
     expect(within(workplace).getByText('Kalender')).toBeTruthy();
-    const purchasing = screen.getByRole('heading', { level: 2, name: 'Daten aus dem Einkauf' }).closest('section') as HTMLElement;
+    const purchasing = screen
+      .getByRole('heading', { level: 2, name: 'Daten aus dem Einkauf' })
+      .closest('section') as HTMLElement;
     expect(within(purchasing).getByText('Import-API')).toBeTruthy();
     expect(screen.getByText(/Testbetrieb/)).toBeTruthy();
   });
@@ -122,7 +202,10 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
     const row = (await screen.findByText('Eingangsadresse')).closest('li') as HTMLElement;
     fireEvent.click(within(row).getByRole('button', { name: 'Verbinden' }));
     await waitFor(() =>
-      expect(sent[0]).toMatchObject({ url: '/api/einstellungen/anbindungen/inbound_mail/verbinden', method: 'POST' }),
+      expect(sent[0]).toMatchObject({
+        url: '/api/einstellungen/anbindungen/inbound_mail/verbinden',
+        method: 'POST',
+      }),
     );
   });
 
@@ -132,7 +215,10 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
     fireEvent.click(within(row).getByRole('button', { name: 'Verwalten' }));
     fireEvent.click(within(row).getByRole('switch', { name: 'Teams-App' }));
     await waitFor(() =>
-      expect(sent[0]).toMatchObject({ method: 'PUT', body: { parts: ['login', 'calendar', 'teams'] } }),
+      expect(sent[0]).toMatchObject({
+        method: 'PUT',
+        body: { parts: ['login', 'calendar', 'teams'] },
+      }),
     );
     expect(within(row).getByText(/anbindungen\/eingang\/abc/)).toBeTruthy();
     fireEvent.click(within(row).getByRole('button', { name: 'Jetzt abgleichen' }));
@@ -147,7 +233,9 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
 
   it('Letzte Ereignisse: Titel und Zeit, der Grund klappt auf', async () => {
     renderAt('/einstellungen/anbindungen');
-    const aside = (await screen.findByRole('heading', { level: 2, name: 'Letzte Ereignisse' })).closest('aside') as HTMLElement;
+    const aside = (
+      await screen.findByRole('heading', { level: 2, name: 'Letzte Ereignisse' })
+    ).closest('aside') as HTMLElement;
     expect(within(aside).getByText('Import-API: Notiz mit Fehler')).toBeTruthy();
     expect(within(aside).getByText('Keinem Lieferanten zugeordnet.')).toBeTruthy();
     expect(within(aside).getByText('Microsoft 365 Zugang erneuert')).toBeTruthy();
@@ -167,7 +255,9 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
     expect(await screen.findByText('Microsoft 365: Verbindung erneuern')).toBeTruthy();
     expect(screen.getByText('gestört')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Neu verbinden' }));
-    await waitFor(() => expect(sent.map((entry) => entry.url.split('/').at(-1))).toEqual(['trennen', 'verbinden']));
+    await waitFor(() =>
+      expect(sent.map((entry) => entry.url.split('/').at(-1))).toEqual(['trennen', 'verbinden']),
+    );
   });
 
   it('Mitglieder sehen den Hinweis, dass Admins Anbindungen verwalten', async () => {
@@ -185,11 +275,15 @@ describe('IN-01 Einstellungen › Anbindungen', () => {
 describe('IN-01 Profil › Meine Verbindungen', () => {
   it('Kalender und Outlook-Add-in für sich verbinden und trennen', async () => {
     renderAt('/profil');
-    const group = (await screen.findByText('Meine Verbindungen')).closest('fieldset') as HTMLElement;
+    const group = (await screen.findByText('Meine Verbindungen')).closest(
+      'fieldset',
+    ) as HTMLElement;
     const row = (await within(group).findByText('Microsoft 365')).closest('div')
       ?.parentElement as HTMLElement;
     fireEvent.click(within(row).getByRole('button', { name: 'Verbinden' }));
-    await waitFor(() => expect(sent[0]?.url).toBe('/api/profil/verbindungen/microsoft365/verbinden'));
+    await waitFor(() =>
+      expect(sent[0]?.url).toBe('/api/profil/verbindungen/microsoft365/verbinden'),
+    );
     expect(await within(row).findByText('verbunden')).toBeTruthy();
     fireEvent.click(within(row).getByRole('button', { name: 'Trennen' }));
     fireEvent.click(within(row).getByRole('button', { name: 'Ja, trennen' }));

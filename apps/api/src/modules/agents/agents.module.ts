@@ -38,5 +38,7 @@ import { MeetingBriefWorker } from './meeting-brief.worker.js';
     CustomAgentsService,
     CustomAgentsWorker,
   ],
+  // HE-01 Kurz prüfen (K1-e.2): Ergebnisse eigener Agenten übernehmen, bis K1-f sie abschaltet
+  exports: [CustomAgentsService],
 })
 export class AgentsModule {}

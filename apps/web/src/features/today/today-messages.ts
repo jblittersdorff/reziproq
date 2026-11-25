@@ -104,6 +104,7 @@ export const todayMessages = defineMessages({
           `ca. ${minutes} Min.`,
         ),
       chip: 'Entwurf',
+      goThrough: 'Durchgehen',
       detail: (counterpart: string | null, time: string) => join(counterpart, time),
       phoneTitle: 'Kurz prüfen',
       phoneDetail: (count: number, minutes: number) =>
@@ -169,13 +170,14 @@ export const todayMessages = defineMessages({
         overdue: 'überfällig',
         snoozed: 'morgen',
         inFocus: 'im Fokus',
+        inReview: 'in Kurz prüfen',
       },
       topicDetail: (counterpart: string | null, art: string, severity: string | null) =>
         join(counterpart, severity ? `${art} ${severity}` : art),
       rank: (rank: number) => `Platz ${rank}`,
       draftsTitle: (count: number) =>
         `${count} ${plural(count, 'Entwurf', 'Entwürfe')} von Reziproq`,
-      draftsDetail: (minutes: number) => `zum Prüfen · ca. ${minutes} Minuten`,
+      draftsDetail: (minutes: number) => `von Reziproq vorbereitet · ca. ${minutes} Minuten`,
       othersDetail: (owner: string, counterpart: string, when: string) =>
         join(owner && owner !== counterpart ? `${owner}, ${counterpart}` : counterpart, when),
       hintDetail: (supplier: string | null, rule: string, group: string | null, since: string) =>
@@ -242,6 +244,7 @@ export const todayMessages = defineMessages({
           `about ${minutes} min`,
         ),
       chip: 'Draft',
+      goThrough: 'Go through',
       detail: (counterpart: string | null, time: string) => join(counterpart, time),
       phoneTitle: 'Quick review',
       phoneDetail: (count: number, minutes: number) =>
@@ -305,12 +308,13 @@ export const todayMessages = defineMessages({
         overdue: 'overdue',
         snoozed: 'tomorrow',
         inFocus: 'in focus',
+        inReview: 'in quick review',
       },
       topicDetail: (counterpart: string | null, art: string, severity: string | null) =>
         join(counterpart, severity ? `${art} ${severity}` : art),
       rank: (rank: number) => `Rank ${rank}`,
       draftsTitle: (count: number) => `${count} ${plural(count, 'draft', 'drafts')} by Reziproq`,
-      draftsDetail: (minutes: number) => `to review · about ${minutes} minutes`,
+      draftsDetail: (minutes: number) => `prepared by Reziproq · about ${minutes} minutes`,
       othersDetail: (owner: string, counterpart: string, when: string) =>
         join(owner && owner !== counterpart ? `${owner}, ${counterpart}` : counterpart, when),
       hintDetail: (supplier: string | null, rule: string, group: string | null, since: string) =>

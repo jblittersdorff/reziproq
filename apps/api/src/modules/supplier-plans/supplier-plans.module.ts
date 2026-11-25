@@ -30,6 +30,11 @@ import { SupplierPlansService } from './supplier-plans.service.js';
     PlanApprovalsService,
     PlanSummaryDraftService,
   ],
-  exports: [SupplierPlansService, PlanContributionsService, PlanApprovalsService],
+  exports: [
+    SupplierPlansService,
+    PlanContributionsService,
+    PlanApprovalsService,
+    PlanSummaryDraftService,
+  ],
 })
 export class SupplierPlansModule {}

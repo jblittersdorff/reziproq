@@ -65,7 +65,11 @@ export const integrationsSchema = z.object({
   events: z.array(syncEventViewSchema),
   /** Wichtigster offener Punkt für die Tinte-Karte */
   issue: z
-    .object({ kind: z.enum(['error', 'failed_items']), connectorKey: z.enum(connectorKeys), count: z.number().int() })
+    .object({
+      kind: z.enum(['error', 'failed_items']),
+      connectorKey: z.enum(connectorKeys),
+      count: z.number().int(),
+    })
     .nullable(),
 });
 export type Integrations = z.infer<typeof integrationsSchema>;
@@ -89,7 +93,9 @@ export const connectRequestSchema = z
   .strict();
 export type ConnectRequest = z.infer<typeof connectRequestSchema>;
 
-export const updatePartsSchema = z.object({ parts: z.array(z.string().min(1).max(40)).max(10) }).strict();
+export const updatePartsSchema = z
+  .object({ parts: z.array(z.string().min(1).max(40)).max(10) })
+  .strict();
 
 // IN-02 Anmeldung über Microsoft und Google
 

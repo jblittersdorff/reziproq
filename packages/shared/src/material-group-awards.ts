@@ -16,7 +16,11 @@ export const defaultAwardEligibility: AwardEligibility = {
   stabilityNotCritical: true,
 };
 
-export const awardIneligibleReasons = ['inactive', 'quality_critical', 'stability_critical'] as const;
+export const awardIneligibleReasons = [
+  'inactive',
+  'quality_critical',
+  'stability_critical',
+] as const;
 export type AwardIneligibleReason = (typeof awardIneligibleReasons)[number];
 
 const supplierRef = z.discriminatedUnion('kind', [
@@ -94,9 +98,7 @@ export const awardRequestSchema = z
 export type AwardRequest = z.input<typeof awardRequestSchema>;
 
 /** Schritt 8 fertig, wenn es Vergaben gibt und jede einen möglichen Lieferanten und ein Volumen hat */
-export function awardPlanComplete(
-  awards: { volumeCents: number | null; suppliers: unknown[] }[],
-) {
+export function awardPlanComplete(awards: { volumeCents: number | null; suppliers: unknown[] }[]) {
   return (
     awards.length > 0 &&
     awards.every((award) => award.volumeCents !== null && award.suppliers.length > 0)

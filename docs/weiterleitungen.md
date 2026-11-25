@@ -4,7 +4,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 
 - **aktiv** (8): leitet mit 301 vom Server und in der App weiter.
 - **geplant** (188): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
-- **bleibt** (74): Die Adresse gilt auch nach NAV-10 2.0.
+- **bleibt** (75): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
 |---|---|---|---|
@@ -138,6 +138,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/kunden/$id/umsetzung/termine/neu` | offen (gespiegelte Akte) | K5-b | geplant |
 | `/kunden/$id/wirkung` | offen (gespiegelte Akte) | K5-b | geplant |
 | `/kunden/$id/wirkung/initiativen/$initiativeId/nutzen` | offen (gespiegelte Akte) | K5-b | geplant |
+| `/kurz-pruefen` | – (Kurz prüfen) | K1-e.2 | bleibt |
 | `/lieferanten` | `/beziehungen` | K1-d | aktiv |
 | `/lieferanten/$id` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
 | `/lieferanten/$id/aktivitaeten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
@@ -241,7 +242,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/neu` | offen | K2-b | geplant |
 | `/mein-agent` | – (zeigt bis K1-f die Seite Agenten) | K1-d | bleibt |
 | `/mein-tag` | `/heute` | K1-d | aktiv |
-| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.2 | geplant |
+| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | geplant |
 | `/menu` | – | PLT-11 | bleibt |
 | `/portfolio` | `/beziehungen?linse=segmente` | K2-b | geplant |
 | `/portfolio/fokus` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |

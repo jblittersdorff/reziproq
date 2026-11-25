@@ -16,6 +16,7 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
 import { Route as AppHeuteRouteImport } from './routes/_app/heute'
+import { Route as AppKurzPruefenRouteImport } from './routes/_app/kurz-pruefen'
 import { Route as AppMeinAgentRouteImport } from './routes/_app/mein-agent'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AddinOutlookRouteImport } from './routes/addin/outlook'
@@ -309,6 +310,11 @@ const AppSplatRoute = AppSplatRouteImport.update({
 const AppHeuteRoute = AppHeuteRouteImport.update({
   id: '/heute',
   path: '/heute',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppKurzPruefenRoute = AppKurzPruefenRouteImport.update({
+  id: '/kurz-pruefen',
+  path: '/kurz-pruefen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMeinAgentRoute = AppMeinAgentRouteImport.update({
@@ -1840,6 +1846,7 @@ export interface FileRoutesByFullPath {
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
   '/heute': typeof AppHeuteRoute
+  '/kurz-pruefen': typeof AppKurzPruefenRoute
   '/mein-agent': typeof AppMeinAgentRoute
   '/menu': typeof AppMenuRoute
   '/addin/outlook': typeof AddinOutlookRoute
@@ -2107,6 +2114,7 @@ export interface FileRoutesByTo {
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
   '/heute': typeof AppHeuteRoute
+  '/kurz-pruefen': typeof AppKurzPruefenRoute
   '/mein-agent': typeof AppMeinAgentRoute
   '/menu': typeof AppMenuRoute
   '/addin/outlook': typeof AddinOutlookRoute
@@ -2374,6 +2382,7 @@ export interface FileRoutesById {
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
   '/_app/heute': typeof AppHeuteRoute
+  '/_app/kurz-pruefen': typeof AppKurzPruefenRoute
   '/_app/mein-agent': typeof AppMeinAgentRoute
   '/_app/menu': typeof AppMenuRoute
   '/addin/outlook': typeof AddinOutlookRoute
@@ -2644,6 +2653,7 @@ export interface FileRouteTypes {
     | '/einladung/$token'
     | '/$'
     | '/heute'
+    | '/kurz-pruefen'
     | '/mein-agent'
     | '/menu'
     | '/addin/outlook'
@@ -2911,6 +2921,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/$'
     | '/heute'
+    | '/kurz-pruefen'
     | '/mein-agent'
     | '/menu'
     | '/addin/outlook'
@@ -3177,6 +3188,7 @@ export interface FileRouteTypes {
     | '/einladung/$token'
     | '/_app/$'
     | '/_app/heute'
+    | '/_app/kurz-pruefen'
     | '/_app/mein-agent'
     | '/_app/menu'
     | '/addin/outlook'
@@ -3499,6 +3511,13 @@ declare module '@tanstack/react-router' {
       path: '/heute'
       fullPath: '/heute'
       preLoaderRoute: typeof AppHeuteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/kurz-pruefen': {
+      id: '/_app/kurz-pruefen'
+      path: '/kurz-pruefen'
+      fullPath: '/kurz-pruefen'
+      preLoaderRoute: typeof AppKurzPruefenRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/mein-agent': {
@@ -5761,6 +5780,7 @@ const AppLieferantenIdRouteRouteWithChildren =
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
   AppHeuteRoute: typeof AppHeuteRoute
+  AppKurzPruefenRoute: typeof AppKurzPruefenRoute
   AppMeinAgentRoute: typeof AppMeinAgentRoute
   AppMenuRoute: typeof AppMenuRoute
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
@@ -5870,6 +5890,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
   AppHeuteRoute: AppHeuteRoute,
+  AppKurzPruefenRoute: AppKurzPruefenRoute,
   AppMeinAgentRoute: AppMeinAgentRoute,
   AppMenuRoute: AppMenuRoute,
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,

@@ -315,6 +315,7 @@ export const todayAll = () => ({
       suggestionKind: 'supplier',
       suggestions: [{ relationshipId: rheintal, name: 'Rheintal Elektronik' }],
       href: '/mein-tag/eingang',
+      inReview: false,
     },
     {
       id: id(71),
@@ -327,6 +328,7 @@ export const todayAll = () => ({
         { relationshipId: id(72), name: 'Lombardia Fonderie' },
       ],
       href: '/mein-tag/eingang',
+      inReview: false,
     },
     {
       id: id(73),
@@ -336,6 +338,7 @@ export const todayAll = () => ({
       suggestionKind: 'event',
       suggestions: [],
       href: '/mein-tag/eingang',
+      inReview: false,
     },
   ],
   commitments: {
@@ -358,4 +361,133 @@ export const todayAll = () => ({
 export async function mockToday(page: Page) {
   await page.route('**/api/heute', (route) => route.fulfill({ json: todayPage() }));
   await page.route('**/api/heute/alles', (route) => route.fulfill({ json: todayAll() }));
+}
+
+/** Kurz prüfen mit den fünf Entwürfen der Vorlage K1-Kurz-Pruefen (Kontext, Text, Quellen) */
+export const reviewStack = () => ({
+  items: [
+    {
+      kind: 'capture_action',
+      objectType: 'meeting',
+      subject: 'Scorecard 2026',
+      title: 'Liefertreue Oktober: 94 % übernehmen',
+      lines: [
+        'Rheintal hat am 20.11. 94 % gemeldet.',
+        'Euer Wareneingang zeigt 95 % (61 von 64 Lieferungen pünktlich).',
+        'Reziproq trägt Rheintals Wert ein und vermerkt die Abweichung von einem Punkt.',
+      ],
+      sources: ['Meldung Rheintal 20.11.', 'Wareneingang Oktober', 'Scorecard 2026'],
+      adjust: 'title',
+      text: 'Liefertreue Oktober: 94 % übernehmen',
+      time: '06:02',
+    },
+    {
+      kind: 'brief_goals',
+      objectType: 'meeting',
+      subject: 'JBP am 04.12.',
+      title: 'Briefing JBP: 3 Ziele, Agenda mit 7 Punkten',
+      lines: [
+        'Ziele: Prognose gegen Preis als Thema, Musterteile LP-7 bis 15.12., Liefertreue mindestens 95 %.',
+        'Agenda: Rückblick, Kennzahlen, Themen beider Seiten, Prognose, Muster, Kapazität 2027, nächste Schritte.',
+      ],
+      sources: ['Gemeinsamer Plan', 'Zusagen', 'Scorecard'],
+      adjust: 'place',
+      text: null,
+      time: '06:10',
+    },
+    {
+      kind: 'qbr_topics',
+      objectType: 'meeting',
+      subject: 'Gemeinsamer Plan',
+      title: 'Zwei Themen unserer Seite fürs JBP',
+      lines: [
+        '1. Kapazität für Automotive 2027 sichern.',
+        '2. Spezifikationsänderungen künftig vier Wochen vorher ankündigen.',
+      ],
+      sources: ['Gesprächsnotiz 19.11.', 'Feedback Q3'],
+      adjust: 'place',
+      text: null,
+      time: '06:12',
+    },
+    {
+      kind: 'feedback_themes',
+      objectType: 'survey_wave',
+      subject: null,
+      title: 'Zusage zur Lücke Transparenz',
+      lines: [
+        'Alpen schickt ab Januar monatlich einen Bericht zu Lieferzeiten.',
+        'Verantwortlich: Alpen. Prüfung durch euch im QBR März.',
+      ],
+      sources: ['Feedback-Welle Herbst', 'Spielregeln Alpen'],
+      adjust: 'text',
+      text: 'Alpen schickt ab Januar monatlich einen Bericht zu Lieferzeiten.',
+      time: '05:45',
+    },
+  ]
+    .map((entry, index) => ({
+      id: id(80 + index),
+      source: 'ai_draft',
+      kind: entry.kind,
+      objectType: entry.objectType,
+      subject: entry.subject,
+      counterpart:
+        entry.kind === 'feedback_themes' ? 'Alpen Kunststofftechnik' : 'Rheintal Elektronik',
+      relationshipId: entry.kind === 'feedback_themes' ? alpen : rheintal,
+      title: entry.title,
+      lines: entry.lines,
+      sources: entry.sources,
+      createdAt: at(0, entry.time),
+      reviewSeconds: 75,
+      adjust: entry.adjust,
+      text: entry.text,
+      href: `/lieferanten/${rheintal}/umsetzung/termine/${id(40)}`,
+      canAccept: true,
+      inbound: null,
+    }))
+    .concat([
+      {
+        id: id(85),
+        source: 'inbound',
+        kind: 'inbound',
+        objectType: 'inbound_item',
+        subject: 'Abstimmung Musterteile Starrflex',
+        counterpart: 'Rheintal Elektronik',
+        relationshipId: rheintal,
+        title: 'Termin zuordnen: Abstimmung Musterteile Starrflex',
+        lines: [],
+        sources: [],
+        createdAt: at(0, '05:30'),
+        reviewSeconds: 20,
+        adjust: 'place',
+        text: null,
+        href: '/mein-tag/eingang',
+        canAccept: true,
+        inbound: {
+          startsAt: at(16, '10:00'),
+          suggestionKind: 'supplier',
+          suggestions: [{ relationshipId: rheintal, name: 'Rheintal Elektronik' }],
+          suggestedType: 'site_visit',
+          reason: 'Teilnehmer von rheintal.example',
+        },
+      } as never,
+    ]),
+  minutes: 6,
+});
+
+/** Kurz prüfen: Stapel und Entscheidungen; jede Entscheidung gelingt */
+export async function mockReview(page: Page) {
+  await page.route('**/api/kurz-pruefen', (route) => route.fulfill({ json: reviewStack() }));
+  await page.route('**/api/kurz-pruefen/*', (route) => {
+    const decision = route.request().postDataJSON()?.decision;
+    return route.fulfill({
+      json: {
+        state:
+          decision === 'uebernehmen'
+            ? 'accepted'
+            : decision === 'spaeter'
+              ? 'snoozed'
+              : 'discarded',
+      },
+    });
+  });
 }

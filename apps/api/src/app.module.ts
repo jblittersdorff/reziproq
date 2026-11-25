@@ -48,6 +48,7 @@ import { StartModule } from './modules/start/start.module.js';
 import { SupplierPlansModule } from './modules/supplier-plans/supplier-plans.module.js';
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 import { SupportModule } from './modules/support/support.module.js';
+import { ReviewModule } from './modules/review/review.module.js';
 import { TodayModule } from './modules/today/today.module.js';
 import { TouchpointsModule } from './modules/touchpoints/touchpoints.module.js';
 import { TranscriptsModule } from './modules/transcripts/transcripts.module.js';
@@ -83,6 +84,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     RoundsModule,
     StartModule,
     TodayModule,
+    ReviewModule,
     SupplierPlansModule,
     InvitationsModule,
     CustomersModule,

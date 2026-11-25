@@ -250,6 +250,8 @@ export const allAssignSchema = z.object({
   suggestionKind: z.enum(['supplier', 'several', 'event', 'none']),
   suggestions: z.array(z.object({ relationshipId: z.uuid(), name: z.string() })),
   href: z.string().min(1),
+  /** Steht als Entwurf in Kurz prüfen (K1-e.2) */
+  inReview: z.boolean(),
 });
 export type AllAssign = z.infer<typeof allAssignSchema>;
 

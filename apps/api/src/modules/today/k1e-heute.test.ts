@@ -218,7 +218,11 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
     ]);
     expect(view.others[0]).toMatchObject({ relationshipId: rels.team, inFocus: false });
     // Entwürfe für Kurz prüfen, Zuordnen und Zusagen und Aufgaben
-    expect(view.drafts.rows.map((draft) => draft.title)).toEqual([`Plan ist auf Kurs ${run}`]);
+    // Seit K1-e.2 steht auch der Eingang zum Zuordnen als Entwurf in Kurz prüfen.
+    expect(view.drafts.rows.map((draft) => draft.title)).toEqual([
+      `Plan ist auf Kurs ${run}`,
+      `Termin zuordnen: Abstimmung Muster ${run}`,
+    ]);
     expect(view.drafts.minutes).toBe(2);
     expect(view.assign).toEqual([
       expect.objectContaining({
@@ -250,8 +254,11 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
       hints: view.hints.length,
       commitments: view.commitments.open,
     });
-    expect(focus.drafts.map((draft) => draft.title)).toEqual([`Plan ist auf Kurs ${run}`]);
-    expect(focus.review).toEqual({ count: 1, minutes: 2 });
+    expect(focus.drafts.map((draft) => draft.title)).toEqual([
+      `Plan ist auf Kurs ${run}`,
+      `Termin zuordnen: Abstimmung Muster ${run}`,
+    ]);
+    expect(focus.review).toEqual({ count: 2, minutes: 2 });
   });
 
   it('„Das Wichtigste“: ein belegter Satz mit Quellen; ohne Erledigtes nur die weiteren Themen', async () => {

@@ -568,6 +568,19 @@ export class MeetingCaptureService {
           dueOn: item.dueOn,
         });
       }
+      // ZA-01 Regel 5, HE-01 T1-HE3: Was aus einem Entwurf von Reziproq entsteht, trägt die Herkunft
+      // reziproq, den Lauf und die Person, die übernommen hat.
+      const origin = {
+        origin: 'reziproq' as const,
+        originRunId: row.runId,
+        originUserId: scope.auth.userId,
+      };
+      if (createdId) {
+        await scope.tx
+          .update(schema.commitment)
+          .set(origin)
+          .where(eq(schema.commitment.id, createdId));
+      }
       if (!createdId) {
         // Maßnahme; auch für eine Zusage, wenn der Gemeinsame Plan fehlt oder freigegeben ist (JBP-06)
         if (person.side === 'buyer' && !account) throw unprocessable('verantwortlich_ohne_konto');
@@ -588,6 +601,7 @@ export class MeetingCaptureService {
             sourceId: meetingId,
           },
         );
+        await scope.tx.update(schema.action).set(origin).where(eq(schema.action.id, action.id));
         createdId = `action:${action.id}`;
       } else {
         createdId = `commitment:${createdId}`;

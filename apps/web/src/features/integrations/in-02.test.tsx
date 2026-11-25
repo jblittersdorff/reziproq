@@ -60,8 +60,18 @@ const sso: SsoOverview = {
     tenantId: 'tenant-a',
     hostedDomain: null,
     domains: [
-      { domain: 'firma.de', recordName: '_zitadel-challenge.firma.de', recordValue: 'abc', verifiedAt: '2026-11-20T08:00:00Z' },
-      { domain: 'firma.at', recordName: '_zitadel-challenge.firma.at', recordValue: 'xyz', verifiedAt: null },
+      {
+        domain: 'firma.de',
+        recordName: '_zitadel-challenge.firma.de',
+        recordValue: 'abc',
+        verifiedAt: '2026-11-20T08:00:00Z',
+      },
+      {
+        domain: 'firma.at',
+        recordName: '_zitadel-challenge.firma.at',
+        recordValue: 'xyz',
+        verifiedAt: null,
+      },
     ],
     defaultRole: 'viewer',
     passwordLoginAllowed: true,
@@ -79,9 +89,11 @@ beforeEach(() => {
   api.permissions = actionsFor.admin;
   sent = [];
   api.handle = (request) => {
-    if (request.method !== 'GET') sent.push({ url: request.url, method: request.method, body: request.body });
+    if (request.method !== 'GET')
+      sent.push({ url: request.url, method: request.method, body: request.body });
     if (request.url === '/api/einstellungen/anbindungen') return Response.json(overview);
-    if (request.url.startsWith('/api/einstellungen/anbindungen/anmeldung')) return Response.json(sso);
+    if (request.url.startsWith('/api/einstellungen/anbindungen/anmeldung'))
+      return Response.json(sso);
     if (request.url === '/api/anmeldung/sso') {
       return Response.json({ provider: 'entra', scope: 'urn:zitadel:iam:org:idp:id:idp-1' });
     }
@@ -105,10 +117,14 @@ describe('IN-02 Anmeldung über das Firmenkonto einrichten', () => {
     const section = await openMicrosoft();
     expect(await within(section).findByText('firma.de')).toBeTruthy();
     expect(within(section).getByText('bestätigt')).toBeTruthy();
-    expect(within(section).getByText(/TXT-Eintrag _zitadel-challenge\.firma\.at mit dem Wert xyz/)).toBeTruthy();
+    expect(
+      within(section).getByText(/TXT-Eintrag _zitadel-challenge\.firma\.at mit dem Wert xyz/),
+    ).toBeTruthy();
     fireEvent.click(within(section).getByRole('button', { name: 'Domain bestätigen' }));
     await waitFor(() =>
-      expect(sent[0]?.url).toBe('/api/einstellungen/anbindungen/anmeldung/entra/domains/firma.at/bestaetigen'),
+      expect(sent[0]?.url).toBe(
+        '/api/einstellungen/anbindungen/anmeldung/entra/domains/firma.at/bestaetigen',
+      ),
     );
     // Der Eintrag wurde (im Nachbau) noch nicht gefunden: Hinweis statt Fehler
     expect(await within(section).findByText(/noch nicht gefunden/)).toBeTruthy();
@@ -120,7 +136,9 @@ describe('IN-02 Anmeldung über das Firmenkonto einrichten', () => {
     fireEvent.change(within(section).getByLabelText('Standardrolle neuer Personen'), {
       target: { value: 'member' },
     });
-    fireEvent.click(within(section).getByRole('switch', { name: 'Nur noch über Microsoft anmelden' }));
+    fireEvent.click(
+      within(section).getByRole('switch', { name: 'Nur noch über Microsoft anmelden' }),
+    );
     fireEvent.click(within(section).getByRole('button', { name: 'Anmeldung speichern' }));
     await waitFor(() =>
       expect(sent[0]).toMatchObject({
@@ -158,7 +176,12 @@ describe('IN-02 Anmelden mit dem Firmenkonto', () => {
   });
 
   it('eine neue Person sieht bis zur Freigabe nur den Hinweis', async () => {
-    api.me = { ...anna, orgRole: null, pendingApproval: true, permissions: { ...anna.permissions, viewBuyerAreas: false, viewSuppliers: false } };
+    api.me = {
+      ...anna,
+      orgRole: null,
+      pendingApproval: true,
+      permissions: { ...anna.permissions, viewBuyerAreas: false, viewSuppliers: false },
+    };
     api.permissions = [];
     renderAt('/start');
     expect(await screen.findByText(/prüft gerade deinen Zugang/)).toBeTruthy();
@@ -199,6 +222,8 @@ describe('IN-02 Neue Person freigeben', () => {
     expect(await screen.findByRole('heading', { name: 'Neue Person prüfen' })).toBeTruthy();
     fireEvent.click(await screen.findByRole('button', { name: 'Freigeben' }));
     await waitFor(() => expect(sent[0]?.url).toBe('/api/organisation/mitglieder/neu/freigeben'));
-    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Neue Person prüfen' })).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByRole('heading', { name: 'Neue Person prüfen' })).toBeNull(),
+    );
   });
 });

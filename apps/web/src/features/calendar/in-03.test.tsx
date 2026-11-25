@@ -174,6 +174,7 @@ describe('IN-03 Neu eingegangen', () => {
           suggestionKind: 'supplier',
           suggestions: [{ relationshipId: uuid(60), name: 'Rheintal Elektronik' }],
           href: '/mein-tag/eingang',
+          inReview: false,
         },
       ],
     });

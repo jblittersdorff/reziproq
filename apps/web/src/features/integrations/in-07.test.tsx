@@ -147,7 +147,9 @@ describe('IN-07 Schlüssel der Import-API', () => {
     expect(within(section).getByText(/120 Zeilen · 2 mit Fehler/)).toBeTruthy();
     expect(within(section).getByRole('link', { name: 'Lieferung ansehen' })).toBeTruthy();
     expect(
-      within(section).getByRole('link', { name: 'API-Beschreibung (OpenAPI)' }).getAttribute('href'),
+      within(section)
+        .getByRole('link', { name: 'API-Beschreibung (OpenAPI)' })
+        .getAttribute('href'),
     ).toBe('/api/v1/openapi.json');
   });
 

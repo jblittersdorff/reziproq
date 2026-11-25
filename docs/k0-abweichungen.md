@@ -15,7 +15,7 @@ Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8
 - **Neue Spalte.** `focus_item` hat zusätzlich `href` (Ort der Erledigung), bis die Fokus-Mappe kommt (K1-e). Fokus-Themen verschwinden mit ihrer Beziehung.
 - **„Heute“ für Fristen.** Die Fristen zählen wie bisher auf Start nach dem Datum in UTC. 06:00 und 07:00 gelten in Berlin. Seit K1-e.1 rechnen Heute und Triage mit dem Datum in Berlin (Dringlichkeit, überfällig, „Diese Woche“). Die Module selbst setzen ihr „heute“ weiter in UTC, etwa für die Ersatzfrist eines Hinweises; das betrifft nur die Stunde nach Mitternacht.
 - **Noch nicht in der Triage.**
-  - Nicht zugeordneter Eingang (E-K0-26) steht seit K1-e.1 in der Ansicht Alles unter „Zuordnen“, ohne eigenes Fokus-Thema. Als Entwurf in Kurz prüfen kommt er mit K1-e.2.
+  - Nicht zugeordneter Eingang (E-K0-26) steht seit K1-e.1 in der Ansicht Alles unter „Zuordnen“ und ist seit K1-e.2 je Termin ein Eintrag in Kurz prüfen.
   - Handlungen auf Stufe Erledigen schreiben `undo_payload` erst ab K1-e und K1-f. Bis dahin ist „Erledigt im Hintergrund“ leer.
 
 **Stand nach K2-h (25.11.2026), Farben:** Abschnitt d nannte die Design-Tokens vollständig. Sie enthielten aber 13 Farben, die die Designsprache nicht kennt. K2-h hat sie auf Werte der Palette gesetzt: Schatten in Tinte statt `#1d1d1f`, Status-Text nach der Status-Tabelle (gut, Achtung, kritisch), Grau der Diagramme `ring-open`, Folgeskala aus Mint und Petrol, Flächen auf Tinte `dark-2`, Rand auf Tinte `input-border`, Hover-Fläche `line`. T-CI1 verhindert neue Abweichungen.

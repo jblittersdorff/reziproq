@@ -207,8 +207,11 @@ import {
   type RequestValidation,
   type ResolveConflict,
   type ReviewCustomAgent,
+  type ReviewDecision,
   ratingAssignmentListSchema,
   ratingDetailSchema,
+  reviewResultSchema,
+  reviewStackSchema,
   roleDescriptionSchema,
   roundCandidatesSchema,
   roundDetailSchema,
@@ -2108,6 +2111,18 @@ export const todayAllQueryOptions = (accessToken: string) =>
 /** „Morgen erinnern“: Fokus-Thema bis zum nächsten Tag 07:00 zurückstellen (HE-01 Dienst 4) */
 export const snoozeTopic = (accessToken: string, id: string) =>
   sendJson('POST', `/heute/${id}/morgen`, {}, snoozeResultSchema, accessToken);
+
+/** HE-01 Kurz prüfen (K1-e.2): der Stapel der Entwürfe */
+export const reviewStackQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['heute', 'kurz-pruefen'],
+    queryFn: () => getJson('/kurz-pruefen', reviewStackSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Übernehmen (optional angepasst), Verwerfen mit Grund oder Später */
+export const decideReview = (accessToken: string, id: string, decision: ReviewDecision) =>
+  sendJson('POST', `/kurz-pruefen/${id}`, decision, reviewResultSchema, accessToken);
 
 export const dueQueryOptions = (accessToken: string) =>
   queryOptions({

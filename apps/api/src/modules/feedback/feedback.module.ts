@@ -27,6 +27,6 @@ import { WavesService } from './waves.service.js';
     PublicSurveyController,
   ],
   providers: [SurveyService, WavesService, AnswerService, FeedbackThemesService, MyFeedbackService],
-  exports: [SurveyService, WavesService, MyFeedbackService],
+  exports: [SurveyService, WavesService, MyFeedbackService, FeedbackThemesService],
 })
 export class FeedbackModule {}

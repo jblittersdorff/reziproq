@@ -9,6 +9,6 @@ import { RatingsService } from './ratings.service.js';
   imports: [AiDraftsModule],
   controllers: [RatingsController],
   providers: [RatingsService, ConsolidationService, DeviationExplanationsService],
-  exports: [RatingsService],
+  exports: [RatingsService, DeviationExplanationsService],
 })
 export class RatingsModule {}

@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { signIn } from './route-walk.js';
-import { mockToday } from './today-fixture.js';
+import { mockReview, mockToday } from './today-fixture.js';
 
 // HE-01 (K1-e.1): Heute mit den Ansichten Fokus und Alles im Browser. T1-HE6: bei 390 px kein
 // waagerechter Bildlauf; Fokus mit genau einer Karte „Als Nächstes“, Alles ohne. Mit UX_SHOTS
@@ -68,3 +68,47 @@ test('Heute, Ansicht Alles: Filter Frist klappt in der Seite auf und schreibt di
   // keine Überlagerung: der Filter ist Teil der Seite (E-K0-01)
   await expect(page.locator('dialog[open]')).toHaveCount(0);
 });
+
+for (const width of [390, 1440]) {
+  test(`T1-HE6 Kurz prüfen bei ${width} px: mit einer Hand, Knöpfe mindestens 44 px, kein seitliches Scrollen`, async ({
+    page,
+  }) => {
+    await signIn(page, { locale: 'de' });
+    await mockToday(page);
+    await mockReview(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/kurz-pruefen');
+    await expect(page.getByRole('heading', { level: 1, name: 'Kurz prüfen' })).toBeVisible();
+    await expect(page.getByText('Entwurf 1 von 5')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(await sideScroll(page)).toBe(0);
+    const buttons = page.locator('#inhalt button, #inhalt a[href]');
+    const small = await buttons.evaluateAll((elements) =>
+      elements
+        .filter((element) => (element as HTMLElement).offsetParent !== null)
+        .filter((element) => element.getBoundingClientRect().height < 43.5)
+        .map((element) => element.textContent?.trim()),
+    );
+    expect(small).toEqual([]);
+    const accept = await page.getByRole('button', { name: 'Übernehmen' }).boundingBox();
+    const discard = await page.getByRole('button', { name: 'Verwerfen' }).boundingBox();
+    if (width === 390) {
+      // Vorlage mobil: Verwerfen und Übernehmen nebeneinander, je die halbe Breite, 52 px hoch
+      expect(Math.round(accept?.y ?? 0)).toBe(Math.round(discard?.y ?? 1));
+      expect(accept?.height ?? 0).toBeGreaterThanOrEqual(52);
+      expect((discard?.x ?? 0) < (accept?.x ?? 0)).toBe(true);
+    }
+    if (process.env.UX_SHOTS) {
+      await page.screenshot({
+        path: `${process.env.UX_SHOTS}/kurz-pruefen-${width}.png`,
+        fullPage: true,
+      });
+    }
+    // Durchklicken bis zum Ende
+    for (let index = 0; index < 5; index += 1) {
+      await page.getByRole('button', { name: 'Übernehmen' }).click();
+    }
+    await expect(page.getByText('Alles geprüft. 5 von 5 übernommen.')).toBeVisible();
+    expect(await sideScroll(page)).toBe(0);
+  });
+}

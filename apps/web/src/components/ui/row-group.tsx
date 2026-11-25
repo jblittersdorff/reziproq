@@ -10,28 +10,39 @@ import { defaultRenderLink, type RenderLink } from './nav-link';
  */
 function RowGroup({
   label,
+  action,
   className,
   children,
 }: {
   /** z. B. „Heute · 2 weitere“; ohne Label nur die Gruppe */
   label?: React.ReactNode;
+  /** Zweitknopf rechts neben dem Label, z. B. „Durchgehen“ (Vorlage Main) */
+  action?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
 }) {
   const headingId = useId();
+  const heading = label && (
+    <h2
+      id={headingId}
+      className="min-w-0 flex-1 px-1 font-semibold text-input-border text-sm uppercase tracking-label"
+    >
+      {label}
+    </h2>
+  );
   return (
     <section
       data-slot="row-group"
       {...(label ? { 'aria-labelledby': headingId } : {})}
       className={cn('flex flex-col gap-2', className)}
     >
-      {label && (
-        <h2
-          id={headingId}
-          className="px-1 font-semibold text-input-border text-sm uppercase tracking-label"
-        >
-          {label}
-        </h2>
+      {action ? (
+        <div className="flex items-center gap-3">
+          {heading}
+          {action}
+        </div>
+      ) : (
+        heading
       )}
       <div className="flex flex-col divide-y divide-row-line overflow-hidden rounded-md bg-card">
         {children}
@@ -51,6 +62,7 @@ function Row({
   detail,
   value,
   valueTone = 'muted',
+  wrap = false,
   renderLink = defaultRenderLink,
 }: {
   href?: string;
@@ -59,6 +71,8 @@ function Row({
   detail?: React.ReactNode;
   value?: React.ReactNode;
   valueTone?: 'muted' | 'accent';
+  /** Unterzeile umbrechen statt kürzen, für erklärende Sätze (Vorlage K1-Kurz-Pruefen) */
+  wrap?: boolean;
   renderLink?: RenderLink;
 }) {
   const body = (
@@ -66,7 +80,11 @@ function Row({
       {lead && <span className="flex shrink-0 items-center">{lead}</span>}
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <b className="truncate font-semibold text-ink text-row">{title}</b>
-        {detail && <span className="truncate text-detail text-input-border">{detail}</span>}
+        {detail && (
+          <span className={cn('text-detail text-input-border', wrap ? 'text-pretty' : 'truncate')}>
+            {detail}
+          </span>
+        )}
       </span>
       {value && (
         <span

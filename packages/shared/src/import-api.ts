@@ -75,7 +75,13 @@ export const apiBatchRequestSchema = z.object({
 });
 export type ApiBatchRequest = z.infer<typeof apiBatchRequestSchema>;
 
-export const apiBatchStatuses = ['receiving', 'processing', 'review', 'committed', 'failed'] as const;
+export const apiBatchStatuses = [
+  'receiving',
+  'processing',
+  'review',
+  'committed',
+  'failed',
+] as const;
 
 export const apiBatchResponseSchema = z.object({
   batch_id: z.uuid(),

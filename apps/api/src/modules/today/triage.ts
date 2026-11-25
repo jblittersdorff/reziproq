@@ -17,7 +17,7 @@ import {
 
 export type Locale = 'de' | 'en';
 
-export const sourceTypes = ['due', 'hint', 'ai_draft', 'agent_run'] as const;
+export const sourceTypes = ['due', 'hint', 'ai_draft', 'agent_run', 'inbound'] as const;
 export type SourceType = (typeof sourceTypes)[number];
 
 /** Ein Ergebnis, bevor die Triage es speichert; Punktzahl kommt im Dienst dazu */
@@ -249,24 +249,37 @@ function bindingCapture(draft: DraftRow): { title: string } | null {
 }
 
 /**
- * Offener Entwurf von Reziproq: Kurz prüfen. Teilen ohne Bestätigung (ZA-01) ist eine Freigabe, eine
- * Zusage der eigenen Seite eine Entscheidung; beide sind Fokus-Themen.
+ * Entwürfe, die etwas an das Gegenüber geben: die Agenda eines Briefings (geteilt beim Übernehmen,
+ * „Agenda freigeben“, BE-01) und eine Anfrage an den Lieferanten (KI-11). Nie Kurz prüfen, sondern
+ * Freigabe im Fokus (HE-01, K1-e.2).
+ */
+const toCounterpart = new Set(['brief_agenda', 'data_request']);
+
+/**
+ * Offener Entwurf von Reziproq: Kurz prüfen. Teilen ohne Bestätigung (ZA-01) und alles, was an das
+ * Gegenüber geht, ist eine Freigabe, eine Zusage der eigenen Seite eine Entscheidung; diese sind
+ * Fokus-Themen.
  */
 export function fromDraft(draft: DraftRow, locale: Locale): TriageCandidate {
   const de = locale === 'de';
   const binding = bindingCapture(draft);
   const share = draft.kind === 'share_request';
-  const level: FocusTopicLevel = share || binding ? 'focus' : 'review';
-  const kind: FocusTopicKind = share ? 'approval' : binding ? 'decision' : 'draft';
+  const release = toCounterpart.has(draft.kind);
+  const level: FocusTopicLevel = share || release || binding ? 'focus' : 'review';
+  const kind: FocusTopicKind = share || release ? 'approval' : binding ? 'decision' : 'draft';
   const sentence = share
     ? de
       ? 'Reziproq will das teilen. Das braucht deine Bestätigung.'
       : 'Reziproq wants to share this. It needs your confirmation.'
-    : binding
+    : release
       ? de
-        ? 'Zusage im Namen deiner Seite. Sie braucht deine Entscheidung.'
-        : 'Commitment on behalf of your side. It needs your decision.'
-      : templateOf(locale, 'draft');
+        ? 'Geht an das Gegenüber. Das braucht deine Freigabe.'
+        : 'Goes to the counterpart. It needs your approval.'
+      : binding
+        ? de
+          ? 'Zusage im Namen deiner Seite. Sie braucht deine Entscheidung.'
+          : 'Commitment on behalf of your side. It needs your decision.'
+        : templateOf(locale, 'draft');
   return {
     sourceType: 'ai_draft',
     sourceId: draft.id,
@@ -299,6 +312,44 @@ export interface RunRow {
   relationshipId: string | null;
   counterpart: string | null;
 }
+
+export interface InboundRow {
+  id: string;
+  subject: string;
+  /** Vorgeschlagene Beziehung, wenn genau eine; sonst null */
+  relationshipId: string | null;
+  counterpart: string | null;
+}
+
+/**
+ * Eingang zum Zuordnen (IN-03, E-K0-26): ein Termin, den Reziproq nicht sicher zuordnen konnte.
+ * Kurz prüfen, Entwurf „zuordnen“ (Inventar T1-I10); die Liste steht in Alles unter „Zuordnen“.
+ */
+export function fromInbound(item: InboundRow, locale: Locale): TriageCandidate {
+  return {
+    sourceType: 'inbound',
+    sourceId: item.id,
+    level: 'review',
+    kind: 'draft',
+    title: titleOf(
+      locale === 'de' ? `Termin zuordnen: ${item.subject}` : `Assign meeting: ${item.subject}`,
+    ),
+    sentence: templateOf(locale, 'draft'),
+    facts: [],
+    objectType: 'inbound_item',
+    objectId: item.id,
+    relationshipId: item.relationshipId,
+    counterpart: item.counterpart,
+    dueDate: null,
+    href: '/mein-tag/eingang',
+    severity: null,
+    reviewSeconds: inboundReviewSeconds,
+    dueItem: null,
+  };
+}
+
+/** Geschätzte Prüfzeit einer Zuordnung (MA-01, Aufgabe Postfach) */
+const inboundReviewSeconds = 20;
 
 /** Handlung von Reziproq auf Stufe Erledigen (mit undo_payload): Erledigt im Hintergrund */
 export function fromRun(run: RunRow, locale: Locale): TriageCandidate {

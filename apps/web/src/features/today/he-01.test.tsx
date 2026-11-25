@@ -282,6 +282,7 @@ function allView(overrides: Partial<TodayAll> = {}): TodayAll {
         suggestionKind: 'supplier',
         suggestions: [{ relationshipId: rheintal, name: 'Rheintal Elektronik' }],
         href: '/mein-tag/eingang',
+        inReview: false,
       },
       {
         id: uuid(31),
@@ -291,6 +292,7 @@ function allView(overrides: Partial<TodayAll> = {}): TodayAll {
         suggestionKind: 'event',
         suggestions: [],
         href: '/mein-tag/eingang',
+        inReview: false,
       },
     ],
     commitments: {
@@ -397,7 +399,13 @@ describe('HE-01 Heute, Ansicht Fokus (Vorlage Main)', () => {
     const group = await screen.findByRole('region', {
       name: 'Kurz prüfen · 2 Entwürfe · ca. 3 Min.',
     });
-    const rows = within(group).getAllByRole('link');
+    // „Durchgehen“ öffnet Kurz prüfen; jede Zeile beginnt dort bei ihrem Entwurf (K1-e.2).
+    expect(within(group).getByRole('link', { name: 'Durchgehen' }).getAttribute('href')).toBe(
+      '/kurz-pruefen',
+    );
+    const rows = within(group)
+      .getAllByRole('link')
+      .filter((link) => link.textContent !== 'Durchgehen');
     expect(rows.map((row) => row.getAttribute('href'))).toEqual(
       focusPage().drafts.map((draft) => draft.href),
     );

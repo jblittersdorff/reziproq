@@ -289,8 +289,8 @@ function Important({ data }: { data: TodayPageData }) {
 }
 
 /**
- * Kurz prüfen: Zahl und Minuten, darunter die Entwürfe als Zeilen; auf dem Telefon eine Zeile
- * (Vorlage A-MeinTag). Ein Entwurf öffnet seinen Ort, bis Kurz prüfen kommt (K1-e.2).
+ * Kurz prüfen: Zahl und Minuten mit „Durchgehen“, darunter die Entwürfe als Zeilen; auf dem Telefon
+ * eine Zeile (Vorlage A-MeinTag). Eine Zeile öffnet Kurz prüfen bei diesem Entwurf.
  */
 function ReviewBlock({ data }: { data: TodayPageData }) {
   const text = useMessages(todayMessages);
@@ -300,7 +300,18 @@ function ReviewBlock({ data }: { data: TodayPageData }) {
   return (
     <>
       <div className="hidden shell:block">
-        <RowGroup label={label}>
+        <RowGroup
+          label={label}
+          action={
+            <Button variant="secondary" asChild>
+              {routerLink({
+                href: '/kurz-pruefen',
+                className: 'no-underline',
+                children: text.review.goThrough,
+              })}
+            </Button>
+          }
+        >
           {data.drafts.map((draft) => (
             <Row
               key={draft.id}
@@ -317,7 +328,7 @@ function ReviewBlock({ data }: { data: TodayPageData }) {
       <div className="shell:hidden">
         <RowGroup>
           <Row
-            {...(data.drafts[0]?.href ? { href: data.drafts[0].href } : {})}
+            href="/kurz-pruefen"
             title={text.review.phoneTitle}
             detail={text.review.phoneDetail(data.review.count, data.review.minutes)}
             value={<Badge variant="shared">{data.review.count}</Badge>}
@@ -592,18 +603,27 @@ function AllGroups({ data, filters }: { data: TodayAll; filters: TodayFilters })
       </RowGroup>
 
       {drafts.length > 0 && (
-        <RowGroup label={text.all.groups.drafts(drafts.length)}>
-          {drafts.map((draft) => (
-            <Row
-              key={draft.id}
-              {...(draft.href ? { href: draft.href } : {})}
-              lead={<BrandMark />}
-              title={draft.title}
-              detail={text.review.detail(draft.counterpart, weekdayTime(locale, draft.createdAt))}
-              value={<Badge variant="shared">{text.review.chip}</Badge>}
-              renderLink={routerLink}
-            />
-          ))}
+        // Vorlage Heute-Alles: eine Zeile für alle Entwürfe, daneben „Kurz prüfen“
+        <RowGroup
+          label={text.all.groups.drafts(drafts.length)}
+          action={
+            <Button variant="secondary" asChild>
+              {routerLink({
+                href: '/kurz-pruefen',
+                className: 'no-underline',
+                children: text.review.phoneTitle,
+              })}
+            </Button>
+          }
+        >
+          <Row
+            href="/kurz-pruefen"
+            lead={<BrandMark />}
+            title={drafts.map((draft) => draft.title).join(', ')}
+            detail={text.all.draftsDetail(data.drafts.minutes)}
+            value={<Badge variant="shared">{text.review.chip}</Badge>}
+            renderLink={routerLink}
+          />
         </RowGroup>
       )}
 
@@ -677,6 +697,11 @@ function AllGroups({ data, filters }: { data: TodayAll; filters: TodayFilters })
                   ? text.all.assignEvent
                   : item.suggestions.map((entry) => entry.name).join(', ') || null,
               )}
+              value={
+                item.inReview ? (
+                  <Badge variant="shared">{text.all.chips.inReview}</Badge>
+                ) : undefined
+              }
               renderLink={routerLink}
             />
           ))}

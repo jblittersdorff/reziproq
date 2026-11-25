@@ -65,7 +65,9 @@ import {
   fromDraft,
   fromDue,
   fromHint,
+  fromInbound,
   fromRun,
+  type InboundRow,
   keyOf,
   type Locale,
   type RunRow,
@@ -163,6 +165,9 @@ export class TriageService {
         ...hints.filter((hint) => hint.canDismiss).map((hint) => fromHint(hint, today, locale)),
         ...(await draftsOf(tx, auth)).map((draft) => fromDraft(draft, locale)),
         ...(await runsOf(tx, auth, today)).map((run) => fromRun(run, locale)),
+        ...(organization.buyer && can(auth, 'termine.sehen') ? await inboundOf(tx, auth) : []).map(
+          (item) => fromInbound(item, locale),
+        ),
       ]);
       // Eine Beziehung hängt nur an, wenn es sie gibt; dazu Spend und Segmentgewicht je Beziehung.
       const existing = await existingRelationships(
@@ -288,16 +293,20 @@ export class TriageService {
             // Warum zum Hinweis kommt mit K1-e.4; bis dahin die Seite des Hinweises
             href: `/hinweise/${hint.id}`,
           }));
-        const assign: AllAssign[] = inbox.map((item) => ({
-          id: item.id,
-          kind: item.kind,
-          subject: item.subject,
-          startsAt: item.startsAt,
-          suggestionKind: item.suggestionKind,
-          suggestions: item.suggestions,
-          // Zuordnungen als Entwurf in Kurz prüfen kommen mit K1-e.2; bis dahin Neu eingegangen
-          href: '/mein-tag/eingang',
-        }));
+        const assign: AllAssign[] = inbox.map((item) => {
+          const review = view.reviewBySource.get(`inbound:${item.id}`);
+          return {
+            id: item.id,
+            kind: item.kind,
+            subject: item.subject,
+            startsAt: item.startsAt,
+            suggestionKind: item.suggestionKind,
+            suggestions: item.suggestions,
+            // Zuordnen ist ein Entwurf in Kurz prüfen (K1-e.2); ohne ihn die Seite Neu eingegangen
+            href: review ? `/kurz-pruefen?entwurf=${review}` : '/mein-tag/eingang',
+            inReview: Boolean(review),
+          };
+        });
         const names = new Map<string, string>();
         const groups = new Set<string>();
         const note = (id: string | null, name: string | null, group: string | null) => {
@@ -365,16 +374,19 @@ export class TriageService {
         and f.level = 'review' and f.state = 'open'
       order by d.review_order nulls last, coalesce(d.created_at, f.created_at), f.id`);
     let reviewSeconds = 0;
+    const reviewBySource = new Map<string, string>();
     const drafts: TodayDraft[] = draftRows.rows.map((row) => {
       const candidate = candidates.get(keyOf(sourceOf(row)));
       reviewSeconds += candidate?.reviewSeconds ?? defaultReviewSeconds;
+      reviewBySource.set(`${row.source_type}:${row.source_id}`, row.id);
       return {
         id: row.id,
         title: row.title,
         counterpart: candidate?.counterpart ?? null,
         relationshipId: row.relationship_id,
         createdAt: new Date(row.draft_created_at ?? row.created_at).toISOString(),
-        href: row.href,
+        // Kurz prüfen beginnt bei diesem Entwurf (K1-e.2)
+        href: `/kurz-pruefen?entwurf=${row.id}`,
       };
     });
 
@@ -431,6 +443,7 @@ export class TriageService {
       locale,
       topics,
       drafts,
+      reviewBySource,
       reviewSeconds,
       done,
       waiting,
@@ -721,6 +734,8 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
     where d.org_id = ${organization.id} and d.created_by = ${auth.userId} and d.status = 'draft'
       and d.relationship_id is not null
       and (d.kind = 'share_request' or d.claims is not null)
+      -- Die Begründung eines Hinweises gehört zum Hinweis (Warum), nicht in Kurz prüfen (K1-e.2).
+      and d.kind <> 'hint_explanation'
       and (${admin} or exists (
         select 1 from relationship_member m
         where m.relationship_id = d.relationship_id and m.org_id = d.org_id
@@ -748,6 +763,44 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
         : meetingPage
           ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.object_id}`
           : preparedHref(row.kind, row.object_id, relationshipId),
+    };
+  });
+}
+
+/**
+ * Eingänge, die die Person zuordnen soll (IN-03): wie Neu eingegangen eigene, als SRO zugewiesene,
+ * beim Admin auch Eingänge ohne Person. Genau eine vorgeschlagene Beziehung hängt an.
+ */
+async function inboundOf(tx: TenantTransaction, auth: AuthContext): Promise<InboundRow[]> {
+  const organization = auth.organization;
+  if (!organization) return [];
+  const admin = auth.orgRole === 'admin';
+  const rows = await tx.execute<{
+    id: string;
+    subject: string;
+    suggestion_kind: string;
+    suggested: string[] | null;
+  }>(sql`
+    select i.id, i.subject, i.suggestion_kind, i.suggested_relationship_ids as suggested
+    from inbound_item i
+    where i.org_id = ${organization.id} and i.status = 'needs_review'
+      and (i.assignee_user_id = ${auth.userId} or i.owner_user_id = ${auth.userId}
+        or (${admin} and i.assignee_user_id is null))
+    order by i.received_at desc
+    limit 100`);
+  const names = await visibleRelationships(tx, {
+    orgId: organization.id,
+    userId: auth.userId,
+    admin,
+  });
+  return rows.rows.map((row) => {
+    const single =
+      row.suggestion_kind === 'supplier' && row.suggested?.length === 1 ? row.suggested[0] : null;
+    return {
+      id: row.id,
+      subject: row.subject,
+      relationshipId: single ?? null,
+      counterpart: single ? (names.get(single) ?? null) : null,
     };
   });
 }

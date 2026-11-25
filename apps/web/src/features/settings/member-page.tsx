@@ -76,7 +76,13 @@ export function MemberPage({ userId }: { userId: string }) {
  * IN-02: Neue Person aus der Firmen-Domain prüfen. Tinte-Karte mit genau einer Hauptaktion; bis zur
  * Freigabe sieht die Person nichts (can() im Backend).
  */
-function ApproveMember({ member, accessToken }: { member: OrganizationMember; accessToken: string }) {
+function ApproveMember({
+  member,
+  accessToken,
+}: {
+  member: OrganizationMember;
+  accessToken: string;
+}) {
   const t = useT();
   const queryClient = useQueryClient();
   const canChange = useCan('rollen.aendern');

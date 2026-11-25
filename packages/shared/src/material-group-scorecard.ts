@@ -7,7 +7,10 @@ export const initiativeHorizons = ['short', 'mid', 'long'] as const;
 export type InitiativeHorizon = (typeof initiativeHorizons)[number];
 
 /** Kurz 1 Jahr, mittel 2 bis 3, lang 4 bis 5, gezählt ab dem Strategiejahr */
-export function horizonOf(targetYear: number | null, strategyYear: number): InitiativeHorizon | null {
+export function horizonOf(
+  targetYear: number | null,
+  strategyYear: number,
+): InitiativeHorizon | null {
   if (targetYear === null) return null;
   const years = targetYear - strategyYear + 1;
   if (years <= 1) return 'short';
@@ -50,9 +53,7 @@ export const categoryScorecardSchema = z.object({
   missingChoiceIds: z.array(z.uuid()),
   suppliers: z.array(supplier),
   people: z.array(person),
-  reviews: z.array(
-    z.object({ id: z.uuid(), dueOn: z.string(), heldAt: z.string().nullable() }),
-  ),
+  reviews: z.array(z.object({ id: z.uuid(), dueOn: z.string(), heldAt: z.string().nullable() })),
 });
 export type CategoryScorecard = z.infer<typeof categoryScorecardSchema>;
 

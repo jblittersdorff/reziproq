@@ -116,7 +116,9 @@ function OrganizationDetails() {
                     {t.roles[member.orgRole]}
                   </Badge>
                   {/* IN-02: über die Firmen-Domain angelegt, noch nicht freigegeben */}
-                  {member.approvalPending && <Badge variant="warning">{t.settings.pendingBadge}</Badge>}
+                  {member.approvalPending && (
+                    <Badge variant="warning">{t.settings.pendingBadge}</Badge>
+                  )}
                 </span>
               </TableCell>
               <TableCell>{member.isControlling ? t.roles.controlling : '–'}</TableCell>
