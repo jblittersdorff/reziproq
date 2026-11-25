@@ -87,6 +87,50 @@ describe('KI-01 Einstellungen KI', () => {
     expect(await screen.findByText('Gespeichert.')).toBeTruthy();
   });
 
+  it('MA-01 (K1-f.4), T1-I13: Aufgaben von Reziproq aus oder mit Obergrenze; gespeichert wird ai_workers', async () => {
+    renderAt('/einstellungen/ki');
+    expect(await screen.findByRole('heading', { level: 1, name: 'KI einstellen' })).toBeTruthy();
+    expect(
+      within(screen.getByRole('main'))
+        .getByRole('link', { name: 'Mein Agent' })
+        .getAttribute('href'),
+    ).toBe('/mein-agent');
+    // An oder aus wie in der Vorlage; die Obergrenze nur, wo mehr als eine Stufe wirkt (Postfach)
+    const inbox = await screen.findByRole('switch', { name: 'Postfach' });
+    expect(inbox.getAttribute('aria-checked')).toBe('true');
+    const cap = screen.getByRole('combobox', { name: 'Höchste Stufe für „Postfach“' });
+    expect((cap as HTMLSelectElement).value).toBe('do');
+    // Das Termin-Briefing ist aus, bis ein Admin es einschaltet; Marktsignale haben nur eine Stufe
+    expect(
+      screen.getByRole('switch', { name: 'Termin-Briefing' }).getAttribute('aria-checked'),
+    ).toBe('false');
+    expect(screen.queryByRole('combobox', { name: 'Höchste Stufe für „Marktsignale“' })).toBeNull();
+    fireEvent.change(cap, { target: { value: 'prepare' } });
+    fireEvent.click(screen.getByRole('switch', { name: 'Termin-Briefing' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Wertfinder' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Einstellungen speichern' }));
+    await waitFor(() =>
+      expect(sent[0]).toEqual({
+        ...defaultAiSettings,
+        workers: {
+          inbox: { enabled: true, cap: 'prepare' },
+          meeting_brief: { enabled: true },
+          value_finder: { enabled: false },
+        },
+      }),
+    );
+  });
+
+  it('Protokoll: Läufe stehen in Erledigt', async () => {
+    renderAt('/einstellungen/ki');
+    const log = await screen.findByRole('group', { name: 'Protokoll' });
+    expect(
+      within(log)
+        .getByRole('link', { name: /Was Reziproq für dich erledigt hat/ })
+        .getAttribute('href'),
+    ).toBe('/erledigt');
+  });
+
   it('KI-11: der Admin wählt Segmente für den monatlichen Lauf', async () => {
     settings = {
       ...settings,

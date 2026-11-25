@@ -4,8 +4,11 @@ import {
   aiFeatureValues,
   aiSettingsSchema,
   aiSourceKindValues,
+  liveWorkers,
   type OpportunityTemplateKey,
+  orgWorkerState,
   templateAssumptionDefaults,
+  type WorkerLevel,
 } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
@@ -19,7 +22,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { MeterBar } from '@/components/ui/meter-bar';
 import { NativeSelect } from '@/components/ui/native-select';
 import { RowsEditor } from '@/components/ui/rows-editor';
-import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
+import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -30,14 +33,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { myAgentMessages } from '@/features/agents/my-agent-messages';
 import { useCan } from '@/features/auth/use-permissions';
 import { HintRulesSection } from '@/features/hints/hint-rules-section';
 import { BriefSettingsSection } from '@/features/meetings/brief-settings-section';
 import { useToken as useAccessToken } from '@/features/ratings/use-rating';
+import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
 import { aiSettingsQueryOptions, aiUsageQueryOptions, saveAiSettings } from '@/lib/api';
-import { useLocale, useT } from '@/lib/i18n';
+import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 
 /** Euro-Betrag als Text für das Eingabefeld: Monatsbudget 15000 → „150“, je Lauf 200 → „2,00“ */
@@ -262,12 +267,19 @@ export function AiSettingsPage() {
         current={text.navTitle}
       />
       <PageHeader title={text.title} purpose={text.purpose} />
-      <Link
-        to="/mein-agent"
-        className="inline-flex min-h-11 items-center self-start font-medium underline"
-      >
-        {t.agents.title}
-      </Link>
+      {/* Vorlage E-KI: Verweis auf Mein Agent im Satz; der Link hat 44 px Klickfläche (PLT-10) */}
+      <p className="flex flex-wrap items-center gap-x-1 text-base text-muted-foreground">
+        <span>{text.myAgentLead}</span>
+        <Link
+          to="/mein-agent"
+          className="inline-flex min-h-11 items-center font-medium text-petrol underline"
+        >
+          {text.myAgentLink}
+        </Link>
+        <span className={/^[.,;]/.test(text.myAgentTail) ? '-ml-1' : undefined}>
+          {text.myAgentTail}
+        </span>
+      </p>
       <div className="grid items-start gap-5 lg:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-5 lg:col-span-2">
           {!canManage ? (
@@ -373,6 +385,11 @@ export function AiSettingsPage() {
                   />
                 </div>
               </SettingsGroup>
+              <TasksGroup
+                workers={current.workers}
+                readOnly={readOnly}
+                onChange={(workers) => update({ workers })}
+              />
               {(query.data?.segmentTypes?.length ?? 0) > 0 && (
                 <SettingsGroup title={text.valueFinderTitle}>
                   <div className="flex flex-col gap-2 px-4 py-3">
@@ -479,8 +496,81 @@ export function AiSettingsPage() {
         </div>
         <div className="flex min-w-0 flex-col gap-5">
           <UsageCard />
+          <SettingsGroup title={text.logTitle}>
+            <p className="px-4 py-3 text-muted-foreground text-sm">{text.logText}</p>
+            <SettingsLinkRow href="/erledigt" label={text.logLink} renderLink={routerLink} />
+          </SettingsGroup>
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Aufgaben von Reziproq (MA-01, Vorlage E-KI): je Aufgabe, die es gibt, an oder aus wie in der
+ * Vorlage. MA-01 verlangt dazu eine Obergrenze je Aufgabe; die Auswahl „bis …“ steht nur, wo heute
+ * mehr als eine Stufe wirkt (bisher das Postfach). Die höchste Stufe heißt: keine Grenze.
+ * Gespeichert wird mit dem Formular (ai_workers).
+ */
+function TasksGroup({
+  workers,
+  readOnly,
+  onChange,
+}: {
+  workers: AiSettings['workers'];
+  readOnly: boolean;
+  onChange: (workers: AiSettings['workers']) => void;
+}) {
+  const text = useT().aiSettings;
+  const tasks = useMessages(myAgentMessages);
+  return (
+    <SettingsGroup title={text.tasksTitle}>
+      <p className="px-4 py-3 text-muted-foreground text-sm">{text.tasksHint}</p>
+      {liveWorkers.map((worker) => {
+        const state = orgWorkerState(workers, worker);
+        const highest = worker.liveLevels.at(-1) as WorkerLevel;
+        const name = tasks.tasks[worker.key]?.name ?? worker.key;
+        const set = (patch: { enabled?: boolean; cap?: WorkerLevel | null }) => {
+          const enabled = patch.enabled ?? state.enabled;
+          const cap = patch.cap === undefined ? state.cap : patch.cap;
+          onChange({
+            ...workers,
+            [worker.key]: { enabled, ...(cap && cap !== highest ? { cap } : {}) },
+          });
+        };
+        return (
+          <SettingsRow
+            key={worker.key}
+            label={name}
+            description={tasks.tasks[worker.key]?.does ?? ''}
+            htmlFor={`ki-aufgabe-${worker.key}`}
+            wide={worker.liveLevels.length > 1}
+          >
+            <span className="flex items-center gap-3">
+              {worker.liveLevels.length > 1 && (
+                <NativeSelect
+                  aria-label={text.taskCap(name)}
+                  value={state.cap ?? highest}
+                  disabled={readOnly || !state.enabled}
+                  onChange={(event) => set({ cap: event.target.value as WorkerLevel })}
+                >
+                  {worker.liveLevels.map((level) => (
+                    <option key={level} value={level}>
+                      {text.capOption(tasks.levels[level])}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+              <Switch
+                id={`ki-aufgabe-${worker.key}`}
+                checked={state.enabled}
+                disabled={readOnly}
+                onCheckedChange={(enabled) => set({ enabled })}
+              />
+            </span>
+          </SettingsRow>
+        );
+      })}
+    </SettingsGroup>
   );
 }

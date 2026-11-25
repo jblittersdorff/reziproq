@@ -6133,11 +6133,14 @@ export const de = {
     },
   },
   aiSettings: {
-    navTitle: 'KI und Agenten',
-    navHint: 'Was Agenten dürfen, was sie kosten, wer freigibt',
-    title: 'KI und Agenten einstellen',
-    purpose:
-      'Was Agenten dürfen, was sie kosten und wer neue Agenten freigibt. Gilt für eure ganze Organisation.',
+    navTitle: 'KI',
+    navHint: 'Was Reziproq darf und was es kostet',
+    // MA-01 (K1-f.4), Vorlage E-KI
+    title: 'KI einstellen',
+    purpose: 'Was Reziproq darf und was es kostet. Gilt für eure ganze Organisation.',
+    myAgentLead: 'Was Reziproq für dich selbst erledigt, stellst du in',
+    myAgentLink: 'Mein Agent',
+    myAgentTail: 'ein.',
     loading: 'Einstellungen werden geladen …',
     failed: 'Die Einstellungen konnten nicht geladen werden.',
     dataTitle: 'Daten und Recherche',
@@ -6147,7 +6150,7 @@ export const de = {
     alwaysOn: 'immer an',
     publicResearch: 'Öffentliche Recherche',
     publicResearchHint:
-      'Agenten dürfen öffentliche Quellen suchen. Nach außen gehen nur Warengruppe, Technologie und öffentlich bekannte Firmennamen.',
+      'Reziproq darf öffentliche Quellen suchen. Nach außen gehen nur Warengruppe, Technologie und öffentlich bekannte Firmennamen.',
     sources: 'Zugelassene Quellen',
     sourceKinds: {
       industry_reports: 'Branchenberichte',
@@ -6160,11 +6163,20 @@ export const de = {
     budgetMonth: 'Budget je Monat in Euro',
     budgetMonthHint: 'Ist es erreicht, starten keine neuen Läufe mehr. Laufende werden beendet.',
     budgetRun: 'Höchstens je Lauf in Euro',
-    budgetRunHint: 'Gilt für alle Agenten, die keine eigene Grenze haben.',
+    budgetRunHint: 'Gilt für jede Aufgabe, die keine eigene Grenze hat.',
     maxSteps: 'Höchstens Schritte je Lauf',
     maxStepsHint: 'Bricht Schleifen ab, bevor sie teuer werden.',
-    overrides: 'Höheres Budget je Agent',
-    overrideAgent: 'Agent',
+    overrides: 'Höheres Budget je Funktion',
+    overrideAgent: 'Funktion',
+    tasksTitle: 'Aufgaben von Reziproq',
+    tasksHint:
+      'Was hier aus ist, läuft für niemanden in eurer Organisation. Wie viel Reziproq je Aufgabe selbst tut, stellt jede Person in Mein Agent ein; eine Stufe hier ist die Obergrenze.',
+    taskCap: (name: string) => `Höchste Stufe für „${name}“`,
+    capOption: (level: string) => `bis ${level}`,
+    logTitle: 'Protokoll',
+    logText:
+      'Jeder Lauf ist mit seinen Schritten und Quellen gespeichert; das Warum eines Laufs zeigt sie.',
+    logLink: 'Was Reziproq für dich erledigt hat',
     overrideBudget: 'Höchstens je Lauf in Euro',
     addOverride: 'Ausnahme hinzufügen',
     removeOverride: (index: number) => `Ausnahme ${index + 1} entfernen`,

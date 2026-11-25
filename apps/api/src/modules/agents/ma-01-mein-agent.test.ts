@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
-import { type MyAgent, myAgentSchema, myAgentTaskSchema } from '@reziproq/shared';
+import {
+  defaultAiSettings,
+  type MyAgent,
+  myAgentSchema,
+  myAgentTaskSchema,
+} from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -218,6 +223,32 @@ describe('MA-01 Mein Agent', () => {
     );
     expect((await view(users.admin)).canManage).toBe(true);
     expect((await call(users.supplier, 'GET', '/mein-agent')).status).toBe(403);
+  });
+
+  it('Admins legen in den KI-Einstellungen An oder Aus und die Obergrenze fest; Mein Agent zeigt es', async () => {
+    const put = (workers: object) =>
+      call(users.admin, 'PUT', '/einstellungen/ki', { ...defaultAiSettings, workers });
+    try {
+      expect(
+        (await put({ inbox: { enabled: true, cap: 'prepare' }, early_warning: { enabled: false } }))
+          .status,
+      ).toBe(200);
+      const tasks = new Map((await view(users.bert)).tasks.map((task) => [task.key, task]));
+      expect(tasks.get('inbox')).toMatchObject({ cap: 'prepare', level: 'prepare', enabled: true });
+      expect(tasks.get('early_warning')).toMatchObject({ enabled: false, level: null });
+      // Eine Stufe außerhalb der drei ist keine Obergrenze; Mitglieder ändern die Einstellungen nicht
+      expect((await put({ inbox: { cap: 'immer' } })).status).toBe(400);
+      expect(
+        (
+          await call(users.anna, 'PUT', '/einstellungen/ki', {
+            ...defaultAiSettings,
+            workers: { inbox: { enabled: false } },
+          })
+        ).status,
+      ).toBe(403);
+    } finally {
+      await db.execute(sql`delete from org_setting where org_id = ${orgs.buyer}`);
+    }
   });
 
   it('T1-MA4: Gehört eine Modellfunktion zu einer ausgeschalteten Aufgabe, gibt es keinen Aufruf', async () => {
