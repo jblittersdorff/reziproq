@@ -24,6 +24,15 @@ export {
   loadMaterialGroupDefaults,
   seedMaterialGroupDefaults,
 } from './material-group-defaults.js';
+export {
+  type NordwindResult,
+  nordwind,
+  nordwindPeople,
+  nordwindStart,
+  nordwindSuppliers,
+  seedNordwind,
+  supplierPeople,
+} from './nordwind.js';
 export { ensureApiRole } from './roles.js';
 export * as schema from './schema/index.js';
 export { type TenantSession, type TenantTransaction, withTenant } from './tenant.js';

@@ -29,6 +29,7 @@
     "rechte": "pnpm --filter @reziproq/api rechte",
     "weiterleitungen": "WEITERLEITUNGEN_SCHREIBEN=1 vitest run --project web route-moves",
     "demo:setup": "pnpm --filter @reziproq/db demo:setup && pnpm --filter @reziproq/api demo:ki",
+    "demo:nordwind": "pnpm --filter @reziproq/db demo:nordwind",
     "durchstich:pruefen": "pnpm --filter @reziproq/db durchstich:pruefen",
     "durchstich:graph": "pnpm --filter @reziproq/api durchstich:graph"
   },

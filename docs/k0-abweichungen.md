@@ -111,6 +111,7 @@ Weitere Punkte:
   - Stand K1-b.2 (25.11.2026): Die Demo-Sitzung je Person ist gebaut (E-K0-05).
   - Es gibt keine Uhr je Mandant. In der API stehen 201 `new Date()`, 21 `Date.now()` und 45 `now()` in SQL, dazu Standardwerte `defaultNow()` und Zeitpläne in zehn Workern. Das ist der breiteste Umbau des Pakets (Abschnitt f).
 - **B-08 Demo-Daten (DM-01, G-10).** Heute gibt es „Test-OEM (Demo)“, „Zweit-OEM“ und „Test-Lieferant“ (`packages/db/src/seed.ts:42`), dazu `demo-story.ts`.
+  - Stand K1-b.3 (25.11.2026): Nordwind Antriebe ist ein eigener Demo-Mandant (`pnpm demo:nordwind`) mit den Personen und Lieferanten aus DM-01 und den Zahlen der Vorlage Beziehungen. Den Stand der Drehbücher legt K1-g an.
   - Einige Lieferanten heißen schon wie im Paket (Rheintal Elektronik, Silesia Guss, Pearl River), haben aber andere Zahlen.
   - Es fehlen: Nordwind Antriebe, die Personen aus DM-01, Halder Maschinenbau, Saar Circuits, Moldau PCB, Weser PCB, Kessler Präzision, Nordwerk Guss, Baltic Logistics und Donau Print (F-04).
 - **B-09 Rahmen (NAV-10 2.0).** Code:
