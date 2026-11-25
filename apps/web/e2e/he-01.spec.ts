@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { signIn } from './route-walk.js';
-import { mockReview, mockToday } from './today-fixture.js';
+import { mockDone, mockReview, mockToday } from './today-fixture.js';
 
 // HE-01 (K1-e.1): Heute mit den Ansichten Fokus und Alles im Browser. T1-HE6: bei 390 px kein
 // waagerechter Bildlauf; Fokus mit genau einer Karte „Als Nächstes“, Alles ohne. Mit UX_SHOTS
@@ -110,5 +110,36 @@ for (const width of [390, 1440]) {
     }
     await expect(page.getByText('Alles geprüft. 5 von 5 übernommen.')).toBeVisible();
     expect(await sideScroll(page)).toBe(0);
+  });
+}
+
+for (const width of [390, 1440]) {
+  test(`T1-HE6 Erledigt bei ${width} px: Knöpfe mindestens 44 px, kein seitliches Scrollen`, async ({
+    page,
+  }) => {
+    await signIn(page, { locale: 'de' });
+    await mockToday(page);
+    await mockDone(page);
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/erledigt');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Erledigt im Hintergrund' }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Zurücknehmen' }).first()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    expect(await sideScroll(page)).toBe(0);
+    const small = await page.locator('#inhalt button, #inhalt a[href]').evaluateAll((elements) =>
+      elements
+        .filter((element) => (element as HTMLElement).offsetParent !== null)
+        .filter((element) => element.getBoundingClientRect().height < 43.5)
+        .map((element) => element.textContent?.trim()),
+    );
+    expect(small).toEqual([]);
+    if (process.env.UX_SHOTS) {
+      await page.screenshot({
+        path: `${process.env.UX_SHOTS}/erledigt-${width}.png`,
+        fullPage: true,
+      });
+    }
   });
 }

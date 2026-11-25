@@ -375,7 +375,8 @@ describe('NAV-10 2.0: Seitenleiste und Tab-Leiste (TN-01, TN-02)', () => {
     const running = within(bar()).getByRole('link', {
       name: 'Im Hintergrund: Termin-Briefing · Rheintal Elektronik',
     });
-    expect(running.getAttribute('href')).toBe('/mein-agent');
+    // NAV-10 2.0: seit K1-e.3 führt „Im Hintergrund“ zu Erledigt
+    expect(running.getAttribute('href')).toBe('/erledigt');
   });
 
   it('ohne offene Fokus-Themen keine Zahl, ohne Lauf keine Zeile „Im Hintergrund“', async () => {

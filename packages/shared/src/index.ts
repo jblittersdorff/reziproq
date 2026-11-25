@@ -14,6 +14,7 @@ export * from './customers.js';
 export * from './cycle.js';
 export * from './cycle-status.js';
 export * from './data-export.js';
+export * from './done.js';
 export * from './focus.js';
 export * from './health.js';
 export * from './hints.js';

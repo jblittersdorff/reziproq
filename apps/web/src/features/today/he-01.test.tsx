@@ -413,13 +413,21 @@ describe('HE-01 Heute, Ansicht Fokus (Vorlage Main)', () => {
     expect(rows[0]?.querySelector('[data-slot="brand-mark"]')).toBeTruthy();
   });
 
-  it('Erledigt im Hintergrund ist eine Zeile ohne Pfeil, bis die Seite Erledigt kommt', async () => {
+  it('Erledigt im Hintergrund ist eine Zeile mit Zahl und Arten; sie öffnet Erledigt', async () => {
+    api.today = focusPage({
+      done: {
+        since: new Date().toISOString(),
+        count: 16,
+        tasks: [
+          { task: 'Postfach', count: 12 },
+          { task: 'Zusagen nachhalten', count: 4 },
+        ],
+      },
+    });
     renderAt('/heute');
-    const row = (await screen.findByText('Erledigt im Hintergrund · 0')).closest(
-      '[data-slot="row"]',
-    );
-    expect(row).toBeTruthy();
-    expect(row?.textContent).toContain('Seit gestern 18:00 hat Reziproq nichts für dich erledigt.');
+    const row = await screen.findByRole('link', { name: /Erledigt im Hintergrund · 16/ });
+    expect(row.getAttribute('href')).toBe('/erledigt');
+    expect(row.textContent).toContain('Postfach 12, Zusagen nachhalten 4');
   });
 
   it('Rechts: „Diese Woche“ mit Datumskreis (Petrol, wenn andere am Zug sind), „Wartet auf andere“ und „Alles anzeigen“', async () => {
@@ -446,7 +454,7 @@ describe('HE-01 Heute, Ansicht Fokus (Vorlage Main)', () => {
     renderAt('/heute');
     expect(await screen.findByText('Nichts braucht dich gerade.')).toBeTruthy();
     expect(document.querySelector('[data-slot="next-card"]')).toBeNull();
-    expect(screen.getByText('Erledigt im Hintergrund · 0')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Erledigt im Hintergrund · 0/ })).toBeTruthy();
   });
 
   it('T1-I16: die Teile von Mein Tag stehen an ihrem neuen Ort', async () => {
@@ -606,6 +614,11 @@ describe('HE-01 Heute, Ansicht Alles (Vorlage Heute-Alles)', () => {
         .getByRole('link', { name: /Wie Termine ankommen/ })
         .getAttribute('href'),
     ).toBe('/einstellungen/anbindungen');
+    expect(
+      within(more)
+        .getByRole('link', { name: /Erledigt im Hintergrund/ })
+        .getAttribute('href'),
+    ).toBe('/erledigt');
     expect(within(more).getByText('19 seit gestern 18:00')).toBeTruthy();
   });
 

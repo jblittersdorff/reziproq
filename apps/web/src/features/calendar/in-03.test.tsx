@@ -117,52 +117,9 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-describe('IN-03 Neu eingegangen', () => {
-  it('zeigt die Zahl, Vorschlag mit Grund und was heute selbst zugeordnet wurde', async () => {
-    renderAt('/mein-tag/eingang');
-    expect(await screen.findByText('3 Termine warten auf eine Zuordnung')).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 2, name: 'Zuordnen · 3' })).toBeTruthy();
-    expect(screen.getByText(/Teilnehmer von rheintal-elektronik\.de/)).toBeTruthy();
-    expect(screen.getByText('Silesia Guss oder Lombardia Fonderie')).toBeTruthy();
-    expect(screen.getByText('Kein einzelner Lieferant')).toBeTruthy();
-    const today = screen
-      .getByRole('heading', { level: 2, name: 'Heute selbst zugeordnet · 1' })
-      .closest('section') as HTMLElement;
-    expect(within(today).getByText('QBR Nordwerk Guss')).toBeTruthy();
-    expect(
-      within(today).getByText(/Quartalsreview · Einladung an die Eingangsadresse/),
-    ).toBeTruthy();
-  });
-
-  it('Speichern ordnet mit Typ zu; Bei beiden legt beide an; Ereignis und Ignorieren', async () => {
-    renderAt('/mein-tag/eingang');
-    const first = (await screen.findByText('Abstimmung Musterteile Starrflex')).closest(
-      'li',
-    ) as HTMLElement;
-    expect(((await within(first).findByLabelText('Termintyp')) as HTMLSelectElement).value).toBe(
-      'site_visit',
-    );
-    fireEvent.click(within(first).getByRole('button', { name: 'Speichern' }));
-    await waitFor(() =>
-      expect(sent[0]).toMatchObject({
-        url: `/api/mein-tag/eingang/${uuid(1)}/entscheiden`,
-        body: { action: 'assign', relationshipIds: [uuid(50)], type: 'site_visit' },
-      }),
-    );
-    const second = screen.getByText('Call Guss Q1').closest('li') as HTMLElement;
-    fireEvent.click(within(second).getByRole('button', { name: 'Bei beiden' }));
-    await waitFor(() =>
-      expect(sent[1]).toMatchObject({
-        body: { action: 'assign', relationshipIds: [uuid(51), uuid(52)] },
-      }),
-    );
-    const third = screen.getByText('Lieferantentag 2027').closest('li') as HTMLElement;
-    fireEvent.click(within(third).getByRole('button', { name: 'Als Ereignis speichern' }));
-    await waitFor(() => expect(sent[2]).toMatchObject({ body: { action: 'event' } }));
-    fireEvent.click(within(third).getByRole('button', { name: 'Ignorieren' }));
-    await waitFor(() => expect(sent[3]).toMatchObject({ body: { action: 'ignore' } }));
-  });
-
+describe('IN-03 Neu eingegangen in Heute (K1-e.3)', () => {
+  // Seit K1-e.3 geht Neu eingegangen in Heute auf: Zuordnen in Kurz prüfen
+  // (features/today/kurz-pruefen.test.tsx), Selbst zugeordnet in Erledigt (erledigt.test.tsx).
   it('Heute, Ansicht Alles, zeigt nicht zugeordnete Termine unter „Zuordnen“ (HE-01, E-K0-26)', async () => {
     api.todayAll = todayAllResponse({
       assign: [

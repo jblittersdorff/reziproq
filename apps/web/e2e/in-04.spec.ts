@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { ActivityFeed, Inbox } from '@reziproq/shared';
+import type { ActivityFeed } from '@reziproq/shared';
 import { id, signIn } from './route-walk.js';
 
 // IN-04: abgelegte Mails in den Aktivitäten und eine weitergeleitete Mail in „Neu eingegangen“,
@@ -66,50 +66,38 @@ const feed: ActivityFeed = {
     },
   ],
 };
-const inbox: Inbox = {
-  open: [
+const mailReview = {
+  items: [
     {
-      id: uuid(10),
-      kind: 'mail',
-      source: 'inbound_mail',
-      receivedAt: '2026-11-23T08:00:00Z',
-      subject: 'Einladung Fachmesse Kunststoffe',
-      startsAt: '2026-11-22T14:05:00Z',
-      organizer: 'info@messe-kunststoffe.example',
-      attendees: 0,
-      suggestionKind: 'none',
-      suggestions: [],
-      suggestionReason:
-        'Absender von messe-kunststoffe.example sind noch keinem Lieferanten zugeordnet.',
-      suggestedType: 'other',
-      status: 'needs_review',
-      objectType: null,
-      assigned: [],
+      id: uuid(5),
+      source: 'inbound',
+      kind: 'inbound',
+      objectType: 'inbound_item',
+      subject: 'Kapazitätsplanung 2028',
+      counterpart: 'Rheintal Elektronik',
+      relationshipId: id,
+      title: 'Mail zuordnen: Kapazitätsplanung 2028',
+      lines: [],
+      sources: [],
+      createdAt: '2026-11-23T08:00:00Z',
+      reviewSeconds: 20,
+      adjust: 'place',
+      text: null,
+      href: '/kurz-pruefen',
+      canAccept: true,
+      inbound: {
+        kind: 'mail',
+        from: 'tom@rheintal.example',
+        startsAt: '2026-11-23T08:00:00Z',
+        suggestionKind: 'supplier',
+        suggestions: [{ relationshipId: id, name: 'Rheintal Elektronik' }],
+        suggestedType: 'other',
+        reason: 'Absender von rheintal.example',
+        options: [{ relationshipId: id, name: 'Rheintal Elektronik' }],
+      },
     },
   ],
-  today: [
-    {
-      id: uuid(11),
-      kind: 'mail',
-      source: 'inbound_mail',
-      receivedAt: '2026-11-23T07:00:00Z',
-      subject: 'Lieferplan Januar',
-      startsAt: '2026-11-22T14:05:00Z',
-      organizer: 'disposition@rheintal-elektronik.example',
-      attendees: 1,
-      suggestionKind: 'supplier',
-      suggestions: [],
-      suggestionReason: null,
-      suggestedType: 'other',
-      status: 'assigned',
-      objectType: 'filed_mail',
-      assigned: [
-        { relationshipId: id, name: 'Rheintal Elektronik', meetingId: null, mailId: uuid(4) },
-      ],
-    },
-  ],
-  suppliers: [{ relationshipId: id, name: 'Rheintal Elektronik' }],
-  active: true,
+  minutes: 1,
 };
 const noScroll = (page: import('@playwright/test').Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -151,7 +139,7 @@ for (const width of [390, 1440]) {
     }
   });
 
-  test(`weitergeleitete Mail in „Neu eingegangen“ ohne seitliches Scrollen (${width})`, async ({
+  test(`weitergeleitete Mail in Kurz prüfen ohne seitliches Scrollen (${width})`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -161,15 +149,16 @@ for (const width of [390, 1440]) {
         json: { actions: ['termine.sehen', 'notizen.schreiben', 'lieferanten.sehen'] },
       }),
     );
-    await page.route('**/api/mein-tag/eingang', (route) => route.fulfill({ json: inbox }));
-    await page.goto('/mein-tag/eingang');
-    await expect(page.getByText('Weitergeleitete Mail').first()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Ablegen' })).toBeVisible();
+    // Seit K1-e.3 steht die Mail als Eintrag in Kurz prüfen (Neu eingegangen ist aufgelöst).
+    await page.route('**/api/kurz-pruefen', (route) => route.fulfill({ json: mailReview }));
+    await page.goto('/kurz-pruefen');
+    await expect(page.getByText('Mail von tom@rheintal.example')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Übernehmen' })).toBeVisible();
     await page.waitForLoadState('networkidle');
     expect(await noScroll(page)).toBe(0);
     if (process.env.IN04_SHOTS) {
       await page.screenshot({
-        path: `${process.env.IN04_SHOTS}/eingang-${width}.png`,
+        path: `${process.env.IN04_SHOTS}/kurz-pruefen-mail-${width}.png`,
         fullPage: true,
       });
     }

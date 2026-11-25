@@ -43,11 +43,17 @@ export const reviewItemSchema = z.object({
   /** Eingang zum Zuordnen (IN-03): Termin, Vorschlag und Begründung; sonst null */
   inbound: z
     .object({
+      /** Termin oder weitergeleitete Mail (IN-04); eine Mail gehört zu genau einem Lieferanten */
+      kind: z.enum(['meeting', 'mail']),
+      /** Absender einer Mail */
+      from: z.string().nullable(),
       startsAt: z.iso.datetime({ offset: true }),
       suggestionKind: z.enum(['supplier', 'several', 'event', 'none']),
       suggestions: z.array(z.object({ relationshipId: z.uuid(), name: z.string() })),
       suggestedType: z.string(),
       reason: z.string().nullable(),
+      /** Zur Wahl beim Zuordnen: erst die Vorschläge, dann alle übrigen Beziehungen der Person */
+      options: z.array(z.object({ relationshipId: z.uuid(), name: z.string() })),
     })
     .nullable(),
 });
@@ -65,6 +71,10 @@ export const reviewDecisionSchema = z.discriminatedUnion('decision', [
     .object({
       decision: z.literal('uebernehmen'),
       text: z.string().trim().min(1).max(4000).optional(),
+      /** Zuordnen (Eingang): gewählte Beziehungen statt des Vorschlags */
+      relationshipIds: z.array(z.uuid()).min(1).max(5).optional(),
+      /** Zuordnen (Eingang): als Ereignis ohne Lieferant speichern */
+      asEvent: z.literal(true).optional(),
     })
     .strict(),
   z

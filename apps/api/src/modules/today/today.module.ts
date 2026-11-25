@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CalendarModule } from '../calendar/calendar.module.js';
 import { HintsModule } from '../hints/hints.module.js';
 import { StartModule } from '../start/start.module.js';
+import { DoneService } from './done.service.js';
 import { TodayController } from './today.controller.js';
 import { TriageService } from './triage.service.js';
 import { TriageWorker } from './triage.worker.js';
@@ -10,7 +11,7 @@ import { TriageWorker } from './triage.worker.js';
 @Module({
   imports: [StartModule, HintsModule, CalendarModule],
   controllers: [TodayController],
-  providers: [TriageService, TriageWorker],
+  providers: [TriageService, TriageWorker, DoneService],
   exports: [TriageService, TriageWorker],
 })
 export class TodayModule {}

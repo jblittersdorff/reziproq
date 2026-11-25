@@ -519,7 +519,7 @@ export class MailsService implements OnModuleInit {
         objectId: id.id,
         title: `Neu eingegangen: ${mail.subject.slice(0, 160) || '–'}`,
         line: null,
-        href: '/mein-tag/eingang',
+        href: '/kurz-pruefen',
       });
     }
     return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };

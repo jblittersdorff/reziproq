@@ -39,6 +39,7 @@ import { IntegrationsService } from '../integrations/integrations.service.js';
 import { type ItemContext, ItemHandlers, type ItemOutcome } from '../integrations/item-handlers.js';
 import { MeetingsService } from '../meetings/meetings.service.js';
 import { sroOf } from '../suppliers/team.service.js';
+import { meetingSnapshots, recordDone } from '../today/erledigt.js';
 import {
   domainOf,
   guessMeetingType,
@@ -361,25 +362,46 @@ export class CalendarIntakeService implements OnModuleInit {
       });
       if (meetingId) {
         await this.tenant.run(this.system(orgId), async (tx) => {
-          await tx.insert(schema.inboundItem).values({
-            orgId,
-            source: registration ? 'outlook_addin' : source,
-            fromEmail: options.fromEmail,
-            subject: event.summary.slice(0, 500) || '–',
-            icalUid: event.uid,
-            sequence: event.sequence,
-            details: this.details(event, options.cancel),
-            suggestedRelationshipIds: relationshipIds,
-            suggestionKind: 'supplier',
-            suggestionReason: this.reasonFor(matches, registration !== undefined),
-            suggestedType: type,
-            status: 'auto_assigned',
-            ownerUserId: organizerUserId,
-            assignedAt: currentTime(),
-            objectType: 'meeting',
-            objectIds: [meetingId],
-            registrationId: registration?.id ?? null,
-          });
+          const [inbound] = await tx
+            .insert(schema.inboundItem)
+            .values({
+              orgId,
+              source: registration ? 'outlook_addin' : source,
+              fromEmail: options.fromEmail,
+              subject: event.summary.slice(0, 500) || '–',
+              icalUid: event.uid,
+              sequence: event.sequence,
+              details: this.details(event, options.cancel),
+              suggestedRelationshipIds: relationshipIds,
+              suggestionKind: 'supplier',
+              suggestionReason: this.reasonFor(matches, registration !== undefined),
+              suggestedType: type,
+              status: 'auto_assigned',
+              ownerUserId: organizerUserId,
+              assignedAt: currentTime(),
+              objectType: 'meeting',
+              objectIds: [meetingId],
+              registrationId: registration?.id ?? null,
+            })
+            .returning({ id: schema.inboundItem.id });
+          // HE-01 Dienst 3 (K1-e.3): Zuordnung auf Stufe Erledigen (Aufgabe Postfach) mit Rücknahme
+          if (inbound) {
+            await recordDone(tx, {
+              orgId,
+              userId: organizerUserId,
+              workerKey: 'inbox',
+              relationshipId,
+              contextType: 'inbound_item',
+              contextId: inbound.id,
+              undo: {
+                kind: 'inbound_assign',
+                inboundItemId: inbound.id,
+                subject: event.summary.slice(0, 500) || '–',
+                relationshipId,
+                meetings: await meetingSnapshots(tx, [meetingId]),
+              },
+            });
+          }
           if (registration) {
             await tx
               .update(schema.addinRegistration)
@@ -448,7 +470,7 @@ export class CalendarIntakeService implements OnModuleInit {
         objectId: id.id,
         title: `Neu eingegangen: ${event.summary.slice(0, 160) || '–'}`,
         line: null,
-        href: '/mein-tag/eingang',
+        href: '/kurz-pruefen',
       });
     }
     return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };

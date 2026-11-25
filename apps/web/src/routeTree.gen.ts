@@ -15,6 +15,7 @@ import { Route as BausteineRouteImport } from './routes/bausteine'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
+import { Route as AppErledigtRouteImport } from './routes/_app/erledigt'
 import { Route as AppHeuteRouteImport } from './routes/_app/heute'
 import { Route as AppKurzPruefenRouteImport } from './routes/_app/kurz-pruefen'
 import { Route as AppMeinAgentRouteImport } from './routes/_app/mein-agent'
@@ -44,7 +45,6 @@ import { Route as AppKundenIdRouteRouteImport } from './routes/_app/kunden/$id/r
 import { Route as AppLieferantenIdRouteRouteImport } from './routes/_app/lieferanten/$id/route'
 import { Route as AppLieferantenImportierenRouteImport } from './routes/_app/lieferanten/importieren'
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
-import { Route as AppMeinTagEingangRouteImport } from './routes/_app/mein-tag/eingang'
 import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
 import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/matrix'
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
@@ -307,6 +307,11 @@ const AppSplatRoute = AppSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => AppRoute,
 } as any)
+const AppErledigtRoute = AppErledigtRouteImport.update({
+  id: '/erledigt',
+  path: '/erledigt',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHeuteRoute = AppHeuteRouteImport.update({
   id: '/heute',
   path: '/heute',
@@ -455,11 +460,6 @@ const AppLieferantenImportierenRoute =
 const AppLieferantenNeuRoute = AppLieferantenNeuRouteImport.update({
   id: '/lieferanten/neu',
   path: '/lieferanten/neu',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppMeinTagEingangRoute = AppMeinTagEingangRouteImport.update({
-  id: '/mein-tag/eingang',
-  path: '/mein-tag/eingang',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioIndexRoute = AppPortfolioIndexRouteImport.update({
@@ -1845,6 +1845,7 @@ export interface FileRoutesByFullPath {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
+  '/erledigt': typeof AppErledigtRoute
   '/heute': typeof AppHeuteRoute
   '/kurz-pruefen': typeof AppKurzPruefenRoute
   '/mein-agent': typeof AppMeinAgentRoute
@@ -1867,7 +1868,6 @@ export interface FileRoutesByFullPath {
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
-  '/mein-tag/eingang': typeof AppMeinTagEingangRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2113,6 +2113,7 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
+  '/erledigt': typeof AppErledigtRoute
   '/heute': typeof AppHeuteRoute
   '/kurz-pruefen': typeof AppKurzPruefenRoute
   '/mein-agent': typeof AppMeinAgentRoute
@@ -2133,7 +2134,6 @@ export interface FileRoutesByTo {
   '/hinweise/$id': typeof AppHinweiseIdRoute
   '/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/lieferanten/neu': typeof AppLieferantenNeuRoute
-  '/mein-tag/eingang': typeof AppMeinTagEingangRoute
   '/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/portfolio/offen': typeof AppPortfolioOffenRoute
   '/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2381,6 +2381,7 @@ export interface FileRoutesById {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
+  '/_app/erledigt': typeof AppErledigtRoute
   '/_app/heute': typeof AppHeuteRoute
   '/_app/kurz-pruefen': typeof AppKurzPruefenRoute
   '/_app/mein-agent': typeof AppMeinAgentRoute
@@ -2403,7 +2404,6 @@ export interface FileRoutesById {
   '/_app/hinweise/$id': typeof AppHinweiseIdRoute
   '/_app/lieferanten/importieren': typeof AppLieferantenImportierenRoute
   '/_app/lieferanten/neu': typeof AppLieferantenNeuRoute
-  '/_app/mein-tag/eingang': typeof AppMeinTagEingangRoute
   '/_app/portfolio/matrix': typeof AppPortfolioMatrixRoute
   '/_app/portfolio/offen': typeof AppPortfolioOffenRoute
   '/_app/portfolio/zyklen': typeof AppPortfolioZyklenRoute
@@ -2652,6 +2652,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/$'
+    | '/erledigt'
     | '/heute'
     | '/kurz-pruefen'
     | '/mein-agent'
@@ -2674,7 +2675,6 @@ export interface FileRouteTypes {
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
-    | '/mein-tag/eingang'
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
@@ -2920,6 +2920,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/styleguide'
     | '/$'
+    | '/erledigt'
     | '/heute'
     | '/kurz-pruefen'
     | '/mein-agent'
@@ -2940,7 +2941,6 @@ export interface FileRouteTypes {
     | '/hinweise/$id'
     | '/lieferanten/importieren'
     | '/lieferanten/neu'
-    | '/mein-tag/eingang'
     | '/portfolio/matrix'
     | '/portfolio/offen'
     | '/portfolio/zyklen'
@@ -3187,6 +3187,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/_app/$'
+    | '/_app/erledigt'
     | '/_app/heute'
     | '/_app/kurz-pruefen'
     | '/_app/mein-agent'
@@ -3209,7 +3210,6 @@ export interface FileRouteTypes {
     | '/_app/hinweise/$id'
     | '/_app/lieferanten/importieren'
     | '/_app/lieferanten/neu'
-    | '/_app/mein-tag/eingang'
     | '/_app/portfolio/matrix'
     | '/_app/portfolio/offen'
     | '/_app/portfolio/zyklen'
@@ -3506,6 +3506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSplatRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/erledigt': {
+      id: '/_app/erledigt'
+      path: '/erledigt'
+      fullPath: '/erledigt'
+      preLoaderRoute: typeof AppErledigtRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/heute': {
       id: '/_app/heute'
       path: '/heute'
@@ -3707,13 +3714,6 @@ declare module '@tanstack/react-router' {
       path: '/lieferanten/neu'
       fullPath: '/lieferanten/neu'
       preLoaderRoute: typeof AppLieferantenNeuRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/mein-tag/eingang': {
-      id: '/_app/mein-tag/eingang'
-      path: '/mein-tag/eingang'
-      fullPath: '/mein-tag/eingang'
-      preLoaderRoute: typeof AppMeinTagEingangRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/portfolio/': {
@@ -5779,6 +5779,7 @@ const AppLieferantenIdRouteRouteWithChildren =
 
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
+  AppErledigtRoute: typeof AppErledigtRoute
   AppHeuteRoute: typeof AppHeuteRoute
   AppKurzPruefenRoute: typeof AppKurzPruefenRoute
   AppMeinAgentRoute: typeof AppMeinAgentRoute
@@ -5798,7 +5799,6 @@ interface AppRouteChildren {
   AppHinweiseIdRoute: typeof AppHinweiseIdRoute
   AppLieferantenImportierenRoute: typeof AppLieferantenImportierenRoute
   AppLieferantenNeuRoute: typeof AppLieferantenNeuRoute
-  AppMeinTagEingangRoute: typeof AppMeinTagEingangRoute
   AppPortfolioMatrixRoute: typeof AppPortfolioMatrixRoute
   AppPortfolioOffenRoute: typeof AppPortfolioOffenRoute
   AppPortfolioZyklenRoute: typeof AppPortfolioZyklenRoute
@@ -5889,6 +5889,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
+  AppErledigtRoute: AppErledigtRoute,
   AppHeuteRoute: AppHeuteRoute,
   AppKurzPruefenRoute: AppKurzPruefenRoute,
   AppMeinAgentRoute: AppMeinAgentRoute,
@@ -5908,7 +5909,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppHinweiseIdRoute: AppHinweiseIdRoute,
   AppLieferantenImportierenRoute: AppLieferantenImportierenRoute,
   AppLieferantenNeuRoute: AppLieferantenNeuRoute,
-  AppMeinTagEingangRoute: AppMeinTagEingangRoute,
   AppPortfolioMatrixRoute: AppPortfolioMatrixRoute,
   AppPortfolioOffenRoute: AppPortfolioOffenRoute,
   AppPortfolioZyklenRoute: AppPortfolioZyklenRoute,

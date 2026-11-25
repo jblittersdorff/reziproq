@@ -463,11 +463,17 @@ export const reviewStack = () => ({
         href: '/mein-tag/eingang',
         canAccept: true,
         inbound: {
+          kind: 'meeting',
+          from: null,
           startsAt: at(16, '10:00'),
           suggestionKind: 'supplier',
           suggestions: [{ relationshipId: rheintal, name: 'Rheintal Elektronik' }],
           suggestedType: 'site_visit',
           reason: 'Teilnehmer von rheintal.example',
+          options: [
+            { relationshipId: rheintal, name: 'Rheintal Elektronik' },
+            { relationshipId: silesia, name: 'Silesia Guss' },
+          ],
         },
       } as never,
     ]),
@@ -490,4 +496,107 @@ export async function mockReview(page: Page) {
       },
     });
   });
+}
+
+/** Erledigt mit Zeilen nach der Vorlage Erledigt (Zuordnungen, Briefing, Fehler) */
+export const doneList = () => {
+  const row = (
+    n: number,
+    fields: {
+      at: string;
+      task: string;
+      taskName: string;
+      action: 'inbound_assign' | 'prepared' | 'run';
+      subject: string | null;
+      counterpart: string | null;
+      status?: 'done' | 'failed' | 'undone';
+      openDrafts?: number;
+      href?: string | null;
+      blocker?: 'geaendert' | 'abgelaufen' | 'zurueckgenommen' | 'ohne' | null;
+    },
+  ) => ({
+    id: id(90 + n),
+    at: fields.at,
+    task: fields.task,
+    taskName: fields.taskName,
+    status: fields.status ?? 'done',
+    action: fields.action,
+    subject: fields.subject,
+    counterpart: fields.counterpart,
+    href:
+      fields.href === undefined
+        ? `/lieferanten/${rheintal}/umsetzung/termine/${id(40)}`
+        : fields.href,
+    openDrafts: fields.openDrafts ?? 0,
+    undo: {
+      possible: fields.action === 'inbound_assign' && !fields.blocker,
+      blocker: fields.blocker ?? (fields.action === 'inbound_assign' ? null : 'ohne'),
+    },
+  });
+  return {
+    since: at(-1, '18:00'),
+    recent: 5,
+    rows: [
+      row(1, {
+        at: at(0, '07:42'),
+        task: 'inbox',
+        taskName: 'Postfach',
+        action: 'inbound_assign',
+        subject: 'Abstimmung Musterteile Starrflex',
+        counterpart: 'Rheintal Elektronik',
+      }),
+      row(2, {
+        at: at(0, '07:12'),
+        task: 'inbox',
+        taskName: 'Postfach',
+        action: 'inbound_assign',
+        subject: 'Kapazitätsplanung 2028',
+        counterpart: 'Rheintal Elektronik',
+        blocker: 'geaendert',
+      }),
+      row(3, {
+        at: at(0, '06:58'),
+        task: 'inbox',
+        taskName: 'Postfach',
+        action: 'inbound_assign',
+        subject: 'QBR Nordwerk',
+        counterpart: 'Nordwerk Guss',
+      }),
+      row(4, {
+        at: at(0, '06:10'),
+        task: 'meeting_brief',
+        taskName: 'Termin-Briefing',
+        action: 'prepared',
+        subject: 'JBP Rheintal Elektronik',
+        counterpart: 'Rheintal Elektronik',
+        openDrafts: 3,
+        href: '/kurz-pruefen',
+      }),
+      row(5, {
+        at: at(-1, '18:20'),
+        task: 'meeting_brief',
+        taskName: 'Termin-Briefing',
+        action: 'run',
+        status: 'failed',
+        subject: 'QBR Silesia Guss',
+        counterpart: 'Silesia Guss',
+        href: null,
+      }),
+    ],
+    tasks: [
+      { key: 'inbox', level: 'do' },
+      { key: 'commitment_followup', level: 'do' },
+      { key: 'meeting_brief', level: 'prepare' },
+      { key: 'meeting_capture', level: 'prepare' },
+      { key: 'import_assign', level: 'prepare' },
+      { key: 'early_warning', level: 'suggest' },
+    ],
+  };
+};
+
+export async function mockDone(page: Page) {
+  await page.route('**/api/erledigt', (route) => route.fulfill({ json: doneList() }));
+  await page.route('**/api/erledigt/*/zuruecknehmen', (route) =>
+    route.fulfill({ json: { state: 'undone' } }),
+  );
 }

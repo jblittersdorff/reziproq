@@ -52,6 +52,8 @@ describe('Weiterleitungen alt → neu (TN-07)', () => {
     expect(movedTo('/einstellungen/ki/agenten/neu')).toBeNull();
     expect(movedTo('/hinweise')).toBeNull();
     expect(movedTo('/heute')).toBeNull();
+    // HE-01 (K1-e.3): Neu eingegangen geht in Heute auf
+    expect(movedTo('/mein-tag/eingang')).toBe('/heute?ansicht=alles');
   });
 
   it('docs/weiterleitungen.md ist aktuell', () => {

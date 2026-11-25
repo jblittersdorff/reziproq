@@ -82,6 +82,8 @@ interface StackRow extends Record<string, unknown> {
   inbound_type: string | null;
   inbound_reason: string | null;
   inbound_received_at: Date | string | null;
+  inbound_item_kind: 'meeting' | 'mail' | null;
+  inbound_from: string | null;
 }
 
 interface DraftRecord {
@@ -151,7 +153,9 @@ export class ReviewService {
             i.subject as inbound_subject, i.details as inbound_details,
             i.suggestion_kind as inbound_kind, i.suggested_relationship_ids as inbound_suggested,
             i.suggested_type as inbound_type, i.suggestion_reason as inbound_reason,
-            i.received_at as inbound_received_at
+            i.received_at as inbound_received_at, i.kind as inbound_item_kind,
+            coalesce(i.details->>'organizerName', i.details->>'organizerEmail', i.from_email)
+              as inbound_from
           from focus_item f
           left join ai_draft d on f.source_type = 'ai_draft' and d.id = f.source_id
           left join meeting m on d.object_type = 'meeting' and m.id = d.object_id
@@ -185,7 +189,15 @@ export class ReviewService {
           if (row.source_type === 'inbound') {
             const suggested = (row.inbound_suggested ?? []).filter((id) => names.has(id));
             const kind = (row.inbound_kind ?? 'none') as 'supplier' | 'several' | 'event' | 'none';
-            const canAccept = kind === 'event' || (kind === 'supplier' && suggested.length === 1);
+            // Übernehmen geht immer: mit Vorschlag direkt, sonst nach der Wahl in der Karte.
+            const canAccept = true;
+            // Zur Wahl: erst die Vorschläge, dann alle übrigen Beziehungen der Person
+            const options = [
+              ...suggested,
+              ...[...names.keys()].filter((id) => !suggested.includes(id)),
+            ]
+              .slice(0, 500)
+              .map((id) => ({ relationshipId: id, name: names.get(id) ?? '' }));
             seconds += 20;
             return [
               {
@@ -206,6 +218,8 @@ export class ReviewService {
                 href: row.href,
                 canAccept,
                 inbound: {
+                  kind: row.inbound_item_kind ?? 'meeting',
+                  from: row.inbound_from,
                   startsAt: new Date(
                     row.inbound_details?.startsAt ?? row.inbound_received_at ?? row.created_at,
                   ).toISOString(),
@@ -216,6 +230,7 @@ export class ReviewService {
                   })),
                   suggestedType: row.inbound_type ?? 'other',
                   reason: row.inbound_reason,
+                  options,
                 },
               },
             ];
@@ -358,6 +373,19 @@ export class ReviewService {
     const inbox = await this.intake.inbox(auth);
     const item = inbox.open.find((entry) => entry.id === record.sourceId);
     if (!item) throw notFound();
+    // Die Wahl der Person geht vor den Vorschlag (mehrere oder kein Vorschlag).
+    if (decision.decision === 'uebernehmen' && decision.asEvent) {
+      await this.intake.decide(auth, item.id, { action: 'event' });
+      return;
+    }
+    if (decision.decision === 'uebernehmen' && decision.relationshipIds) {
+      await this.intake.decide(auth, item.id, {
+        action: 'assign',
+        relationshipIds: decision.relationshipIds,
+        type: item.suggestedType,
+      });
+      return;
+    }
     if (item.suggestionKind === 'event') {
       await this.intake.decide(auth, item.id, { action: 'event' });
       return;

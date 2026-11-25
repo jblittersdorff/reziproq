@@ -12,6 +12,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
 import { StartService } from '../start/start.service.js';
+import { DoneService } from './done.service.js';
 import { TriageService } from './triage.service.js';
 
 // HE-01 (K1-c): Heute aus der Triage; seit K1-e mit den Ansichten Fokus und Alles. Start und Mein Tag
@@ -22,6 +23,7 @@ export class TodayController {
   constructor(
     @Inject(TriageService) private readonly triage: TriageService,
     @Inject(StartService) private readonly start: StartService,
+    @Inject(DoneService) private readonly done: DoneService,
   ) {}
 
   /** Heute, Ansicht Fokus: „Als Nächstes“, höchstens zwei weitere Fokus-Themen, Kurz prüfen, Erledigt */
@@ -36,6 +38,21 @@ export class TodayController {
   @Requires('start.sehen')
   all(@CurrentUser() auth: AuthContext) {
     return this.triage.all(auth);
+  }
+
+  /** Erledigt im Hintergrund (K1-e.3): Läufe von Reziproq für die Person, mit Rücknahme */
+  @Get('erledigt')
+  @Requires('start.sehen')
+  doneList(@CurrentUser() auth: AuthContext) {
+    return this.done.list(auth);
+  }
+
+  /** Zurücknehmen: bis 30 Tage, solange das Objekt unverändert ist (HE-01 Dienst 3) */
+  @Post('erledigt/:id/zuruecknehmen')
+  @HttpCode(200)
+  @Requires('start.sehen')
+  undo(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.done.undo(auth, id);
   }
 
   /** „Morgen erinnern“: bis zum nächsten Tag 07:00 */

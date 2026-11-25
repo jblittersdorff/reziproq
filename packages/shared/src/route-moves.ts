@@ -37,6 +37,7 @@ export const routeMoves: readonly RouteMove[] = [
   move('/wert', '/wert', 'K1-d', 'bleibt', 'zeigt bis K4-b die Übersicht'),
   move('/mein-agent', '/mein-agent', 'K1-d', 'bleibt', 'zeigt bis K1-f die Seite Agenten'),
   move('/kurz-pruefen', '/kurz-pruefen', 'K1-e.2', 'bleibt', 'Kurz prüfen'),
+  move('/erledigt', '/erledigt', 'K1-e.3', 'bleibt', 'Erledigt im Hintergrund'),
 
   // Aktiv seit K1-d
   move('/mein-tag', '/heute', 'K1-d', 'aktiv'),
@@ -51,11 +52,12 @@ export const routeMoves: readonly RouteMove[] = [
   move('/wirkung', '/wert', 'K1-d', 'aktiv'),
 
   // Heute (HE-01): Alle Aufgaben, Maßnahmen, Hinweise und Neu eingegangen gehen in die Ansicht Alles.
-  // Neu eingegangen schaltet mit Erledigt um (K1-e.3): Zuordnungen stehen seit K1-e.2 in Kurz prüfen,
-  // „Heute selbst zugeordnet“ kommt nach Erledigt. Die Hinweise schalten mit Warum um (K1-e.4). Alle
+  // Neu eingegangen geht seit K1-e.3 in Heute auf: Zuordnungen in Kurz prüfen, „Heute selbst
+  // zugeordnet“ in Erledigt, „Wie Termine ankommen“ unter Anbindungen. Die Hinweise schalten mit
+  // Warum um (K1-e.4). Alle
   // Aufgaben und Maßnahmen braucht der Start der Lieferantenseite bis K5-b; der Käufer erreicht sie
   // von Heute aus nicht mehr.
-  move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e.3', 'geplant', 'Gruppe Zuordnen'),
+  move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e.3', 'aktiv', 'Gruppe Zuordnen'),
   move('/start/faellig', '/heute?ansicht=alles', 'K5-b', 'geplant', 'beim Käufer schon Alles'),
   move('/start/massnahmen', '/heute?ansicht=alles', 'K5-b', 'geplant', 'Zusagen und Aufgaben'),
   move('/hinweise', '/heute?ansicht=alles', 'K1-e.4', 'geplant', 'Gruppe Hinweise'),

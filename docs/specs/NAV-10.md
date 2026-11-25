@@ -123,7 +123,7 @@ Phase „Im Termin“ im Vollbild (TE-01); Seiten ohne Anmeldung (Anmeldung, Ein
 - **Seitenleiste und Tab-Leiste** nach 2.0 (`components/ui/app-shell.tsx`, `features/shell/navigation.tsx`).
   - Seitenleiste: Frag Reziproq, Heute, Beziehungen, Warengruppen, Wert, „Im Hintergrund“, Mein Agent, Einstellungen, Person.
   - Die Zahl an Heute sind die offenen Fokus-Themen aus `GET /api/heute`.
-  - „Im Hintergrund“ nennt den jüngsten laufenden Lauf der Person und führt bis K1-e zu Mein Agent (danach zu Erledigt).
+  - „Im Hintergrund“ nennt den jüngsten laufenden Lauf der Person und führt seit K1-e.3 zu Erledigt.
   - Tab-Leiste: Käufer Heute, Beziehungen, Frag, Warengruppen, Wert; Lieferant Heute, Kunden, Frag.
 - **Neue Adressen** `/heute`, `/beziehungen`, `/wert`, `/mein-agent`. Bis zu ihren Paketen zeigen sie die bisherigen Seiten:
   - Heute: Mein Tag, beim Lieferanten den Start (bis K1-e);

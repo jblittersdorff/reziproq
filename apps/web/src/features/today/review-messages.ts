@@ -27,6 +27,7 @@ const kindsDe: Record<string, string> = {
   qbr_risks: 'QBR-Vorbereitung · Risiken',
   qbr_open_points: 'QBR-Vorbereitung · Offene Punkte',
   inbound: 'Postfach · Termin zuordnen',
+  inbound_mail: 'Postfach · Mail zuordnen',
 };
 const kindsEn: Record<string, string> = {
   brief_situation: 'Briefing · Situation',
@@ -50,6 +51,7 @@ const kindsEn: Record<string, string> = {
   qbr_risks: 'QBR preparation · Risks',
   qbr_open_points: 'QBR preparation · Open points',
   inbound: 'Inbox · Assign meeting',
+  inbound_mail: 'Inbox · Assign mail',
 };
 
 export const reviewMessages = defineMessages({
@@ -88,10 +90,17 @@ export const reviewMessages = defineMessages({
     titleLabel: 'Titel anpassen',
     acceptAdjusted: 'Angepasst übernehmen',
     failedDecision: 'Das hat nicht geklappt. Bitte noch einmal versuchen.',
-    needsChoice: 'Hier gibt es mehr als einen Vorschlag. Wähle in Neu eingegangen.',
-    chooseAtPlace: 'In Neu eingegangen wählen',
+    needsChoice: 'Bitte wähle, wohin der Termin gehört.',
+    assignLabel: 'Zuordnen zu',
+    assignChoose: 'Bitte wählen',
+    assignEvent: 'Als Ereignis ohne Lieferant',
+    assignSubmit: 'Zuordnen',
+    fileLabel: 'Ablegen bei',
+    fileSubmit: 'Ablegen',
     inbound: {
       when: (date: string) => `Termin am ${date}`,
+      mailFrom: (from: string) => `Mail von ${from}`,
+      mailSuggestion: (names: string) => `Vorschlag: ablegen bei ${names}`,
       suggestion: (names: string, type: string) => `Vorschlag: ${names}, ${type}`,
       event: 'Vorschlag: als Ereignis ohne Lieferant speichern',
       none: 'Kein Vorschlag: Reziproq hat keinen passenden Lieferanten gefunden.',
@@ -149,10 +158,17 @@ export const reviewMessages = defineMessages({
     titleLabel: 'Adjust title',
     acceptAdjusted: 'Accept adjusted',
     failedDecision: 'That did not work. Please try again.',
-    needsChoice: 'There is more than one suggestion. Choose in the inbox.',
-    chooseAtPlace: 'Choose in the inbox',
+    needsChoice: 'Please choose where the meeting belongs.',
+    assignLabel: 'Assign to',
+    assignChoose: 'Please choose',
+    assignEvent: 'As an event without supplier',
+    assignSubmit: 'Assign',
+    fileLabel: 'File with',
+    fileSubmit: 'File',
     inbound: {
       when: (date: string) => `Meeting on ${date}`,
+      mailFrom: (from: string) => `Mail from ${from}`,
+      mailSuggestion: (names: string) => `Suggestion: file with ${names}`,
       suggestion: (names: string, type: string) => `Suggestion: ${names}, ${type}`,
       event: 'Suggestion: save as an event without supplier',
       none: 'No suggestion: Reziproq found no matching supplier.',

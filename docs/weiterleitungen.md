@@ -2,9 +2,9 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (8): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (188): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
-- **bleibt** (75): Die Adresse gilt auch nach NAV-10 2.0.
+- **aktiv** (9): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (187): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **bleibt** (76): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
 |---|---|---|---|
@@ -81,6 +81,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/einstellungen/zielkategorien/$key/bearbeiten` | – | NAV-10 | bleibt |
 | `/einstellungen/zielkategorien/neu` | – | NAV-10 | bleibt |
 | `/einstellungen/zyklus` | – | NAV-10 | bleibt |
+| `/erledigt` | – (Erledigt im Hintergrund) | K1-e.3 | bleibt |
 | `/feedback` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/feedback/$id` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/fragen` | `/heute?frag=1` (öffnet Frag Reziproq) | K1-d | aktiv |
@@ -242,7 +243,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/neu` | offen | K2-b | geplant |
 | `/mein-agent` | – (zeigt bis K1-f die Seite Agenten) | K1-d | bleibt |
 | `/mein-tag` | `/heute` | K1-d | aktiv |
-| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | geplant |
+| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | aktiv |
 | `/menu` | – | PLT-11 | bleibt |
 | `/portfolio` | `/beziehungen?linse=segmente` | K2-b | geplant |
 | `/portfolio/fokus` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |

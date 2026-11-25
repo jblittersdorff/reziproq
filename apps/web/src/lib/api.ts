@@ -83,13 +83,13 @@ import {
   cycleStatusSchema,
   type DecideCategorySegment,
   type DecideImportRows,
-  type DecideInbound,
   type DecideJbp,
   type DecideValidation,
   type DismissHint,
   dataExportListSchema,
   decisionHistorySchema,
   deviationExplanationsSchema,
+  doneListSchema,
   dueListSchema,
   type EbitGoalRequest,
   type EditBriefAgenda,
@@ -133,7 +133,6 @@ import {
   importBatchSchema,
   importPreviewSchema,
   importResultSchema,
-  inboxSchema,
   initiativeDetailSchema,
   initiativesSchema,
   integrationsSchema,
@@ -331,6 +330,7 @@ import {
   type UpdateSupplierRequest,
   type UpdateTeamRequest,
   type UserLocale,
+  undoResultSchema,
   validationDetailSchema,
   validationListSchema,
   valueOpportunitiesSchema,
@@ -2119,6 +2119,18 @@ export const reviewStackQueryOptions = (accessToken: string) =>
     queryFn: () => getJson('/kurz-pruefen', reviewStackSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/** HE-01 Erledigt im Hintergrund (K1-e.3): Läufe von Reziproq für die Person */
+export const doneQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['heute', 'erledigt'],
+    queryFn: () => getJson('/erledigt', doneListSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Zurücknehmen bis 30 Tage, solange das Objekt unverändert ist */
+export const undoDone = (accessToken: string, id: string) =>
+  sendJson('POST', `/erledigt/${id}/zuruecknehmen`, {}, undoResultSchema, accessToken);
 
 /** Übernehmen (optional angepasst), Verwerfen mit Grund oder Später */
 export const decideReview = (accessToken: string, id: string, decision: ReviewDecision) =>
@@ -4181,17 +4193,6 @@ export const approveMember = (accessToken: string, id: string) =>
     organizationMemberSchema,
     accessToken,
   );
-
-/** IN-03: Mein Tag › Neu eingegangen */
-export const inboxQueryOptions = (accessToken: string) =>
-  queryOptions({
-    queryKey: ['mein-tag', 'eingang'],
-    queryFn: () => getJson('/mein-tag/eingang', inboxSchema, accessToken),
-    retry: retryUnlessDenied,
-  });
-
-export const decideInbound = (accessToken: string, id: string, input: DecideInbound) =>
-  sendJson('POST', `/mein-tag/eingang/${id}/entscheiden`, input, inboxSchema, accessToken);
 
 /** IN-03: Eingangsadresse, zugelassene Absender-Domains (nur Admins) */
 export const saveInboundSettings = (accessToken: string, id: string, allowedDomains: string[]) =>

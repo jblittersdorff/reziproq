@@ -22,6 +22,8 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { Monogram } from '@/components/ui/monogram';
 import { NativeSelect } from '@/components/ui/native-select';
 import { NextStep } from '@/components/ui/next-step';
+import { PrivateNote } from '@/components/ui/private-note';
+import { Row, RowGroup } from '@/components/ui/row-group';
 import { SettingsGroup, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
@@ -257,6 +259,17 @@ export function IntegrationsPage() {
               </aside>
               {/* IN-05: Transkripte rechts, nur für Admins (die Route verlangt einstellungen.verwalten) */}
               <TranscriptSettingsSection />
+              {/* HE-01 Inventar T1-I12 (K1-e.3): aus Neu eingegangen, das in Heute aufgeht */}
+              <RowGroup label={t.inbox.howTitle}>
+                <Row title={t.inbox.sources.outlook_addin ?? ''} detail={t.inbox.howAddin} wrap />
+                <Row title={t.inbox.sources.inbound_mail ?? ''} detail={t.inbox.howMail} wrap />
+                <Row
+                  title={t.inbox.sources.calendar_sync ?? ''}
+                  detail={t.inbox.howCalendar}
+                  wrap
+                />
+              </RowGroup>
+              <PrivateNote title={t.inbox.privateTitle}>{t.inbox.privateText}</PrivateNote>
             </div>
           </div>
         </>

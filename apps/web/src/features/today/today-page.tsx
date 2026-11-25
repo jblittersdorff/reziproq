@@ -340,12 +340,14 @@ function ReviewBlock({ data }: { data: TodayPageData }) {
   );
 }
 
-/** Erledigt im Hintergrund: eine Zeile mit Zahl und Arten; die Seite Erledigt kommt mit K1-e.3 */
+/** Erledigt im Hintergrund: eine Zeile mit Zahl und Arten; sie öffnet Erledigt */
 function DoneRow({ data }: { data: TodayPageData }) {
   const text = useMessages(todayMessages);
   return (
     <RowGroup>
       <Row
+        href="/erledigt"
+        renderLink={routerLink}
         title={text.done.title(data.done.count)}
         detail={data.done.count > 0 ? text.done.tasks(data.done.tasks) : text.done.none}
       />
@@ -756,7 +758,12 @@ function AllAside({ data }: { data: TodayAll }) {
         </section>
       )}
       <RowGroup label={text.all.more.label}>
-        <Row title={text.all.more.done} detail={text.all.more.doneDetail(data.doneCount)} />
+        <Row
+          href="/erledigt"
+          title={text.all.more.done}
+          detail={text.all.more.doneDetail(data.doneCount)}
+          renderLink={routerLink}
+        />
         <Row
           href="/einstellungen/anbindungen"
           title={text.all.more.arrivals}

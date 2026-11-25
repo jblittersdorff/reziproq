@@ -7,6 +7,7 @@ import { BackLink } from '@/components/ui/back-link';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
+import { NativeSelect } from '@/components/ui/native-select';
 import { PageTitle } from '@/components/ui/page-title';
 import { PrivateNote } from '@/components/ui/private-note';
 import { Row, RowGroup } from '@/components/ui/row-group';
@@ -20,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { reviewMessages } from './review-messages';
 
 type Text = (typeof reviewMessages)['de'];
-type Mode = 'view' | 'discard' | 'adjust';
+type Mode = 'view' | 'discard' | 'adjust' | 'assign';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const localDay = (value: Date) =>
@@ -54,17 +55,17 @@ function inboundLines(
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)}`;
+  const names = inbound.suggestions.map((entry) => entry.name).join(', ');
   const suggestion =
     inbound.suggestionKind === 'event'
       ? text.inbound.event
       : inbound.suggestions.length > 0
-        ? text.inbound.suggestion(
-            inbound.suggestions.map((entry) => entry.name).join(', '),
-            types[inbound.suggestedType] ?? inbound.suggestedType,
-          )
+        ? inbound.kind === 'mail'
+          ? text.inbound.mailSuggestion(names)
+          : text.inbound.suggestion(names, types[inbound.suggestedType] ?? inbound.suggestedType)
         : text.inbound.none;
   return [
-    text.inbound.when(when),
+    inbound.kind === 'mail' ? text.inbound.mailFrom(inbound.from ?? '–') : text.inbound.when(when),
     suggestion,
     ...(inbound.reason ? [text.inbound.reason(inbound.reason)] : []),
   ];
@@ -220,9 +221,20 @@ function DraftCard({
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
   const client = useQueryClient();
-  const [mode, setMode] = useState<Mode>('view');
+  // Eingang ohne eindeutigen Vorschlag: die Wahl der Beziehung steht gleich offen.
+  const inbound = item.inbound;
+  const needsChoice =
+    inbound !== null && (inbound.suggestionKind === 'several' || inbound.suggestionKind === 'none');
+  const [mode, setMode] = useState<Mode>(needsChoice ? 'assign' : 'view');
   const [reason, setReason] = useState('');
   const [edited, setEdited] = useState(item.text ?? '');
+  const [choice, setChoice] = useState(
+    inbound?.suggestionKind === 'event'
+      ? 'event'
+      : inbound?.suggestionKind === 'supplier'
+        ? (inbound.suggestions[0]?.relationshipId ?? '')
+        : '',
+  );
   const fieldId = useId();
   const decide = useMutation({
     mutationFn: (decision: ReviewDecision) => decideReview(accessToken, item.id, decision),
@@ -233,6 +245,14 @@ function DraftCard({
   });
   const choiceNeeded =
     decide.error instanceof ApiError && decide.error.status === 422 && item.source === 'inbound';
+  const assign = () => {
+    if (!choice || decide.isPending) return;
+    decide.mutate(
+      choice === 'event'
+        ? { decision: 'uebernehmen', asEvent: true }
+        : { decision: 'uebernehmen', relationshipIds: [choice] },
+    );
+  };
   const accept = () => {
     if (!item.canAccept || decide.isPending) return;
     decide.mutate({ decision: 'uebernehmen' });
@@ -262,7 +282,11 @@ function DraftCard({
   // Wischen auf dem Telefon: nach rechts übernimmt, nach links öffnet Verwerfen (Vorlage mobil).
   const swipe = useRef<{ x: number; id: number } | null>(null);
   const lines = inboundLines(text, t.meetings.types as Record<string, string>, locale, item);
-  const context = [item.counterpart, text.kinds[item.kind] ?? null, item.subject]
+  const context = [
+    item.counterpart,
+    (inbound?.kind === 'mail' ? text.kinds.inbound_mail : text.kinds[item.kind]) ?? null,
+    item.subject,
+  ]
     .filter(Boolean)
     .join(' · ');
   const reasonValid = reason.trim().length >= 3;
@@ -291,6 +315,54 @@ function DraftCard({
         className="gap-4"
         actions={
           <div className="flex w-full flex-col gap-3">
+            {mode === 'assign' && inbound && (
+              <form
+                className="flex flex-col gap-2 rounded-md bg-paper p-4"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  assign();
+                }}
+              >
+                <label htmlFor={fieldId} className="font-semibold text-sm">
+                  {inbound.kind === 'mail' ? text.fileLabel : text.assignLabel}
+                </label>
+                <NativeSelect
+                  id={fieldId}
+                  value={choice}
+                  onChange={(event) => setChoice(event.target.value)}
+                >
+                  <option value="">{text.assignChoose}</option>
+                  {inbound.options.map((option) => (
+                    <option key={option.relationshipId} value={option.relationshipId}>
+                      {option.name}
+                    </option>
+                  ))}
+                  {/* Eine Mail gehört zu genau einem Lieferanten, nie zu einem Ereignis (IN-04) */}
+                  {inbound.kind !== 'mail' && <option value="event">{text.assignEvent}</option>}
+                </NativeSelect>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="submit" disabled={!choice} loading={decide.isPending}>
+                    {inbound.kind === 'mail' ? text.fileSubmit : text.assignSubmit}
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={openDiscard}>
+                    {text.discard}
+                  </Button>
+                  {needsChoice ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => decide.mutate({ decision: 'spaeter' })}
+                    >
+                      {text.later}
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="ghost" onClick={() => setMode('view')}>
+                      {text.cancel}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            )}
             {mode === 'discard' && (
               <form
                 className="flex flex-col gap-2 rounded-md bg-paper p-4"
@@ -322,7 +394,11 @@ function DraftCard({
                   >
                     {text.discardNow}
                   </Button>
-                  <Button type="button" variant="ghost" onClick={() => setMode('view')}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setMode(needsChoice ? 'assign' : 'view')}
+                  >
                     {text.cancel}
                   </Button>
                 </div>
@@ -376,13 +452,21 @@ function DraftCard({
                   >
                     {text.accept}
                   </Button>
-                  {item.adjust === 'place' ? (
+                  {inbound ? (
+                    <Button
+                      className="shell:order-1"
+                      variant="secondary"
+                      onClick={() => setMode('assign')}
+                    >
+                      {text.adjust}
+                    </Button>
+                  ) : item.adjust === 'place' ? (
                     item.href &&
                     routerLink({
                       href: item.href,
                       className:
                         'inline-flex h-11 items-center justify-center rounded-full bg-control px-5 font-semibold text-ink text-sm no-underline hover:bg-line focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 shell:order-1',
-                      children: item.source === 'inbound' ? text.chooseAtPlace : text.adjustAtPlace,
+                      children: text.adjustAtPlace,
                     })
                   ) : (
                     <Button
@@ -409,9 +493,6 @@ function DraftCard({
                   {text.swipe}
                 </p>
               </>
-            )}
-            {!item.canAccept && item.source === 'inbound' && (
-              <p className="text-muted-strong text-sm">{text.needsChoice}</p>
             )}
             {decide.isError && (
               <p role="alert" className="text-destructive text-sm">

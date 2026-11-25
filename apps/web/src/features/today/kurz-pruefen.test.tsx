@@ -75,11 +75,17 @@ const stack = (): ReviewStack => ({
       text: null,
       href: '/mein-tag/eingang',
       inbound: {
+        kind: 'meeting',
+        from: null,
         startsAt: '2026-12-09T09:00:00.000Z',
         suggestionKind: 'supplier',
         suggestions: [{ relationshipId: rheintal, name: 'Rheintal Elektronik' }],
         suggestedType: 'site_visit',
         reason: 'Teilnehmer von rheintal.example',
+        options: [
+          { relationshipId: rheintal, name: 'Rheintal Elektronik' },
+          { relationshipId: uuid(91), name: 'Silesia Guss' },
+        ],
       },
     }),
     item(4),
@@ -232,6 +238,57 @@ describe('HE-01 Kurz prüfen', () => {
       url: `/api/kurz-pruefen/${uuid(4)}`,
       body: { decision: 'uebernehmen', text: 'Angepasster Text' },
     });
+  });
+
+  it('Mehrere Vorschläge: die Wahl steht gleich offen; Zuordnen schickt die gewählte Beziehung, auch als Ereignis', async () => {
+    const several = stack();
+    const inbound = several.items[2];
+    if (!inbound?.inbound) throw new Error('Fixture');
+    inbound.inbound = {
+      ...inbound.inbound,
+      suggestionKind: 'several',
+      suggestions: [
+        { relationshipId: rheintal, name: 'Rheintal Elektronik' },
+        { relationshipId: uuid(91), name: 'Silesia Guss' },
+      ],
+    };
+    api.handle = (request) => {
+      if (request.url === '/api/kurz-pruefen') return Response.json(several);
+      if (request.method === 'POST' && request.url.startsWith('/api/kurz-pruefen/')) {
+        decisions.push({ url: request.url, body: request.body });
+        return Response.json({ state: 'accepted' });
+      }
+      return undefined;
+    };
+    renderAt(`/kurz-pruefen?entwurf=${uuid(3)}`);
+    const select = (await screen.findByLabelText('Zuordnen zu')) as HTMLSelectElement;
+    const submit = screen.getByRole('button', { name: 'Zuordnen' });
+    expect((submit as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(select, { target: { value: uuid(91) } });
+    fireEvent.click(submit);
+    await waitFor(() =>
+      expect(decisions).toEqual([
+        {
+          url: `/api/kurz-pruefen/${uuid(3)}`,
+          body: { decision: 'uebernehmen', relationshipIds: [uuid(91)] },
+        },
+      ]),
+    );
+    // der nächste Entwurf ist ein Briefing; danach kommt der Eingang nicht wieder
+    expect(await screen.findByText('Entwurf 2 von 4')).toBeTruthy();
+  });
+
+  it('Ein klarer Vorschlag lässt sich über Anpassen ändern, etwa als Ereignis ohne Lieferant', async () => {
+    renderAt(`/kurz-pruefen?entwurf=${uuid(3)}`);
+    await screen.findByText('Entwurf 1 von 4');
+    fireEvent.click(screen.getByRole('button', { name: 'Anpassen' }));
+    fireEvent.change(screen.getByLabelText('Zuordnen zu'), { target: { value: 'event' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Zuordnen' }));
+    await waitFor(() =>
+      expect(decisions).toEqual([
+        { url: `/api/kurz-pruefen/${uuid(3)}`, body: { decision: 'uebernehmen', asEvent: true } },
+      ]),
+    );
   });
 
   it('Ohne Entwürfe: nichts zu prüfen, zurück zu Heute', async () => {

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql, withTenant } from '@reziproq/db';
-import { inboxSchema, integrationsSchema } from '@reziproq/shared';
+import { doneListSchema, inboxSchema, integrationsSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -677,5 +677,103 @@ describe('IN-03 Termine aus Outlook und Google', () => {
       name: 'Anna, Einkauf',
       response: null,
     });
+  });
+
+  // HE-01 Dienst 3 (K1-e.3), T1-HE4: Die automatische Zuordnung ist eine Handlung von Reziproq auf
+  // Stufe Erledigen: Lauf der Aufgabe Postfach mit undo_payload, sichtbar in Erledigt, 30 Tage
+  // rücknehmbar, solange der Termin unverändert ist.
+  const doneOf = async (user: string) =>
+    doneListSchema.parse((await call(user, 'GET', '/erledigt')).body);
+
+  it('T1-HE4: Die automatische Zuordnung steht mit undo_payload in Erledigt; Zurücknehmen löscht den Termin und stellt ihn wieder zum Zuordnen', async () => {
+    const uid = `uid-erledigt-${run}`;
+    await deliver(
+      `msg-e1-${run}`,
+      ics({
+        uid,
+        summary: 'Werksbesuch Rheintal',
+        start: tomorrow(11),
+        organizer: mail('anna'),
+        attendees: [`kim@${domains.rheintal}`],
+      }),
+    );
+    const [meeting] = await meetingsWith(uid);
+    expect(meeting).toMatchObject({ relationship_id: rel.rheintal });
+    const row = (await doneOf(users.anna)).rows.find(
+      (entry) => entry.subject === 'Werksbesuch Rheintal',
+    );
+    expect(row).toMatchObject({
+      task: 'inbox',
+      action: 'inbound_assign',
+      status: 'done',
+      undo: { possible: true, blocker: null },
+    });
+    const [stored] = (
+      await db.execute<{ undo_payload: unknown; acting_user_id: string }>(
+        sql`select undo_payload, acting_user_id from agent_run where id = ${row?.id ?? ''}`,
+      )
+    ).rows;
+    expect(stored).toMatchObject({
+      acting_user_id: users.anna,
+      undo_payload: { kind: 'inbound_assign', meetings: [{ id: meeting?.id }] },
+    });
+    const undone = await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`);
+    expect(undone).toMatchObject({ status: 200, body: { state: 'undone' } });
+    expect(await meetingsWith(uid)).toEqual([]);
+    expect(await itemsWith(uid)).toMatchObject([{ status: 'needs_review' }]);
+    // Ein zweites Mal geht nicht; die Zeile zeigt „zurückgenommen“
+    expect((await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status).toBe(
+      409,
+    );
+    expect((await doneOf(users.anna)).rows.find((entry) => entry.id === row?.id)).toMatchObject({
+      status: 'undone',
+      undo: { possible: false, blocker: 'zurueckgenommen' },
+    });
+    // Andere können fremde Handlungen nicht zurücknehmen
+    expect((await call(users.carla, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status).toBe(
+      404,
+    );
+  });
+
+  it('T1-HE4: Nach einer Änderung am Termin lehnt die Rücknahme mit Grund ab; nach 30 Tagen ebenso', async () => {
+    const uid = `uid-geaendert-${run}`;
+    await deliver(
+      `msg-e2-${run}`,
+      ics({
+        uid,
+        summary: 'Kapazität 2027',
+        start: tomorrow(12),
+        organizer: mail('anna'),
+        attendees: [`kim@${domains.rheintal}`],
+      }),
+    );
+    const [meeting] = await meetingsWith(uid);
+    const row = (await doneOf(users.anna)).rows.find((entry) => entry.subject === 'Kapazität 2027');
+    const changed = await call(
+      users.anna,
+      'PUT',
+      `/suppliers/${rel.rheintal}/termine/${meeting?.id}`,
+      {
+        title: 'Kapazität 2027 und 2028',
+        startsAt: tomorrow(12).toISOString(),
+        location: null,
+        participants: [],
+      },
+    );
+    expect(changed.status).toBe(200);
+    const refused = await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`);
+    expect(refused.status).toBe(409);
+    expect(refused.body).toMatchObject({ code: 'geaendert' });
+    expect(await meetingsWith(uid)).toHaveLength(1);
+    expect((await doneOf(users.anna)).rows.find((entry) => entry.id === row?.id)).toMatchObject({
+      undo: { possible: false, blocker: 'geaendert' },
+    });
+    // 31 Tage später: abgelaufen
+    await db.execute(
+      sql`update agent_run set created_at = now() - interval '31 days',
+            finished_at = now() - interval '31 days' where id = ${row?.id ?? ''}`,
+    );
+    const late = await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`);
+    expect(late).toMatchObject({ status: 409, body: { code: 'abgelaufen' } });
   });
 });

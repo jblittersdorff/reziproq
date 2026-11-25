@@ -303,7 +303,7 @@ export class TriageService {
             suggestionKind: item.suggestionKind,
             suggestions: item.suggestions,
             // Zuordnen ist ein Entwurf in Kurz prüfen (K1-e.2); ohne ihn die Seite Neu eingegangen
-            href: review ? `/kurz-pruefen?entwurf=${review}` : '/mein-tag/eingang',
+            href: review ? `/kurz-pruefen?entwurf=${review}` : '/kurz-pruefen',
             inReview: Boolean(review),
           };
         });
@@ -392,10 +392,16 @@ export class TriageService {
 
     // Erledigt im Hintergrund seit gestern 18:00, je Aufgabe von Reziproq
     const since = doneSince(today);
+    // Seit K1-e.3 aus den Läufen: alles, was Reziproq für die Person getan hat, ohne Zurückgenommenes
     const doneRows = await tx.execute<{ title: string; count: number }>(sql`
-      select title, count(*)::int as count from focus_item
-      where ${own} and level = 'done' and created_at >= ${since.toISOString()}::timestamptz
-      group by title order by count desc, title`);
+      select a.name as title, count(*)::int as count
+      from agent_run r
+      join agent_version v on v.org_id = r.org_id and v.id = r.agent_version_id
+      join agent a on a.org_id = v.org_id and a.id = v.agent_id
+      where r.org_id = ${orgId} and r.acting_user_id = ${session.userId} and not r.is_test
+        and r.status in ('done', 'failed') and r.undone_at is null
+        and coalesce(r.finished_at, r.created_at) >= ${since.toISOString()}::timestamptz
+      group by a.name order by count desc, a.name`);
     const done = {
       since: since.toISOString(),
       count: doneRows.rows.reduce((sum, row) => sum + row.count, 0),
@@ -777,11 +783,12 @@ async function inboundOf(tx: TenantTransaction, auth: AuthContext): Promise<Inbo
   const admin = auth.orgRole === 'admin';
   const rows = await tx.execute<{
     id: string;
+    kind: 'meeting' | 'mail';
     subject: string;
     suggestion_kind: string;
     suggested: string[] | null;
   }>(sql`
-    select i.id, i.subject, i.suggestion_kind, i.suggested_relationship_ids as suggested
+    select i.id, i.kind, i.subject, i.suggestion_kind, i.suggested_relationship_ids as suggested
     from inbound_item i
     where i.org_id = ${organization.id} and i.status = 'needs_review'
       and (i.assignee_user_id = ${auth.userId} or i.owner_user_id = ${auth.userId}
@@ -798,6 +805,7 @@ async function inboundOf(tx: TenantTransaction, auth: AuthContext): Promise<Inbo
       row.suggestion_kind === 'supplier' && row.suggested?.length === 1 ? row.suggested[0] : null;
     return {
       id: row.id,
+      kind: row.kind,
       subject: row.subject,
       relationshipId: single ?? null,
       counterpart: single ? (names.get(single) ?? null) : null,

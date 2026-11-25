@@ -315,6 +315,7 @@ export interface RunRow {
 
 export interface InboundRow {
   id: string;
+  kind: 'meeting' | 'mail';
   subject: string;
   /** Vorgeschlagene Beziehung, wenn genau eine; sonst null */
   relationshipId: string | null;
@@ -332,7 +333,13 @@ export function fromInbound(item: InboundRow, locale: Locale): TriageCandidate {
     level: 'review',
     kind: 'draft',
     title: titleOf(
-      locale === 'de' ? `Termin zuordnen: ${item.subject}` : `Assign meeting: ${item.subject}`,
+      item.kind === 'mail'
+        ? locale === 'de'
+          ? `Mail zuordnen: ${item.subject}`
+          : `Assign mail: ${item.subject}`
+        : locale === 'de'
+          ? `Termin zuordnen: ${item.subject}`
+          : `Assign meeting: ${item.subject}`,
     ),
     sentence: templateOf(locale, 'draft'),
     facts: [],
@@ -341,7 +348,7 @@ export function fromInbound(item: InboundRow, locale: Locale): TriageCandidate {
     relationshipId: item.relationshipId,
     counterpart: item.counterpart,
     dueDate: null,
-    href: '/mein-tag/eingang',
+    href: '/kurz-pruefen',
     severity: null,
     reviewSeconds: inboundReviewSeconds,
     dueItem: null,

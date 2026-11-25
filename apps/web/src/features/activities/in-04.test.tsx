@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { ActivityFeed, Inbox, SupplierDetail } from '@reziproq/shared';
+import type { ActivityFeed, ReviewStack, SupplierDetail } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { OutlookAdapter } from '@/features/calendar/outlook-adapter';
@@ -165,51 +165,63 @@ describe('IN-04 Mails in den Aktivitäten', () => {
   });
 });
 
-describe('IN-04 Weitergeleitete Mail in „Neu eingegangen“', () => {
-  it('zeigt Absender ohne Termintyp und legt beim gewählten Lieferanten ab', async () => {
-    const inbox: Inbox = {
-      open: [
+describe('IN-04 Weitergeleitete Mail in Kurz prüfen (K1-e.3)', () => {
+  it('zeigt den Absender ohne Termintyp und legt beim gewählten Lieferanten ab', async () => {
+    const stack: ReviewStack = {
+      items: [
         {
           id: uuid(10),
-          kind: 'mail',
-          source: 'inbound_mail',
-          receivedAt: '2026-11-23T08:00:00Z',
+          source: 'inbound',
+          kind: 'inbound',
+          objectType: 'inbound_item',
           subject: 'Messe Hannover',
-          startsAt: '2026-11-22T15:00:00Z',
-          organizer: 'info@unbekannt.example',
-          attendees: 1,
-          suggestionKind: 'none',
-          suggestions: [],
-          suggestionReason:
-            'Absender und Empfänger von unbekannt.example sind noch keinem Lieferanten zugeordnet.',
-          suggestedType: 'other',
-          status: 'needs_review',
-          objectType: null,
-          assigned: [],
+          counterpart: null,
+          relationshipId: null,
+          title: 'Mail zuordnen: Messe Hannover',
+          lines: [],
+          sources: [],
+          createdAt: '2026-11-23T08:00:00Z',
+          reviewSeconds: 20,
+          adjust: 'place',
+          text: null,
+          href: '/kurz-pruefen',
+          canAccept: true,
+          inbound: {
+            kind: 'mail',
+            from: 'info@unbekannt.example',
+            startsAt: '2026-11-22T15:00:00Z',
+            suggestionKind: 'none',
+            suggestions: [],
+            suggestedType: 'other',
+            reason:
+              'Absender und Empfänger von unbekannt.example sind noch keinem Lieferanten zugeordnet.',
+            options: [{ relationshipId: rel, name: 'Rheintal Elektronik' }],
+          },
         },
       ],
-      today: [],
-      suppliers: [{ relationshipId: rel, name: 'Rheintal Elektronik' }],
-      active: true,
+      minutes: 1,
     };
     api.handle = (request) => {
-      if (request.url.startsWith('/api/mein-tag/eingang')) {
-        if (request.method !== 'GET') sent.push(request);
-        return Response.json(inbox);
+      if (request.url === '/api/kurz-pruefen') return Response.json(stack);
+      if (request.method === 'POST' && request.url.startsWith('/api/kurz-pruefen/')) {
+        sent.push(request);
+        return Response.json({ state: 'accepted' });
       }
       return undefined;
     };
-    renderAt('/mein-tag/eingang');
-    const item = (await screen.findByText('Messe Hannover')).closest('li') as HTMLElement;
-    expect(within(item).getByText('Weitergeleitete Mail')).toBeTruthy();
-    expect(within(item).getByText(/Mail von info@unbekannt\.example/)).toBeTruthy();
-    expect(within(item).queryByLabelText('Termintyp')).toBeNull();
-    expect(within(item).queryByRole('button', { name: 'Als Ereignis speichern' })).toBeNull();
-    fireEvent.click(await within(item).findByRole('button', { name: 'Ablegen' }));
+    renderAt('/kurz-pruefen');
+    expect(await screen.findByText('Mail von info@unbekannt.example')).toBeTruthy();
+    expect(screen.getByText(/Postfach · Mail zuordnen/)).toBeTruthy();
+    expect(screen.queryByText(/Termin am/)).toBeNull();
+    const select = screen.getByLabelText('Ablegen bei') as HTMLSelectElement;
+    // Eine Mail gehört zu genau einem Lieferanten, nie zu einem Ereignis
+    expect([...select.options].map((option) => option.value)).toEqual(['', rel]);
+    fireEvent.change(select, { target: { value: rel } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ablegen' }));
     await waitFor(() =>
       expect(sent[0]).toMatchObject({
-        url: `/api/mein-tag/eingang/${uuid(10)}/entscheiden`,
-        body: { action: 'assign', relationshipIds: [rel] },
+        url: `/api/kurz-pruefen/${uuid(10)}`,
+        body: { decision: 'uebernehmen', relationshipIds: [rel] },
       }),
     );
   });

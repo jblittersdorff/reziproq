@@ -15,7 +15,6 @@ import { StageMetrics } from '@/components/ui/stage';
 import { Tile } from '@/components/ui/tile';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { useMe } from '@/features/auth/use-me';
-import { InboxTile } from '@/features/calendar/inbox-page';
 import { HintsAttention } from '@/features/hints/hints-attention';
 import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
@@ -145,7 +144,6 @@ export function SupplierStartPage() {
             {/* KI-16: rechts oben „Wo du handeln musst“ (Main.neu.dc.html) */}
             {!supplierSide && <HintsAttention />}
             {/* IN-03: „Neu eingegangen“, sobald eine Anbindung für Termine aktiv ist */}
-            {!supplierSide && <InboxTile />}
             <ListTile data={data} supplierSide={supplierSide} />
             {metrics}
           </aside>

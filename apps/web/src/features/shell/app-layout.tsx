@@ -122,7 +122,8 @@ function Shell() {
                         ? `${running.task} · ${running.counterpart}`
                         : running.task,
                     ),
-                    href: '/mein-agent',
+                    // NAV-10 2.0: „Im Hintergrund“ führt seit K1-e.3 zu Erledigt
+                    href: '/erledigt',
                   },
                 }
               : {})}

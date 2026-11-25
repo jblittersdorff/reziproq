@@ -46,6 +46,9 @@ const sections = (
     { prefix: '/mein-tag', key: 'myDay' },
     { prefix: '/start', key: 'myDay' },
     { prefix: '/hinweise', key: 'myDay' },
+    // HE-01: Kurz prüfen und Erledigt gehören zu Heute
+    { prefix: '/kurz-pruefen', key: 'myDay' },
+    { prefix: '/erledigt', key: 'myDay' },
     { prefix: '/beziehungen', key: 'suppliers' },
     { prefix: '/lieferanten', key: 'suppliers' },
     { prefix: '/portfolio', key: 'suppliers' },
