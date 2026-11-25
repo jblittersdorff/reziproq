@@ -91,6 +91,9 @@ describe('PLT-02 über die API', () => {
       'GET /api/v1/batches/00000000-0000-7000-8000-000000000000',
       // Hinweis zur Firmenanmeldung auf der Anmeldeseite (IN-02), ohne Login.
       'POST /api/anmeldung/sso',
+      // DM-01, E-K0-05: Demo-Sitzung ohne Login; ohne Schalter 404, nie im Betrieb.
+      'GET /api/demo/personen',
+      'POST /api/demo/sitzung',
       // Rückkehr von der Anmeldung bei Microsoft (Durchstich), ohne Login.
       'GET /api/anbindungen/oauth/microsoft/callback',
     ];

@@ -16,6 +16,7 @@ import { CalendarModule } from './modules/calendar/calendar.module.js';
 import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { DataExportModule } from './modules/data-export/data-export.module.js';
+import { DemoModule } from './modules/demo/demo.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
@@ -40,6 +41,7 @@ import { PlaybookModule } from './modules/playbook/playbook.module.js';
 import { PortfolioModule } from './modules/portfolio/portfolio.module.js';
 import { PromptModule } from './modules/prompt/prompt.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
+import { ReviewModule } from './modules/review/review.module.js';
 import { RoundsModule } from './modules/rounds/rounds.module.js';
 import { SearchModule } from './modules/search/search.module.js';
 import { SegmentModelModule } from './modules/segment-model/segment-model.module.js';
@@ -48,7 +50,6 @@ import { StartModule } from './modules/start/start.module.js';
 import { SupplierPlansModule } from './modules/supplier-plans/supplier-plans.module.js';
 import { SuppliersModule } from './modules/suppliers/suppliers.module.js';
 import { SupportModule } from './modules/support/support.module.js';
-import { ReviewModule } from './modules/review/review.module.js';
 import { TodayModule } from './modules/today/today.module.js';
 import { TouchpointsModule } from './modules/touchpoints/touchpoints.module.js';
 import { TranscriptsModule } from './modules/transcripts/transcripts.module.js';
@@ -67,6 +68,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     HealthModule,
     AiGatewayModule,
     AgentsModule,
+    DemoModule,
     MeModule,
     OrganizationsModule,
     OpportunitiesModule,

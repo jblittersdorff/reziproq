@@ -42,6 +42,8 @@ export interface AuthContext {
    * sonst die eigene. null ohne Organisation (PLT-02).
    */
   organization: AccountOrganization | null;
+  /** E-K0-05: angemeldet über eine Demo-Sitzung im Demo-Mandanten, nicht über Zitadel */
+  demoSession?: true;
 }
 
 const uuid = z.uuid();
@@ -74,7 +76,9 @@ export class AuthGuard implements CanActivate {
     if (scheme?.toLowerCase() !== 'bearer' || !token) throw new UnauthorizedException();
 
     const payload = await this.verifier.verify(token);
-    const tokenRoles = rolesFromToken(payload, this.options.audience);
+    // E-K0-05: Demo-Sitzung ohne Zitadel; keine Rollen aus dem Token, kein Betreiber-Zugang
+    const demo = payload.demo === true;
+    const tokenRoles = demo ? [] : rolesFromToken(payload, this.options.audience);
     const auth: AuthContext = {
       userId: payload.sub,
       accessToken: token,
@@ -88,7 +92,7 @@ export class AuthGuard implements CanActivate {
     // Betreiber-Ansicht (PLT-13, UMB-01): Nur Betreiber dürfen einen Kunden wählen.
     const customerId = request.headers[supportHeader];
     if (customerId !== undefined) {
-      if (!can(auth, 'kunden.wechseln')) {
+      if (demo || !can(auth, 'kunden.wechseln')) {
         throw new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
       }
       if (typeof customerId !== 'string' || !uuid.safeParse(customerId).success) {
@@ -110,8 +114,19 @@ export class AuthGuard implements CanActivate {
       auth.organization = membership?.organization ?? null;
       // IN-02: über die Firmen-Domain angelegt und noch nicht freigegeben: keine Rolle, also kein can()
       auth.orgRole = membership?.approvalPending ? null : (membership?.orgRole ?? null);
-      auth.isControlling = membership?.approvalPending ? false : (membership?.isControlling ?? false);
+      auth.isControlling = membership?.approvalPending
+        ? false
+        : (membership?.isControlling ?? false);
     }
+
+    // E-K0-05: Ein Demo-Token gilt nur für eine Person eines Demo-Mandanten (DM-01).
+    if (
+      demo &&
+      !(auth.organization && (await this.accounts.isDemoOrganization(auth.organization.id)))
+    ) {
+      throw new UnauthorizedException();
+    }
+    if (demo) auth.demoSession = true;
 
     // Ohne Organisation nur /me und der Betreiber-Zugang (PLT-02).
     const withoutOrganization = this.reflector.getAllAndOverride<boolean | undefined>(

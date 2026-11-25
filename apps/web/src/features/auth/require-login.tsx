@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button } from '@/components/ui/button';
 import { oidcScope, signedOut, signInState, zitadelSettings } from '@/lib/auth';
+import { startupDemoSession } from '@/lib/demo-session';
 import { restoreWhenReady, takeDraft } from '@/lib/draft';
 import { useT } from '@/lib/i18n';
 import { AuthChecking, AuthFailed, AuthNotConfigured, AuthPage, SignIn } from './auth-states';
@@ -13,8 +14,9 @@ import { ReauthNotice } from './reauth-notice';
  * Gilt für alle Seiten des Rahmens (PLT-11) und für den Styleguide (PLT-10).
  */
 export function RequireLogin({ children }: { children: ReactNode }) {
-  // Ohne Zitadel-Werte gibt es keinen AuthProvider, also auch kein useAuth.
-  if (!zitadelSettings) {
+  // Ohne Zitadel-Werte gibt es keinen AuthProvider, also auch kein useAuth; eine Demo-Sitzung
+  // (DM-01, E-K0-05) bringt ihren eigenen mit.
+  if (!zitadelSettings && !startupDemoSession) {
     return (
       <AuthPage>
         <AuthNotConfigured />

@@ -261,7 +261,9 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
     !url.startsWith('/api/einladungen/') &&
     !url.startsWith('/api/umfrage/') &&
     // IN-02: Hinweis zur Firmenanmeldung auf der Anmeldeseite, ohne Login
-    !url.startsWith('/api/anmeldung/')
+    !url.startsWith('/api/anmeldung/') &&
+    // DM-01, E-K0-05: Demo-Sitzung im Demo-Mandanten, ohne Login
+    !url.startsWith('/api/demo/')
   ) {
     return Response.json({ statusCode: 401 }, { status: 401 });
   }

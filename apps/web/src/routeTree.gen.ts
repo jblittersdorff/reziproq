@@ -57,6 +57,7 @@ import { Route as AppUebersichtWertpotenzialeRouteImport } from './routes/_app/u
 import { Route as AppWarengruppenIndexRouteImport } from './routes/_app/warengruppen/index'
 import { Route as AppWarumIdRouteImport } from './routes/_app/warum/$id'
 import { Route as AppWertIndexRouteImport } from './routes/_app/wert/index'
+import { Route as DemoAlsPersonRouteImport } from './routes/demo/als/$person'
 import { Route as EinladungTokenIndexRouteImport } from './routes/einladung/$token/index'
 import { Route as EinladungTokenNameRouteImport } from './routes/einladung/$token/name'
 import { Route as EinladungTokenPasskeyRouteImport } from './routes/einladung/$token/passkey'
@@ -519,6 +520,11 @@ const AppWertIndexRoute = AppWertIndexRouteImport.update({
   id: '/wert/',
   path: '/wert/',
   getParentRoute: () => AppRoute,
+} as any)
+const DemoAlsPersonRoute = DemoAlsPersonRouteImport.update({
+  id: '/demo/als/$person',
+  path: '/demo/als/$person',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EinladungTokenIndexRoute = EinladungTokenIndexRouteImport.update({
   id: '/',
@@ -1849,6 +1855,7 @@ export interface FileRoutesByFullPath {
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/warum/$id': typeof AppWarumIdRoute
+  '/demo/als/$person': typeof DemoAlsPersonRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2111,6 +2118,7 @@ export interface FileRoutesByTo {
   '/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/warum/$id': typeof AppWarumIdRoute
+  '/demo/als/$person': typeof DemoAlsPersonRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/bewertungen': typeof AppBewertungenIndexRoute
@@ -2377,6 +2385,7 @@ export interface FileRoutesById {
   '/_app/uebersicht/ergebnisse': typeof AppUebersichtErgebnisseRoute
   '/_app/uebersicht/wertpotenziale': typeof AppUebersichtWertpotenzialeRoute
   '/_app/warum/$id': typeof AppWarumIdRoute
+  '/demo/als/$person': typeof DemoAlsPersonRoute
   '/einladung/$token/name': typeof EinladungTokenNameRoute
   '/einladung/$token/passkey': typeof EinladungTokenPasskeyRoute
   '/_app/bewertungen/': typeof AppBewertungenIndexRoute
@@ -2644,6 +2653,7 @@ export interface FileRouteTypes {
     | '/uebersicht/ergebnisse'
     | '/uebersicht/wertpotenziale'
     | '/warum/$id'
+    | '/demo/als/$person'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen/'
@@ -2906,6 +2916,7 @@ export interface FileRouteTypes {
     | '/uebersicht/ergebnisse'
     | '/uebersicht/wertpotenziale'
     | '/warum/$id'
+    | '/demo/als/$person'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/bewertungen'
@@ -3171,6 +3182,7 @@ export interface FileRouteTypes {
     | '/_app/uebersicht/ergebnisse'
     | '/_app/uebersicht/wertpotenziale'
     | '/_app/warum/$id'
+    | '/demo/als/$person'
     | '/einladung/$token/name'
     | '/einladung/$token/passkey'
     | '/_app/bewertungen/'
@@ -3408,6 +3420,7 @@ export interface RootRouteChildren {
   AddinOutlookRoute: typeof AddinOutlookRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   UmfrageTokenRoute: typeof UmfrageTokenRoute
+  DemoAlsPersonRoute: typeof DemoAlsPersonRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3747,6 +3760,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/wert/'
       preLoaderRoute: typeof AppWertIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/demo/als/$person': {
+      id: '/demo/als/$person'
+      path: '/demo/als/$person'
+      fullPath: '/demo/als/$person'
+      preLoaderRoute: typeof DemoAlsPersonRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/einladung/$token/': {
       id: '/einladung/$token/'
@@ -5973,6 +5993,7 @@ const rootRouteChildren: RootRouteChildren = {
   AddinOutlookRoute: AddinOutlookRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   UmfrageTokenRoute: UmfrageTokenRoute,
+  DemoAlsPersonRoute: DemoAlsPersonRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

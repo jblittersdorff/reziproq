@@ -22,6 +22,15 @@ describe('parseEnv', () => {
     },
   );
 
+  it('DM-01, E-K0-05: Demo-Sitzungen sind ohne Angabe aus und starten nie im Betrieb', () => {
+    expect(parseEnv(base).DEMO_SESSIONS).toBe('false');
+    expect(parseEnv({ ...base, DEMO_SESSIONS: 'true' }).DEMO_SESSIONS).toBe('true');
+    expect(() =>
+      parseEnv({ ...base, NODE_ENV: 'production', DEMO_SESSIONS: 'true', AI_PROVIDER: 'bedrock' }),
+    ).toThrow(/DEMO_SESSIONS/);
+    expect(() => parseEnv({ ...base, DEMO_SESSIONS: 'ja' })).toThrow(/DEMO_SESSIONS/);
+  });
+
   it('lehnt unbekannte Anbieter ab', () => {
     expect(() => parseEnv({ ...base, AI_PROVIDER: 'openai' })).toThrow(/AI_PROVIDER/);
   });

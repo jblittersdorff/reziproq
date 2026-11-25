@@ -83,6 +83,7 @@ import {
   type DismissHint,
   dataExportListSchema,
   decisionHistorySchema,
+  demoSessionSchema,
   deviationExplanationsSchema,
   doneListSchema,
   dueListSchema,
@@ -2155,6 +2156,17 @@ export const doneQueryOptions = (accessToken: string) =>
 /** Zurücknehmen bis 30 Tage, solange das Objekt unverändert ist */
 export const undoDone = (accessToken: string, id: string) =>
   sendJson('POST', `/erledigt/${id}/zuruecknehmen`, {}, undoResultSchema, accessToken);
+
+/** DM-01, E-K0-05 (K1-b.2): Demo-Sitzung für eine Person des Demo-Mandanten, ohne Anmeldung */
+export async function startDemoSession(userId: string) {
+  const res = await fetch('/api/demo/sitzung', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+  if (!res.ok) throw new ApiError('/demo/sitzung', res.status);
+  return demoSessionSchema.parse(await res.json());
+}
 
 /** DM-01 (K1-b.1): Modus der Modellantworten im Demo-Mandanten umschalten */
 export const setAiMode = (accessToken: string, mode: AiMode) =>

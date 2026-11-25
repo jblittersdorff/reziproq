@@ -8,6 +8,8 @@ import { oidcConfig, safeReturnTo, zitadelSettings } from './lib/auth';
 import { LocaleProvider } from './lib/i18n';
 import { routeTree } from './routeTree.gen';
 import './index.css';
+import { DemoAuthProvider } from '@/features/demo/demo-auth';
+import { startupDemoSession } from '@/lib/demo-session';
 
 const queryClient = new QueryClient();
 
@@ -50,7 +52,14 @@ if (!rootElement) throw new Error('Element #root fehlt in index.html');
 createRoot(rootElement).render(
   <StrictMode>
     <LocaleProvider>
-      {authConfig ? <AuthProvider {...authConfig}>{app}</AuthProvider> : app}
+      {/* DM-01, E-K0-05: In einer Demo-Sitzung meldet die Demo-Person ohne Zitadel an */}
+      {startupDemoSession ? (
+        <DemoAuthProvider session={startupDemoSession}>{app}</DemoAuthProvider>
+      ) : authConfig ? (
+        <AuthProvider {...authConfig}>{app}</AuthProvider>
+      ) : (
+        app
+      )}
     </LocaleProvider>
   </StrictMode>,
 );

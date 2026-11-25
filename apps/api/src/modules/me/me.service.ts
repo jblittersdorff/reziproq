@@ -16,7 +16,7 @@ import { buyerOnlyActions } from '../auth/buyer-only.js';
 import { can } from '../auth/can.js';
 import { readCategoryLabel } from '../material-groups/category-label.js';
 import { SsoGate } from '../sso/sso-gate.js';
-import { UserinfoClient } from './userinfo.client.js';
+import { type Userinfo, UserinfoClient } from './userinfo.client.js';
 
 @Injectable()
 export class MeService {
@@ -26,6 +26,32 @@ export class MeService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(SsoGate) private readonly sso: SsoGate,
   ) {}
+
+  /** E-K0-05: Name und E-Mail einer Demo-Person aus dem Demo-Mandanten statt von Zitadel */
+  private async demoProfile(auth: AuthContext): Promise<Userinfo> {
+    const organization = auth.organization;
+    if (!organization) throw new UnauthorizedException();
+    const [person] = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      (tx) =>
+        tx
+          .select({
+            name: schema.appUser.name,
+            givenName: schema.appUser.givenName,
+            email: schema.appUser.email,
+          })
+          .from(schema.appUser)
+          .where(eq(schema.appUser.id, auth.userId)),
+      { readOnly: true },
+    );
+    if (!person) throw new UnauthorizedException();
+    return {
+      sub: auth.userId,
+      name: person.name,
+      email: person.email,
+      ...(person.givenName ? { given_name: person.givenName } : {}),
+    };
+  }
 
   /**
    * Holt Name, Vorname, E-Mail und Zitadel-Organisation von Zitadel und speichert sie in app_user.
@@ -39,24 +65,30 @@ export class MeService {
       browserLocale = null,
     }: { login?: boolean; browserLocale?: UserLocale | null } = {},
   ): Promise<MeResponse> {
-    const info = await this.userinfo.fetch(auth.accessToken);
+    // E-K0-05: Eine Demo-Sitzung kommt ohne Zitadel aus; die Person steht schon im Demo-Mandanten
+    // und wird nicht abgeglichen.
+    const info = auth.demoSession
+      ? await this.demoProfile(auth)
+      : await this.userinfo.fetch(auth.accessToken);
     // Userinfo muss zur selben Person gehören wie das Token (OpenID Connect Core 5.3.2).
     if (info.sub !== auth.userId) throw new UnauthorizedException();
 
     const givenName = info.given_name || null;
-    // IN-02: Anmeldung über Microsoft oder Google prüfen, bevor die Person angelegt wird
-    const sso = await this.sso.check(auth.userId, info);
-    await this.accounts.syncUser({
-      userId: auth.userId,
-      name: info.name,
-      givenName,
-      email: info.email,
-      zitadelOrgId: info['urn:zitadel:iam:user:resourceowner:id'] ?? null,
-      login,
-      tokenRoles: auth.tokenRoles,
-      browserLocale: login ? browserLocale : null,
-      sso,
-    });
+    if (!auth.demoSession) {
+      // IN-02: Anmeldung über Microsoft oder Google prüfen, bevor die Person angelegt wird
+      const sso = await this.sso.check(auth.userId, info);
+      await this.accounts.syncUser({
+        userId: auth.userId,
+        name: info.name,
+        givenName,
+        email: info.email,
+        zitadelOrgId: info['urn:zitadel:iam:user:resourceowner:id'] ?? null,
+        login,
+        tokenRoles: auth.tokenRoles,
+        browserLocale: login ? browserLocale : null,
+        sso,
+      });
+    }
     // Der Guard kannte nur den Stand vor dem Abgleich; die Betreiber-Ansicht bleibt beim Kunden.
     const membership = auth.supportOrganization
       ? null

@@ -11,6 +11,8 @@ export const isolatedTests = [
   'src/features/audit/plt-08.test.tsx',
   'src/features/calendar/in-03.test.tsx',
   'src/features/activities/in-04.test.tsx',
+  // DM-01 (K1-b.2): braucht das echte react-oidc-context, das andere Tests ersetzen
+  'src/features/demo/demo-auth.test.tsx',
 ];
 
 /** Gemeinsame Einstellungen beider Web-Projekte */

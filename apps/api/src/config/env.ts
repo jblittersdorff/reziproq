@@ -21,6 +21,9 @@ const envSchema = z.object({
     z.url({ protocol: /^https?$/ }).transform((url) => url.replace(/\/+$/, '')),
   ),
   ZITADEL_PROJECT_ID: z.preprocess(emptyAsUndefined, z.string().min(1)),
+  // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person ohne Zitadel, nur für Personen eines
+  // Demo-Mandanten und nie in Produktion (der Start bricht dann ab).
+  DEMO_SESSIONS: z.preprocess(emptyAsUndefined, z.enum(['true', 'false']).default('false')),
 
   // Das Testmodell braucht weder Schlüssel noch Internet. Echte Daten laufen über Bedrock.
   // IN-01: Schlüssel für Zugangsdaten der Anbindungen; lokal aus einer Datei außerhalb des Repos,
@@ -91,6 +94,11 @@ export function parseEnv(input: Record<string, string | undefined>): Env {
     );
   }
   const env = result.data;
+  if (env.NODE_ENV === 'production' && env.DEMO_SESSIONS === 'true') {
+    throw new Error(
+      'Demo-Sitzungen gibt es nie im Betrieb: DEMO_SESSIONS darf dort nicht true sein.',
+    );
+  }
   if (env.NODE_ENV === 'production' && env.AI_PROVIDER !== 'bedrock') {
     throw new Error('Im Betrieb muss AI_PROVIDER=bedrock gesetzt sein.');
   }

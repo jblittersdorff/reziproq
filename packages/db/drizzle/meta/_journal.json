@@ -967,6 +967,13 @@
       "when": 1795643283816,
       "tag": "0137_k1b_modus",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1795644176136,
+      "tag": "0138_k1b_demo_sitzung",
+      "breakpoints": true
     }
   ]
 }

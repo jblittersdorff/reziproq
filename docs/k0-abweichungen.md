@@ -108,6 +108,7 @@ Weitere Punkte:
 - **B-07 Demo-Technik (DM-01, KI-01).**
   - Es fehlen `org.ai_mode`, die Modi `record`/`replay`, `model_call_recording`, `org.is_demo`, `org.demo_now`, `demo_event`, `demo_snapshot` und die Seite `/demo`.
   - Stand K1-b.1 (25.11.2026): `is_demo`, `ai_mode` und `demo_now` gibt es seit K1-a. Die Modi und `model_call_recording` sind gebaut. Es fehlen noch `demo_event`, `demo_snapshot` und `/demo` (K1-g).
+  - Stand K1-b.2 (25.11.2026): Die Demo-Sitzung je Person ist gebaut (E-K0-05).
   - Es gibt keine Uhr je Mandant. In der API stehen 201 `new Date()`, 21 `Date.now()` und 45 `now()` in SQL, dazu Standardwerte `defaultNow()` und Zeitpläne in zehn Workern. Das ist der breiteste Umbau des Pakets (Abschnitt f).
 - **B-08 Demo-Daten (DM-01, G-10).** Heute gibt es „Test-OEM (Demo)“, „Zweit-OEM“ und „Test-Lieferant“ (`packages/db/src/seed.ts:42`), dazu `demo-story.ts`.
   - Einige Lieferanten heißen schon wie im Paket (Rheintal Elektronik, Silesia Guss, Pearl River), haben aber andere Zahlen.

@@ -566,6 +566,9 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
         '/api/anmeldung/sso',
         // Durchstich: Rückkehr von der Anmeldung bei Microsoft (signierter state)
         '/api/anbindungen/oauth/microsoft/callback',
+        // DM-01, E-K0-05: Demo-Sitzung im Demo-Mandanten, nur mit Schalter, nie im Betrieb
+        '/api/demo/personen',
+        '/api/demo/sitzung',
       ]),
     );
   });

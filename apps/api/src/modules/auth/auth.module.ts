@@ -5,6 +5,7 @@ import { env } from '../../config/env.js';
 import { SupportAccessService } from '../support/support-access.service.js';
 import { AuthGuard } from './auth.guard.js';
 import { ClockInterceptor } from './clock.interceptor.js';
+import { DemoTokens } from './demo-token.js';
 import { DISCOVERY_URL, OidcDiscovery } from './oidc-discovery.js';
 import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-verifier.js';
 
@@ -37,6 +38,7 @@ import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-ver
       },
       inject: [OidcDiscovery],
     },
+    DemoTokens,
     TokenVerifier,
     SupportAccessService,
     // Gilt für alle Routen; Ausnahmen nur über @Public().
@@ -44,6 +46,6 @@ import { AUTH_OPTIONS, type AuthOptions, JWKS, TokenVerifier } from './token-ver
     // DM-01: Demo-Uhr der Organisation für die ganze Anfrage, nach dem AuthGuard.
     { provide: APP_INTERCEPTOR, useClass: ClockInterceptor },
   ],
-  exports: [OidcDiscovery, SupportAccessService],
+  exports: [OidcDiscovery, SupportAccessService, DemoTokens],
 })
 export class AuthModule {}

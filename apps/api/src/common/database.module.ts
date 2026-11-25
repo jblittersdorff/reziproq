@@ -196,6 +196,36 @@ export class AccountStore {
     };
   }
 
+  /** DM-01 (K1-b.2): Ist die Organisation ein Demo-Mandant? */
+  async isDemoOrganization(orgId: string): Promise<boolean> {
+    const result = await this.db.execute<{ yes: boolean }>(
+      sql`select app_org_is_demo(${orgId}::uuid) as yes`,
+    );
+    return result.rows[0]?.yes === true;
+  }
+
+  /** DM-01, E-K0-05 (K1-b.2): Personen der Demo-Mandanten, nie andere */
+  async demoPersons(): Promise<
+    { id: string; name: string; orgId: string; orgName: string; orgRole: OrgRole; buyer: boolean }[]
+  > {
+    const result = await this.db.execute<{
+      id: string;
+      name: string;
+      org_id: string;
+      org_name: string;
+      org_role: OrgRole;
+      buyer: boolean;
+    }>(sql`select id, name, org_id, org_name, org_role, buyer from app_demo_personen()`);
+    return result.rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      orgId: row.org_id,
+      orgName: row.org_name,
+      orgRole: row.org_role,
+      buyer: row.buyer,
+    }));
+  }
+
   /** Betreiber-Team von Reziproq (UMB-01): nur das Flag in der Datenbank zählt. */
   async isOperator(userId: string): Promise<boolean> {
     const result = await this.db.execute<{ yes: boolean }>(
