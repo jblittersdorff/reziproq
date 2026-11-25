@@ -164,6 +164,17 @@ for (const width of [390, 1440]) {
     await expect(page.locator('[data-slot="next-card"]')).toHaveCount(1);
     await page.waitForLoadState('networkidle');
     expect(await sideScroll(page)).toBe(0);
+    // Die Schritte unter „So geht es weiter“ werden auf keiner Breite gekürzt
+    const steps = page
+      .getByRole('region', { name: 'So geht es weiter' })
+      .locator('[data-slot="row"] b');
+    await expect(steps).toHaveCount(3);
+    const cut = await steps.evaluateAll((titles) =>
+      titles
+        .filter((title) => title.scrollWidth > title.clientWidth)
+        .map((title) => title.textContent),
+    );
+    expect(cut).toEqual([]);
     if (process.env.UX_SHOTS) {
       await page.screenshot({ path: `${process.env.UX_SHOTS}/mappe-${width}.png`, fullPage: true });
     }

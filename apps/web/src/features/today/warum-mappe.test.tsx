@@ -191,7 +191,12 @@ describe('HE-01 Fokus-Mappe', () => {
     expect(
       screen.getByText('Werte für beide Seiten zeigt die Mappe, sobald die Wert-Engine rechnet.'),
     ).toBeTruthy();
-    expect(screen.getByRole('region', { name: 'So geht es weiter' })).toBeTruthy();
+    // Kurze Schritt-Titel, die Erklärung in der Unterzeile (Vorlage K1-Mappe)
+    const next = screen.getByRole('region', { name: 'So geht es weiter' });
+    expect(within(next).getByText('Thema verlässt den Fokus')).toBeTruthy();
+    expect(
+      within(next).getByText('sobald erledigt · nachzulesen in Erledigt und im Verlauf'),
+    ).toBeTruthy();
     expect(screen.getByText('Nur für dich')).toBeTruthy();
   });
 
