@@ -202,7 +202,7 @@ describe('IN-04 Weitergeleitete Mail in Kurz prüfen (K1-e.3)', () => {
       minutes: 1,
     };
     api.handle = (request) => {
-      if (request.url === '/api/kurz-pruefen') return Response.json(stack);
+      if (/^\/api\/kurz-pruefen(\?|$)/.test(request.url)) return Response.json(stack);
       if (request.method === 'POST' && request.url.startsWith('/api/kurz-pruefen/')) {
         sent.push(request);
         return Response.json({ state: 'accepted' });

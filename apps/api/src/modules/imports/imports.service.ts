@@ -36,6 +36,7 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 import { AgentEventBus } from '../../common/agent-events.js';
 import { TenantDatabase } from '../../common/database.module.js';
+import { workerEnabled } from '../agents/worker-levels.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
@@ -256,6 +257,15 @@ export class ImportsService {
     return this.get(auth, id);
   }
 
+  /** MA-01 (K1-f): Ist die Aufgabe „Import zuordnen“ in den KI-Einstellungen an? */
+  private assistEnabled(session: { userId: string; organizationId: string }) {
+    return this.tenant.run(
+      session,
+      (tx) => workerEnabled(tx, session.organizationId, 'import_assign'),
+      { readOnly: true },
+    );
+  }
+
   /**
    * Vorschlag für die Spalten. Das Modell bekommt nur die Überschriften und fünf Beispielzeilen;
    * lokal schlägt der Code aus bekannten Überschriften vor. Den Vorschlag bestätigt der Admin.
@@ -267,6 +277,8 @@ export class ImportsService {
     kind: ImportBatchKind,
   ): Promise<ColumnMap> {
     const local = suggestColumnMap(headers, kind);
+    // MA-01 (K1-f): Ist die Aufgabe Import zuordnen aus, gilt der Vorschlag aus den Überschriften.
+    if (!(await this.assistEnabled(session))) return local;
     const raw = await this.gateway.call(
       { orgId: session.organizationId, userId: session.userId, feature: 'import_assist' },
       async (model) => {
@@ -624,11 +636,15 @@ export class ImportsService {
     rows: RowRecord[],
     groups: Group[],
   ) {
-    this.modelCalls += 1;
     let answer: ModelSuggestions;
-    if (this.testModel) {
+    // MA-01 (K1-f), T1-MA4: Ist die Aufgabe Import zuordnen aus, gelten die Vorschläge ohne Modell.
+    if (!(await workerEnabled(tx, session.organizationId, 'import_assign'))) {
+      answer = localSuggestions(rows, groups);
+    } else if (this.testModel) {
+      this.modelCalls += 1;
       answer = this.testModel({ rows, groups });
     } else {
+      this.modelCalls += 1;
       const input = rows.map((row) => {
         const n = row.normalized as unknown as NormalizedRow;
         return {

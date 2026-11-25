@@ -9,6 +9,7 @@ import {
   and,
   currentTime,
   eq,
+  or,
   schema,
   sql,
   type TenantSession,
@@ -137,7 +138,12 @@ export class ReviewService {
   }
 
   /** Der Stapel: offene Entwürfe der Person in der Reihenfolge der Triage, mit Text und Quellen */
-  async stack(auth: AuthContext): Promise<ReviewStack> {
+  /**
+   * Stapel der Entwürfe. `entwurf` nimmt dazu einen Vorschlag zum Zuordnen auf, der nicht im
+   * Stapel liegt (Stufe Vorschlagen der Aufgabe Postfach, MA-01, K1-f): Die Zeile in Alles öffnet
+   * ihn hier.
+   */
+  async stack(auth: AuthContext, entwurf?: string): Promise<ReviewStack> {
     const session = this.session(auth);
     const organization = auth.organization;
     if (!session || !organization) return { items: [], minutes: 0 };
@@ -161,7 +167,9 @@ export class ReviewService {
           left join meeting m on d.object_type = 'meeting' and m.id = d.object_id
           left join inbound_item i on f.source_type = 'inbound' and i.id = f.source_id
           where f.org_id = ${organization.id} and f.user_id = ${auth.userId}
-            and f.level = 'review' and f.state = 'open'
+            and f.state = 'open'
+            and (f.level = 'review' or (f.level = 'focus' and f.source_type = 'inbound'
+              and f.id = ${entwurf ?? null}::uuid))
           order by d.review_order nulls last,
             coalesce(d.created_at, i.received_at, f.created_at), f.id`);
         const draftIds = rows.rows.flatMap((row) =>
@@ -318,7 +326,10 @@ export class ReviewService {
     return { state: decision.decision === 'uebernehmen' ? 'accepted' : 'discarded' };
   }
 
-  /** Eigenes, offenes Fokus-Thema der Stufe review mit seinem Entwurf oder Eingang */
+  /**
+   * Eigenes, offenes Fokus-Thema der Stufe review mit seinem Entwurf oder Eingang; dazu ein
+   * Vorschlag zum Zuordnen der Stufe focus (Aufgabe Postfach auf Vorschlagen, MA-01)
+   */
   private async record(tx: TenantTransaction, auth: AuthContext, id: string): Promise<DraftRecord> {
     const [focus] = await tx
       .select()
@@ -327,7 +338,10 @@ export class ReviewService {
         and(
           eq(schema.focusItem.id, id),
           eq(schema.focusItem.userId, auth.userId),
-          eq(schema.focusItem.level, 'review'),
+          or(
+            eq(schema.focusItem.level, 'review'),
+            and(eq(schema.focusItem.level, 'focus'), eq(schema.focusItem.sourceType, 'inbound')),
+          ),
           eq(schema.focusItem.state, 'open'),
         ),
       );

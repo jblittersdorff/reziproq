@@ -399,6 +399,33 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     expect(runs).toEqual([{ contextId: rel.b, actingUserId: users.sro }]);
   });
 
+  // MA-01 (K1-f), T1-MA4: Ist der Wertfinder in den KI-Einstellungen aus, entsteht kein Lauf
+  it('T1-MA4: ist der Wertfinder aus, entsteht weder von Hand noch im Monatslauf ein Lauf', async () => {
+    const runs = async () =>
+      Number(
+        (
+          await db.execute<{ count: number }>(
+            sql`select count(*)::int as count from agent_run where org_id = ${orgs.oem}`,
+          )
+        ).rows[0]?.count ?? 0,
+      );
+    await db.execute(sql`
+      insert into org_setting (org_id, key, value, updated_by)
+      values (${orgs.oem}, 'ai_workers', '{"value_finder":{"enabled":false}}'::jsonb, ${users.admin})
+      on conflict (org_id, key) do update set value = excluded.value`);
+    try {
+      const before = await runs();
+      const refused = await call(users.sro, 'POST', `/suppliers/${rel.a}/wertpotenziale/lauf`);
+      expect(refused).toMatchObject({ status: 409, body: { code: 'ki_aufgabe_aus' } });
+      expect(await testApp.app.get(OpportunitiesWorker).runMonthly([orgs.oem])).toBe(0);
+      expect(await runs()).toBe(before);
+    } finally {
+      await db.execute(
+        sql`delete from org_setting where org_id = ${orgs.oem} and key = 'ai_workers'`,
+      );
+    }
+  });
+
   it('eine Anfrage zur Datenlücke ist erst ein Entwurf; gesendet wird sie erst mit Übernahme', async () => {
     const before = valueOpportunitiesSchema.parse(
       (await call(users.sro, 'GET', `/suppliers/${rel.a}/wertpotenziale`)).body,

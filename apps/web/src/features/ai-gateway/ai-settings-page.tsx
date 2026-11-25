@@ -66,6 +66,8 @@ type Draft = {
   valueFinderSegments: string[];
   /** Annahmen der Hebel-Vorlagen in Prozent, Schlüssel „vorlage.feld“ */
   assumptions: Record<string, { low: string; high: string }>;
+  /** MA-01 (K1-f): Aufgaben an oder aus und Obergrenze; bis K1-f.4 unverändert weitergegeben */
+  workers: AiSettings['workers'];
 };
 
 /** Alle Annahmen der Vorlagen mit Startwert */
@@ -94,6 +96,7 @@ const draftOf = (settings: AiSettings, locale: string): Draft => ({
   maxSteps: String(settings.maxSteps),
   customAgentRoles: settings.customAgentRoles,
   customAgentApproval: settings.customAgentApproval,
+  workers: settings.workers,
   overrides: settings.agentBudgetOverrides.map((entry) => ({
     agentKey: entry.agentKey,
     budget: euroText(entry.budgetRunCents, locale, true),
@@ -119,6 +122,7 @@ const settingsOf = (draft: Draft) =>
     maxSteps: Number(draft.maxSteps),
     customAgentRoles: draft.customAgentRoles,
     customAgentApproval: draft.customAgentApproval,
+    workers: draft.workers,
     agentBudgetOverrides: draft.overrides
       .filter((row) => row.agentKey)
       .map((row) => ({ agentKey: row.agentKey, budgetRunCents: centsOf(row.budget ?? '') })),

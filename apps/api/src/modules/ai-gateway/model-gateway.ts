@@ -1,12 +1,22 @@
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { and, currentTime, eq, schema, sql, systemTime } from '@reziproq/db';
-import { type AiFeature, aiFeatureClasses, type DueItem } from '@reziproq/shared';
+import {
+  type AiFeature,
+  aiFeatureClasses,
+  type DueItem,
+  orgWorkerState,
+  workerOfFeature,
+} from '@reziproq/shared';
 import type { LanguageModel } from 'ai';
 import { createLanguageModel } from '../../common/ai-language-model.js';
 import { TenantDatabase } from '../../common/database.module.js';
 import { env } from '../../config/env.js';
 import { readAiSettings } from './ai-settings.js';
-import { BudgetExhaustedError, RegionRejectedError } from './gateway-errors.js';
+import {
+  BudgetExhaustedError,
+  RegionRejectedError,
+  WorkerDisabledError,
+} from './gateway-errors.js';
 import {
   costMicrocents,
   type GatewayProvider,
@@ -134,6 +144,12 @@ export class ModelGateway {
       (tx) => readAiSettings(tx, context.orgId),
       { readOnly: true },
     );
+    // MA-01 (K1-f): Gehört die Funktion zu einer Aufgabe, die die Organisation ausgeschaltet hat,
+    // gibt es keinen Aufruf (T1-MA4).
+    const worker = workerOfFeature(context.feature);
+    if (worker && !orgWorkerState(settings.workers, worker).enabled) {
+      throw new WorkerDisabledError(worker.key);
+    }
     if ((await this.monthMicrocents(context)) >= settings.budgetMonthCents * 1_000_000) {
       await this.record(context, { ...base, outcome: 'rejected_budget' });
       throw new BudgetExhaustedError();

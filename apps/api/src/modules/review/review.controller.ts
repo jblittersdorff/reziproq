@@ -7,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   type ReviewDecision,
@@ -27,8 +28,11 @@ export class ReviewController {
 
   @Get()
   @Requires('start.sehen')
-  stack(@CurrentUser() auth: AuthContext): Promise<ReviewStack> {
-    return this.review.stack(auth);
+  stack(
+    @CurrentUser() auth: AuthContext,
+    @Query('entwurf', new ParseUUIDPipe({ optional: true })) entwurf?: string,
+  ): Promise<ReviewStack> {
+    return this.review.stack(auth, entwurf);
   }
 
   /** Übernehmen (optional angepasst), Verwerfen mit Grund oder Später */

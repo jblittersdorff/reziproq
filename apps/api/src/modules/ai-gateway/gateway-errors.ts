@@ -21,3 +21,15 @@ export class RegionRejectedError extends ForbiddenException {
     });
   }
 }
+
+/** MA-01 (K1-f): Die Aufgabe ist in den KI-Einstellungen aus; kein Aufruf, kein Lauf (T1-MA4). */
+export class WorkerDisabledError extends ConflictException {
+  constructor(worker: string) {
+    super({
+      statusCode: 409,
+      code: 'ki_aufgabe_aus',
+      message: 'Diese Aufgabe von Reziproq ist in den KI-Einstellungen ausgeschaltet.',
+      aufgabe: worker,
+    });
+  }
+}

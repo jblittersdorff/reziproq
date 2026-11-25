@@ -81,6 +81,8 @@ export const actions = [
   'feedback.sehen',
   'eigene_sicht.bearbeiten',
   'feedback.verwalten',
+  // MA-01 (K1-f): eigene Stufen je Aufgabe von Reziproq
+  'mein_agent.einstellen',
 ] as const;
 export type Action = (typeof actions)[number];
 

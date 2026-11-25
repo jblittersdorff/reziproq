@@ -2115,10 +2115,19 @@ export const snoozeTopic = (accessToken: string, id: string) =>
   sendJson('POST', `/heute/${id}/morgen`, {}, snoozeResultSchema, accessToken);
 
 /** HE-01 Kurz prüfen (K1-e.2): der Stapel der Entwürfe */
-export const reviewStackQueryOptions = (accessToken: string) =>
+/**
+ * HE-01 Kurz prüfen; `entwurf` nimmt einen Vorschlag zum Zuordnen dazu, der nicht im Stapel liegt
+ * (Aufgabe Postfach auf Vorschlagen, MA-01)
+ */
+export const reviewStackQueryOptions = (accessToken: string, entwurf?: string) =>
   queryOptions({
-    queryKey: ['heute', 'kurz-pruefen'],
-    queryFn: () => getJson('/kurz-pruefen', reviewStackSchema, accessToken),
+    queryKey: ['heute', 'kurz-pruefen', entwurf ?? null],
+    queryFn: () =>
+      getJson(
+        entwurf ? `/kurz-pruefen?entwurf=${encodeURIComponent(entwurf)}` : '/kurz-pruefen',
+        reviewStackSchema,
+        accessToken,
+      ),
     retry: retryUnlessDenied,
   });
 

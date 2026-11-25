@@ -41,6 +41,7 @@ import {
 } from '@reziproq/shared';
 import { z } from 'zod';
 import { TenantDatabase } from '../../common/database.module.js';
+import { workerLevelFor } from '../agents/worker-levels.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { CalendarIntakeService } from '../calendar/calendar.service.js';
@@ -160,13 +161,19 @@ export class TriageService {
       organization.buyer && can(auth, 'hinweise.sehen') ? await this.hints.openFor(auth) : [];
     const scored = await this.tenant.run(session, async (tx) => {
       const locale = await localeOf(tx, auth.userId);
+      // MA-01 (K1-f): Stufe der Aufgabe Postfach für diese Person
+      const inboxLevel = await workerLevelFor(
+        tx,
+        { orgId: organization.id, userId: auth.userId },
+        'inbox',
+      );
       const candidates = unique([
         ...dueItems.map((item) => fromDue(item, today, locale)),
         ...hints.filter((hint) => hint.canDismiss).map((hint) => fromHint(hint, today, locale)),
         ...(await draftsOf(tx, auth)).map((draft) => fromDraft(draft, locale)),
         ...(await runsOf(tx, auth, today)).map((run) => fromRun(run, locale)),
         ...(organization.buyer && can(auth, 'termine.sehen') ? await inboundOf(tx, auth) : []).map(
-          (item) => fromInbound(item, locale),
+          (item) => fromInbound(item, locale, inboxLevel),
         ),
       ]);
       // Eine Beziehung hängt nur an, wenn es sie gibt; dazu Spend und Segmentgewicht je Beziehung.
@@ -295,6 +302,9 @@ export class TriageService {
           }));
         const assign: AllAssign[] = inbox.map((item) => {
           const review = view.reviewBySource.get(`inbound:${item.id}`);
+          // Stufe Vorschlagen (MA-01, K1-f): Kurz prüfen öffnet genau diesen Eintrag
+          const suggestion = view.suggestBySource.get(`inbound:${item.id}`);
+          const entry = review ?? suggestion;
           return {
             id: item.id,
             kind: item.kind,
@@ -302,8 +312,8 @@ export class TriageService {
             startsAt: item.startsAt,
             suggestionKind: item.suggestionKind,
             suggestions: item.suggestions,
-            // Zuordnen ist ein Entwurf in Kurz prüfen (K1-e.2); ohne ihn die Seite Neu eingegangen
-            href: review ? `/kurz-pruefen?entwurf=${review}` : '/kurz-pruefen',
+            // Zuordnen ist ein Entwurf in Kurz prüfen (K1-e.2)
+            href: entry ? `/kurz-pruefen?entwurf=${entry}` : '/kurz-pruefen',
             inReview: Boolean(review),
           };
         });
@@ -395,7 +405,15 @@ export class TriageService {
     // Für dich: offene Fokus-Themen nach Punktzahl, zurückgestellte am Ende
     const topicRows = await tx.execute<TopicRow>(sql`
       select * from focus_item where ${own} and level = 'focus' and state in ('open', 'snoozed')
+        and source_type <> 'inbound'
       order by (state = 'snoozed'), score desc, due_at asc nulls last, created_at, id`);
+    // Vorschläge zum Zuordnen (Stufe Vorschlagen, MA-01) stehen nur in Alles unter „Zuordnen“
+    const suggestRows = await tx.execute<{ id: string; source_id: string }>(sql`
+      select id, source_id from focus_item
+      where ${own} and level = 'focus' and state = 'open' and source_type = 'inbound'`);
+    const suggestBySource = new Map(
+      suggestRows.rows.map((row) => [`inbound:${row.source_id}`, row.id] as const),
+    );
     const topics: AllTopic[] = topicRows.rows.map((row, index) => ({
       ...topicOf(row, candidates, locale, groups),
       rank: index + 1,
@@ -487,6 +505,7 @@ export class TriageService {
       topics,
       drafts,
       reviewBySource,
+      suggestBySource,
       reviewSeconds,
       done,
       waiting,

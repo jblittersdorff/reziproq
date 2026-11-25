@@ -1,6 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql, withTenant } from '@reziproq/db';
-import { doneListSchema, inboxSchema, integrationsSchema } from '@reziproq/shared';
+import {
+  doneListSchema,
+  inboxSchema,
+  integrationsSchema,
+  myAgentSchema,
+  reviewStackSchema,
+  todayAllSchema,
+  type WorkerLevel,
+} from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -783,5 +791,130 @@ describe('IN-03 Termine aus Outlook und Google', () => {
     );
     const late = await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`);
     expect(late).toMatchObject({ status: 409, body: { code: 'abgelaufen' } });
+  });
+
+  // MA-01 (K1-f), T1-MA1: Die Stufe der Aufgabe Postfach ändert das Ergebnis derselben Einladung.
+  // Erledigen: Reziproq ordnet selbst zu (Lauf in Erledigt). Vorbereiten: Entwurf in Kurz prüfen.
+  // Vorschlagen: Vorschlag mit Begründung in Alles; die Zeile öffnet ihn in Kurz prüfen. T1-MA4:
+  // Ist das Postfach in den KI-Einstellungen aus, ordnet Reziproq nichts zu und es entsteht kein Lauf.
+  describe('MA-01 Stufen der Aufgabe Postfach', () => {
+    const setLevel = async (level: WorkerLevel) =>
+      expect((await call(users.anna, 'PUT', '/mein-agent/inbox', { level })).status).toBe(200);
+    const invite = async (key: string) => {
+      const uid = `uid-ma01-${key}-${run}`;
+      await deliver(
+        `msg-ma01-${key}-${run}`,
+        ics({
+          uid,
+          summary: `Abstimmung ${key}`,
+          start: tomorrow(8),
+          organizer: mail('anna'),
+          attendees: [`kim@${domains.rheintal}`],
+        }),
+      );
+      return uid;
+    };
+    const runsFor = async (uid: string) =>
+      (
+        await db.execute<{ id: string }>(sql`
+          select r.id from agent_run r join inbound_item i on i.id = r.context_id
+          where i.ical_uid = ${uid}`)
+      ).rows;
+    const stack = async (entwurf?: string) =>
+      reviewStackSchema.parse(
+        (
+          await call(
+            users.anna,
+            'GET',
+            entwurf ? `/kurz-pruefen?entwurf=${entwurf}` : '/kurz-pruefen',
+          )
+        ).body,
+      );
+    const offInbox = sql`
+      insert into org_setting (org_id, key, value, updated_by)
+      values (${orgs.a}, 'ai_workers', '{"inbox":{"enabled":false}}'::jsonb, ${users.admin})
+      on conflict (org_id, key) do update set value = excluded.value`;
+
+    afterAll(async () => {
+      await db.execute(
+        sql`delete from org_setting where org_id = ${orgs.a} and key = 'ai_workers'`,
+      );
+      await db.execute(sql`delete from worker_setting where org_id = ${orgs.a}`);
+    });
+
+    it('T1-MA1 Erledigen: Reziproq ordnet selbst zu, der Lauf steht in Erledigt', async () => {
+      await setLevel('do');
+      const uid = await invite('erledigen');
+      expect(await meetingsWith(uid)).toMatchObject([{ relationship_id: rel.rheintal }]);
+      expect(await itemsWith(uid)).toMatchObject([{ status: 'auto_assigned' }]);
+      expect(await runsFor(uid)).toHaveLength(1);
+      // Mein Agent zählt die Handlung in der Woche und als unverändert übernommen
+      const agent = myAgentSchema.parse((await call(users.anna, 'GET', '/mein-agent')).body);
+      expect(agent.week.done).toBeGreaterThanOrEqual(1);
+      expect(
+        agent.tasks.find((task) => task.key === 'inbox')?.adoption?.unchanged,
+      ).toBeGreaterThanOrEqual(1);
+      expect((await stack()).items.some((item) => item.subject === 'Abstimmung erledigen')).toBe(
+        false,
+      );
+    });
+
+    it('T1-MA1 Vorbereiten: kein Termin und kein Lauf, sondern ein Entwurf in Kurz prüfen', async () => {
+      await setLevel('prepare');
+      const uid = await invite('vorbereiten');
+      expect(await meetingsWith(uid)).toEqual([]);
+      expect(await itemsWith(uid)).toMatchObject([{ status: 'needs_review' }]);
+      expect(await runsFor(uid)).toEqual([]);
+      const entry = (await stack()).items.find((item) => item.subject === 'Abstimmung vorbereiten');
+      expect(entry).toMatchObject({
+        source: 'inbound',
+        canAccept: true,
+        inbound: { suggestions: [{ relationshipId: rel.rheintal }] },
+      });
+    });
+
+    it('T1-MA1 Vorschlagen: Vorschlag mit Begründung in Alles, nicht im Stapel; die Zeile öffnet ihn in Kurz prüfen', async () => {
+      await setLevel('suggest');
+      const uid = await invite('vorschlagen');
+      expect(await meetingsWith(uid)).toEqual([]);
+      expect(await runsFor(uid)).toEqual([]);
+      expect((await stack()).items.some((item) => item.subject === 'Abstimmung vorschlagen')).toBe(
+        false,
+      );
+      const all = todayAllSchema.parse((await call(users.anna, 'GET', '/heute/alles')).body);
+      const row = all.assign.find((item) => item.subject === 'Abstimmung vorschlagen');
+      expect(row).toMatchObject({ inReview: false });
+      expect(row?.suggestions).toMatchObject([{ relationshipId: rel.rheintal }]);
+      // Nicht doppelt: kein eigenes Fokus-Thema unter „Für dich“
+      expect(all.forYou.some((topic) => topic.objectType === 'inbound_item')).toBe(false);
+      const focusId = row?.href.match(/entwurf=([0-9a-f-]{36})/)?.[1];
+      expect(focusId).toBeTruthy();
+      const opened = (await stack(focusId)).items.find((item) => item.id === focusId);
+      expect(opened).toMatchObject({ source: 'inbound', subject: 'Abstimmung vorschlagen' });
+      // Die Person ordnet selbst zu
+      const decided = await call(users.anna, 'POST', `/kurz-pruefen/${focusId}`, {
+        decision: 'uebernehmen',
+      });
+      expect(decided).toMatchObject({ status: 200, body: { state: 'accepted' } });
+      expect(await meetingsWith(uid)).toMatchObject([{ relationship_id: rel.rheintal }]);
+    });
+
+    it('T1-MA4: Ist das Postfach aus, ordnet Reziproq nichts zu und es entsteht kein Lauf', async () => {
+      await setLevel('do');
+      await db.execute(offInbox);
+      const uid = await invite('aus');
+      expect(await meetingsWith(uid)).toEqual([]);
+      expect(await itemsWith(uid)).toMatchObject([{ status: 'needs_review' }]);
+      expect(await runsFor(uid)).toEqual([]);
+      const agent = myAgentSchema.parse((await call(users.anna, 'GET', '/mein-agent')).body);
+      expect(agent.tasks.find((task) => task.key === 'inbox')).toMatchObject({
+        enabled: false,
+        chosen: 'do',
+        level: null,
+      });
+      await db.execute(
+        sql`delete from org_setting where org_id = ${orgs.a} and key = 'ai_workers'`,
+      );
+    });
   });
 });

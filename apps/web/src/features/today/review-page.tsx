@@ -82,7 +82,10 @@ export function ReviewPage({ start }: { start?: string | undefined }) {
   useDocumentTitle(text.title);
   const auth = useAuth();
   const accessToken = auth.user?.access_token ?? '';
-  const query = useQuery({ ...reviewStackQueryOptions(accessToken), enabled: accessToken !== '' });
+  const query = useQuery({
+    ...reviewStackQueryOptions(accessToken, start),
+    enabled: accessToken !== '',
+  });
   // Der Stapel bleibt, wie er beim Öffnen war; Neuladen nach einer Entscheidung ordnet nichts um.
   const [items, setItems] = useState<ReviewItem[] | null>(null);
   const [minutes, setMinutes] = useState(0);

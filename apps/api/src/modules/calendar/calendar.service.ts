@@ -30,6 +30,7 @@ import {
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { NotificationBus } from '../../common/notification-bus.js';
+import { workerLevelFor } from '../agents/worker-levels.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { actorIn } from '../integrations/actor.js';
@@ -350,9 +351,23 @@ export class CalendarIntakeService implements OnModuleInit {
       response: entry.response,
     }));
 
-    // 3. Eindeutig und mit Zugriff der einladenden Person: interner Termin
+    // 3. Eindeutig und mit Zugriff der einladenden Person: interner Termin. Nur auf Stufe Erledigen
+    //    der Aufgabe Postfach (MA-01, K1-f); sonst wartet die Zuordnung in Kurz prüfen oder Alles.
     const relationshipId = relationshipIds[0];
-    if (!options.reviewOnly && relationshipIds.length === 1 && relationshipId && organizerUserId) {
+    const inboxLevel = organizerUserId
+      ? await this.tenant.run(
+          { userId: organizerUserId, organizationId: orgId },
+          (tx) => workerLevelFor(tx, { orgId, userId: organizerUserId }, 'inbox'),
+          { readOnly: true },
+        )
+      : null;
+    if (
+      !options.reviewOnly &&
+      inboxLevel === 'do' &&
+      relationshipIds.length === 1 &&
+      relationshipId &&
+      organizerUserId
+    ) {
       const meetingId = await this.createFor(orgId, organizerUserId, relationshipId, {
         source: registration ? 'outlook_addin' : source,
         event,

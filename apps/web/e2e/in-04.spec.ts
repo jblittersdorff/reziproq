@@ -150,7 +150,7 @@ for (const width of [390, 1440]) {
       }),
     );
     // Seit K1-e.3 steht die Mail als Eintrag in Kurz prüfen (Neu eingegangen ist aufgelöst).
-    await page.route('**/api/kurz-pruefen', (route) => route.fulfill({ json: mailReview }));
+    await page.route(/\/api\/kurz-pruefen(\?.*)?$/, (route) => route.fulfill({ json: mailReview }));
     await page.goto('/kurz-pruefen');
     await expect(page.getByText('Mail von tom@rheintal.example')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Übernehmen' })).toBeVisible();

@@ -363,8 +363,13 @@ describe('KI-04 Systemagent und Läufe', () => {
   });
 
   it('blockiert nach Schrittgrenze und lässt sich oberhalb der Monatsgrenze nicht fortsetzen', async () => {
+    // MA-01 (K1-f): An oder aus des Briefings gehört jetzt zu den KI-Einstellungen
     const settings = (extra: object) =>
-      call(users.admin, 'PUT', '/einstellungen/ki', { ...defaultAiSettings, ...extra });
+      call(users.admin, 'PUT', '/einstellungen/ki', {
+        ...defaultAiSettings,
+        workers: { meeting_brief: { enabled: true } },
+        ...extra,
+      });
     expect((await settings({ maxSteps: 2 })).status).toBe(200);
     try {
       const id = await start(true);

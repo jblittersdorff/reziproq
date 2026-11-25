@@ -10,6 +10,7 @@ import {
   type ImpactSeverity,
   relationshipOfHref,
   type SentenceFact,
+  type WorkerLevel,
 } from '@reziproq/shared';
 
 // HE-01 Dienst 1 (K1-c): Aus jedem Ergebnis eines Moduls wird genau ein Fokus-Thema. Hier nur die
@@ -324,15 +325,24 @@ export interface InboundRow {
 }
 
 /**
- * Eingang zum Zuordnen (IN-03, E-K0-26): ein Termin, den Reziproq nicht sicher zuordnen konnte.
- * Kurz prüfen, Entwurf „zuordnen“ (Inventar T1-I10); die Liste steht in Alles unter „Zuordnen“.
+ * Eingang zum Zuordnen (IN-03, E-K0-26): ein Termin oder eine Mail, die Reziproq nicht selbst
+ * zugeordnet hat. Die Stufe der Aufgabe Postfach entscheidet (MA-01, K1-f): Vorbereiten (und
+ * Erledigen, wenn Reziproq unsicher war) ist ein Entwurf in Kurz prüfen (Inventar T1-I10);
+ * Vorschlagen ein Vorschlag mit Begründung in Alles; ist die Aufgabe aus, ordnet die Person ohne
+ * Vorschlag von Reziproq zu. Die Liste steht in Alles unter „Zuordnen“.
  */
-export function fromInbound(item: InboundRow, locale: Locale): TriageCandidate {
+export function fromInbound(
+  item: InboundRow,
+  locale: Locale,
+  inboxLevel: WorkerLevel | null = 'prepare',
+): TriageCandidate {
+  const review = inboxLevel === 'prepare' || inboxLevel === 'do';
+  const de = locale === 'de';
   return {
     sourceType: 'inbound',
     sourceId: item.id,
-    level: 'review',
-    kind: 'draft',
+    level: review ? 'review' : 'focus',
+    kind: review ? 'draft' : 'decision',
     title: titleOf(
       item.kind === 'mail'
         ? locale === 'de'
@@ -342,7 +352,15 @@ export function fromInbound(item: InboundRow, locale: Locale): TriageCandidate {
           ? `Termin zuordnen: ${item.subject}`
           : `Assign meeting: ${item.subject}`,
     ),
-    sentence: templateOf(locale, 'draft'),
+    sentence: review
+      ? templateOf(locale, 'draft')
+      : inboxLevel === 'suggest'
+        ? de
+          ? 'Reziproq schlägt eine Beziehung vor. Du ordnest zu.'
+          : 'Reziproq suggests a relationship. You assign it.'
+        : de
+          ? 'Die Aufgabe Postfach ist aus. Du ordnest selbst zu.'
+          : 'The inbox task is off. You assign it yourself.',
     facts: [],
     objectType: 'inbound_item',
     objectId: item.id,

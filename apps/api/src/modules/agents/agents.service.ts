@@ -24,8 +24,9 @@ import {
   qbrQuestionSchema,
   resumable,
 } from './system-agents.js';
+import { workerEnabled } from './worker-levels.js';
 
-const { agent, agentVersion, agentOrgState, agentRun, agentStep, appUser, aiDraft } = schema;
+const { agent, agentVersion, agentRun, agentStep, appUser, aiDraft } = schema;
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
 const conflict = (code: string) => new ConflictException({ statusCode: 409, code });
@@ -119,12 +120,10 @@ export class AgentsService {
           eq(agentVersion.version, template.version),
         ),
       );
-    const [state] = await tx
-      .select({ enabled: agentOrgState.enabled })
-      .from(agentOrgState)
-      .where(and(eq(agentOrgState.orgId, orgId), eq(agentOrgState.agentId, instance.id)));
     if (!version) throw notFound();
-    return { instance, version, enabled: state?.enabled ?? false };
+    // MA-01 (K1-f): an oder aus steht in den KI-Einstellungen (ai_workers), nicht mehr in
+    // agent_org_state; Migration 0134 hat den bisherigen Stand übernommen.
+    return { instance, version, enabled: await workerEnabled(tx, orgId, template.key) };
   }
 
   private visibility(auth: AuthContext) {
@@ -247,12 +246,24 @@ export class AgentsService {
     await this.tenant.run(session, async (tx) => {
       const def = await this.builtin(tx, session.organizationId);
       if (def.instance.id !== id) throw notFound();
+      // MA-01 (K1-f): An oder aus des Termin-Briefings in den KI-Einstellungen (ai_workers)
       await tx
-        .insert(agentOrgState)
-        .values({ orgId: session.organizationId, agentId: id, enabled })
+        .insert(schema.orgSetting)
+        .values({
+          orgId: session.organizationId,
+          key: 'ai_workers',
+          value: { [def.instance.key]: { enabled } },
+          updatedBy: auth.userId,
+        })
         .onConflictDoUpdate({
-          target: [agentOrgState.orgId, agentOrgState.agentId],
-          set: { enabled },
+          target: [schema.orgSetting.orgId, schema.orgSetting.key],
+          set: {
+            value: sql`${schema.orgSetting.value} || jsonb_build_object(${def.instance.key}::text,
+              coalesce(${schema.orgSetting.value} -> ${def.instance.key}::text, '{}'::jsonb)
+                || jsonb_build_object('enabled', ${enabled}::boolean))`,
+            updatedBy: auth.userId,
+            updatedAt: sql`app_now()`,
+          },
         });
     });
     return this.definition(auth, id);

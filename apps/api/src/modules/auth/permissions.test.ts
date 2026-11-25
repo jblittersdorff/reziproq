@@ -418,6 +418,9 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
       );
       return status === 404 ? 200 : status;
     },
+    // MA-01 (K1-f): die eigene Stufe einer Aufgabe in Mein Agent
+    'mein_agent.einstellen': async (user) =>
+      (await request(user, 'PUT', '/api/mein-agent/inbox', { level: 'do' })).status,
   };
 
   beforeAll(async () => {

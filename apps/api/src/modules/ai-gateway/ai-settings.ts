@@ -13,6 +13,7 @@ export const aiSettingKeys = {
   agentBudgetOverrides: 'ai_agent_budget_overrides',
   valueFinderSegments: 'ai_value_finder_segments',
   valueAssumptions: 'ai_value_assumptions',
+  workers: 'ai_workers',
 } as const satisfies Record<keyof AiSettings, string>;
 
 /** Einstellungen der Organisation; fehlende oder ungültige Werte nehmen den Startwert. */

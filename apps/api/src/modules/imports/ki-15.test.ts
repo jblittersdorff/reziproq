@@ -259,6 +259,35 @@ describe('KI-15 Import und Zuordnung', () => {
     }
   });
 
+  // MA-01 (K1-f), T1-MA4: Ist die Aufgabe Import zuordnen in den KI-Einstellungen aus, fragt der
+  // Import kein Modell; er ordnet mit Nummern, Regeln und Ähnlichkeit zu und bleibt benutzbar.
+  it('T1-MA4: ist Import zuordnen aus, fragt der Import kein Modell und läuft trotzdem durch', async () => {
+    await db.execute(sql`
+      insert into org_setting (org_id, key, value, updated_by)
+      values (${orgs.a}, 'ai_workers', '{"import_assign":{"enabled":false}}'::jsonb, ${users.admin})
+      on conflict (org_id, key) do update set value = excluded.value`);
+    let asked = false;
+    service.testModel = () => {
+      asked = true;
+      return { suppliers: [], categories: [] };
+    };
+    try {
+      const before = service.modelCalls;
+      const result = await prepare(
+        'aus.csv',
+        [header, `7778;Noch Unbekannt GmbH;Kiel;DE;;03.02.${year};7,00;EUR;;Schrauben`].join('\n'),
+      );
+      expect(result.rowsOk + result.rowsReview).toBeGreaterThan(0);
+      expect(asked).toBe(false);
+      expect(service.modelCalls).toBe(before);
+    } finally {
+      service.testModel = undefined;
+      await db.execute(
+        sql`delete from org_setting where org_id = ${orgs.a} and key = 'ai_workers'`,
+      );
+    }
+  });
+
   it('ein Commodity Manager entscheidet nur Warengruppen; eine Entscheidung legt Alias und Regel an', async () => {
     const value = batch(
       (await call(users.admin, 'GET', `/einstellungen/importe/${spendBatch}`)).body,

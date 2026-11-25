@@ -264,6 +264,16 @@ describe('KI-07 Termin-Briefing', () => {
 
   it('JBP in sieben Tagen und Verhandlung in drei Tagen: je genau ein Lauf und eine Aufgabe für den SRO; ein Termin in vier Tagen startet sofort', async () => {
     const worker = app.app.get(MeetingBriefWorker);
+    // MA-01 T1-MA4 (K1-f): In den KI-Einstellungen ausgeschaltet entsteht kein Lauf
+    const briefOn = (enabled: boolean) =>
+      db.execute(sql`
+        update org_setting set value = jsonb_build_object('meeting_brief',
+          jsonb_build_object('enabled', ${enabled}::boolean))
+        where org_id = ${orgs.buyer} and key = 'ai_workers'`);
+    await briefOn(false);
+    expect(await worker.runDue([orgs.buyer], today)).toBe(0);
+    expect(await runsOf(meetings.jbp)).toEqual([]);
+    await briefOn(true);
     expect(await worker.runDue([orgs.buyer], today)).toBe(3);
     expect(await worker.runDue([orgs.buyer], today)).toBe(0);
     expect(await runsOf(meetings.jbp)).toEqual([

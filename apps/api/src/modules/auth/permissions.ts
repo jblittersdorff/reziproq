@@ -287,4 +287,9 @@ export const permissions: Record<Action, Permission> = {
     roles: ['admin', 'member', 'viewer'],
     controlling: true,
   },
+  'mein_agent.einstellen': {
+    description:
+      'In Mein Agent festlegen, wie viel Reziproq je Aufgabe für einen selbst tut (nur Käufer, MA-01)',
+    roles: ['admin', 'member'],
+  },
 };

@@ -23,6 +23,7 @@ import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
 import { FILE_STORE, type FileStore } from '../../common/file-store.js';
 import { NotificationBus } from '../../common/notification-bus.js';
+import { workerLevelFor } from '../agents/worker-levels.js';
 import { createBuyerDraft, ownDraftSource } from '../ai-drafts/evidence.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -429,7 +430,13 @@ export class MailsService implements OnModuleInit {
       },
     );
     const only = prepared.matches.length === 1 ? prepared.matches[0] : undefined;
-    if (only) {
+    // MA-01 (K1-f): selbst ablegen nur auf Stufe Erledigen der Aufgabe Postfach
+    const inboxLevel = await this.tenant.run(
+      { userId: forwarder, organizationId: orgId },
+      (tx) => workerLevelFor(tx, { orgId, userId: forwarder }, 'inbox'),
+      { readOnly: true },
+    );
+    if (only && inboxLevel === 'do') {
       const actor = await this.tenant.run({ userId: forwarder, organizationId: orgId }, (tx) =>
         actorIn(tx, orgId, forwarder),
       );

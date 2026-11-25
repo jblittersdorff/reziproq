@@ -48,6 +48,7 @@ export * from './meeting-capture.js';
 export * from './meetings.js';
 export * from './modules.js';
 export * from './money.js';
+export * from './my-agent.js';
 export * from './my-day.js';
 export * from './next-cycle.js';
 export * from './notifications.js';

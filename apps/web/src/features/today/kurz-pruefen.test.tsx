@@ -94,6 +94,7 @@ const stack = (): ReviewStack => ({
 });
 
 let decisions: { url: string; body: unknown }[];
+let stackUrls: string[];
 
 beforeEach(() => {
   auth.state = signedIn;
@@ -102,8 +103,12 @@ beforeEach(() => {
   api.permissions = actionsFor.member;
   decisions = [];
   const current = stack();
+  stackUrls = [];
   api.handle = (request) => {
-    if (request.url === '/api/kurz-pruefen') return Response.json(current);
+    if (/^\/api\/kurz-pruefen(\?|$)/.test(request.url)) {
+      stackUrls.push(request.url);
+      return Response.json(current);
+    }
     if (request.method === 'POST' && request.url.startsWith('/api/kurz-pruefen/')) {
       decisions.push({ url: request.url, body: request.body });
       const decision = (request.body as { decision: string }).decision;
@@ -193,6 +198,8 @@ describe('HE-01 Kurz prüfen', () => {
   it('T1-I10: Eine Zuordnung zeigt Termin, Vorschlag und Begründung; Später stellt sie zurück', async () => {
     renderAt(`/kurz-pruefen?entwurf=${uuid(3)}`);
     expect(await screen.findByText('Entwurf 1 von 4')).toBeTruthy();
+    // MA-01 (K1-f): Der Stapel lädt den Eintrag mit, auch einen Vorschlag außerhalb des Stapels
+    expect(stackUrls).toContain(`/api/kurz-pruefen?entwurf=${uuid(3)}`);
     const draft = card();
     expect(
       within(draft).getByRole('heading', { name: /Abstimmung Musterteile Starrflex/ }),
@@ -253,7 +260,7 @@ describe('HE-01 Kurz prüfen', () => {
       ],
     };
     api.handle = (request) => {
-      if (request.url === '/api/kurz-pruefen') return Response.json(several);
+      if (/^\/api\/kurz-pruefen(\?|$)/.test(request.url)) return Response.json(several);
       if (request.method === 'POST' && request.url.startsWith('/api/kurz-pruefen/')) {
         decisions.push({ url: request.url, body: request.body });
         return Response.json({ state: 'accepted' });
@@ -293,7 +300,9 @@ describe('HE-01 Kurz prüfen', () => {
 
   it('Ohne Entwürfe: nichts zu prüfen, zurück zu Heute', async () => {
     api.handle = (request) =>
-      request.url === '/api/kurz-pruefen' ? Response.json({ items: [], minutes: 0 }) : undefined;
+      /^\/api\/kurz-pruefen(\?|$)/.test(request.url)
+        ? Response.json({ items: [], minutes: 0 })
+        : undefined;
     renderAt('/kurz-pruefen');
     expect(await screen.findByRole('link', { name: /Nichts zu prüfen/ })).toBeTruthy();
   });

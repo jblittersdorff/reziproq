@@ -482,7 +482,9 @@ export const reviewStack = () => ({
 
 /** Kurz prüfen: Stapel und Entscheidungen; jede Entscheidung gelingt */
 export async function mockReview(page: Page) {
-  await page.route('**/api/kurz-pruefen', (route) => route.fulfill({ json: reviewStack() }));
+  await page.route(/\/api\/kurz-pruefen(\?.*)?$/, (route) =>
+    route.fulfill({ json: reviewStack() }),
+  );
   await page.route('**/api/kurz-pruefen/*', (route) => {
     const decision = route.request().postDataJSON()?.decision;
     return route.fulfill({

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { valueAssumptionSchema } from './opportunities.js';
+import { orgWorkersSchema } from './workers.js';
 
 // KI-01: Modell-Gateway, Einstellungen KI und Kontingent. Startwerte und Routing gelten im Code;
 // die Organisation ändert nur die Einstellungen.
@@ -66,6 +67,8 @@ export const aiSettingsSchema = z.object({
   valueFinderSegments: z.array(z.string().regex(/^[1-3]-[1-3]$/)).max(9),
   // KI-11: eigene Annahmen der Hebel-Vorlagen statt der Startwerte
   valueAssumptions: z.array(valueAssumptionSchema).max(20),
+  // MA-01 (K1-f): Aufgaben von Reziproq an oder aus, Obergrenze der Stufe je Aufgabe
+  workers: orgWorkersSchema,
 });
 export type AiSettings = z.infer<typeof aiSettingsSchema>;
 
@@ -81,6 +84,7 @@ export const defaultAiSettings: AiSettings = {
   agentBudgetOverrides: [],
   valueFinderSegments: [],
   valueAssumptions: [],
+  workers: {},
 };
 
 export const aiSettingsResponseSchema = z.object({

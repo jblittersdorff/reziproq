@@ -16,6 +16,8 @@ import { CustomAgentsService } from './custom-agents.service.js';
 import { CustomAgentsWorker } from './custom-agents.worker.js';
 import { CustomAgentTools } from './custom-tools.js';
 import { MeetingBriefWorker } from './meeting-brief.worker.js';
+import { MyAgentController } from './my-agent.controller.js';
+import { MyAgentService } from './my-agent.service.js';
 
 @Module({
   imports: [
@@ -27,13 +29,14 @@ import { MeetingBriefWorker } from './meeting-brief.worker.js';
     RatingsModule,
     SuppliersModule,
   ],
-  controllers: [AgentsController, CustomAgentsController],
+  controllers: [AgentsController, CustomAgentsController, MyAgentController],
   providers: [
     AgentRunner,
     AgentTools,
     AgentsService,
     AgentsWorker,
     MeetingBriefWorker,
+    MyAgentService,
     CustomAgentTools,
     CustomAgentsService,
     CustomAgentsWorker,

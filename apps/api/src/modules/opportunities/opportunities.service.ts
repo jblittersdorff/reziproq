@@ -35,8 +35,9 @@ import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
 import { env } from '../../config/env.js';
 import { ActionsService } from '../actions/actions.service.js';
+import { workerEnabled } from '../agents/worker-levels.js';
 import { readAiSettings } from '../ai-gateway/ai-settings.js';
-import { BudgetExhaustedError } from '../ai-gateway/gateway-errors.js';
+import { BudgetExhaustedError, WorkerDisabledError } from '../ai-gateway/gateway-errors.js';
 import { InsightSummaryService } from '../ai-gateway/insight-summary.service.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
@@ -427,6 +428,10 @@ export class OpportunitiesService {
     const prepared = await this.scope(auth, relationshipId, async (scope) => {
       if (!this.canDecide(scope)) throw forbidden();
       const { tx, orgId } = scope;
+      // MA-01 (K1-f), T1-MA4: In den KI-Einstellungen ausgeschaltet entsteht kein Lauf
+      if (!(await workerEnabled(tx, orgId, 'value_finder'))) {
+        throw new WorkerDisabledError('value_finder');
+      }
       const versionId = await this.agentVersion(tx, orgId);
       const [run] = await tx
         .insert(schema.agentRun)
