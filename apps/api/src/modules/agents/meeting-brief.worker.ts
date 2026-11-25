@@ -9,6 +9,7 @@ import { currentTime, jobsDatabaseUrl, sql } from '@reziproq/db';
 import type { MeetingType } from '@reziproq/shared';
 import { PgBoss } from 'pg-boss';
 import { AccountStore, ActionDueStore, TenantDatabase } from '../../common/database.module.js';
+import { inOrgClock } from '../../common/org-clock.js';
 import { env } from '../../config/env.js';
 import { ActionsService } from '../actions/actions.service.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -110,27 +111,33 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
   }
 
   /** Ein Durchlauf; organizationIds und now nur für Tests. Liefert die Zahl gestarteter Läufe. */
-  async runDue(organizationIds?: string[], now = currentTime()): Promise<number> {
+  async runDue(organizationIds?: string[], now?: Date): Promise<number> {
     const organizations = organizationIds ?? (await this.store.hintOrganizations());
     let started = 0;
     for (const orgId of organizations) {
-      for (const entry of await this.targets(orgId, now)) {
-        const auth = await this.actor(entry.user_id, orgId);
-        if (!auth) continue;
-        try {
-          const runId = await this.agents.startScheduled(auth, {
-            relationshipId: entry.relationship_id,
-            meetingId: entry.meeting_id,
-          });
-          if (!runId) continue;
-          await this.task(auth, entry.relationship_id, entry.meeting_id, entry.type, now);
-          started += 1;
-        } catch (error) {
-          this.logger.warn(
-            `Termin-Briefing ${entry.meeting_id}: ${error instanceof Error ? error.message : 'Fehler'}`,
-          );
+      // DM-01 (K1-b.4): je Mandant dessen Uhr, im Demo-Mandanten die Demo-Uhr
+      started += await inOrgClock(this.accounts, orgId, async () => {
+        const at = now ?? currentTime();
+        let count = 0;
+        for (const entry of await this.targets(orgId, at)) {
+          const auth = await this.actor(entry.user_id, orgId);
+          if (!auth) continue;
+          try {
+            const runId = await this.agents.startScheduled(auth, {
+              relationshipId: entry.relationship_id,
+              meetingId: entry.meeting_id,
+            });
+            if (!runId) continue;
+            await this.task(auth, entry.relationship_id, entry.meeting_id, entry.type, at);
+            count += 1;
+          } catch (error) {
+            this.logger.warn(
+              `Termin-Briefing ${entry.meeting_id}: ${error instanceof Error ? error.message : 'Fehler'}`,
+            );
+          }
         }
-      }
+        return count;
+      });
     }
     return started;
   }
@@ -139,51 +146,60 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
    * KI-17: Einen Tag nach dem Termin bekommt der SRO die Aufgabe „Ergebnisse erfassen“, falls noch
    * keine Notizen da sind. Höchstens zwei Wochen zurück, genau eine Aufgabe je Termin.
    */
-  async captureDue(organizationIds?: string[], now = currentTime()): Promise<number> {
+  async captureDue(organizationIds?: string[], now?: Date): Promise<number> {
     const organizations = organizationIds ?? (await this.store.hintOrganizations());
+    let created = 0;
+    for (const orgId of organizations) {
+      // DM-01 (K1-b.4): je Mandant dessen Uhr
+      created += await inOrgClock(this.accounts, orgId, () =>
+        this.captureFor(orgId, now ?? currentTime()),
+      );
+    }
+    return created;
+  }
+
+  private async captureFor(orgId: string, now: Date): Promise<number> {
     const dayBefore = new Date(now.getTime() - 86_400_000).toISOString();
     const twoWeeks = new Date(now.getTime() - 14 * 86_400_000).toISOString();
     let created = 0;
-    for (const orgId of organizations) {
-      const targets = await this.tenant.run(
-        { userId: systemUser, organizationId: orgId },
-        async (tx) =>
-          (
-            await tx.execute<{ meeting_id: string; relationship_id: string; user_id: string }>(sql`
-              select m.id as meeting_id, m.relationship_id, min(rm.user_id) as user_id
-              from meeting m
-              join relationship r on r.id = m.relationship_id and r.buyer_org_id = ${orgId}
-              join relationship_member rm
-                on rm.relationship_id = m.relationship_id and rm.org_id = ${orgId} and rm.team_role = 'sro'
-              where m.status <> 'closed'
-                and m.starts_at <= ${dayBefore}::timestamptz and m.starts_at >= ${twoWeeks}::timestamptz
-                and not exists (select 1 from meeting_capture c where c.meeting_id = m.id and c.org_id = ${orgId})
-                and not exists (select 1 from action a where a.source_type = 'meeting' and a.source_id = m.id
-                  and a.title = ${captureTaskTitle})
-              group by m.id, m.relationship_id`)
-          ).rows,
-        { readOnly: true },
+    const targets = await this.tenant.run(
+      { userId: systemUser, organizationId: orgId },
+      async (tx) =>
+        (
+          await tx.execute<{ meeting_id: string; relationship_id: string; user_id: string }>(sql`
+            select m.id as meeting_id, m.relationship_id, min(rm.user_id) as user_id
+            from meeting m
+            join relationship r on r.id = m.relationship_id and r.buyer_org_id = ${orgId}
+            join relationship_member rm
+              on rm.relationship_id = m.relationship_id and rm.org_id = ${orgId} and rm.team_role = 'sro'
+            where m.status <> 'closed'
+              and m.starts_at <= ${dayBefore}::timestamptz and m.starts_at >= ${twoWeeks}::timestamptz
+              and not exists (select 1 from meeting_capture c where c.meeting_id = m.id and c.org_id = ${orgId})
+              and not exists (select 1 from action a where a.source_type = 'meeting' and a.source_id = m.id
+                and a.title = ${captureTaskTitle})
+            group by m.id, m.relationship_id`)
+        ).rows,
+      { readOnly: true },
+    );
+    for (const entry of targets) {
+      const auth = await this.actor(entry.user_id, orgId);
+      if (!auth) continue;
+      await this.actions.buyer(auth, entry.relationship_id, (scope) =>
+        this.actions.create(scope, {
+          action: {
+            title: captureTaskTitle,
+            description: null,
+            visibility: 'internal',
+            ownerSide: 'buyer',
+            ownerUserId: auth.userId,
+            ownerName: null,
+            dueDate: berlinDay.format(now),
+          },
+          sourceType: 'meeting',
+          sourceId: entry.meeting_id,
+        }),
       );
-      for (const entry of targets) {
-        const auth = await this.actor(entry.user_id, orgId);
-        if (!auth) continue;
-        await this.actions.buyer(auth, entry.relationship_id, (scope) =>
-          this.actions.create(scope, {
-            action: {
-              title: captureTaskTitle,
-              description: null,
-              visibility: 'internal',
-              ownerSide: 'buyer',
-              ownerUserId: auth.userId,
-              ownerName: null,
-              dueDate: berlinDay.format(now),
-            },
-            sourceType: 'meeting',
-            sourceId: entry.meeting_id,
-          }),
-        );
-        created += 1;
-      }
+      created += 1;
     }
     return created;
   }

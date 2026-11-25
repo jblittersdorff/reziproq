@@ -338,6 +338,7 @@ import {
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
+import { noteBusinessTime } from './clock';
 import { browserLocale } from './i18n';
 import { getSupportCustomer } from './support';
 
@@ -371,6 +372,7 @@ async function getJson<T extends z.ZodType>(
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
     },
   });
+  noteBusinessTime(res.headers);
   if (!res.ok) {
     if (res.status !== 403) throw new ApiError(path, res.status);
     // Bei 403 die Antwort mitgeben, damit die Oberfläche den Grund zeigt (z. B. IN-02 nur_sso)
@@ -649,6 +651,7 @@ async function sendJson<T extends z.ZodType>(
     },
     body: JSON.stringify(body ?? {}),
   });
+  noteBusinessTime(res.headers);
   if (!res.ok) {
     const answer: unknown = await res
       .clone()

@@ -24,13 +24,14 @@ import {
   updateRoundAssignment,
   updateRoundDraft,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import { errorCode, isNotFound, linkClass, roundsPath, useRound, useToken } from './use-round';
 
 const totalSteps = 4;
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => appNow().toISOString().slice(0, 10);
 
 function StepFrame({
   current,

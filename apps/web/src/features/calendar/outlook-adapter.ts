@@ -1,3 +1,5 @@
+import { appNow } from '@/lib/clock';
+
 /**
  * IN-03: Zugriff des Add-ins auf den Termin in Bearbeitung (Office.js). Außerhalb von Outlook
  * (Vorschau, Tests) gilt ein Beispieltermin; geschrieben wird dann nichts.
@@ -94,7 +96,7 @@ async function loadOffice(): Promise<OfficeGlobal | null> {
 }
 
 function previewAdapter(): OutlookAdapter {
-  const start = new Date(Date.now() + 2 * 86_400_000);
+  const start = new Date(appNow().getTime() + 2 * 86_400_000);
   start.setHours(10, 0, 0, 0);
   return {
     preview: true,

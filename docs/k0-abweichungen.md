@@ -110,6 +110,10 @@ Weitere Punkte:
   - Stand K1-b.1 (25.11.2026): `is_demo`, `ai_mode` und `demo_now` gibt es seit K1-a. Die Modi und `model_call_recording` sind gebaut. Es fehlen noch `demo_event`, `demo_snapshot` und `/demo` (K1-g).
   - Stand K1-b.2 (25.11.2026): Die Demo-Sitzung je Person ist gebaut (E-K0-05).
   - Es gibt keine Uhr je Mandant. In der API stehen 201 `new Date()`, 21 `Date.now()` und 45 `now()` in SQL, dazu Standardwerte `defaultNow()` und Zeitpläne in zehn Workern. Das ist der breiteste Umbau des Pakets (Abschnitt f).
+  - Stand K1-b.4 (25.11.2026): Die Uhr je Mandant gibt es seit K1-a in den Anfragen und in SQL (`app_now()`).
+    - **Jobs:** Jobs über Mandanten rechnen jetzt je Mandant mit dessen Uhr (`inOrgClock`).
+    - **Oberfläche:** Sie rechnet „heute“ mit der Fachzeit aus dem Kopf `x-reziproq-jetzt` (`appNow`).
+    - **Offen:** Nur die Zeitpläne selbst laufen in Echtzeit. „Neuer Tag“ und „Auf Datum springen“ stößt K1-g an.
 - **B-08 Demo-Daten (DM-01, G-10).** Heute gibt es „Test-OEM (Demo)“, „Zweit-OEM“ und „Test-Lieferant“ (`packages/db/src/seed.ts:42`), dazu `demo-story.ts`.
   - Stand K1-b.3 (25.11.2026): Nordwind Antriebe ist ein eigener Demo-Mandant (`pnpm demo:nordwind`) mit den Personen und Lieferanten aus DM-01 und den Zahlen der Vorlage Beziehungen. Den Stand der Drehbücher legt K1-g an.
   - Einige Lieferanten heißen schon wie im Paket (Rheintal Elektronik, Silesia Guss, Pearl River), haben aber andere Zahlen.

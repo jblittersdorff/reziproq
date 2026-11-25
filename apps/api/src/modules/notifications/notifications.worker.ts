@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { jobsDatabaseUrl } from '@reziproq/db';
 import { PgBoss } from 'pg-boss';
+import { AccountStore } from '../../common/database.module.js';
+import { inOrgClock } from '../../common/org-clock.js';
 import { env } from '../../config/env.js';
 import { NotificationsService } from './notifications.service.js';
 
@@ -19,7 +21,10 @@ export class NotificationsWorker implements OnModuleInit, OnApplicationShutdown 
   private readonly logger = new Logger(NotificationsWorker.name);
   private boss: PgBoss | undefined;
 
-  constructor(@Inject(NotificationsService) private readonly notifications: NotificationsService) {}
+  constructor(
+    @Inject(NotificationsService) private readonly notifications: NotificationsService,
+    @Inject(AccountStore) private readonly accounts: AccountStore,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     if (env.NODE_ENV === 'test') return;
@@ -41,7 +46,10 @@ export class NotificationsWorker implements OnModuleInit, OnApplicationShutdown 
       });
     }
     const each = async (work: (orgId: string) => Promise<number>) => {
-      for (const orgId of await this.notifications.buyerOrganizations()) await work(orgId);
+      // DM-01 (K1-b.4): je Mandant dessen Uhr, im Demo-Mandanten die Demo-Uhr
+      for (const orgId of await this.notifications.buyerOrganizations()) {
+        await inOrgClock(this.accounts, orgId, () => work(orgId));
+      }
     };
     await boss.work(dueQueue, { batchSize: 1 }, () =>
       each((orgId) => this.notifications.runCommitmentsDue(orgId)),

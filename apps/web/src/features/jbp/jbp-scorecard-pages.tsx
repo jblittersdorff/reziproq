@@ -60,6 +60,7 @@ import {
   updateKpi,
   uploadKpiValues,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -853,7 +854,7 @@ export function JbpKpiValuePage({ place, kpiId }: { place: MeetingPlace; kpiId: 
     ...kpiDetailQueryOptions(accessToken, apiBase(place), kpiId),
     enabled: accessToken !== '',
   });
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [month, setMonth] = useState(appNow().toISOString().slice(0, 7));
   const [value, setValue] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failed, setFailed] = useState(false);

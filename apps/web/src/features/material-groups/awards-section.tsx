@@ -12,6 +12,7 @@ import { StatusLine } from '@/components/ui/status-line';
 import { type LaneRow, type LaneState, TimelineLanes } from '@/components/ui/timeline-lanes';
 import { linkClass, useToken } from '@/features/ratings/use-rating';
 import { awardPlanQueryOptions, removeAward, saveAward } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 
@@ -21,7 +22,7 @@ const monthOf = (date: string): Month => ({
   month: Number(date.slice(5, 7)) - 1,
 });
 const index = (start: Month, at: Month) => (at.year - start.year) * 12 + (at.month - start.month);
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => appNow().toISOString().slice(0, 10);
 
 /**
  * Monate der Zeitachse: ab dem früheren von heute und der ersten Anfrage, mindestens sechs Monate,

@@ -23,6 +23,7 @@ import {
   updatePlanObjective,
   updateSupplierPlanSummary,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import { PlanSummaryDraftPanel } from './summary-draft';
@@ -262,7 +263,7 @@ function ObjectiveForm({
     materialGroupId: objective?.materialGroup?.id ?? '',
     text: objective?.text ?? '',
     ownerUserId: objective?.owner.userId ?? teamCandidates[0]?.userId ?? '',
-    targetYear: objective?.targetYear ?? new Date().getFullYear(),
+    targetYear: objective?.targetYear ?? appNow().getFullYear(),
   });
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [failure, setFailure] = useState(false);

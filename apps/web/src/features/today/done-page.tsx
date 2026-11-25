@@ -16,6 +16,7 @@ import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { shortDate } from '@/features/start/next-action';
 import { ApiError, doneQueryOptions, undoDone } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useMessages } from '@/lib/i18n';
 import { doneMessages } from './done-messages';
 
@@ -104,7 +105,7 @@ export function DonePage() {
     const key = localDay(new Date(row.at));
     days.set(key, [...(days.get(key) ?? []), row]);
   }
-  const now = new Date();
+  const now = appNow();
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   const dayLabel = (key: string) =>

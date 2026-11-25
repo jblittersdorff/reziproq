@@ -35,6 +35,7 @@ import { dueTitle } from '@/features/start/due-title';
 import { dayTime } from '@/features/start/greeting';
 import { shortDate, weekdayTime } from '@/features/start/next-action';
 import { snoozeTopic, todayAllQueryOptions, todayQueryOptions } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { todayMessages } from './today-messages';
@@ -76,12 +77,12 @@ function useWhere(text: Text) {
     morning: t.start.greetingMorning,
     day: t.start.greetingDay,
     evening: t.start.greetingEvening,
-  }[dayTime(new Date())];
+  }[dayTime(appNow())];
   const date = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-  }).format(new Date());
+  }).format(appNow());
   return text.where(date, me.data ? greeting(me.data.firstName) : t.start.greetingWithoutName);
 }
 

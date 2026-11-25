@@ -41,6 +41,7 @@ import {
   surveyWaveQueryOptions,
   surveyWavesQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -448,7 +449,7 @@ interface WaveDraft {
 }
 
 const inDays = (days: number) =>
-  new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+  new Date(appNow().getTime() + days * 86_400_000).toISOString().slice(0, 10);
 
 const draftKey = (relationshipId: string) => `reziproq:feedback-welle:${relationshipId}`;
 

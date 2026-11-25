@@ -16,6 +16,7 @@ import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { shortDate } from '@/features/start/next-action';
 import { ApiError, decideReview, reviewStackQueryOptions } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { reviewMessages } from './review-messages';
@@ -33,7 +34,7 @@ function whenText(text: Text, locale: string, iso: string) {
   const time = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(
     value,
   );
-  const now = new Date();
+  const now = appNow();
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (localDay(value) === localDay(now)) return text.today(time);

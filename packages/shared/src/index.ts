@@ -7,6 +7,7 @@ export * from './ai-gateway.js';
 export * from './areas.js';
 export * from './audit.js';
 export * from './calendar.js';
+export * from './clock.js';
 export * from './comments.js';
 export * from './commitments.js';
 export * from './customers.js';

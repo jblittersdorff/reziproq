@@ -8,6 +8,7 @@ import {
 import { jobsDatabaseUrl, sql } from '@reziproq/db';
 import { PgBoss } from 'pg-boss';
 import { AccountStore, ActionDueStore, TenantDatabase } from '../../common/database.module.js';
+import { inOrgClock } from '../../common/org-clock.js';
 import { env } from '../../config/env.js';
 import { readAiSettings } from '../ai-gateway/ai-settings.js';
 import type { AuthContext } from '../auth/auth.guard.js';
@@ -81,18 +82,23 @@ export class OpportunitiesWorker implements OnModuleInit, OnApplicationShutdown 
     const organizations = organizationIds ?? (await this.store.hintOrganizations());
     let runs = 0;
     for (const orgId of organizations) {
-      for (const target of await this.targets(orgId)) {
-        const auth = await this.actor(target.user_id, orgId);
-        if (!auth) continue;
-        try {
-          await this.opportunities.run(auth, target.relationship_id, 'schedule');
-          runs += 1;
-        } catch (error) {
-          this.logger.warn(
-            `Monatslauf ${target.relationship_id}: ${error instanceof Error ? error.message : 'Fehler'}`,
-          );
+      // DM-01 (K1-b.4): je Mandant dessen Uhr, im Demo-Mandanten die Demo-Uhr
+      runs += await inOrgClock(this.accounts, orgId, async () => {
+        let count = 0;
+        for (const target of await this.targets(orgId)) {
+          const auth = await this.actor(target.user_id, orgId);
+          if (!auth) continue;
+          try {
+            await this.opportunities.run(auth, target.relationship_id, 'schedule');
+            count += 1;
+          } catch (error) {
+            this.logger.warn(
+              `Monatslauf ${target.relationship_id}: ${error instanceof Error ? error.message : 'Fehler'}`,
+            );
+          }
         }
-      }
+        return count;
+      });
     }
     return runs;
   }

@@ -43,6 +43,7 @@ import {
   supplierQueryOptions,
   updateMeeting,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -645,7 +646,7 @@ function MeetingContent({
     (part) => part.draft !== null || part.accepted !== null,
   );
   // KI-17: Ergebnisse gibt es ab Beginn des Termins.
-  const started = meeting.status !== 'planned' || new Date(meeting.startsAt) <= new Date();
+  const started = meeting.status !== 'planned' || new Date(meeting.startsAt) <= appNow();
   const shownTab: MeetingTab =
     place.side !== 'buyer'
       ? 'agenda'

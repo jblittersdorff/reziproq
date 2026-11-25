@@ -37,6 +37,7 @@ import {
   sendDataRequest,
   valueOpportunitiesQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 
@@ -541,7 +542,7 @@ function GapRow({
   const text = useT().opportunities;
   const accessToken = useToken();
   const [busy, setBusy] = useState(false);
-  const inFourWeeks = new Date(Date.now() + 28 * 86_400_000).toISOString().slice(0, 10);
+  const inFourWeeks = new Date(appNow().getTime() + 28 * 86_400_000).toISOString().slice(0, 10);
   const [title, setTitle] = useState(gap.draft?.title ?? '');
   const [description, setDescription] = useState(gap.draft?.description ?? '');
   const [dueDate, setDueDate] = useState(inFourWeeks);

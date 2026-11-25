@@ -3,6 +3,7 @@ import type { DateListItem, DateListTone } from '@/components/ui/date-list';
 import { NextCard } from '@/components/ui/next-card';
 import type { TimelineRailItem, TimelineTone } from '@/components/ui/timeline-rail';
 import { routerLink } from '@/features/shell/navigation';
+import { appNow } from '@/lib/clock';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { dueTitle } from './due-title';
 import { myDayMessages, type timelineMessages } from './my-day-messages';
@@ -11,7 +12,7 @@ type MyDayText = (typeof myDayMessages)['de'];
 type TimelineText = (typeof timelineMessages)['de'];
 
 /** Heutiges Datum in der Zeitzone des Browsers (JJJJ-MM-TT), nicht in UTC */
-export function localToday(now = new Date()) {
+export function localToday(now = appNow()) {
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }

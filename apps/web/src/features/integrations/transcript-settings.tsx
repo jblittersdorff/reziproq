@@ -14,6 +14,7 @@ import {
   saveTranscriptSettings,
   transcriptSettingsQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 
@@ -62,7 +63,7 @@ function TranscriptSettingsForm({
   const format = useFormat();
   const id = useId();
   const client = useQueryClient();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(appNow().toISOString().slice(0, 10));
   const [file, setFile] = useState<File | null>(null);
   const [retention, setRetention] = useState(settings.retentionDays);
   const [mode, setMode] = useState(settings.teamsMode);

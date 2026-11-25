@@ -23,6 +23,7 @@ import {
   decideCategorySegment,
   startCategoryRound,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -36,7 +37,7 @@ const errorCode = (error: unknown) =>
   error instanceof ApiError ? (error.body as { code?: string } | null)?.code : undefined;
 
 /** In 14 Tagen, als Vorschlag für die Frist */
-const inTwoWeeks = () => new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
+const inTwoWeeks = () => new Date(appNow().getTime() + 14 * 86_400_000).toISOString().slice(0, 10);
 
 /**
  * Schritt 4 der Strategie (WG-Lieferanten.dc.html, „Segmente in der Warengruppe“): Anteil der

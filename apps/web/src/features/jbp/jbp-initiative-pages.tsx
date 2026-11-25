@@ -49,6 +49,7 @@ import {
   updateInitiative,
   updateMilestone,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -249,7 +250,7 @@ export function Roadmap({
   const text = useT().jbp.initiatives;
   const date = useDate();
   const first = Math.min(
-    new Date().getFullYear(),
+    appNow().getFullYear(),
     ...initiatives.map((initiative) => day(initiative.startsOn).getFullYear()),
   );
   const last = Math.max(
@@ -593,7 +594,7 @@ function Milestones({
     setTitle('');
     setDueOn('');
   };
-  const today = new Date().toISOString().slice(0, 10);
+  const today = appNow().toISOString().slice(0, 10);
   return (
     <section aria-labelledby="initiative-meilensteine" className="flex flex-col gap-3">
       <h2
@@ -767,7 +768,7 @@ function InitiativeForm({
   const text = useT().jbp.initiatives;
   const navigate = useNavigate();
   const refresh = useRefresh();
-  const year = new Date().getFullYear() + 1;
+  const year = appNow().getFullYear() + 1;
   const [values, setValues] = useState({
     title: existing?.title ?? merged[0]?.title ?? '',
     goal:

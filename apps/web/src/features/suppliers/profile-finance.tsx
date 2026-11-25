@@ -32,6 +32,7 @@ import {
   saveProfileSection,
   supplierProfileQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -697,7 +698,7 @@ function FinancialForm({
   const format = useFormat();
   const { run, saving, failed, goBack } = useSave(relationshipId);
   const [form, setForm] = useState({
-    year: String(existing?.year ?? new Date().getFullYear() - 1),
+    year: String(existing?.year ?? appNow().getFullYear() - 1),
     metric: (existing?.metric ?? 'revenue') as FinancialMetric,
     value: existing ? format.amountInput(existing.value) : '',
     currency: existing?.currency ?? 'EUR',

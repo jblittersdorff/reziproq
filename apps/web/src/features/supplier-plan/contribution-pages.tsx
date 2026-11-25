@@ -29,6 +29,7 @@ import {
   requestContributions,
   supplierPlanQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useLocale, useT } from '@/lib/i18n';
 
@@ -41,7 +42,7 @@ function errorCode(error: unknown): string | undefined {
   return error instanceof ApiError ? (error.body as { code?: string } | null)?.code : undefined;
 }
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => appNow().toISOString().slice(0, 10);
 
 /** Beiträge anfordern (SPL-03): eine Zeile je Business Unit und Warengruppe, ein Klick. */
 export function ContributionRequestPage({ relationshipId }: { relationshipId: string }) {
@@ -342,7 +343,7 @@ function ContributionView({
   const [form, setForm] = useState({
     categoryKey: detail.categories[0]?.key ?? '',
     text: '',
-    targetYear: new Date().getFullYear() + 1,
+    targetYear: appNow().getFullYear() + 1,
   });
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);

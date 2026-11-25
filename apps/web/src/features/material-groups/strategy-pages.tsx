@@ -54,6 +54,7 @@ import {
   strategyOverviewQueryOptions,
   strategyStepQueryOptions,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -335,7 +336,7 @@ export function StrategyEntryPage({ groupId }: { groupId: string }) {
                     await createStrategy(
                       accessToken,
                       groupId,
-                      query.data?.year ?? new Date().getFullYear() + 1,
+                      query.data?.year ?? appNow().getFullYear() + 1,
                     ),
                   );
                   await queryClient.invalidateQueries({ queryKey: ['warengruppen', 'strategien'] });

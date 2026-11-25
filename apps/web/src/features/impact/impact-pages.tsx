@@ -60,6 +60,7 @@ import {
   setupImpact,
   uploadImpactMonths,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
@@ -1214,7 +1215,7 @@ function MonthForm({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fields = leverTemplates[data.impact?.lever ?? 'price'].month;
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [month, setMonth] = useState(appNow().toISOString().slice(0, 7));
   const [kind, setKind] = useState<MonthKind>('actual');
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});

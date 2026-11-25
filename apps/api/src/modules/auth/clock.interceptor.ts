@@ -6,6 +6,7 @@ import {
   type NestInterceptor,
 } from '@nestjs/common';
 import { withDemoClock } from '@reziproq/db';
+import { businessTimeHeader } from '@reziproq/shared';
 import { from, Observable, switchMap } from 'rxjs';
 import { AccountStore } from '../../common/database.module.js';
 import type { AuthContext } from './auth.guard.js';
@@ -25,13 +26,17 @@ export class ClockInterceptor implements NestInterceptor {
       ?.organization?.id;
     if (!orgId) return next.handle();
     return from(this.accounts.demoNowOf(orgId)).pipe(
-      switchMap((demoNow) =>
-        demoNow
-          ? new Observable<unknown>((subscriber) =>
-              withDemoClock(demoNow, () => next.handle().subscribe(subscriber)),
-            )
-          : next.handle(),
-      ),
+      switchMap((demoNow) => {
+        if (!demoNow) return next.handle();
+        // K1-b.4: Die Oberfläche rechnet „heute“ mit der Fachzeit des Mandanten (lib/clock.ts)
+        context
+          .switchToHttp()
+          .getResponse<{ setHeader(name: string, value: string): void }>()
+          .setHeader(businessTimeHeader, demoNow.toISOString());
+        return new Observable<unknown>((subscriber) =>
+          withDemoClock(demoNow, () => next.handle().subscribe(subscriber)),
+        );
+      }),
     );
   }
 }

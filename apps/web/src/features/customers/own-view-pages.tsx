@@ -22,6 +22,7 @@ import {
   saveAccountSummary,
   saveAccountView,
 } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { flash, useFlash } from '@/lib/flash';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
@@ -435,7 +436,7 @@ function ObjectiveForm({
   const saved = useSaved(relationshipId);
   const [value, setValue] = useState(existing?.text ?? '');
   const [owner, setOwner] = useState(existing?.ownerUserId ?? '');
-  const [year, setYear] = useState(String(existing?.targetYear ?? new Date().getFullYear() + 1));
+  const [year, setYear] = useState(String(existing?.targetYear ?? appNow().getFullYear() + 1));
   const [error, setError] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -469,7 +470,7 @@ function ObjectiveForm({
       setFailed(true);
     }
   };
-  const thisYear = new Date().getFullYear();
+  const thisYear = appNow().getFullYear();
   return (
     <form
       noValidate

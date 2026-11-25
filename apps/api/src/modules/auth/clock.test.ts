@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { type Database, schema, sql } from '@reziproq/db';
-import type { Timeline } from '@reziproq/shared';
+import { currentTime, type Database, schema, sql } from '@reziproq/db';
+import { businessTimeHeader, type Timeline } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AccountStore } from '../../common/database.module.js';
+import { inOrgClock } from '../../common/org-clock.js';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -98,6 +100,26 @@ describe('Uhr je Mandant über die API (DM-01)', () => {
     expect(await timeline(users.demo)).toContain(`QBR Demo ${run}`);
     // Für die Echtzeit liegt derselbe Zeitpunkt weit in der Vergangenheit.
     expect(await timeline(users.live)).not.toContain(`QBR Live ${run}`);
+  });
+
+  it('K1-b.4: Die Antwort nennt im Demo-Mandanten die Fachzeit, damit die Oberfläche „heute“ danach rechnet', async () => {
+    const answer = async (user: string) =>
+      fetch(`${testApp.baseUrl}/api/start/termine`, {
+        headers: { authorization: `Bearer ${await testApp.signToken({ subject: user })}` },
+      });
+    expect((await answer(users.demo)).headers.get(businessTimeHeader)).toBe(demoNow.toISOString());
+    expect((await answer(users.live)).headers.get(businessTimeHeader)).toBeNull();
+  });
+
+  it('K1-b.4: Jobs über Mandanten rechnen je Mandant mit dessen Uhr', async () => {
+    const seen: Record<string, string> = {};
+    for (const orgId of [orgs.demo, orgs.live]) {
+      seen[orgId] = await inOrgClock(testApp.app.get(AccountStore), orgId, async () =>
+        currentTime().toISOString(),
+      );
+    }
+    expect(seen[orgs.demo]).toBe(demoNow.toISOString());
+    expect(Math.abs(new Date(seen[orgs.live] ?? 0).getTime() - Date.now())).toBeLessThan(60_000);
   });
 
   it('Eine neue Zeile im Demo-Mandanten trägt die Demo-Uhr als Zeitstempel', async () => {

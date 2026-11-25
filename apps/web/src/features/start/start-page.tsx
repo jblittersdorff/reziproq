@@ -20,6 +20,7 @@ import { PromptTrigger } from '@/features/prompt/prompt-trigger';
 import { routerLink } from '@/features/shell/navigation';
 import { useDocumentTitle } from '@/features/shell/page-header';
 import { startQueryOptions } from '@/lib/api';
+import { appNow } from '@/lib/clock';
 import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { dueTitle } from './due-title';
@@ -51,13 +52,13 @@ export function SupplierStartPage() {
     morning: t.start.greetingMorning,
     day: t.start.greetingDay,
     evening: t.start.greetingEvening,
-  }[dayTime(new Date())];
+  }[dayTime(appNow())];
   const data = query.data;
   const today = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-  }).format(new Date());
+  }).format(appNow());
   const portfolio = data?.portfolio ?? null;
 
   const metrics = data && (
