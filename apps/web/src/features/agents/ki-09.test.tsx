@@ -104,33 +104,8 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('KI-09 Eigene Agenten', () => {
-  it('zeigt „Eure Agenten“ mit Stand und Admins die wartenden Freigaben', async () => {
-    const handle = api.handle;
-    api.handle = (request) => {
-      if (request.url === '/api/ki/agenten') {
-        return Response.json({ agents: [], recentRuns: [], canManage: true });
-      }
-      if (request.url === '/api/ki/eigene-agenten') {
-        return Response.json({
-          agents: [agent({ status: 'active', runCount: 3 })],
-          canCreate: true,
-          pendingApproval: [
-            agent({ id: uuid(31), name: 'Spend-Abweichungen Q4', status: 'pending_approval' }),
-          ],
-        });
-      }
-      return handle?.(request);
-    };
-    renderAt('/einstellungen/ki/agenten');
-    const own = await screen.findByRole('region', { name: 'Eure Agenten' });
-    expect(within(own).getByRole('heading', { name: 'Eure Agenten · 1' })).toBeTruthy();
-    expect(within(own).getByText('Verfehlte Zusagen')).toBeTruthy();
-    expect(within(own).getByText('aktiv')).toBeTruthy();
-    expect(within(own).getByText(/Montags 07:00 · Lena Berger · 3 Läufe/)).toBeTruthy();
-    expect(within(own).getByRole('link', { name: 'Agent anlegen' })).toBeTruthy();
-    const pending = screen.getByRole('region', { name: 'Wartet auf eure Freigabe' });
-    expect(within(pending).getByText('Spend-Abweichungen Q4')).toBeTruthy();
-  });
+  // Die Liste „Eure Agenten“ stand auf der Seite Agenten unter Mein Agent; seit K1-f.3 ist dort die
+  // Seite Mein Agent (MA-01). Eigene Agenten sind aus (E-K0-13); ihre Seiten entfernt K1-f.5.
 
   it('Anlegen: nur sichtbare Datenbereiche, Frage als Aufgabe, danach Testlauf', async () => {
     renderAt(

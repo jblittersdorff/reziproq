@@ -166,6 +166,8 @@ import {
   meetingTranscriptStateSchema,
   meResponseSchema,
   myActionsSchema,
+  myAgentSchema,
+  myAgentTaskSchema,
   myConnectionsSchema,
   myDaySchema,
   myFeedbackSchema,
@@ -336,6 +338,7 @@ import {
   validationListSchema,
   valueOpportunitiesSchema,
   valueOverviewSchema,
+  type WorkerLevel,
   whyViewSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
@@ -2158,6 +2161,24 @@ export const doneQueryOptions = (accessToken: string) =>
 /** Zurücknehmen bis 30 Tage, solange das Objekt unverändert ist */
 export const undoDone = (accessToken: string, id: string) =>
   sendJson('POST', `/erledigt/${id}/zuruecknehmen`, {}, undoResultSchema, accessToken);
+
+/** MA-01 Mein Agent (K1-f): eigene Stufen je Aufgabe, Übernahmequote, Zahlen der Woche */
+export const myAgentQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['mein-agent'],
+    queryFn: () => getJson('/mein-agent', myAgentSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Eigene Stufe einer Aufgabe; die API lehnt nicht wählbare Stufen ab */
+export const setWorkerLevel = (accessToken: string, key: string, level: WorkerLevel) =>
+  sendJson(
+    'PUT',
+    `/mein-agent/${encodeURIComponent(key)}`,
+    { level },
+    myAgentTaskSchema,
+    accessToken,
+  );
 
 /** Übernehmen (optional angepasst), Verwerfen mit Grund oder Später */
 export const decideReview = (accessToken: string, id: string, decision: ReviewDecision) =>

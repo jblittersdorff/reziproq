@@ -35,7 +35,7 @@ export const routeMoves: readonly RouteMove[] = [
   move('/heute', '/heute', 'K1-e', 'bleibt', 'Fokus und Alles'),
   move('/beziehungen', '/beziehungen', 'K1-d', 'bleibt', 'zeigt bis K2-b die Lieferantenliste'),
   move('/wert', '/wert', 'K1-d', 'bleibt', 'zeigt bis K4-b die Übersicht'),
-  move('/mein-agent', '/mein-agent', 'K1-d', 'bleibt', 'zeigt bis K1-f die Seite Agenten'),
+  move('/mein-agent', '/mein-agent', 'K1-f.3', 'bleibt', 'Mein Agent'),
   move('/kurz-pruefen', '/kurz-pruefen', 'K1-e.2', 'bleibt', 'Kurz prüfen'),
   move('/erledigt', '/erledigt', 'K1-e.3', 'bleibt', 'Erledigt im Hintergrund'),
   move('/warum/$id', '/warum/$id', 'K1-e.4', 'bleibt', 'Warum'),

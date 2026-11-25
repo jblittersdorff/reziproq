@@ -54,6 +54,8 @@ function RowGroup({
 /**
  * Zeile einer Gruppe: links Monogramm oder Punkt, Titel und Unterzeile, rechts Wert. Mit Ziel ist die
  * ganze Zeile ein Link mit grauem Pfeil; ohne Ziel hat sie keinen Pfeil und ist nicht klickbar.
+ * `control` ist ein Schalter in der Zeile (Vorlage Mein-Agent): rechts neben dem Text, auf schmalen
+ * Bildschirmen darunter; eine Zeile mit Schalter hat kein Ziel.
  */
 function Row({
   href,
@@ -63,6 +65,7 @@ function Row({
   value,
   valueTone = 'muted',
   wrap = false,
+  control,
   renderLink = defaultRenderLink,
 }: {
   href?: string;
@@ -73,8 +76,22 @@ function Row({
   valueTone?: 'muted' | 'accent';
   /** Unterzeile umbrechen statt kürzen, für erklärende Sätze (Vorlage K1-Kurz-Pruefen) */
   wrap?: boolean;
+  /** Schalter in der Zeile, z. B. die Stufe einer Aufgabe; bricht auf Telefonbreite unter den Text */
+  control?: React.ReactNode;
   renderLink?: RenderLink;
 }) {
+  if (control) {
+    return (
+      <div data-slot="row" className="flex min-h-14 flex-wrap items-center gap-3 px-3.5 py-2.5">
+        {lead && <span className="flex shrink-0 items-center">{lead}</span>}
+        <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-0.5">
+          <b className="font-semibold text-ink text-row">{title}</b>
+          {detail && <span className="text-pretty text-detail text-input-border">{detail}</span>}
+        </span>
+        <span className="max-w-full flex-none">{control}</span>
+      </div>
+    );
+  }
   const body = (
     <>
       {lead && <span className="flex shrink-0 items-center">{lead}</span>}

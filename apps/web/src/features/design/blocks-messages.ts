@@ -38,6 +38,14 @@ export const blocksMessages = defineMessages({
       dots: 'StatusDot · Ampelpunkt mit Text',
       sheet: 'Sheet · Blatt',
       ask: 'AskOverlay · Frag Reziproq',
+      segmented: 'SegmentedControl · Schalter',
+    },
+    segmented: {
+      groupLabel: 'Row mit Schalter · Aufgaben von Reziproq',
+      task: 'Termin-Briefing',
+      label: 'Wie viel Reziproq selbst tut',
+      levels: { suggest: 'Vorschlagen', prepare: 'Vorbereiten', do: 'Erledigen' },
+      hint: 'Erledigen ist für diese Aufgabe nicht erlaubt und deshalb gesperrt.',
     },
     // E-K0-01: die erlaubten Überlagerungen (Vorlagen K2-Profil und Fragen)
     sheet: {
@@ -242,6 +250,14 @@ export const blocksMessages = defineMessages({
       dots: 'StatusDot · status dot with text',
       sheet: 'Sheet · side sheet',
       ask: 'AskOverlay · Ask Reziproq',
+      segmented: 'SegmentedControl · switch',
+    },
+    segmented: {
+      groupLabel: 'Row with a switch · Tasks of Reziproq',
+      task: 'Meeting briefing',
+      label: 'How much Reziproq does itself',
+      levels: { suggest: 'Suggest', prepare: 'Prepare', do: 'Do' },
+      hint: 'Do is not allowed for this task and therefore locked.',
     },
     sheet: {
       open: 'Open sheet',

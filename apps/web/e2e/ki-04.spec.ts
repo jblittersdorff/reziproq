@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { id, signIn } from './route-walk.js';
 
-// NAV-10 2.0: die Liste der Agenten steht bis K1-f unter Mein Agent
-const path = '/mein-agent';
+// KI-04: die Seite eines Laufs, bis K1-f.4 sie entfernt (Warum zum Lauf ersetzt sie, K1-e.4).
+// Die Liste der Agenten unter Mein Agent ist seit K1-f.3 die Seite Mein Agent (MA-01, e2e/ma-01).
+const path = `/einstellungen/ki/agenten/laeufe/${id}`;
 const run = {
   id,
   agentName: 'Termin-Briefing',
@@ -21,9 +22,7 @@ const run = {
 };
 
 for (const width of [390, 1440]) {
-  test(`Agentenliste und Laufdetails sind bei ${width} px bedienbar`, async ({
-    page,
-  }, testInfo) => {
+  test(`Laufdetails sind bei ${width} px bedienbar`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page, { locale: 'de' });
     await page.route('**/api/ki/agenten', (route) =>
@@ -63,11 +62,6 @@ for (const width of [390, 1440]) {
       }),
     );
     await page.goto(path);
-    await expect(page.getByRole('heading', { level: 1, name: 'Mein Agent' })).toBeVisible();
-    await expect(page.getByText('Agenten von Reziproq')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
-    await page.screenshot({ path: testInfo.outputPath(`agenten-${width}.png`), fullPage: true });
-    await page.getByRole('region', { name: 'Letzte Läufe' }).getByRole('link').click();
     await expect(page.getByRole('heading', { level: 1, name: 'Agentenlauf' })).toBeVisible();
     await expect(page.getByText('Terminfakten lesen')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Entwurf am Termin öffnen' })).toBeVisible();

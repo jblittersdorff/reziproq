@@ -152,7 +152,9 @@ const noScroll = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 for (const width of [390, 1440]) {
-  test(`Eigene Agenten: Liste, Anlegen und Seite ohne seitliches Scrollen (${width})`, async ({
+  // Die Liste „Eure Agenten“ unter Mein Agent gibt es seit K1-f.3 nicht mehr (MA-01); eigene Agenten
+  // sind aus (E-K0-13). Anlegen und Seite bleiben, bis K1-f.5 sie entfernt.
+  test(`Eigene Agenten: Anlegen und Seite ohne seitliches Scrollen (${width})`, async ({
     page,
   }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
@@ -165,14 +167,7 @@ for (const width of [390, 1440]) {
         fullPage: true,
       });
 
-    await page.goto('/einstellungen/ki/agenten');
-    await expect(page.getByRole('heading', { name: 'Eure Agenten · 1' })).toBeVisible();
-    await expect(page.getByText('Spend-Abweichungen Q4')).toBeVisible();
-    await page.waitForLoadState('networkidle');
-    expect(await noScroll(page)).toBe(0);
-    await shot('agenten');
-
-    await page.getByRole('link', { name: 'Agent anlegen' }).click();
+    await page.goto('/einstellungen/ki/agenten/neu');
     await expect(
       page.getByRole('heading', { level: 1, name: 'Eigenen Agenten anlegen' }),
     ).toBeVisible();

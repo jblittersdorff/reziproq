@@ -46,6 +46,7 @@ export function BlocksPage() {
   const [sent, setSent] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [ask, setAsk] = useState(false);
+  const [level, setLevel] = useState<'suggest' | 'prepare' | 'do'>('prepare');
   useEffect(() => {
     document.title = `${t.title} – Reziproq`;
   }, [t]);
@@ -304,6 +305,27 @@ export function BlocksPage() {
             title={t.rows.waiting[1]}
             detail={t.rows.waiting[2]}
             value={t.rows.waiting[3]}
+          />
+        </RowGroup>
+
+        {section('segmented', t.sections.segmented)}
+        {/* MA-01 (K1-f.3): Stufen-Umschalter wie in Mein Agent; eine nicht erlaubte Stufe ist gesperrt */}
+        <RowGroup label={t.segmented.groupLabel}>
+          <Row
+            title={t.segmented.task}
+            detail={t.segmented.hint}
+            control={
+              <SegmentedControl
+                label={t.segmented.label}
+                value={level}
+                onChange={setLevel}
+                options={[
+                  { value: 'suggest', label: t.segmented.levels.suggest },
+                  { value: 'prepare', label: t.segmented.levels.prepare },
+                  { value: 'do', label: t.segmented.levels.do, disabled: true },
+                ]}
+              />
+            }
           />
         </RowGroup>
 

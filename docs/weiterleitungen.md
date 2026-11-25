@@ -242,7 +242,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/importieren` | offen | K2-b | geplant |
 | `/lieferanten/neu` | offen | K2-b | geplant |
 | `/mappe/$art/$id` | – (Fokus-Mappe) | K1-e.4 | bleibt |
-| `/mein-agent` | – (zeigt bis K1-f die Seite Agenten) | K1-d | bleibt |
+| `/mein-agent` | – (Mein Agent) | K1-f.3 | bleibt |
 | `/mein-tag` | `/heute` | K1-d | aktiv |
 | `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | aktiv |
 | `/menu` | – | PLT-11 | bleibt |
