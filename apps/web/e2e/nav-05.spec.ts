@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { mockToday } from './today-fixture.js';
 
 test.use({ locale: 'de-DE' });
 
@@ -73,7 +74,9 @@ async function mock(page: Page) {
     }),
   );
   await page.route('**/api/start/due', (route) => route.fulfill({ json: { items } }));
-  // NAV-10 1.1: Mein Tag ersetzt den Start mit Bühne und Kacheln
+  // HE-01 (K1-e): Heute aus der Triage
+  await mockToday(page);
+  // Alle Aufgaben liest weiter Mein Tag (bis K5-b für die Lieferantenseite)
   await page.route('**/api/start/mein-tag', (route) =>
     route.fulfill({
       json: {

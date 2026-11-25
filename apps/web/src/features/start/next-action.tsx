@@ -44,10 +44,10 @@ export function nextKicker(text: MyDayText, next: NextAction, locale: string) {
     next.item.kind === 'hint'
       ? null
       : next.overdueDays > 0
-      ? text.next.overdue(next.overdueDays)
-      : next.overdueDays === 0
-        ? text.next.today
-        : text.next.until(shortDate(locale, next.item.dueDate));
+        ? text.next.overdue(next.overdueDays)
+        : next.overdueDays === 0
+          ? text.next.today
+          : text.next.until(shortDate(locale, next.item.dueDate));
   return [text.next.label, when, next.minutes ? text.next.minutes(next.minutes) : null]
     .filter(Boolean)
     .join(' · ');

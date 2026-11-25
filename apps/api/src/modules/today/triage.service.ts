@@ -10,6 +10,12 @@ import {
   type TenantTransaction,
 } from '@reziproq/db';
 import {
+  type AllAssign,
+  type AllHint,
+  type AllTopic,
+  type AllWaiting,
+  artOf,
+  backedSentence,
   type DueItem,
   daysBetween,
   dueMinutes,
@@ -17,14 +23,19 @@ import {
   type FocusTopicKind,
   type FocusTopicLevel,
   focusTopicSchema,
+  type Hint,
   impactOf,
   maxVisibleFocus,
   type NextAction,
   nextActionSchema,
+  relationshipOfHref,
   type SentenceFact,
   sentenceFactSchema,
-  type Today,
-  todaySchema,
+  type TodayAll,
+  type TodayDraft,
+  type TodayPage,
+  todayAllSchema,
+  todayPageSchema,
   triageScore,
   urgencyOf,
 } from '@reziproq/shared';
@@ -32,10 +43,23 @@ import { z } from 'zod';
 import { TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import { CalendarIntakeService } from '../calendar/calendar.service.js';
 import { HintsService } from '../hints/hints.service.js';
-import { preparedHref, spendWeights, visibleRelationships } from '../start/my-day-data.js';
+import {
+  preparedHref,
+  spendWeights,
+  visibleRelationships,
+  waitingOnOthers,
+} from '../start/my-day-data.js';
 import { StartService } from '../start/start.service.js';
-import { nextMorning } from './berlin.js';
+import { berlinDate, berlinTime, nextMorning } from './berlin.js';
+import {
+  summarySentence,
+  summarySources,
+  summaryTemplate,
+  uuidIn,
+  weekAndWaiting,
+} from './today-page.js';
 import {
   type DraftRow,
   fromDraft,
@@ -45,16 +69,24 @@ import {
   keyOf,
   type Locale,
   type RunRow,
-  type TriageCandidate,
   shownSentence,
+  type TriageCandidate,
 } from './triage.js';
 
 // HE-01 Dienst 1 (K1-c): Triage je Person. Sammelt die Ergebnisse aller Module (Fristen und
 // Freigaben aus Start, Hinweise, Entwürfe, Handlungen von Reziproq), rechnet die Punktzahl und hält
 // genau ein Fokus-Thema je Ergebnis in focus_item. Läuft bei jedem Aufruf von Heute und „Als
 // Nächstes“ (so ist jedes Ereignis sofort drin) und täglich um 06:00 (TriageWorker).
+// K1-e: Heute rechnet mit dem Datum in Berlin nach der Uhr des Mandanten; dazu die Seite Heute mit
+// den Ansichten Fokus und Alles.
 
-const isoToday = () => currentTime().toISOString().slice(0, 10);
+const isoToday = () => berlinDate(currentTime());
+/** „Seit gestern 18:00“ in Berlin: Beginn von „Erledigt im Hintergrund“ (Vorlage Erledigt) */
+const doneSince = (today: string) => {
+  const yesterday = new Date(`${today}T12:00:00Z`);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  return berlinTime(yesterday.toISOString().slice(0, 10), 18);
+};
 /** Kurz prüfen: ohne Schätzung am Entwurf eine Minute je Entwurf */
 const defaultReviewSeconds = 60;
 const factsSchema = z.array(sentenceFactSchema).catch([]);
@@ -79,6 +111,8 @@ interface TopicRow extends Record<string, unknown> {
   score: string | number;
   due_at: Date | string | null;
   href: string | null;
+  state: string;
+  created_at: Date | string;
 }
 
 const textArray = (values: string[]) => sql`${`{${values.join(',')}}`}::text[]`;
@@ -90,6 +124,7 @@ export class TriageService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(StartService) private readonly start: StartService,
     @Inject(HintsService) private readonly hints: HintsService,
+    @Inject(CalendarIntakeService) private readonly intake: CalendarIntakeService,
   ) {}
 
   private session(auth: AuthContext): TenantSession | null {
@@ -102,9 +137,21 @@ export class TriageService {
    * „Später“ nach Ablauf zurück. `due` nur, wenn die Fristen schon geladen sind.
    */
   async refresh(auth: AuthContext, due?: DueItem[]): Promise<Map<string, ScoredCandidate>> {
+    return (await this.collect(auth, due)).candidates;
+  }
+
+  /**
+   * Wie `refresh`, dazu alle offenen Hinweise, die die Person sieht. Ein Hinweis wird nur dann ihr
+   * Fokus-Thema, wenn sie darüber entscheidet (SRO der Beziehung oder Admin, K1-e); die übrigen
+   * stehen in der Ansicht Alles unter „Hinweise“.
+   */
+  private async collect(
+    auth: AuthContext,
+    due?: DueItem[],
+  ): Promise<{ candidates: Map<string, ScoredCandidate>; hints: Hint[] }> {
     const session = this.session(auth);
     const organization = auth.organization;
-    if (!session || !organization) return new Map();
+    if (!session || !organization) return { candidates: new Map(), hints: [] };
     const today = isoToday();
     const dueItems = due ?? (await this.start.dueItems(auth));
     const hints =
@@ -113,7 +160,7 @@ export class TriageService {
       const locale = await localeOf(tx, auth.userId);
       const candidates = unique([
         ...dueItems.map((item) => fromDue(item, today, locale)),
-        ...hints.map((hint) => fromHint(hint, today, locale)),
+        ...hints.filter((hint) => hint.canDismiss).map((hint) => fromHint(hint, today, locale)),
         ...(await draftsOf(tx, auth)).map((draft) => fromDraft(draft, locale)),
         ...(await runsOf(tx, auth, today)).map((run) => fromRun(run, locale)),
       ]);
@@ -149,79 +196,249 @@ export class TriageService {
       if (!auth.supportOrganization) await store(tx, session, rows);
       return rows;
     });
-    return new Map(scored.map((row) => [keyOf(row), row]));
+    return { candidates: new Map(scored.map((row) => [keyOf(row), row])), hints };
   }
 
-  /** Heute (HE-01): „Als Nächstes“, höchstens zwei weitere Fokus-Themen, Zahlen für Kurz prüfen */
-  async today(auth: AuthContext): Promise<Today> {
+  /**
+   * Heute (HE-01), Ansicht Fokus: „Als Nächstes“, höchstens zwei weitere Fokus-Themen, „Das
+   * Wichtigste“, Kurz prüfen, Erledigt, „Diese Woche“, „Wartet auf andere“ und die Zahlen für „Alles
+   * anzeigen“. Die Seitenleiste liest daraus die Zahl an Heute und „Im Hintergrund“.
+   */
+  async today(auth: AuthContext): Promise<TodayPage> {
     const today = isoToday();
     const session = this.session(auth);
-    if (!session) {
-      return todaySchema.parse({
-        today,
-        next: null,
-        more: [],
-        openFocus: 0,
-        review: { count: 0, minutes: 0 },
-        done: { count: 0 },
-        background: null,
-      });
-    }
-    const candidates = await this.refresh(auth);
+    if (!session || !auth.organization) return todayPageSchema.parse(emptyPage(today));
+    const { candidates, hints } = await this.collect(auth);
     return this.tenant.run(
       session,
       async (tx) => {
-        const locale = await localeOf(tx, auth.userId);
-        const own = sql`org_id = ${session.organizationId} and user_id = ${session.userId}`;
-        const visible = await tx.execute<TopicRow>(sql`
-          select * from next_action where ${own}
-          order by score desc, due_at asc nulls last, created_at, id
-          limit ${maxVisibleFocus}`);
-        const [counts] = (
-          await tx.execute<{ open_focus: number; done: number }>(sql`
-            select (select count(*)::int from next_action where ${own}) as open_focus,
-              (select count(*)::int from focus_item where ${own} and level = 'done'
-                and created_at::date = ${today}::date) as done`)
-        ).rows;
-        const review = await tx.execute<{ source_type: string; source_id: string }>(sql`
-          select source_type, source_id from focus_item
-          where ${own} and level = 'review' and state = 'open'`);
-        const seconds = review.rows.reduce(
-          (sum, row) =>
-            sum + (candidates.get(keyOf(sourceOf(row)))?.reviewSeconds ?? defaultReviewSeconds),
-          0,
-        );
-        const topics = visible.rows.map((row) => topicOf(row, candidates, locale));
-        const [running] = (
-          await tx.execute<{ id: string; task: string; counterpart: string | null }>(sql`
-            select r.id, a.name as task, coalesce(side.display_name, o.name) as counterpart
-            from agent_run r
-            join agent_version v on v.org_id = r.org_id and v.id = r.agent_version_id
-            join agent a on a.org_id = v.org_id and a.id = v.agent_id
-            left join relationship rel on rel.id = r.context_relationship_id
-            left join organization o on o.id = case
-              when rel.buyer_org_id = r.org_id then rel.supplier_org_id else rel.buyer_org_id end
-            left join relationship_side side
-              on side.relationship_id = rel.id and side.org_id = r.org_id
-            where r.org_id = ${session.organizationId} and r.acting_user_id = ${session.userId}
-              and r.status in ('queued', 'running') and not r.is_test
-            order by r.created_at desc
-            limit 1`)
-        ).rows;
-        return todaySchema.parse({
+        const view = await this.load(tx, auth, session, candidates, today);
+        const open = view.topics.filter((topic) => !topic.snoozed);
+        const shown = open.slice(0, maxVisibleFocus).map(plainTopic);
+        const more = shown.slice(1);
+        const summary = summarySentence(view.locale, {
+          done: view.done.count,
+          more: more.length,
+          hasNext: shown.length > 0,
+        });
+        const { week, waiting } = weekAndWaiting(today, view.topics, view.waiting);
+        return todayPageSchema.parse({
           today,
-          next: topics[0] ?? null,
-          more: topics.slice(1),
-          openFocus: counts?.open_focus ?? 0,
-          review: { count: review.rows.length, minutes: Math.ceil(seconds / 60) },
-          done: { count: counts?.done ?? 0 },
-          background: running
-            ? { runId: running.id, task: running.task, counterpart: running.counterpart }
-            : null,
+          next: shown[0] ?? null,
+          more,
+          openFocus: open.length,
+          review: { count: view.drafts.length, minutes: Math.ceil(view.reviewSeconds / 60) },
+          done: view.done,
+          background: view.background,
+          summary: {
+            // G-6: nur ein Satz, dessen Zahlen belegt sind
+            sentence: backedSentence(summary.sentence, summary.facts, summaryTemplate(view.locale)),
+            facts: summary.facts,
+            sources: summarySources(shown, {
+              drafts: view.drafts.length,
+              done: view.done.count,
+            }),
+          },
+          drafts: view.drafts,
+          week,
+          waiting,
+          waitingTotal: view.waiting.length,
+          counts: {
+            forYou: view.topics.length,
+            others: view.waiting.length,
+            hints: hints.filter((hint) => !hint.canDismiss).length,
+            commitments: view.commitments.open,
+          },
         });
       },
       { readOnly: true },
     );
+  }
+
+  /**
+   * Heute, Ansicht Alles (HE-01, E-K0-26): jedes offene Fokus-Thema der Person (Für dich), die
+   * Entwürfe, was bei anderen liegt, die übrigen Hinweise, nicht zugeordneter Eingang und die Zusagen
+   * und Aufgaben der Beziehungen. Keine Regel der Triage blendet hier etwas aus; die Filter wählt
+   * die Person.
+   */
+  async all(auth: AuthContext): Promise<TodayAll> {
+    const today = isoToday();
+    const session = this.session(auth);
+    const organization = auth.organization;
+    if (!session || !organization) return todayAllSchema.parse(emptyAll(today));
+    const { candidates, hints } = await this.collect(auth);
+    const inbox =
+      organization.buyer && can(auth, 'termine.sehen') ? (await this.intake.inbox(auth)).open : [];
+    return this.tenant.run(
+      session,
+      async (tx) => {
+        const view = await this.load(tx, auth, session, candidates, today);
+        const others: AllHint[] = hints
+          .filter((hint) => !hint.canDismiss)
+          .map((hint) => ({
+            id: hint.id,
+            title: hint.title,
+            ruleKey: hint.ruleKey,
+            supplier: hint.supplier,
+            relationshipId: hint.relationshipId,
+            severity: hint.severity,
+            materialGroup: hint.materialGroup,
+            openSince: hint.createdAt,
+            suggestedAction: hint.suggestedAction,
+            // Warum zum Hinweis kommt mit K1-e.4; bis dahin die Seite des Hinweises
+            href: `/hinweise/${hint.id}`,
+          }));
+        const assign: AllAssign[] = inbox.map((item) => ({
+          id: item.id,
+          kind: item.kind,
+          subject: item.subject,
+          startsAt: item.startsAt,
+          suggestionKind: item.suggestionKind,
+          suggestions: item.suggestions,
+          // Zuordnungen als Entwurf in Kurz prüfen kommen mit K1-e.2; bis dahin Neu eingegangen
+          href: '/mein-tag/eingang',
+        }));
+        const names = new Map<string, string>();
+        const groups = new Set<string>();
+        const note = (id: string | null, name: string | null, group: string | null) => {
+          if (id && name) names.set(id, name);
+          if (group) groups.add(group);
+        };
+        for (const topic of view.topics)
+          note(topic.relationshipId, topic.counterpart, topic.materialGroup);
+        for (const item of view.waiting)
+          note(item.relationshipId, item.counterpart, item.materialGroup);
+        for (const hint of others) note(hint.relationshipId, hint.supplier, hint.materialGroup);
+        return todayAllSchema.parse({
+          today,
+          forYou: view.topics,
+          drafts: { rows: view.drafts, minutes: Math.ceil(view.reviewSeconds / 60) },
+          others: view.waiting,
+          hints: others,
+          assign,
+          commitments: view.commitments,
+          doneCount: view.done.count,
+          relationships: [...names]
+            .map(([id, name]) => ({ id, name }))
+            .sort((a, b) => a.name.localeCompare(b.name)),
+          materialGroups: [...groups].sort((a, b) => a.localeCompare(b)),
+        });
+      },
+      { readOnly: true },
+    );
+  }
+
+  /** Gemeinsame Daten beider Ansichten, gelesen in einer Transaktion nach der Triage */
+  private async load(
+    tx: TenantTransaction,
+    auth: AuthContext,
+    session: TenantSession,
+    candidates: Map<string, ScoredCandidate>,
+    today: string,
+  ) {
+    const organization = auth.organization;
+    const orgId = session.organizationId as string;
+    const locale = await localeOf(tx, auth.userId);
+    const viewer = { orgId, userId: auth.userId, admin: auth.orgRole === 'admin' };
+    const relationships = organization?.buyer
+      ? await visibleRelationships(tx, viewer)
+      : new Map<string, string>();
+    const groups = await primaryGroups(tx, [...relationships.keys()]);
+    const own = sql`org_id = ${orgId} and user_id = ${session.userId}`;
+
+    // Für dich: offene Fokus-Themen nach Punktzahl, zurückgestellte am Ende
+    const topicRows = await tx.execute<TopicRow>(sql`
+      select * from focus_item where ${own} and level = 'focus' and state in ('open', 'snoozed')
+      order by (state = 'snoozed'), score desc, due_at asc nulls last, created_at, id`);
+    const topics: AllTopic[] = topicRows.rows.map((row, index) => ({
+      ...topicOf(row, candidates, locale, groups),
+      rank: index + 1,
+      snoozed: row.state === 'snoozed',
+    }));
+
+    // Kurz prüfen: offene Entwürfe in der Reihenfolge der Entwürfe
+    const draftRows = await tx.execute<TopicRow & { draft_created_at: Date | string | null }>(sql`
+      select f.*, d.created_at as draft_created_at
+      from focus_item f
+      left join ai_draft d on f.source_type = 'ai_draft' and d.id = f.source_id
+      where f.org_id = ${orgId} and f.user_id = ${session.userId}
+        and f.level = 'review' and f.state = 'open'
+      order by d.review_order nulls last, coalesce(d.created_at, f.created_at), f.id`);
+    let reviewSeconds = 0;
+    const drafts: TodayDraft[] = draftRows.rows.map((row) => {
+      const candidate = candidates.get(keyOf(sourceOf(row)));
+      reviewSeconds += candidate?.reviewSeconds ?? defaultReviewSeconds;
+      return {
+        id: row.id,
+        title: row.title,
+        counterpart: candidate?.counterpart ?? null,
+        relationshipId: row.relationship_id,
+        createdAt: new Date(row.draft_created_at ?? row.created_at).toISOString(),
+        href: row.href,
+      };
+    });
+
+    // Erledigt im Hintergrund seit gestern 18:00, je Aufgabe von Reziproq
+    const since = doneSince(today);
+    const doneRows = await tx.execute<{ title: string; count: number }>(sql`
+      select title, count(*)::int as count from focus_item
+      where ${own} and level = 'done' and created_at >= ${since.toISOString()}::timestamptz
+      group by title order by count desc, title`);
+    const done = {
+      since: since.toISOString(),
+      count: doneRows.rows.reduce((sum, row) => sum + row.count, 0),
+      tasks: doneRows.rows.map((row) => ({ task: row.title, count: row.count })),
+    };
+
+    // Bei anderen: offene Zusagen, Maßnahmen und Beiträge anderer Personen, ohne Zeitgrenze
+    const focusObjects = new Set(topics.flatMap((topic) => topic.objectId ?? []));
+    const waiting: AllWaiting[] = (
+      organization?.buyer ? await waitingOnOthers(tx, viewer, relationships, '9999-12-31') : []
+    ).flatMap((item) => {
+      const relationshipId = relationshipOfHref(item.href);
+      if (!relationshipId) return [];
+      const objectId = uuidIn(item.id);
+      return [
+        {
+          ...item,
+          relationshipId,
+          materialGroup: groups.get(relationshipId) ?? null,
+          inFocus: objectId !== null && focusObjects.has(objectId),
+        },
+      ];
+    });
+
+    // Zusagen und Aufgaben beider Seiten, je Beziehung in der Akte
+    const commitments = await openCommitments(tx, relationships);
+
+    const [running] = (
+      await tx.execute<{ id: string; task: string; counterpart: string | null }>(sql`
+        select r.id, a.name as task, coalesce(side.display_name, o.name) as counterpart
+        from agent_run r
+        join agent_version v on v.org_id = r.org_id and v.id = r.agent_version_id
+        join agent a on a.org_id = v.org_id and a.id = v.agent_id
+        left join relationship rel on rel.id = r.context_relationship_id
+        left join organization o on o.id = case
+          when rel.buyer_org_id = r.org_id then rel.supplier_org_id else rel.buyer_org_id end
+        left join relationship_side side
+          on side.relationship_id = rel.id and side.org_id = r.org_id
+        where r.org_id = ${orgId} and r.acting_user_id = ${session.userId}
+          and r.status in ('queued', 'running') and not r.is_test
+        order by r.created_at desc
+        limit 1`)
+    ).rows;
+    return {
+      locale,
+      topics,
+      drafts,
+      reviewSeconds,
+      done,
+      waiting,
+      commitments,
+      background: running
+        ? { runId: running.id, task: running.task, counterpart: running.counterpart }
+        : null,
+    };
   }
 
   /**
@@ -311,8 +528,12 @@ function topicOf(
   row: TopicRow,
   candidates: Map<string, ScoredCandidate>,
   locale: Locale,
+  groups: Map<string, string> = new Map(),
 ): FocusTopic {
   const facts: SentenceFact[] = factsSchema.parse(row.sentence_facts);
+  const candidate = candidates.get(keyOf(sourceOf(row)));
+  // Nur Fristen und Freigaben der Module; der Hinweis hat seine Ersatzfrist nur für „Als Nächstes“.
+  const item = candidate?.sourceType === 'due' ? candidate.dueItem : null;
   return focusTopicSchema.parse({
     id: row.id,
     level: row.level,
@@ -323,11 +544,104 @@ function topicOf(
     objectType: row.object_type,
     objectId: row.object_id,
     relationshipId: row.relationship_id,
-    counterpart: candidates.get(keyOf(sourceOf(row)))?.counterpart ?? null,
+    counterpart: candidate?.counterpart ?? null,
     dueDate: row.due_at ? new Date(row.due_at).toISOString().slice(0, 10) : null,
     href: row.href,
     score: Number(row.score),
+    item,
+    art: artOf({ kind: row.kind, objectType: row.object_type, item }),
+    severity: candidate?.severity ?? null,
+    materialGroup: row.relationship_id ? (groups.get(row.relationship_id) ?? null) : null,
   });
+}
+
+/** Fokus-Thema ohne Platz und Zustand der Ansicht Alles */
+function plainTopic(topic: AllTopic): FocusTopic {
+  const { rank: _rank, snoozed: _snoozed, ...rest } = topic;
+  return rest;
+}
+
+/** Leere Seite für Personen ohne Organisation */
+function emptyPage(today: string) {
+  return {
+    today,
+    next: null,
+    more: [],
+    openFocus: 0,
+    review: { count: 0, minutes: 0 },
+    done: { since: doneSince(today).toISOString(), count: 0, tasks: [] },
+    background: null,
+    summary: {
+      sentence: summarySentence('de', { done: 0, more: 0, hasNext: false }).sentence,
+      facts: [],
+      sources: [],
+    },
+    drafts: [],
+    week: [],
+    waiting: [],
+    waitingTotal: 0,
+    counts: { forYou: 0, others: 0, hints: 0, commitments: 0 },
+  };
+}
+
+function emptyAll(today: string) {
+  return {
+    today,
+    forYou: [],
+    drafts: { rows: [], minutes: 0 },
+    others: [],
+    hints: [],
+    assign: [],
+    commitments: { open: 0, relationships: 0, next: null },
+    doneCount: 0,
+    relationships: [],
+    materialGroups: [],
+  };
+}
+
+/** Hauptwarengruppe je Beziehung (Filter „Warengruppe“) */
+async function primaryGroups(
+  tx: TenantTransaction,
+  relationshipIds: string[],
+): Promise<Map<string, string>> {
+  if (relationshipIds.length === 0) return new Map();
+  const rows = await tx.execute<{ relationship_id: string; name: string }>(sql`
+    select l.relationship_id, g.name
+    from relationship_material_group l
+    join material_group g on g.id = l.material_group_id
+    where l.relationship_id = any(${uuidArray(relationshipIds)}) and l.is_primary`);
+  return new Map(rows.rows.map((row) => [row.relationship_id, row.name]));
+}
+
+/**
+ * Zusagen und Aufgaben (E-K0-26): offene Zusagen beider Seiten und offene Maßnahmen in den
+ * Beziehungen der Person; die nächste Frist mit Titel und Gegenüber.
+ */
+async function openCommitments(
+  tx: TenantTransaction,
+  relationships: Map<string, string>,
+): Promise<TodayAll['commitments']> {
+  const ids = [...relationships.keys()];
+  if (ids.length === 0) return { open: 0, relationships: 0, next: null };
+  const rows = await tx.execute<{ relationship_id: string; title: string; due: string }>(sql`
+    select relationship_id, title, due_on::text as due from commitment
+    where relationship_id = any(${uuidArray(ids)}) and status = 'open'
+    union all
+    select relationship_id, title, due_date::text from action
+    where relationship_id = any(${uuidArray(ids)}) and status in ('open', 'in_progress')
+    order by due, title`);
+  const [first] = rows.rows;
+  return {
+    open: rows.rows.length,
+    relationships: new Set(rows.rows.map((row) => row.relationship_id)).size,
+    next: first
+      ? {
+          title: first.title,
+          counterpart: relationships.get(first.relationship_id) ?? '',
+          dueDate: first.due,
+        }
+      : null,
+  };
 }
 
 /** Ein Ergebnis zählt einmal, auch wenn zwei Module es melden */

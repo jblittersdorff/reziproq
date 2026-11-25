@@ -25,22 +25,8 @@ import { useLocale, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { dueTitle } from './due-title';
 import { dayTime } from './greeting';
-import { MyDayPage } from './my-day-page';
 
 export { dueTitle, formatDate } from './due-title';
-
-/**
- * Mein Tag (NAV-10 1.1): beim Käufer die neue Seite nach `Main.dc.html`, auf der Lieferantenseite
- * der bisherige Start (LIF-02) mit Kunden statt Lieferanten. /me ist hier schon geladen
- * (ContentGate).
- */
-export function StartPage() {
-  const me = useMe();
-  const supplierSide = Boolean(
-    me.data?.permissions.viewCustomers && !me.data.permissions.viewBuyerAreas,
-  );
-  return supplierSide ? <SupplierStartPage /> : <MyDayPage />;
-}
 
 /**
  * Start der Lieferantenseite (PLT-11, NAV-05; Designsprache, Vorlage Main.dc.html): Datum, Begrüßung,
@@ -48,7 +34,7 @@ export function StartPage() {
  * Aufgabe als Tinte-Karte, der nächste Termin, offene Entscheidungen bzw. Maßnahmen und rechts
  * Fokuslieferanten bzw. Kunden mit drei Zahlen. Speichert nichts; alles führt zum Ort der Sache.
  */
-function SupplierStartPage() {
+export function SupplierStartPage() {
   const t = useT();
   const { locale } = useLocale();
   const me = useMe();

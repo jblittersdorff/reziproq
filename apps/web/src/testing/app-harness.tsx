@@ -2,12 +2,13 @@ import type {
   Action,
   CustomersResponse,
   MeResponse,
+  MyDay,
   OrganizationResponse,
   PromptEvent,
   Supplier,
   SuppliersResponse,
-  MyDay,
-  Today,
+  TodayAll,
+  TodayPage,
 } from '@reziproq/shared';
 import { defaultOrgModules } from '@reziproq/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -227,8 +228,10 @@ export const api = {
     | undefined,
   /** Je Anfrage: Pfad und der mitgeschickte Kunde aus x-reziproq-support-org (oder null). */
   requests: [] as { url: string; customer: string | null }[],
-  /** Antwort von GET /api/heute (HE-01, NAV-10 2.0): Zahl an Heute und „Im Hintergrund“ */
-  today: undefined as Today | undefined,
+  /** Antwort von GET /api/heute (HE-01, NAV-10 2.0): Seite Heute, Zahl an Heute, „Im Hintergrund“ */
+  today: undefined as TodayPage | undefined,
+  /** Antwort von GET /api/heute/alles (HE-01, K1-e): Ansicht Alles */
+  todayAll: undefined as TodayAll | undefined,
 };
 
 /** Streamt Ereignisse als NDJSON, eine Zeile je Ereignis, wie die echte API. */
@@ -303,19 +306,44 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (url.startsWith('/api/start/als-naechstes')) return Response.json({ next: null });
   if (url === '/api/start/brauchen-dich') return Response.json({ items: [] });
   if (url === '/api/heute') return Response.json(api.today ?? todayResponse());
+  if (url === '/api/heute/alles') return Response.json(api.todayAll ?? todayAllResponse());
   return Response.json({ statusCode: 404 }, { status: 404 });
 }
 
 /** Antwort von /api/heute; ohne Angaben nichts offen und nichts im Hintergrund */
-export function todayResponse(overrides: Partial<Today> = {}): Today {
+export function todayResponse(overrides: Partial<TodayPage> = {}): TodayPage {
+  const today = new Date().toISOString().slice(0, 10);
   return {
-    today: new Date().toISOString().slice(0, 10),
+    today,
     next: null,
     more: [],
     openFocus: 0,
     review: { count: 0, minutes: 0 },
-    done: { count: 0 },
+    done: { since: new Date(`${today}T00:00:00Z`).toISOString(), count: 0, tasks: [] },
     background: null,
+    summary: { sentence: 'Nichts braucht dich gerade.', facts: [], sources: [] },
+    drafts: [],
+    week: [],
+    waiting: [],
+    waitingTotal: 0,
+    counts: { forYou: 0, others: 0, hints: 0, commitments: 0 },
+    ...overrides,
+  };
+}
+
+/** Antwort von /api/heute/alles; ohne Angaben nichts offen */
+export function todayAllResponse(overrides: Partial<TodayAll> = {}): TodayAll {
+  return {
+    today: new Date().toISOString().slice(0, 10),
+    forYou: [],
+    drafts: { rows: [], minutes: 0 },
+    others: [],
+    hints: [],
+    assign: [],
+    commitments: { open: 0, relationships: 0, next: null },
+    doneCount: 0,
+    relationships: [],
+    materialGroups: [],
     ...overrides,
   };
 }
@@ -353,6 +381,7 @@ export function setUpApp() {
   api.organization = sampleOrganization;
   api.handle = undefined;
   api.today = undefined;
+  api.todayAll = undefined;
   sessionStorage.clear();
   // jsdom kennt kein Scrollen; der Router springt zu Abschnitten wie #strategie (UMB-05).
   if (typeof Element.prototype.scrollIntoView !== 'function') {

@@ -10,6 +10,7 @@ import {
   setUpApp,
   signedIn,
   tearDownApp,
+  todayAllResponse,
 } from '@/testing/app-harness';
 import type { OutlookAdapter } from './outlook-adapter';
 
@@ -162,11 +163,25 @@ describe('IN-03 Neu eingegangen', () => {
     await waitFor(() => expect(sent[3]).toMatchObject({ body: { action: 'ignore' } }));
   });
 
-  it('Mein Tag zeigt rechts die Zeile „Neu eingegangen“ mit der Zahl', async () => {
-    renderAt('/mein-tag');
-    const row = await screen.findByRole('link', { name: /Neu eingegangen/ });
+  it('Heute, Ansicht Alles, zeigt nicht zugeordnete Termine unter „Zuordnen“ (HE-01, E-K0-26)', async () => {
+    api.todayAll = todayAllResponse({
+      assign: [
+        {
+          id: uuid(71),
+          kind: 'meeting',
+          subject: 'Abstimmung Musterteile',
+          startsAt: '2026-12-09T09:00:00.000Z',
+          suggestionKind: 'supplier',
+          suggestions: [{ relationshipId: uuid(60), name: 'Rheintal Elektronik' }],
+          href: '/mein-tag/eingang',
+        },
+      ],
+    });
+    renderAt('/heute?ansicht=alles');
+    const group = await screen.findByRole('region', { name: 'Zuordnen · 1' });
+    const row = within(group).getByRole('link', { name: /Abstimmung Musterteile/ });
     expect(row.getAttribute('href')).toBe('/mein-tag/eingang');
-    expect(within(row).getByText('3 Termine warten auf dich')).toBeTruthy();
+    expect(row.textContent).toContain('Vorschlag: Rheintal Elektronik');
   });
 });
 

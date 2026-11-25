@@ -14,8 +14,8 @@ import { Requires } from '../auth/requires.decorator.js';
 import { StartService } from '../start/start.service.js';
 import { TriageService } from './triage.service.js';
 
-// HE-01 (K1-c): Heute aus der Triage. Die Seite kommt mit K1-e; bis dahin lesen Start und Mein Tag
-// „Als Nächstes“ von hier (NAV-10 1.1, gleiche Pfade wie bisher).
+// HE-01 (K1-c): Heute aus der Triage; seit K1-e mit den Ansichten Fokus und Alles. Start und Mein Tag
+// lesen „Als Nächstes“ weiter von hier (NAV-10 1.1, gleiche Pfade wie bisher).
 
 @Controller()
 export class TodayController {
@@ -24,11 +24,18 @@ export class TodayController {
     @Inject(StartService) private readonly start: StartService,
   ) {}
 
-  /** Heute: „Als Nächstes“, höchstens zwei weitere Fokus-Themen, Kurz prüfen, Erledigt */
+  /** Heute, Ansicht Fokus: „Als Nächstes“, höchstens zwei weitere Fokus-Themen, Kurz prüfen, Erledigt */
   @Get('heute')
   @Requires('start.sehen')
   today(@CurrentUser() auth: AuthContext) {
     return this.triage.today(auth);
+  }
+
+  /** Heute, Ansicht Alles: alles Offene der Person in Gruppen, nichts ausgeblendet (HE-01) */
+  @Get('heute/alles')
+  @Requires('start.sehen')
+  all(@CurrentUser() auth: AuthContext) {
+    return this.triage.all(auth);
   }
 
   /** „Morgen erinnern“: bis zum nächsten Tag 07:00 */

@@ -13,9 +13,9 @@ Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8
   - Das Gewicht ist je Typ gespeichert. Ändern lässt es sich erst mit der Segment-Mappe (K2-e).
 - **Punktzahl.** Die Triage rechnet nach HE-01 ohne den Faktor 2 für Fokuslieferanten aus KI-16. Die Liste der Hinweise sortiert weiter nach ihrer alten Punktzahl.
 - **Neue Spalte.** `focus_item` hat zusätzlich `href` (Ort der Erledigung), bis die Fokus-Mappe kommt (K1-e). Fokus-Themen verschwinden mit ihrer Beziehung.
-- **„Heute“ für Fristen.** Die Fristen zählen wie bisher auf Start nach dem Datum in UTC. 06:00 und 07:00 gelten in Berlin. Alles auf das Datum in Berlin umzustellen, gehört zu K1-e.
+- **„Heute“ für Fristen.** Die Fristen zählen wie bisher auf Start nach dem Datum in UTC. 06:00 und 07:00 gelten in Berlin. Seit K1-e.1 rechnen Heute und Triage mit dem Datum in Berlin (Dringlichkeit, überfällig, „Diese Woche“). Die Module selbst setzen ihr „heute“ weiter in UTC, etwa für die Ersatzfrist eines Hinweises; das betrifft nur die Stunde nach Mitternacht.
 - **Noch nicht in der Triage.**
-  - Nicht zugeordneter Eingang (E-K0-26) kommt mit der Ansicht Alles (K1-e).
+  - Nicht zugeordneter Eingang (E-K0-26) steht seit K1-e.1 in der Ansicht Alles unter „Zuordnen“, ohne eigenes Fokus-Thema. Als Entwurf in Kurz prüfen kommt er mit K1-e.2.
   - Handlungen auf Stufe Erledigen schreiben `undo_payload` erst ab K1-e und K1-f. Bis dahin ist „Erledigt im Hintergrund“ leer.
 
 **Stand nach K2-h (25.11.2026), Farben:** Abschnitt d nannte die Design-Tokens vollständig. Sie enthielten aber 13 Farben, die die Designsprache nicht kennt. K2-h hat sie auf Werte der Palette gesetzt: Schatten in Tinte statt `#1d1d1f`, Status-Text nach der Status-Tabelle (gut, Achtung, kritisch), Grau der Diagramme `ring-open`, Folgeskala aus Mint und Petrol, Flächen auf Tinte `dark-2`, Rand auf Tinte `input-border`, Hover-Fläche `line`. T-CI1 verhindert neue Abweichungen.

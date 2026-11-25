@@ -4,7 +4,7 @@ import { type MyDay, type NextAction, sentenceBacked, type Today } from '@rezipr
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
-import { berlinTime } from './berlin.js';
+import { berlinDate, berlinTime } from './berlin.js';
 import { TriageWorker } from './triage.worker.js';
 
 // HE-01 Triage (K1-c) über die API: jedes Ergebnis genau ein Fokus-Thema, Punktzahl aus Wirkung ×
@@ -36,8 +36,9 @@ describe('HE-01 Triage über die API', () => {
     idle: `he1-idle-${run}`,
     demo: `he1-demo-${run}`,
   };
+  // Wie die Triage seit K1-e: Datum in Berlin
   const day = (offset: number) => {
-    const date = new Date();
+    const date = new Date(`${berlinDate(new Date())}T12:00:00Z`);
     date.setUTCDate(date.getUTCDate() + offset);
     return date.toISOString().slice(0, 10);
   };
@@ -271,7 +272,7 @@ describe('HE-01 Triage über die API', () => {
     ).rows;
     expect(open?.n).toBe(body.openFocus);
     expect(body.review).toEqual({ count: 1, minutes: 3 });
-    expect(body.done).toEqual({ count: 0 });
+    expect(body.done).toMatchObject({ count: 0, tasks: [] });
     expect(body.next?.counterpart).toBe(`HE1-Strategisch ${run}`);
   });
 

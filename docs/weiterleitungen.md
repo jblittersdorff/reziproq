@@ -84,9 +84,9 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/feedback` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/feedback/$id` | offen (Feedback als Objekt) | K2-f | geplant |
 | `/fragen` | `/heute?frag=1` (öffnet Frag Reziproq) | K1-d | aktiv |
-| `/heute` | – (zeigt bis K1-e Mein Tag) | K1-d | bleibt |
-| `/hinweise` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e | geplant |
-| `/hinweise/$id` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e | geplant |
+| `/heute` | – (Fokus und Alles) | K1-e | bleibt |
+| `/hinweise` | `/heute?ansicht=alles` (Gruppe Hinweise) | K1-e.4 | geplant |
+| `/hinweise/$id` | `/warum/$id` (Warum zum Hinweis) | K1-e.4 | geplant |
 | `/kunden` | – | LIF-02 | bleibt |
 | `/kunden/$id` | – | LIF-02 | bleibt |
 | `/kunden/$id/beziehung` | offen (gespiegelte Akte) | K5-b | geplant |
@@ -241,7 +241,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/neu` | offen | K2-b | geplant |
 | `/mein-agent` | – (zeigt bis K1-f die Seite Agenten) | K1-d | bleibt |
 | `/mein-tag` | `/heute` | K1-d | aktiv |
-| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e | geplant |
+| `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.2 | geplant |
 | `/menu` | – | PLT-11 | bleibt |
 | `/portfolio` | `/beziehungen?linse=segmente` | K2-b | geplant |
 | `/portfolio/fokus` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |
@@ -261,8 +261,8 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/profil/benachrichtigungen` | – | PLT-09 | bleibt |
 | `/profil/sprache` | – | PLT-09 | bleibt |
 | `/start` | `/heute` | K1-d | aktiv |
-| `/start/faellig` | `/heute?ansicht=alles` | K1-e | geplant |
-| `/start/massnahmen` | `/heute?ansicht=alles` (Zusagen und Aufgaben) | K1-e | geplant |
+| `/start/faellig` | `/heute?ansicht=alles` (beim Käufer schon Alles) | K5-b | geplant |
+| `/start/massnahmen` | `/heute?ansicht=alles` (Zusagen und Aufgaben) | K5-b | geplant |
 | `/styleguide` | `/bausteine` | K1-d.3 | geplant |
 | `/uebersicht` | `/wert` | K1-d | aktiv |
 | `/uebersicht/ergebnisse` | `/wert` | K4-b | geplant |

@@ -1,7 +1,14 @@
 import { monogram } from '@/lib/monogram';
 import { cn } from '@/lib/utils';
 
-export type MonogramTone = 'neutral' | 'shared' | 'success' | 'warning' | 'danger' | 'ink';
+export type MonogramTone =
+  | 'neutral'
+  | 'shared'
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'ink'
+  | 'petrol';
 
 const tones: Record<MonogramTone, string> = {
   neutral: 'bg-status-neutral text-status-neutral-foreground',
@@ -10,6 +17,8 @@ const tones: Record<MonogramTone, string> = {
   warning: 'bg-warning-soft text-warning-soft-foreground',
   danger: 'bg-destructive-soft text-destructive-soft-foreground',
   ink: 'bg-ink text-mint',
+  // Personen und Gegenüber in Listen von Heute (Vorlagen Main, Heute-Alles)
+  petrol: 'bg-petrol text-primary-foreground',
 };
 
 /**

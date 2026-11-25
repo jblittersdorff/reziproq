@@ -146,82 +146,9 @@ function day(): MyDay {
   });
 }
 
-describe('NAV-10 2.0 Heute, bis K1-e mit dem Inhalt von Mein Tag (Vorlage Main.dc.html)', () => {
-  it('Kopf: Titel, Datum mit Begrüßung und „n von m für heute erledigt“', async () => {
-    renderAt('/heute');
-    expect(await screen.findByRole('heading', { level: 1, name: 'Heute' })).toBeTruthy();
-    // erledigt 1, offen heute: die überfällige und die von heute
-    expect((await screen.findAllByText('1 von 3 für heute erledigt')).length).toBeGreaterThan(0);
-    expect(screen.getByText(/· Guten (Morgen|Tag|Abend), Anna\.$/)).toBeTruthy();
-  });
-
-  it('genau eine Karte „Als Nächstes“ mit Zeitbedarf und einem Knopf zum Ort der Aufgabe', async () => {
-    renderAt('/heute');
-    const card = (
-      await screen.findByText('Als Nächstes · überfällig seit 2 Tagen · 2 Min.')
-    ).closest('[data-slot="next-card"]') as HTMLElement;
-    expect(document.querySelectorAll('[data-slot="next-card"]')).toHaveLength(1);
-    const links = within(card).getAllByRole('link');
-    expect(links).toHaveLength(1);
-    expect(links[0]?.textContent).toBe('Wirkung prüfen');
-    expect(links[0]?.getAttribute('href')).toBe(myDay.next?.item.href);
-  });
-
-  it('ohne Kandidat erscheint keine Karte, statt einer leeren', async () => {
-    myDay = myDayResponse();
-    renderAt('/heute');
-    expect(await screen.findByText('Für heute ist nichts fällig.')).toBeTruthy();
-    expect(document.querySelector('[data-slot="next-card"]')).toBeNull();
-  });
-
-  it('Heute, Diese Woche mit Datum als Chip und der Link „Alle n Aufgaben“', async () => {
-    renderAt('/heute');
-    await screen.findByText('Heute · 1 weitere');
-    expect(screen.getByRole('link', { name: /Maßnahme · Aufgabe 2/ }).getAttribute('href')).toBe(
-      task(2, offset(0)).href,
-    );
-    expect(screen.getByText('Diese Woche · 1')).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Scorecard unterschreiben/ })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Alle 7 Aufgaben' }).getAttribute('href')).toBe(
-      '/start/faellig',
-    );
-  });
-
-  it('rechts Termine und Fristen, Wartet auf andere (überfällig rot) und Hinweise', async () => {
-    renderAt('/heute');
-    const aside = await screen.findByRole('complementary', { name: 'Termine und Fristen' });
-    const meeting = within(aside).getByRole('link', { name: /QBR Rheintal/ });
-    expect(meeting.getAttribute('href')).toBe(myDay.timeline[0]?.href);
-    expect(within(meeting).getByText('Termin')).toBeTruthy();
-    const waiting = within(aside).getByRole('link', { name: /8D-Bericht/ });
-    expect(within(waiting).getByText('überfällig').className).toContain('destructive');
-    expect(within(aside).getByRole('link', { name: /^Hinweise/ }).textContent).toContain(
-      '7 offen, 1 mit hoher Wirkung',
-    );
-  });
-
-  it('Von Reziproq vorbereitet: Entwürfe mit „RZ“, je Objekt eine Zeile', async () => {
-    renderAt('/heute');
-    await screen.findByText('Von Reziproq vorbereitet · 1 Entwurf');
-    const row = screen.getByRole('link', { name: /Briefing JBP Rheintal/ });
-    expect(row.getAttribute('href')).toBe(myDay.prepared[0]?.href);
-    expect(within(row).getByText('RZ')).toBeTruthy();
-  });
-
-  it('auf dem Telefon kommt die rechte Spalte nach „Heute“; die Person führt zu den Einstellungen', async () => {
-    renderAt('/heute');
-    const today = await screen.findByText('Heute · 1 weitere');
-    const aside = screen.getByRole('complementary', { name: 'Termine und Fristen' });
-    const prepared = screen.getByText('Von Reziproq vorbereitet · 1 Entwurf');
-    // Reihenfolge im Dokument = Reihenfolge auf dem Telefon
-    expect(today.compareDocumentPosition(aside) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(aside.compareDocumentPosition(prepared) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const main = screen.getByRole('main');
-    expect(within(main).getByRole('link', { name: 'Einstellungen' }).getAttribute('href')).toBe(
-      '/einstellungen',
-    );
-  });
-
+// Heute selbst testet features/today/he-01.test.tsx (K1-e). Alle Aufgaben bleibt für den Start der
+// Lieferantenseite bis K5-b.
+describe('Alle Aufgaben (bis K5-b für die Lieferantenseite)', () => {
   it('Alle Aufgaben: Zurück zu Heute, drei Ansichten und die volle Liste nach Frist', async () => {
     myDay = myDayResponse();
     renderAt('/start/faellig');

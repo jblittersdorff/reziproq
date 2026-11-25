@@ -6,11 +6,11 @@ import {
   actionsFor,
   anna,
   api,
-  myDayResponse,
   renderAt,
   setUpApp,
   signedIn,
   tearDownApp,
+  todayAllResponse,
 } from '@/testing/app-harness';
 
 const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
@@ -239,18 +239,31 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     );
   });
 
-  it('Heute zeigt die Zeile „Hinweise“ mit offenen und hohen; sie führt zu allen Hinweisen', async () => {
-    // NAV-10 1.1 (Vorlage Main.dc.html): statt der Karte „Wo du handeln musst“ eine Zeile; die
-    // wichtigsten Hinweise stehen auf /hinweise oben in „Als Nächstes“ und „Das Wichtigste“.
-    const handle = api.handle;
-    api.handle = (request) =>
-      request.url === '/api/start/mein-tag'
-        ? Response.json(myDayResponse({ hints: { open: 5, high: 2 } }))
-        : handle?.(request);
-    renderAt('/heute');
-    const row = await screen.findByRole('link', { name: /^Hinweise/ });
-    expect(row.getAttribute('href')).toBe('/hinweise');
-    expect(within(row).getByText('5 offen, 2 mit hoher Wirkung')).toBeTruthy();
+  it('Heute, Ansicht Alles, zeigt die Hinweise, über die andere entscheiden; jede Zeile führt zum Hinweis', async () => {
+    // HE-01 (K1-e): statt der Zeile „Hinweise“ auf Mein Tag die Gruppe „Hinweise“ in der Ansicht
+    // Alles; Hinweise, über die die Person entscheidet, stehen als Fokus-Thema unter „Für dich“.
+    api.todayAll = todayAllResponse({
+      hints: [
+        {
+          id: '0190a0a0-0000-7000-8000-000000000071',
+          title: 'Liefertreue sinkt seit drei Monaten',
+          ruleKey: 'performance_drop',
+          supplier: 'Silesia Guss',
+          relationshipId: '0190a0a0-0000-7000-8000-000000000072',
+          severity: 'high',
+          materialGroup: 'Guss',
+          openSince: '2026-11-20T06:00:00.000Z',
+          suggestedAction: null,
+          href: '/hinweise/0190a0a0-0000-7000-8000-000000000071',
+        },
+      ],
+    });
+    renderAt('/heute?ansicht=alles');
+    const group = await screen.findByRole('region', { name: 'Hinweise · 1' });
+    const row = within(group).getByRole('link', { name: /Liefertreue sinkt/ });
+    expect(row.getAttribute('href')).toBe('/hinweise/0190a0a0-0000-7000-8000-000000000071');
+    expect(within(row).getByText('hoch')).toBeTruthy();
+    expect(row.textContent).toContain('Silesia Guss · Leistung kippt · Guss');
   });
 
   it('Einstellungen KI › Hinweise: Regel ausschalten, Schwelle ändern, Bewertung je Regel', async () => {

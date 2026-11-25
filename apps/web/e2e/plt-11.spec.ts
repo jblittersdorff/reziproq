@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { mockToday } from './today-fixture.js';
 
 // Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: globale Leiste, Maße,
 // Tastatur, Zurück-Knopf des Browsers und Menüseite.
@@ -118,6 +119,8 @@ async function signIn(page: Page, { admin = false } = {}) {
       },
     }),
   );
+  // HE-01 (K1-e): Heute mit „Als Nächstes“ aus der Triage
+  await mockToday(page);
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
   return zitadel;
 }
@@ -191,12 +194,14 @@ test('Jedes Ziel der globalen Leiste ist von jeder Seite mit einem Klick erreich
     for (const target of barTargets) {
       await page.goto(from.path);
       await expect(page.locator('#inhalt h1')).toBeVisible({ timeout: 15_000 });
-      await bar(page).getByRole('link', { name: target.name, exact: true }).click();
+      // An Heute steht die Zahl der offenen Fokus-Themen (NAV-10 2.0).
+      const link = () =>
+        target.name === 'Heute'
+          ? bar(page).getByRole('link', { name: /^Heute\s*\d*$/ })
+          : bar(page).getByRole('link', { name: target.name, exact: true });
+      await link().click();
       await expect(page).toHaveURL(url(target.path));
-      await expect(bar(page).getByRole('link', { name: target.name, exact: true })).toHaveAttribute(
-        'aria-current',
-        'page',
-      );
+      await expect(link()).toHaveAttribute('aria-current', 'page');
       await expect(bar(page).locator('[aria-current="page"]')).toHaveCount(1);
     }
   }
@@ -344,7 +349,7 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
   await pageSettled(page);
 
   // Seitenleiste von oben: Logo, Frag Reziproq, vier Hauptpunkte, Mein Agent, Einstellungen,
-  // Person; danach der Knopf der Karte „Als Nächstes“.
+  // Person; danach im Inhalt der Umschalter Fokus | Alles (HE-01, Vorlage Main).
   const expected = [
     'Zum Inhalt springen',
     'Reziproq',
@@ -356,7 +361,7 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     'Mein Agent',
     'Einstellungen',
     'Profil',
-    'Rheintal',
+    'Fokus',
   ];
   const visited: string[] = [];
   for (const _ of expected) {
@@ -403,8 +408,13 @@ test('Der Sprung-Link führt an der Navigation vorbei zum Inhalt', async ({ page
   await expect(page.getByRole('link', { name: 'Zum Inhalt springen' })).toBeVisible();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Tab');
-  // Der erste Halt im Inhalt ist der Knopf der Karte „Als Nächstes“, nicht die Seitenleiste.
-  await expect(page.locator('#inhalt [data-slot="next-card"] a')).toBeFocused();
+  // Der erste Halt im Inhalt ist der Umschalter Fokus | Alles über der Karte „Als Nächstes“
+  // (HE-01, Vorlage Main), nicht die Seitenleiste.
+  await expect(
+    page.locator('#inhalt').getByRole('navigation', { name: 'Ansicht' }).getByRole('link', {
+      name: 'Fokus',
+    }),
+  ).toBeFocused();
 });
 
 test('Es gibt nur ein helles Thema, auch bei dunkler Systemeinstellung', async ({ page }) => {

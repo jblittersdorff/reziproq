@@ -31,8 +31,8 @@ const move = (
 ): RouteMove => ({ from, to, package: pkg, status, ...(note ? { note } : {}) });
 
 export const routeMoves: readonly RouteMove[] = [
-  // Neue Hauptadressen (K1-d); ihre Seiten kommen mit K1-e, K2-b, K4-b und K1-f.
-  move('/heute', '/heute', 'K1-d', 'bleibt', 'zeigt bis K1-e Mein Tag'),
+  // Neue Hauptadressen (K1-d); ihre Seiten kommen mit K1-e (Heute), K2-b, K4-b und K1-f.
+  move('/heute', '/heute', 'K1-e', 'bleibt', 'Fokus und Alles'),
   move('/beziehungen', '/beziehungen', 'K1-d', 'bleibt', 'zeigt bis K2-b die Lieferantenliste'),
   move('/wert', '/wert', 'K1-d', 'bleibt', 'zeigt bis K4-b die Übersicht'),
   move('/mein-agent', '/mein-agent', 'K1-d', 'bleibt', 'zeigt bis K1-f die Seite Agenten'),
@@ -50,10 +50,14 @@ export const routeMoves: readonly RouteMove[] = [
   move('/wirkung', '/wert', 'K1-d', 'aktiv'),
 
   // Heute (HE-01): Alle Aufgaben, Maßnahmen, Hinweise und Neu eingegangen gehen in die Ansicht Alles.
-  move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e', 'geplant', 'Gruppe Zuordnen'),
-  move('/start/faellig', '/heute?ansicht=alles', 'K1-e', 'geplant'),
-  move('/start/massnahmen', '/heute?ansicht=alles', 'K1-e', 'geplant', 'Zusagen und Aufgaben'),
-  move('/hinweise/*', '/heute?ansicht=alles', 'K1-e', 'geplant', 'Gruppe Hinweise'),
+  // Neu eingegangen schaltet um, sobald Zuordnungen in Kurz prüfen stehen (K1-e.2), die Hinweise mit
+  // Warum (K1-e.4). Alle Aufgaben und Maßnahmen braucht der Start der Lieferantenseite bis K5-b; der
+  // Käufer erreicht sie von Heute aus nicht mehr.
+  move('/mein-tag/eingang', '/heute?ansicht=alles', 'K1-e.2', 'geplant', 'Gruppe Zuordnen'),
+  move('/start/faellig', '/heute?ansicht=alles', 'K5-b', 'geplant', 'beim Käufer schon Alles'),
+  move('/start/massnahmen', '/heute?ansicht=alles', 'K5-b', 'geplant', 'Zusagen und Aufgaben'),
+  move('/hinweise', '/heute?ansicht=alles', 'K1-e.4', 'geplant', 'Gruppe Hinweise'),
+  move('/hinweise/$id', '/warum/$id', 'K1-e.4', 'geplant', 'Warum zum Hinweis'),
 
   // Mein Agent (MA-01); eigene Agenten entfallen (E-K0-13).
   move('/einstellungen/ki/agenten/*', '/mein-agent', 'K1-f', 'geplant'),

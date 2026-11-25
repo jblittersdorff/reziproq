@@ -1,8 +1,9 @@
 import { expect, type Page, test } from '@playwright/test';
 import { signIn } from './route-walk.js';
+import { mockToday } from './today-fixture.js';
 
-// UX-20 Phase 2, seit K1-d nach NAV-10 2.0: Heute (bisher Mein Tag), Wert (bisher Übersicht) und
-// Alle Aufgaben im Rahmen. Ab 761 px
+// UX-20 Phase 2, seit K1-d nach NAV-10 2.0: Heute (seit K1-e nach HE-01), Wert (bisher Übersicht)
+// und Alle Aufgaben im Rahmen. Ab 761 px
 // Seitenleiste mit vier Hauptpunkten und Einstellungen, bis 760 px Tab-Leiste mit fünf Zielen, die
 // nichts verdeckt; bei 390 px kein seitliches Scrollen der Seite. Die Zahlen sind Testdaten.
 
@@ -78,16 +79,8 @@ async function mock(page: Page) {
   );
   const json = (path: string, body: unknown) =>
     page.route(path, (route) => route.fulfill({ json: body }));
-  // HE-01: Zahl an Heute aus der Triage
-  await json('**/api/heute', {
-    today: day(0),
-    next: null,
-    more: [],
-    openFocus: 3,
-    review: { count: 0, minutes: 0 },
-    done: { count: 0 },
-    background: null,
-  });
+  // HE-01: Heute aus der Triage (K1-e), Zahl an Heute 6
+  await mockToday(page);
   await json('**/api/start/mein-tag', {
     today: day(0),
     next: { scope: 'global', item: tasks[0], overdueDays: 2, minutes: 2 },
@@ -264,7 +257,7 @@ for (const target of pages) {
         await expect(tabBar).toBeHidden();
         await expect(
           sidebar.getByRole('link', { name: /^(Heute|Beziehungen|Warengruppen|Wert)/ }),
-        ).toHaveText(['Heute3', 'Beziehungen', 'Warengruppen', 'Wert']);
+        ).toHaveText(['Heute6', 'Beziehungen', 'Warengruppen', 'Wert']);
         await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
         await expect(sidebar.locator('[aria-current="page"]')).toHaveText(target.active);
       }

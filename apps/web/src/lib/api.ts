@@ -280,6 +280,7 @@ import {
   securedResultsSchema,
   segmentationSchema,
   segmentModelResponseSchema,
+  snoozeResultSchema,
   spendOverviewSchema,
   ssoHintSchema,
   ssoOverviewSchema,
@@ -308,7 +309,8 @@ import {
   type TeamRequest,
   teamResponseSchema,
   timelineSchema,
-  todaySchema,
+  todayAllSchema,
+  todayPageSchema,
   touchpointListSchema,
   touchpointSchema,
   transcriptSettingsSchema,
@@ -2087,13 +2089,25 @@ export const startQueryOptions = (accessToken: string) =>
   });
 
 // HE-01, NAV-10 2.0: Heute aus der Triage; die Seitenleiste liest daraus die Zahl an Heute und die
-// Zeile „Im Hintergrund“.
+// Zeile „Im Hintergrund“. Seite und Seitenleiste teilen sich die Abfrage (K1-e).
 export const todayQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['heute'],
-    queryFn: () => getJson('/heute', todaySchema, accessToken),
+    queryFn: () => getJson('/heute', todayPageSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/** HE-01 Ansicht Alles: alles Offene der Person in Gruppen (K1-e) */
+export const todayAllQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['heute', 'alles'],
+    queryFn: () => getJson('/heute/alles', todayAllSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** „Morgen erinnern“: Fokus-Thema bis zum nächsten Tag 07:00 zurückstellen (HE-01 Dienst 4) */
+export const snoozeTopic = (accessToken: string, id: string) =>
+  sendJson('POST', `/heute/${id}/morgen`, {}, snoozeResultSchema, accessToken);
 
 export const dueQueryOptions = (accessToken: string) =>
   queryOptions({
