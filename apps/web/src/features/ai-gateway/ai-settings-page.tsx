@@ -1,4 +1,5 @@
 import {
+  type AiMode,
   type AiSettings,
   aiFeatureValues,
   aiSettingsSchema,
@@ -9,7 +10,7 @@ import {
   templateAssumptionDefaults,
   type WorkerLevel,
 } from '@reziproq/shared';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { type FormEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { MeterBar } from '@/components/ui/meter-bar';
 import { NativeSelect } from '@/components/ui/native-select';
 import { RowsEditor } from '@/components/ui/rows-editor';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { SettingsGroup, SettingsLinkRow, SettingsRow } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import { Switch } from '@/components/ui/switch';
@@ -40,7 +42,7 @@ import { useToken as useAccessToken } from '@/features/ratings/use-rating';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
 import { PagePath } from '@/features/shell/page-path';
-import { aiSettingsQueryOptions, aiUsageQueryOptions, saveAiSettings } from '@/lib/api';
+import { aiSettingsQueryOptions, aiUsageQueryOptions, saveAiSettings, setAiMode } from '@/lib/api';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 
@@ -453,6 +455,8 @@ export function AiSettingsPage() {
               )}
             </form>
           )}
+          {/* DM-01 (K1-b.1): nur im Demo-Mandanten, gilt sofort und nicht mit dem Formular */}
+          {query.data?.demo && <DemoAnswersGroup mode={query.data.demo.mode} readOnly={readOnly} />}
           {/* KI-16: Regeln, Schwellen und Bewertung der Hinweise */}
           <HintRulesSection />
           {/* KI-07: Vorlauf des Termin-Briefings je Termintyp */}
@@ -535,6 +539,46 @@ function TasksGroup({
           </SettingsRow>
         );
       })}
+    </SettingsGroup>
+  );
+}
+
+/**
+ * Antworten im Demo-Mandanten (DM-01, Vorlage E-KI): Aufzeichnen, Abspielen oder Live. Nur im
+ * Demo-Mandanten sichtbar; die API kennt die Funktion anderswo nicht. Der Modus fake gilt nur für
+ * automatische Tests und steht hier nicht zur Wahl.
+ */
+function DemoAnswersGroup({ mode, readOnly }: { mode: AiMode; readOnly: boolean }) {
+  const text = useT().aiSettings;
+  const accessToken = useAccessToken();
+  const client = useQueryClient();
+  const options = aiSettingsQueryOptions(accessToken);
+  const save = useMutation({
+    mutationFn: (next: AiMode) => setAiMode(accessToken, next),
+    onSuccess: (result) =>
+      client.setQueryData(options.queryKey, (old) =>
+        old ? { ...old, demo: { mode: result.mode } } : old,
+      ),
+  });
+  return (
+    <SettingsGroup title={text.demoTitle}>
+      <SettingsRow label={text.demoAnswers} description={text.demoHint} wide>
+        <SegmentedControl<AiMode>
+          label={text.demoAnswers}
+          value={save.isPending && save.variables ? save.variables : mode}
+          disabled={readOnly}
+          onChange={(next) => save.mutate(next)}
+          options={(['record', 'replay', 'live'] as const).map((value) => ({
+            value,
+            label: text.demoModes[value],
+          }))}
+        />
+      </SettingsRow>
+      {save.isError && (
+        <p role="alert" className="px-4 py-3 text-destructive text-sm">
+          {text.demoFailed}
+        </p>
+      )}
     </SettingsGroup>
   );
 }

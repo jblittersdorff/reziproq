@@ -28,11 +28,13 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
 let settings: AiSettingsResponse;
 let usage: AiUsage;
 let sent: unknown[];
+let modes: unknown[];
 
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
   sent = [];
+  modes = [];
   api.me = { ...anna, orgRole: 'admin' };
   api.permissions = actionsFor.admin;
   settings = { settings: defaultAiSettings, euOnly: true, canEdit: true };
@@ -55,6 +57,10 @@ beforeEach(() => {
       return Response.json({ ...settings, settings: request.body });
     }
     if (request.url === '/api/ki/kontingent') return Response.json(usage);
+    if (request.url === '/api/einstellungen/ki/modus' && request.method === 'PUT') {
+      modes.push(request.body);
+      return Response.json(request.body);
+    }
     return undefined;
   };
 });
@@ -119,6 +125,28 @@ describe('KI-01 Einstellungen KI', () => {
         },
       }),
     );
+  });
+
+  it('DM-01 (K1-b.1): im Demo-Mandanten Antworten der KI aufzeichnen, abspielen oder live', async () => {
+    settings = { ...settings, demo: { mode: 'record' } };
+    renderAt('/einstellungen/ki');
+    const answers = await screen.findByRole('group', { name: 'Antworten der KI' });
+    expect(
+      (within(answers).getByRole('radio', { name: 'Aufzeichnen' }) as HTMLInputElement).checked,
+    ).toBe(true);
+    fireEvent.click(within(answers).getByRole('radio', { name: 'Abspielen' }));
+    await waitFor(() => expect(modes).toEqual([{ mode: 'replay' }]));
+    await waitFor(() =>
+      expect(
+        (within(answers).getByRole('radio', { name: 'Abspielen' }) as HTMLInputElement).checked,
+      ).toBe(true),
+    );
+  });
+
+  it('ohne Demo-Mandanten gibt es den Abschnitt nicht', async () => {
+    renderAt('/einstellungen/ki');
+    await screen.findByRole('switch', { name: 'Postfach' });
+    expect(screen.queryByRole('group', { name: 'Antworten der KI' })).toBeNull();
   });
 
   it('Protokoll: Läufe stehen in Erledigt', async () => {

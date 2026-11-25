@@ -1198,6 +1198,11 @@ export const layerRegister: Record<string, LayerEntry> = {
       provider: 'fake',
     }),
   },
+  // DM-01 (K1-b.1): Aufzeichnungen des Gateways, zusätzlich nur im Demo-Mandanten
+  model_call_recording: {
+    kind: 'org_private',
+    manual: 'DM-01: Aufzeichnungen nur im Demo-Mandanten',
+  },
   model_call: {
     kind: 'org_private',
     testValues: {

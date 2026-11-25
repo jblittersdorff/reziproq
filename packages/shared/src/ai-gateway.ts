@@ -33,6 +33,14 @@ export const aiFeatureClasses = {
   custom_agent: 'standard',
 } as const satisfies Record<string, ModelClass>;
 export type AiFeature = keyof typeof aiFeatureClasses;
+
+/**
+ * DM-01, KI-01: Modus der Modellantworten je Organisation. fake: festes Testmodell; record: live
+ * aufrufen und aufzeichnen; replay: Aufzeichnung zur Eingabe, sonst live; live. Nur Demo-Mandanten
+ * weichen von live ab (Prüfung in der Datenbank, organization_demo_modus).
+ */
+export const aiModeValues = ['fake', 'record', 'replay', 'live'] as const;
+export type AiMode = (typeof aiModeValues)[number];
 export const aiFeatureValues = Object.keys(aiFeatureClasses) as AiFeature[];
 
 /** Zugelassene öffentliche Quellen (Vorlage E-KI) */
@@ -87,7 +95,16 @@ export const aiSettingsResponseSchema = z.object({
   canEdit: z.boolean(),
   // Segmenttypen des aktiven Modells zur Auswahl für den monatlichen Lauf
   segmentTypes: z.array(z.object({ key: z.string(), name: z.string() })).optional(),
+  // DM-01 (K1-b.1): nur im Demo-Mandanten der Modus der Modellantworten, sonst null
+  demo: z
+    .object({ mode: z.enum(aiModeValues) })
+    .nullable()
+    .optional(),
 });
+
+/** DM-01 (K1-b.1): Modus der Modellantworten umschalten, nur im Demo-Mandanten */
+export const setAiModeSchema = z.object({ mode: z.enum(aiModeValues) }).strict();
+export type SetAiMode = z.infer<typeof setAiModeSchema>;
 export type AiSettingsResponse = z.infer<typeof aiSettingsResponseSchema>;
 
 /** Kontingent des Monats; die Aufteilung je Funktion sehen nur Admins. */

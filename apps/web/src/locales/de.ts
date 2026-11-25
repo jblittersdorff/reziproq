@@ -6007,6 +6007,15 @@ export const de = {
       'Was hier aus ist, läuft für niemanden in eurer Organisation. Wie viel Reziproq je Aufgabe selbst tut, stellt jede Person in Mein Agent ein; eine Stufe hier ist die Obergrenze.',
     taskCap: (name: string) => `Höchste Stufe für „${name}“`,
     capOption: (level: string) => `bis ${level}`,
+    demoTitle: 'Antworten im Demo-Mandanten',
+    demoAnswers: 'Antworten der KI',
+    demoHint:
+      'Abspielen: aufgezeichnete Antworten, jede Vorführung läuft gleich. Live: echte Aufrufe auf den Demo-Daten. Gilt sofort; nur im Demo-Mandanten sichtbar.',
+    demoModes: { record: 'Aufzeichnen', replay: 'Abspielen', live: 'Live' } as Record<
+      'record' | 'replay' | 'live',
+      string
+    >,
+    demoFailed: 'Der Modus konnte nicht umgestellt werden. Bitte noch einmal versuchen.',
     logTitle: 'Protokoll',
     logText:
       'Jeder Lauf ist mit seinen Schritten und Quellen gespeichert; das Warum eines Laufs zeigt sie.',

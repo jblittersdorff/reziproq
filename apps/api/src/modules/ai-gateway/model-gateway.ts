@@ -2,6 +2,7 @@ import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { and, currentTime, eq, schema, sql, systemTime } from '@reziproq/db';
 import {
   type AiFeature,
+  type AiMode,
   aiFeatureClasses,
   type DueItem,
   orgWorkerState,
@@ -17,6 +18,12 @@ import {
   RegionRejectedError,
   WorkerDisabledError,
 } from './gateway-errors.js';
+import {
+  isNoRecording,
+  type RecordingStore,
+  recordingModel,
+  type StoredResponse,
+} from './recording.js';
 import {
   costMicrocents,
   type GatewayProvider,
@@ -182,13 +189,87 @@ export class ModelGateway {
     let result: { value: T; usage: GatewayUsage };
     try {
       const modelId = modelIdFor(gatewayProvider(), aiFeatureClasses[context.feature]);
-      result = await work(await this.modelFor(modelId));
+      const base = this.testModel ?? (await this.modelFor(modelId));
+      // DM-01 (K1-b.1): Modus der Organisation; nur Demo-Mandanten weichen von live ab
+      const mode = await this.modeOf(context);
+      if (mode === 'fake') {
+        result = await work(null);
+      } else if (mode === 'live') {
+        result = await work(base);
+      } else {
+        const model = recordingModel(base, mode, context.feature, this.recordings(context));
+        try {
+          result = await work(model);
+        } catch (error) {
+          // Abspielen ohne Aufzeichnung und ohne Modell: das feste Testmodell des Aufrufers
+          if (!isNoRecording(error)) throw error;
+          result = await work(null);
+        }
+      }
     } catch (error) {
       await finish();
       throw error;
     }
     await finish(result.usage);
     return result.value;
+  }
+
+  /** Nur für Tests: Modell statt des Anbieters aus der Umgebung (z. B. MockLanguageModelV4) */
+  testModel: LanguageModel | null = null;
+
+  /** Modus der Organisation (DM-01): fake, record, replay oder live */
+  private async modeOf(context: Pick<GatewayContext, 'orgId' | 'userId'>): Promise<AiMode> {
+    return this.tenant.run(
+      { userId: context.userId, organizationId: context.orgId },
+      async (tx) => {
+        const [row] = await tx
+          .select({ mode: schema.organization.aiMode, demo: schema.organization.isDemo })
+          .from(schema.organization)
+          .where(eq(schema.organization.id, context.orgId));
+        return row?.demo ? row.mode : 'live';
+      },
+      { readOnly: true },
+    );
+  }
+
+  /** Aufzeichnungen der Organisation (model_call_recording, nur im Demo-Mandanten) */
+  private recordings(context: Pick<GatewayContext, 'orgId' | 'userId'>): RecordingStore {
+    const session = { userId: context.userId, organizationId: context.orgId };
+    return {
+      find: (feature, inputHash) =>
+        this.tenant.run(
+          session,
+          async (tx) => {
+            const [row] = await tx
+              .select({ response: schema.modelCallRecording.response })
+              .from(schema.modelCallRecording)
+              .where(
+                and(
+                  eq(schema.modelCallRecording.orgId, context.orgId),
+                  eq(schema.modelCallRecording.feature, feature),
+                  eq(schema.modelCallRecording.inputHash, inputHash),
+                ),
+              );
+            return (row?.response as StoredResponse | undefined) ?? null;
+          },
+          { readOnly: true },
+        ),
+      save: async (feature, inputHash, response, modelId) => {
+        await this.tenant.run(session, (tx) =>
+          tx
+            .insert(schema.modelCallRecording)
+            .values({ orgId: context.orgId, feature, inputHash, response, modelId })
+            .onConflictDoUpdate({
+              target: [
+                schema.modelCallRecording.orgId,
+                schema.modelCallRecording.feature,
+                schema.modelCallRecording.inputHash,
+              ],
+              set: { response, modelId, createdAt: sql`app_now()` },
+            }),
+        );
+      },
+    };
   }
 
   async budgetDue(context: Pick<GatewayContext, 'orgId' | 'userId'>): Promise<DueItem[]> {

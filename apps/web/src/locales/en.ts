@@ -5858,6 +5858,15 @@ export const en: Messages = {
       'What is off here runs for nobody in your organisation. How much Reziproq does itself per task is set by each person in My agent; a level here is the upper limit.',
     taskCap: (name: string) => `Highest level for “${name}”`,
     capOption: (level: string) => `up to ${level}`,
+    demoTitle: 'Answers in the demo tenant',
+    demoAnswers: 'AI answers',
+    demoHint:
+      'Replay: recorded answers, every demo runs the same. Live: real calls on the demo data. Applies immediately; only visible in the demo tenant.',
+    demoModes: { record: 'Record', replay: 'Replay', live: 'Live' } as Record<
+      'record' | 'replay' | 'live',
+      string
+    >,
+    demoFailed: 'The mode could not be changed. Please try again.',
     logTitle: 'Log',
     logText: 'Every run is stored with its steps and sources; the why of a run shows them.',
     logLink: 'What Reziproq did for you',

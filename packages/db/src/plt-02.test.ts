@@ -183,6 +183,7 @@ describe('PLT-02 in der Datenbank', () => {
       'meeting_snapshot',
       'meeting_transcript',
       'model_call',
+      'model_call_recording',
       'note',
       'notification',
       'notification_channel',

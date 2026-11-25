@@ -1,5 +1,16 @@
 import { sql } from 'drizzle-orm';
-import { bigint, check, index, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  check,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { organization } from './organization.js';
 
 export const modelClasses = ['small', 'standard', 'synthesis'] as const;
@@ -46,5 +57,30 @@ export const modelCall = pgTable(
     ),
     index('model_call_org_run').on(table.orgId, table.runId),
     index('model_call_org_month').on(table.orgId, table.createdAt),
+  ],
+);
+
+/**
+ * DM-01, KI-01 (K1-b.1): Aufgezeichnete Modellantwort im Demo-Mandanten. Im Modus record speichert
+ * das Gateway jede Antwort zum Hash ihrer Eingabe; im Modus replay liefert es sie wieder, ohne das
+ * Modell aufzurufen. IDs in Eingabe und Antwort stehen als Platzhalter, damit eine Aufzeichnung
+ * nach „Zurücksetzen“ mit neuen IDs wieder passt. Nur Demo-Mandanten (Policy in Migration 0136).
+ */
+export const modelCallRecording = pgTable(
+  'model_call_recording',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    feature: text().notNull(),
+    inputHash: text().notNull(),
+    /** Antwort des Modells (Inhalt, Ende, strukturierter Text), IDs als Platzhalter */
+    response: jsonb().notNull(),
+    modelId: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+  },
+  (table) => [
+    unique('model_call_recording_eingabe').on(table.orgId, table.feature, table.inputHash),
   ],
 );

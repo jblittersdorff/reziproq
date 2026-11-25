@@ -11,13 +11,24 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { and, auditedChange, currentTime, desc, eq, schema, sql } from '@reziproq/db';
+import {
+  and,
+  auditedChange,
+  currentTime,
+  desc,
+  eq,
+  schema,
+  sql,
+  type TenantTransaction,
+} from '@reziproq/db';
 import {
   type AiSettings,
   type AiSettingsResponse,
   type AiUsage,
   aiSettingsSchema,
   centsFromMicrocents,
+  type SetAiMode,
+  setAiModeSchema,
 } from '@reziproq/shared';
 import { TenantDatabase } from '../../common/database.module.js';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
@@ -69,6 +80,7 @@ export class AiSettingsController {
             key: `${type.impact}-${type.quality}`,
             name: type.name,
           })),
+          demo: await demoModeOf(tx, organization.id),
         };
       },
       { readOnly: true },
@@ -118,8 +130,40 @@ export class AiSettingsController {
           };
         });
       }
-      return { settings: body, euOnly: true as const, canEdit: true };
+      return {
+        settings: body,
+        euOnly: true as const,
+        canEdit: true,
+        demo: await demoModeOf(tx, organization.id),
+      };
     });
+  }
+
+  /**
+   * DM-01 (K1-b.1): Modus der Modellantworten. Nur Admins, nur im Demo-Mandanten; anderswo gibt es
+   * die Funktion nicht (404). Die Datenbank ändert ai_mode nur für die eigene Demo-Organisation.
+   */
+  @Put('modus')
+  @Requires('einstellungen.verwalten')
+  async setMode(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(setAiModeSchema)) body: SetAiMode,
+  ): Promise<SetAiMode> {
+    const organization = buyerOrganization(auth);
+    if (!can(auth, 'einstellungen.verwalten') || auth.orgRole !== 'admin') throw forbidden();
+    const changed = await this.tenant.run(
+      { userId: auth.userId, organizationId: organization.id },
+      async (tx) => {
+        const [row] = (
+          await tx.execute<{ changed: boolean }>(
+            sql`select app_demo_modus_setzen(${body.mode}) as changed`,
+          )
+        ).rows;
+        return row?.changed === true;
+      },
+    );
+    if (!changed) throw new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
+    return { mode: body.mode };
   }
 }
 
@@ -191,4 +235,13 @@ export class InsightReportController {
     );
     if (!found) throw new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
   }
+}
+
+/** Modus der Modellantworten, nur für Demo-Mandanten (DM-01); sonst null */
+async function demoModeOf(tx: TenantTransaction, orgId: string) {
+  const [row] = await tx
+    .select({ demo: schema.organization.isDemo, mode: schema.organization.aiMode })
+    .from(schema.organization)
+    .where(eq(schema.organization.id, orgId));
+  return row?.demo ? { mode: row.mode } : null;
 }

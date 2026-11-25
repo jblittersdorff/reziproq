@@ -8,6 +8,7 @@ import {
   type AddAssignment,
   type AddinRegister,
   type AdoptOpportunity,
+  type AiMode,
   type AiSettings,
   type AnalysisStep,
   type ApprovalSettings,
@@ -277,6 +278,7 @@ import {
   securedResultsSchema,
   segmentationSchema,
   segmentModelResponseSchema,
+  setAiModeSchema,
   snoozeResultSchema,
   spendOverviewSchema,
   ssoHintSchema,
@@ -2153,6 +2155,10 @@ export const doneQueryOptions = (accessToken: string) =>
 /** Zurücknehmen bis 30 Tage, solange das Objekt unverändert ist */
 export const undoDone = (accessToken: string, id: string) =>
   sendJson('POST', `/erledigt/${id}/zuruecknehmen`, {}, undoResultSchema, accessToken);
+
+/** DM-01 (K1-b.1): Modus der Modellantworten im Demo-Mandanten umschalten */
+export const setAiMode = (accessToken: string, mode: AiMode) =>
+  sendJson('PUT', '/einstellungen/ki/modus', { mode }, setAiModeSchema, accessToken);
 
 /** MA-01 Mein Agent (K1-f): eigene Stufen je Aufgabe, Übernahmequote, Zahlen der Woche */
 export const myAgentQueryOptions = (accessToken: string) =>
