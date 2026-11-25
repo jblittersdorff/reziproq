@@ -10,8 +10,8 @@ import {
 import { describe, expect, it } from 'vitest';
 import { meetingBrief } from './system-agents.js';
 
-// MA-01 (Paket K1-a, Daten): Registry der Aufgaben von Reziproq. Die Seite Mein Agent und die
-// Leitplanken-Tests je Werkzeug folgen in K1-f; hier gilt, dass die Daten in sich stimmen.
+// MA-01 (Paket K1-a, Daten): Registry der Aufgaben von Reziproq; hier gilt, dass die Daten in sich
+// stimmen. Stufen: ma-01-levels.test.ts; Leitplanken je Werkzeug: ma-01-leitplanken.test.ts (K1-f).
 
 describe('MA-01 Registry der Aufgaben', () => {
   it('kennt alle Aufgaben aus der Tabelle in MA-01, jede genau einmal', () => {

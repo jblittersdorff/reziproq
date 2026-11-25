@@ -789,16 +789,19 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
     content: string;
     claims: { key: string; text: string }[] | null;
     review_seconds: number | null;
+    run_id: string | null;
   }>(sql`
     select d.id, d.kind, d.object_type, d.object_id, d.relationship_id, d.subject, d.content,
-      d.claims, d.review_seconds
+      d.claims, d.review_seconds, d.run_id
     from ai_draft d
     where d.org_id = ${organization.id} and d.created_by = ${auth.userId} and d.status = 'draft'
-      and d.relationship_id is not null
-      and (d.kind = 'share_request' or d.claims is not null)
+      -- MA-01 (K1-f.2): Ein bindendes Werkzeug ohne Token kann auch ohne Beziehung wirken
+      -- (z. B. Wertbericht senden); es gehört der Person, für die der Lauf handelte.
+      and (d.relationship_id is not null or d.kind = 'binding_request')
+      and (d.kind in ('share_request', 'binding_request') or d.claims is not null)
       -- Die Begründung eines Hinweises gehört zum Hinweis (Warum), nicht in Kurz prüfen (K1-e.2).
       and d.kind <> 'hint_explanation'
-      and (${admin} or exists (
+      and (${admin} or d.kind = 'binding_request' or exists (
         select 1 from relationship_member m
         where m.relationship_id = d.relationship_id and m.org_id = d.org_id
           and m.user_id = ${auth.userId} and (d.kind = 'share_request' or m.team_role = 'sro')))
@@ -807,7 +810,7 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
     ? await visibleRelationships(tx, { orgId: organization.id, userId: auth.userId, admin })
     : new Map<string, string>();
   return rows.rows.map((row) => {
-    const relationshipId = row.relationship_id as string;
+    const relationshipId = row.relationship_id;
     const meetingPage = row.kind.startsWith('capture_') && row.object_type === 'meeting';
     return {
       id: row.id,
@@ -819,12 +822,21 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
       content: row.content,
       claims: row.claims,
       reviewSeconds: row.review_seconds,
-      counterpart: names.get(relationshipId) ?? null,
+      counterpart: relationshipId ? (names.get(relationshipId) ?? null) : null,
       href: !organization.buyer
         ? null
-        : meetingPage
-          ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.object_id}`
-          : preparedHref(row.kind, row.object_id, relationshipId),
+        : row.kind === 'binding_request'
+          ? // Warum zum Lauf: was er tun wollte und wo er an der Leitplanke endete (K1-f.2)
+            row.run_id
+            ? `/warum/${row.run_id}`
+            : relationshipId
+              ? preparedHref(row.kind, row.object_id, relationshipId)
+              : null
+          : !relationshipId
+            ? null
+            : meetingPage
+              ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.object_id}`
+              : preparedHref(row.kind, row.object_id, relationshipId),
     };
   });
 }

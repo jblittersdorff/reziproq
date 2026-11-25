@@ -147,6 +147,29 @@ describe('HE-01 Warum', () => {
     ).toBe('/heute');
   });
 
+  it('MA-01 Leitplanken: ein an einem bindenden Werkzeug angehaltener Lauf heißt „abgebrochen“ und nennt den Schritt', async () => {
+    views[uuid(3)] = {
+      ...run,
+      run: { ...run.run, id: uuid(3), status: 'cancelled' },
+      steps: [
+        { seq: 1, title: 'Daten lesen', kind: 'tool', status: 'done' },
+        {
+          seq: 2,
+          title: 'Bindende Handlung: wartet auf die Bestätigung eines Menschen',
+          kind: 'check',
+          status: 'failed',
+        },
+      ],
+    };
+    renderAt(`/warum/${uuid(3)}`);
+    const facts = await screen.findByRole('region', { name: 'Lauf' });
+    expect(within(facts).getByText('abgebrochen')).toBeTruthy();
+    const steps = screen.getByRole('region', { name: 'Was Reziproq getan hat' });
+    expect(
+      within(steps).getByText('Bindende Handlung: wartet auf die Bestätigung eines Menschen'),
+    ).toBeTruthy();
+  });
+
   it('Fokus-Thema: Rechenweg aus den Fakten, Punktzahl mit Platz und der geprüfte Satz', async () => {
     renderAt(`/warum/${uuid(1)}`);
     expect(

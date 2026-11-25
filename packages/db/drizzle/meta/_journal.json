@@ -946,6 +946,13 @@
       "when": 1795634028873,
       "tag": "0134_k1f_aufgaben",
       "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1795635797299,
+      "tag": "0135_k1f_leitplanken",
+      "breakpoints": true
     }
   ]
 }

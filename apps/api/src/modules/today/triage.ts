@@ -10,6 +10,7 @@ import {
   type ImpactSeverity,
   relationshipOfHref,
   type SentenceFact,
+  toolByKey,
   type WorkerLevel,
 } from '@reziproq/shared';
 
@@ -267,6 +268,26 @@ export function fromDraft(draft: DraftRow, locale: Locale): TriageCandidate {
   const binding = bindingCapture(draft);
   const share = draft.kind === 'share_request';
   const release = toCounterpart.has(draft.kind);
+  // MA-01 Leitplanken (K1-f.2): ein bindendes Werkzeug ohne Token; gegenüber dem Lieferanten eine
+  // Freigabe, intern eine Entscheidung, nie Kurz prüfen
+  const guarded =
+    draft.kind === 'binding_request' ? (toolByKey(draft.subject ?? '') ?? null) : null;
+  if (draft.kind === 'binding_request') {
+    const outward = guarded?.bindingScope !== 'intern';
+    return {
+      ...fromDraftBase(draft),
+      level: 'focus',
+      kind: outward ? 'approval' : 'decision',
+      title: titleOf(draft.content.split('\n')[0], draft.subject, draft.kind),
+      sentence: outward
+        ? de
+          ? 'Reziproq will etwas tun, das deine Seite gegenüber dem Lieferanten bindet. Das braucht deine Freigabe.'
+          : 'Reziproq wants to do something that binds your side towards the supplier. It needs your approval.'
+        : de
+          ? 'Reziproq will etwas tun, das deine Organisation bindet. Das braucht deine Entscheidung.'
+          : 'Reziproq wants to do something that binds your organisation. It needs your decision.',
+    };
+  }
   const level: FocusTopicLevel = share || release || binding ? 'focus' : 'review';
   const kind: FocusTopicKind = share || release ? 'approval' : binding ? 'decision' : 'draft';
   const sentence = share
@@ -283,8 +304,7 @@ export function fromDraft(draft: DraftRow, locale: Locale): TriageCandidate {
           : 'Commitment on behalf of your side. It needs your decision.'
         : templateOf(locale, 'draft');
   return {
-    sourceType: 'ai_draft',
-    sourceId: draft.id,
+    ...fromDraftBase(draft),
     level,
     kind,
     title: titleOf(
@@ -295,6 +315,14 @@ export function fromDraft(draft: DraftRow, locale: Locale): TriageCandidate {
       draft.kind,
     ),
     sentence,
+  };
+}
+
+/** Felder eines Entwurfs, die jede Abbildung gleich setzt */
+function fromDraftBase(draft: DraftRow) {
+  return {
+    sourceType: 'ai_draft' as const,
+    sourceId: draft.id,
     facts: [],
     objectType: draft.objectType,
     objectId: draft.objectId,

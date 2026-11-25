@@ -38,6 +38,10 @@ export const whyMessages = defineMessages({
         failed: 'fehlgeschlagen',
         running: 'läuft',
         queued: 'wartet',
+        // MA-01 Leitplanken (K1-f.2): an einem bindenden Werkzeug ohne Token angehalten
+        cancelled: 'abgebrochen',
+        waiting_input: 'wartet auf Antwort',
+        aborted_budget: 'Budget erreicht',
       } as Record<string, string>,
     },
     topic: {
@@ -129,10 +133,15 @@ export const whyMessages = defineMessages({
       may: 'May',
       mayNothing: 'send nothing, share nothing',
       undone: 'undone',
-      status: { done: 'done', failed: 'failed', running: 'running', queued: 'waiting' } as Record<
-        string,
-        string
-      >,
+      status: {
+        done: 'done',
+        failed: 'failed',
+        running: 'running',
+        queued: 'waiting',
+        cancelled: 'cancelled',
+        waiting_input: 'waiting for an answer',
+        aborted_budget: 'budget reached',
+      } as Record<string, string>,
     },
     topic: {
       title: 'Why is this here?',

@@ -299,6 +299,11 @@ export type WorkerKey = (typeof workers)[number]['key'];
 /** Werkzeug, das ein Objekt in die Mitte stellt; bindet immer gegenüber der anderen Seite (ZA-01). */
 export const shareTool: WorkerTool = bindsCounterpart('share.to_shared');
 
+/** Werkzeug aus der Registry (mit dem Werkzeug zum Teilen in die Mitte) */
+export function toolByKey(key: string): WorkerTool | undefined {
+  return [...workers.flatMap((worker) => worker.tools), shareTool].find((tool) => tool.key === key);
+}
+
 export function workerByKey(key: string): Worker | undefined {
   return workers.find((worker) => worker.key === key);
 }

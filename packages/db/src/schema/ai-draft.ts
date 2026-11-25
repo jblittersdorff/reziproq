@@ -61,6 +61,9 @@ export const aiDraftKinds = [
   // ZA-01 Regel 3: Ein Lauf wollte ein Objekt ohne Token in die Mitte stellen; ein Mensch prüft
   // (object_type ist die Tabelle des Objekts)
   'share_request',
+  // MA-01 Leitplanken (K1-f.2): Ein Lauf wollte ein bindendes Werkzeug ohne Token eines Menschen
+  // ausführen; subject ist der Schlüssel des Werkzeugs, ein Mensch bestätigt im Fokus
+  'binding_request',
 ] as const;
 export const aiDraftStatuses = ['draft', 'accepted', 'discarded'] as const;
 /** AU-01: Kennzeichnung beim Senden in die Mitte */
@@ -101,7 +104,7 @@ export const aiDraft = pgTable(
   (table) => [
     check(
       'ai_draft_kind',
-      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary', 'agent_result', 'share_request')`,
+      sql`${table.kind} in ('deviation_explanation', 'feedback_themes', 'plan_summary', 'pre_read', 'market_analysis', 'data_request', 'qbr_topics', 'qbr_risks', 'qbr_open_points', 'hint_explanation', 'brief_situation', 'brief_goals', 'brief_agenda', 'brief_internal_questions', 'brief_supplier_questions', 'brief_expected_questions', 'brief_risks', 'brief_open_points', 'capture_commitment', 'capture_action', 'capture_decision', 'capture_question', 'capture_commitment_change', 'capture_goal_check', 'mail_summary', 'agent_result', 'share_request', 'binding_request')`,
     ),
     check('ai_draft_status', sql`${table.status} in ('draft', 'accepted', 'discarded')`),
     check(
