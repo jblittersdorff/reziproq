@@ -89,10 +89,14 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
     );
     expect(stack.items.filter((item) => item.source === 'ai_draft')).toHaveLength(4);
     expect(stack.items.filter((item) => item.source === 'inbound')).toHaveLength(1);
-    const discard = stack.items.find((item) => item.source === 'ai_draft');
+    // Wie im Drehbuch-Test (K1-g.5): übernommen werden das Briefing, beide anderen Entwürfe und die
+    // Mail; verworfen wird die Entscheidung zur Prognose
+    const discard = stack.items.find((item) => item.title.startsWith('Prognose ab Januar'));
+    expect(stack.items.find((item) => item.title === 'Briefing JBP: 3 Ziele')).toBeDefined();
     for (const item of stack.items.filter((entry) => entry.id !== discard?.id)) {
       expect(
         (await call('POST', `/kurz-pruefen/${item.id}`, { decision: 'uebernehmen' })).status,
+        item.title,
       ).toBeLessThan(300);
     }
     expect(
@@ -126,11 +130,14 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
     const signal = await call('POST', '/demo/regie/signal', { key: 'mail_kim_kaiser' });
     expect(signal.body).toMatchObject({ status: 'applied', objectType: 'inbound_item' });
     const stack = reviewStackSchema.parse((await call('GET', '/kurz-pruefen')).body);
-    expect(
-      stack.items.some(
-        (item) => item.source === 'inbound' && item.title.includes('Musterteile Starrflex'),
-      ),
-    ).toBe(true);
+    const mail = stack.items.find(
+      (item) => item.source === 'inbound' && item.title.includes('Musterteile Starrflex'),
+    );
+    expect(mail).toBeDefined();
+    // Der Grund ist die Stufe, nicht ein fehlender Zugriff (Jan-Luka darf bei Rheintal ablegen)
+    expect(mail?.inbound?.reason).toBe(
+      'Rheintal Elektronik: rheintal.example. Auf Stufe Vorbereiten legt das Postfach Mails nicht selbst ab.',
+    );
     expect((await done()).rows.filter((row) => row.sender === 'Kim Kaiser')).toHaveLength(before);
   });
 

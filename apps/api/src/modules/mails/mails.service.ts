@@ -18,6 +18,7 @@ import {
   type MailDetectRequest,
   mailDetectRequestSchema,
   maxAttachmentBytes,
+  type WorkerLevel,
 } from '@reziproq/shared';
 import { generateText } from 'ai';
 import { TenantDatabase } from '../../common/database.module.js';
@@ -487,9 +488,7 @@ export class MailsService implements OnModuleInit {
                 ? `Absender und Empfänger von ${prepared.domains.join(', ')} sind noch keinem Lieferanten zugeordnet.`
                 : 'In der weitergeleiteten Mail steht keine Adresse eines Lieferanten.'
               : `${prepared.matches.map((match) => `${match.name}: ${match.domains.join(', ')}`).join(' · ')}.${
-                  kind === 'supplier'
-                    ? ' Die weiterleitende Person darf hier keine Mails ablegen.'
-                    : ''
+                  kind === 'supplier' ? supplierReason(inboxLevel) : ''
                 }`,
           suggestedType: 'other',
           status: 'needs_review',
@@ -836,6 +835,23 @@ function pendingDetails(
 }
 
 /** Name des Absenders aus den Ansprechpartnern des Lieferanten, sonst seine Adresse (K1-g.2) */
+// Namen der Stufen wie in Mein Agent (MA-01)
+const levelNames: Record<WorkerLevel, string> = {
+  suggest: 'Vorschlagen',
+  prepare: 'Vorbereiten',
+  do: 'Erledigen',
+};
+
+/**
+ * Warum ein eindeutiger Lieferant nicht selbst abgelegt wurde: Unterhalb von Erledigen ist es die
+ * Stufe des Postfachs (MA-01, K1-f), auf Erledigen fehlt der weiterleitenden Person der Zugriff.
+ */
+function supplierReason(level: WorkerLevel | null) {
+  return level && level !== 'do'
+    ? ` Auf Stufe ${levelNames[level]} legt das Postfach Mails nicht selbst ab.`
+    : ' Die weiterleitende Person darf hier keine Mails ablegen.';
+}
+
 async function senderOf(tx: TenantTransaction, relationshipId: string, email: string) {
   const [contact] = (
     await tx.execute<{ name: string }>(sql`

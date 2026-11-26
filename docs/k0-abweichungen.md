@@ -212,6 +212,15 @@ Weitere Punkte:
   - **Offen:** Dasselbe Muster (`toISOString().slice(0, 10)` für ein Datum) steht an 28 weiteren Stellen der API.
     - 26 meinen fachlich „heute“: Fristen und Überfälligkeit (Maßnahmen, Zusagen, Runden, Wellen, JBP, Beiträge), Briefing, Übersicht und Zyklus, Wirkung und Portfolio, Hinweise, Wertpotenziale, Markt, Erinnerungs-Jobs, Kontingent des Monats und Geschäftsjahr.
     - 2 sind Dateinamen (PDF, Excel-Export).
+- **B-34 Weitergeleitete Mails in Heute und Kurz prüfen (gefunden am 26.11.2026 mit dem Drehbuch K1; Begründung behoben, Anzeige offen).**
+  - **Absender:** Kurz prüfen zeigt „Mail von nils-ott@rheintal.example“, also die Adresse statt des Namens (`inbound_from` in `review.service.ts`). Erledigt nennt seit K1-g.2 den Namen aus den Ansprechpartnern der Beziehung.
+  - **Ohne Betreff:** Eine Mail ohne Betreff bekommt den Betreff „–“ (`mails.service.ts`).
+    - In Kurz prüfen heißt die Karte dann „Mail zuordnen: –“.
+    - In Heute, Ansicht Alles, Gruppe „Zuordnen“ steht als Titel nur „–“.
+    - Vorschlag: „Mail von Nils Ott“ als Titel, wie in Erledigt.
+  - **Folge für die Demo:** In den Schritten 3 und 4 des Drehbuchs K1 sieht man die Mail von Nils Ott so. Der Drehbuch-Test prüft Gruppe, Vorschlag und Karte, nicht diesen Titel.
+  - **Nebenbefund:** In Heute, Ansicht Alles, steht „1 offene Zusagen und Aufgaben bei 1 Beziehung“, im Plural auch bei 1.
+  - **Behoben in K1-g.5:** Die Begründung einer Mail, die auf Stufe Vorbereiten in Kurz prüfen wartet, nannte einen fehlenden Zugriff („Die weiterleitende Person darf hier keine Mails ablegen.“). Seit MA-01 (K1-f) ist der Grund aber die Stufe. Jetzt nennt sie die Stufe: „Auf Stufe Vorbereiten legt das Postfach Mails nicht selbst ab.“
 
 ## c) Widersprüche zwischen den Specs
 

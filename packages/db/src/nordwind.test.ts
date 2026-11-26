@@ -107,6 +107,18 @@ describe('demo:nordwind', () => {
     expect(jbp?.duration_minutes).toBe(120);
   });
 
+  it('KI-03: jeder Entwurf im Seed hat zu jeder Aussage eine Quelle, wie createBuyerDraft es verlangt', async () => {
+    const drafts = await query<{ id: string; claims: number; missing: number }>(sql`
+      select d.id, jsonb_array_length(d.claims)::int as claims,
+             (select count(*)::int from jsonb_array_elements(d.claims) c
+               where not exists (select 1 from ai_source s
+                                  where s.draft_id = d.id and s.claim_key = c ->> 'key')) as missing
+        from ai_draft d
+       where d.org_id = ${nordwind.org.id} and d.status = 'draft'`);
+    expect(drafts.length).toBeGreaterThan(0);
+    expect(drafts.filter((draft) => draft.claims === 0 || draft.missing > 0)).toEqual([]);
+  });
+
   it('G-10: nur synthetische Personen; die Demo-Sitzung findet sie, andere Mandanten nicht', async () => {
     const emails = await query<{ email: string }>(sql`
       select u.email from app_user u join organization o on o.id = u.organization_id

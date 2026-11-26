@@ -601,7 +601,14 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
         ],
       },
       claim: 'Briefing JBP: 3 Ziele',
-      source: null,
+      // Wie im Termin-Briefing: Beleg der Ziele ist der Termin selbst. Ohne Quelle gibt es keinen
+      // Entwurf (KI-03), und Übernehmen scheitert an der Ansicht des Briefings.
+      source: {
+        objectType: 'meeting',
+        objectId: refs.jbpMeetingId,
+        meetingId: refs.jbpMeetingId,
+        title: 'JBP Rheintal 2027',
+      },
     },
     {
       id: nid(611),
@@ -620,7 +627,12 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
         dueOn: '2026-11-27',
       }),
       claim: 'Liefertreue Oktober: 94 % übernehmen',
-      source: { captureId: captureRheintal, meetingId: pastRheintal, title: 'Notizen vom 20.11.' },
+      source: {
+        objectType: 'meeting_capture',
+        objectId: captureRheintal,
+        meetingId: pastRheintal,
+        title: 'Notizen vom 20.11.',
+      },
     },
     {
       id: nid(612),
@@ -637,7 +649,12 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
         visibility: 'internal',
       }),
       claim: 'Prognose ab Januar monatlich an Rheintal teilen',
-      source: { captureId: captureRheintal, meetingId: pastRheintal, title: 'Notizen vom 20.11.' },
+      source: {
+        objectType: 'meeting_capture',
+        objectId: captureRheintal,
+        meetingId: pastRheintal,
+        title: 'Notizen vom 20.11.',
+      },
     },
     {
       id: nid(614),
@@ -658,7 +675,12 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
         dueOn: '2026-12-11',
       }),
       claim: 'Zusage zur Lücke Transparenz: Kostenaufschlüsselung bis 11.12.',
-      source: { captureId: captureAlpen, meetingId: pastAlpen, title: 'Notizen vom 19.11.' },
+      source: {
+        objectType: 'meeting_capture',
+        objectId: captureAlpen,
+        meetingId: pastAlpen,
+        title: 'Notizen vom 19.11.',
+      },
     },
   ];
   for (const [index, draft] of drafts.entries()) {
@@ -678,20 +700,19 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
       createdAt: draft.createdAt,
       reviewOrder: index + 1,
     });
-    if (draft.source) {
-      await tx.insert(aiSource).values({
-        id: nid(615 + index),
-        orgId,
-        draftId: draft.id,
-        claimKey: '1',
-        objectType: 'meeting_capture',
-        objectId: draft.source.captureId,
-        excerpt: draft.content && 'quote' in draft.content ? draft.content.quote : '',
-        targetType: 'meeting',
-        targetId: draft.source.meetingId,
-        kind: 'own_data',
-        title: draft.source.title,
-      });
-    }
+    // Jede Aussage mit Quelle, wie createBuyerDraft sie verlangt (KI-03)
+    await tx.insert(aiSource).values({
+      id: nid(615 + index),
+      orgId,
+      draftId: draft.id,
+      claimKey: '1',
+      objectType: draft.source.objectType,
+      objectId: draft.source.objectId,
+      excerpt: 'quote' in draft.content ? draft.content.quote : null,
+      targetType: 'meeting',
+      targetId: draft.source.meetingId,
+      kind: 'own_data',
+      title: draft.source.title,
+    });
   }
 }
