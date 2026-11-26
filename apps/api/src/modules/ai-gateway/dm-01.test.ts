@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { aiSettingsResponseSchema } from '@reziproq/shared';
 import { generateText, type LanguageModel } from 'ai';
@@ -27,6 +27,16 @@ describe('DM-01 Platzhalter und Hash der Eingabe', () => {
     expect(a.hash).toBe(b.hash);
     expect(c.hash).not.toBe(a.hash);
     expect(d.hash).not.toBe(a.hash);
+  });
+
+  it('gestreamte Aufrufe haben eigene Aufzeichnungen; der Hash von generate bleibt (K1-b.6)', () => {
+    const params = { prompt: prompt(randomUUID()) };
+    const generate = inputHash('prompt', params).hash;
+    expect(inputHash('prompt', params, 'stream').hash).not.toBe(generate);
+    // Wie in K1-b.1: Aufzeichnungen von damals passen weiter
+    const relevant = { feature: 'prompt', prompt: params.prompt, tools: [], toolChoice: null };
+    const { text } = withPlaceholders(JSON.stringify({ ...relevant, responseFormat: null }));
+    expect(createHash('sha256').update(text).digest('hex')).toBe(generate);
   });
 
   it('IDs der Eingabe werden zu Platzhaltern und kommen beim Abspielen als neue IDs zurück', () => {

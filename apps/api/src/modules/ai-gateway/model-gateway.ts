@@ -22,7 +22,7 @@ import {
   isNoRecording,
   type RecordingStore,
   recordingModel,
-  type StoredResponse,
+  type StoredRecording,
 } from './recording.js';
 import {
   costMicrocents,
@@ -172,9 +172,26 @@ export class ModelGateway {
       });
   }
 
-  /** Das Modell für Fragen steht fest. Jede Streaming-Stufe meldet sich bei beginStep an. */
-  promptModel(): Promise<LanguageModel | null> {
-    return this.modelFor(modelIdFor('bedrock_eu', aiFeatureClasses.prompt));
+  /**
+   * DM-01 (K1-b.6): Modell für Frag Reziproq nach dem Modus der Organisation; jede Streaming-Stufe
+   * meldet sich weiter bei beginStep an. null heißt: Der Aufrufer nimmt sein festes Testmodell
+   * (Modus fake, Testanbieter, oder Aufzeichnen ohne Modell). Abspielen ohne Modell antwortet nur
+   * aus Aufzeichnungen; fehlt eine, endet der Stream mit NoRecordingError.
+   */
+  async promptModelFor(context: GatewayContext): Promise<LanguageModel | null> {
+    const mode = await this.modeOf(context);
+    if (mode === 'fake') return null;
+    const live =
+      this.testModel ?? (gatewayProvider() === 'bedrock_eu' ? await this.promptModel() : null);
+    if (mode === 'live') return live;
+    return recordingModel(live, mode, context.feature, this.recordings(context));
+  }
+
+  /** Das Modell für Fragen steht fest (Bedrock). */
+  private async promptModel(): Promise<LanguageModel> {
+    const model = await this.modelFor(modelIdFor('bedrock_eu', aiFeatureClasses.prompt));
+    if (!model) throw new Error('Bedrock-Modell fehlt.');
+    return model;
   }
 
   /**
@@ -250,7 +267,7 @@ export class ModelGateway {
                   eq(schema.modelCallRecording.inputHash, inputHash),
                 ),
               );
-            return (row?.response as StoredResponse | undefined) ?? null;
+            return (row?.response as StoredRecording | undefined) ?? null;
           },
           { readOnly: true },
         ),
