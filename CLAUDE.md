@@ -5,7 +5,8 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 
 ## Befehle
 
-- pnpm dev: alles lokal starten
+- pnpm dev: alles lokal starten; startet nicht, wenn schon ein Dev-Server läuft (`scripts/dev-guard.mjs`).
+  pnpm dev:stop beendet alle Dev-Prozesse des Projekts, auch verwaiste aus geschlossenen Terminals
 - pnpm check: vor jedem Commit alles, was die CI prüft (Typprüfung, Lint, Migration, Rollen, Unit-, Zeitmessung LS-01,
   RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
   pnpm test, pnpm test:e2e

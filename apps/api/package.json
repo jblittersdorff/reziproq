@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:test-tools": "tsc -p tsconfig.test-build.json",
-    "dev": "tsc -p tsconfig.build.json && concurrently --raw --kill-others \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\" \"node --watch --enable-source-maps dist/main.js\"",
+    "dev": "node ../../scripts/dev-guard.mjs 3000 && tsc -p tsconfig.build.json && concurrently --raw --kill-others \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\" \"node --watch --enable-source-maps dist/main.js\"",
     "start": "NODE_ENV=production node --enable-source-maps dist/main.js",
     "typecheck": "tsc --noEmit",
     "rechte": "tsc -p tsconfig.build.json && node dist/rights-cli.js",

@@ -32,6 +32,8 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
+      // Nur ein `pnpm dev` zur Zeit: belegt, dann Abbruch statt still auf einen anderen Port
+      strictPort: true,
       // Im Entwicklungsmodus gehen API-Aufrufe an den NestJS-Server.
       proxy: { '/api': 'http://localhost:3000' },
     },
