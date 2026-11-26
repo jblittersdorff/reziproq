@@ -42,6 +42,7 @@ import { readDecisions } from '../ratings/consolidation.js';
 import { RatingsService } from '../ratings/ratings.service.js';
 import { PlanApprovalsService } from '../supplier-plans/plan-approvals.service.js';
 import { PlanContributionsService } from '../supplier-plans/plan-contributions.service.js';
+import { berlinDate } from '../today/berlin.js';
 import {
   doneToday,
   hintCounts,
@@ -57,7 +58,9 @@ import {
 
 const limit = 5;
 
-const isoToday = () => currentTime().toISOString().slice(0, 10);
+// B-33: „heute“ in Berlin nach der Uhr des Mandanten, wie Heute und Triage. Nach UTC wäre es
+// zwischen 00:00 und 01:00 (im Sommer 02:00) noch gestern.
+const isoToday = () => berlinDate(currentTime());
 const addDays = (date: string, days: number) => {
   const value = new Date(`${date}T00:00:00Z`);
   value.setUTCDate(value.getUTCDate() + days);
@@ -155,8 +158,7 @@ export class StartService {
       organization?.buyer && auth.orgRole === 'admin'
         ? await this.tenant.run(
             { userId: auth.userId, organizationId: organization.id },
-            (tx) =>
-              hintRuleReviewDue(tx, organization.id, currentTime().toISOString().slice(0, 10)),
+            (tx) => hintRuleReviewDue(tx, organization.id, isoToday()),
             { readOnly: true },
           )
         : [];
@@ -186,7 +188,7 @@ export class StartService {
                 kind: 'agent_approval' as const,
                 supplier: '',
                 detail: row.name,
-                dueDate: currentTime().toISOString().slice(0, 10),
+                dueDate: isoToday(),
                 href: `/einstellungen/ki/agenten/eigene/${row.id}`,
               })),
             { readOnly: true },

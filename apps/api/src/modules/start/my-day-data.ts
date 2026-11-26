@@ -75,7 +75,8 @@ export async function timelineItems(
     }>(sql`
       select id, relationship_id, title, starts_at, location from meeting
       where relationship_id = any(${uuidArray(relationshipIds)}) and status = 'planned'
-        and starts_at >= ${range.from}::date and starts_at < ${range.to}::date + 1`);
+        and starts_at >= ${range.from}::date::timestamp at time zone 'Europe/Berlin'
+        and starts_at < (${range.to}::date + 1)::timestamp at time zone 'Europe/Berlin'`);
     for (const row of meetings.rows) {
       const startsAt = new Date(row.starts_at);
       items.push({
@@ -201,7 +202,8 @@ export async function spendWeights(
 
 /**
  * Heute erledigt von der Person, nur aus Quellen mit Erledigt-Zeitpunkt: Maßnahmen, Beiträge zum
- * Lieferantenplan, Freigaben der Wirkung und abgegebene Bewertungen.
+ * Lieferantenplan, Freigaben der Wirkung und abgegebene Bewertungen. Der Tag gilt in Berlin,
+ * unabhängig von der Zeitzone der Datenbank-Sitzung (B-33); ebenso die Tage der Terminschiene.
  */
 export async function doneToday(
   tx: TenantTransaction,
@@ -212,13 +214,17 @@ export async function doneToday(
     await tx.execute<{ count: number }>(sql`
       select (
         (select count(*) from action
-          where owner_user_id = ${viewer.userId} and status = 'done' and done_at::date = ${today}::date)
+          where owner_user_id = ${viewer.userId} and status = 'done'
+            and (done_at at time zone 'Europe/Berlin')::date = ${today}::date)
         + (select count(*) from plan_contribution
-          where assignee_user_id = ${viewer.userId} and status = 'done' and done_at::date = ${today}::date)
+          where assignee_user_id = ${viewer.userId} and status = 'done'
+            and (done_at at time zone 'Europe/Berlin')::date = ${today}::date)
         + (select count(*) from initiative_validation
-          where decided_by = ${viewer.userId} and decided_at::date = ${today}::date)
+          where decided_by = ${viewer.userId}
+            and (decided_at at time zone 'Europe/Berlin')::date = ${today}::date)
         + (select count(distinct a.id) from rating_assignment a join rating r on r.assignment_id = a.id
-          where a.rater_user_id = ${viewer.userId} and r.submitted_at::date = ${today}::date)
+          where a.rater_user_id = ${viewer.userId}
+            and (r.submitted_at at time zone 'Europe/Berlin')::date = ${today}::date)
       )::int as count`)
   ).rows;
   return row?.count ?? 0;
