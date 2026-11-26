@@ -1,5 +1,12 @@
-import type { Commitment, CommitmentStatus, Commitments, MeetingSide } from '@reziproq/shared';
-import { commitmentSettableStatuses } from '@reziproq/shared';
+import type {
+  Commitment,
+  CommitmentEvidence,
+  CommitmentEvidenceKind,
+  CommitmentStatus,
+  Commitments,
+  MeetingSide,
+} from '@reziproq/shared';
+import { commitmentEvidenceKinds, commitmentSettableStatuses } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon, TriangleAlertIcon } from 'lucide-react';
@@ -170,15 +177,54 @@ function CommitmentRow({
   const date = useDate();
   const queryClient = useQueryClient();
   const [failed, setFailed] = useState(false);
-  const change = async (status: CommitmentStatus) => {
+  // ZQ-01 Regel 2: „Gehalten“ fragt in der Zeile nach dem Beleg, statt sofort zu buchen
+  const [asking, setAsking] = useState(false);
+  const [kind, setKind] = useState<CommitmentEvidenceKind | ''>('');
+  const [note, setNote] = useState('');
+  const change = async (status: CommitmentStatus, evidence?: CommitmentEvidence) => {
     setFailed(false);
     try {
-      await setCommitmentStatus(accessToken, apiBase(place), commitment.id, status);
+      await setCommitmentStatus(accessToken, apiBase(place), commitment.id, status, evidence);
+      setAsking(false);
       await queryClient.invalidateQueries({ queryKey: ['jbp'] });
     } catch {
       setFailed(true);
     }
   };
+  const choose = (status: CommitmentStatus) => {
+    if (status === 'kept') {
+      setAsking(true);
+      return;
+    }
+    setAsking(false);
+    void change(status);
+  };
+  const cancel = () => {
+    setAsking(false);
+    setKind('');
+    setNote('');
+  };
+  const book = (event: FormEvent) => {
+    event.preventDefault();
+    if (!kind) return;
+    void change('kept', { kind, ...(note.trim() ? { note: note.trim() } : {}) });
+  };
+  const evidence = commitment.evidence;
+  const evidenceLine =
+    commitment.status === 'kept' && evidence && evidence.kind !== 'legacy'
+      ? [
+          text.evidence.shown(
+            text.evidence.kinds[evidence.kind] ?? evidence.kind,
+            evidence.byName ?? null,
+          ),
+          evidence.ref?.title,
+          evidence.note,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : null;
+  // Eine ersetzte Zusage ist abgeschlossen; ihr Nachfolger trägt den Status weiter (Regel 3)
+  const settable = editable && commitment.status !== 'replaced';
   return (
     <li
       id={commitment.id}
@@ -196,6 +242,7 @@ function CommitmentRow({
             {commitment.ownerName} · {text.due(date(commitment.dueOn))}
             {commitment.initiative && ` · ${commitment.initiative.title}`}
           </span>
+          {evidenceLine && <span className="text-muted-foreground text-sm">{evidenceLine}</span>}
         </div>
         {commitment.overdue ? (
           <Badge variant="danger">
@@ -208,13 +255,13 @@ function CommitmentRow({
           </Badge>
         )}
       </div>
-      {editable && (
+      {settable && (
         <div className="flex flex-wrap items-center gap-3">
           <div className="w-48">
             <NativeSelect
               aria-label={text.statusLabel(commitment.title)}
-              value={commitment.status}
-              onChange={(event) => void change(event.target.value as CommitmentStatus)}
+              value={asking ? 'kept' : commitment.status}
+              onChange={(event) => choose(event.target.value as CommitmentStatus)}
             >
               {commitmentSettableStatuses.map((status) => (
                 <option key={status} value={status}>
@@ -230,6 +277,49 @@ function CommitmentRow({
             children: text.edit,
           })}
         </div>
+      )}
+      {settable && asking && (
+        <form
+          className="flex flex-col gap-3 rounded-md bg-paper p-4"
+          aria-label={text.evidence.legend(commitment.title)}
+          onSubmit={book}
+        >
+          <p className="text-muted-foreground text-sm">{text.evidence.hint}</p>
+          <FormField label={text.evidence.kind}>
+            {(field) => (
+              <NativeSelect
+                {...field}
+                value={kind}
+                onChange={(event) => setKind(event.target.value as CommitmentEvidenceKind | '')}
+              >
+                <option value="">{text.evidence.choose}</option>
+                {commitmentEvidenceKinds.map((value) => (
+                  <option key={value} value={value}>
+                    {text.evidence.kinds[value]}
+                  </option>
+                ))}
+              </NativeSelect>
+            )}
+          </FormField>
+          <FormField label={text.evidence.note}>
+            {(field) => (
+              <Input
+                {...field}
+                value={note}
+                maxLength={500}
+                onChange={(event) => setNote(event.target.value)}
+              />
+            )}
+          </FormField>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" disabled={!kind}>
+              {text.evidence.submit}
+            </Button>
+            <Button type="button" variant="ghost" onClick={cancel}>
+              {text.evidence.cancel}
+            </Button>
+          </div>
+        </form>
       )}
       {failed && <p className="text-destructive text-sm">{text.saveFailed}</p>}
     </li>

@@ -32,6 +32,12 @@ import { actorOf } from '../audit/actor.js';
 import { commitmentAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
+import {
+  type EvidenceInput,
+  evidenceOf,
+  keptEvidence,
+  statusFields,
+} from '../commitments/commitment-rules.js';
 import type { JbpScope } from './jbp.service.js';
 import { teamPeople } from './people.js';
 
@@ -104,6 +110,7 @@ export class JbpCommitmentsService {
         ownerName: row.ownerName,
         dueOn: row.dueOn,
         status: row.status,
+        evidence: evidenceOf(row.fulfilledEvidence),
         overdue: row.status === 'open' && row.dueOn < day,
         initiative: initiative ? { id: initiative.id, title: initiative.title } : null,
       };
@@ -319,9 +326,17 @@ export class JbpCommitmentsService {
     });
   }
 
-  async setStatus(scope: JbpScope, commitmentId: string, status: CommitmentStatus) {
+  /** ZQ-01 Regel 2: gehalten nur mit Beleg (422 beleg_fehlt), mit Person und Zeitpunkt */
+  async setStatus(
+    scope: JbpScope,
+    commitmentId: string,
+    status: CommitmentStatus,
+    evidence?: EvidenceInput,
+  ) {
     const before = await this.own(scope, commitmentId);
-    return this.change(scope, before, { status });
+    const actor = await actorOf(scope.tx, scope.auth, scope.orgId);
+    const stored = status === 'kept' ? keptEvidence(evidence, actor) : null;
+    return this.change(scope, before, statusFields(status, stored));
   }
 
   /**

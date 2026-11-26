@@ -23,6 +23,7 @@ import { ActionsService } from '../actions/actions.service.js';
 import { draftDecision } from '../ai-drafts/evidence.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import type { EvidenceInput } from '../commitments/commitment-rules.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import {
   type CaptureContext,
@@ -545,6 +546,18 @@ export class MeetingCaptureService {
     return row ?? null;
   }
 
+  /** ZQ-01 Regel 2: Das Ergebnis eines Termins belegt eine dort als gehalten erkannte Zusage */
+  private async meetingEvidence(scope: MeetingScope, meetingId: string): Promise<EvidenceInput> {
+    const [meeting] = await scope.tx
+      .select({ title: schema.meeting.title })
+      .from(schema.meeting)
+      .where(eq(schema.meeting.id, meetingId));
+    return {
+      kind: 'document',
+      ref: { objectType: 'meeting', objectId: meetingId, title: meeting?.title ?? meetingId },
+    };
+  }
+
   /** Einen Entwurf übernehmen: Zusagen und Maßnahmen über die bestehenden Dienste, zunächst intern. */
   private async acceptOne(
     scope: MeetingScope,
@@ -611,7 +624,10 @@ export class MeetingCaptureService {
       if (item.proposal === 'new_date' && item.dueOn) {
         await this.commitments.moveFromMeeting(scope, item.commitmentId, item.dueOn);
       } else if (item.proposal === 'kept' || item.proposal === 'missed') {
-        await this.commitments.setStatus(scope, item.commitmentId, item.proposal);
+        // ZQ-01 Regel 2: Beleg für gehalten ist das Ergebnis dieses Termins
+        const evidence =
+          item.proposal === 'kept' ? await this.meetingEvidence(scope, meetingId) : undefined;
+        await this.commitments.setStatus(scope, item.commitmentId, item.proposal, evidence);
       }
       createdId = `commitment:${item.commitmentId}`;
     }

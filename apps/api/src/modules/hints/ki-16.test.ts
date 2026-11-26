@@ -278,7 +278,9 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
   });
 
   it('ist die Bedingung nicht mehr erfüllt, wird der Hinweis resolved', async () => {
-    await db.execute(sql`update commitment set status = 'kept' where relationship_id = ${rel.b}`);
+    await db.execute(
+      sql`update commitment set status = 'kept', fulfilled_evidence = '{"kind":"confirmation"}' where relationship_id = ${rel.b}`,
+    );
     const [resolved] = await of('supplier_commitment_overdue');
     expect(resolved).toMatchObject({
       status: 'resolved',

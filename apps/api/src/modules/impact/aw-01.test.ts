@@ -173,6 +173,8 @@ describe('AW-01 Beleg aus bestehenden Daten', () => {
       ownerName: 'Sara',
       dueOn,
       status,
+      // ZQ-01 Regel 2: gehalten nur mit Beleg
+      fulfilledEvidence: status === 'kept' ? { kind: 'confirmation' } : null,
       createdBy: users.sro,
       createdByName: 'Sara',
     });

@@ -237,6 +237,7 @@ describe('JBP-06 Freigabe und Versionen des Gemeinsamen Plans', () => {
       (
         await call(users.kam, 'PUT', `${supplier}/zusagen/${commitmentId}/status`, {
           status: 'kept',
+          evidence: { kind: 'delivery_advice' },
         })
       ).status,
     ).toBe(200);

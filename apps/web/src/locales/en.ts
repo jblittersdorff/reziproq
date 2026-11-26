@@ -3491,12 +3491,26 @@ export const en: Messages = {
         replaced: 'Replaced',
         withdrawn: 'Withdrawn',
         overdue: 'Overdue',
-      } as Record<
-        string,
-        string
-      >,
+      } as Record<string, string>,
       due: (date: string) => `by ${date}`,
       statusLabel: (title: string) => `Status: ${title}`,
+      evidence: {
+        legend: (title: string) => `Evidence for “${title}”`,
+        hint: 'Kept only counts with evidence: delivery advice, goods receipt, document or confirmation by the other side.',
+        kind: 'Evidence',
+        choose: 'Please choose',
+        kinds: {
+          delivery_advice: 'Delivery advice',
+          goods_receipt: 'Goods receipt',
+          document: 'Document',
+          confirmation: 'Confirmation by the other side',
+        } as Record<string, string>,
+        note: 'Note (optional)',
+        submit: 'Book as kept',
+        cancel: 'Cancel',
+        shown: (kind: string, by: string | null) =>
+          `Evidence: ${kind}${by ? ` · booked by ${by}` : ''}`,
+      },
       titleLabel: 'Commitment',
       titleHint: 'For example demand outlook 2027 or reserve capacity.',
       owner: 'Owner',

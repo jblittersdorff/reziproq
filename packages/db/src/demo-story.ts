@@ -214,6 +214,8 @@ export async function demoStory(
     ownerName: side === 'buyer' ? account.name : 'Key Account',
     dueOn: isoDay(dueOn),
     status,
+    // ZQ-01 Regel 2: gehalten nur mit Beleg, hier die Bestätigung der anderen Seite
+    fulfilledEvidence: status === 'kept' ? { kind: 'confirmation', byName: 'Key Account' } : null,
     ...who,
   });
   await tx

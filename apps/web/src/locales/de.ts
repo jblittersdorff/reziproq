@@ -3581,6 +3581,24 @@ export const de = {
       } as Record<string, string>,
       due: (date: string) => `bis ${date}`,
       statusLabel: (title: string) => `Status: ${title}`,
+      // ZQ-01 Regel 2: gehalten nur mit Beleg
+      evidence: {
+        legend: (title: string) => `Beleg für „${title}“`,
+        hint: 'Gehalten zählt nur mit Beleg: Lieferavis, Wareneingang, Dokument oder Bestätigung der anderen Seite.',
+        kind: 'Beleg',
+        choose: 'Bitte wählen',
+        kinds: {
+          delivery_advice: 'Lieferavis',
+          goods_receipt: 'Wareneingang',
+          document: 'Dokument',
+          confirmation: 'Bestätigung der anderen Seite',
+        } as Record<string, string>,
+        note: 'Notiz (optional)',
+        submit: 'Als gehalten buchen',
+        cancel: 'Abbrechen',
+        shown: (kind: string, by: string | null) =>
+          `Beleg: ${kind}${by ? ` · gebucht von ${by}` : ''}`,
+      },
       titleLabel: 'Zusage',
       titleHint: 'Zum Beispiel Bedarfsausblick 2027 oder Kapazität reservieren.',
       owner: 'Verantwortlich',

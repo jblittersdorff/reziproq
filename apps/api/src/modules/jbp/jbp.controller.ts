@@ -398,7 +398,7 @@ function commitmentRoutes(side: Side) {
       @Body(new ZodValidationPipe(commitmentStatusSchema)) body: SetCommitmentStatus,
     ): Promise<Commitments> {
       return this.run(auth, id, (scope) =>
-        this.commitments.setStatus(scope, commitmentId, body.status),
+        this.commitments.setStatus(scope, commitmentId, body.status, body.evidence),
       );
     }
   }

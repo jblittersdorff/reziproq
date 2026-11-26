@@ -292,6 +292,10 @@ Widersprüche zu CLAUDE.md und früheren Festlegungen:
   - CLAUDE.md: Cent als Ganzzahl mit Währung.
   - Die SQL-Skizzen in WK-01, DL-01, LA-01, VG-01, WZ-01 und SZ-01 nutzen `numeric` ohne Währung.
   - Gilt im Code: CLAUDE.md (F-10).
+- **C-18 Knopf „Erledigt“ für Zusagen (gefunden am 26.11.2026 in K2-a.2).**
+  - IN-06: Die Karte zu einer fälligen Zusage bucht mit dem Knopf „Erledigt“ in Teams.
+  - ZQ-01 Regel 2, T2-ZQ2: gehalten nur mit Beleg; ein Klick auf die eigene Zusage ist keiner.
+  - Umgesetzt nach ZQ-01, der neueren Spec für Zusagen: Neue Karten haben nur noch den Link zur Zusage. Ein Klick auf einer älteren Karte bucht nichts und sagt, dass ein Beleg nötig ist. KA-01 legt die Knöpfe der Kanäle in K7 neu fest.
 
 ## d) Ist Phase 1 fertig?
 

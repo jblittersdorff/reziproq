@@ -127,7 +127,8 @@ describe('ZA-01 Datenräume nach der Migration', () => {
 
   it('T1-ZA6: Eine nur einseitig bestätigte Zusage zählt in keiner Quote', async () => {
     await temp.db.execute(sql`
-      update commitment set status = 'kept' where title in ('Zeichnung Rev. C', 'Musterteile')
+      update commitment set status = 'kept', fulfilled_evidence = '{"kind":"confirmation"}'
+      where title in ('Zeichnung Rev. C', 'Musterteile')
     `);
     const before = await temp.db.execute<{ n: number }>(
       sql`select count(*)::int as n from commitment_rate where relationship_id = ${relationshipAB}`,

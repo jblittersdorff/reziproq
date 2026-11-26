@@ -36,7 +36,6 @@ import { can } from '../auth/can.js';
 import { CalendarIntakeService } from '../calendar/calendar.service.js';
 import { EmailService } from '../email/email.service.js';
 import { actorIn } from '../integrations/actor.js';
-import { JbpService } from '../jbp/jbp.service.js';
 import { JbpCommitmentsService } from '../jbp/jbp-commitments.service.js';
 import { MeetingBriefService } from '../meetings/meeting-brief.service.js';
 import { TEAMS_CLIENT, type TeamsCard, type TeamsClient } from './teams-client.js';
@@ -136,9 +135,10 @@ const titles: Record<
 };
 
 /** Welcher Knopf zu welchem Anlass gehört (höchstens einer plus „In Reziproq öffnen“) */
+// ZQ-01 Regel 2 (K2-a.2): gehalten nur mit Beleg. Die Karte zur fälligen Zusage hat deshalb keinen
+// Knopf „Erledigt“ mehr, nur den Link zur Zusage (Widerspruch zu IN-06, gemeldet; ZQ-01 gilt).
 const buttonFor: Partial<Record<EventKind, NotificationAction['action']>> = {
   brief_ready: 'agenda_uebernehmen',
-  commitment_due: 'erledigt',
   inbound_review: 'zuordnen',
 };
 
@@ -169,7 +169,6 @@ export class NotificationsService {
     @Inject(TEAMS_CLIENT) private readonly teams: TeamsClient,
     @Inject(EmailService) private readonly emails: EmailService,
     @Inject(MeetingBriefService) private readonly briefs: MeetingBriefService,
-    @Inject(JbpService) private readonly jbp: JbpService,
     @Inject(JbpCommitmentsService) private readonly commitments: JbpCommitmentsService,
     @Inject(CalendarIntakeService) private readonly intake: CalendarIntakeService,
   ) {
@@ -705,6 +704,15 @@ export class NotificationsService {
         );
       return found;
     });
+    // Ältere Karten tragen noch „Erledigt“: Ohne Beleg wird nichts gebucht (ZQ-01 Regel 2)
+    if (row?.kind === 'commitment_due' && input.action === 'erledigt') {
+      return {
+        ok: false,
+        message: de
+          ? 'Gehalten braucht einen Beleg. Öffne die Zusage in Reziproq.'
+          : 'Kept needs evidence. Open the commitment in Reziproq.',
+      };
+    }
     if (!row || buttonFor[row.kind as EventKind] !== input.action) throw notFound();
     const noRight = {
       ok: false,
@@ -716,8 +724,6 @@ export class NotificationsService {
     try {
       if (input.action === 'agenda_uebernehmen') {
         result = await this.adoptAgenda(auth, row.objectId, de);
-      } else if (input.action === 'erledigt') {
-        result = await this.commitmentDone(auth, row.objectId, de);
       } else {
         result = await this.assignInbound(auth, row.objectId, de);
       }
@@ -756,26 +762,6 @@ export class NotificationsService {
     if (!agenda || agenda.status !== 'draft') throw notFound();
     await this.briefs.decide(auth, relationshipId, meetingId, agenda.id, { status: 'accepted' });
     return { ok: true, message: de ? 'Agenda übernommen.' : 'Agenda adopted.' };
-  }
-
-  private async commitmentDone(auth: AuthContext, commitmentId: string, de: boolean) {
-    if (!can(auth, 'jbp.bearbeiten')) throw forbidden();
-    const organization = auth.organization as NonNullable<AuthContext['organization']>;
-    const relationshipId = await this.tenant.run(
-      { userId: auth.userId, organizationId: organization.id },
-      async (tx) => {
-        const [row] = await tx
-          .select({ relationshipId: schema.commitment.relationshipId })
-          .from(schema.commitment)
-          .where(eq(schema.commitment.id, commitmentId));
-        if (!row) throw notFound();
-        return row.relationshipId;
-      },
-    );
-    await this.jbp.buyer(auth, relationshipId, (scope) =>
-      this.commitments.setStatus(scope, commitmentId, 'kept'),
-    );
-    return { ok: true, message: de ? 'Als erledigt markiert.' : 'Marked as done.' };
   }
 
   private async assignInbound(auth: AuthContext, inboundId: string, de: boolean) {

@@ -162,11 +162,34 @@ describe('JBP-05 Zusagen', () => {
       tx.execute(sql`update commitment set status = 'kept' where id = ${supplierId} returning id`),
     );
     expect(direct.rows).toEqual([]);
+    // ZQ-01 T2-ZQ2: gehalten ohne Beleg wird abgelehnt, in der API und in der Datenbank
+    const withoutEvidence = await call(
+      users.kam,
+      'PUT',
+      `${supplier}/zusagen/${supplierId}/status`,
+      {
+        status: 'kept',
+      },
+    );
+    expect(withoutEvidence).toMatchObject({ status: 422, body: { code: 'beleg_fehlt' } });
+    await expect(
+      db.execute(sql`update commitment set status = 'kept' where id = ${supplierId}`),
+    ).rejects.toMatchObject({ cause: { constraint: 'commitment_kept_evidence' } });
     const kept = commitmentsSchema.parse(
-      (await call(users.kam, 'PUT', `${supplier}/zusagen/${supplierId}/status`, { status: 'kept' }))
-        .body,
+      (
+        await call(users.kam, 'PUT', `${supplier}/zusagen/${supplierId}/status`, {
+          status: 'kept',
+          evidence: { kind: 'delivery_advice', note: 'Lieferavis 4711' },
+        })
+      ).body,
     );
     expect(kept.supplier[0]?.status).toBe('kept');
+    expect(kept.supplier[0]?.evidence).toMatchObject({
+      kind: 'delivery_advice',
+      note: 'Lieferavis 4711',
+      byName: expect.any(String),
+      at: expect.any(String),
+    });
     // Jede Änderung steht im Verlauf, auch für die andere Seite.
     const history = (await call(
       users.sro,

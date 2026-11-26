@@ -210,6 +210,12 @@ export const commitment = pgTable(
       'commitment_status',
       sql`${table.status} in ('open', 'kept', 'missed', 'replaced', 'withdrawn')`,
     ),
+    // ZQ-01 Regel 2, T2-ZQ2: gehalten nur mit Beleg (Art des Belegs in fulfilled_evidence.kind).
+    // „is not null“ ausdrücklich: Ein CHECK, der NULL ergibt, gilt sonst als erfüllt.
+    check(
+      'commitment_kept_evidence',
+      sql`${table.status} <> 'kept' or (${table.fulfilledEvidence} is not null and jsonb_typeof(${table.fulfilledEvidence}) = 'object' and ${table.fulfilledEvidence} ? 'kind')`,
+    ),
     check('commitment_kind', sql`${table.kind} in ('commitment', 'action')`),
     check(
       'commitment_source_type',

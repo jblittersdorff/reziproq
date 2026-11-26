@@ -43,6 +43,7 @@ const commitment = (n: number, extra: Partial<Commitment> = {}): Commitment => (
   ownerName: 'Mia Mitglied',
   dueOn: '2099-03-31',
   status: 'open',
+  evidence: null,
   overdue: false,
   initiative: null,
   ...extra,
@@ -68,6 +69,7 @@ const data: Commitments = {
       ownerUserId: 'kim',
       ownerName: 'Kim Kaiser',
       status: 'kept',
+      evidence: { kind: 'goods_receipt', byName: 'Kim Kaiser', note: 'WE 4711' },
     }),
   ],
 };
@@ -114,6 +116,9 @@ describe('JBP-05 Zusagen in der Oberfläche', () => {
     const supplierColumn = screen.getByRole('heading', { level: 2, name: 'Lieferant sagt zu' })
       .parentElement as HTMLElement;
     expect(within(supplierColumn).getByText('Gehalten')).toBeDefined();
+    expect(
+      within(supplierColumn).getByText('Beleg: Wareneingang · gebucht von Kim Kaiser · WE 4711'),
+    ).toBeDefined();
   });
 
   it('nur eigene Zusagen haben Status und Bearbeiten; der Status geht an die API', async () => {
@@ -123,15 +128,36 @@ describe('JBP-05 Zusagen in der Oberfläche', () => {
     ).parentElement as HTMLElement;
     expect(within(supplierColumn).queryByRole('combobox')).toBeNull();
     expect(within(supplierColumn).queryByRole('link')).toBeNull();
+    // ZQ-01 Regel 2: „Gehalten“ fragt in der Zeile nach dem Beleg und bucht erst damit
     fireEvent.change(screen.getByRole('combobox', { name: 'Status: Bedarfsausblick 2027' }), {
       target: { value: 'kept' },
     });
+    const form = screen.getByRole('form', { name: 'Beleg für „Bedarfsausblick 2027“' });
+    expect(sent).toHaveLength(0);
+    const book = within(form).getByRole('button', { name: 'Als gehalten buchen' });
+    expect(book).toHaveProperty('disabled', true);
+    fireEvent.change(within(form).getByRole('combobox', { name: 'Beleg' }), {
+      target: { value: 'document' },
+    });
+    fireEvent.change(within(form).getByRole('textbox', { name: 'Notiz (optional)' }), {
+      target: { value: 'Ausblick per Mail an Rheintal' },
+    });
+    fireEvent.click(book);
     await waitFor(() => expect(sent).toHaveLength(1));
     expect(sent[0]).toMatchObject({
       method: 'PUT',
       url: `/api/suppliers/${rel}/jbp/zusagen/${uuid(21)}/status`,
-      body: { status: 'kept' },
+      body: {
+        status: 'kept',
+        evidence: { kind: 'document', note: 'Ausblick per Mail an Rheintal' },
+      },
     });
+    // Andere Status gehen ohne Beleg sofort an die API
+    fireEvent.change(screen.getByRole('combobox', { name: 'Status: Zeichnungen freigeben' }), {
+      target: { value: 'missed' },
+    });
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1]).toMatchObject({ body: { status: 'missed' } });
     expect(
       screen.getByRole('link', { name: 'Bedarfsausblick 2027: Bearbeiten' }).getAttribute('href'),
     ).toBe(`${base}/${uuid(21)}`);

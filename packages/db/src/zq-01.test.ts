@@ -138,6 +138,24 @@ describe('ZQ-01 Zusagen und Aufgaben: Datenmodell', () => {
     ).rejects.toMatchObject({ cause: { message: 'commitment_not_found' } });
   });
 
+  it('T2-ZQ2: gehalten ohne Beleg lehnt die Datenbank ab, auch ohne Art im Beleg', async () => {
+    const id = await commitment({ owner: buyerA, side: 'buyer', title: 'Zeichnung Rev. D' });
+    const book = (evidence: string | null) =>
+      temp.db.execute(sql`
+        update commitment set status = 'kept', fulfilled_evidence = ${evidence}::jsonb
+        where id = ${id}`);
+    for (const evidence of [null, '"Lieferavis"', '{"note":"ohne Art"}']) {
+      await expect(book(evidence)).rejects.toMatchObject({
+        cause: { constraint: 'commitment_kept_evidence' },
+      });
+    }
+    await book('{"kind":"document"}');
+    const kept = await temp.db.execute<{ status: string }>(
+      sql`select status from commitment where id = ${id}`,
+    );
+    expect(kept.rows).toEqual([{ status: 'kept' }]);
+  });
+
   it('die Quote zählt gehalten und verfehlt; ersetzt, zurückgezogen und einseitig bestätigte nicht', async () => {
     const both = 'both_confirmed';
     const due = '2025-06-30';

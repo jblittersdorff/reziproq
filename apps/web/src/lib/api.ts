@@ -46,6 +46,7 @@ import {
   type ChangeAssumptions,
   type ColumnMap,
   type CommentObjectType,
+  type CommitmentEvidence,
   type CommitmentStatus,
   type ConsolidateRequest,
   type ContributionObjectiveRequest,
@@ -3664,13 +3665,21 @@ export const updateCommitment = (
   request: SaveCommitment,
 ) => sendJson('PUT', `${base}/jbp/zusagen/${id}`, request, commitmentsSchema, accessToken);
 
+/** ZQ-01 Regel 2: „gehalten“ braucht einen Beleg, sonst antwortet die API mit 422 beleg_fehlt */
 export const setCommitmentStatus = (
   accessToken: string,
   base: MeetingBase,
   id: string,
   status: CommitmentStatus,
+  evidence?: CommitmentEvidence,
 ) =>
-  sendJson('PUT', `${base}/jbp/zusagen/${id}/status`, { status }, commitmentsSchema, accessToken);
+  sendJson(
+    'PUT',
+    `${base}/jbp/zusagen/${id}/status`,
+    evidence ? { status, evidence } : { status },
+    commitmentsSchema,
+    accessToken,
+  );
 
 /** QBR-03: Maßnahmen einer Beziehung, je Seite unter ihrer Basis (wie Termine). */
 export const actionListQueryOptions = (accessToken: string, base: MeetingBase) =>

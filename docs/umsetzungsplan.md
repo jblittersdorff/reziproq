@@ -96,6 +96,10 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 - K1-b.4 fertig am 25.11.2026: Uhr je Mandant auch in Jobs über Mandanten (`inOrgClock`) und in der Oberfläche. Die API nennt die Fachzeit im Kopf `x-reziproq-jetzt`, die Oberfläche rechnet mit `appNow`, und ein Wächter-Test verbietet die Systemuhr bis auf Technik.
 - K1-b.5 fertig am 26.11.2026: Schon das erste Bild nach dem Demo-Einstieg rechnet mit der Demo-Uhr. Der Start der Sitzung nennt die Fachzeit, und die Oberfläche hält den Versatz je Tab, aber nur in einer Demo-Sitzung. Die Oberflächen von K1-b sind im Browser bei 390 und 1440 px geprüft. Zwei Web-Tests rechnen „heute“ jetzt nach Ortszeit statt nach UTC. Den gleichen Fehler in Mein Tag führt B-33 in `docs/k0-abweichungen.md`.
 - K1-g: Umfang am 26.11.2026 mit dem Gründer geklärt. Die Schritte 5 bis 7 des Drehbuchs K1 brauchen Wert-Engine und Reibung (K4-a, K4-d) und stehen im Test als „folgt mit K4“. Die Mail in Erledigt mit Zurücknehmen baut K1-g mit.
+- K2-a.2 fertig am 26.11.2026: Regeln der Zusagen.
+  - „Gehalten“ nur mit Beleg (T2-ZQ2), in der Datenbank und in der API. Der Gemeinsame Plan fragt in der Zeile nach dem Beleg, und die Termin-Ergebnisse buchen den Termin als Beleg.
+  - Ersatz nach E-K2-2 und die Quote je Seite.
+  - Der Knopf „Erledigt“ an der Teams-Karte entfällt (C-18).
 - K2-a.1 fertig am 26.11.2026: Datenmodell der Zusagen und Aufgaben (Migration `0141`). Zusagen hängen an der Beziehung, und beide Seiten ändern ihren Status. Aufgaben sieht nur die eigene Organisation. Noch ohne Migration der Maßnahmen.
 - K2-a: Umfang am 26.11.2026 mit dem Gründer geklärt. K2-a stellt ganz um: Die Tabelle der Maßnahmen entfällt, und die alten Maßnahmen-Seiten zeigen bis K2-c Zusagen und Aufgaben. Die Status speichert die Datenbank englisch.
 - K1-g.5 fertig am 26.11.2026: Drehbuch K1 als E2E-Test gegen die echte API. Die Schritte 1 bis 4 und 8 bis 10 laufen zweimal hintereinander gleich; 5 bis 7 folgen mit K4. Damit ist K1-g fertig. Dabei behoben: Der Briefing-Entwurf im Seed ließ sich nicht übernehmen, und die Begründung auf Stufe Vorbereiten war falsch (B-34).
