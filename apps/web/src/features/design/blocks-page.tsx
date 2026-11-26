@@ -22,6 +22,7 @@ import { Monogram } from '@/components/ui/monogram';
 import { NextCard } from '@/components/ui/next-card';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
 import { Row, RowGroup } from '@/components/ui/row-group';
+import { SectionCard } from '@/components/ui/section-card';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Sheet } from '@/components/ui/sheet';
 import { SoWhat, type SoWhatTone } from '@/components/ui/so-what';
@@ -328,6 +329,16 @@ export function BlocksPage() {
             }
           />
         </RowGroup>
+
+        {section('section-card', t.sections.sectionCard)}
+        {/* DM-01 (K1-g.4): Karte mit Abschnittslabel innen, wie in der Vorlage Demo-Regie */}
+        <SectionCard label={t.sectionCard.label}>
+          <div className="flex flex-wrap gap-2.5">
+            <Button variant="secondary">{t.sectionCard.first}</Button>
+            <Button variant="secondary">{t.sectionCard.second}</Button>
+          </div>
+          <p className="text-detail text-muted-foreground">{t.sectionCard.note}</p>
+        </SectionCard>
 
         {section('collapsible', t.sections.collapsible)}
         <div className="flex flex-col gap-2.5">

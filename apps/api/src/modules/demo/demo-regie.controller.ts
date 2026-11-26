@@ -1,8 +1,13 @@
-import { Body, Controller, Get, HttpCode, Inject, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Post, Put, Res } from '@nestjs/common';
 import {
   businessTimeHeader,
+  type DemoModeRequest,
   type DemoRegie,
+  type DemoSignalRequest,
+  type DemoSignalResult,
   type DemoTimeRequest,
+  demoModeRequestSchema,
+  demoSignalRequestSchema,
   demoTimeRequestSchema,
 } from '@reziproq/shared';
 import type { Response } from 'express';
@@ -32,6 +37,25 @@ export class DemoRegieController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<DemoRegie> {
     return withBusinessTime(response, await this.regie.advance(auth, body));
+  }
+
+  @Post('signal')
+  @HttpCode(200)
+  @Requires('demo.regie')
+  signal(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(demoSignalRequestSchema)) body: DemoSignalRequest,
+  ): Promise<DemoSignalResult> {
+    return this.regie.signal(auth, body.key);
+  }
+
+  @Put('modus')
+  @Requires('demo.regie')
+  mode(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(demoModeRequestSchema)) body: DemoModeRequest,
+  ): Promise<DemoRegie> {
+    return this.regie.mode(auth, body.mode);
   }
 
   @Post('zuruecksetzen')

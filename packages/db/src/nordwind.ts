@@ -14,6 +14,8 @@ import {
   relationshipMember,
   relationshipSide,
   relationshipSpend,
+  supplierContact,
+  supplierDomain,
 } from './schema/index.js';
 
 // DM-01, E-K0-04, G-10 (K1-b.3): der Demo-Mandant Nordwind Antriebe. Ein eigener Mandant neben den
@@ -552,6 +554,46 @@ export async function seedNordwind(
         target: [orgSetting.orgId, orgSetting.key],
         set: { value: sql`excluded.value`, updatedBy: actor },
       });
+
+    // Domains der Lieferanten (IN-03, K1-g.4): Mails und Einladungen finden darüber ihre Beziehung,
+    // etwa das Signal „Mail von Kim Kaiser“ der Regie
+    const domains: [string, string][] = [
+      ['rheintal', 'rheintal.example'],
+      ['silesia', 'silesia.example'],
+      ['kessler', 'kessler.example'],
+      ['nordwerk', 'nordwerk.example'],
+      ['moravia', 'moravia.example'],
+      ['alpenKunststoff', 'alpen-kunststoff.example'],
+      ['saar', 'saar.example'],
+    ];
+    await tx.insert(supplierDomain).values(
+      domains.map(([key, domain], index) => ({
+        id: nid(700 + index),
+        orgId: nordwind.org.id,
+        relationshipId: byKey(key).relationshipId,
+        domain,
+        source: 'manual' as const,
+      })),
+    );
+
+    // Ansprechpartner der Lieferanten aus Sicht von Nordwind (DM-01): Rheintal und Saar Circuits
+    const contacts: [string, { name: string; email: string }, string | null][] = [
+      ['rheintal', supplierPeople.kimKaiser, 'Geschäftsführerin'],
+      ['rheintal', supplierPeople.tomWeber, 'Key Account'],
+      ['rheintal', supplierPeople.leaBrandt, null],
+      ['rheintal', supplierPeople.miaKuhn, null],
+      ['rheintal', supplierPeople.nilsOtt, 'Qualität'],
+      ['saar', supplierPeople.lenaSchuster, 'Key Account'],
+    ];
+    await tx.insert(supplierContact).values(
+      contacts.map(([key, entry, role], index) => ({
+        id: nid(720 + index),
+        relationshipId: byKey(key).relationshipId,
+        name: entry.name,
+        email: entry.email,
+        function: role,
+      })),
+    );
 
     // Drehbuch K1 „Morgen mit Reziproq“ (K1-g.3): Fokus, Erledigt und Kurz prüfen von Jan-Luka
     const contact = (entry: { id: string; name: string; email: string }) => ({

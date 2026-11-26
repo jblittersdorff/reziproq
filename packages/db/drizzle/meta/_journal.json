@@ -981,6 +981,13 @@
       "when": 1795674715046,
       "tag": "0139_k1g_regie",
       "breakpoints": true
+    },
+    {
+      "idx": 140,
+      "version": "7",
+      "when": 1795679912546,
+      "tag": "0140_k1g_modus",
+      "breakpoints": true
     }
   ]
 }

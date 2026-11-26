@@ -7,6 +7,7 @@ import { AskOverlay } from '@/components/ui/ask-overlay';
 import { ReauthNotice } from '@/features/auth/reauth-notice';
 import { RequireLogin, useRenewalFailed } from '@/features/auth/require-login';
 import { useMe } from '@/features/auth/use-me';
+import { useDemoShortcut } from '@/features/demo/demo-shortcut';
 import { AskContext, type AskRequest } from '@/features/prompt/ask-context';
 import { AskPanel } from '@/features/prompt/ask-panel';
 import { useToken } from '@/features/ratings/use-rating';
@@ -55,6 +56,8 @@ function Shell() {
   // UMB-02: Die Überlagerung sperrt die Seite; der Hinweis zum neu Anmelden steht dann auch darin.
   const renewalFailed = useRenewalFailed();
   useAskShortcut(openAsk);
+  // DM-01 (K1-g.4): ⌥D öffnet die Demo-Regie, nur in einer Demo-Sitzung
+  useDemoShortcut();
   useAccountLocale();
 
   const icon = (target: NavTarget) => {

@@ -110,6 +110,7 @@ Weitere Punkte:
   - Stand K1-b.1 (25.11.2026): `is_demo`, `ai_mode` und `demo_now` gibt es seit K1-a. Die Modi und `model_call_recording` sind gebaut. Es fehlen noch `demo_event`, `demo_snapshot` und `/demo` (K1-g).
   - Stand K1-b.2 (25.11.2026): Die Demo-Sitzung je Person ist gebaut (E-K0-05).
   - Stand K1-g.1 (26.11.2026): `demo_event` und `demo_snapshot` (Stand „start“) sind gebaut, dazu die Regie-API. Es fehlt noch die Seite `/demo` (K1-g.4).
+  - Stand K1-g.4 (26.11.2026): Die Seite `/demo` ist gebaut (⌥D in einer Demo-Sitzung). Seit K1-g.1 stoßen „Neuer Tag“ und „Auf Datum springen“ die fälligen Läufe an. Damit ist B-07 erledigt; die Fachzeit für „heute“ an weiteren Stellen steht unter B-33.
   - Es gibt keine Uhr je Mandant. In der API stehen 201 `new Date()`, 21 `Date.now()` und 45 `now()` in SQL, dazu Standardwerte `defaultNow()` und Zeitpläne in zehn Workern. Das ist der breiteste Umbau des Pakets (Abschnitt f).
   - Stand K1-b.4 (25.11.2026): Die Uhr je Mandant gibt es seit K1-a in den Anfragen und in SQL (`app_now()`).
     - **Jobs:** Jobs über Mandanten rechnen jetzt je Mandant mit dessen Uhr (`inOrgClock`).

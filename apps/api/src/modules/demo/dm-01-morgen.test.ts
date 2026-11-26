@@ -1,5 +1,11 @@
 import { type Database, nordwind, nordwindPeople, seedNordwind, sql } from '@reziproq/db';
-import { doneListSchema, inboxSchema, reviewStackSchema, todayPageSchema } from '@reziproq/shared';
+import {
+  demoRoles,
+  doneListSchema,
+  inboxSchema,
+  reviewStackSchema,
+  todayPageSchema,
+} from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -99,6 +105,60 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
     ).toBeLessThan(300);
     const after = reviewStackSchema.parse((await call('GET', '/kurz-pruefen')).body);
     expect(after.items).toHaveLength(0);
+  });
+
+  it('Signal „Mail von Kim Kaiser“ auf Stufe Erledigen: das Postfach legt sie selbst ab (Erledigt)', async () => {
+    const signal = await call('POST', '/demo/regie/signal', { key: 'mail_kim_kaiser' });
+    expect(signal).toMatchObject({
+      status: 200,
+      body: { key: 'mail_kim_kaiser', status: 'applied', objectType: 'filed_mail' },
+    });
+    expect((await done()).rows.find((row) => row.sender === 'Kim Kaiser')).toMatchObject({
+      action: 'mail_assign',
+      subject: 'Musterteile Starrflex und 8D 4711',
+      counterpart: 'Rheintal Elektronik',
+    });
+  });
+
+  it('Schritt 8: Postfach auf Vorbereiten, dann steht die Mail von Kim Kaiser als Entwurf in Kurz prüfen', async () => {
+    expect((await call('PUT', '/mein-agent/inbox', { level: 'prepare' })).status).toBe(200);
+    const before = (await done()).rows.filter((row) => row.sender === 'Kim Kaiser').length;
+    const signal = await call('POST', '/demo/regie/signal', { key: 'mail_kim_kaiser' });
+    expect(signal.body).toMatchObject({ status: 'applied', objectType: 'inbound_item' });
+    const stack = reviewStackSchema.parse((await call('GET', '/kurz-pruefen')).body);
+    expect(
+      stack.items.some(
+        (item) => item.source === 'inbound' && item.title.includes('Musterteile Starrflex'),
+      ),
+    ).toBe(true);
+    expect((await done()).rows.filter((row) => row.sender === 'Kim Kaiser')).toHaveLength(before);
+  });
+
+  it('Antworten der KI: die Regie stellt den Modus für alle Organisationen der Demo', async () => {
+    const changed = await call('PUT', '/demo/regie/modus', { mode: 'live' });
+    expect(changed).toMatchObject({ status: 200, body: { mode: 'live' } });
+    const modes = (
+      await db.execute<{ ai_mode: string }>(
+        sql`select distinct ai_mode from organization where id in (
+          select app_demo_orgs_von(${nordwind.org.id}::uuid))`,
+      )
+    ).rows.map((row) => row.ai_mode);
+    expect(modes).toEqual(['live']);
+    expect((await call('PUT', '/demo/regie/modus', { mode: 'replay' })).status).toBe(200);
+  });
+
+  it('Rollen der Regie: jede ist eine Person eines Demo-Mandanten, Kim Kaiser bei Rheintal (K1-g.4)', async () => {
+    const ids = demoRoles.map((role) => role.id);
+    const rows = (
+      await db.execute<{ id: string; org: string; is_demo: boolean }>(
+        sql`select u.id, o.name as org, o.is_demo from app_user u
+              join organization o on o.id = u.organization_id
+             where u.id in ${ids} order by u.id`,
+      )
+    ).rows;
+    expect(rows.map((row) => row.id)).toEqual([...ids].sort());
+    expect(rows.every((row) => row.is_demo)).toBe(true);
+    expect(rows.find((row) => row.id === 'rheintal-kim-kaiser')?.org).toMatch(/^Rheintal/);
   });
 
   it('Schritt 10: Zurücksetzen stellt den Stand von Schritt 1 wieder her', async () => {

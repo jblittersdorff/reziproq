@@ -80,10 +80,14 @@ import {
   type DecideImportRows,
   type DecideJbp,
   type DecideValidation,
+  type DemoSignalKey,
+  type DemoTimeRequest,
   type DismissHint,
   dataExportListSchema,
   decisionHistorySchema,
+  demoRegieSchema,
   demoSessionSchema,
+  demoSignalResultSchema,
   deviationExplanationsSchema,
   doneListSchema,
   dueListSchema,
@@ -2172,6 +2176,30 @@ export async function startDemoSession(userId: string) {
   if (!res.ok) throw new ApiError('/demo/sitzung', res.status);
   return demoSessionSchema.parse(await res.json());
 }
+
+/** DM-01 (K1-g.4): Demo-Regie, nur im Demo-Mandanten (sonst 404) */
+export const demoRegieQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['demo', 'regie'],
+    queryFn: () => getJson('/demo/regie', demoRegieSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** Demo-Uhr vorwärts: Neuer Tag, eine Stunde weiter oder auf ein Datum springen */
+export const advanceDemoClock = (accessToken: string, request: DemoTimeRequest) =>
+  sendJson('POST', '/demo/regie/zeit', request, demoRegieSchema, accessToken);
+
+/** Zurücksetzen auf den Stand „start“ (Mo 23.11., 07:30) */
+export const resetDemo = (accessToken: string) =>
+  sendJson('POST', '/demo/regie/zuruecksetzen', {}, demoRegieSchema, accessToken);
+
+/** Signal einspielen; läuft durch dieselben Dienste wie im Betrieb */
+export const playDemoSignal = (accessToken: string, key: DemoSignalKey) =>
+  sendJson('POST', '/demo/regie/signal', { key }, demoSignalResultSchema, accessToken);
+
+/** Antworten der KI für alle Organisationen der Demo */
+export const setDemoMode = (accessToken: string, mode: AiMode) =>
+  sendJson('PUT', '/demo/regie/modus', { mode }, demoRegieSchema, accessToken);
 
 /** DM-01 (K1-b.1): Modus der Modellantworten im Demo-Mandanten umschalten */
 export const setAiMode = (accessToken: string, mode: AiMode) =>

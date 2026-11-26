@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -12,17 +13,22 @@ import {
   type DemoRegie,
   type DemoRun,
   type DemoRunKey,
+  type DemoSignalKey,
+  type DemoSignalResult,
   type DemoTimeRequest,
   demoRegieSchema,
+  demoSignalResultSchema,
 } from '@reziproq/shared';
 import { AccountStore, TenantDatabase } from '../../common/database.module.js';
 import { MeetingBriefWorker } from '../agents/meeting-brief.worker.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { HintsWorker } from '../hints/hints.worker.js';
+import { ItemHandlers } from '../integrations/item-handlers.js';
 import { OpportunitiesWorker } from '../opportunities/opportunities.worker.js';
 import { berlinTime } from '../today/berlin.js';
 import { TriageWorker } from '../today/triage.worker.js';
 import { dueRuns, nextMorningRun } from './demo-clock.js';
+import { demoSignals, forwardedItem } from './demo-signals.js';
 
 const notFound = () => new NotFoundException({ statusCode: 404, code: 'nicht_gefunden' });
 
@@ -48,6 +54,7 @@ export class DemoRegieService {
     @Inject(HintsWorker) private readonly hints: HintsWorker,
     @Inject(MeetingBriefWorker) private readonly brief: MeetingBriefWorker,
     @Inject(OpportunitiesWorker) private readonly opportunities: OpportunitiesWorker,
+    @Inject(ItemHandlers) private readonly handlers: ItemHandlers,
   ) {}
 
   async state(auth: AuthContext, runs: DemoRun[] = []): Promise<DemoRegie> {
@@ -119,6 +126,58 @@ export class DemoRegieService {
     }
     const demoNow = (await this.accounts.demoNowOf(session.organizationId)) ?? currentTime();
     await this.log(session, 'zuruecksetzen', {}, demoNow);
+    return this.state(auth);
+  }
+
+  /**
+   * Signal einspielen (K1-g.4): durch denselben Dienst wie das echte Ereignis (T1-DM4). Jede
+   * Auslösung ist eine eigene Mail; ohne die Person der Geschichte gibt es das Signal hier nicht.
+   */
+  async signal(auth: AuthContext, key: DemoSignalKey): Promise<DemoSignalResult> {
+    const session = await this.session(auth);
+    const signal = demoSignals[key];
+    const handler = this.handlers.get(signal.kind);
+    const [forwarder] = await this.tenant.run(
+      session,
+      async (tx) =>
+        (
+          await tx.execute<{ email: string }>(sql`
+            select email from app_user
+            where id = ${signal.forwardedBy} and organization_id = ${session.organizationId}`)
+        ).rows,
+      { readOnly: true },
+    );
+    if (!handler || !forwarder) {
+      throw new ConflictException({ statusCode: 409, code: 'signal_nicht_im_demo' });
+    }
+    const outcome = await handler(
+      {
+        orgId: session.organizationId,
+        connectionId: 'demo-regie',
+        connectorKey: 'demo',
+        scope: 'org',
+        userId: null,
+        settings: { allowedDomains: [forwarder.email.split('@')[1] ?? ''] },
+        actor: null,
+      },
+      forwardedItem(signal, forwarder.email, `demo-${key}-${randomUUID()}`),
+    );
+    const result = demoSignalResultSchema.parse({
+      key,
+      status: outcome.status,
+      objectType: outcome.objectType ?? null,
+    });
+    const demoNow = (await this.accounts.demoNowOf(session.organizationId)) ?? currentTime();
+    await this.log(session, `signal.${key}`, result, demoNow);
+    return result;
+  }
+
+  /** Antworten der KI für alle Organisationen der Demo (Aufzeichnen, Abspielen, Live) */
+  async mode(auth: AuthContext, mode: AiMode): Promise<DemoRegie> {
+    const session = await this.session(auth);
+    await this.tenant.run(session, (tx) => tx.execute(sql`select app_demo_modus_alle(${mode})`));
+    const demoNow = (await this.accounts.demoNowOf(session.organizationId)) ?? currentTime();
+    await this.log(session, 'modus', { mode }, demoNow);
     return this.state(auth);
   }
 

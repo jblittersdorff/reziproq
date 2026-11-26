@@ -73,3 +73,33 @@ export const demoRegieSchema = z.object({
   runs: z.array(demoRunSchema),
 });
 export type DemoRegie = z.infer<typeof demoRegieSchema>;
+
+/**
+ * Signale der Regie (DM-01), die schon laufen; jedes geht durch dieselben Dienste wie das echte
+ * Ereignis im Betrieb (T1-DM4). Die übrigen kommen mit den Kapiteln, die sie brauchen.
+ */
+export const demoSignalKeys = ['mail_kim_kaiser'] as const;
+export type DemoSignalKey = (typeof demoSignalKeys)[number];
+
+export const demoSignalRequestSchema = z.object({ key: z.enum(demoSignalKeys) }).strict();
+export type DemoSignalRequest = z.infer<typeof demoSignalRequestSchema>;
+
+/** Ergebnis eines Signals: was der Dienst daraus gemacht hat */
+export const demoSignalResultSchema = z.object({
+  key: z.enum(demoSignalKeys),
+  status: z.enum(['applied', 'ignored', 'rejected', 'failed']),
+  objectType: z.string().nullable(),
+});
+export type DemoSignalResult = z.infer<typeof demoSignalResultSchema>;
+
+/** Antworten der KI für alle Organisationen der Demo (Regie) */
+export const demoModeRequestSchema = z.object({ mode: z.enum(aiModeValues) }).strict();
+export type DemoModeRequest = z.infer<typeof demoModeRequestSchema>;
+
+/** Rollen der Regie (DM-01): Personen der Geschichte, je mit eigener Demo-Sitzung */
+export const demoRoles = [
+  { id: 'nordwind-jan-luka', key: 'janLuka' },
+  { id: 'nordwind-sara-ost', key: 'saraOst' },
+  { id: 'rheintal-kim-kaiser', key: 'kimKaiser' },
+] as const;
+export type DemoRoleKey = (typeof demoRoles)[number]['key'];

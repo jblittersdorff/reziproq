@@ -15,6 +15,7 @@ import { Route as BausteineRouteImport } from './routes/bausteine'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as AppSplatRouteImport } from './routes/_app/$'
+import { Route as AppDemoRouteImport } from './routes/_app/demo'
 import { Route as AppErledigtRouteImport } from './routes/_app/erledigt'
 import { Route as AppHeuteRouteImport } from './routes/_app/heute'
 import { Route as AppKurzPruefenRouteImport } from './routes/_app/kurz-pruefen'
@@ -302,6 +303,11 @@ const StyleguideRoute = StyleguideRouteImport.update({
 const AppSplatRoute = AppSplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDemoRoute = AppDemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => AppRoute,
 } as any)
 const AppErledigtRoute = AppErledigtRouteImport.update({
@@ -1823,6 +1829,7 @@ export interface FileRoutesByFullPath {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/$': typeof AppSplatRoute
+  '/demo': typeof AppDemoRoute
   '/erledigt': typeof AppErledigtRoute
   '/heute': typeof AppHeuteRoute
   '/kurz-pruefen': typeof AppKurzPruefenRoute
@@ -2088,6 +2095,7 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/styleguide': typeof StyleguideRoute
   '/$': typeof AppSplatRoute
+  '/demo': typeof AppDemoRoute
   '/erledigt': typeof AppErledigtRoute
   '/heute': typeof AppHeuteRoute
   '/kurz-pruefen': typeof AppKurzPruefenRoute
@@ -2353,6 +2361,7 @@ export interface FileRoutesById {
   '/styleguide': typeof StyleguideRoute
   '/einladung/$token': typeof EinladungTokenRouteRouteWithChildren
   '/_app/$': typeof AppSplatRoute
+  '/_app/demo': typeof AppDemoRoute
   '/_app/erledigt': typeof AppErledigtRoute
   '/_app/heute': typeof AppHeuteRoute
   '/_app/kurz-pruefen': typeof AppKurzPruefenRoute
@@ -2621,6 +2630,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/$'
+    | '/demo'
     | '/erledigt'
     | '/heute'
     | '/kurz-pruefen'
@@ -2886,6 +2896,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/styleguide'
     | '/$'
+    | '/demo'
     | '/erledigt'
     | '/heute'
     | '/kurz-pruefen'
@@ -3150,6 +3161,7 @@ export interface FileRouteTypes {
     | '/styleguide'
     | '/einladung/$token'
     | '/_app/$'
+    | '/_app/demo'
     | '/_app/erledigt'
     | '/_app/heute'
     | '/_app/kurz-pruefen'
@@ -3465,6 +3477,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof AppSplatRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/demo': {
+      id: '/_app/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof AppDemoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/erledigt': {
@@ -5719,6 +5738,7 @@ const AppLieferantenIdRouteRouteWithChildren =
 
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
+  AppDemoRoute: typeof AppDemoRoute
   AppErledigtRoute: typeof AppErledigtRoute
   AppHeuteRoute: typeof AppHeuteRoute
   AppKurzPruefenRoute: typeof AppKurzPruefenRoute
@@ -5825,6 +5845,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppSplatRoute: AppSplatRoute,
+  AppDemoRoute: AppDemoRoute,
   AppErledigtRoute: AppErledigtRoute,
   AppHeuteRoute: AppHeuteRoute,
   AppKurzPruefenRoute: AppKurzPruefenRoute,

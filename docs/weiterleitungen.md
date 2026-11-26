@@ -4,7 +4,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 
 - **aktiv** (13): leitet mit 301 vom Server und in der App weiter.
 - **geplant** (181): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
-- **bleibt** (79): Die Adresse gilt auch nach NAV-10 2.0.
+- **bleibt** (80): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
 |---|---|---|---|
@@ -20,6 +20,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/bewertungen/$id/qualitaet` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/bewertungen/$id/zusammenfassung` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/beziehungen` | – (zeigt bis K2-b die Lieferantenliste) | K1-d | bleibt |
+| `/demo` | – (Demo-Regie) | K1-g.4 | bleibt |
 | `/demo/als/$person` | – (Demo-Sitzung) | K1-b.2 | bleibt |
 | `/design` | `/bausteine` | K1-d.3 | geplant |
 | `/einladung/$token` | – (ohne Rahmen) | LP-01 | bleibt |

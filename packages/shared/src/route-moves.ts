@@ -38,6 +38,7 @@ export const routeMoves: readonly RouteMove[] = [
   move('/mein-agent', '/mein-agent', 'K1-f.3', 'bleibt', 'Mein Agent'),
   // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person, nur im Demo-Mandanten
   move('/demo/als/$person', '/demo/als/$person', 'K1-b.2', 'bleibt', 'Demo-Sitzung'),
+  move('/demo', '/demo', 'K1-g.4', 'bleibt', 'Demo-Regie'),
   move('/kurz-pruefen', '/kurz-pruefen', 'K1-e.2', 'bleibt', 'Kurz prüfen'),
   move('/erledigt', '/erledigt', 'K1-e.3', 'bleibt', 'Erledigt im Hintergrund'),
   move('/warum/$id', '/warum/$id', 'K1-e.4', 'bleibt', 'Warum'),

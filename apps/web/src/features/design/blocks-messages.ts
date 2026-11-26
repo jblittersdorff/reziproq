@@ -39,6 +39,13 @@ export const blocksMessages = defineMessages({
       sheet: 'Sheet · Blatt',
       ask: 'AskOverlay · Frag Reziproq',
       segmented: 'SegmentedControl · Schalter',
+      sectionCard: 'SectionCard · Karte mit Label',
+    },
+    sectionCard: {
+      label: 'Signale einspielen',
+      first: 'Mail von Kim Kaiser',
+      second: 'Neuer Tag (06:00-Lauf)',
+      note: 'Das Label steht in der Karte; darunter Pillen, eine Liste oder ein Satz.',
     },
     segmented: {
       groupLabel: 'Row mit Schalter · Aufgaben von Reziproq',
@@ -251,6 +258,13 @@ export const blocksMessages = defineMessages({
       sheet: 'Sheet · side sheet',
       ask: 'AskOverlay · Ask Reziproq',
       segmented: 'SegmentedControl · switch',
+      sectionCard: 'SectionCard · card with label',
+    },
+    sectionCard: {
+      label: 'Play signals',
+      first: 'Mail from Kim Kaiser',
+      second: 'New day (06:00 run)',
+      note: 'The label sits inside the card; below it pills, a list or a sentence.',
     },
     segmented: {
       groupLabel: 'Row with a switch · Tasks of Reziproq',
