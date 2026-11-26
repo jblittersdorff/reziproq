@@ -1203,6 +1203,15 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     manual: 'DM-01: Aufzeichnungen nur im Demo-Mandanten',
   },
+  // DM-01 (K1-g.1): Protokoll und Stände der Demo-Regie, zusätzlich nur im Demo-Mandanten
+  demo_event: {
+    kind: 'org_private',
+    manual: 'DM-01: Protokoll der Regie nur im Demo-Mandanten',
+  },
+  demo_snapshot: {
+    kind: 'org_private',
+    manual: 'DM-01: Stände der Demo nur im Demo-Mandanten',
+  },
   model_call: {
     kind: 'org_private',
     testValues: {

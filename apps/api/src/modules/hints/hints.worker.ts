@@ -29,8 +29,9 @@ export class HintsWorker implements OnModuleInit, OnApplicationShutdown {
     @Inject(HintsService) private readonly hints: HintsService,
   ) {}
 
-  async runDaily(): Promise<number> {
-    const organizations = await this.store.hintOrganizations();
+  /** Ein Durchlauf; organizationIds für die Demo-Regie (DM-01, K1-g) und Tests */
+  async runDaily(organizationIds?: string[]): Promise<number> {
+    const organizations = organizationIds ?? (await this.store.hintOrganizations());
     for (const orgId of organizations) {
       await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
         await this.hints.refresh(tx, orgId);

@@ -239,6 +239,9 @@ export async function seedNordwind(
     );
   }
   return db.transaction(async (tx) => {
+    // K1-g.1: Erst alles der Demo leeren (auch, was in Vorführungen entstanden ist), dann frisch
+    // einspielen; zum Schluss hält „start“ genau diesen Stand fest, den das Zurücksetzen lädt.
+    await tx.execute(sql`select app_demo_leeren(${nordwind.org.id}::uuid)`);
     const supplierOrgs = nordwindSuppliers.map(({ id, name, country }) => ({
       id,
       name,
@@ -549,6 +552,7 @@ export async function seedNordwind(
         set: { value: sql`excluded.value`, updatedBy: actor },
       });
 
+    await tx.execute(sql`select app_demo_schnappschuss(${nordwind.org.id}::uuid, 'start')`);
     return {
       organizations: orgs.length,
       people: people.length,

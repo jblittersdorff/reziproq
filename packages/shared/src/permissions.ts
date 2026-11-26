@@ -83,6 +83,8 @@ export const actions = [
   'feedback.verwalten',
   // MA-01 (K1-f): eigene Stufen je Aufgabe von Reziproq
   'mein_agent.einstellen',
+  // DM-01 (K1-g): Demo-Regie bedienen, nur im Demo-Mandanten
+  'demo.regie',
 ] as const;
 export type Action = (typeof actions)[number];
 

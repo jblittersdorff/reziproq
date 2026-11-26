@@ -37,9 +37,10 @@ export function berlinHour(at: Date): number {
   return new Date(wallClock(at)).getUTCHours();
 }
 
-/** Zeitpunkt für Datum und volle Stunde in Berlin, Sommer- und Winterzeit eingerechnet */
-export function berlinTime(date: string, hour: number): Date {
-  const guess = new Date(`${date}T${String(hour).padStart(2, '0')}:00:00Z`);
+/** Zeitpunkt für Datum und Uhrzeit in Berlin, Sommer- und Winterzeit eingerechnet */
+export function berlinTime(date: string, hour: number, minute = 0): Date {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const guess = new Date(`${date}T${pad(hour)}:${pad(minute)}:00Z`);
   return new Date(guess.getTime() - (wallClock(guess) - guess.getTime()));
 }
 

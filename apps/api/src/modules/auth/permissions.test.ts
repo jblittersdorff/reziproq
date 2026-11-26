@@ -421,6 +421,11 @@ describe('PLT-05a: Rollen und Rechte über die API', () => {
     // MA-01 (K1-f): die eigene Stufe einer Aufgabe in Mein Agent
     'mein_agent.einstellen': async (user) =>
       (await request(user, 'PUT', '/api/mein-agent/inbox', { level: 'do' })).status,
+    // DM-01 (K1-g): Außerhalb des Demo-Mandanten gibt es die Regie nicht (404); das Recht greift.
+    'demo.regie': async (user) => {
+      const { status } = await request(user, 'GET', '/api/demo/regie');
+      return status === 404 ? 200 : status;
+    },
   };
 
   beforeAll(async () => {

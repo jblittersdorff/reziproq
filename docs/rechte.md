@@ -65,6 +65,7 @@ gibt später GuV-Wirkungen frei (PNL-06). Entschieden wird allein im Backend üb
 | `eigene_sicht.bearbeiten` | Als Lieferant die eigene Sicht auf einen Kunden bearbeiten (nur Lieferantenseite) | ja | ja | nein | nein |
 | `feedback.verwalten` | Feedback-Welle starten (Käufer: Admin oder SRO), eigene Teilnehmende einladen, eigene Seite abschließen | ja | ja | nein | nein |
 | `mein_agent.einstellen` | In Mein Agent festlegen, wie viel Reziproq je Aufgabe für einen selbst tut (nur Käufer, MA-01) | ja | ja | nein | nein |
+| `demo.regie` | Demo-Regie bedienen: Zeit, Signale, Zurücksetzen (nur im Demo-Mandanten, sonst 404; DM-01) | ja | ja | ja | ja |
 
 ## Umbau KI-nativ (Planung)
 

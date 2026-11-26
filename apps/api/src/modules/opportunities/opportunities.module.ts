@@ -14,5 +14,7 @@ import { OpportunityOverviewService } from './overview.service.js';
   imports: [AiGatewayModule, JbpModule, ActionsModule],
   controllers: [OpportunitiesController, OpportunityOverviewController],
   providers: [OpportunitiesService, OpportunityOverviewService, OpportunitiesWorker],
+  // DM-01 (K1-g): Die Demo-Regie führt den Monatslauf beim Vorrücken der Uhr aus
+  exports: [OpportunitiesWorker],
 })
 export class OpportunitiesModule {}

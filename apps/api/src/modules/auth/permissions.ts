@@ -292,4 +292,9 @@ export const permissions: Record<Action, Permission> = {
       'In Mein Agent festlegen, wie viel Reziproq je Aufgabe für einen selbst tut (nur Käufer, MA-01)',
     roles: ['admin', 'member'],
   },
+  'demo.regie': {
+    description:
+      'Demo-Regie bedienen: Zeit, Signale, Zurücksetzen (nur im Demo-Mandanten, sonst 404; DM-01)',
+    roles: ['admin', 'member', 'viewer'],
+  },
 };

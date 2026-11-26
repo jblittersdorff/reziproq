@@ -34,5 +34,7 @@ import { MyAgentService } from './my-agent.service.js';
     MeetingBriefWorker,
     MyAgentService,
   ],
+  // DM-01 (K1-g): Die Demo-Regie führt Briefing und Ergebnis-Aufgabe beim Vorrücken der Uhr aus
+  exports: [MeetingBriefWorker],
 })
 export class AgentsModule {}
