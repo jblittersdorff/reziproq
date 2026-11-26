@@ -129,4 +129,120 @@ describe('demo:hollmann', () => {
     expect(listed.map((row) => row.id)).toContain(hollmannPeople.janLuka.id);
     expect(listed.map((row) => row.id)).toContain(supplierPeople.kimKaiser.id);
   });
+
+  // ZQ-01, DM-01 K2 (K2-a.5): Zusagen 2026 zwischen Hollmann und Rheintal wie in L-Ueberblick
+  const rheintal = hollmannSuppliers.find((entry) => entry.key === 'rheintal');
+  const rates = async () => {
+    const rows = await query<{ side: string; kept: number; due: number }>(sql`
+      select side, kept, due from commitment_rate
+      where relationship_id = ${rheintal?.relationshipId} and year = 2026 order by side`);
+    return Object.fromEntries(
+      rows.map((row) => [
+        row.side,
+        `${row.kept}/${row.due} ${Math.round((100 * row.kept) / row.due)} %`,
+      ]),
+    );
+  };
+
+  it('Zusagequote 2026: Hollmann 9 von 10 (90 %), Rheintal 7 von 9 (78 %)', async () => {
+    expect(await rates()).toEqual({ buyer: '9/10 90 %', supplier: '7/9 78 %' });
+    // 16 gehaltene Zusagen; zuletzt gehalten hat Hollmann die Abrufmengen
+    const [last] = await query<{ title: string; side: string }>(sql`
+      select title, side from commitment
+      where relationship_id = ${rheintal?.relationshipId} and status = 'kept'
+      order by done_at desc limit 1`);
+    expect(last).toEqual({ title: 'Abrufmengen 6 Monate im Voraus', side: 'buyer' });
+    const [kept] = await query<{ n: number }>(sql`
+      select count(*)::int as n from commitment
+      where relationship_id = ${rheintal?.relationshipId} and status = 'kept'`);
+    expect(kept?.n).toBe(16);
+  });
+
+  it('sechs offene Zusagen wie in der Akte; die Musterteile hat Rheintal noch nicht bestätigt', async () => {
+    const open = await query<{
+      title: string;
+      side: string;
+      owner_name: string;
+      due_on: string;
+      confirm_state: string;
+    }>(sql`
+      select title, side, owner_name, due_on::text, confirm_state from commitment
+      where relationship_id = ${rheintal?.relationshipId} and status = 'open'
+      order by due_on, title`);
+    expect(open).toEqual([
+      {
+        title: '8D-Bericht Charge 4711',
+        side: 'supplier',
+        owner_name: 'Nils Ott',
+        due_on: '2026-11-05',
+        confirm_state: 'both_confirmed',
+      },
+      {
+        title: 'Beitrag Machbarkeit Lieferzeit',
+        side: 'supplier',
+        owner_name: 'Tom Weber',
+        due_on: '2026-11-27',
+        confirm_state: 'both_confirmed',
+      },
+      {
+        title: 'Musterteile Starrflex liefern',
+        side: 'supplier',
+        owner_name: 'Kim Kaiser',
+        due_on: '2026-12-15',
+        confirm_state: 'buyer_confirmed',
+      },
+      {
+        title: 'Prognose monatlich teilen',
+        side: 'buyer',
+        owner_name: 'Ida Roth',
+        due_on: '2026-12-15',
+        confirm_state: 'both_confirmed',
+      },
+      {
+        title: 'Prognose 2028 teilen',
+        side: 'buyer',
+        owner_name: 'Ida Roth',
+        due_on: '2027-01-31',
+        confirm_state: 'both_confirmed',
+      },
+      {
+        title: 'Abnahmeplan SMT-Linie',
+        side: 'supplier',
+        owner_name: 'Kim Kaiser',
+        due_on: '2027-02-28',
+        confirm_state: 'both_confirmed',
+      },
+    ]);
+    // Herkunft: Feedback-Lücke und Gemeinsamer Plan 2026
+    const origins = await query<{
+      title: string;
+      source_type: string | null;
+      in_plan: boolean;
+    }>(sql`
+      select title, source_type, jbp_id is not null as in_plan from commitment
+      where relationship_id = ${rheintal?.relationshipId}
+        and title in ('Prognose monatlich teilen', 'Abnahmeplan SMT-Linie') order by title`);
+    expect(origins).toEqual([
+      { title: 'Abnahmeplan SMT-Linie', source_type: null, in_plan: true },
+      { title: 'Prognose monatlich teilen', source_type: 'feedback', in_plan: false },
+    ]);
+  });
+
+  it('T2-05: Eine verfehlte Zusage von Rheintal senkt die Quote von 78 auf 70 % (7 von 10); eine nur einseitig bestätigte zählt nicht', async () => {
+    const mark = (title: string, status: 'missed' | 'open') =>
+      temp.db.execute(sql`
+        update commitment set status = ${status}, done_at = ${status === 'missed' ? hollmannStart : null}
+        where relationship_id = ${rheintal?.relationshipId} and title = ${title}`);
+    try {
+      await mark('8D-Bericht Charge 4711', 'missed');
+      expect((await rates()).supplier).toBe('7/10 70 %');
+      // Nur von Hollmann bestätigt: zählt nicht, auch wenn sie verfehlt ist
+      await mark('Musterteile Starrflex liefern', 'missed');
+      expect((await rates()).supplier).toBe('7/10 70 %');
+    } finally {
+      await mark('8D-Bericht Charge 4711', 'open');
+      await mark('Musterteile Starrflex liefern', 'open');
+    }
+    expect(await rates()).toEqual({ buyer: '9/10 90 %', supplier: '7/9 78 %' });
+  });
 });

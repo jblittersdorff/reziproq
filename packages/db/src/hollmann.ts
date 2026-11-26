@@ -1,6 +1,7 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import { seedMorning } from './hollmann-morgen.js';
+import { seedCommitments } from './hollmann-zusagen.js';
 import {
   appUser,
   materialGroup,
@@ -616,6 +617,26 @@ export async function seedHollmann(
         miaKuhn: contact(supplierPeople.miaKuhn),
       },
       jbpMeetingId: nid(501),
+    });
+    // Zusagen 2026 zwischen Hollmann und Rheintal (K2-a.5): Quote 90 zu 78 %, sechs offene
+    const person = (entry: { id: string; name: string }) => ({ id: entry.id, name: entry.name });
+    await seedCommitments(tx, {
+      nid,
+      hollmannOrgId: hollmann.org.id,
+      rheintal: { orgId: rheintal.id, relationshipId: rheintal.relationshipId },
+      janLuka: person(janLuka),
+      hollmann: {
+        idaRoth: person(hollmannPeople.idaRoth),
+        jonasFeld: person(hollmannPeople.jonasFeld),
+        saraOst: person(hollmannPeople.saraOst),
+      },
+      rheintalPeople: {
+        kimKaiser: person(supplierPeople.kimKaiser),
+        tomWeber: person(supplierPeople.tomWeber),
+        nilsOtt: person(supplierPeople.nilsOtt),
+        leaBrandt: person(supplierPeople.leaBrandt),
+        miaKuhn: person(supplierPeople.miaKuhn),
+      },
     });
     await tx.execute(sql`select app_demo_schnappschuss(${hollmann.org.id}::uuid, 'start')`);
     return {
