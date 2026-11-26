@@ -132,6 +132,27 @@ export class DoneService {
             });
             continue;
           }
+          // K1-g.2: Mail, die das Postfach selbst abgelegt hat
+          if (payload.success && payload.data.kind === 'mail_assign') {
+            const mail = payload.data;
+            result.push({
+              id: row.id,
+              at: at.toISOString(),
+              task: row.task,
+              taskName: row.task_name,
+              status: row.undone_at ? 'undone' : 'done',
+              action: 'mail_assign',
+              subject: mail.subject.trim() && mail.subject !== '–' ? mail.subject : null,
+              sender: mail.sender,
+              counterpart: names.get(mail.relationshipId) ?? counterpart,
+              href: row.undone_at
+                ? null
+                : `/lieferanten/${mail.relationshipId}/aktivitaeten?filter=mails#mail-${mail.mailId}`,
+              openDrafts: 0,
+              undo: { possible: blocker === null, blocker },
+            });
+            continue;
+          }
           const meetingHref =
             row.context_type === 'meeting' && relationshipId && row.context_id
               ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.context_id}`
@@ -234,6 +255,15 @@ async function changedSince(
   payload: UndoPayload,
   at: Date,
 ): Promise<false | true | string> {
+  if (payload.kind === 'mail_assign') {
+    // K1-g.2: Die Mail liegt unverändert beim Lieferanten, für das Team sichtbar
+    const [mail] = (
+      await tx.execute<{ relationship_id: string; visibility: string }>(
+        sql`select relationship_id, visibility from filed_mail where id = ${payload.mailId}`,
+      )
+    ).rows;
+    return !mail || mail.relationship_id !== payload.relationshipId || mail.visibility !== 'team';
+  }
   if (payload.kind !== 'inbound_assign') return false;
   const ids = payload.meetings.map((meeting) => meeting.id);
   if (ids.length === 0) return false;
@@ -290,6 +320,10 @@ async function changedSince(
 
 /** Spielt einen undo_payload zurück */
 async function undoPayload(tx: TenantTransaction, payload: UndoPayload, userId: string) {
+  if (payload.kind === 'mail_assign') {
+    await undoMail(tx, payload, userId);
+    return;
+  }
   if (payload.kind !== 'inbound_assign') return;
   const ids = payload.meetings.map((meeting) => meeting.id);
   if (ids.length > 0) {
@@ -323,4 +357,70 @@ async function undoPayload(tx: TenantTransaction, payload: UndoPayload, userId: 
       objectIds: [],
     })
     .where(eq(schema.inboundItem.id, payload.inboundItemId));
+}
+
+/**
+ * K1-g.2: Die abgelegte Mail geht zurück an den Eingang („Zuordnen“). Text, Empfänger und Anhänge
+ * warten dort wieder wie bei „Neu eingegangen“; die Dateien bleiben, nur die Ablage beim Lieferanten
+ * und ihre Zusammenfassung als Entwurf entfallen.
+ */
+async function undoMail(
+  tx: TenantTransaction,
+  payload: Extract<UndoPayload, { kind: 'mail_assign' }>,
+  userId: string,
+) {
+  const [mail] = await tx
+    .select()
+    .from(schema.filedMail)
+    .where(eq(schema.filedMail.id, payload.mailId));
+  const [inbound] = await tx
+    .select({ details: schema.inboundItem.details, owner: schema.inboundItem.ownerUserId })
+    .from(schema.inboundItem)
+    .where(eq(schema.inboundItem.id, payload.inboundItemId));
+  if (!mail || !inbound) return;
+  const attachments = await tx
+    .select({
+      fileName: schema.filedMailAttachment.fileName,
+      mime: schema.filedMailAttachment.mime,
+      size: schema.filedMailAttachment.size,
+      fileKey: schema.filedMailAttachment.fileKey,
+    })
+    .from(schema.filedMailAttachment)
+    .where(eq(schema.filedMailAttachment.filedMailId, payload.mailId));
+  await tx
+    .update(schema.inboundItem)
+    .set({
+      status: 'needs_review',
+      assigneeUserId: userId,
+      assignedBy: null,
+      assignedAt: null,
+      objectType: null,
+      objectIds: [],
+      details: {
+        ...inbound.details,
+        mail: {
+          messageId: mail.messageId,
+          fromEmail: mail.fromEmail,
+          fromName: mail.fromName,
+          toEmails: mail.toEmails,
+          sentAt: mail.sentAt.toISOString(),
+          bodyText: mail.bodyText,
+          forwardedBy: inbound.owner ?? userId,
+          attachments,
+        },
+      },
+    })
+    .where(eq(schema.inboundItem.id, payload.inboundItemId));
+  if (mail.summaryDraftId) {
+    await tx
+      .update(schema.aiDraft)
+      .set({
+        status: 'discarded',
+        dismissReason: 'Mail zurückgenommen',
+        decidedBy: userId,
+        decidedAt: currentTime(),
+      })
+      .where(and(eq(schema.aiDraft.id, mail.summaryDraftId), eq(schema.aiDraft.status, 'draft')));
+  }
+  await tx.delete(schema.filedMail).where(eq(schema.filedMail.id, payload.mailId));
 }

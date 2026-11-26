@@ -33,6 +33,17 @@ export const undoPayloadSchema = z.discriminatedUnion('kind', [
       }),
     ),
   }),
+  // K1-g.2: Mail, die das Postfach auf Stufe Erledigen selbst abgelegt hat. Zurücknehmen legt sie
+  // wieder an den Eingang („Zuordnen“), solange die abgelegte Mail unverändert beim Lieferanten liegt.
+  z.object({
+    kind: z.literal('mail_assign'),
+    inboundItemId: z.uuid(),
+    mailId: z.uuid(),
+    subject: z.string(),
+    /** Name des Absenders aus den Ansprechpartnern, sonst seine Adresse */
+    sender: z.string(),
+    relationshipId: z.uuid(),
+  }),
 ]);
 export type UndoPayload = z.infer<typeof undoPayloadSchema>;
 
@@ -49,10 +60,12 @@ export const doneRowSchema = z.object({
   /** Name der Aufgabe, wie der Lauf ihn führt */
   taskName: z.string(),
   status: z.enum(['done', 'failed', 'undone']),
-  /** Was getan wurde: Zuordnung, vorbereiteter Entwurf oder ein anderer Lauf */
-  action: z.enum(['inbound_assign', 'prepared', 'run']),
+  /** Was getan wurde: Zuordnung von Termin oder Mail, vorbereiteter Entwurf oder ein anderer Lauf */
+  action: z.enum(['inbound_assign', 'mail_assign', 'prepared', 'run']),
   /** Titel des Objekts, z. B. Betreff des Termins */
   subject: z.string().nullable(),
+  /** Absender einer zugeordneten Mail (K1-g.2) */
+  sender: z.string().nullable().optional(),
   counterpart: z.string().nullable(),
   /** Ort zum Ansehen: Objekt oder Kurz prüfen; null ohne Ziel */
   href: z.string().nullable(),

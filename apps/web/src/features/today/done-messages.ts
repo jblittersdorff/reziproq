@@ -51,6 +51,7 @@ export const doneMessages = defineMessages({
         : `${count} ${plural(count, 'Vorgang', 'Vorgänge')} erledigt, nichts davon verbindlich gegenüber Lieferanten.`,
     chips: {
       inbound_assign: (n: number) => `${n} ${plural(n, 'Termin', 'Termine')} zugeordnet`,
+      mail_assign: (n: number) => `${n} ${plural(n, 'Mail', 'Mails')} zugeordnet`,
       prepared: (n: number) => `${n} ${plural(n, 'Entwurf', 'Entwürfe')} vorbereitet`,
       run: (n: number) => `${n} ${plural(n, 'Lauf', 'Läufe')}`,
       failed: (n: number) => `${n} fehlgeschlagen`,
@@ -65,6 +66,11 @@ export const doneMessages = defineMessages({
         counterpart
           ? `Termin „${subject ?? ''}“ der Beziehung ${counterpart} zugeordnet`
           : `Termin „${subject ?? ''}“ zugeordnet`,
+      // K1-g.2, Vorlage Erledigt: „Mail „Kapazitätsplanung 2028“ von Tom Weber der Beziehung …“
+      mail_assign: (subject: string | null, sender: string | null, counterpart: string | null) =>
+        `Mail${subject ? ` „${subject}“` : ''}${sender ? ` von ${sender}` : ''}${
+          counterpart ? ` der Beziehung ${counterpart}` : ''
+        } zugeordnet`,
       prepared: (what: string, open: boolean) =>
         open ? `${what} vorbereitet, wartet in Kurz prüfen` : `${what} vorbereitet`,
       run: (what: string) => `${what} ausgeführt`,
@@ -114,6 +120,7 @@ export const doneMessages = defineMessages({
         : `${count} ${plural(count, 'task', 'tasks')} done, none of them binding towards suppliers.`,
     chips: {
       inbound_assign: (n: number) => `${n} ${plural(n, 'meeting', 'meetings')} assigned`,
+      mail_assign: (n: number) => `${n} ${plural(n, 'mail', 'mails')} assigned`,
       prepared: (n: number) => `${n} ${plural(n, 'draft', 'drafts')} prepared`,
       run: (n: number) => `${n} ${plural(n, 'run', 'runs')}`,
       failed: (n: number) => `${n} failed`,
@@ -128,6 +135,10 @@ export const doneMessages = defineMessages({
         counterpart
           ? `Meeting “${subject ?? ''}” assigned to ${counterpart}`
           : `Meeting “${subject ?? ''}” assigned`,
+      mail_assign: (subject: string | null, sender: string | null, counterpart: string | null) =>
+        `Mail${subject ? ` “${subject}”` : ''}${sender ? ` from ${sender}` : ''} assigned${
+          counterpart ? ` to ${counterpart}` : ''
+        }`,
       prepared: (what: string, open: boolean) =>
         open ? `${what} prepared, waiting in quick review` : `${what} prepared`,
       run: (what: string) => `${what} completed`,

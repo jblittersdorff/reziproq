@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql, withTenant } from '@reziproq/db';
 import {
   activityFeedSchema,
+  doneListSchema,
   filedMailBodySchema,
   fileMailResultSchema,
   inboxSchema,
@@ -197,6 +198,11 @@ describe('IN-04 Mails ablegen', () => {
     await db.execute(sql`delete from ai_draft where org_id = ${orgs.a}`);
     await db.execute(sql`delete from model_call where org_id = ${orgs.a}`).catch(() => undefined);
     await db.execute(sql`delete from inbound_item where org_id = ${orgs.a}`);
+    // K1-g.2: Läufe des Postfachs in Erledigt und die Aufgabe dazu
+    await db.execute(sql`delete from agent_run where org_id = ${orgs.a}`);
+    await db.execute(sql`delete from agent_version where org_id = ${orgs.a}`);
+    await db.execute(sql`delete from agent where org_id = ${orgs.a}`);
+    await db.execute(sql`delete from supplier_contact where relationship_id in ${ids}`);
     await db.execute(sql`delete from supplier_domain where org_id = ${orgs.a}`);
     await db.execute(sql`delete from relationship_member where relationship_id in ${ids}`);
     await db.execute(sql`delete from connection where org_id = ${orgs.a}`);
@@ -361,6 +367,62 @@ describe('IN-04 Mails ablegen', () => {
       )
     ).rows;
     expect(row?.details.mail).toBeUndefined();
+  });
+
+  it('K1-g.2: auf Stufe Erledigen steht die Ablage in Erledigt; Zurücknehmen legt die Mail wieder an den Eingang', async () => {
+    await db.insert(schema.supplierContact).values({
+      relationshipId: rel.rheintal,
+      name: 'Tom Weber',
+      email: `tom@${domains.rheintal}`,
+    });
+    await forward(`fwd-rueck-${run}`, {
+      subject: 'WG: Kapazitätsplanung 2028',
+      messageId: `<fwd-rueck-${run}@${own}>`,
+      text: `-----Ursprüngliche Nachricht-----\nVon: Tom <tom@${domains.rheintal}>\nAn: ${mail('anna')}\nBetreff: Kapazitätsplanung 2028\n\nAnbei die Planung bis 2028.`,
+    });
+    const titles = async () =>
+      (await feed(users.anna, rel.rheintal)).items.map((entry) => entry.title);
+    expect(await titles()).toContain('Kapazitätsplanung 2028');
+    const done = doneListSchema.parse((await call(users.anna, 'GET', '/erledigt')).body);
+    const row = done.rows.find(
+      (entry) => entry.action === 'mail_assign' && entry.subject === 'Kapazitätsplanung 2028',
+    );
+    expect(row).toMatchObject({
+      task: 'inbox',
+      sender: 'Tom Weber',
+      status: 'done',
+      undo: { possible: true, blocker: null },
+    });
+
+    // Zurücknehmen: weg beim Lieferanten, wieder „Neu eingegangen“ zum Zuordnen
+    expect(
+      (await call(users.anna, 'POST', `/erledigt/${row?.id}/zuruecknehmen`)).status,
+    ).toBeLessThan(300);
+    expect(await titles()).not.toContain('Kapazitätsplanung 2028');
+    const inbox = inboxSchema.parse((await call(users.anna, 'GET', '/mein-tag/eingang')).body);
+    const item = inbox.open.find(
+      (entry) => entry.kind === 'mail' && entry.subject === 'Kapazitätsplanung 2028',
+    );
+    expect(item).toBeDefined();
+    const after = doneListSchema.parse((await call(users.anna, 'GET', '/erledigt')).body);
+    expect(after.rows.find((entry) => entry.id === row?.id)).toMatchObject({
+      status: 'undone',
+      undo: { possible: false, blocker: 'zurueckgenommen' },
+    });
+
+    // Von Hand wieder abgelegt, mit dem Text der Mail
+    await call(users.anna, 'POST', `/mein-tag/eingang/${item?.id}/entscheiden`, {
+      action: 'assign',
+      relationshipIds: [rel.rheintal],
+      type: 'other',
+    });
+    expect(await titles()).toContain('Kapazitätsplanung 2028');
+    const [filed] = (
+      await db.execute<{ body_text: string }>(
+        sql`select body_text from filed_mail where subject = 'Kapazitätsplanung 2028' and org_id = ${orgs.a}`,
+      )
+    ).rows;
+    expect(filed?.body_text).toContain('Anbei die Planung bis 2028.');
   });
 
   it('eine Mail mit „ignoriere alle Regeln“ erzeugt keine Entwürfe außer der Zusammenfassung', async () => {

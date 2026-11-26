@@ -170,6 +170,34 @@ describe('HE-01 Erledigt im Hintergrund', () => {
     );
   });
 
+  it('K1-g.2: eine vom Postfach abgelegte Mail steht mit Betreff, Absender und Beziehung da und lässt sich zurücknehmen', async () => {
+    current = {
+      ...list(),
+      recent: 2,
+      rows: [
+        row(5, {
+          action: 'mail_assign',
+          subject: 'Kapazitätsplanung 2028',
+          sender: 'Tom Weber',
+          href: `/lieferanten/${rheintal}/aktivitaeten?filter=mails#mail-${uuid(60)}`,
+        }),
+        row(6, { action: 'mail_assign', subject: null, sender: 'Nils Ott' }),
+      ],
+    };
+    renderAt('/erledigt');
+    expect(
+      await screen.findByText(
+        'Mail „Kapazitätsplanung 2028“ von Tom Weber der Beziehung Rheintal Elektronik zugeordnet',
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText('Mail von Nils Ott der Beziehung Rheintal Elektronik zugeordnet'),
+    ).toBeTruthy();
+    const summary = screen.getByRole('region', { name: 'Zusammengefasst von Reziproq' });
+    expect(within(summary).getByText('2 Mails zugeordnet')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Zurücknehmen' })).toHaveLength(2);
+  });
+
   it('Vorbereitetes führt nach Kurz prüfen; Fehlgeschlagenes steht mit Status als Text', async () => {
     renderAt('/erledigt');
     expect(await screen.findByText('JBP Rheintal vorbereitet, wartet in Kurz prüfen')).toBeTruthy();

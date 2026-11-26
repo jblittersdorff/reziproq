@@ -36,6 +36,7 @@ import { GRAPH_CLIENT, type GraphClient } from '../integrations/graph-client.js'
 import { IntegrationsService } from '../integrations/integrations.service.js';
 import { type ItemContext, ItemHandlers, type ItemOutcome } from '../integrations/item-handlers.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
+import { recordDone } from '../today/erledigt.js';
 import {
   cleanMailText,
   fallbackSummary,
@@ -441,14 +442,15 @@ export class MailsService implements OnModuleInit {
         actorIn(tx, orgId, forwarder),
       );
       if (actor) {
-        const result = await this.file(actor, only.relationshipId, 'team', 'forward', mail).catch(
-          () => null,
-        );
-        if (result) {
-          return result.created
-            ? { status: 'applied', objectType: 'filed_mail', objectId: result.mailId }
-            : { status: 'ignored', reason: 'schon_abgelegt' };
-        }
+        const result = await this.fileWithUndo(actor, {
+          orgId,
+          forwarder,
+          from,
+          mail,
+          attachments,
+          match: only,
+        }).catch(() => null);
+        if (result) return result;
       }
     }
 
@@ -474,26 +476,7 @@ export class MailsService implements OnModuleInit {
           source: 'inbound_mail',
           fromEmail: from,
           subject: mail.subject || '–',
-          details: {
-            method: 'REQUEST',
-            startsAt: mail.sentAt.toISOString(),
-            endsAt: null,
-            location: null,
-            onlineMeetingUrl: null,
-            organizerEmail: mail.fromEmail,
-            organizerName: null,
-            attendees: mail.toEmails.map((email) => ({ email, name: null, response: null })),
-            mail: {
-              messageId: mail.messageId,
-              fromEmail: mail.fromEmail,
-              fromName: null,
-              toEmails: mail.toEmails,
-              sentAt: mail.sentAt.toISOString(),
-              bodyText: mail.bodyText,
-              forwardedBy: forwarder,
-              attachments: stored,
-            },
-          },
+          details: pendingDetails(mail, forwarder, stored),
           suggestedRelationshipIds: prepared.matches
             .slice(0, 5)
             .map((match) => match.relationshipId),
@@ -530,6 +513,96 @@ export class MailsService implements OnModuleInit {
       });
     }
     return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };
+  }
+
+  /**
+   * K1-g.2 (HE-01 Dienst 3): Auf Stufe Erledigen legt das Postfach die Mail selbst ab, als Lauf mit
+   * Rücknahme in Erledigt. Die Mail steht dafür zuerst wie „Neu eingegangen“ am Eingang und wird von
+   * dort abgelegt wie beim Zuordnen von Hand; Zurücknehmen stellt genau diesen Stand wieder her.
+   * Scheitert das Ablegen, ist nichts angelegt, und die Mail geht den Weg „Neu eingegangen“.
+   */
+  private async fileWithUndo(
+    actor: AuthContext,
+    input: {
+      orgId: string;
+      forwarder: string;
+      from: string;
+      mail: IncomingMail;
+      attachments: IncomingMail['attachments'];
+      match: { relationshipId: string; name: string; domains: string[] };
+    },
+  ): Promise<ItemOutcome> {
+    const { orgId, forwarder, mail, match } = input;
+    const system = { userId: systemUser, organizationId: orgId };
+    const stored = await this.storeFiles(orgId, input.attachments);
+    const inboundId = await this.tenant.run(system, async (tx) => {
+      const [row] = await tx
+        .insert(schema.inboundItem)
+        .values({
+          orgId,
+          kind: 'mail',
+          source: 'inbound_mail',
+          fromEmail: input.from,
+          subject: mail.subject || '–',
+          details: pendingDetails(mail, forwarder, stored),
+          suggestedRelationshipIds: [match.relationshipId],
+          suggestionKind: 'supplier',
+          suggestionReason: `${match.name}: ${match.domains.join(', ')}.`,
+          suggestedType: 'other',
+          status: 'auto_assigned',
+          ownerUserId: forwarder,
+          assigneeUserId: forwarder,
+        })
+        .returning({ id: schema.inboundItem.id });
+      return row?.id ?? null;
+    });
+    const dropInbound = async () => {
+      if (inboundId) {
+        await this.tenant.run(system, (tx) =>
+          tx.delete(schema.inboundItem).where(eq(schema.inboundItem.id, inboundId)),
+        );
+      }
+    };
+    let mailId: string | null = null;
+    try {
+      if (!inboundId) throw new Error('Eingang nicht angelegt');
+      mailId = await this.assignInbound(actor, inboundId, match.relationshipId);
+    } catch (error) {
+      await this.removeFiles(stored);
+      await dropInbound();
+      throw error;
+    }
+    if (!mailId || !inboundId) {
+      // Schon abgelegt: kein zweiter Eintrag und kein Lauf
+      await dropInbound();
+      return { status: 'ignored', reason: 'schon_abgelegt' };
+    }
+    const filedId = mailId;
+    const itemId = inboundId;
+    await this.tenant.run(system, async (tx) => {
+      const sender = await senderOf(tx, match.relationshipId, mail.fromEmail);
+      await tx
+        .update(schema.inboundItem)
+        .set({ assignedAt: currentTime(), objectType: 'filed_mail', objectIds: [filedId] })
+        .where(eq(schema.inboundItem.id, itemId));
+      await recordDone(tx, {
+        orgId,
+        userId: forwarder,
+        workerKey: 'inbox',
+        relationshipId: match.relationshipId,
+        contextType: 'inbound_item',
+        contextId: itemId,
+        undo: {
+          kind: 'mail_assign',
+          inboundItemId: itemId,
+          mailId: filedId,
+          subject: mail.subject,
+          sender,
+          relationshipId: match.relationshipId,
+        },
+      });
+    });
+    return { status: 'applied', objectType: 'filed_mail', objectId: filedId };
   }
 
   /** „Neu eingegangen“ → Lieferant: die Mail wird mit den Rechten der entscheidenden Person abgelegt */
@@ -732,4 +805,43 @@ export class MailsService implements OnModuleInit {
 /** Für die Suche nach dem Kopf der Weiterleitung reicht der Text ohne Tags */
 function htmlToPlain(html: string) {
   return html ? cleanMailText(html, true) : '';
+}
+
+/** Wartende Mail am Eingang („Neu eingegangen“): Text, Empfänger und schon gespeicherte Anhänge */
+function pendingDetails(
+  mail: IncomingMail,
+  forwarder: string,
+  stored: StoredAttachment[],
+): typeof schema.inboundItem.$inferInsert.details {
+  return {
+    method: 'REQUEST',
+    startsAt: mail.sentAt.toISOString(),
+    endsAt: null,
+    location: null,
+    onlineMeetingUrl: null,
+    organizerEmail: mail.fromEmail,
+    organizerName: null,
+    attendees: mail.toEmails.map((email) => ({ email, name: null, response: null })),
+    mail: {
+      messageId: mail.messageId,
+      fromEmail: mail.fromEmail,
+      fromName: null,
+      toEmails: mail.toEmails,
+      sentAt: mail.sentAt.toISOString(),
+      bodyText: mail.bodyText,
+      forwardedBy: forwarder,
+      attachments: stored,
+    },
+  };
+}
+
+/** Name des Absenders aus den Ansprechpartnern des Lieferanten, sonst seine Adresse (K1-g.2) */
+async function senderOf(tx: TenantTransaction, relationshipId: string, email: string) {
+  const [contact] = (
+    await tx.execute<{ name: string }>(sql`
+      select name from supplier_contact
+      where relationship_id = ${relationshipId} and lower(email) = lower(${email})
+      limit 1`)
+  ).rows;
+  return contact?.name ?? email;
 }
