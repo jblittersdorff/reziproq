@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "node scripts/dev-guard.mjs && pnpm --filter \"./packages/*\" build && pnpm --recursive --parallel dev",
     "dev:stop": "node scripts/dev-stop.mjs",
+    "vorschau": "node scripts/vorschau.mjs",
+    "vorschau:stop": "node scripts/vorschau.mjs stop",
+    "vorschau:status": "node scripts/vorschau.mjs status",
     "build": "pnpm --recursive build",
     "start": "pnpm --filter @reziproq/api start",
     "lint": "biome lint .",

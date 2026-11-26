@@ -67,4 +67,22 @@ describe('Nur ein pnpm dev zur Zeit', () => {
       100, 101, 102, 103, 104, 105, 106, 200, 201, 202, 203, 210,
     ]);
   });
+
+  it('lässt die feste Vorschau im Nachbarordner <repo>-vorschau stehen', () => {
+    const preview = `${repoDir}-vorschau/app`;
+    const processes = parsePs(`
+      700     1 node --enable-source-maps dist/main.js
+      701     1 node ${preview}/apps/web/node_modules/vite/bin/vite.js preview --port 5173 --strictPort
+      702     1 node ${preview}/apps/website/node_modules/vite/bin/vite.js preview --port 5180
+      703     1 pnpm dev
+      704   703 node ${preview}/apps/web/node_modules/.bin/../vite/bin/vite.js
+    `);
+    const cwds = { 700: `${preview}/apps/api`, 703: preview };
+    const roots = devRoots(processes, {
+      repoDir,
+      cwdOf: (pid) => cwds[pid],
+      portOwners: [700, 701, 702],
+    });
+    expect(roots).toEqual([]);
+  });
 });

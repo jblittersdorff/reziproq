@@ -13,7 +13,8 @@ if (busy.length > 0) {
   console.error(
     `pnpm dev läuft schon: ${busy.length === 1 ? 'Port' : 'Ports'} ${busy.join(', ')} ` +
       `${busy.length === 1 ? 'ist' : 'sind'} belegt.\n` +
-      'Erst den laufenden beenden: pnpm dev:stop (beendet auch verwaiste Dev-Prozesse).',
+      'Erst den laufenden beenden: pnpm dev:stop (beendet auch verwaiste Dev-Prozesse).\n' +
+      'Läuft die feste Vorschau (pnpm vorschau), belegt sie dieselben Ports: pnpm vorschau:stop.',
   );
   process.exit(1);
 }

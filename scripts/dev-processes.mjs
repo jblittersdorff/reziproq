@@ -64,8 +64,14 @@ const isPnpmDev = (command) => /^pnpm (dev|--recursive --parallel dev)(\s|$)/.te
  * Dev-Port belegen. Nie der eigene Prozess oder seine Vorfahren (self), nie Tests.
  */
 export function devRoots(processes, { repoDir, cwdOf, portOwners = [], self = [] }) {
-  const inRepo = (text) => typeof text === 'string' && text.startsWith(repoDir);
-  const ours = (entry) => entry.command.includes(repoDir) || inRepo(cwdOf(entry.pid));
+  // Mit Ordnergrenze: Die feste Vorschau im Nachbarordner `<repo>-vorschau` gehört nicht dazu
+  const inRepo = (text) =>
+    typeof text === 'string' && (text === repoDir || text.startsWith(`${repoDir}/`));
+  const ours = (entry) =>
+    entry.command.includes(`${repoDir}/`) ||
+    entry.command.includes(`${repoDir} `) ||
+    entry.command.endsWith(repoDir) ||
+    inRepo(cwdOf(entry.pid));
   // Erst das Muster, dann der Arbeitsordner: cwdOf fragt das System je Prozess
   const roots = processes.filter((entry) => {
     if (self.includes(entry.pid)) return false;

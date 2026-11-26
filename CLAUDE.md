@@ -7,6 +7,11 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
 
 - pnpm dev: alles lokal starten; startet nicht, wenn schon ein Dev-Server läuft (`scripts/dev-guard.mjs`).
   pnpm dev:stop beendet alle Dev-Prozesse des Projekts, auch verwaiste aus geschlossenen Terminals
+- pnpm vorschau [commit]: feste Vorschau unter localhost:5173 (Website 5180), Standard der letzte Commit.
+  Eigener Worktree `../reziproq-vorschau/app`, eigene Datenbank `reziproq_vorschau` frisch aus Seed,
+  Demo-Setup und Hollmann, gebaut statt im Watch-Modus; Demo-Sitzungen überstehen Neustarts. Der
+  Gründer schaut nur dort; nach jedem grünen Commit neu starten. Sie belegt die Ports von pnpm dev.
+  pnpm vorschau:stop beendet sie, pnpm vorschau:status zeigt den Stand
 - pnpm check: vor jedem Commit alles, was die CI prüft (Typprüfung, Lint, Migration, Rollen, Unit-, Zeitmessung LS-01,
   RLS- und Cross-Tenant-Tests, E2E); alles muss grün sein. Einzeln: pnpm typecheck, pnpm lint,
   pnpm test, pnpm test:e2e

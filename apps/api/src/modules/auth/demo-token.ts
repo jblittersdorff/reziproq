@@ -6,7 +6,9 @@ import { env } from '../../config/env.js';
 
 // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person ohne Zitadel. Die API stellt für eine Person
 // eines Demo-Mandanten ein eigenes Token aus. Der Schlüssel entsteht beim Start im Speicher und
-// endet mit dem Prozess; nichts davon steht im Repo oder in der .env. Zitadel-Tokens sind
+// endet mit dem Prozess; nichts davon steht im Repo. Nur die feste Vorschau gibt ihn über
+// DEMO_SESSION_SECRET vor (aus einer Datei außerhalb des Repos), damit eine Demo-Sitzung den
+// Neustart der Vorschau übersteht. Zitadel-Tokens sind
 // asymmetrisch signiert (RS256, ES256, EdDSA), Demo-Tokens symmetrisch (HS256): Beide Wege lassen
 // sich nicht verwechseln. Der Wächter nimmt ein Demo-Token nur für einen Demo-Mandanten an.
 
@@ -19,9 +21,14 @@ export function demoSessionsEnabled(): boolean {
   return env.DEMO_SESSIONS === 'true' && env.NODE_ENV !== 'production';
 }
 
+/** Schlüssel der Demo-Tokens: fest aus der Konfiguration, sonst zufällig im Speicher */
+export function demoSecret(configured: string | undefined): Uint8Array {
+  return configured ? new TextEncoder().encode(configured) : new Uint8Array(randomBytes(32));
+}
+
 @Injectable()
 export class DemoTokens {
-  private readonly secret = new Uint8Array(randomBytes(32));
+  protected readonly secret: Uint8Array = demoSecret(env.DEMO_SESSION_SECRET);
 
   /** Token für eine Person; ob sie zu einem Demo-Mandanten gehört, prüft der Aufrufer. */
   async issue(userId: string): Promise<{ token: string; expiresAt: Date }> {

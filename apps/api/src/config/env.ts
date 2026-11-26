@@ -24,6 +24,10 @@ const envSchema = z.object({
   // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person ohne Zitadel, nur für Personen eines
   // Demo-Mandanten und nie in Produktion (der Start bricht dann ab).
   DEMO_SESSIONS: z.preprocess(emptyAsUndefined, z.enum(['true', 'false']).default('false')),
+  // Fester Schlüssel der Demo-Tokens, damit Demo-Sitzungen einen Neustart überstehen. Setzt die
+  // feste Vorschau (pnpm vorschau) aus einer Datei außerhalb des Repos; ohne ihn entsteht der
+  // Schlüssel zufällig im Speicher und endet mit dem Prozess.
+  DEMO_SESSION_SECRET: z.preprocess(emptyAsUndefined, z.string().min(32).optional()),
 
   // Das Testmodell braucht weder Schlüssel noch Internet. Echte Daten laufen über Bedrock.
   // IN-01: Schlüssel für Zugangsdaten der Anbindungen; lokal aus einer Datei außerhalb des Repos,
