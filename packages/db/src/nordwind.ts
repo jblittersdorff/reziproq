@@ -1,5 +1,6 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
+import { seedMorning } from './nordwind-morgen.js';
 import {
   appUser,
   materialGroup,
@@ -552,6 +553,28 @@ export async function seedNordwind(
         set: { value: sql`excluded.value`, updatedBy: actor },
       });
 
+    // Drehbuch K1 „Morgen mit Reziproq“ (K1-g.3): Fokus, Erledigt und Kurz prüfen von Jan-Luka
+    const contact = (entry: { id: string; name: string; email: string }) => ({
+      id: entry.id,
+      name: entry.name,
+      email: entry.email,
+    });
+    await seedMorning(tx, {
+      nid,
+      orgId: nordwind.org.id,
+      janLuka: { id: janLuka.id, name: janLuka.name },
+      supplier: (key) => {
+        const found = byKey(key);
+        return { orgId: found.id, relationshipId: found.relationshipId, name: found.name };
+      },
+      rheintalPeople: {
+        nilsOtt: contact(supplierPeople.nilsOtt),
+        tomWeber: contact(supplierPeople.tomWeber),
+        leaBrandt: contact(supplierPeople.leaBrandt),
+        miaKuhn: contact(supplierPeople.miaKuhn),
+      },
+      jbpMeetingId: nid(501),
+    });
     await tx.execute(sql`select app_demo_schnappschuss(${nordwind.org.id}::uuid, 'start')`);
     return {
       organizations: orgs.length,

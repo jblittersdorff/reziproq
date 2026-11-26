@@ -92,6 +92,19 @@ describe('Triage: Abbildung der Ergebnisse (HE-01)', () => {
     expect(fromDraft(draft('capture_commitment', '', 'supplier'), 'de').level).toBe('review');
   });
 
+  it('Ergebnisse nach dem Termin tragen den Titel des Punkts, nicht seine Art (K1-g.3)', () => {
+    const capture = {
+      ...draft('capture_action'),
+      subject: 'action',
+      claims: [{ key: '1', text: 'Liefertreue Oktober: 94 % übernehmen' }],
+    };
+    expect(fromDraft(capture, 'de').title).toBe('Liefertreue Oktober: 94 % übernehmen');
+    // Andere Arten behalten ihren Betreff als Titel
+    expect(
+      fromDraft({ ...draft('plan_summary'), subject: 'Lieferantenplan 2027' }, 'de').title,
+    ).toBe('Lieferantenplan 2027');
+  });
+
   it('Ein Ergebnis hat bei jedem Lauf dieselbe Quelle', () => {
     expect(sourceIdOf('due', 'action:x')).toBe(sourceIdOf('due', 'action:x'));
     expect(sourceIdOf('due', 'action:x')).not.toBe(sourceIdOf('due', 'rating:x'));

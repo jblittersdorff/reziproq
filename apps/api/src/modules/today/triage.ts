@@ -309,7 +309,9 @@ export function fromDraft(draft: DraftRow, locale: Locale): TriageCandidate {
     kind,
     title: titleOf(
       binding?.title,
-      draft.subject,
+      // Ergebnisse nach dem Termin (KI-17): subject ist nur die Art des Punkts („action“); der
+      // Titel steht in der Aussage (K1-g.3)
+      draft.kind.startsWith('capture_') ? null : draft.subject,
       draft.claims?.[0]?.text,
       draft.content.split('\n')[0],
       draft.kind,
