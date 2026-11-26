@@ -9,6 +9,7 @@ import { LocaleProvider } from './lib/i18n';
 import { routeTree } from './routeTree.gen';
 import './index.css';
 import { DemoAuthProvider } from '@/features/demo/demo-auth';
+import { startBusinessTime } from '@/lib/clock';
 import { startupDemoSession } from '@/lib/demo-session';
 
 const queryClient = new QueryClient();
@@ -45,6 +46,9 @@ const app = (
     <RouterProvider router={router} />
   </QueryClientProvider>
 );
+
+// DM-01 (K1-b.5): Fachzeit des Tabs nur in einer Demo-Sitzung, vor dem ersten Bild
+startBusinessTime(startupDemoSession !== null);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Element #root fehlt in index.html');

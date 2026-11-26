@@ -2167,6 +2167,8 @@ export async function startDemoSession(userId: string) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ userId }),
   });
+  // K1-b.5: Die Fachzeit kommt gleich mit, damit schon das erste Bild nach der Demo-Uhr rechnet
+  noteBusinessTime(res.headers);
   if (!res.ok) throw new ApiError('/demo/sitzung', res.status);
   return demoSessionSchema.parse(await res.json());
 }

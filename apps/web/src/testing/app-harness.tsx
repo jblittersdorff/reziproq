@@ -15,6 +15,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
 import { cleanup, render } from '@testing-library/react';
 import { expect, vi } from 'vitest';
+import { resetBusinessTime } from '@/lib/clock';
 import { LocaleProvider } from '@/lib/i18n';
 import { routeTree } from '@/routeTree.gen';
 
@@ -302,7 +303,7 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   // NAV-10 1.1: Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“ ohne eigene Antwort leer
   if (url === '/api/start/mein-tag') return Response.json(myDayResponse());
   if (url.startsWith('/api/start/termine')) {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDay();
     return Response.json({ from: today, to: today, items: [] });
   }
   if (url.startsWith('/api/start/als-naechstes')) return Response.json({ next: null });
@@ -312,9 +313,18 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   return Response.json({ statusCode: 404 }, { status: 404 });
 }
 
+/**
+ * Heute nach Ortszeit (in Tests Berlin) wie in der API, nicht nach UTC: Sonst ist es zwischen
+ * 00:00 und 01:00 (im Sommer 02:00) noch gestern, und Fristen in Tagen weichen um einen Tag ab.
+ */
+function localDay(now = new Date()) {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /** Antwort von /api/heute; ohne Angaben nichts offen und nichts im Hintergrund */
 export function todayResponse(overrides: Partial<TodayPage> = {}): TodayPage {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDay();
   return {
     today,
     next: null,
@@ -336,7 +346,7 @@ export function todayResponse(overrides: Partial<TodayPage> = {}): TodayPage {
 /** Antwort von /api/heute/alles; ohne Angaben nichts offen */
 export function todayAllResponse(overrides: Partial<TodayAll> = {}): TodayAll {
   return {
-    today: new Date().toISOString().slice(0, 10),
+    today: localDay(),
     forYou: [],
     drafts: { rows: [], minutes: 0 },
     others: [],
@@ -353,7 +363,7 @@ export function todayAllResponse(overrides: Partial<TodayAll> = {}): TodayAll {
 /** Antwort von /api/start/mein-tag; ohne Angaben ein ruhiger Tag ohne Aufgaben */
 export function myDayResponse(overrides: Partial<MyDay> = {}): MyDay {
   return {
-    today: new Date().toISOString().slice(0, 10),
+    today: localDay(),
     next: null,
     todayItems: [],
     week: [],
@@ -428,6 +438,8 @@ export function tearDownApp() {
   vi.unstubAllGlobals();
   vi.useRealTimers();
   localStorage.clear();
+  // DM-01 (K1-b.5): Die Fachzeit eines Demo-Tests gilt nicht für den nächsten Test im Worker
+  resetBusinessTime();
   expect(consoleError).not.toHaveBeenCalled();
   consoleError?.mockRestore();
 }

@@ -1,12 +1,23 @@
-import { expect, test } from '@playwright/test';
-import type { DemoSession } from '@reziproq/shared';
+import { expect, type Page, test } from '@playwright/test';
+import { businessTimeHeader, type DemoSession, defaultAiSettings } from '@reziproq/shared';
 import { signIn } from './route-walk.js';
+import { mockToday } from './today-fixture.js';
 
 // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person im Browser. /demo/als/<Person> startet die Sitzung
 // ohne Zitadel; nach dem Neuladen trägt jede Anfrage das Token der Demo-Sitzung, und die App öffnet
-// die Startseite der Person. Die Sitzung gilt nur in diesem Tab.
+// die Startseite der Person. Die Sitzung gilt nur in diesem Tab. K1-b.5: Die Fachzeit der Demo-Uhr
+// gilt schon für das erste Bild nach dem Einstieg und nie ohne Demo-Sitzung. Bei 390 und 1440 px
+// ohne seitliches Scrollen; mit UX_SHOTS entstehen Bilder (Einstieg, Heute, KI-Einstellungen).
 
 test.use({ locale: 'de-DE', colorScheme: 'light' });
+
+const sideScroll = (page: Page) =>
+  page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+const shot = async (page: Page, name: string) => {
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/${name}.png`, fullPage: true });
+  }
+};
 
 const session: DemoSession = {
   accessToken: 'demo-e2e-token',
@@ -43,4 +54,105 @@ test('Demo-Sitzung: ohne Zitadel angemeldet, jede Anfrage mit dem Token der Demo
   expect(
     await other.evaluate(() => window.sessionStorage.getItem('reziproq.demo-sitzung')),
   ).toBeNull();
+});
+
+for (const width of [390, 1440]) {
+  test(`Demo-Sitzung: Heute rechnet nach dem Einstieg sofort mit der Demo-Uhr, ${width} px (K1-b.5)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await signIn(page, { locale: 'de' });
+    await page.route('**/api/demo/sitzung', (route) =>
+      route.fulfill({
+        json: session,
+        headers: { [businessTimeHeader]: '2026-11-23T06:30:00.000Z' },
+      }),
+    );
+    // Inhalt von Heute aus den Vorlagen, damit das Bild die ganze Seite zeigt
+    await mockToday(page);
+    await page.goto('/demo/als/jan-luka');
+    await expect(page).not.toHaveURL(/\/demo\/als\//);
+    // Keine andere Antwort nennt hier eine Fachzeit: Nach dem Neuladen beim Einstieg kommt sie aus
+    // dem Tab. Die Person der nachgestellten API startet auf Wert; Heute mit erneutem Neuladen.
+    await page.goto('/heute');
+    await expect(page.getByText(/^Montag, 23\. November · /)).toBeVisible();
+    expect(await sideScroll(page)).toBe(0);
+    await shot(page, `heute-demo-${width}`);
+  });
+
+  test(`Einstieg ohne Demo-Person sagt, warum es keine Sitzung gibt, ${width} px (K1-b.2)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    // Ohne nachgestellte Sitzung antwortet /api/demo/sitzung mit 404
+    await signIn(page, { locale: 'de' });
+    await page.goto('/demo/als/unbekannt');
+    await expect(page.getByText('Keine Demo-Sitzung')).toBeVisible();
+    expect(await sideScroll(page)).toBe(0);
+    await shot(page, `demo-einstieg-${width}`);
+  });
+
+  test(`KI-Einstellungen im Demo-Mandanten: Antworten mit der Tastatur umschalten, ${width} px (K1-b.1)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 950 });
+    await signIn(page, { locale: 'de' });
+    await page.route('**/api/einstellungen/ki', (route) =>
+      route.fulfill({
+        json: {
+          settings: defaultAiSettings,
+          euOnly: true,
+          canEdit: true,
+          demo: { mode: 'replay' },
+        },
+      }),
+    );
+    await page.route('**/api/ki/kontingent', (route) =>
+      route.fulfill({
+        json: {
+          month: '2026-11',
+          budgetMonthCents: 15000,
+          usedCents: 2400,
+          calls: 12,
+          byFeature: [],
+        },
+      }),
+    );
+    await page.route('**/api/einstellungen/termin-briefing', (route) =>
+      route.fulfill({ json: { leadDays: {} } }),
+    );
+    const modes: unknown[] = [];
+    await page.route('**/api/einstellungen/ki/modus', (route) => {
+      modes.push(route.request().postDataJSON());
+      return route.fulfill({ json: { mode: 'live' } });
+    });
+    await page.goto('/einstellungen/ki');
+    await expect(page.getByText('Antworten im Demo-Mandanten')).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Abspielen' })).toBeChecked();
+    expect(await sideScroll(page)).toBe(0);
+    await page.getByText('Antworten im Demo-Mandanten').scrollIntoViewIfNeeded();
+    await shot(page, `ki-demo-${width}`);
+    await page.getByRole('radio', { name: 'Abspielen' }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.getByRole('radio', { name: 'Live' })).toBeChecked();
+    await expect.poll(() => modes).toEqual([{ mode: 'live' }]);
+  });
+}
+
+test('Ohne Demo-Sitzung gilt die Uhr des Browsers, auch wenn im Tab noch eine Fachzeit steht (K1-b.5)', async ({
+  page,
+}) => {
+  await signIn(page, { locale: 'de' });
+  await page.goto('/heute');
+  await page.evaluate(() =>
+    window.sessionStorage.setItem('reziproq.fachzeit', String(-3 * 86_400_000)),
+  );
+  await page.goto('/heute');
+  const today = await page.evaluate(() =>
+    new Intl.DateTimeFormat('de', { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      new Date(),
+    ),
+  );
+  await expect(page.getByText(new RegExp(`^${today} · `))).toBeVisible();
+  expect(await page.evaluate(() => window.sessionStorage.getItem('reziproq.fachzeit'))).toBeNull();
 });

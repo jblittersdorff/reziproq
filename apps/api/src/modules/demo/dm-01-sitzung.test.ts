@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import {
+  businessTimeHeader,
   demoPersonsSchema,
   demoSessionSchema,
   meResponseSchema,
@@ -41,7 +42,11 @@ describe('DM-01 Demo-Sitzung je Person', () => {
       },
       ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
     });
-    return { status: response.status, body: (await response.json().catch(() => null)) as unknown };
+    return {
+      status: response.status,
+      headers: response.headers,
+      body: (await response.json().catch(() => null)) as unknown,
+    };
   }
   const startFor = async (userId: string) => request('POST', '/demo/sitzung', { body: { userId } });
 
@@ -111,6 +116,22 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     expect(meResponseSchema.parse(me.body).organization?.id).toBe(orgs.nordwind);
     expect((await startFor(users.kunde)).status).toBe(404);
     expect((await startFor('unbekannt')).status).toBe(404);
+  });
+
+  it('der Start nennt die Fachzeit des Mandanten der Person, damit schon das erste Bild sie hat (K1-b.5)', async () => {
+    flag('true');
+    expect((await startFor(users.janLuka)).headers.get(businessTimeHeader)).toBeNull();
+    const demoNow = '2026-11-23T06:30:00.000Z';
+    await db.execute(
+      sql`update organization set demo_now = ${demoNow} where id = ${orgs.nordwind}`,
+    );
+    try {
+      expect((await startFor(users.janLuka)).headers.get(businessTimeHeader)).toBe(demoNow);
+      // Je Person die Uhr ihres eigenen Mandanten: Rheintal hat hier keine Demo-Uhr
+      expect((await startFor(users.kim)).headers.get(businessTimeHeader)).toBeNull();
+    } finally {
+      await db.execute(sql`update organization set demo_now = null where id = ${orgs.nordwind}`);
+    }
   });
 
   it('ein Demo-Token gilt nicht ohne Schalter, nicht gefälscht, nicht nach Ende des Demo-Mandanten und nie für den Betreiber-Zugang', async () => {

@@ -3,6 +3,7 @@ import type { DemoSession } from '@reziproq/shared';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useAuth } from 'react-oidc-context';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { businessTimeKey } from '@/lib/clock';
 import { readDemoSession, saveDemoSession } from '@/lib/demo-session';
 import { DemoAuthProvider } from './demo-auth';
 
@@ -53,8 +54,9 @@ describe('DM-01 Demo-Provider', () => {
     expect(screen.getByText('sara-ost Sara Ost false')).toBeTruthy();
   });
 
-  it('Abmelden beendet die Sitzung in diesem Tab', () => {
+  it('Abmelden beendet die Sitzung in diesem Tab und mit ihr die Fachzeit der Demo-Uhr', () => {
     saveDemoSession(session);
+    window.sessionStorage.setItem(businessTimeKey, String(-2 * 86_400_000));
     render(
       <DemoAuthProvider session={session}>
         <Probe />
@@ -62,5 +64,6 @@ describe('DM-01 Demo-Provider', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Abmelden' }));
     expect(readDemoSession()).toBeNull();
+    expect(window.sessionStorage.getItem(businessTimeKey)).toBeNull();
   });
 });

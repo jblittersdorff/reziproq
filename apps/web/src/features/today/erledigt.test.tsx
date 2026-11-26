@@ -85,6 +85,9 @@ let current: DoneList;
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
+  // Feste Uhrzeit am Tag: „vor einer Stunde“ wäre zwischen 00:00 und 01:00 gestern
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 10, 25, 10, 30));
   api.me = { ...anna, orgRole: 'member' };
   api.permissions = actionsFor.member;
   posted = [];

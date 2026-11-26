@@ -199,6 +199,12 @@ Weitere Punkte:
 - **B-30 Kanäle (KA-01).** Das Outlook-Add-in und die Anbindungen laufen nur mit dem Anbieter `fake`. Chat, Sprache und `channel_*` fehlen.
 - **B-31 Rechte.** Keine Handlung aus der Rechte-Ergänzung ist eine Aktion in `permissions.ts`. Sie stehen als Planung in `docs/rechte.md`.
 - **B-32 Glossar.** Die Tabelle mit Schlüsseln prüft die heutigen Texte (Lieferant, Maßnahme, Ergebnisse, Aktivitäten, Portfolio). Mit K1-d und K2 werden Zeilen und Schlüssel umgestellt; sonst schlägt `glossary.test.ts` fehl.
+- **B-33 „Heute“ nach UTC statt nach Berlin (gefunden am 26.11.2026 in K1-b.5, offen).**
+  - **Befund:** Mein Tag (`apps/api/src/modules/start/start.service.ts:60`) rechnet „heute“ nach UTC. Heute und Triage rechnen nach Berlin (`today/berlin.ts`).
+  - **Mischung:** In Mein Tag kommt „überfällig seit“ nach Berlin. „Erledigt heute“ vergleicht `done_at::date` in der Zeitzone der Datenbank-Sitzung (`my-day-data.ts`).
+  - **Folge:** Zwischen 00:00 und 01:00 (im Sommer 02:00) rutscht eine Aufgabe mit Frist heute in „diese Woche“. `ux-20-phase-2.test.ts` scheitert in dieser Stunde, auch ohne Änderung.
+  - **Umfang:** Dasselbe Muster (`toISOString().slice(0, 10)` für ein Datum) steht an 31 Stellen der API, 3 davon in Mein Tag. Nicht jede meint „heute in Berlin“, jede braucht einen eigenen Blick.
+  - **Schon behoben:** Zwei Web-Tests mit derselben Annahme (Erledigt, Harness von Heute) rechnen seit K1-b.5 nach Ortszeit.
 
 ## c) Widersprüche zwischen den Specs
 
