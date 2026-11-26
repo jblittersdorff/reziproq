@@ -19,7 +19,7 @@ describe('DM-01 Demo-Sitzung je Person', () => {
   let app: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
   const run = randomUUID().slice(0, 8);
-  const orgs = { nordwind: randomUUID(), rheintal: randomUUID(), kunde: randomUUID() };
+  const orgs = { hollmann: randomUUID(), rheintal: randomUUID(), kunde: randomUUID() };
   const users = {
     janLuka: `dm01s-jl-${run}`,
     kim: `dm01s-kim-${run}`,
@@ -54,12 +54,12 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     app = await startTestApp();
     db = app.adminDb;
     await db.insert(schema.organization).values([
-      { id: orgs.nordwind, name: `Nordwind Antriebe ${run}`, isDemo: true },
+      { id: orgs.hollmann, name: `Hollmann Antriebe ${run}`, isDemo: true },
       { id: orgs.rheintal, name: `Rheintal Elektronik ${run}`, isDemo: true },
       { id: orgs.kunde, name: `Echter Kunde ${run}` },
     ]);
     await db.insert(schema.organizationFeature).values([
-      { organizationId: orgs.nordwind, feature: 'buyer' },
+      { organizationId: orgs.hollmann, feature: 'buyer' },
       { organizationId: orgs.kunde, feature: 'buyer' },
     ]);
     const person = (id: string, org: string, orgRole: 'admin' | 'member') => ({
@@ -73,7 +73,7 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     await db
       .insert(schema.appUser)
       .values([
-        person(users.janLuka, orgs.nordwind, 'member'),
+        person(users.janLuka, orgs.hollmann, 'member'),
         person(users.kim, orgs.rheintal, 'admin'),
         person(users.kunde, orgs.kunde, 'admin'),
       ]);
@@ -113,7 +113,7 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     const session = demoSessionSchema.parse(started.body);
     const me = await request('GET', '/me', { token: session.accessToken });
     expect(me.status).toBe(200);
-    expect(meResponseSchema.parse(me.body).organization?.id).toBe(orgs.nordwind);
+    expect(meResponseSchema.parse(me.body).organization?.id).toBe(orgs.hollmann);
     expect((await startFor(users.kunde)).status).toBe(404);
     expect((await startFor('unbekannt')).status).toBe(404);
   });
@@ -123,14 +123,14 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     expect((await startFor(users.janLuka)).headers.get(businessTimeHeader)).toBeNull();
     const demoNow = '2026-11-23T06:30:00.000Z';
     await db.execute(
-      sql`update organization set demo_now = ${demoNow} where id = ${orgs.nordwind}`,
+      sql`update organization set demo_now = ${demoNow} where id = ${orgs.hollmann}`,
     );
     try {
       expect((await startFor(users.janLuka)).headers.get(businessTimeHeader)).toBe(demoNow);
       // Je Person die Uhr ihres eigenen Mandanten: Rheintal hat hier keine Demo-Uhr
       expect((await startFor(users.kim)).headers.get(businessTimeHeader)).toBeNull();
     } finally {
-      await db.execute(sql`update organization set demo_now = null where id = ${orgs.nordwind}`);
+      await db.execute(sql`update organization set demo_now = null where id = ${orgs.hollmann}`);
     }
   });
 
@@ -161,11 +161,11 @@ describe('DM-01 Demo-Sitzung je Person', () => {
       ).status,
     ).toBe(403);
     // Ist der Mandant kein Demo-Mandant mehr, gilt das Token nicht mehr
-    await db.execute(sql`update organization set is_demo = false where id = ${orgs.nordwind}`);
+    await db.execute(sql`update organization set is_demo = false where id = ${orgs.hollmann}`);
     try {
       expect((await request('GET', '/me', { token: session.accessToken })).status).toBe(401);
     } finally {
-      await db.execute(sql`update organization set is_demo = true where id = ${orgs.nordwind}`);
+      await db.execute(sql`update organization set is_demo = true where id = ${orgs.hollmann}`);
     }
   });
 });

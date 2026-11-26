@@ -66,7 +66,7 @@ const hookPayloadSchema = z.object({
 
 export const signatureHeader = 'x-reziproq-signature';
 
-/** IN-03: Eingangsadresse eines Kunden, z. B. termine@nordwind-antriebe.reziproq.de */
+/** IN-03: Eingangsadresse eines Kunden, z. B. termine@hollmann-antriebe.reziproq.de */
 export function inboundAddressOf(name: string): string {
   const slug =
     name

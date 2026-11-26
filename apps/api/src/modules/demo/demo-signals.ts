@@ -1,4 +1,4 @@
-import { nordwindPeople, supplierPeople } from '@reziproq/db';
+import { hollmannPeople, supplierPeople } from '@reziproq/db';
 import type { DemoSignalKey } from '@reziproq/shared';
 import type { ProviderItem } from '../integrations/fake-provider.js';
 
@@ -19,7 +19,7 @@ export interface ForwardSignal {
 export const demoSignals: Record<DemoSignalKey, ForwardSignal> = {
   mail_kim_kaiser: {
     kind: 'forwarded_mail',
-    forwardedBy: nordwindPeople.janLuka.id,
+    forwardedBy: hollmannPeople.janLuka.id,
     subject: 'Musterteile Starrflex und 8D 4711',
     from: { name: supplierPeople.kimKaiser.name, email: supplierPeople.kimKaiser.email },
     body: 'Hallo Herr von Blittersdorff, die Musterteile Starrflex können wir bis 11.12. liefern, wenn wir Ihre Zeichnung Rev. C bis 30.11. haben. Den 8D-Bericht zur Charge 4711 schickt Herr Ott bis Freitag. Viele Grüße Kim Kaiser',

@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
 
 // DM-01, Drehbuch K1 „Morgen mit Reziproq“ (K1-g.5) als E2E-Test gegen die echte API im
-// Demo-Mandanten Nordwind. Einstieg über die Demo-Sitzung (E-K0-05), jede Handlung über die
+// Demo-Mandanten Hollmann. Einstieg über die Demo-Sitzung (E-K0-05), jede Handlung über die
 // Oberfläche, die Regie über ⌥D. Das Drehbuch startet nach „Zurücksetzen“ und läuft im Modus
 // Abspielen zweimal hintereinander gleich (T1-DM3). Die Schritte 5 bis 7 und die Scorecard mit
 // Herkunft in Schritt 4 folgen mit K4 (Entscheidung des Gründers vom 26.11.2026).
@@ -14,7 +14,7 @@ test.use({
   // Ohne eigene Grenze wartet eine Aktion bis zum Ende des Tests und nennt den Schritt nicht
   actionTimeout: 15_000,
 });
-// Ein Worker für die ganze Datei: Nordwind hat feste IDs in der gemeinsamen Testdatenbank
+// Ein Worker für die ganze Datei: Hollmann hat feste IDs in der gemeinsamen Testdatenbank
 test.describe.configure({ mode: 'serial' });
 
 type Database = import('../../../packages/db/src/client.js').Database;
@@ -47,20 +47,20 @@ test.beforeAll(async () => {
   demoSessionsBefore = apiEnv.DEMO_SESSIONS;
   apiEnv.DEMO_SESSIONS = 'true';
   testApp = await startTestApp();
-  await db.seedNordwind(testApp.adminDb, { nodeEnv: 'test' });
+  await db.seedHollmann(testApp.adminDb, { nodeEnv: 'test' });
 });
 
 test.afterAll(async () => {
   if (apiEnv) apiEnv.DEMO_SESSIONS = demoSessionsBefore;
   if (!testApp) return;
   try {
-    const { nordwind, sql } = await import('../../../packages/db/src/index.js');
+    const { hollmann, sql } = await import('../../../packages/db/src/index.js');
     const orgs = (
       await testApp.adminDb.execute<{ id: string }>(
-        sql`select app_demo_orgs_von(${nordwind.org.id}::uuid) as id`,
+        sql`select app_demo_orgs_von(${hollmann.org.id}::uuid) as id`,
       )
     ).rows.map((row) => row.id);
-    await testApp.adminDb.execute(sql`select app_demo_leeren(${nordwind.org.id}::uuid)`);
+    await testApp.adminDb.execute(sql`select app_demo_leeren(${hollmann.org.id}::uuid)`);
     if (orgs.length > 0) {
       await testApp.adminDb.execute(sql`delete from organization where id in ${orgs}`);
     }
@@ -119,7 +119,7 @@ async function startState(page: Page) {
 
 async function morning(page: Page) {
   // Schritt 1: Anmelden als Jan-Luka, Heute öffnet
-  await signInAs(page, 'nordwind-jan-luka');
+  await signInAs(page, 'hollmann-jan-luka');
   await startState(page);
   await shot(page, '1-heute');
 
@@ -213,7 +213,7 @@ async function morning(page: Page) {
   await page.getByRole('button', { name: 'Zurücksetzen' }).click();
   await page.getByRole('button', { name: 'Ja, zurücksetzen' }).click();
   await expect(page.getByText('Zurückgesetzt auf Mo 23.11., 07:30.')).toBeVisible();
-  await signInAs(page, 'nordwind-jan-luka');
+  await signInAs(page, 'hollmann-jan-luka');
   await startState(page);
 }
 
@@ -223,7 +223,7 @@ test('Drehbuch K1 „Morgen mit Reziproq“: Schritte 1 bis 4 und 8 bis 10, zwei
   test.setTimeout(240_000);
   await useRealApi(page);
   // Das Drehbuch startet nach „Zurücksetzen“
-  await signInAs(page, 'nordwind-jan-luka');
+  await signInAs(page, 'hollmann-jan-luka');
   await regie(page);
   await expect(page.getByRole('radio', { name: 'Abspielen' })).toBeChecked();
   await page.getByRole('button', { name: 'Zurücksetzen' }).click();

@@ -24,7 +24,7 @@ export const demoEvent = pgTable('demo_event', {
 });
 
 /**
- * DM-01 (K1-g.1): Stand der Demo als Schnappschuss. „start“ entsteht beim Seed von Nordwind; das
+ * DM-01 (K1-g.1): Stand der Demo als Schnappschuss. „start“ entsteht beim Seed von Hollmann; das
  * Zurücksetzen lädt ihn wieder. Die Zeilen aller Organisationen der Demo stehen je Tabelle in
  * data; seed_version ist ein Hash davon. Weitere Stände (K4 „21.12.“ u. a.) kommen mit ihren
  * Drehbüchern. Nur über Funktionen der Migration 0139 lesbar und schreibbar.

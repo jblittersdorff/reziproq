@@ -1,4 +1,4 @@
-import { type Database, nordwind, nordwindPeople, seedNordwind, sql } from '@reziproq/db';
+import { type Database, hollmann, hollmannPeople, seedHollmann, sql } from '@reziproq/db';
 import {
   demoRoles,
   doneListSchema,
@@ -9,7 +9,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { startTestApp } from '../../testing/test-app.js';
 
-// DM-01, Drehbuch K1 „Morgen mit Reziproq“ (K1-g.3): Der Seed von Nordwind ergibt um Mo 23.11.,
+// DM-01, Drehbuch K1 „Morgen mit Reziproq“ (K1-g.3): Der Seed von Hollmann ergibt um Mo 23.11.,
 // 07:30 über die echten Dienste genau den Stand für Jan-Luka: drei Fokus-Themen, vier Entwürfe in
 // Kurz prüfen, 14 Vorgänge in Erledigt (zwölf Mails mit Zurücknehmen, ein Termin, ein Briefing).
 // Nach dem Zurücknehmen der Mail (Schritt 3) stehen fünf Einträge in Kurz prüfen: „4 von 5“.
@@ -17,7 +17,7 @@ import { startTestApp } from '../../testing/test-app.js';
 describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
   let app: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
-  const janLuka = nordwindPeople.janLuka.id;
+  const janLuka = hollmannPeople.janLuka.id;
 
   async function call(method: string, path: string, body?: unknown) {
     const response = await fetch(`${app.baseUrl}/api${path}`, {
@@ -36,16 +36,16 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
   beforeAll(async () => {
     app = await startTestApp();
     db = app.adminDb;
-    await seedNordwind(db, { nodeEnv: 'test' });
+    await seedHollmann(db, { nodeEnv: 'test' });
   });
 
   afterAll(async () => {
     const orgs = (
       await db.execute<{ id: string }>(
-        sql`select app_demo_orgs_von(${nordwind.org.id}::uuid) as id`,
+        sql`select app_demo_orgs_von(${hollmann.org.id}::uuid) as id`,
       )
     ).rows.map((row) => row.id);
-    await db.execute(sql`select app_demo_leeren(${nordwind.org.id}::uuid)`);
+    await db.execute(sql`select app_demo_leeren(${hollmann.org.id}::uuid)`);
     if (orgs.length > 0) await db.execute(sql`delete from organization where id in ${orgs}`);
     await app.close();
   });
@@ -147,7 +147,7 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
     const modes = (
       await db.execute<{ ai_mode: string }>(
         sql`select distinct ai_mode from organization where id in (
-          select app_demo_orgs_von(${nordwind.org.id}::uuid))`,
+          select app_demo_orgs_von(${hollmann.org.id}::uuid))`,
       )
     ).rows.map((row) => row.ai_mode);
     expect(modes).toEqual(['live']);

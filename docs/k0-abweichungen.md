@@ -22,7 +22,7 @@ Stand 24.11.2026. Grundlage: Spec-Paket „Reziproq KI-nativ“ (Kapitel 1 bis 8
 
 **Kurzfassung**
 - Vieles ist schon gebaut und lässt sich wiederverwenden: Datenräume mit Row Level Security, Entwürfe mit Quellen, Agenten und Läufe, Gateway, Hinweise mit Punktzahl, Zusagen, Segmente, Feedback, Termine mit Briefing, Ergebnissen und Transkript, Gemeinsamer Plan, Wirkung mit Baseline und Controlling, Wertfinder, Import, Einladung mit Passkey und das Warengruppenmanagement in zehn Schritten.
-- Grundlegend neu sind: `focus_item` mit Triage, Stufen je Person (`worker_setting`), Bestätigungs-Token für bindende Werkzeuge, Rücknahme (`undo_payload`), Uhr je Mandant, Modi `record` und `replay` sowie der Demo-Mandant Nordwind. Ebenfalls neu: Mandat, Deal, Bestätigen per Link, Wert-Engine mit Buchungen, Kanäle und die Objekte aus Kapitel 8.
+- Grundlegend neu sind: `focus_item` mit Triage, Stufen je Person (`worker_setting`), Bestätigungs-Token für bindende Werkzeuge, Rücknahme (`undo_payload`), Uhr je Mandant, Modi `record` und `replay` sowie der Demo-Mandant Hollmann. Ebenfalls neu: Mandat, Deal, Bestätigen per Link, Wert-Engine mit Buchungen, Kanäle und die Objekte aus Kapitel 8.
 - Phase 2 und 3 der UX-Umsetzung (NAV-10 1.1) sind gebaut und werden durch NAV-10 2.0, BZ-01 und AK-01 zum großen Teil abgelöst. Ihre Bausteine und Schnittstellen bleiben nutzbar.
 - Zwei Punkte blockieren Paket K1-d, bis du entschieden hast:
   - Blatt und Überlagerung widersprechen PLT-10; ein Test verbietet sie heute (F-01).
@@ -117,9 +117,9 @@ Weitere Punkte:
     - **Oberfläche:** Sie rechnet „heute“ mit der Fachzeit aus dem Kopf `x-reziproq-jetzt` (`appNow`).
     - **Offen:** Nur die Zeitpläne selbst laufen in Echtzeit. „Neuer Tag“ und „Auf Datum springen“ stößt K1-g an.
 - **B-08 Demo-Daten (DM-01, G-10).** Heute gibt es „Test-OEM (Demo)“, „Zweit-OEM“ und „Test-Lieferant“ (`packages/db/src/seed.ts:42`), dazu `demo-story.ts`.
-  - Stand K1-b.3 (25.11.2026): Nordwind Antriebe ist ein eigener Demo-Mandant (`pnpm demo:nordwind`) mit den Personen und Lieferanten aus DM-01 und den Zahlen der Vorlage Beziehungen. Den Stand der Drehbücher legt K1-g an.
+  - Stand K1-b.3 (25.11.2026): Hollmann Antriebe ist ein eigener Demo-Mandant (`pnpm demo:hollmann`) mit den Personen und Lieferanten aus DM-01 und den Zahlen der Vorlage Beziehungen. Den Stand der Drehbücher legt K1-g an.
   - Einige Lieferanten heißen schon wie im Paket (Rheintal Elektronik, Silesia Guss, Pearl River), haben aber andere Zahlen.
-  - Es fehlen: Nordwind Antriebe, die Personen aus DM-01, Halder Maschinenbau, Saar Circuits, Moldau PCB, Weser PCB, Kessler Präzision, Nordwerk Guss, Baltic Logistics und Donau Print (F-04).
+  - Es fehlen: Hollmann Antriebe, die Personen aus DM-01, Halder Maschinenbau, Saar Circuits, Moldau PCB, Weser PCB, Kessler Präzision, Nordwerk Guss, Baltic Logistics und Donau Print (F-04).
 - **B-09 Rahmen (NAV-10 2.0).** Code:
   - Hauptpunkte Übersicht, Mein Tag, Lieferanten, Warengruppen (`features/shell/navigation.tsx:101`);
   - Startseite `overview`/`my_day` (`app-user.ts:77`, `packages/shared/src/me.ts:10`);
@@ -241,7 +241,7 @@ Je Punkt: Fundstellen, welche Quelle nach der Rangfolge gilt und wie ich ohne de
   - Gilt: HE-01, ergänzt um „Zuordnen“, weil zwei Drehbücher sie prüfen.
 - **C-04 Zusage des Käufers in Kurz prüfen.**
   - HE-01: „Nie in Kurz prüfen: Zusagen im Namen des Käufers“; PO-01 Schritt 3: dann Fokus-Thema.
-  - DM-01 K2 Schritt 3 und Board K2-Mail-Zusage zeigen den Entwurf mit Nordwinds Zusage „Zeichnung Rev. C bis 30.11.“ in Kurz prüfen.
+  - DM-01 K2 Schritt 3 und Board K2-Mail-Zusage zeigen den Entwurf mit Hollmanns Zusage „Zeichnung Rev. C bis 30.11.“ in Kurz prüfen.
   - Gilt: HE-01 und PO-01. Der Entwurf erscheint als Fokus-Thema, Schritt 3 des Drehbuchs öffnet ihn aus Heute.
 - **C-05 Wer bestätigt einen Strategie-Teil.**
   - ST-01: Lead oder Commodity Manager.
@@ -287,7 +287,7 @@ Widersprüche zu CLAUDE.md und früheren Festlegungen:
   - Gilt: G-1. Ich pushe nicht mehr. CLAUDE.md sollte nachgezogen werden (F-23).
 - **C-16 Demo.**
   - CLAUDE.md: `pnpm demo:setup` richtet die echten Konten ein, „ohne erfundene Personen“.
-  - DM-01 und G-10: Demo-Mandant Nordwind mit erfundenen Personen (F-04).
+  - DM-01 und G-10: Demo-Mandant Hollmann mit erfundenen Personen (F-04).
 - **C-17 Geld.**
   - CLAUDE.md: Cent als Ganzzahl mit Währung.
   - Die SQL-Skizzen in WK-01, DL-01, LA-01, VG-01, WZ-01 und SZ-01 nutzen `numeric` ohne Währung.
@@ -321,7 +321,7 @@ Jede Frage mit meiner Empfehlung. „Empfehlungen übernehmen“ reicht als Antw
 | F-01 | Blatt, Frag als Überlagerung und zwei Dialoge widersprechen PLT-10 und dem Test gegen Pop-ups. Aufheben?                                           | Ja, eng: Erlaubt werden nur `Sheet` (620 px, Esc, Fokus bleibt im Blatt, mobil volle Seite), die ⌘K-Überlagerung und die Dialoge „So teilen“ und „Agenda freigeben“. Der Test bekommt eine feste Liste erlaubter Bausteine; Toasts und Popover bleiben verboten. PLT-10 bekommt einen Statuskopf                     |
 | F-02 | Seitenleiste fixiert (deine Entscheidung vom 23.11.) oder „so hoch wie die Seite“ (NAV-10 2.0, Designsprache 3.1)?                                 | Bei deiner Entscheidung bleiben; ich ziehe NAV-10 und die Designsprache wieder nach                                                                                                                                                                                                                                  |
 | F-03 | `space` als neue Spalte an allen Tabellen oder aus Ebene, `owner_org_id` und `visibility` abgeleitet?                                              | Abgeleitet: generierte Spalte `space` auf den geteilten Tabellen, bei privaten Tabellen fest. Die Policies bleiben wie heute; sie sind für alle 162 Tabellen des Registers getestet. Neue Tabellen bekommen `space` direkt. `origin` und `confirm_state` als echte Spalten nur an den Objekten, die die Specs nennen |
-| F-04 | Nordwind neben Test-OEM oder statt Test-OEM? CLAUDE.md sagt „ohne erfundene Personen“                                                              | Nordwind als eigener Demo-Mandant mit eigenem Seed. Test-OEM bleibt für die automatischen Tests, `demo:setup` für deine echten Konten bleibt. CLAUDE.md nachziehen                                                                                                                                                   |
+| F-04 | Hollmann neben Test-OEM oder statt Test-OEM? CLAUDE.md sagt „ohne erfundene Personen“                                                              | Hollmann als eigener Demo-Mandant mit eigenem Seed. Test-OEM bleibt für die automatischen Tests, `demo:setup` für deine echten Konten bleibt. CLAUDE.md nachziehen                                                                                                                                                   |
 | F-05 | Rollenwechsel der Demo-Regie (Jan-Luka, Sara Ost, Kim Kaiser, Tom Weber, Mia Kuhn) bei Anmeldung über Zitadel: Konten je Person oder Demo-Sitzung? | Demo-Sitzung je Person ohne Zitadel, nur wenn `org.is_demo` gilt und nie in Produktion. Bestätigungslinks nutzen echte Passkeys                                                                                                                                                                                      |
 | F-06 | Bestätigen per Link „mit Passkey, an die Person gebunden“, ohne Konto: Wie wird der Passkey beim ersten Öffnen an die Person gebunden?             | Einmalcode an die Mailadresse der Person, dann Passkey anlegen (Gast-Identität). Ein weitergeleiteter Link scheitert am Code (T2-BL1)                                                                                                                                                                                |
 | F-07 | Wer ist „Lead der Beziehung“ (E-K5-2, DL-01)?                                                                                                      | Der Lead der Haupt-Warengruppe der Beziehung; Vertretung je Lead unter Einstellungen › Organisation                                                                                                                                                                                                                  |

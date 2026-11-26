@@ -39,7 +39,7 @@ type Scenario = { title: string; detail: string };
 export const demoRegieMessages = defineMessages({
   de: {
     title: 'Demo-Regie',
-    where: 'Nur im Demo-Mandanten Nordwind · öffnet mit ⌥D über jeder Seite · Kunden sehen sie nie',
+    where: 'Nur im Demo-Mandanten Hollmann · öffnet mit ⌥D über jeder Seite · Kunden sehen sie nie',
     loading: 'Die Regie wird geladen …',
     failed: 'Die Regie ließ sich nicht laden.',
     retry: 'Erneut versuchen',
@@ -138,13 +138,13 @@ export const demoRegieMessages = defineMessages({
       confirm: 'Ja, zurücksetzen',
       cancel: 'Abbrechen',
       done: (clock: string) => `Zurückgesetzt auf ${clock}.`,
-      missing: 'Es gibt noch keinen Stand. Erst pnpm demo:nordwind ausführen.',
+      missing: 'Es gibt noch keinen Stand. Erst pnpm demo:hollmann ausführen.',
       failed: 'Das Zurücksetzen ist fehlgeschlagen.',
     },
   },
   en: {
     title: 'Demo control',
-    where: 'Only in the Nordwind demo tenant · opens with ⌥D on any page · customers never see it',
+    where: 'Only in the Hollmann demo tenant · opens with ⌥D on any page · customers never see it',
     loading: 'Loading the demo control …',
     failed: 'The demo control could not be loaded.',
     retry: 'Try again',
@@ -243,7 +243,7 @@ export const demoRegieMessages = defineMessages({
       confirm: 'Yes, reset',
       cancel: 'Cancel',
       done: (clock: string) => `Reset to ${clock}.`,
-      missing: 'There is no state yet. Run pnpm demo:nordwind first.',
+      missing: 'There is no state yet. Run pnpm demo:hollmann first.',
       failed: 'The reset failed.',
     },
   },

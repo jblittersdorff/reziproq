@@ -11,7 +11,7 @@ export const demoPersonSchema = z.object({
   orgId: z.uuid(),
   orgName: z.string(),
   orgRole: z.enum(orgRoles),
-  /** Käuferseite (z. B. Nordwind) oder Lieferant (z. B. Rheintal) */
+  /** Käuferseite (z. B. Hollmann) oder Lieferant (z. B. Rheintal) */
   buyer: z.boolean(),
 });
 export type DemoPerson = z.infer<typeof demoPersonSchema>;
@@ -98,8 +98,8 @@ export type DemoModeRequest = z.infer<typeof demoModeRequestSchema>;
 
 /** Rollen der Regie (DM-01): Personen der Geschichte, je mit eigener Demo-Sitzung */
 export const demoRoles = [
-  { id: 'nordwind-jan-luka', key: 'janLuka' },
-  { id: 'nordwind-sara-ost', key: 'saraOst' },
+  { id: 'hollmann-jan-luka', key: 'janLuka' },
+  { id: 'hollmann-sara-ost', key: 'saraOst' },
   { id: 'rheintal-kim-kaiser', key: 'kimKaiser' },
 ] as const;
 export type DemoRoleKey = (typeof demoRoles)[number]['key'];

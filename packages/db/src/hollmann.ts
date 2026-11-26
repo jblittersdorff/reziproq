@@ -1,6 +1,6 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
-import { seedMorning } from './nordwind-morgen.js';
+import { seedMorning } from './hollmann-morgen.js';
 import {
   appUser,
   materialGroup,
@@ -18,21 +18,21 @@ import {
   supplierDomain,
 } from './schema/index.js';
 
-// DM-01, E-K0-04, G-10 (K1-b.3): der Demo-Mandant Nordwind Antriebe. Ein eigener Mandant neben den
+// DM-01, E-K0-04, G-10 (K1-b.3): der Demo-Mandant Hollmann Antriebe. Ein eigener Mandant neben den
 // Test-Mandanten der automatischen Tests, nur synthetische Personen und Zahlen. Die Zahlen folgen den
 // Bildvorlagen (Beziehungen: 16 Beziehungen, 30,1 Mio. € Spend 2026, Rheintal 4,2 Mio. €), damit
-// Board und App dasselbe zeigen. Feste IDs und Upserts: pnpm demo:nordwind darf beliebig oft laufen.
+// Board und App dasselbe zeigen. Feste IDs und Upserts: pnpm demo:hollmann darf beliebig oft laufen.
 // Den Stand der Drehbücher (Erledigt, Kurz prüfen, Mappen, Signale) legt die Demo-Regie an (K1-g).
 
 /** Feste IDs im eigenen Bereich, getrennt von den Test-Mandanten (de300000-…) */
 const nid = (n: number) => `4e0a0000-0000-7000-8000-${String(n).padStart(12, '0')}`;
 
 /** DM-01: Start jeder Vorführung, Mo 23.11.2026, 07:30 in Berlin */
-export const nordwindStart = new Date('2026-11-23T06:30:00.000Z');
-const actor = 'system:nordwind';
+export const hollmannStart = new Date('2026-11-23T06:30:00.000Z');
+const actor = 'system:hollmann';
 
-export const nordwind = {
-  org: { id: nid(1), name: 'Nordwind Antriebe', country: 'DE' },
+export const hollmann = {
+  org: { id: nid(1), name: 'Hollmann Antriebe', country: 'DE' },
   halder: { id: nid(2), name: 'Halder Maschinenbau', country: 'DE' },
 } as const;
 
@@ -61,34 +61,34 @@ const person = (
   orgRole,
 });
 
-/** Personen von Nordwind (DM-01); IDs lesbar, z. B. /demo/als/nordwind-jan-luka */
-export const nordwindPeople = {
+/** Personen von Hollmann (DM-01); IDs lesbar, z. B. /demo/als/hollmann-jan-luka */
+export const hollmannPeople = {
   janLuka: person(
     'jan-luka',
     'Jan-Luka von Blittersdorff',
     'Jan-Luka',
-    'nordwind.example',
-    nordwind.org.id,
+    'hollmann.example',
+    hollmann.org.id,
   ),
-  saraOst: person('sara-ost', 'Sara Ost', 'Sara', 'nordwind.example', nordwind.org.id, 'admin'),
-  maraWeiss: person('mara-weiss', 'Mara Weiß', 'Mara', 'nordwind.example', nordwind.org.id),
-  jonasFeld: person('jonas-feld', 'Jonas Feld', 'Jonas', 'nordwind.example', nordwind.org.id),
-  idaRoth: person('ida-roth', 'Ida Roth', 'Ida', 'nordwind.example', nordwind.org.id),
-  tomBerg: person('tom-berg', 'Tom Berg', 'Tom', 'nordwind.example', nordwind.org.id),
-  paulHahn: person('paul-hahn', 'Paul Hahn', 'Paul', 'nordwind.example', nordwind.org.id),
-  maxKlein: person('max-klein', 'Max Klein', 'Max', 'nordwind.example', nordwind.org.id),
+  saraOst: person('sara-ost', 'Sara Ost', 'Sara', 'hollmann.example', hollmann.org.id, 'admin'),
+  maraWeiss: person('mara-weiss', 'Mara Weiß', 'Mara', 'hollmann.example', hollmann.org.id),
+  jonasFeld: person('jonas-feld', 'Jonas Feld', 'Jonas', 'hollmann.example', hollmann.org.id),
+  idaRoth: person('ida-roth', 'Ida Roth', 'Ida', 'hollmann.example', hollmann.org.id),
+  tomBerg: person('tom-berg', 'Tom Berg', 'Tom', 'hollmann.example', hollmann.org.id),
+  paulHahn: person('paul-hahn', 'Paul Hahn', 'Paul', 'hollmann.example', hollmann.org.id),
+  maxKlein: person('max-klein', 'Max Klein', 'Max', 'hollmann.example', hollmann.org.id),
 } as const;
 
 const groups = {
-  lp: { id: nid(101), code: 'LP', name: 'Leiterplatten', lead: nordwindPeople.saraOst.id },
-  gu: { id: nid(102), code: 'GU', name: 'Guss', lead: nordwindPeople.paulHahn.id },
-  dt: { id: nid(103), code: 'DT', name: 'Drehteile', lead: nordwindPeople.tomBerg.id },
-  el: { id: nid(104), code: 'EL', name: 'Elektronik', lead: nordwindPeople.tomBerg.id },
-  ku: { id: nid(105), code: 'KU', name: 'Kunststoff', lead: nordwindPeople.maxKlein.id },
-  se: { id: nid(106), code: 'SE', name: 'Sensorik', lead: nordwindPeople.tomBerg.id },
-  lo: { id: nid(107), code: 'LO', name: 'Logistik', lead: nordwindPeople.maxKlein.id },
-  vp: { id: nid(108), code: 'VP', name: 'Verpackung', lead: nordwindPeople.maxKlein.id },
-  ka: { id: nid(109), code: 'KA', name: 'Kabel', lead: nordwindPeople.tomBerg.id },
+  lp: { id: nid(101), code: 'LP', name: 'Leiterplatten', lead: hollmannPeople.saraOst.id },
+  gu: { id: nid(102), code: 'GU', name: 'Guss', lead: hollmannPeople.paulHahn.id },
+  dt: { id: nid(103), code: 'DT', name: 'Drehteile', lead: hollmannPeople.tomBerg.id },
+  el: { id: nid(104), code: 'EL', name: 'Elektronik', lead: hollmannPeople.tomBerg.id },
+  ku: { id: nid(105), code: 'KU', name: 'Kunststoff', lead: hollmannPeople.maxKlein.id },
+  se: { id: nid(106), code: 'SE', name: 'Sensorik', lead: hollmannPeople.tomBerg.id },
+  lo: { id: nid(107), code: 'LO', name: 'Logistik', lead: hollmannPeople.maxKlein.id },
+  vp: { id: nid(108), code: 'VP', name: 'Verpackung', lead: hollmannPeople.maxKlein.id },
+  ka: { id: nid(109), code: 'KA', name: 'Kabel', lead: hollmannPeople.tomBerg.id },
 } as const;
 type GroupKey = keyof typeof groups;
 
@@ -125,14 +125,14 @@ const supplier = (
   externalRef: `L-${String(70000 + n * 7)}`,
 });
 
-const { janLuka, tomBerg, paulHahn, maxKlein } = nordwindPeople;
+const { janLuka, tomBerg, paulHahn, maxKlein } = hollmannPeople;
 
 /**
- * Die 16 Beziehungen von Nordwind. Acht stehen in der Vorlage Beziehungen mit Warengruppe, Land und
+ * Die 16 Beziehungen von Hollmann. Acht stehen in der Vorlage Beziehungen mit Warengruppe, Land und
  * Spend; die übrigen acht zusammen mit 7,3 Mio. € (Nordwerk Guss, Baltic Logistics, Hanse Verpackung
  * „und 5 weitere“, aus DM-01 ergänzt). Jan-Luka ist SRO von sechs („Meine · 6“).
  */
-export const nordwindSuppliers: readonly Supplier[] = [
+export const hollmannSuppliers: readonly Supplier[] = [
   supplier(1, 'rheintal', 'Rheintal Elektronik', 'DE', 'lp', 4.2, janLuka),
   supplier(2, 'silesia', 'Silesia Guss', 'PL', 'gu', 3.15, janLuka),
   supplier(3, 'kessler', 'Kessler Präzision', 'DE', 'dt', 1.6, janLuka),
@@ -152,7 +152,7 @@ export const nordwindSuppliers: readonly Supplier[] = [
 ];
 
 const byKey = (key: string) => {
-  const found = nordwindSuppliers.find((entry) => entry.key === key);
+  const found = hollmannSuppliers.find((entry) => entry.key === key);
   if (!found) throw new Error(`Lieferant ${key} fehlt`);
   return found;
 };
@@ -172,7 +172,7 @@ export const supplierPeople = {
     'Henrik Lang',
     'Henrik',
     'halder.example',
-    nordwind.halder.id,
+    hollmann.halder.id,
     'admin',
   ),
 } as const;
@@ -189,7 +189,7 @@ const meetings = [
     // Fr 04.12.2026, 10:00 bis 12:00 in Berlin (Drehbuch K3: Präsentation 10:30, Ende 12:05)
     startsAt: new Date('2026-12-04T09:00:00.000Z'),
     durationMinutes: 120,
-    location: 'Nordwind, Werk Mannheim',
+    location: 'Hollmann, Werk Mannheim',
     visibility: 'shared' as const,
   },
   {
@@ -224,36 +224,36 @@ const meetings = [
   },
 ];
 
-export interface NordwindResult {
+export interface HollmannResult {
   organizations: number;
   people: number;
   relationships: number;
   spend2026Cents: number;
 }
 
-/** pnpm demo:nordwind: legt den Demo-Mandanten an oder bringt ihn auf den Stand des Seeds. */
-export async function seedNordwind(
+/** pnpm demo:hollmann: legt den Demo-Mandanten an oder bringt ihn auf den Stand des Seeds. */
+export async function seedHollmann(
   db: Database,
   { nodeEnv }: { nodeEnv: string | undefined },
-): Promise<NordwindResult> {
+): Promise<HollmannResult> {
   if (nodeEnv === 'production') {
     throw new Error(
-      'demo:nordwind ist nur für Vorführungen und bricht bei NODE_ENV=production ab.',
+      'demo:hollmann ist nur für Vorführungen und bricht bei NODE_ENV=production ab.',
     );
   }
   return db.transaction(async (tx) => {
     // K1-g.1: Erst alles der Demo leeren (auch, was in Vorführungen entstanden ist), dann frisch
     // einspielen; zum Schluss hält „start“ genau diesen Stand fest, den das Zurücksetzen lädt.
-    await tx.execute(sql`select app_demo_leeren(${nordwind.org.id}::uuid)`);
-    const supplierOrgs = nordwindSuppliers.map(({ id, name, country }) => ({
+    await tx.execute(sql`select app_demo_leeren(${hollmann.org.id}::uuid)`);
+    const supplierOrgs = hollmannSuppliers.map(({ id, name, country }) => ({
       id,
       name,
       country,
     }));
-    const orgs = [nordwind.org, nordwind.halder, ...supplierOrgs].map((org) => ({
+    const orgs = [hollmann.org, hollmann.halder, ...supplierOrgs].map((org) => ({
       ...org,
       isDemo: true,
-      demoNow: nordwindStart,
+      demoNow: hollmannStart,
     }));
     await tx
       .insert(organization)
@@ -264,18 +264,18 @@ export async function seedNordwind(
           name: sql`excluded.name`,
           country: sql`excluded.country`,
           isDemo: true,
-          demoNow: nordwindStart,
+          demoNow: hollmannStart,
         },
       });
     await tx
       .insert(organizationFeature)
       .values([
-        { organizationId: nordwind.org.id, feature: 'buyer' as const },
-        { organizationId: nordwind.halder.id, feature: 'buyer' as const },
+        { organizationId: hollmann.org.id, feature: 'buyer' as const },
+        { organizationId: hollmann.halder.id, feature: 'buyer' as const },
       ])
       .onConflictDoNothing();
 
-    const people = [...Object.values(nordwindPeople), ...Object.values(supplierPeople)];
+    const people = [...Object.values(hollmannPeople), ...Object.values(supplierPeople)];
     await tx
       .insert(appUser)
       .values(
@@ -286,7 +286,7 @@ export async function seedNordwind(
           email: entry.email,
           organizationId: entry.orgId,
           orgRole: entry.orgRole,
-          rolesImportedAt: nordwindStart,
+          rolesImportedAt: hollmannStart,
         })),
       )
       .onConflictDoUpdate({
@@ -301,12 +301,12 @@ export async function seedNordwind(
       });
 
     const relationships = [
-      ...nordwindSuppliers.map((entry) => ({
+      ...hollmannSuppliers.map((entry) => ({
         id: entry.relationshipId,
-        buyerOrgId: nordwind.org.id,
+        buyerOrgId: hollmann.org.id,
         supplierOrgId: entry.id,
       })),
-      { id: halderRelationshipId, buyerOrgId: nordwind.halder.id, supplierOrgId: rheintal.id },
+      { id: halderRelationshipId, buyerOrgId: hollmann.halder.id, supplierOrgId: rheintal.id },
     ];
     await tx
       .insert(relationship)
@@ -315,9 +315,9 @@ export async function seedNordwind(
     await tx
       .insert(relationshipSide)
       .values(
-        nordwindSuppliers.map((entry) => ({
+        hollmannSuppliers.map((entry) => ({
           relationshipId: entry.relationshipId,
-          orgId: nordwind.org.id,
+          orgId: hollmann.org.id,
           externalRef: entry.externalRef,
         })),
       )
@@ -330,7 +330,7 @@ export async function seedNordwind(
     await tx
       .insert(relationshipSpend)
       .values(
-        nordwindSuppliers.flatMap((entry, index) =>
+        hollmannSuppliers.flatMap((entry, index) =>
           [
             { year: 2026, amountCents: entry.spend2026 },
             {
@@ -362,10 +362,10 @@ export async function seedNordwind(
     await tx
       .delete(relationshipMember)
       .where(inArray(relationshipMember.relationshipId, relationshipIds));
-    const nordwindTeam = nordwindSuppliers.flatMap((entry) => [
+    const hollmannTeam = hollmannSuppliers.flatMap((entry) => [
       {
         relationshipId: entry.relationshipId,
-        orgId: nordwind.org.id,
+        orgId: hollmann.org.id,
         userId: entry.sro,
         teamRole: 'sro' as const,
       },
@@ -373,8 +373,8 @@ export async function seedNordwind(
         ? [
             {
               relationshipId: entry.relationshipId,
-              orgId: nordwind.org.id,
-              userId: nordwindPeople.maraWeiss.id,
+              orgId: hollmann.org.id,
+              userId: hollmannPeople.maraWeiss.id,
               teamRole: 'sponsor' as const,
             },
           ]
@@ -383,8 +383,8 @@ export async function seedNordwind(
         ? [
             {
               relationshipId: entry.relationshipId,
-              orgId: nordwind.org.id,
-              userId: nordwindPeople.idaRoth.id,
+              orgId: hollmann.org.id,
+              userId: hollmannPeople.idaRoth.id,
               teamRole: 'member' as const,
             },
           ]
@@ -393,8 +393,8 @@ export async function seedNordwind(
         ? [
             {
               relationshipId: entry.relationshipId,
-              orgId: nordwind.org.id,
-              userId: nordwindPeople.jonasFeld.id,
+              orgId: hollmann.org.id,
+              userId: hollmannPeople.jonasFeld.id,
               teamRole: 'member' as const,
             },
           ]
@@ -439,7 +439,7 @@ export async function seedNordwind(
       },
       {
         relationshipId: halderRelationshipId,
-        orgId: nordwind.halder.id,
+        orgId: hollmann.halder.id,
         userId: supplierPeople.henrikLang.id,
         teamRole: 'sro' as const,
       },
@@ -450,7 +450,7 @@ export async function seedNordwind(
         teamRole: 'sro' as const,
       },
     ];
-    await tx.insert(relationshipMember).values([...nordwindTeam, ...supplierTeam]);
+    await tx.insert(relationshipMember).values([...hollmannTeam, ...supplierTeam]);
 
     // Warengruppen als Kerndaten je Lieferant (CLAUDE.md); Strategien kommen erst mit K6 (G-9)
     await tx
@@ -458,11 +458,11 @@ export async function seedNordwind(
       .values(
         Object.values(groups).map((group) => ({
           id: group.id,
-          orgId: nordwind.org.id,
+          orgId: hollmann.org.id,
           name: group.name,
           code: group.code,
           leadUserId: group.lead,
-          ...(group.code === 'LP' ? { commodityManagerUserId: nordwindPeople.jonasFeld.id } : {}),
+          ...(group.code === 'LP' ? { commodityManagerUserId: hollmannPeople.jonasFeld.id } : {}),
         })),
       )
       .onConflictDoUpdate({
@@ -482,21 +482,21 @@ export async function seedNordwind(
     await tx.insert(materialGroupMember).values([
       ...Object.values(groups).map((group, index) => ({
         id: nid(150 + index),
-        orgId: nordwind.org.id,
+        orgId: hollmann.org.id,
         materialGroupId: group.id,
         userId: group.lead,
         role: 'lead' as const,
       })),
       {
         id: nid(170),
-        orgId: nordwind.org.id,
+        orgId: hollmann.org.id,
         materialGroupId: groups.lp.id,
-        userId: nordwindPeople.jonasFeld.id,
+        userId: hollmannPeople.jonasFeld.id,
         role: 'commodity_manager' as const,
       },
       {
         id: nid(171),
-        orgId: nordwind.org.id,
+        orgId: hollmann.org.id,
         materialGroupId: groups.lp.id,
         userId: janLuka.id,
         role: 'buyer' as const,
@@ -505,7 +505,7 @@ export async function seedNordwind(
     await tx
       .insert(relationshipMaterialGroup)
       .values(
-        nordwindSuppliers.map((entry, index) => ({
+        hollmannSuppliers.map((entry, index) => ({
           id: nid(400 + index),
           relationshipId: entry.relationshipId,
           materialGroupId: groups[entry.group].id,
@@ -523,11 +523,11 @@ export async function seedNordwind(
       .values(
         meetings.map((entry) => ({
           ...entry,
-          ownerOrgId: nordwind.org.id,
+          ownerOrgId: hollmann.org.id,
           status: 'planned' as const,
           createdBy: janLuka.id,
           createdByName: janLuka.name,
-          createdAt: nordwindStart,
+          createdAt: hollmannStart,
         })),
       )
       .onConflictDoUpdate({
@@ -544,12 +544,12 @@ export async function seedNordwind(
     const settings = [
       { key: 'ai_workers' as const, value: { meeting_brief: { enabled: true } } },
       { key: 'transcripts_enabled' as const, value: true },
-      { key: 'works_agreement_confirmed_at' as const, value: nordwindStart.toISOString() },
-      { key: 'works_agreement_confirmed_by' as const, value: nordwindPeople.saraOst.id },
+      { key: 'works_agreement_confirmed_at' as const, value: hollmannStart.toISOString() },
+      { key: 'works_agreement_confirmed_by' as const, value: hollmannPeople.saraOst.id },
     ];
     await tx
       .insert(orgSetting)
-      .values(settings.map((entry) => ({ ...entry, orgId: nordwind.org.id, updatedBy: actor })))
+      .values(settings.map((entry) => ({ ...entry, orgId: hollmann.org.id, updatedBy: actor })))
       .onConflictDoUpdate({
         target: [orgSetting.orgId, orgSetting.key],
         set: { value: sql`excluded.value`, updatedBy: actor },
@@ -569,14 +569,14 @@ export async function seedNordwind(
     await tx.insert(supplierDomain).values(
       domains.map(([key, domain], index) => ({
         id: nid(700 + index),
-        orgId: nordwind.org.id,
+        orgId: hollmann.org.id,
         relationshipId: byKey(key).relationshipId,
         domain,
         source: 'manual' as const,
       })),
     );
 
-    // Ansprechpartner der Lieferanten aus Sicht von Nordwind (DM-01): Rheintal und Saar Circuits
+    // Ansprechpartner der Lieferanten aus Sicht von Hollmann (DM-01): Rheintal und Saar Circuits
     const contacts: [string, { name: string; email: string }, string | null][] = [
       ['rheintal', supplierPeople.kimKaiser, 'Geschäftsführerin'],
       ['rheintal', supplierPeople.tomWeber, 'Key Account'],
@@ -603,7 +603,7 @@ export async function seedNordwind(
     });
     await seedMorning(tx, {
       nid,
-      orgId: nordwind.org.id,
+      orgId: hollmann.org.id,
       janLuka: { id: janLuka.id, name: janLuka.name },
       supplier: (key) => {
         const found = byKey(key);
@@ -617,12 +617,12 @@ export async function seedNordwind(
       },
       jbpMeetingId: nid(501),
     });
-    await tx.execute(sql`select app_demo_schnappschuss(${nordwind.org.id}::uuid, 'start')`);
+    await tx.execute(sql`select app_demo_schnappschuss(${hollmann.org.id}::uuid, 'start')`);
     return {
       organizations: orgs.length,
       people: people.length,
       relationships: relationships.length,
-      spend2026Cents: nordwindSuppliers.reduce((total, entry) => total + entry.spend2026, 0),
+      spend2026Cents: hollmannSuppliers.reduce((total, entry) => total + entry.spend2026, 0),
     };
   });
 }

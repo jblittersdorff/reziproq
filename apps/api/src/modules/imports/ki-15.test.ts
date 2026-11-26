@@ -75,7 +75,7 @@ describe('KI-15 Import und Zuordnung', () => {
     `4711;Rheintal Elektronik GmbH;Speyer;DE;;15.03.${year};1000,00;EUR;Z-LP;Leiterplatten 4-lagig`,
     `9001;Ganz anderer Name AG;Berlin;DE;${vat};20.03.${year};250,50;EUR;Z-LP;Leiterplatten Muster`,
     `9002;Silesia Gus;Gliwice;PL;;01.04.${year};500,00;EUR;;Gussteile für Gehäuse`,
-    `9003;Nordwind Kunststoffwerk;Ulm;DE;;01.04.${year};80,00;EUR;;Frachtkosten Express`,
+    `9003;Hollmann Kunststoffwerk;Ulm;DE;;01.04.${year};80,00;EUR;;Frachtkosten Express`,
     `9004;Rheintal Elektronik GmbH;Speyer;DE;;01.05.${year};100,00;CNY;Z-LP;Leiterplatten`,
     `9005;Rheintal Elektronik GmbH;Speyer;DE;;01.05.${year};;EUR;Z-LP;Leiterplatten`,
   ].join('\n');
@@ -293,7 +293,7 @@ describe('KI-15 Import und Zuordnung', () => {
       (await call(users.admin, 'GET', `/einstellungen/importe/${spendBatch}`)).body,
     );
     const silesia = rowOf(value, '9002');
-    const nordwind = rowOf(value, '9003');
+    const hollmann = rowOf(value, '9003');
     expect(
       (
         await call(users.cm, 'POST', `/einstellungen/importe/${spendBatch}/entscheiden`, {
@@ -318,13 +318,13 @@ describe('KI-15 Import und Zuordnung', () => {
       materialGroupId: groups.guss,
     });
     await call(users.admin, 'POST', `/einstellungen/importe/${spendBatch}/entscheiden`, {
-      rowIds: [nordwind?.id],
+      rowIds: [hollmann?.id],
       action: 'new',
     });
     const after = batch(
       (
         await call(users.admin, 'POST', `/einstellungen/importe/${spendBatch}/entscheiden`, {
-          rowIds: [nordwind?.id],
+          rowIds: [hollmann?.id],
           action: 'category',
           materialGroupId: null,
         })
@@ -363,10 +363,10 @@ describe('KI-15 Import und Zuordnung', () => {
     ).rows;
     // 1000,00 + 250,50 + 500,00 + 80,00; CNY und leerer Betrag sind Fehler
     expect(Number(sum?.cents)).toBe(183_050);
-    const nordwind = await db.execute<{ id: string }>(sql`
+    const hollmann = await db.execute<{ id: string }>(sql`
       select r.id from relationship r join relationship_side s on s.relationship_id = r.id
-      where r.buyer_org_id = ${orgs.a} and s.display_name = 'Nordwind Kunststoffwerk'`);
-    expect(nordwind.rows).toHaveLength(1);
+      where r.buyer_org_id = ${orgs.a} and s.display_name = 'Hollmann Kunststoffwerk'`);
+    expect(hollmann.rows).toHaveLength(1);
   });
 
   it('ein zweiter Import derselben Datei ordnet ohne Prüfung zu, wird aber nicht zweimal übernommen', async () => {
@@ -396,10 +396,10 @@ describe('KI-15 Import und Zuordnung', () => {
         where r.buyer_org_id = ${orgs.a} and s.source = 'import' and s.year = ${year}`)
     ).rows;
     expect(Number(sum?.n)).toBe(0);
-    const nordwind = await db.execute<{ id: string }>(sql`
+    const hollmann = await db.execute<{ id: string }>(sql`
       select r.id from relationship r join relationship_side s on s.relationship_id = r.id
-      where r.buyer_org_id = ${orgs.a} and s.display_name = 'Nordwind Kunststoffwerk'`);
-    expect(nordwind.rows).toHaveLength(0);
+      where r.buyer_org_id = ${orgs.a} and s.display_name = 'Hollmann Kunststoffwerk'`);
+    expect(hollmann.rows).toHaveLength(0);
   });
 
   it('Kunde B sieht weder Importe noch Aliasse noch Regeln von Kunde A; der Lieferant nichts', async () => {

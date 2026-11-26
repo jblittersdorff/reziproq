@@ -130,16 +130,16 @@ Navigation: In der Akte fallen „Themen“, „Initiativen“, „Freigabe“ z
 | T5-03 | K-Start, B-Einladen | Kolleginnen einladen, Rechte je Person | L5-Akte, Team: „Person einladen“ als Blatt |
 | T5-04 | K-Start | Geschäftsupdate für einen zweiten Kunden | eigene Akte je Kunde (Halder Maschinenbau) |
 | T5-05 | K-Start | Deine Kunden | L5-Heute rechts und L5-Kunden |
-| T5-06 | K-Arbeitsbereich | sechs Reiter | drei Sichten: Gemeinsam, Nur für dich, Von Nordwind |
+| T5-06 | K-Arbeitsbereich | sechs Reiter | drei Sichten: Gemeinsam, Nur für dich, Von Hollmann |
 | T5-07 | K-Arbeitsbereich | Nächster Schritt | „Als Nächstes“ in der Akte, je nach Zeitpunkt |
-| T5-08 | K-Arbeitsbereich | Mit Nordwind geteilt: Spielregeln, Plan, Zusage, Scorecard | L5-Akte, Gemeinsam |
-| T5-09 | K-Arbeitsbereich | Nur Rheintal: Kundenwert, interne Notiz | L5-Akte-Privat; die Notiz heißt „Mehr als 1,5 % nur mit Mengenzusage 2028“ (die alte Fassung schien Nordwinds Zielpreis vorauszusetzen) |
+| T5-08 | K-Arbeitsbereich | Mit Hollmann geteilt: Spielregeln, Plan, Zusage, Scorecard | L5-Akte, Gemeinsam |
+| T5-09 | K-Arbeitsbereich | Nur Rheintal: Kundenwert, interne Notiz | L5-Akte-Privat; die Notiz heißt „Mehr als 1,5 % nur mit Mengenzusage 2028“ (die alte Fassung schien Hollmanns Zielpreis vorauszusetzen) |
 | T5-10 | K-Arbeitsbereich | Wo ihr gemeinsam steht | Mini-Spiegel Zusagen und Zusagenliste |
 | T5-11 | K-JBP | Präsentation, Beiträge, Agenda, Teilnehmer, eigene Vorbereitung | L5-Termin |
 | T5-12 | K-Beitrag | Beitrag schreiben | L5-Beitrag als Blatt, mit Entwurf und Hilfen |
 | T5-13 | O-Einladung | Rolle wählen, Passkey | L5-Einladung: Rolle vorbelegt und änderbar, dann Passkey |
 
-Nicht gezeichnet, in LP-01 beschrieben: Mein Agent und Einstellungen beim Lieferanten, Ansicht „Alles“ in Heute beim Lieferanten, Sicht „Von Nordwind“, Phasen „Im Termin“ und „Danach“ beim Lieferanten. Alle nutzen die Muster der Käuferseite. Die Claims-Boards bleiben unangetastet; das Modul ist aus (G-4).
+Nicht gezeichnet, in LP-01 beschrieben: Mein Agent und Einstellungen beim Lieferanten, Ansicht „Alles“ in Heute beim Lieferanten, Sicht „Von Hollmann“, Phasen „Im Termin“ und „Danach“ beim Lieferanten. Alle nutzen die Muster der Käuferseite. Die Claims-Boards bleiben unangetastet; das Modul ist aus (G-4).
 
 ## Kapitel 6 · Warengruppe und Strategie (ST-01, MV-01, MS-01, Tests T6-01 bis T6-14)
 

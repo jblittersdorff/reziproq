@@ -162,8 +162,8 @@ describe('IN-03 Eingangsadresse', () => {
             connectedByName: 'Anna',
             connectedAt: '2026-11-18T08:00:00Z',
             hookPath: '/api/anbindungen/eingang/abc',
-            inboundAddress: 'termine@nordwind.reziproq.de',
-            allowedDomains: ['nordwind-antriebe.de'],
+            inboundAddress: 'termine@hollmann.reziproq.de',
+            allowedDomains: ['hollmann-antriebe.de'],
             lastJob: null,
           },
         },
@@ -181,15 +181,15 @@ describe('IN-03 Eingangsadresse', () => {
     renderAt('/einstellungen/anbindungen');
     const row = (await screen.findByText('Eingangsadresse')).closest('li') as HTMLElement;
     fireEvent.click(within(row).getByRole('button', { name: 'Verwalten' }));
-    expect(await within(row).findByText('termine@nordwind.reziproq.de')).toBeTruthy();
+    expect(await within(row).findByText('termine@hollmann.reziproq.de')).toBeTruthy();
     fireEvent.change(within(row).getByLabelText('Zugelassene Absender-Domains'), {
-      target: { value: 'nordwind-antriebe.de\nNordwind-Service.at' },
+      target: { value: 'hollmann-antriebe.de\nHollmann-Service.at' },
     });
     fireEvent.click(within(row).getByRole('button', { name: 'Absender speichern' }));
     await waitFor(() =>
       expect(sent[0]).toMatchObject({
         url: `/api/einstellungen/anbindungen/${uuid(70)}/einstellungen`,
-        body: { allowedDomains: ['nordwind-antriebe.de', 'nordwind-service.at'] },
+        body: { allowedDomains: ['hollmann-antriebe.de', 'hollmann-service.at'] },
       }),
     );
   });
@@ -200,7 +200,7 @@ describe('IN-03 Outlook-Add-in', () => {
     const adapter: OutlookAdapter = {
       preview: false,
       read: async () => ({
-        organizerEmail: 'anna@nordwind.de',
+        organizerEmail: 'anna@hollmann.de',
         subject: 'JBP Rheintal Planung 2027',
         startAt: '2026-12-09T13:00:00.000Z',
         attendees: ['tom@rheintal-elektronik.de'],
@@ -222,7 +222,7 @@ describe('IN-03 Outlook-Add-in', () => {
         return Response.json(
           {
             registrationId: uuid(80),
-            inboundAddress: 'termine@nordwind.reziproq.de',
+            inboundAddress: 'termine@hollmann.reziproq.de',
             transcriptNotice: 'Hinweis: Transkript',
           },
           { status: 201 },
@@ -246,11 +246,11 @@ describe('IN-03 Outlook-Add-in', () => {
         briefOptIn: true,
         transcriptOptIn: true,
         insertAgenda: true,
-        organizerEmail: 'anna@nordwind.de',
+        organizerEmail: 'anna@hollmann.de',
       }),
     );
     await waitFor(() =>
-      expect(adapter.addAttendeeAndSave).toHaveBeenCalledWith('termine@nordwind.reziproq.de'),
+      expect(adapter.addAttendeeAndSave).toHaveBeenCalledWith('termine@hollmann.reziproq.de'),
     );
     expect(adapter.prependBody).toHaveBeenCalledWith('Hinweis: Transkript');
     expect(await screen.findByText(/Gespeichert\. Sende jetzt die Einladung/)).toBeTruthy();

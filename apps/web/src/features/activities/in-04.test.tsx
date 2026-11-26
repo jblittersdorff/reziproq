@@ -109,7 +109,7 @@ beforeEach(() => {
       return Response.json({
         id: mailId,
         subject: 'Kapazitätsplanung 2028',
-        toEmails: ['sara@nordwind.example'],
+        toEmails: ['sara@hollmann.example'],
         bodyText: 'Hallo Sara,\nwir planen 2028 eine zweite Linie.',
       });
     }
@@ -143,7 +143,7 @@ describe('IN-04 Mails in den Aktivitäten', () => {
     expect(within(entry).queryByText(/wir planen 2028/)).toBeNull();
     fireEvent.click(within(entry).getByRole('button', { name: 'Text anzeigen' }));
     expect(await within(entry).findByText(/wir planen 2028 eine zweite Linie/)).toBeTruthy();
-    expect(within(entry).getByText('An: sara@nordwind.example')).toBeTruthy();
+    expect(within(entry).getByText('An: sara@hollmann.example')).toBeTruthy();
     fireEvent.click(screen.getByRole('radio', { name: 'Mails' }));
     await waitFor(() =>
       expect(sent.some((request) => request.url.endsWith('/aktivitaeten?filter=mails'))).toBe(true),
@@ -235,7 +235,7 @@ describe('IN-04 Outlook-Add-in in einer gelesenen Mail', () => {
         mode: 'message',
         subject: 'Kapazitätsplanung 2028',
         from: 'tom@rheintal.example',
-        to: ['sara@nordwind.example'],
+        to: ['sara@hollmann.example'],
         cc: [],
         itemId: 'AAMk-rest-id',
       }),

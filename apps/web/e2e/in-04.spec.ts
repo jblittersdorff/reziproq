@@ -119,7 +119,7 @@ for (const width of [390, 1440]) {
         json: {
           id: mailId,
           subject: 'Kapazitätsplanung 2028',
-          toEmails: ['sara.ost@nordwind-antriebe.example'],
+          toEmails: ['sara.ost@hollmann-antriebe.example'],
           bodyText:
             'Hallo Sara,\n\nwir planen für 2028 eine zweite Fertigungslinie in Gliwice. Damit steigt unsere Kapazität um 30 Prozent.\n\nViele Grüße\nTom',
         },

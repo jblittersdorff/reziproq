@@ -34,7 +34,7 @@ export interface MorningRefs {
   nid: (n: number) => string;
   orgId: string;
   janLuka: { id: string; name: string };
-  /** Organisation, Beziehung und Name eines Lieferanten von Nordwind */
+  /** Organisation, Beziehung und Name eines Lieferanten von Hollmann */
   supplier: (key: string) => { orgId: string; relationshipId: string; name: string };
   rheintalPeople: Record<
     'nilsOtt' | 'tomWeber' | 'leaBrandt' | 'miaKuhn',
@@ -349,10 +349,10 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
       relationshipId: target.relationshipId,
       filedBy: janLuka.id,
       visibility: 'team',
-      messageId: `<nordwind-${640 + index}@${entry.from.email.split('@')[1]}>`,
+      messageId: `<hollmann-${640 + index}@${entry.from.email.split('@')[1]}>`,
       fromEmail: entry.from.email,
       fromName: entry.from.name,
-      toEmails: ['jan-luka@nordwind.example'],
+      toEmails: ['jan-luka@hollmann.example'],
       sentAt: new Date(entry.at.getTime() - 4 * 60_000),
       subject,
       bodyText: `${entry.subject || 'Kurze Rückfrage'} – siehe Anhang, Gruß ${entry.from.name}`,

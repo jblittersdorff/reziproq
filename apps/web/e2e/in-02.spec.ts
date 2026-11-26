@@ -38,14 +38,14 @@ const sso: SsoOverview = {
     hostedDomain: null,
     domains: [
       {
-        domain: 'nordwind-antriebe.de',
-        recordName: '_zitadel-challenge.nordwind-antriebe.de',
+        domain: 'hollmann-antriebe.de',
+        recordName: '_zitadel-challenge.hollmann-antriebe.de',
         recordValue: 'f3a9c27e5b1d4e8f9a0b6c2d7e1f4a5b',
         verifiedAt: '2026-11-20T08:00:00Z',
       },
       {
-        domain: 'nordwind-service.at',
-        recordName: '_zitadel-challenge.nordwind-service.at',
+        domain: 'hollmann-service.at',
+        recordName: '_zitadel-challenge.hollmann-service.at',
         recordValue: '0c4d8e2f6a1b5c9d3e7f2a6b0c4d8e1f',
         verifiedAt: null,
       },
@@ -70,7 +70,7 @@ for (const width of [390, 1440]) {
     await page.goto('/einstellungen/anbindungen');
     const row = page.getByRole('listitem').filter({ hasText: 'Microsoft 365' }).first();
     await row.getByRole('button', { name: 'Verwalten' }).click();
-    await expect(row.getByText('nordwind-service.at', { exact: true })).toBeVisible();
+    await expect(row.getByText('hollmann-service.at', { exact: true })).toBeVisible();
     await expect(
       row.getByRole('switch', { name: 'Nur noch über Microsoft anmelden' }),
     ).toBeChecked();

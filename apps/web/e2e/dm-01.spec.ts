@@ -33,7 +33,7 @@ const session: DemoSession = {
     id: 'jan-luka',
     name: 'Jan-Luka',
     orgId: '550e8400-e29b-41d4-a716-446655440001',
-    orgName: 'Nordwind Antriebe',
+    orgName: 'Hollmann Antriebe',
     orgRole: 'member',
     buyer: true,
   },
@@ -146,7 +146,7 @@ for (const width of [390, 1440]) {
   });
 }
 
-// K1-g.4: Stand der Regie wie nach pnpm demo:nordwind; jede Aktion antwortet mit dem neuen Stand
+// K1-g.4: Stand der Regie wie nach pnpm demo:hollmann; jede Aktion antwortet mit dem neuen Stand
 const regie: DemoRegie = { demoNow: '2026-11-23T06:30:00.000Z', mode: 'replay', runs: [] };
 
 async function mockRegie(page: Page) {
@@ -188,12 +188,12 @@ for (const width of [390, 1440]) {
     await signIn(page, { locale: 'de' });
     await page.route('**/api/demo/sitzung', (route) =>
       route.fulfill({
-        json: { ...session, person: { ...session.person, id: 'nordwind-jan-luka' } },
+        json: { ...session, person: { ...session.person, id: 'hollmann-jan-luka' } },
         headers: { [businessTimeHeader]: regie.demoNow },
       }),
     );
     const actions = await mockRegie(page);
-    await page.goto('/demo/als/nordwind-jan-luka');
+    await page.goto('/demo/als/hollmann-jan-luka');
     await expect(page).not.toHaveURL(/\/demo\/als\//);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
     await page.keyboard.press('Alt+KeyD');

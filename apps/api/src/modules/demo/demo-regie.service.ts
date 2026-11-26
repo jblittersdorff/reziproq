@@ -118,7 +118,7 @@ export class DemoRegieService {
     try {
       await this.tenant.run(session, (tx) => tx.execute(sql`select app_demo_stand_laden('start')`));
     } catch (error) {
-      // Ohne Seed gibt es den Stand nicht: erst pnpm demo:nordwind
+      // Ohne Seed gibt es den Stand nicht: erst pnpm demo:hollmann
       if ((error as { cause?: { code?: string } }).cause?.code === 'P0002') {
         throw new ConflictException({ statusCode: 409, code: 'stand_fehlt' });
       }

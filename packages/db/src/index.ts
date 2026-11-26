@@ -25,14 +25,14 @@ export {
   seedMaterialGroupDefaults,
 } from './material-group-defaults.js';
 export {
-  type NordwindResult,
-  nordwind,
-  nordwindPeople,
-  nordwindStart,
-  nordwindSuppliers,
-  seedNordwind,
+  type HollmannResult,
+  hollmann,
+  hollmannPeople,
+  hollmannStart,
+  hollmannSuppliers,
+  seedHollmann,
   supplierPeople,
-} from './nordwind.js';
+} from './hollmann.js';
 export { ensureApiRole } from './roles.js';
 export * as schema from './schema/index.js';
 export { type TenantSession, type TenantTransaction, withTenant } from './tenant.js';

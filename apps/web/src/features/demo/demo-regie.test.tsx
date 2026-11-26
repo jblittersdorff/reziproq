@@ -22,10 +22,10 @@ const session: DemoSession = {
   accessToken: 'demo-token',
   expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
   person: {
-    id: 'nordwind-jan-luka',
+    id: 'hollmann-jan-luka',
     name: 'Jan-Luka',
     orgId: '550e8400-e29b-41d4-a716-446655440001',
-    orgName: 'Nordwind Antriebe',
+    orgName: 'Hollmann Antriebe',
     orgRole: 'member',
     buyer: true,
   },

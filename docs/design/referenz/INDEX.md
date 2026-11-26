@@ -53,8 +53,8 @@ Die Boards sind Vorlage für Aufbau, Texte und Demo-Zahlen, nicht Code zum Über
 | `K5-Zwei-Fenster` | Demo: Zwei-Fenster-Modus | 6 Deal, Mandat und Autonomie · Kapitel 5 | 1440 px | DM-01, SI-01 |
 | `L5-Heute` | Heute beim Lieferanten | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LA-01, LP-01, NAV-10 |
 | `L5-Deal-Mappe` | Lieferant: Deal vorschlagen | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | DL-01, LA-01 |
-| `L5-Akte` | Lieferant: Akte Nordwind · Gemeinsam | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LP-01 |
-| `L5-Akte-Privat` | Lieferant: Akte Nordwind · Nur für dich | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LA-01, LP-01 |
+| `L5-Akte` | Lieferant: Akte Hollmann · Gemeinsam | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LP-01 |
+| `L5-Akte-Privat` | Lieferant: Akte Hollmann · Nur für dich | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LA-01, LP-01 |
 | `L5-Bestaetigen-Mobil` | Lieferant: Deal bestätigen mobil | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 390 px | AU-01, DL-01 |
 | `L5-Termin` | Lieferant: JBP vorbereiten | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | LP-01 |
 | `L5-Beitrag` | Lieferant: Beitrag schreiben | 7 Lieferantenseite: dieselbe Akte gespiegelt · Kapitel 5 | 1440 px | BE-01, LA-01, LP-01 |

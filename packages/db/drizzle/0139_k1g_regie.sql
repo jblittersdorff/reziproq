@@ -30,7 +30,7 @@ SELECT app_apply_layer('demo_snapshot', 'org_private');--> statement-breakpoint
 CREATE POLICY demo_snapshot_demo ON demo_snapshot AS RESTRICTIVE FOR ALL TO reziproq_app
   USING (app_org_is_demo(org_id)) WITH CHECK (app_org_is_demo(org_id));--> statement-breakpoint
 -- Die Organisationen der Demo: der Demo-Mandant und alle Demo-Mandanten, die über Beziehungen mit
--- ihm verbunden sind (Nordwind, seine Lieferanten, deren weitere Kunden wie Halder). Ist p_org kein
+-- ihm verbunden sind (Hollmann, seine Lieferanten, deren weitere Kunden wie Halder). Ist p_org kein
 -- Demo-Mandant, ist die Menge leer.
 CREATE FUNCTION app_demo_orgs_von(p_org uuid) RETURNS SETOF uuid
   LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp
@@ -155,7 +155,7 @@ END
 $$;--> statement-breakpoint
 REVOKE ALL ON FUNCTION app_demo_zeilen_sammeln(uuid[]) FROM PUBLIC;--> statement-breakpoint
 -- Hält den Stand aller Organisationen der Demo von p_org als Schnappschuss fest (Seed: „start“).
--- Nur für den Eigentümer der Tabellen, also für Skripte wie pnpm demo:nordwind.
+-- Nur für den Eigentümer der Tabellen, also für Skripte wie pnpm demo:hollmann.
 CREATE FUNCTION app_demo_schnappschuss(p_org uuid, p_key text) RETURNS uuid
   LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
   AS $$
@@ -208,7 +208,7 @@ BEGIN
 END
 $$;--> statement-breakpoint
 REVOKE ALL ON FUNCTION app_demo_leeren_von(uuid[]) FROM PUBLIC;--> statement-breakpoint
--- Für pnpm demo:nordwind: vor dem Seed alles der Demo leeren, damit „start“ genau der Seed ist.
+-- Für pnpm demo:hollmann: vor dem Seed alles der Demo leeren, damit „start“ genau der Seed ist.
 -- Gibt es den Demo-Mandanten noch nicht, gibt es nichts zu leeren. Nur für den Eigentümer.
 CREATE FUNCTION app_demo_leeren(p_org uuid) RETURNS void
   LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp

@@ -28,7 +28,7 @@ describe('Uhr je Mandant (DM-01)', () => {
     temp = await createTempDatabase({ from: 'migrated' });
     await temp.db.execute(sql`
       insert into organization (id, name, is_demo, demo_now) values
-        (${demoOrg}, 'Nordwind (Demo)', true, ${demoNow.toISOString()}::timestamptz)
+        (${demoOrg}, 'Hollmann (Demo)', true, ${demoNow.toISOString()}::timestamptz)
     `);
     await temp.db.execute(
       sql`insert into organization (id, name) values (${liveOrg}, 'Live (Demo)')`,

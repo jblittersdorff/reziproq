@@ -18,7 +18,7 @@ const session: DemoSession = {
     id: 'sara-ost',
     name: 'Sara Ost',
     orgId: '550e8400-e29b-41d4-a716-446655440001',
-    orgName: 'Nordwind Antriebe',
+    orgName: 'Hollmann Antriebe',
     orgRole: 'member',
     buyer: true,
   },

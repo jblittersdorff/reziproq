@@ -26,7 +26,7 @@ const session: DemoSession = {
     id: 'jan-luka',
     name: 'Jan-Luka',
     orgId: '550e8400-e29b-41d4-a716-446655440001',
-    orgName: 'Nordwind Antriebe',
+    orgName: 'Hollmann Antriebe',
     orgRole: 'member',
     buyer: true,
   },
@@ -58,7 +58,7 @@ afterEach(() => {
 describe('DM-01 Demo-Sitzung je Person', () => {
   it('startet die Sitzung für die Person und speichert sie in diesem Tab', async () => {
     renderAt('/demo/als/jan-luka');
-    expect(await screen.findByText('Angemeldet als Jan-Luka · Nordwind Antriebe')).toBeTruthy();
+    expect(await screen.findByText('Angemeldet als Jan-Luka · Hollmann Antriebe')).toBeTruthy();
     expect(requested).toEqual([{ userId: 'jan-luka' }]);
     expect(readDemoSession()?.accessToken).toBe('demo-token');
     // K1-b.5: Die Fachzeit des Mandanten gilt sofort und steht für das Neuladen im Tab

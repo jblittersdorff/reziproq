@@ -15,11 +15,11 @@ arbeiten in derselben App; Daten sind strikt nach Organisation und Beziehung get
   ein Test prüft, dass jede Route der App einer Regel folgt
 - pnpm db:seed: Beispieldaten der Test-Mandanten (Entwicklung und automatische Tests); richtet sie
   danach mit pnpm demo:setup auf die echten Konten ein (Käufer OEM 1 mit allen Rechten, Lieferant
-  Lieferant 1), ohne erfundene Personen. Davon getrennt ist der Demo-Mandant Nordwind mit
+  Lieferant 1), ohne erfundene Personen. Davon getrennt ist der Demo-Mandant Hollmann mit
   synthetischen Personen nach DM-01 (E-K0-04)
-- pnpm demo:nordwind: legt den Demo-Mandanten Nordwind an oder bringt ihn auf den Stand des Seeds
+- pnpm demo:hollmann: legt den Demo-Mandanten Hollmann an oder bringt ihn auf den Stand des Seeds
   (feste IDs, beliebig oft). Anmelden ohne Zitadel mit DEMO_SESSIONS=true in der .env unter
-  /demo/als/<Person>, z. B. nordwind-jan-luka (E-K0-05, nur lokal, nie im Betrieb)
+  /demo/als/<Person>, z. B. hollmann-jan-luka (E-K0-05, nur lokal, nie im Betrieb)
 - Automatische Tests schreiben nie in die Entwicklungsdatenbank, sondern in reziproq_test
 - Testlauf: Web- und API-Tests teilen sich je Worker die geladenen Module (isolate: false). Ein Test,
   der Module mit vi.mock ersetzt oder eigenen Zustand in einer Ersetzung hält, gehört in
