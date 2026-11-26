@@ -52,6 +52,10 @@ type Status = { message: string; tone: 'success' | 'warning' };
  * Demo-Regie (DM-01, K1-g.4, Vorlage Demo-Regie): Szenario, Signale, Zeit, Rolle, Gegenüber,
  * Antworten der KI und Zurücksetzen. Nur im Demo-Mandanten; ⌥D öffnet sie in einer Demo-Sitzung von
  * jeder Seite. Was erst mit späteren Paketen kommt, steht als Text „folgt mit …“ da, nicht als Knopf.
+ *
+ * Bewusste Abweichungen von der Vorlage: „Auf Datum springen“ braucht ein Ziel, und Pop-ups gibt es
+ * nicht (Designsprache, Regel 6); deshalb steht davor eine Auswahl der Stationen aus DM-01. Unter
+ * „Gegenüber“ steht nur „Ein Fenster“ als Marke, bis K5 die Wahl mit Simulator baut (SI-01).
  */
 export function DemoRegiePage() {
   const text = useMessages(demoRegieMessages);
