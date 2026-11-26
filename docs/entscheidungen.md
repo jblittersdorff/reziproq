@@ -26,6 +26,7 @@ Jede Spec verweist mit der Kennung (z. B. E-K2-4) auf diese Liste. Wer eine Ents
 | E-K2-5 | Ordnet Reziproq Mails selbst zu? | ja ab Konfidenz 0,9, darunter als Entwurf; Schwelle nach zwei Wochen Betrieb prüfen | alles durch Kurz prüfen | PO-01 |
 | E-K2-6 | Bestätigt der Lieferant mit oder ohne Konto? | ohne Konto: Link mit Passkey, an die Person gebunden, 14 Tage gültig | höhere Hürde vor Kapitel 5 | BL-01 |
 | E-K2-7 | Bleibt die SupplierBar auf Termin- und Plan-Seiten? | nein; sie ist der Kopf der Akte | – | AK-01 |
+| E-K2-8 | Wie heißen die Hauptpunkte Beziehungen und Wert? | Gründer am 26.11.2026: Lieferanten und Ergebnisse, „das macht sonst für mich keinen Sinn“. Gilt für Navigation, Seitentitel und Zurück-Links; die Adressen `/beziehungen` und `/wert` bleiben, beim Lieferanten bleibt Kunden. Beziehung bleibt der Begriff für die Beziehung selbst, Wert für Wertkonto, Wertart und Wertbericht | Beziehungen und Wert wie in NAV-10 2.0 | NAV-10, BZ-01, WK-01, Designsprache, Glossar |
 
 ## Kapitel 3: Termin
 

@@ -49,7 +49,7 @@ describe('Lieferantenseite', () => {
   it('Anzahl und Gesamtspend aus der API stehen oben, ohne beendete Beziehungen', async () => {
     renderAt('/beziehungen');
     expect(await screen.findByText(/^4 Lieferanten/)).toBeDefined();
-    const heading = screen.getByRole('heading', { level: 1, name: 'Beziehungen' });
+    const heading = screen.getByRole('heading', { level: 1, name: 'Lieferanten' });
     expect(text(heading.closest('header'))).toContain(
       '4 Lieferanten · 10.230.000 € Jahresspend 2025',
     );
@@ -196,7 +196,14 @@ describe('Wenn /api/me scheitert', () => {
 // Seit PLT-02 (neuer Zuschnitt): ohne Organisation nur der Hinweis, ohne Feature buyer der Hinweis
 // zum Lieferantenzugang. Profil und Einstellungen bleiben erreichbar. Seit PLT-11 fehlen dann die
 // Käuferziele in der globalen Leiste.
-const areaLinks = ['Heute', 'Beziehungen', 'Warengruppen', 'Wert', 'Mein Agent', 'Frag Reziproq'];
+const areaLinks = [
+  'Heute',
+  'Lieferanten',
+  'Warengruppen',
+  'Ergebnisse',
+  'Mein Agent',
+  'Frag Reziproq',
+];
 const visibleAreaLinks = () => {
   const navigation = screen.getByRole('navigation', { name: 'Hauptnavigation' });
   return areaLinks.filter((name) => within(navigation).queryByRole('link', { name }) !== null);

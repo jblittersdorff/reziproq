@@ -108,9 +108,9 @@ describe('NAV-10 Navigation', () => {
       .filter((label) =>
         [
           'Heute',
-          'Beziehungen',
+          'Lieferanten',
           'Warengruppen',
-          'Wert',
+          'Ergebnisse',
           'Übersicht',
           'Mein Tag',
           'Lieferanten',
@@ -119,7 +119,7 @@ describe('NAV-10 Navigation', () => {
           'Start',
         ].includes(label ?? ''),
       );
-    expect(main).toEqual(['Heute', 'Beziehungen', 'Warengruppen', 'Wert']);
+    expect(main).toEqual(['Heute', 'Lieferanten', 'Warengruppen', 'Ergebnisse']);
   });
 
   it.each([
@@ -179,7 +179,7 @@ describe('NAV-10 Navigation', () => {
         .map((link) => link.getAttribute('aria-label') ?? link.textContent);
     await waitFor(() => expect(labels()).toContain('Kunden'));
     expect(labels()).toContain('Heute');
-    for (const buyerOnly of ['Wert', 'Warengruppen', 'Beziehungen', 'Mein Agent']) {
+    for (const buyerOnly of ['Ergebnisse', 'Warengruppen', 'Lieferanten', 'Mein Agent']) {
       expect(labels()).not.toContain(buyerOnly);
     }
   });

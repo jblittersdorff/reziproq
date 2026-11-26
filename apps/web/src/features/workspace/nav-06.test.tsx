@@ -161,7 +161,7 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     const router = renderAt(base);
     // Auf dem Überblick ist der Name der Titel der Seite.
     await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik GmbH (Demo)' });
-    expect(within(header()).getByRole('link', { name: 'Beziehungen' }).getAttribute('href')).toBe(
+    expect(within(header()).getByRole('link', { name: 'Lieferanten' }).getAttribute('href')).toBe(
       '/beziehungen',
     );
     expect(

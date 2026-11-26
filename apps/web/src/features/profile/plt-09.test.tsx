@@ -105,7 +105,7 @@ describe('Sprache', () => {
     });
     expect(await screen.findByRole('heading', { level: 1, name: 'Profile' })).toBeDefined();
     expect(screen.getByRole('navigation', { name: 'Main navigation' }).textContent).toContain(
-      'Relationships',
+      'Suppliers',
     );
     expect(document.documentElement.lang).toBe('en');
     expect(signedIn.signinRedirect).not.toHaveBeenCalled();

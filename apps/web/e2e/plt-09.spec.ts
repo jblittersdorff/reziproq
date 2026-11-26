@@ -130,7 +130,7 @@ test.describe('mit deutschem Browser', () => {
     await expect.poll(() => page.evaluate(() => document.documentElement.lang)).toBe('en');
     await expect(
       page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', {
-        name: 'Relationships',
+        name: 'Suppliers',
       }),
     ).toBeVisible();
   });

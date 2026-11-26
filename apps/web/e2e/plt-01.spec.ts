@@ -86,7 +86,7 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
 
   await expect(page).toHaveURL('http://localhost:5174/beziehungen?suche=guss');
   await expect(
-    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Beziehungen' }),
+    page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Lieferanten' }),
   ).toBeVisible();
   expect(zitadel.tokenRequests[0]).toMatchObject({ grantType: 'authorization_code' });
   expect(zitadel.tokenRequests[0]?.codeVerifier).toBeTruthy();
@@ -155,7 +155,7 @@ test('Die App erneuert ein abgelaufenes Token ohne Neuanmeldung', async ({ page 
   // Die nächste Anfrage an die API kommt mit dem neuen Token; Zitadel wurde nicht erneut gefragt.
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Beziehungen' })
+    .getByRole('link', { name: 'Lieferanten' })
     .click();
   await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
   expect(apiTokens.at(-1)).toMatch(/^access-token-erneuert-\d+$/);

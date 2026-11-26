@@ -8,14 +8,14 @@ Verbindliche Vorgabe für die Oberfläche von Reziproq. Referenz-Markup mit exak
 - Neue Bausteine für die Arbeit mit Reziproq: Mappe, Kurz prüfen, Erledigt, Warum, Spiegel, Stufen-Umschalter, Kennzeichnung, Blatt, Sichten-, Phasen- und Teile-Umschalter, Demo-Regie (Abschnitt „Bausteine für Reziproq“).
 - Schrittfolge und Ablauf-Leiste entfallen. Fortschritt zeigt das Objekt selbst (Phasen am Termin, Teile an der Strategie, „So geht es weiter“ in der Mappe).
 - Abschnittslabels sind `#5a636b` statt `#7b8389` (Kontrast).
-- Die Seite Übersicht mit Terminschiene und Lagebild wird die Seite Wert.
+- Die Seite Übersicht mit Terminschiene und Lagebild wird die Seite Ergebnisse (Name nach E-K2-8).
 - Die Änderungen aus Version 2 (Seitenleiste, Tab-Leiste, ruhige Ecken, mobil zuerst) gelten weiter.
 
 ## Fünf Seitenregeln
 
 Sie haben Vorrang vor den Regeln darunter, wenn beide sich widersprechen. Sie stehen gleichlautend in NAV-10.
 
-1. **Wo bin ich:** großer Titel; darüber ein Zurück-Link mit dem Namen der Ebene („‹ Beziehungen“); markierter Hauptpunkt.
+1. **Wo bin ich:** großer Titel; darüber ein Zurück-Link mit dem Namen der Ebene („‹ Lieferanten“); markierter Hauptpunkt.
 2. **Genau eine Karte „Als Nächstes“:** Tinte-Karte mit einem Mint-Knopf und höchstens einem Zweitknopf. Jeder andere Knopf ist ein Zweitknopf.
 3. **Zusammengefasst von Reziproq:** ein Satz mit belegten Zahlen, Quellen als graue Pillen. Ohne Beleg kein Satz.
 4. **Alles andere tritt zurück:** weiße Gruppen mit Zeilen und grauen Abschnittslabels; Details als Blatt; Hilfen, Herleitung und Verlauf eingeklappt.
@@ -134,7 +134,7 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Seitenleiste | 236 px, Fläche `#eceeea`, rechts 1 px `#e0e3df`; Logo, Feld „Frag Reziproq“ mit ⌘K, vier Hauptpunkte mit Symbol 20 px (Heute mit Zahl), Zeile „Im Hintergrund“ (13 px, Punkt Petrol), Mein Agent, Einstellungen, Person; aktiver Punkt weiß, Symbol Petrol; so hoch wie der Bildschirm, scrollt nicht mit (E-K0-02). Beim Lieferanten Heute, Kunden und „<Name> · <Firma>“ | `Main.dc.html`, `L5-Heute.dc.html` |
 | Tab-Leiste | unter 760 px fest unten, weiß 93 % mit Unschärfe, Symbol 24 px und Text 11 / 600, aktiv Petrol; Käufer fünf Ziele, Lieferant drei | `Main.dc.html`, `A-MeinTag.dc.html` |
 | Zurück-Link | Pfeil „‹“ und Name der Ebene darüber, Petrol 15 / 600, mindestens 32 px hoch | `SupplierBar.dc.html` |
-| Akte-Kopf | Zurück „‹ Beziehungen“ (beim Lieferanten „‹ Kunden“), Monogramm 56 px in der Farbe des Gegenübers, Name groß, graue Zeile (Segment, Warengruppen, Spend, Lead, Jahreszyklus), Aktionen von Reziproq als Zweitknöpfe, „···“ für Profil, Team, Mandat, darunter der Sichten-Umschalter | `SupplierBar.dc.html`, `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
+| Akte-Kopf | Zurück „‹ Lieferanten“ (beim Lieferanten „‹ Kunden“), Monogramm 56 px in der Farbe des Gegenübers, Name groß, graue Zeile (Segment, Warengruppen, Spend, Lead, Jahreszyklus), Aktionen von Reziproq als Zweitknöpfe, „···“ für Profil, Team, Mandat, darunter der Sichten-Umschalter | `SupplierBar.dc.html`, `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
 | Warengruppenkopf | „‹ Warengruppen“, Monogramm mit 10 px Ecken, Name, graue Zeile (Lieferanten, Spend, Prognose, Lead, Stand der Strategie), Aktionen Strategie und Entwurf fortschreiben | `WG-Start.dc.html` |
 | Als Nächstes | Tinte-Karte, Kurzzeile Mint 13 / 600, Titel Outfit 22, optional ein Satz in `on-dark-muted`, Mint-Knopf; auf dem Telefon Knopf volle Breite, 50 bis 52 px hoch | `Main.dc.html`, `Aufgaben.dc.html` |
 | Gruppe mit Zeilen | weiße Gruppe, Zeilen 56 px mit Trenner `#eef0ec`, links Monogramm oder Punkt, Titel und Unterzeile, rechts Wert grau, grauer Pfeil | `Main.dc.html`, `L-Ueberblick.dc.html` |
@@ -206,7 +206,7 @@ Grenzen je Ansicht:
 - höchstens zwei Diagramme;
 - eine Tinte-Karte.
 
-Ausnahme: Die Seite Wert zeigt drei Wertart-Kacheln, den Ring gegen das Jahresziel, Säulen je Quartal und das Wertkonto je Beziehung. Jede Zahl führt mit einem Klick zu ihrer Herleitung.
+Ausnahme: Die Seite Ergebnisse zeigt drei Wertart-Kacheln, den Ring gegen das Jahresziel, Säulen je Quartal und das Wertkonto je Beziehung. Jede Zahl führt mit einem Klick zu ihrer Herleitung.
 
 Tabellen mit vielen Zeilen gehören auf Arbeitsseiten, nicht auf Übersichten.
 

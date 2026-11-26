@@ -224,7 +224,7 @@ const sideScroll = (page: Page) =>
 
 const pages = [
   { path: '/heute', title: 'Heute', active: /^Heute/, shot: 'heute' },
-  { path: '/wert', title: 'Wert', active: 'Wert', shot: 'wert' },
+  { path: '/wert', title: 'Ergebnisse', active: 'Ergebnisse', shot: 'wert' },
   { path: '/start/faellig', title: 'Alle Aufgaben', active: /^Heute/, shot: 'aufgaben' },
 ];
 
@@ -243,10 +243,10 @@ for (const target of pages) {
         await expect(sidebar).toBeHidden();
         await expect(tabBar.locator('a, button')).toHaveText([
           'Heute',
-          'Beziehungen',
+          'Lieferanten',
           'Frag',
           'Warengruppen',
-          'Wert',
+          'Ergebnisse',
         ]);
         // nichts hinter der Tab-Leiste: das Ende des Inhalts liegt darüber
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -256,8 +256,8 @@ for (const target of pages) {
       } else {
         await expect(tabBar).toBeHidden();
         await expect(
-          sidebar.getByRole('link', { name: /^(Heute|Beziehungen|Warengruppen|Wert)/ }),
-        ).toHaveText(['Heute6', 'Beziehungen', 'Warengruppen', 'Wert']);
+          sidebar.getByRole('link', { name: /^(Heute|Lieferanten|Warengruppen|Ergebnisse)/ }),
+        ).toHaveText(['Heute6', 'Lieferanten', 'Warengruppen', 'Ergebnisse']);
         await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
         await expect(sidebar.locator('[aria-current="page"]')).toHaveText(target.active);
       }

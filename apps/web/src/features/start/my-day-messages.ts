@@ -205,7 +205,7 @@ export const timelineMessages = defineMessages({
 
 export const overviewMessages = defineMessages({
   de: {
-    title: 'Wert',
+    title: 'Ergebnisse',
     where: (org: string, year: number, date: string) => `${org} · ${year} · Stand ${date}`,
     period: 'Zeitraum',
     periods: { quarter: 'Quartal', year: 'Jahr', all: 'Seit Start' },
@@ -251,7 +251,7 @@ export const overviewMessages = defineMessages({
     },
   },
   en: {
-    title: 'Value',
+    title: 'Results',
     where: (org: string, year: number, date: string) => `${org} · ${year} · as of ${date}`,
     period: 'Period',
     periods: { quarter: 'Quarter', year: 'Year', all: 'Since start' },

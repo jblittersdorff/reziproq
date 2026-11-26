@@ -81,7 +81,7 @@ describe('LIF-02 Arbeitsbereich des Lieferanten', () => {
     const nav = await screen.findByRole('navigation', { name: 'Hauptnavigation' });
     await waitFor(() => expect(within(nav).getByRole('link', { name: 'Kunden' })).toBeDefined());
     expect(within(nav).getByRole('link', { name: 'Heute' })).toBeDefined();
-    for (const buyer of ['Beziehungen', 'Warengruppen', 'Wert', 'Mein Agent']) {
+    for (const buyer of ['Lieferanten', 'Warengruppen', 'Ergebnisse', 'Mein Agent']) {
       expect(within(nav).queryByRole('link', { name: buyer })).toBeNull();
     }
   });

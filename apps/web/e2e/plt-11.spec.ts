@@ -11,9 +11,9 @@ test.use({ locale: 'de-DE' });
 // Überlagerung (plt-12.spec.ts).
 const barTargets = [
   { name: 'Heute', path: '/heute' },
-  { name: 'Beziehungen', path: '/beziehungen' },
+  { name: 'Lieferanten', path: '/beziehungen' },
   { name: 'Warengruppen', path: '/warengruppen' },
-  { name: 'Wert', path: '/wert' },
+  { name: 'Ergebnisse', path: '/wert' },
   { name: 'Mein Agent', path: '/mein-agent' },
   { name: 'Profil', path: '/profil' },
 ];
@@ -21,7 +21,7 @@ const barTargets = [
 /** Alle Routen dieser Spec mit Titel (h1) und, wo vorhanden, leerem Zustand. */
 const routes = [
   { path: '/heute', title: 'Heute' },
-  { path: '/beziehungen', title: 'Beziehungen', empty: 'Noch keine Lieferanten.' },
+  { path: '/beziehungen', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
   { path: '/portfolio', title: 'Matrix' },
   // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
   { path: '/uebersicht/ergebnisse', title: 'Ergebnisse', empty: 'Noch keine Ergebnisse' },
@@ -225,10 +225,10 @@ test.describe('Bei 390 px Breite', () => {
       // Frag ist ein Knopf für die Überlagerung, die anderen sind Links.
       await expect(tabs(page).locator('a, button')).toHaveText([
         'Heute',
-        'Beziehungen',
+        'Lieferanten',
         'Frag',
         'Warengruppen',
-        'Wert',
+        'Ergebnisse',
       ]);
       for (const target of await tabs(page).locator('a, button').all()) {
         await expect(target).toBeInViewport();
@@ -355,9 +355,9 @@ test('Alles ist per Tastatur bedienbar, mit sichtbarem Fokus', async ({ page }) 
     'Reziproq',
     'Frag Reziproq',
     'Heute',
-    'Beziehungen',
+    'Lieferanten',
     'Warengruppen',
-    'Wert',
+    'Ergebnisse',
     'Mein Agent',
     'Einstellungen',
     'Profil',

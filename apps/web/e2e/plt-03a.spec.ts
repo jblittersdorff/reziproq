@@ -67,7 +67,7 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
 }) => {
   await signIn(page);
   await page.goto('/beziehungen');
-  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
   await expect(page.locator('#inhalt header')).toContainText(
     '4 Lieferanten · 10.230.000 € Jahresspend 2025',
   );
@@ -92,7 +92,7 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
   // Neuladen stellt dieselbe Ansicht wieder her.
   await page.reload();
   // Nach dem Neuladen holt eine Weiterleitung zu Zitadel die Sitzung (PLT-01); erst danach lesen.
-  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
   await expect.poll(() => cardNames(page)).toEqual(['Lombardia Fonderie S.p.A. (Demo)']);
   await expect(page.getByRole('searchbox')).toHaveValue('fonderie');
   await expect(page.getByRole('combobox', { name: 'Sortieren' })).toHaveValue('name');
@@ -100,7 +100,7 @@ test('Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und s
 
   // Ein Lesezeichen mit Filter öffnet direkt diese Ansicht.
   await page.goto('/beziehungen?sortierung=name');
-  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
   await expect
     .poll(() => cardNames(page))
     .toEqual([
@@ -119,7 +119,7 @@ test('Zurück führt nach der Lieferantenliste zur Seite davor, nicht durch jede
   await expect(page.locator('#inhalt h1')).toBeVisible();
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Beziehungen' })
+    .getByRole('link', { name: 'Lieferanten' })
     .click();
   await page.getByRole('searchbox').pressSequentially('silesia');
   await expect(page).toHaveURL(/suche=silesia/);

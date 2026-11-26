@@ -102,7 +102,7 @@ describe('NAV-10 1.1 Übersicht', () => {
     expect(
       await screen.findByText(/von 600.000 € Jahresziel\. Es fehlen 188.000 €\./),
     ).toBeTruthy();
-    expect(screen.getByRole('heading', { level: 1, name: 'Wert' })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: 'Ergebnisse' })).toBeTruthy();
     expect(outerRing()).not.toBeNull();
     const columns = screen.getByRole('list', { name: 'EBIT gesichert je Quartal' });
     expect(within(columns).getAllByRole('listitem')).toHaveLength(4);
@@ -480,8 +480,6 @@ describe('AW-01 Lieferant · Überblick', () => {
       '/warum/0190a0a0-0000-7000-8000-0000000000bb',
     );
     const point = screen.getByRole('link', { name: /^Risiko/ });
-    expect(point.getAttribute('href')).toBe(
-      '/warum/0190a0a0-0000-7000-8000-0000000000bb',
-    );
+    expect(point.getAttribute('href')).toBe('/warum/0190a0a0-0000-7000-8000-0000000000bb');
   });
 });

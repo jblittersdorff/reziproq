@@ -12,9 +12,9 @@ export const blocksMessages = defineMessages({
     nav: {
       label: 'Hauptbereiche',
       search: 'Frag Reziproq',
-      overview: 'Wert',
+      overview: 'Ergebnisse',
       myDay: 'Heute',
-      suppliers: 'Beziehungen',
+      suppliers: 'Lieferanten',
       categories: 'Warengruppen',
       myAgent: 'Mein Agent',
       background: 'Im Hintergrund: Briefing JBP Rheintal wird aktualisiert',
@@ -188,7 +188,7 @@ export const blocksMessages = defineMessages({
       sent: 'Einladung wäre jetzt gesendet. Auf der Testseite geht nichts hinaus.',
     },
     supplier: {
-      back: 'Beziehungen',
+      back: 'Lieferanten',
       name: 'Rheintal Elektronik',
       meta: 'Hoher Impact · ausbaufähig · Elektronik · Schritt 4 von 6: Plan',
       areas: 'Bereiche des Lieferanten',
@@ -231,9 +231,9 @@ export const blocksMessages = defineMessages({
     nav: {
       label: 'Main areas',
       search: 'Ask Reziproq',
-      overview: 'Value',
+      overview: 'Results',
       myDay: 'Today',
-      suppliers: 'Relationships',
+      suppliers: 'Suppliers',
       categories: 'Material groups',
       myAgent: 'My agent',
       background: 'In the background: updating the JBP briefing for Rheintal',
@@ -407,7 +407,7 @@ export const blocksMessages = defineMessages({
       sent: 'The invitation would be sent now. Nothing leaves the test page.',
     },
     supplier: {
-      back: 'Relationships',
+      back: 'Suppliers',
       name: 'Rheintal Elektronik',
       meta: 'High impact · developing · electronics · step 4 of 6: plan',
       areas: 'Areas of the supplier',

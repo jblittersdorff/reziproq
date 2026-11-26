@@ -6,8 +6,8 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 
 | Deutsch | Englisch | Schlüssel |
 |---|---|---|
-| Lieferant | Supplier | workspace.label, workspace.pages.supplierPlan.title |
-| Beziehung | Relationship | nav.suppliers, workspace.areas.relationship, team.noSro |
+| Lieferant | Supplier | workspace.label, workspace.pages.supplierPlan.title, nav.suppliers |
+| Beziehung | Relationship | workspace.areas.relationship, team.noSro |
 | Beziehungspuls | Relationship Pulse | – |
 | Warengruppe | Category | styleguide:forms.commodity, styleguide:table.commodity |
 | Business Unit | Business Unit | – |
@@ -19,7 +19,7 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 | Aufgabe | Task | workspace.pages.actions.title, actions.kinds.task |
 | Gemeinsamer Plan | Joint Business Plan | workspace.areas.plan |
 | Spielregeln | Rules of engagement | workspace.pages.rules.title |
-| Ergebnisse | Results | nav.impact, workspace.areas.impact, workspace.tabs.results |
+| Ergebnisse | Results | nav.overview, nav.impact, workspace.areas.impact, workspace.tabs.results |
 | Aktivitäten | Activities | workspace.tabs.activities, activities.title |
 | Segment | Segment | workspace.head.segment |
 | Segmentierung | Segmentation | workspace.pages.segmentation.title |
@@ -64,7 +64,7 @@ Ergänzung aus dem Spec-Paket vom 24.11.2026. Wo ein Begriff in diesem Glossar s
 - **Mandat** — Rahmen je Beziehung: Ziel, Grenzen, was Reziproq selbst tun darf. Nur für die Käuferseite.
 - **Termin** — Objekt mit drei Phasen: Vorbereiten, Im Termin, Danach.
 - **Beitrag** — Zulieferung einer Person zu einem Agendapunkt; per Link ohne Konto möglich.
-- **Wert** — Ersetzt „Wirkung“ und „Ergebnisse“ in der Oberfläche.
+- **Ergebnisse** — Hauptpunkt und Seite mit dem Wert des Programms (früher Übersicht, Wirkung; E-K2-8). Wert bleibt das Wort für Wertkonto, Wertart, Wertbericht und Wertfinder.
 - **Wertart** — EBIT, Kostenvermeidung, Cash. Werden nie addiert.
 - **Wert-Engine** — Deterministische Berechnung aus Rechenregel, eingefrorener Baseline und Importwerten.
 - **Reife R1 bis R5** — Idee, Bewertet, Beschlossen, Umgesetzt, Realisiert. R5 vergibt das Controlling.
@@ -98,15 +98,15 @@ Ergänzung aus dem Spec-Paket vom 24.11.2026. Wo ein Begriff in diesem Glossar s
 - **Lead der Beziehung** — Lead der Haupt-Warengruppe einer Beziehung; entscheidet außerhalb des Mandats (E-K5-2, E-K0-07).
 - **Vertretung** — Person, die für einen Lead entscheidet, eingestellt unter Einstellungen › Organisation (E-K0-07).
 - **Key Account** — Rolle beim Lieferanten, früher `sro` (E-K0-08); daneben Sponsor und Mitglied.
-- **Strategisch** — Fokuslieferant (SEG-02); Pflicht zum Mandat und Filter in Beziehungen (E-K0-09).
+- **Strategisch** — Fokuslieferant (SEG-02); Pflicht zum Mandat und Filter in der Lieferantenliste (E-K0-09).
 
 ### Wörter, die in der Oberfläche nicht mehr vorkommen
 
-- Übersicht → Wert
+- Übersicht → Ergebnisse
 - Mein Tag → Heute
-- Lieferanten (Navigation) → Beziehungen
+- Beziehungen (Navigation, Seite) → Lieferanten (E-K2-8)
 - Agenten → Mein Agent (Person), KI (Einstellungen, Admin)
-- Wirkung, Ergebnisse → Wert
+- Wirkung, Wert (Navigation, Seite) → Ergebnisse (E-K2-8)
 - Maßnahme (geteilt) → Zusage
 - Maßnahme (intern) → Aufgabe
 - Notizraum, Aktivitäten → Verlauf (Akte, Nur für dich)

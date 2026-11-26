@@ -166,6 +166,8 @@ function AppShell({
       <div data-slot="shell-main" className="min-w-0 flex-1 pb-23 shell:pb-0">
         {children}
       </div>
+      {/* Bedienfläche je Ziel mindestens 44 px (Designsprache, Bedienbarkeit); mehr Mindestbreite
+          ließ die längeren Namen nach E-K2-8 (Lieferanten, Ergebnisse) bei 390 px aneinanderstoßen */}
       <nav
         aria-label={tabsLabel ?? label}
         data-slot="tab-bar"
@@ -173,7 +175,7 @@ function AppShell({
       >
         {(tabs ?? items).map((item) => {
           const className = cn(
-            'flex min-h-11 min-w-15 flex-col items-center gap-0.5 rounded-nav font-semibold text-tab no-underline outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-6',
+            'flex min-h-11 min-w-11 flex-col items-center gap-0.5 rounded-nav font-semibold text-tab no-underline outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-6',
             item.key === activeKey ? 'text-petrol' : 'text-input-border',
           );
           return (

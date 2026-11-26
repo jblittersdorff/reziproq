@@ -42,10 +42,10 @@ for (const width of [390, 760, 761, 1440]) {
       // NAV-10 2.0: Frag in der Mitte, ein Knopf für die Überlagerung
       await expect(tabBar.locator('a, button')).toHaveText([
         'Heute',
-        'Beziehungen',
+        'Lieferanten',
         'Frag',
         'Warengruppen',
-        'Wert',
+        'Ergebnisse',
       ]);
       // Ganz unten liegt der letzte Inhalt über der Tab-Leiste, nicht dahinter
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -57,8 +57,8 @@ for (const width of [390, 760, 761, 1440]) {
       await expect(tabBar).toBeHidden();
       await expect(sidebar).toBeVisible();
       await expect(
-        sidebar.getByRole('link', { name: /^(Heute|Beziehungen|Warengruppen|Wert)/ }),
-      ).toHaveText([/^Heute/, 'Beziehungen', 'Warengruppen', 'Wert']);
+        sidebar.getByRole('link', { name: /^(Heute|Lieferanten|Warengruppen|Ergebnisse)/ }),
+      ).toHaveText([/^Heute/, 'Lieferanten', 'Warengruppen', 'Ergebnisse']);
       await expect(sidebar.getByRole('link', { name: 'Einstellungen' })).toBeVisible();
       // Seitenleiste so hoch wie der Bildschirm; sie bleibt stehen, nur der Inhalt scrollt
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

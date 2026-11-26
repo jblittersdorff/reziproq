@@ -80,7 +80,7 @@ test('Betreiber wechseln in einen Kunden und verlassen die Ansicht wieder', asyn
   // Die Ansicht bleibt beim Navigieren bestehen.
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Beziehungen' })
+    .getByRole('link', { name: 'Lieferanten' })
     .click();
   await expect(banner).toBeVisible();
 

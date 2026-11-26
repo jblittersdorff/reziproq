@@ -385,7 +385,7 @@ const primaryOutsideNext = (page: Page) =>
   );
 
 const pages = [
-  { path: '/beziehungen', title: 'Beziehungen', shot: 'beziehungen' },
+  { path: '/beziehungen', title: 'Lieferanten', shot: 'beziehungen' },
   { path: base, title: 'Rheintal Elektronik', shot: 'ueberblick' },
   { path: `${base}/strategie/profil`, title: 'Profil und Spend', shot: 'profil' },
   { path: `${base}/plan/themen`, title: 'Themen', shot: 'kopf-unterseite' },
@@ -416,7 +416,7 @@ for (const target of pages) {
       expect(await primaryOutsideNext(page)).toBe(0);
       if (target.path.startsWith(base)) {
         const header = page.locator('[data-slot="supplier-header"]');
-        await expect(header.getByRole('link', { name: 'Beziehungen', exact: true })).toBeVisible();
+        await expect(header.getByRole('link', { name: 'Lieferanten', exact: true })).toBeVisible();
         await expect(
           header.getByRole('navigation', { name: 'Bereiche des Lieferanten' }).getByRole('link'),
         ).toHaveText(['Überblick', 'Aktivitäten', 'Plan', 'Ergebnisse']);

@@ -41,9 +41,9 @@ const admin = { ...anna, orgRole: 'admin' as const };
  */
 const barTargets = [
   { label: 'Heute', path: '/heute' },
-  { label: 'Beziehungen', path: '/beziehungen' },
+  { label: 'Lieferanten', path: '/beziehungen' },
   { label: 'Warengruppen', path: '/warengruppen' },
-  { label: 'Wert', path: '/wert' },
+  { label: 'Ergebnisse', path: '/wert' },
   { label: 'Mein Agent', path: '/mein-agent' },
   { label: 'Einstellungen', path: '/einstellungen' },
   { label: 'Profil', path: '/profil' },
@@ -52,9 +52,9 @@ const barTargets = [
 /** Alle Routen dieser Spec mit ihrem Titel (h1). */
 const routes = [
   { path: '/heute', title: 'Heute' },
-  { path: '/beziehungen', title: 'Beziehungen' },
+  { path: '/beziehungen', title: 'Lieferanten' },
   { path: '/portfolio', title: 'Matrix' },
-  { path: '/wert', title: 'Wert' },
+  { path: '/wert', title: 'Ergebnisse' },
   { path: '/mein-agent', title: 'Mein Agent' },
   { path: '/profil', title: 'Profil' },
   { path: '/einstellungen', title: 'Einstellungen' },
@@ -355,7 +355,7 @@ describe('NAV-10 2.0: Seitenleiste und Tab-Leiste (TN-01, TN-02)', () => {
     renderAt('/heute');
     await screen.findByRole('heading', { level: 1, name: 'Heute' });
     const targets = [...tabs().querySelectorAll('a, button')].map((target) => target.textContent);
-    expect(targets).toEqual(['Heute', 'Beziehungen', 'Frag', 'Warengruppen', 'Wert']);
+    expect(targets).toEqual(['Heute', 'Lieferanten', 'Frag', 'Warengruppen', 'Ergebnisse']);
     expect(within(tabs()).getByRole('button', { name: 'Frag' })).toBeDefined();
   });
 

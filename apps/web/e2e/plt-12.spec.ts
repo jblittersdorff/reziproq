@@ -99,7 +99,7 @@ test('Browser-Zurück schließt Frag Reziproq und bleibt auf der Seite', async (
   await page.goBack();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page).toHaveURL('http://localhost:5174/beziehungen');
-  await expect(page.locator('#inhalt h1')).toHaveText('Beziehungen');
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
 });
 
 test('Der Fokus bleibt in Frag Reziproq, bis sie schließt; danach ist die Seite wieder bedienbar', async ({
@@ -123,7 +123,7 @@ test('Der Fokus bleibt in Frag Reziproq, bis sie schließt; danach ist die Seite
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page
     .getByRole('navigation', { name: 'Hauptnavigation' })
-    .getByRole('link', { name: 'Beziehungen' })
+    .getByRole('link', { name: 'Lieferanten' })
     .click();
   await expect(page).toHaveURL('http://localhost:5174/beziehungen');
 });

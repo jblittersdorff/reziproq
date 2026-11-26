@@ -13,16 +13,17 @@ export const de = {
     close: 'Schließen',
   },
 
-  // Ziele der Seitenleiste und der Tab-Leiste (NAV-10 2.0): Heute, Beziehungen, Warengruppen, Wert
+  // Ziele der Seitenleiste und der Tab-Leiste (NAV-10 2.0, Namen nach E-K2-8): Heute, Lieferanten,
+  // Warengruppen, Ergebnisse
   nav: {
-    overview: 'Wert',
+    overview: 'Ergebnisse',
     myDay: 'Heute',
     homePage: 'Startseite',
     roleDefault: 'Nach Rolle',
     list: 'Liste',
     searchOrAsk: 'Frag Reziproq',
     start: 'Start',
-    suppliers: 'Beziehungen',
+    suppliers: 'Lieferanten',
     materialGroups: 'Warengruppen',
     portfolio: 'Portfolio',
     impact: 'Ergebnisse',
@@ -99,7 +100,7 @@ export const de = {
     dueMilestone: (detail: string | null) => (detail ? `Meilenstein · ${detail}` : 'Meilenstein'),
     dueBy: (date: string) => `bis ${date}`,
     target: (name: string) => `Soll: ${name}`,
-    relationshipsTitle: 'Meine Beziehungen',
+    relationshipsTitle: 'Meine Lieferanten',
     relationshipsEmpty: 'Du bist noch in keinem Beziehungsteam.',
     customersTitle: 'Meine Kunden',
     customersEmpty: 'Noch kein Kunde hat dich eingeladen.',
@@ -126,7 +127,7 @@ export const de = {
     allDue: (count: number) => `Alle ${count} fälligen Aufgaben`,
     metricsLabel: 'Auf einen Blick',
     metricDue: 'fällig',
-    metricRelationships: 'Beziehungen',
+    metricRelationships: 'Lieferanten',
     metricCustomers: 'Kunden',
     // Kacheln (A2)
     toDue: 'Fällige Aufgaben',
@@ -2049,7 +2050,7 @@ export const de = {
     sorted: (n: number) =>
       `${n === 1 ? '1 offen' : `${n} offen`} · sortiert nach Wirkung: Schwere, Spend und Segment`,
     filters: 'Filter',
-    filterMine: 'Meine Beziehungen',
+    filterMine: 'Meine Lieferanten',
     filterSeverity: 'Schwere',
     filterRule: 'Regel',
     filterGroup: 'Warengruppe',
@@ -5272,7 +5273,7 @@ export const de = {
       detailLoading: 'Lieferant wird geladen …',
       detailLabel: (name: string) => `Details zu ${name}`,
     },
-    title: 'Beziehungen',
+    title: 'Lieferanten',
     purpose:
       'Welche Lieferanten wirklich zählen – nach Business Impact und Beziehungsqualität, nicht nur nach Spend.',
     count: (count: number) => (count === 1 ? '1 Lieferant' : `${count} Lieferanten`),
@@ -5295,7 +5296,7 @@ export const de = {
       targetType: 'Soll-Typ',
       all: 'Alle',
       focusOnly: 'Nur Fokus',
-      mineOnly: 'Nur meine Beziehungen',
+      mineOnly: 'Nur meine Lieferanten',
       hits: (n: number) => (n === 1 ? '1 Treffer' : `${n} Treffer`),
       reset: 'Filter zurücksetzen',
       noMatch: 'Keine Lieferanten mit diesen Filtern.',
