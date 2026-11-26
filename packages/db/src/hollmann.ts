@@ -1,6 +1,7 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import { seedMorning } from './hollmann-morgen.js';
+import { seedPortfolio } from './hollmann-portfolio.js';
 import { seedCommitments } from './hollmann-zusagen.js';
 import {
   appUser,
@@ -636,6 +637,22 @@ export async function seedHollmann(
         nilsOtt: person(supplierPeople.nilsOtt),
         leaBrandt: person(supplierPeople.leaBrandt),
         miaKuhn: person(supplierPeople.miaKuhn),
+      },
+    });
+    // Portfolio für die Seite Lieferanten (K2-b.2): Segmentmodell 2 × 2, 46 Lieferanten,
+    // Segmente, Fokus, Runde 2027 mit Kessler, Zusagequoten und offene Zusagen
+    await seedPortfolio(tx, {
+      nid,
+      hollmannOrgId: hollmann.org.id,
+      people: {
+        janLuka: person(janLuka),
+        saraOst: person(hollmannPeople.saraOst),
+        idaRoth: person(hollmannPeople.idaRoth),
+        jonasFeld: person(hollmannPeople.jonasFeld),
+      },
+      supplier: (key) => {
+        const found = byKey(key);
+        return { orgId: found.id, relationshipId: found.relationshipId, name: found.name };
       },
     });
     await tx.execute(sql`select app_demo_schnappschuss(${hollmann.org.id}::uuid, 'start')`);

@@ -38,20 +38,22 @@ describe('demo:hollmann', () => {
     );
     expect(org).toMatchObject({ is_demo: true, ai_mode: 'replay' });
     expect(new Date(org?.demo_now ?? 0).toISOString()).toBe(hollmannStart.toISOString());
-    // Alle Organisationen der Geschichte sind Demo-Mandanten: Hollmann, Halder, 16 Lieferanten
+    // Alle Organisationen der Geschichte sind Demo-Mandanten: Hollmann, Halder, 16 Lieferanten mit
+    // Beziehung und 30 importierte im Portfolio (K2-b.2)
     const [demo] = await query<{ count: number }>(
       sql`select count(*)::int as count from organization where is_demo`,
     );
-    expect(Number(demo?.count)).toBe(18);
+    expect(Number(demo?.count)).toBe(48);
   });
 
   it('16 Beziehungen mit 30,1 Mio. € Spend 2026, Rheintal 4,2 Mio. € (Vorlage Beziehungen)', async () => {
+    // Beziehungen sind die aktiven (E-K2-10); die importierten Lieferanten stehen nur im Portfolio
     const rows = await query<{ name: string; amount: number }>(sql`
       select o.name, s.amount_cents::bigint as amount
       from relationship r
       join organization o on o.id = r.supplier_org_id
       join relationship_spend s on s.relationship_id = r.id and s.year = 2026
-      where r.buyer_org_id = ${hollmann.org.id}`);
+      where r.buyer_org_id = ${hollmann.org.id} and r.status = 'active'`);
     expect(rows).toHaveLength(16);
     expect(rows.reduce((total, row) => total + Number(row.amount), 0)).toBe(3_010_000_000);
     expect(Number(rows.find((row) => row.name === 'Rheintal Elektronik')?.amount)).toBe(
@@ -244,5 +246,122 @@ describe('demo:hollmann', () => {
       await mark('Musterteile Starrflex liefern', 'open');
     }
     expect(await rates()).toEqual({ buyer: '9/10 90 %', supplier: '7/9 78 %' });
+  });
+
+  // BZ-01, DM-01 (K2-b.2): Portfolio für die Seite Lieferanten (Vorlagen Lieferanten, K2-Segmente)
+  it('Portfolio: 46 Lieferanten, 16 aktive Beziehungen; Segmentmodell 2 × 2 Versorgungsrisiko × Wertbeitrag', async () => {
+    const [counts] = await query<{ total: number; active: number }>(sql`
+      select count(*)::int as total, count(*) filter (where status = 'active')::int as active
+      from relationship where buyer_org_id = ${hollmann.org.id} and status <> 'ended'`);
+    expect(counts).toEqual({ total: 46, active: 16 });
+    const [model] = await query<{
+      grid_size: number;
+      impact_label: string;
+      quality_label: string;
+    }>(sql`
+      select grid_size, impact_label, quality_label from segment_model
+      where org_id = ${hollmann.org.id} and status = 'active'`);
+    expect(model).toEqual({
+      grid_size: 2,
+      impact_label: 'Versorgungsrisiko',
+      quality_label: 'Wertbeitrag',
+    });
+  });
+
+  it('Segmente wie K2-Segmente: 8, 9, 9, 12 mit 18,4 / 4,3 / 9,1 / 6,2 Mio. €; 8 ohne Bewertung', async () => {
+    const segments = await query<{ name: string; count: number; spend: number }>(sql`
+      select t.name, count(*)::int as count, sum(s.amount_cents)::bigint as spend
+      from relationship r
+      join segment_decision d on d.relationship_id = r.id and d.scope = 'total'
+      join segment_model m on m.org_id = r.buyer_org_id and m.status = 'active'
+      join segment_type t on t.model_id = m.id
+        and t.impact_level = d.ist_impact_level and t.quality_level = d.ist_quality_level
+      join relationship_spend s on s.relationship_id = r.id and s.year = 2026
+      where r.buyer_org_id = ${hollmann.org.id}
+      group by t.name order by t.name`);
+    expect(segments.map((row) => [row.name, row.count, Number(row.spend) / 100_000_000])).toEqual([
+      ['Absichern', 12, 6.2],
+      ['Entwickeln', 9, 4.3],
+      ['Hebeln', 9, 9.1],
+      ['Strategisch', 8, 18.4],
+    ]);
+    const unrated = await query<{ name: string }>(sql`
+      select o.name from relationship r join organization o on o.id = r.supplier_org_id
+      where r.buyer_org_id = ${hollmann.org.id}
+        and not exists (select 1 from segment_decision d where d.relationship_id = r.id)`);
+    expect(unrated).toHaveLength(8);
+    expect(unrated.map((row) => row.name)).toContain('Pearl River Components');
+  });
+
+  it('Kessler ist strittig: drei Bewertungen der Runde 2027, Qualität 25, 75, 100, nach der Entscheidung', async () => {
+    const kessler = hollmannSuppliers.find((entry) => entry.key === 'kessler')?.relationshipId;
+    const ratings = await query<{ ist: number; submitted_at: Date; status: string }>(sql`
+      select r.ist, r.submitted_at, a.status from rating r
+      join rating_assignment a on a.id = r.assignment_id
+      join segmentation_round ro on ro.id = a.round_id
+      where a.relationship_id = ${kessler} and r.criterion_key = 'qualitaet' and ro.status = 'open'
+      order by r.ist`);
+    expect(ratings.map((row) => row.ist)).toEqual([25, 75, 100]);
+    expect(ratings.every((row) => row.status === 'submitted')).toBe(true);
+    const [decision] = await query<{ decided_at: Date }>(sql`
+      select decided_at from segment_decision where relationship_id = ${kessler}
+      order by version desc limit 1`);
+    for (const row of ratings) {
+      expect(new Date(row.submitted_at) > new Date(decision?.decided_at ?? 0)).toBe(true);
+    }
+  });
+
+  it('acht Fokuslieferanten; Zusagequoten der Vorlage; offene Zusagen bei 11 Beziehungen', async () => {
+    const [focus] = await query<{ n: number }>(sql`
+      select count(*)::int as n from relationship_side
+      where org_id = ${hollmann.org.id} and is_focus`);
+    expect(focus?.n).toBe(8);
+    const quotas = await query<{ name: string; side: string; kept: number; due: number }>(sql`
+      select o.name, q.side, q.kept, q.due from commitment_rate q
+      join relationship r on r.id = q.relationship_id
+      join organization o on o.id = r.supplier_org_id
+      where r.buyer_org_id = ${hollmann.org.id} and q.year = 2026 and q.due > 0`);
+    const percent = (name: string, side: string) => {
+      const row = quotas.find((entry) => entry.name === name && entry.side === side);
+      return row ? Math.round((100 * row.kept) / row.due) : null;
+    };
+    expect([
+      ['Silesia Guss', percent('Silesia Guss', 'buyer'), percent('Silesia Guss', 'supplier')],
+      [
+        'Kessler Präzision',
+        percent('Kessler Präzision', 'buyer'),
+        percent('Kessler Präzision', 'supplier'),
+      ],
+      [
+        'Alpen Kunststofftechnik',
+        percent('Alpen Kunststofftechnik', 'buyer'),
+        percent('Alpen Kunststofftechnik', 'supplier'),
+      ],
+      [
+        'Lombardia Fonderie',
+        percent('Lombardia Fonderie', 'buyer'),
+        percent('Lombardia Fonderie', 'supplier'),
+      ],
+      ['Alpen Sensorik', percent('Alpen Sensorik', 'buyer'), percent('Alpen Sensorik', 'supplier')],
+      ['Moravia Plast', percent('Moravia Plast', 'buyer'), percent('Moravia Plast', 'supplier')],
+      [
+        'Pearl River Components',
+        percent('Pearl River Components', 'buyer'),
+        percent('Pearl River Components', 'supplier'),
+      ],
+    ]).toEqual([
+      ['Silesia Guss', 100, 60],
+      ['Kessler Präzision', 88, 80],
+      ['Alpen Kunststofftechnik', 100, 92],
+      ['Lombardia Fonderie', 83, 86],
+      ['Alpen Sensorik', 100, 100],
+      ['Moravia Plast', 75, 67],
+      ['Pearl River Components', null, null],
+    ]);
+    const [open] = await query<{ n: number }>(sql`
+      select count(distinct c.relationship_id)::int as n from commitment c
+      join relationship r on r.id = c.relationship_id
+      where r.buyer_org_id = ${hollmann.org.id} and r.status = 'active' and c.status = 'open'`);
+    expect(open?.n).toBe(11);
   });
 });

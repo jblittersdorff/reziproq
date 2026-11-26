@@ -238,6 +238,10 @@ Weitere Punkte:
   - **Grund:** HE-01 legt nicht fest, wer „andere“ sind. Die Umsetzung aus K1-e nimmt alle offenen Einträge anderer Personen in den sichtbaren Beziehungen. Bis K2-a.5 gab es im Seed keine Zusagen, deshalb fiel es nicht auf.
   - **Vorschlag:** Nur die Gegenseite und ausstehende Bestätigungen zählen, mit Frist in den nächsten 14 Tagen. Das Fokus-Thema „Ruf Nils Ott an“ kommt mit Akte und Postfach (K2-c, K2-d).
   - **Übergangsseite:** Auch die alte Maßnahmen-Seite zeigt weder „Rheintal bestätigt noch“ noch „aus dem Gemeinsamen Plan“; beides bringt die Akte (K2-c).
+- **B-38 Triage scheitert einmal beim Speichern der Fokus-Themen (beobachtet am 27.11.2026 im Drehbuch K1, nicht wiederholbar).**
+  - **Befund:** In einem Lauf des Drehbuchs K1 brach ein Aufruf mit `insert into focus_item … on conflict … do update` ab (ExceptionsHandler). Der Test blieb grün, in zwei weiteren Läufen trat es nicht auf.
+  - **Vermutung:** Zwei gleichzeitige Anfragen derselben Person (etwa Heute und Alles) führen die Triage parallel aus und schreiben dieselben Zeilen. Dabei können sie sich gegenseitig sperren.
+  - **Vorschlag:** Die Triage je Person serialisieren, mit einer Sperre in der Transaktion (`pg_advisory_xact_lock`).
 ## c) Widersprüche zwischen den Specs
 
 Je Punkt: Fundstellen, welche Quelle nach der Rangfolge gilt und wie ich ohne deine Antwort weiterarbeiten würde.

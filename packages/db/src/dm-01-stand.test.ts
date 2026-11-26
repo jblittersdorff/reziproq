@@ -74,7 +74,9 @@ describe('Demo-Regie: Stand „start“ und Zurücksetzen', () => {
     const [moved] = await asJanLuka<{ count: number }>(
       sql`select app_demo_uhr_setzen('2026-12-04T09:00:00Z') as count`,
     );
-    expect(moved?.count).toBe(18);
+    // Alle Organisationen der Demo: Hollmann, Halder, 16 Lieferanten mit Beziehung und 30 importierte
+    // im Portfolio (K2-b.2)
+    expect(moved?.count).toBe(48);
     await temp.db.execute(sql`update meeting set title = 'Umbenannt', status = 'closed'
       where owner_org_id = ${hollmann.org.id} and type = 'jbp'`);
     await temp.db.execute(sql`delete from relationship_member
