@@ -248,6 +248,7 @@ describe('PLT-02 in der Datenbank', () => {
       'survey_wave',
       'sync_event',
       'sync_job',
+      'task',
       'touchpoint',
       'touchpoint_review',
       'user_identity',

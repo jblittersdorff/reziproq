@@ -268,6 +268,18 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by_name: 'Probe',
     },
   },
+  // ZQ-01 (K2-a): Aufgaben, früher interne Maßnahmen; nur die eigene Organisation. Den Raum setzt
+  // der Trigger app_task_space aus der Seite der Organisation in der Beziehung.
+  task: {
+    kind: 'org_private',
+    testValues: {
+      title: 'Probe',
+      owner_name: 'Probe',
+      due_date: '2099-01-01',
+      created_by: 'probe',
+      created_by_name: 'Probe',
+    },
+  },
   // QBR-04: was jede Seite zu einer Frist schon verschickt hat, und Einstellungen je Organisation.
   action_notification: {
     kind: 'org_private',

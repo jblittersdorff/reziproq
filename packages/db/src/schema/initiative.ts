@@ -1,9 +1,12 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   check,
+  customType,
   date,
   index,
   integer,
+  jsonb,
   numeric,
   pgTable,
   text,
@@ -130,12 +133,33 @@ export const initiativeMilestone = pgTable(
   ],
 );
 
-export const commitmentStatuses = ['open', 'kept', 'missed'] as const;
+// ZQ-01 (K2-a): Status, Art und Herkunft einer Zusage. Die Werte stehen englisch wie im übrigen
+// Schema (Entscheidung des Gründers vom 26.11.2026): open = offen, kept = gehalten,
+// missed = verfehlt, replaced = ersetzt, withdrawn = zurückgezogen.
+export const commitmentStatuses = ['open', 'kept', 'missed', 'replaced', 'withdrawn'] as const;
+/** commitment = Zusage; action = Maßnahme, nur für Altbestand (ZQ-01) */
+export const commitmentKinds = ['commitment', 'action'] as const;
+export const commitmentSourceTypes = [
+  'mail',
+  'meeting',
+  'feedback',
+  'hint',
+  'manual',
+  'deal',
+  'initiative',
+] as const;
+
+/** Textstelle in einer Mail (ZQ-01 source_span), z. B. „[120,184)“ */
+const int4range = customType<{ data: string; driverData: string }>({
+  dataType: () => 'int4range',
+});
 
 /**
- * JBP-05: Zusage einer Seite an die andere, geteilt. Jede Seite legt nur ihre eigenen Zusagen an
- * und setzt ihren Status (owner_org_id ist die zusagende Seite). Verantwortlich ist eine Person
- * der eigenen Seite; der Name steht dabei, damit die andere Seite ihn sieht.
+ * JBP-05, ZQ-01: Zusage einer Seite an die andere, geteilt. Sie hängt an der Beziehung, ein
+ * Gemeinsamer Plan ist optional (E-K0-16). Jede Seite legt nur ihre eigenen Zusagen an
+ * (owner_org_id ist die zusagende Seite); den Status ändern beide Seiten über app_zusage_status.
+ * Verantwortlich ist eine Person der eigenen Seite; der Name steht dabei, damit die andere Seite
+ * ihn sieht. Beschreibung und Erledigt-Zeitpunkt kommen aus den Maßnahmen (Abweichung von ZQ-01).
  */
 export const commitment = pgTable(
   'commitment',
@@ -150,16 +174,26 @@ export const commitment = pgTable(
     visibility: text({ enum: ['internal', 'shared'] })
       .notNull()
       .default('shared'),
-    jbpId: uuid()
-      .notNull()
-      .references(() => jbp.id, { onDelete: 'cascade' }),
+    jbpId: uuid().references(() => jbp.id, { onDelete: 'set null' }),
     initiativeId: uuid().references(() => initiative.id, { onDelete: 'set null' }),
     side: text({ enum: ['buyer', 'supplier'] }).notNull(),
+    kind: text({ enum: commitmentKinds }).notNull().default('commitment'),
     title: text().notNull(),
+    description: text(),
+    /** Woran Erfüllung gemessen wird */
+    measure: text(),
     ownerUserId: text(),
     ownerName: text().notNull(),
     dueOn: date().notNull(),
     status: text({ enum: commitmentStatuses }).notNull().default('open'),
+    sourceType: text({ enum: commitmentSourceTypes }),
+    sourceRef: uuid(),
+    sourceSpan: int4range(),
+    supersedesId: uuid().references((): AnyPgColumn => commitment.id, { onDelete: 'set null' }),
+    conditionId: uuid().references((): AnyPgColumn => commitment.id, { onDelete: 'set null' }),
+    /** Beleg der Buchung „gehalten“: Lieferavis, Wareneingang, Dokument, Bestätigung */
+    fulfilledEvidence: jsonb(),
+    doneAt: timestamp({ withTimezone: true }),
     createdBy: text().notNull(),
     createdByName: text().notNull(),
     createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
@@ -172,10 +206,25 @@ export const commitment = pgTable(
     originConstraint('commitment', table.origin),
     confirmConstraint('commitment', table.confirmState),
     check('commitment_side', sql`${table.side} in ('buyer', 'supplier')`),
-    check('commitment_status', sql`${table.status} in ('open', 'kept', 'missed')`),
+    check(
+      'commitment_status',
+      sql`${table.status} in ('open', 'kept', 'missed', 'replaced', 'withdrawn')`,
+    ),
+    check('commitment_kind', sql`${table.kind} in ('commitment', 'action')`),
+    check(
+      'commitment_source_type',
+      sql`${table.sourceType} is null or ${table.sourceType} in ('mail', 'meeting', 'feedback', 'hint', 'manual', 'deal', 'initiative')`,
+    ),
+    check(
+      'commitment_measure',
+      sql`${table.measure} is null or length(trim(${table.measure})) between 1 and 500`,
+    ),
+    check('commitment_not_self', sql`${table.supersedesId} is distinct from ${table.id}`),
     check('commitment_title', sql`length(trim(${table.title})) between 1 and 200`),
     check('commitment_owner', sql`length(trim(${table.ownerName})) between 1 and 200`),
     index('commitment_jbp').on(table.jbpId, table.dueOn),
+    index('commitment_relationship').on(table.relationshipId, table.dueOn),
+    index('commitment_supersedes').on(table.supersedesId),
     index('commitment_owner_user').on(table.ownerUserId),
   ],
 );

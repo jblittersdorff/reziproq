@@ -51,6 +51,9 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
   const ids = sql`(select id from relationship where buyer_org_id in ${orgIds} or supplier_org_id in ${orgIds})`;
   await db.execute(sql`delete from comment_mention where relationship_id in ${ids}`);
   await db.execute(sql`delete from comment where relationship_id in ${ids}`);
+  // ZQ-01 (K2-a): Zusagen hängen an der Beziehung und gehen nicht mehr mit dem Plan (E-K0-16)
+  await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+  await db.execute(sql`delete from task where relationship_id in ${ids}`);
   await db.execute(sql`delete from relationship_target where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set_note where relationship_id in ${ids}`);
   await db.execute(sql`delete from rule_set_item where relationship_id in ${ids}`);
@@ -59,7 +62,9 @@ export async function deleteRelationships(db: Database, orgIds: string[]) {
   await db.execute(sql`delete from survey_participant where relationship_id in ${ids}`);
   await db.execute(sql`delete from survey_wave where relationship_id in ${ids}`);
   await db.execute(sql`delete from segment_decision where relationship_id in ${ids}`);
-  await db.execute(sql`delete from material_group_supplier_map_row where relationship_id in ${ids}`);
+  await db.execute(
+    sql`delete from material_group_supplier_map_row where relationship_id in ${ids}`,
+  );
   await db.execute(sql`delete from material_group_award_supplier where relationship_id in ${ids}`);
   await db.execute(sql`delete from material_group_conflict where relationship_id in ${ids}`);
   await db.execute(sql`delete from rating where relationship_id in ${ids}`);

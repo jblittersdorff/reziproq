@@ -74,10 +74,13 @@ const copy = {
         done: 'Erledigt',
         stopped: 'Gestoppt',
       } as Record<string, string>,
-      commitmentStatuses: { open: 'Offen', kept: 'Gehalten', missed: 'Nicht gehalten' } as Record<
-        string,
-        string
-      >,
+      commitmentStatuses: {
+        open: 'Offen',
+        kept: 'Gehalten',
+        missed: 'Nicht gehalten',
+        replaced: 'Ersetzt',
+        withdrawn: 'Zurückgezogen',
+      } as Record<string, string>,
       tracks: { on_track: 'Auf Kurs', close: 'Knapp', off: 'Nicht auf Kurs' } as Record<
         string,
         string
@@ -161,10 +164,13 @@ const copy = {
         done: 'Done',
         stopped: 'Stopped',
       } as Record<string, string>,
-      commitmentStatuses: { open: 'Open', kept: 'Kept', missed: 'Missed' } as Record<
-        string,
-        string
-      >,
+      commitmentStatuses: {
+        open: 'Open',
+        kept: 'Kept',
+        missed: 'Missed',
+        replaced: 'Replaced',
+        withdrawn: 'Withdrawn',
+      } as Record<string, string>,
       tracks: { on_track: 'On track', close: 'Close', off: 'Off track' } as Record<string, string>,
       noValue: 'No value yet',
     },

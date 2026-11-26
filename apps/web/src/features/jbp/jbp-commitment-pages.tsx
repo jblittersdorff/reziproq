@@ -1,5 +1,5 @@
 import type { Commitment, CommitmentStatus, Commitments, MeetingSide } from '@reziproq/shared';
-import { commitmentStatuses } from '@reziproq/shared';
+import { commitmentSettableStatuses } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon, TriangleAlertIcon } from 'lucide-react';
@@ -53,6 +53,8 @@ const statusVariant: Record<CommitmentStatus, 'neutral' | 'success' | 'warning'>
   open: 'neutral',
   kept: 'success',
   missed: 'warning',
+  replaced: 'neutral',
+  withdrawn: 'neutral',
 };
 
 /** Zwei Spalten: Käufer sagt zu, Lieferant sagt zu; überfällige oben und markiert. */
@@ -214,7 +216,7 @@ function CommitmentRow({
               value={commitment.status}
               onChange={(event) => void change(event.target.value as CommitmentStatus)}
             >
-              {commitmentStatuses.map((status) => (
+              {commitmentSettableStatuses.map((status) => (
                 <option key={status} value={status}>
                   {text.statuses[status]}
                 </option>

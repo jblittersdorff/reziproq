@@ -3484,7 +3484,14 @@ export const en: Messages = {
       new: 'New commitment',
       edit: 'Edit',
       editTitle: 'Edit commitment',
-      statuses: { open: 'Open', kept: 'Kept', missed: 'Missed', overdue: 'Overdue' } as Record<
+      statuses: {
+        open: 'Open',
+        kept: 'Kept',
+        missed: 'Missed',
+        replaced: 'Replaced',
+        withdrawn: 'Withdrawn',
+        overdue: 'Overdue',
+      } as Record<
         string,
         string
       >,

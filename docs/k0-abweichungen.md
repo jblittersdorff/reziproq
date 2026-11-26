@@ -151,6 +151,7 @@ Weitere Punkte:
   - Es fehlen `measure`, `source_*`, `supersedes_id`, `condition_id`, `fulfilled_evidence` und `confirm_state`.
   - Maßnahmen haben `open|in_progress|done|cancelled` (`action.ts:20`).
   - Offen aus KI-17: Ein freigegebener Gemeinsamer Plan nimmt keine neuen Zusagen an (409, JBP-06, F15 im alten Prüfbericht); siehe F-16.
+  - Stand K2-a.1 (26.11.2026): Die Status bleiben englisch, nach Entscheidung des Gründers; `replaced` und `withdrawn` sind dazugekommen. Die fehlenden Spalten gibt es jetzt (`confirm_state` seit K1-a), dazu die Tabelle `task` für Aufgaben (ZQ-01, Abschnitt Umsetzung).
 - **B-15 Rollen.**
   - Käufer haben die Rollen `admin|member|viewer` und ein Controlling-Kennzeichen.
   - Einen Lead gibt es nur je Warengruppe; eine Vertretung (E-K5-2, E-K6-2, E-K8-3) fehlt.

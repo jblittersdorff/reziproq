@@ -37,6 +37,7 @@ export * from './supplier-plan.js';
 export * from './supplier-profile.js';
 export * from './support-access-log.js';
 export * from './survey.js';
+export * from './task.js';
 export * from './touchpoint.js';
 export * from './transcript.js';
 export * from './value-opportunity.js';

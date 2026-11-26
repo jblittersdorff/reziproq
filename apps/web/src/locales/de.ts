@@ -3575,6 +3575,8 @@ export const de = {
         open: 'Offen',
         kept: 'Gehalten',
         missed: 'Nicht gehalten',
+        replaced: 'Ersetzt',
+        withdrawn: 'Zurückgezogen',
         overdue: 'Überfällig',
       } as Record<string, string>,
       due: (date: string) => `bis ${date}`,
