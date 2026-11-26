@@ -182,10 +182,10 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     expect(within(draft).getByText(/im Oktober 86 % statt 95 %/)).toBeTruthy();
     expect(within(draft).getByText('Scorecard Liefertreue')).toBeTruthy();
     const next = document.querySelector('[data-slot="next-step"]') as HTMLElement;
-    expect(within(next).getByText('Maßnahme anlegen')).toBeTruthy();
+    expect(within(next).getByText('Aufgabe anlegen')).toBeTruthy();
     expect(
       within(next)
-        .getByRole('link', { name: 'Maßnahme vorausgefüllt öffnen' })
+        .getByRole('link', { name: 'Aufgabe vorausgefüllt öffnen' })
         .getAttribute('href'),
     ).toBe(drop.href);
 
@@ -250,7 +250,7 @@ describe('KI-16 Hinweise mit Frühwarnung', () => {
     );
   });
 
-  it('„Maßnahme anlegen“ öffnet das Formular mit Titel und Begründung aus dem Hinweis', async () => {
+  it('„Aufgabe anlegen“ öffnet das Formular mit Titel und Begründung aus dem Hinweis', async () => {
     const handle = api.handle;
     api.handle = (request) => {
       if (request.url === `/api/suppliers/${rel}`)

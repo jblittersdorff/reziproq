@@ -260,7 +260,7 @@ describe('WG-12 Scorecard und Review', () => {
     ).toBeTruthy();
     expect(screen.getByText('Zweite Quelle für Starrflex')).toBeTruthy();
     expect(screen.getByText(/Lieferplan Q1 schicken/)).toBeTruthy();
-    expect(screen.getByText('Keine offenen Maßnahmen.')).toBeTruthy();
+    expect(screen.getByText('Keine offenen Aufgaben.')).toBeTruthy();
     fireEvent.change(screen.getByRole('textbox', { name: /Zusammenfassung/ }), {
       target: { value: 'Zweite Quelle läuft an.' },
     });

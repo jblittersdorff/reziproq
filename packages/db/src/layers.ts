@@ -62,6 +62,13 @@ export interface LayerEntry {
 let nextSegmentLayerTestVersion = 0;
 let nextRuleSetLayerTestVersion = 0;
 
+/**
+ * Fortlaufendes Jahr für Testzeilen mit eindeutigem Jahr (relationship_ebit_target je Beziehung,
+ * material_group_strategy je Warengruppe und Version). Zufällige Jahre kollidierten gelegentlich.
+ */
+let probeYear = 2000;
+const nextProbeYear = () => probeYear++;
+
 export const layerRegister: Record<string, LayerEntry> = {
   organization: {
     kind: 'global',
@@ -753,7 +760,7 @@ export const layerRegister: Record<string, LayerEntry> = {
     kind: 'org_private',
     testValues: ({ org, orgUser, probe }) => ({
       material_group_id: org && probe('material_group', org),
-      year: 2000 + Math.floor(Math.random() * 100),
+      year: nextProbeYear(),
       created_by: orgUser,
     }),
   },
@@ -1229,8 +1236,9 @@ export const layerRegister: Record<string, LayerEntry> = {
   // AW-01: EBIT-Ziel je Lieferant
   relationship_ebit_target: {
     kind: 'org_private',
+    // Ein Jahr je Zeile (27.11.2026): eindeutiger Index je Beziehung und Jahr
     testValues: () => ({
-      year: 2000 + Math.floor(Math.random() * 100),
+      year: nextProbeYear(),
       ebit_target_cents: 100,
       proposed_by: 'probe',
     }),

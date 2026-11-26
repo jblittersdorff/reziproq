@@ -137,7 +137,7 @@ describe('ZYK-05 Neuer Zyklus', () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        'Bleiben, wo sie sind: 4 laufende Initiativen, 2 offene Zusagen, 5 offene Maßnahmen',
+        'Bleiben, wo sie sind: 4 laufende Initiativen, 2 offene Zusagen, 5 offene Aufgaben',
       ),
     ).toBeTruthy();
     expect(

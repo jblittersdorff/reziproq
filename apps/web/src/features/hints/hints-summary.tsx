@@ -9,7 +9,7 @@ import { isActive, useHintWhy } from './hint-panel';
 
 const messages = defineMessages({
   de: {
-    chain: 'Ablauf Maßnahme',
+    chain: 'Ablauf Aufgabe',
     steps: ['Anlass', 'Anlegen', 'Verfolgen'],
     states: { done: 'erledigt', current: 'jetzt', open: 'offen' },
     kicker: (severity: string) => `Als Nächstes · ${severity} Wirkung`,
@@ -26,7 +26,7 @@ const messages = defineMessages({
     and: ' und ',
   },
   en: {
-    chain: 'Action flow',
+    chain: 'Task flow',
     steps: ['Trigger', 'Create', 'Follow up'],
     states: { done: 'done', current: 'now', open: 'open' },
     kicker: (severity: string) => `Up next · ${severity} impact`,

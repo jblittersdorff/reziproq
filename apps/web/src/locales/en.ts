@@ -129,7 +129,7 @@ export const en: Messages = {
     metricSuppliers: 'suppliers',
     metricFocus: 'in focus',
     metricDecisions: 'open decisions',
-    metricActions: 'open actions',
+    metricActions: 'open commitments and tasks',
     kind: {
       ai_budget: 'Review the monthly AI budget',
       agent_approval: 'Review a custom agent',
@@ -171,9 +171,9 @@ export const en: Messages = {
     decisionsTitle: 'Open decisions',
     decisionsText: 'Where ratings or a target type are still missing.',
     decisionsLink: 'View decisions',
-    actionsTitle: 'Open actions',
+    actionsTitle: 'Open commitments and tasks',
     actionsText: 'Agreed together and not yet done.',
-    actionsLink: 'View actions',
+    actionsLink: 'View commitments and tasks',
   },
 
   portfolio: {
@@ -485,7 +485,7 @@ export const en: Messages = {
     effectHint: 'EBIT impact is never added to cost avoidance, cash or strategic value.',
     sources: {
       jbp: 'Joint plan',
-      action: 'Action',
+      action: 'Commitment or task',
       supplier_idea: 'Supplier idea',
     } as Record<string, string>,
     levels: {
@@ -841,14 +841,14 @@ export const en: Messages = {
     },
     actionReminders: {
       navTitle: 'Reminders',
-      navHint: 'When to remind about action due dates',
+      navHint: 'When to remind about due dates of commitments and tasks',
       title: 'Reminders',
       purpose:
-        'Before an action is due, the person responsible gets an email. The day after the due date, the SRO or key account manager is told.',
+        'Before a commitment or task is due, the person responsible gets an email. The day after the due date, the SRO or key account manager is told.',
       loading: 'Loading setting …',
       failed: 'The setting could not be loaded.',
       days: 'Days before the due date',
-      daysHint: 'Between 1 and 30 days. Applies to all actions on your side.',
+      daysHint: 'Between 1 and 30 days. Applies to all commitments and tasks on your side.',
       save: 'Save',
       saved: 'Saved.',
       saveFailed: 'Saving did not work. Please try again.',
@@ -1213,7 +1213,7 @@ export const en: Messages = {
     areaPurpose: {
       relationship: 'Rules of engagement, team and touchpoints you agree on together.',
       plan: 'Topics, initiatives and commitments of your joint plan.',
-      execution: 'Meetings and actions you carry out together.',
+      execution: 'Meetings, commitments and tasks you carry out together.',
       impact: 'The impact of your joint initiatives.',
       own: 'How you see the relationship. The customer never sees it.',
     },
@@ -1998,7 +1998,7 @@ export const en: Messages = {
       plan_missing: 'Request plan',
       right_without_obligation: 'Check rules of engagement',
       buyer_commitments_overdue: 'Complete commitment',
-      performance_drop: 'Create action',
+      performance_drop: 'Create task',
       supplier_commitment_overdue: 'Follow up commitment',
       dependency: 'Check second supplier',
       feedback_drop: 'Review supplier',
@@ -2036,7 +2036,7 @@ export const en: Messages = {
     noExplanation: 'Reziproq writes the explanation after the next daily run.',
     nextStep: 'Next step',
     nextOpen: 'Open',
-    nextOpenPrefilled: 'Open prefilled action',
+    nextOpenPrefilled: 'Open prefilled task',
     startWork: 'In progress',
     started: 'Set to “In progress”.',
     notRelevant: 'Not relevant',
@@ -2083,11 +2083,11 @@ export const en: Messages = {
     saveRules: 'Save rules',
     detailTitle: 'Decide on the hint',
     accept: 'Accept',
-    acceptHint: 'Creates an internal action for you, due in two weeks.',
+    acceptHint: 'Creates a task for you, due in two weeks.',
     acceptOnlyDismiss:
       'This hint does not concern a single relationship; it can only be dismissed.',
-    accepted: 'Accepted. The internal action has been created.',
-    toAction: 'Open action',
+    accepted: 'Accepted. The task has been created.',
+    toAction: 'Open task',
     dismiss: 'Dismiss',
     reason: 'Reason',
     reasonHint: 'Why does the hint not fit here? The reason is kept in the history.',
@@ -2887,7 +2887,7 @@ export const en: Messages = {
     review: {
       title: (date: string) => `Quarterly review due ${date}`,
       purpose: (group: string, year: number) =>
-        `Keeps the ${year} strategy for ${group} running: progress per initiative, open commitments and actions with the suppliers.`,
+        `Keeps the ${year} strategy for ${group} running: progress per initiative, open commitments and tasks with the suppliers.`,
       loading: 'Loading review …',
       failed: 'The review could not be loaded.',
       initiatives: 'Initiatives',
@@ -2896,8 +2896,8 @@ export const en: Messages = {
       goalLever: (goal: string, lever: string) => `Goal: ${goal} · Lever: ${lever}`,
       commitments: 'Open commitments with suppliers of the material group',
       noCommitments: 'No open commitments.',
-      actions: 'Open actions with suppliers of the material group',
-      noActions: 'No open actions.',
+      actions: 'Open tasks with suppliers of the material group',
+      noActions: 'No open tasks.',
       sides: { buyer: 'us', supplier: 'supplier' } as Record<string, string>,
       due: (date: string) => `due ${date}`,
       closeTitle: 'Close',
@@ -3835,7 +3835,7 @@ export const en: Messages = {
     live: 'Current status',
     liveFrozen: (date: string) => `Status when closed on ${date}`,
     liveSections: {
-      actions: 'Open actions',
+      actions: 'Open commitments and tasks',
       commitments: 'Open commitments',
       initiatives: 'Initiatives',
       scorecard: 'Scorecard',
@@ -3882,7 +3882,7 @@ export const en: Messages = {
       loading: 'Loading results …',
       failed: 'That did not work. Please try again.',
       notYet:
-        'After the meeting you capture the results here. Reziproq turns them into commitments, actions and minutes.',
+        'After the meeting you capture the results here. Reziproq turns them into commitments, tasks and minutes.',
       captureTitle: 'Capture results',
       onlyYou: 'only for you',
       notesLabel: 'Your notes on the meeting',
@@ -3915,7 +3915,7 @@ export const en: Messages = {
           c.commitments
             ? `${c.commitments} ${c.commitments === 1 ? 'commitment' : 'commitments'}`
             : null,
-          c.actions ? `${c.actions} ${c.actions === 1 ? 'action' : 'actions'}` : null,
+          c.actions ? `${c.actions} ${c.actions === 1 ? 'task' : 'tasks'}` : null,
           c.decisions ? `${c.decisions} ${c.decisions === 1 ? 'decision' : 'decisions'}` : null,
           c.questions
             ? `${c.questions} ${c.questions === 1 ? 'open question' : 'open questions'}`
@@ -3938,7 +3938,7 @@ export const en: Messages = {
       groups: {
         changes: 'Changes to existing commitments',
         commitments: 'Commitments',
-        actions: 'Actions',
+        actions: 'Tasks',
         decisions: 'Decisions and open questions',
         goals: 'Status of the briefing goals',
       } as Record<string, string>,
@@ -3983,7 +3983,7 @@ export const en: Messages = {
       recipients: (supplier: string, people: string) =>
         people ? `${supplier}: ${people}` : `Everyone at ${supplier} with access`,
       confirmHint:
-        'Shared are the minutes, the shared decisions and the adopted shared commitments and actions. Private points stay with you.',
+        'Shared are the minutes, the shared decisions and the adopted shared commitments. Private points and tasks stay with you.',
       confirmShare: 'Confirm sharing',
       shareRule:
         'Sharing shows recipients and content first. The supplier then sees it in the meeting.',
@@ -3991,7 +3991,7 @@ export const en: Messages = {
       sharedNote: 'Shared.',
       whatFollows: 'What happens next',
       follows: [
-        'Commitments in the joint plan, actions with their owners',
+        'Commitments in the joint plan, tasks with their owners',
         'Due dates appear in Today',
         'The next briefing reads the results',
       ],
@@ -4131,7 +4131,7 @@ export const en: Messages = {
       heading: 'AI draft, please review',
       acceptedHeading: (date: string) => `Summary · accepted on ${date}`,
       sources: 'Sources',
-      sourceList: ['Scorecard', 'Initiatives', 'Commitments', 'Actions'],
+      sourceList: ['Scorecard', 'Initiatives', 'Commitments', 'Tasks'],
       buyerSources: ['Internal note', 'Supplier plan'],
       field: 'Edit text',
       words: (n: number, max: number) => `${n} of at most ${max} words`,
@@ -4540,13 +4540,13 @@ export const en: Messages = {
       noMeeting: 'No meeting planned',
       actions: (open: number, overdue: number) =>
         overdue > 0
-          ? `${open} open actions, ${overdue} overdue.`
+          ? `${open} open commitments and tasks, ${overdue} overdue.`
           : open === 1
-            ? '1 open action.'
-            : `${open} open actions.`,
+            ? '1 open commitment or task.'
+            : `${open} open commitments and tasks.`,
       impact: 'P&L impact of the initiatives',
       impactText: 'Lever, P&L line, baseline and maturity per initiative; internal only.',
-      noActions: 'No open actions.',
+      noActions: 'No open commitments and tasks.',
     },
     cycle: {
       // ZYK-05
@@ -4568,7 +4568,7 @@ export const en: Messages = {
           `Joint plan as version ${version + 1}, with the running initiatives`,
         jointPlanOpen: 'The joint plan continues; it is not approved yet',
         stay: (initiatives: number, commitments: number, actions: number) =>
-          `Stay where they are: ${initiatives} running initiatives, ${commitments} open commitments, ${actions} open actions`,
+          `Stay where they are: ${initiatives} running initiatives, ${commitments} open commitments, ${actions} open tasks`,
         fresh:
           'Feedback, touchpoints, approvals and the scorecard of the new year; deadlines follow from the new JBP date.',
         label: 'Name of the new cycle',
@@ -5473,13 +5473,13 @@ export const en: Messages = {
     search: {
       title: 'Results',
       hint: 'From three characters Reziproq searches as you type, without AI.',
-      kinds: { suppliers: 'Suppliers', initiatives: 'Initiatives', actions: 'Actions' },
+      kinds: { suppliers: 'Suppliers', initiatives: 'Initiatives', actions: 'Commitments and tasks' },
       none: (q: string) => `No results for “${q}”.`,
       loading: 'Reziproq is searching …',
       failed: 'The search did not work just now.',
       supplierTitle: 'Search',
       supplierPurpose:
-        'Find initiatives and actions with the selected customer. Results show only what you see.',
+        'Find initiatives, commitments and tasks with the selected customer. Results show only what you see.',
       supplierPlaceholder: 'Search term, e.g. cost',
       supplierField: 'Search term',
       customer: 'Customer',
@@ -5667,10 +5667,10 @@ export const en: Messages = {
     waiting: 'Results appear once both sides have closed or the due date has passed.',
     tooFew: 'Too few answers for results: each side needs at least three.',
     biggestGap: (dimension: string, gap: string) => `Largest gap: ${dimension} ${gap}`,
-    createAction: 'Create action',
-    createActionFor: (dimension: string) => `Create action for the ${dimension} gap`,
+    createAction: 'Create commitment',
+    createActionFor: (dimension: string) => `Create commitment for the ${dimension} gap`,
     actedTitle: 'You said, we acted',
-    actedEmpty: 'No action from this wave yet.',
+    actedEmpty: 'No commitment or task from this wave yet.',
     internal: 'Internal',
     trendTitle: (kind: string) => `Trend ${kind}`,
     trendPurpose: 'Current per dimension across revealed waves, oldest on the left.',
@@ -6074,7 +6074,7 @@ export const en: Messages = {
     requestDue: 'Please by',
     requestSend: 'Send request',
     requestDrafted: 'Request drafted.',
-    requestSent: 'Request sent. The supplier sees it as an action.',
+    requestSent: 'Request sent. The supplier sees it as a commitment to confirm.',
     supplierSeesTitle: (name: string) => `What ${name} sees`,
     supplierSees: (name: string) =>
       `Nothing on this page. If you adopt an opportunity as a JBP topic, ${name} sees the topic, not your calculation and not your range.`,

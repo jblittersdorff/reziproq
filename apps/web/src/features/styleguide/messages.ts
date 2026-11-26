@@ -257,7 +257,7 @@ export const styleguideMessages = defineMessages({
     empty: {
       title: 'Noch keine Initiativen',
       description:
-        'Initiativen bündeln gemeinsame Maßnahmen mit dem Lieferanten. Legen Sie die erste an, um ihre GuV-Wirkung zu verfolgen.',
+        'Initiativen bündeln gemeinsame Vorhaben mit dem Lieferanten. Legen Sie die erste an, um ihre GuV-Wirkung zu verfolgen.',
       action: 'Initiative anlegen',
       chartTitle: 'Noch keine Bewertungen',
       chartDescription:
@@ -545,7 +545,7 @@ export const styleguideMessages = defineMessages({
     empty: {
       title: 'No initiatives yet',
       description:
-        'Initiatives bundle joint measures with the supplier. Create the first one to track its P&L impact.',
+        'Initiatives bundle joint projects with the supplier. Create the first one to track its P&L impact.',
       action: 'Create initiative',
       chartTitle: 'No ratings yet',
       chartDescription: 'Once buyer and supplier have completed the pulse, the gap appears here.',

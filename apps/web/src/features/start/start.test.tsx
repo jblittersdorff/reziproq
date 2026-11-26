@@ -164,7 +164,7 @@ describe('Alle Aufgaben (bis K5-b für die Lieferantenseite)', () => {
       within(views)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['Für mich · 7', 'Wartet auf andere · 0', 'Maßnahmen']);
+    ).toEqual(['Für mich · 7', 'Wartet auf andere · 0', 'Zusagen und Aufgaben']);
     expect(
       within(views).getByRole('link', { name: 'Für mich · 7' }).getAttribute('aria-current'),
     ).toBe('page');

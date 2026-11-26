@@ -135,7 +135,7 @@ export const de = {
     metricSuppliers: 'Lieferanten',
     metricFocus: 'im Fokus',
     metricDecisions: 'offene Entscheidungen',
-    metricActions: 'offene Maßnahmen',
+    metricActions: 'offene Zusagen und Aufgaben',
     kind: {
       ai_budget: 'KI-Monatsbudget prüfen',
       agent_approval: 'Eigenen Agenten prüfen',
@@ -177,9 +177,9 @@ export const de = {
     decisionsTitle: 'Offene Entscheidungen',
     decisionsText: 'Wo noch bewertet oder ein Soll-Typ festgelegt werden muss.',
     decisionsLink: 'Entscheidungen ansehen',
-    actionsTitle: 'Offene Maßnahmen',
+    actionsTitle: 'Offene Zusagen und Aufgaben',
     actionsText: 'Gemeinsam vereinbart und noch nicht erledigt.',
-    actionsLink: 'Maßnahmen ansehen',
+    actionsLink: 'Zusagen und Aufgaben ansehen',
   },
 
   // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)
@@ -497,7 +497,7 @@ export const de = {
     effectHint: 'EBIT-Wirkung wird nie mit Kostenvermeidung, Cash oder strategischem Wert addiert.',
     sources: {
       jbp: 'Gemeinsamer Plan',
-      action: 'Maßnahme',
+      action: 'Zusage oder Aufgabe',
       supplier_idea: 'Idee des Lieferanten',
     } as Record<string, string>,
     levels: {
@@ -865,14 +865,14 @@ export const de = {
     },
     actionReminders: {
       navTitle: 'Erinnerungen',
-      navHint: 'Wann an Fristen von Maßnahmen erinnert wird',
+      navHint: 'Wann an Fristen von Zusagen und Aufgaben erinnert wird',
       title: 'Erinnerungen',
       purpose:
-        'Vor der Frist einer Maßnahme bekommt die verantwortliche Person eine Mail. Am Tag nach der Frist erfährt der SRO bzw. der Key Account Manager davon.',
+        'Vor der Frist einer Zusage oder Aufgabe bekommt die verantwortliche Person eine Mail. Am Tag nach der Frist erfährt der SRO bzw. der Key Account Manager davon.',
       loading: 'Einstellung wird geladen …',
       failed: 'Die Einstellung konnte nicht geladen werden.',
       days: 'Tage vor der Frist',
-      daysHint: 'Zwischen 1 und 30 Tagen. Gilt für alle Maßnahmen eurer Seite.',
+      daysHint: 'Zwischen 1 und 30 Tagen. Gilt für alle Zusagen und Aufgaben eurer Seite.',
       save: 'Speichern',
       saved: 'Gespeichert.',
       saveFailed: 'Speichern hat nicht geklappt. Versuch es noch einmal.',
@@ -1239,7 +1239,7 @@ export const de = {
     areaPurpose: {
       relationship: 'Spielregeln, Team und Kontaktpunkte, die ihr gemeinsam vereinbart.',
       plan: 'Themen, Initiativen und Zusagen eures gemeinsamen Plans.',
-      execution: 'Termine und Maßnahmen, die ihr gemeinsam umsetzt.',
+      execution: 'Termine, Zusagen und Aufgaben, die ihr gemeinsam umsetzt.',
       impact: 'Die Ergebnisse eurer gemeinsamen Initiativen.',
       own: 'Wie du die Beziehung siehst. Der Kunde sieht davon nichts.',
     },
@@ -2031,7 +2031,7 @@ export const de = {
       plan_missing: 'Plan anfordern',
       right_without_obligation: 'Spielregeln prüfen',
       buyer_commitments_overdue: 'Zusage erledigen',
-      performance_drop: 'Maßnahme anlegen',
+      performance_drop: 'Aufgabe anlegen',
       supplier_commitment_overdue: 'Zusage nachfassen',
       dependency: 'Zweitlieferant prüfen',
       feedback_drop: 'Lieferant prüfen',
@@ -2072,7 +2072,7 @@ export const de = {
     noExplanation: 'Die Begründung schreibt Reziproq nach dem nächsten täglichen Lauf.',
     nextStep: 'Nächster Schritt',
     nextOpen: 'Öffnen',
-    nextOpenPrefilled: 'Maßnahme vorausgefüllt öffnen',
+    nextOpenPrefilled: 'Aufgabe vorausgefüllt öffnen',
     startWork: 'In Arbeit',
     started: 'Auf „In Arbeit“ gesetzt.',
     notRelevant: 'Nicht relevant',
@@ -2120,11 +2120,11 @@ export const de = {
     saveRules: 'Regeln speichern',
     detailTitle: 'Hinweis entscheiden',
     accept: 'Annehmen',
-    acceptHint: 'Erzeugt eine interne Maßnahme für dich, fällig in zwei Wochen.',
+    acceptHint: 'Erzeugt eine Aufgabe für dich, fällig in zwei Wochen.',
     acceptOnlyDismiss:
       'Dieser Hinweis betrifft keine einzelne Beziehung; er lässt sich nur verwerfen.',
-    accepted: 'Angenommen. Die interne Maßnahme ist angelegt.',
-    toAction: 'Zur Maßnahme',
+    accepted: 'Angenommen. Die Aufgabe ist angelegt.',
+    toAction: 'Zur Aufgabe',
     dismiss: 'Verwerfen',
     reason: 'Begründung',
     reasonHint: 'Warum passt der Hinweis hier nicht? Die Begründung steht im Verlauf.',
@@ -2945,7 +2945,7 @@ export const de = {
     review: {
       title: (date: string) => `Quartals-Review zum ${date}`,
       purpose: (group: string, year: number) =>
-        `Hält die Strategie ${year} für ${group} am Laufen: Fortschritt je Initiative, offene Zusagen und Maßnahmen bei den Lieferanten.`,
+        `Hält die Strategie ${year} für ${group} am Laufen: Fortschritt je Initiative, offene Zusagen und Aufgaben bei den Lieferanten.`,
       loading: 'Review wird geladen …',
       failed: 'Das Review konnte nicht geladen werden.',
       initiatives: 'Initiativen',
@@ -2954,8 +2954,8 @@ export const de = {
       goalLever: (goal: string, lever: string) => `Ziel: ${goal} · Hebel: ${lever}`,
       commitments: 'Offene Zusagen bei Lieferanten der Warengruppe',
       noCommitments: 'Keine offenen Zusagen.',
-      actions: 'Offene Maßnahmen bei Lieferanten der Warengruppe',
-      noActions: 'Keine offenen Maßnahmen.',
+      actions: 'Offene Aufgaben bei Lieferanten der Warengruppe',
+      noActions: 'Keine offenen Aufgaben.',
       sides: { buyer: 'wir', supplier: 'Lieferant' } as Record<string, string>,
       due: (date: string) => `fällig ${date}`,
       closeTitle: 'Abschluss',
@@ -3931,7 +3931,7 @@ export const de = {
     live: 'Aktueller Stand',
     liveFrozen: (date: string) => `Stand zum Abschluss am ${date}`,
     liveSections: {
-      actions: 'Offene Maßnahmen',
+      actions: 'Offene Zusagen und Aufgaben',
       commitments: 'Offene Zusagen',
       initiatives: 'Initiativen',
       scorecard: 'Scorecard',
@@ -3978,13 +3978,13 @@ export const de = {
       loading: 'Ergebnisse werden geladen …',
       failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
       notYet:
-        'Nach dem Termin erfasst ihr hier die Ergebnisse. Reziproq macht daraus Zusagen, Maßnahmen und ein Protokoll.',
+        'Nach dem Termin erfasst ihr hier die Ergebnisse. Reziproq macht daraus Zusagen, Aufgaben und ein Protokoll.',
       captureTitle: 'Ergebnisse erfassen',
       onlyYou: 'nur für euch',
       notesLabel: 'Eure Notizen zum Termin',
       placeholder: 'Zum Beispiel: Zusage: Tom Weber schickt den Kapazitätsplan bis 15.01.',
       notesHint:
-        'Notizen schreiben oder einfügen. Zeilen mit „Zusage:“, „Maßnahme:“, „Entscheidung:“ oder „Frage:“ ordnet Reziproq sicher zu. Bewertungen, Preisgrenzen und Alternativen bleiben immer privat.',
+        'Notizen schreiben oder einfügen. Zeilen mit „Zusage:“, „Aufgabe:“, „Entscheidung:“ oder „Frage:“ ordnet Reziproq sicher zu. Bewertungen, Preisgrenzen und Alternativen bleiben immer privat.',
       savedBy: (name: string, date: string) => `Zuletzt erfasst von ${name}, ${date}`,
       addFile: 'Datei hinzufügen',
       fileOnlyText:
@@ -4009,7 +4009,7 @@ export const de = {
       }) =>
         [
           c.commitments ? `${c.commitments} ${c.commitments === 1 ? 'Zusage' : 'Zusagen'}` : null,
-          c.actions ? `${c.actions} ${c.actions === 1 ? 'Maßnahme' : 'Maßnahmen'}` : null,
+          c.actions ? `${c.actions} ${c.actions === 1 ? 'Aufgabe' : 'Aufgaben'}` : null,
           c.decisions
             ? `${c.decisions} ${c.decisions === 1 ? 'Entscheidung' : 'Entscheidungen'}`
             : null,
@@ -4034,7 +4034,7 @@ export const de = {
       groups: {
         changes: 'Änderungen an bestehenden Zusagen',
         commitments: 'Zusagen',
-        actions: 'Maßnahmen',
+        actions: 'Aufgaben',
         decisions: 'Entscheidungen und offene Fragen',
         goals: 'Stand der Ziele aus dem Briefing',
       } as Record<string, string>,
@@ -4083,7 +4083,7 @@ export const de = {
       recipients: (supplier: string, people: string) =>
         people ? `${supplier}: ${people}` : `Alle bei ${supplier} mit Zugang`,
       confirmHint:
-        'Geteilt werden das Protokoll, die geteilten Entscheidungen und die übernommenen geteilten Zusagen und Maßnahmen. Private Punkte bleiben bei euch.',
+        'Geteilt werden das Protokoll, die geteilten Entscheidungen und die übernommenen geteilten Zusagen. Private Punkte und Aufgaben bleiben bei euch.',
       confirmShare: 'Teilen bestätigen',
       shareRule:
         'Teilen zeigt vorher Empfänger und Inhalt. Der Lieferant sieht es danach im Termin.',
@@ -4091,7 +4091,7 @@ export const de = {
       sharedNote: 'Geteilt.',
       whatFollows: 'Was daraus wird',
       follows: [
-        'Zusagen im Gemeinsamen Plan, Maßnahmen bei den Verantwortlichen',
+        'Zusagen im Gemeinsamen Plan, Aufgaben bei den Verantwortlichen',
         'Fälligkeiten erscheinen in Heute',
         'Das nächste Briefing liest die Ergebnisse',
       ],
@@ -4231,7 +4231,7 @@ export const de = {
       heading: 'KI-Entwurf, bitte prüfen',
       acceptedHeading: (date: string) => `Zusammenfassung · übernommen am ${date}`,
       sources: 'Quellen',
-      sourceList: ['Scorecard', 'Initiativen', 'Zusagen', 'Maßnahmen'],
+      sourceList: ['Scorecard', 'Initiativen', 'Zusagen', 'Aufgaben'],
       buyerSources: ['Interne Notiz', 'Lieferantenplan'],
       field: 'Text bearbeiten',
       words: (n: number, max: number) => `${n} von höchstens ${max} Wörtern`,
@@ -4604,7 +4604,7 @@ export const de = {
       strategy: 'Eure interne Sicht: Segment, Plan, Spend und Profil.',
       relationship: 'Team, Spielregeln und Feedback in der Beziehung.',
       plan: 'Themen, Initiativen und Zusagen beider Seiten.',
-      execution: 'Termine und Maßnahmen.',
+      execution: 'Termine, Zusagen und Aufgaben.',
       impact: 'Was die Initiativen in der GuV bewirken.',
       hints: 'Auffälligkeiten, die einen Blick lohnen.',
     },
@@ -4654,13 +4654,13 @@ export const de = {
       noMeeting: 'Kein Termin geplant',
       actions: (open: number, overdue: number) =>
         overdue > 0
-          ? `${open} offene Maßnahmen, ${overdue} überfällig.`
+          ? `${open} offene Zusagen und Aufgaben, ${overdue} überfällig.`
           : open === 1
-            ? '1 offene Maßnahme.'
-            : `${open} offene Maßnahmen.`,
+            ? '1 offene Zusage oder Aufgabe.'
+            : `${open} offene Zusagen und Aufgaben.`,
       impact: 'GuV-Wirkung der Initiativen',
       impactText: 'Hebel, GuV-Zeile, Baseline und Reifegrad je Initiative; nur intern.',
-      noActions: 'Keine offenen Maßnahmen.',
+      noActions: 'Keine offenen Zusagen und Aufgaben.',
     },
     cycle: {
       // ZYK-05
@@ -4682,7 +4682,7 @@ export const de = {
           `Gemeinsamer Plan als Version ${version + 1}, mit den laufenden Initiativen`,
         jointPlanOpen: 'Gemeinsamer Plan läuft weiter, er ist noch nicht freigegeben',
         stay: (initiatives: number, commitments: number, actions: number) =>
-          `Bleiben, wo sie sind: ${initiatives} laufende Initiativen, ${commitments} offene Zusagen, ${actions} offene Maßnahmen`,
+          `Bleiben, wo sie sind: ${initiatives} laufende Initiativen, ${commitments} offene Zusagen, ${actions} offene Aufgaben`,
         fresh:
           'Feedback, Kontaktpunkte, Freigaben und Scorecard des neuen Jahres; die Fristen folgen aus dem neuen JBP-Termin.',
         label: 'Name des neuen Zyklus',
@@ -5606,13 +5606,13 @@ export const de = {
     search: {
       title: 'Treffer',
       hint: 'Ab drei Zeichen sucht Reziproq schon beim Tippen, ohne KI.',
-      kinds: { suppliers: 'Lieferanten', initiatives: 'Initiativen', actions: 'Maßnahmen' },
+      kinds: { suppliers: 'Lieferanten', initiatives: 'Initiativen', actions: 'Zusagen und Aufgaben' },
       none: (q: string) => `Keine Treffer für „${q}“.`,
       loading: 'Reziproq sucht …',
       failed: 'Die Suche hat gerade nicht geklappt.',
       supplierTitle: 'Suchen',
       supplierPurpose:
-        'Initiativen und Maßnahmen im gewählten Kunden finden. Treffer zeigen nur, was ihr seht.',
+        'Initiativen, Zusagen und Aufgaben im gewählten Kunden finden. Treffer zeigen nur, was ihr seht.',
       supplierPlaceholder: 'Suchwort, z. B. Kosten',
       supplierField: 'Suchwort',
       customer: 'Kunde',
@@ -5808,10 +5808,10 @@ export const de = {
       'Ergebnisse erscheinen, wenn beide Seiten abgeschlossen haben oder die Frist vorbei ist.',
     tooFew: 'Zu wenige Antworten für eine Auswertung: Jede Seite braucht mindestens drei.',
     biggestGap: (dimension: string, gap: string) => `Größte Lücke: ${dimension} ${gap}`,
-    createAction: 'Maßnahme anlegen',
-    createActionFor: (dimension: string) => `Maßnahme zur Lücke ${dimension} anlegen`,
+    createAction: 'Zusage anlegen',
+    createActionFor: (dimension: string) => `Zusage zur Lücke ${dimension} anlegen`,
     actedTitle: 'Ihr habt gesagt, wir haben gehandelt',
-    actedEmpty: 'Noch keine Maßnahme aus dieser Welle.',
+    actedEmpty: 'Noch keine Zusage oder Aufgabe aus dieser Welle.',
     internal: 'Intern',
     trendTitle: (kind: string) => `Verlauf ${kind}`,
     trendPurpose: 'Ist je Dimension über die aufgedeckten Wellen, älteste links.',
@@ -6218,7 +6218,7 @@ export const de = {
     requestDue: 'Bitte bis',
     requestSend: 'Anfrage senden',
     requestDrafted: 'Entwurf der Anfrage erstellt.',
-    requestSent: 'Anfrage gesendet. Der Lieferant sieht sie als Maßnahme.',
+    requestSent: 'Anfrage gesendet. Der Lieferant sieht sie als Zusage zur Bestätigung.',
     supplierSeesTitle: (name: string) => `Was ${name} sieht`,
     supplierSees: (name: string) =>
       `Nichts von dieser Seite. Übernehmt ihr ein Potenzial als Thema ins JBP, sieht ${name} das Thema, nicht euren Rechenweg und nicht eure Spanne.`,

@@ -139,12 +139,12 @@ describe('FS-01 Hinweise', () => {
     );
   });
 
-  it('Annehmen legt die interne Maßnahme an und verlinkt sie', async () => {
+  it('Annehmen legt die Aufgabe an und verlinkt sie', async () => {
     renderAt(`/warum/${planHint.id}`);
     fireEvent.click(await screen.findByRole('button', { name: 'Annehmen' }));
     await waitFor(() => expect(accepted).toBe(1));
-    expect(await screen.findByText('Angenommen. Die interne Maßnahme ist angelegt.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Zur Maßnahme' })).toBeTruthy();
+    expect(await screen.findByText('Angenommen. Die Aufgabe ist angelegt.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Zur Aufgabe' })).toBeTruthy();
   });
 
   it('Verwerfen geht nur mit Begründung; der Organisations-Hinweis lässt sich nur verwerfen', async () => {

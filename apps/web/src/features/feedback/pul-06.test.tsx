@@ -189,24 +189,24 @@ afterEach(tearDownApp);
 const base = `/lieferanten/${rel}/beziehung/feedback`;
 const transparency = results.dimensions[0]?.resultId as string;
 
-describe('PUL-06 Maßnahmen aus Lücken und Verlauf in der Oberfläche', () => {
-  it('jede der größten Lücken und jede Dimension führt zu einer neuen Maßnahme mit Quelle', async () => {
+describe('PUL-06 Zusagen aus Lücken und Verlauf in der Oberfläche', () => {
+  it('jede der größten Lücken und jede Dimension führt zu einer neuen Zusage mit Quelle', async () => {
     renderAt(`${base}/${waveId}`);
     const tile = (await screen.findByText('Größte Lücke 1')).closest('[data-delta]') as HTMLElement;
     expect(
       within(tile)
-        .getByRole('link', { name: 'Maßnahme zur Lücke Transparenz anlegen' })
+        .getByRole('link', { name: 'Zusage zur Lücke Transparenz anlegen' })
         .getAttribute('href'),
     ).toBe(
       `/lieferanten/${rel}/umsetzung/massnahmen/neu?luecke=${transparency}&dimension=transparency`,
     );
     const row = document.querySelector('li[data-dimension="strategy"]') as HTMLElement;
     expect(
-      within(row).getByRole('link', { name: /Maßnahme zur Lücke Strategische Ausrichtung/ }),
+      within(row).getByRole('link', { name: /Zusage zur Lücke Strategische Ausrichtung/ }),
     ).toBeDefined();
   });
 
-  it('„Ihr habt gesagt, wir haben gehandelt“ listet die Maßnahmen der Welle mit Status', async () => {
+  it('„Ihr habt gesagt, wir haben gehandelt“ listet die Zusagen und Aufgaben der Welle mit Status', async () => {
     renderAt(`${base}/${waveId}`);
     const section = (
       await screen.findByRole('heading', { name: 'Ihr habt gesagt, wir haben gehandelt' })
@@ -218,7 +218,7 @@ describe('PUL-06 Maßnahmen aus Lücken und Verlauf in der Oberfläche', () => {
     expect(items[1]?.textContent).toContain('Intern');
   });
 
-  it('die neue Maßnahme ist vorbefüllt und trägt die Lücke als Quelle', async () => {
+  it('die neue Zusage ist vorbefüllt und trägt die Lücke als Quelle', async () => {
     renderAt(
       `/lieferanten/${rel}/umsetzung/massnahmen/neu?luecke=${transparency}&dimension=transparency`,
     );

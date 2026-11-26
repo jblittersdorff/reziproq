@@ -112,7 +112,7 @@ describe('QBR-01b Termin abschließen', () => {
   it('die Live-Abschnitte zeigen den Stand aus ihrem Ort', async () => {
     renderAt(page);
     const live = await screen.findByRole('region', { name: 'Aktueller Stand' });
-    expect(within(live).getByText('Offene Maßnahmen')).toBeDefined();
+    expect(within(live).getByText('Offene Zusagen und Aufgaben')).toBeDefined();
     expect(within(live).getByText('Zweitquelle Gehäuse')).toBeDefined();
     expect(within(live).getByText('offen')).toBeDefined();
   });

@@ -56,6 +56,10 @@ Hier ist nichts sofort zu löschen: Der Code läuft noch. Mit dem genannten Pake
 
 Alle Tests für Datenebenen und Mandanten (`layers.test.ts`, `rls.test.ts`, `za-01.test.ts`, Cross-Tenant-Tests), Rechte (`permissions.test.ts`), Migrationen, Zeitmessung LS-01, Website und alle API-Tests der Fachlogik, die mit dem Umbau weiterlaufen (Rechenwege der Wirkung, Segmentregeln, Import, Briefing, Transkripte, Anbindungen).
 
+## 5. Wackelige Tests
+
+- **`layers.test.ts` (behoben am 27.11.2026, K2-a.6):** Testzeilen von `relationship_ebit_target` und `material_group_strategy` bekamen ein zufälliges Jahr zwischen 2000 und 2099. Lagen mehrere auf derselben Beziehung bzw. Warengruppe, kollidierten sie gelegentlich mit dem eindeutigen Index, und der Aufbau des Tests scheiterte (rund 1 bis 6 % der Läufe). Jetzt gibt es ein fortlaufendes Jahr je Testzeile (`nextProbeYear` in `layers.ts`).
+
 ## Vorschlag
 
 Abschnitte 1 und 2 als eigener kleiner Schritt nach K1-a. Er spart etwa 4,5 Minuten je `pnpm check` und entfernt fünf Bausteine und zwei Testseiten. Abschnitt 3 läuft mit den Paketen.

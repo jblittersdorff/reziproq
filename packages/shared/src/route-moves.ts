@@ -83,7 +83,14 @@ export const routeMoves: readonly RouteMove[] = [
   move('/lieferanten/neu', null, 'K2-b', 'geplant'),
   move('/lieferanten/importieren', null, 'K2-b', 'geplant'),
   move('/lieferanten/$id/umsetzung/termine/*', null, 'K3-a', 'geplant', 'Termin /termine/<id>'),
-  move('/lieferanten/$id/umsetzung/massnahmen/*', '/beziehungen/$id', 'K2-a', 'geplant', 'Zusagen'),
+  // ZQ-01 (Gründer, 26.11.2026): Die alten Seiten zeigen Zusagen und Aufgaben, bis die Akte sie hat
+  move(
+    '/lieferanten/$id/umsetzung/massnahmen/*',
+    '/beziehungen/$id',
+    'K2-c',
+    'geplant',
+    'Zusagen und Aufgaben; bis dahin die alte Seite',
+  ),
   move('/lieferanten/$id/plan/*', '/beziehungen/$id/plan', 'K4-e', 'geplant', 'Gemeinsamer Plan'),
   move('/lieferanten/$id/wirkung/*', '/beziehungen/$id/wert', 'K4-b', 'geplant', 'Wertkonto'),
   move('/lieferanten/$id/strategie/segmentierung/*', null, 'K2-e', 'geplant', 'Segment-Mappe'),

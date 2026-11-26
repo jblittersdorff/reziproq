@@ -227,11 +227,17 @@ Weitere Punkte:
   - **Befund:** `needsYou` (`apps/api/src/modules/start/my-day-data.ts`) gibt beim Grund `due` als Titel die Art des fälligen Eintrags zurück (`action`, `commitment`, `validation`). Die Lieferantenliste zeigt diesen Titel als Grund in der Zeile (`suppliers-page.tsx`), also ein englisches Wort.
   - **Vorher:** genauso, mit `action`; seit K2-a.3 steht bei geteilten Einträgen `commitment`.
   - **Vorschlag:** Titel des fälligen Eintrags (`detail`) oder ein Text je Art, wie in Heute.
-- **B-36 „Maßnahme“ in weiteren Texten (gefunden am 26.11.2026 in K2-a.3, offen).**
+- **B-36 „Maßnahme“ in weiteren Texten (gefunden am 26.11.2026 in K2-a.3, behoben am 27.11.2026 in K2-a.6).**
+  - **Behoben:** Alle sichtbaren Texte, Deutsch und Englisch, sagen je nach Inhalt „Zusage“, „Aufgabe“ oder „Zusagen und Aufgaben“. Das richtet sich danach, was gezählt oder angelegt wird; aus einem Hinweis entsteht zum Beispiel eine Aufgabe, aus einer Feedback-Lücke eine Zusage. Im Termin ordnet Reziproq weiter auch Zeilen mit „Maßnahme:“ zu, der Hinweis nennt „Aufgabe:“.
   - **Stand:** Seit K2-a.3 heißen die alten Maßnahmen-Seiten „Zusagen und Aufgaben“; ihre Texte, die Zugänge von Heute, Start und Termin sowie die Glossar-Zeilen sind umgestellt.
   - **Offen:** Rund 40 weitere Texte nennen noch „Maßnahme“, etwa Hinweise („Maßnahme anlegen“), Termin-Ergebnisse (Gruppe „Maßnahmen“, Stichwort „Maßnahme:“ in den Notizen), Erinnerungen in den Einstellungen, Suche, Übersicht und Warengruppen-Review. Nach dem Glossar kommt das Wort in der Oberfläche nicht mehr vor.
   - **Vorschlag:** ein eigener kleiner Schritt; das Stichwort „Maßnahme:“ im Termin bleibt als zweites Wort für „Aufgabe:“ erlaubt.
 
+- **B-37 „Wartet auf andere“ in Heute zählt Kolleginnen mit (gefunden am 27.11.2026 mit dem Seed aus K2-a.5, offen).**
+  - **Befund:** Am Mo 23.11. zeigt Heute für Jan-Luka „Wartet auf andere · 6“. Darin stehen auch Zusagen von Ida Roth, einer Kollegin bei Hollmann, und Zusagen, die erst im Dezember oder Februar fällig sind. Die Vorlage Main zeigt „Wartet auf andere · 2“: den Beitrag von Tom Weber und die Bestätigung der Musterteile durch Rheintal. Der überfällige 8D-Bericht steht dort als Fokus-Thema „Ruf Nils Ott an“.
+  - **Grund:** HE-01 legt nicht fest, wer „andere“ sind. Die Umsetzung aus K1-e nimmt alle offenen Einträge anderer Personen in den sichtbaren Beziehungen. Bis K2-a.5 gab es im Seed keine Zusagen, deshalb fiel es nicht auf.
+  - **Vorschlag:** Nur die Gegenseite und ausstehende Bestätigungen zählen, mit Frist in den nächsten 14 Tagen. Das Fokus-Thema „Ruf Nils Ott an“ kommt mit Akte und Postfach (K2-c, K2-d).
+  - **Übergangsseite:** Auch die alte Maßnahmen-Seite zeigt weder „Rheintal bestätigt noch“ noch „aus dem Gemeinsamen Plan“; beides bringt die Akte (K2-c).
 ## c) Widersprüche zwischen den Specs
 
 Je Punkt: Fundstellen, welche Quelle nach der Rangfolge gilt und wie ich ohne deine Antwort weiterarbeiten würde.

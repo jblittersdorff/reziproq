@@ -35,7 +35,7 @@ export const myAgentMessages = defineMessages({
       },
       meeting_capture: {
         name: 'Ergebnisse nach dem Termin',
-        does: 'Zusagen, Maßnahmen und Fragen aus den Notizen',
+        does: 'Zusagen, Aufgaben und Fragen aus den Notizen',
       },
       import_assign: { name: 'Import', does: 'Spend und Lieferanten zuordnen' },
       early_warning: {
@@ -101,7 +101,7 @@ export const myAgentMessages = defineMessages({
       },
       meeting_capture: {
         name: 'Meeting outcomes',
-        does: 'Commitments, actions and questions from the notes',
+        does: 'Commitments, tasks and questions from the notes',
       },
       import_assign: { name: 'Import', does: 'Assign spend and suppliers' },
       early_warning: {

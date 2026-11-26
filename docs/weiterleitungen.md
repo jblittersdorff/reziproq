@@ -212,9 +212,9 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/$id/strategie/spend/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
 | `/lieferanten/$id/strategie/warengruppen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
 | `/lieferanten/$id/umsetzung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen` | `/beziehungen/$id` (Zusagen) | K2-a | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen/$actionId` | `/beziehungen/$id` (Zusagen) | K2-a | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen/neu` | `/beziehungen/$id` (Zusagen) | K2-a | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen/$actionId` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen/neu` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
 | `/lieferanten/$id/umsetzung/termine` | offen (Termin /termine/<id>) | K3-a | geplant |
 | `/lieferanten/$id/umsetzung/termine/$meetingId` | offen (Termin /termine/<id>) | K3-a | geplant |
 | `/lieferanten/$id/umsetzung/termine/$meetingId/agenda` | offen (Termin /termine/<id>) | K3-a | geplant |
