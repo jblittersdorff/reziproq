@@ -445,9 +445,10 @@ describe('IN-04 Mails ablegen', () => {
     expect(after.filter((draft) => draft.kind !== 'mail_summary')).toEqual(
       before.filter((draft) => draft.kind !== 'mail_summary'),
     );
-    const actions = await db.execute(
-      sql`select 1 from action where relationship_id = ${rel.rheintal}`,
-    );
+    // ZQ-01 (K2-a.3): weder Zusage noch Aufgabe aus der Mail
+    const actions = await db.execute(sql`
+      select 1 from commitment where relationship_id = ${rel.rheintal}
+      union all select 1 from task where relationship_id = ${rel.rheintal}`);
     expect(actions.rows).toHaveLength(0);
   });
 

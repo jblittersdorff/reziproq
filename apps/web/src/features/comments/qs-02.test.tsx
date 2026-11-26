@@ -19,7 +19,8 @@ vi.mock('react-oidc-context', () => ({
 
 const rel = '550e8400-e29b-41d4-a716-446655440001';
 const actionId = '550e8400-e29b-41d4-a716-446655440002';
-const url = `/api/suppliers/${rel}/kommentare/action/${actionId}`;
+// ZQ-01 (K2-a.3): Kommentare an einer Aufgabe, früher an einer Maßnahme
+const url = `/api/suppliers/${rel}/kommentare/task/${actionId}`;
 
 const list = (overrides: Partial<CommentList> = {}): CommentList => ({
   comments: [
@@ -73,7 +74,7 @@ function renderSection() {
       <QueryClientProvider client={queryClient}>
         <CommentsSection
           place={{ side: 'buyer', relationshipId: rel }}
-          objectType="action"
+          objectType="task"
           objectId={actionId}
         />
       </QueryClientProvider>

@@ -176,7 +176,8 @@ describe('QBR-07 KI-Entwurf für den Pre-Read', () => {
   afterAll(async () => {
     await db.execute(sql`delete from ai_draft where relationship_id = ${rel}`);
     await db.execute(sql`delete from supplier_plan where relationship_id = ${rel}`);
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await db.execute(sql`delete from meeting where relationship_id = ${rel}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);

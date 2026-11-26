@@ -1,12 +1,13 @@
 import { eq } from 'drizzle-orm';
 import type { Database } from './client.js';
 import {
-  action,
+  commitment,
   meeting,
   meetingAgendaItem,
   meetingDecision,
   meetingParticipant,
   meetingSnapshot,
+  task,
 } from './schema/index.js';
 
 type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
@@ -82,61 +83,62 @@ export async function seedMeetings(
     });
   }
 
-  // QBR-03: Maßnahmen aus dem abgeschlossenen Review, eine davon überfällig, dazu eine interne und
-  // eine des Lieferanten. Feste IDs halten den Seed wiederholbar.
+  // QBR-03, ZQ-01 (K2-a.3): Aus dem abgeschlossenen Review eine überfällige Zusage des Käufers,
+  // eine Aufgabe (früher interne Maßnahme) und eine Zusage des Lieferanten. Feste IDs halten den
+  // Seed wiederholbar.
   const iso = (offset: number) =>
     new Date(input.now.getTime() + offset * day).toISOString().slice(0, 10);
-  const actionBase = {
+  const itemBase = {
     relationshipId: input.relationshipId,
     createdBy: input.createdBy,
     createdByName: input.createdByName,
   };
   await tx
-    .insert(action)
+    .insert(commitment)
     .values([
       {
-        ...actionBase,
+        ...itemBase,
         id: input.actionIds[0],
         ownerOrgId: input.buyerOrgId,
         visibility: 'shared',
+        side: 'buyer',
         title: 'Zweitquelle für Gehäuse prüfen',
-        ownerSide: 'buyer',
         ownerUserId: input.createdBy,
         ownerName: input.createdByName,
-        dueDate: iso(-3),
+        dueOn: iso(-3),
         sourceType: 'meeting',
-        sourceId: input.pastId,
+        sourceRef: input.pastId,
       },
       {
-        ...actionBase,
-        id: input.actionIds[1],
-        ownerOrgId: input.buyerOrgId,
-        visibility: 'internal',
-        title: 'Preisspielraum für 2027 klären',
-        ownerSide: 'buyer',
-        ownerUserId: input.createdBy,
-        ownerName: input.createdByName,
-        dueDate: iso(10),
-        sourceType: 'manual',
-        sourceId: null,
-      },
-      {
-        ...actionBase,
+        ...itemBase,
         id: input.actionIds[2],
         ownerOrgId: input.supplierOrgId,
         visibility: 'shared',
+        side: 'supplier',
         title: 'Wöchentlicher Bericht zur Leiterplatten-Lage',
-        ownerSide: 'supplier',
         ownerUserId: null,
         ownerName: 'Key Account Manager',
-        dueDate: iso(14),
-        status: 'in_progress',
+        dueOn: iso(14),
         sourceType: 'meeting',
-        sourceId: input.pastId,
+        sourceRef: input.pastId,
         createdBy: 'demo-test-lieferant-1',
         createdByName: 'Key Account Manager',
       },
     ])
+    .onConflictDoNothing();
+  await tx
+    .insert(task)
+    .values({
+      ...itemBase,
+      id: input.actionIds[1],
+      orgId: input.buyerOrgId,
+      title: 'Preisspielraum für 2027 klären',
+      ownerUserId: input.createdBy,
+      ownerName: input.createdByName,
+      dueDate: iso(10),
+      sourceType: 'manual',
+      sourceId: null,
+    })
     .onConflictDoNothing();
 
   const [next] = await tx

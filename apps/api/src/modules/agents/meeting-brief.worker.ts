@@ -175,7 +175,7 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
             where m.status <> 'closed'
               and m.starts_at <= ${dayBefore}::timestamptz and m.starts_at >= ${twoWeeks}::timestamptz
               and not exists (select 1 from meeting_capture c where c.meeting_id = m.id and c.org_id = ${orgId})
-              and not exists (select 1 from action a where a.source_type = 'meeting' and a.source_id = m.id
+              and not exists (select 1 from task a where a.source_type = 'meeting' and a.source_id = m.id
                 and a.title = ${captureTaskTitle})
             group by m.id, m.relationship_id`)
         ).rows,
@@ -216,7 +216,7 @@ export class MeetingBriefWorker implements OnModuleInit, OnApplicationShutdown {
     await this.actions.buyer(auth, relationshipId, async (scope) => {
       const [existing] = (
         await scope.tx.execute<{ id: string }>(sql`
-          select id from action where relationship_id = ${relationshipId}
+          select id from task where relationship_id = ${relationshipId}
             and source_type = 'meeting' and source_id = ${meetingId} and title = ${title}`)
       ).rows;
       if (existing) return;

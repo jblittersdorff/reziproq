@@ -81,10 +81,12 @@ describe('demo:setup', () => {
       { created_by_name: 'OEM 1', status: 'planned' },
       { created_by_name: 'OEM 1', status: 'planned' },
     ]);
-    // Maßnahmen gehören danach den Konten (QBR-03).
-    const owners = await query<{ owner_name: string }>(
-      sql`select distinct owner_name from action where owner_user_id is not null`,
-    );
+    // Zusagen und Aufgaben (früher Maßnahmen) gehören danach den Konten (QBR-03, ZQ-01).
+    const owners = await query<{ owner_name: string }>(sql`
+      select distinct owner_name from (
+        select owner_name, owner_user_id from commitment union all
+        select owner_name, owner_user_id from task) w
+      where owner_user_id is not null`);
     expect(owners).toEqual([{ owner_name: 'OEM 1' }]);
   });
 
@@ -105,8 +107,9 @@ describe('demo:setup', () => {
       );
     expect(await count('jbp')).toBe(2);
     expect(await count('initiative')).toBeGreaterThanOrEqual(2);
-    // vier aus der Geschichte, eine überfällige Zusage des Lieferanten für die Frühwarnung (KI-16)
-    expect(await count('commitment')).toBe(5);
+    // vier aus der Geschichte, eine überfällige Zusage des Lieferanten für die Frühwarnung (KI-16),
+    // zwei aus dem Quartalsreview Q3 (früher geteilte Maßnahmen, ZQ-01 K2-a.3)
+    expect(await count('commitment')).toBe(7);
     expect(await count('scorecard_kpi')).toBe(2);
     expect(await count('relationship_ebit_target')).toBe(1);
     const qbr = await query<{ id: string }>(sql`

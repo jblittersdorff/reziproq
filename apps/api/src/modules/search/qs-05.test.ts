@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { prefixQuery } from './search.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // Tests zu docs/specs/QS-05.md: unter einer Sekunde bei 50 Lieferanten, 200 Initiativen und 1.000
 // Maßnahmen; keine Treffer aus anderen Organisationen oder internen Objekten der anderen Seite;
@@ -147,7 +148,7 @@ describe('QS-05 Suche', () => {
       createdByName: 'Test',
     });
     // 1.000 Maßnahmen, darunter interne beider Seiten
-    await db.insert(schema.action).values([
+    await insertWorkItems(db, [
       action(first, 'Kostenanalyse Gehäuse'),
       action(first, `Kostenvergleich intern Käufer ${run}`, 'internal'),
       action(first, `Kostenplanung intern Lieferant ${run}`, 'internal', {
@@ -163,7 +164,8 @@ describe('QS-05 Suche', () => {
 
   afterAll(async () => {
     const ids = [...relationships, otherRelationship];
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from initiative where relationship_id in ${ids}`);
     await db.execute(sql`delete from jbp where relationship_id in ${ids}`);
     await deleteRelationships(db, [buyer, otherBuyer, ...suppliers]);

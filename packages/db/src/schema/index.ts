@@ -1,4 +1,3 @@
-export * from './action.js';
 export * from './agent.js';
 export * from './ai-draft.js';
 export * from './app-user.js';
@@ -24,6 +23,7 @@ export * from './meeting.js';
 export * from './model-call.js';
 export * from './note.js';
 export * from './notification.js';
+export * from './org-setting.js';
 export * from './organization.js';
 export * from './playbook.js';
 export * from './relationship.js';

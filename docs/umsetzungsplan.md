@@ -98,6 +98,10 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 - K1-g: Umfang am 26.11.2026 mit dem Gründer geklärt. Die Schritte 5 bis 7 des Drehbuchs K1 brauchen Wert-Engine und Reibung (K4-a, K4-d) und stehen im Test als „folgt mit K4“. Die Mail in Erledigt mit Zurücknehmen baut K1-g mit.
 - Demo-Mandant umbenannt am 26.11.2026 (Wunsch des Gründers): Hollmann Antriebe statt Nordwind, überall in Code, IDs, Adressen, Befehl (`pnpm demo:hollmann`), Doku und Bildvorlagen. Die Einträge oben nennen deshalb schon den neuen Namen.
 - Nur ein `pnpm dev` zur Zeit, seit 26.11.2026: `scripts/dev-guard.mjs` bricht bei belegtem Port ab, und `pnpm dev:stop` beendet alle Dev-Prozesse des Projekts.
+- K2-a.3 fertig am 26.11.2026: Maßnahmen umgezogen (Migrationen `0143`, `0144`, T2-ZQ1).
+  - Geteilte Maßnahmen sind Zusagen, interne sind Aufgaben, mit denselben IDs. Die Tabelle `action` entfällt.
+  - Die alten Seiten heißen „Zusagen und Aufgaben“: Status je Art, „Gehalten“ mit Beleg, im Formular die Art statt der Sichtbarkeit.
+  - Offen: weitere Texte mit „Maßnahme“ (B-36) und der Grund „fällig“ in der Lieferantenliste (B-35).
 - K2-a.2 fertig am 26.11.2026: Regeln der Zusagen.
   - „Gehalten“ nur mit Beleg (T2-ZQ2), in der Datenbank und in der API. Der Gemeinsame Plan fragt in der Zeile nach dem Beleg, und die Termin-Ergebnisse buchen den Termin als Beleg.
   - Ersatz nach E-K2-2 und die Quote je Seite.

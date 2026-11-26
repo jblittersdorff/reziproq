@@ -244,13 +244,22 @@ describe('db:seed', () => {
       { title: 'Quartalsreview Q3', status: 'closed', snapshots: 1, agenda: 3 },
       { title: 'Quartalsreview Q4', status: 'planned', snapshots: 0, agenda: 5 },
     ]);
-    const actions = await temp.db.execute<{ visibility: string; source_type: string }>(
-      sql`select visibility, source_type from action order by title`,
-    );
+    // ZQ-01 (K2-a.3): Die geteilten Einträge aus dem Review sind Zusagen, der interne eine Aufgabe
+    const titles = [
+      'Preisspielraum für 2027 klären',
+      'Wöchentlicher Bericht zur Leiterplatten-Lage',
+      'Zweitquelle für Gehäuse prüfen',
+    ];
+    const actions = await temp.db.execute<{ kind: string; source_type: string }>(sql`
+      select kind, source_type from (
+        select 'commitment' as kind, source_type, title from commitment where title in ${titles}
+        union all
+        select 'task', source_type, title from task where title in ${titles}
+      ) w order by title`);
     expect(actions.rows).toEqual([
-      { visibility: 'internal', source_type: 'manual' },
-      { visibility: 'shared', source_type: 'meeting' },
-      { visibility: 'shared', source_type: 'meeting' },
+      { kind: 'task', source_type: 'manual' },
+      { kind: 'commitment', source_type: 'meeting' },
+      { kind: 'commitment', source_type: 'meeting' },
     ]);
   });
 

@@ -153,7 +153,8 @@ describe('QBR-06 Pre-Read als PDF', () => {
   });
 
   afterAll(async () => {
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await db.execute(sql`delete from meeting where relationship_id = ${rel}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
@@ -198,9 +199,11 @@ describe('QBR-06 Pre-Read als PDF', () => {
   it('Bei abgeschlossenen Terminen zeigt das PDF den eingefrorenen Stand', async () => {
     await json(users.sro, 'POST', `${buyer}/${meetingId}/abschliessen`);
     // Danach ändert sich der Stand am Ort: Das Protokoll zeigt trotzdem den alten.
-    await db.execute(
-      sql`update action set title = 'Muster nachgeprüft' where relationship_id = ${rel} and title = 'Muster prüfen'`,
-    );
+    for (const table of ['commitment', 'task'] as const) {
+      await db.execute(
+        sql`update ${sql.identifier(table)} set title = 'Muster nachgeprüft' where relationship_id = ${rel} and title = 'Muster prüfen'`,
+      );
+    }
     const result = await pdf(users.sro, buyer);
     expect(result.text).toContain('Protokoll');
     expect(result.text).toContain('Eingefrorener Stand');

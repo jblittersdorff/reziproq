@@ -71,8 +71,9 @@ describe('Glossar', () => {
       SRO: 'SRO',
       JBP: 'JBP',
       QBR: 'QBR',
-      Maßnahme: 'Action',
+      // ZQ-01 (E-K2-1): statt Maßnahme Zusage (geteilt) und Aufgabe (intern)
       Zusage: 'Commitment',
+      Aufgabe: 'Task',
     });
   });
 
@@ -84,7 +85,8 @@ describe('Glossar', () => {
   );
 
   it('scheitert, wenn ein englischer Text vom Glossar abweicht', () => {
-    const action = terms.find((term) => term.de === 'Maßnahme') as Term;
+    // ZQ-01 (K2-a.3): Die Maßnahme ist Zusage oder Aufgabe; geprüft an der Aufgabe
+    const action = terms.find((term) => term.de === 'Aufgabe') as Term;
     const changed = {
       ...en,
       workspace: {

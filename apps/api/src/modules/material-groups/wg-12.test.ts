@@ -11,6 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { ScorecardService } from './scorecard.service.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // Tests zu docs/specs/WG-12.md (Scorecard und Review), je Kriterium aus „Fertig, wenn“.
 describe('WG-12 Scorecard und Review', () => {
@@ -185,24 +186,27 @@ describe('WG-12 Scorecard und Review', () => {
         createdBy: users.lead,
         createdByName: 'Lead',
       });
-      await db.insert(schema.action).values({
-        relationshipId: rel[key],
-        ownerOrgId: orgs.a,
-        visibility: 'internal',
-        title: `Maßnahme ${title}`,
-        ownerSide: 'buyer',
-        ownerName: 'Lead',
-        dueDate: '2031-03-01',
-        sourceType: 'manual',
-        createdBy: users.lead,
-        createdByName: 'Lead',
-      });
+      await insertWorkItems(db, [
+        {
+          relationshipId: rel[key],
+          ownerOrgId: orgs.a,
+          visibility: 'internal',
+          title: `Maßnahme ${title}`,
+          ownerSide: 'buyer',
+          ownerName: 'Lead',
+          dueDate: '2031-03-01',
+          sourceType: 'manual',
+          createdBy: users.lead,
+          createdByName: 'Lead',
+        },
+      ]);
     }
   });
 
   afterAll(async () => {
     const orgIds = Object.values(orgs);
-    await db.execute(sql`delete from action where owner_org_id in ${orgIds}`);
+    await db.execute(sql`delete from commitment where owner_org_id in ${orgIds}`);
+    await db.execute(sql`delete from task where org_id in ${orgIds}`);
     await db.execute(sql`delete from commitment where owner_org_id in ${orgIds}`);
     await db.execute(sql`delete from jbp where owner_org_id in ${orgIds}`);
     await db.execute(sql`delete from material_group_strategy where org_id in ${orgIds}`);

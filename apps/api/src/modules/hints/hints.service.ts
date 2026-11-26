@@ -40,7 +40,7 @@ import { env } from '../../config/env.js';
 import { createBuyerDraft, ownDraftSource } from '../ai-drafts/evidence.js';
 import { estimateTokens, ModelGateway } from '../ai-gateway/model-gateway.js';
 import { actorOf } from '../audit/actor.js';
-import { actionInternalAudit } from '../audit/audited-objects.js';
+import { taskAudit } from '../audit/audited-objects.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
@@ -439,23 +439,37 @@ export class HintsService {
           .from(schema.appUser)
           .where(inArray(schema.appUser.id, deciders))
       : [];
+    // ZQ-01 (K2-a.3): Aus einem Hinweis wurde eine Aufgabe (Quelle hint) oder, vor der Migration
+    // geteilt, eine Zusage mit privater Quelle; beides sieht nur die eigene Seite
+    const hintIds = rows.map((row) => row.id);
     const actions = rows.length
-      ? await tx
-          .select({
-            sourceId: schema.actionPrivateSource.sourceId,
-            actionId: schema.actionPrivateSource.actionId,
-            relationshipId: schema.actionPrivateSource.relationshipId,
-          })
-          .from(schema.actionPrivateSource)
-          .where(
-            and(
-              eq(schema.actionPrivateSource.sourceType, 'hint'),
-              inArray(
-                schema.actionPrivateSource.sourceId,
-                rows.map((row) => row.id),
+      ? [
+          ...(
+            await tx
+              .select({
+                sourceId: schema.task.sourceId,
+                actionId: schema.task.id,
+                relationshipId: schema.task.relationshipId,
+              })
+              .from(schema.task)
+              .where(
+                and(eq(schema.task.sourceType, 'hint'), inArray(schema.task.sourceId, hintIds)),
+              )
+          ).map((row) => ({ ...row, sourceId: row.sourceId as string })),
+          ...(await tx
+            .select({
+              sourceId: schema.commitmentPrivateSource.sourceId,
+              actionId: schema.commitmentPrivateSource.commitmentId,
+              relationshipId: schema.commitmentPrivateSource.relationshipId,
+            })
+            .from(schema.commitmentPrivateSource)
+            .where(
+              and(
+                eq(schema.commitmentPrivateSource.sourceType, 'hint'),
+                inArray(schema.commitmentPrivateSource.sourceId, hintIds),
               ),
-            ),
-          )
+            )),
+        ]
       : [];
     // KI-16: Begründung als Entwurf (KI-03), nur wenn er nicht verworfen ist
     const draftIds = rows
@@ -669,7 +683,7 @@ export class HintsService {
     return { row, hint: hint as Hint };
   }
 
-  /** Annehmen: interne Maßnahme mit privater Quelle „Hinweis“. */
+  /** Annehmen: Aufgabe der eigenen Seite mit der Quelle „Hinweis“ (früher interne Maßnahme, ZQ-01). */
   async accept(auth: AuthContext, id: string): Promise<Hint> {
     const { orgId, session } = this.buyer(auth);
     return this.tenant.run(session, async (tx) => {
@@ -678,33 +692,25 @@ export class HintsService {
       const actor = await actorOf(tx, auth, orgId);
       const due = new Date(currentTime().getTime() + 14 * 86_400_000).toISOString().slice(0, 10);
       const relationshipId = row.relationshipId;
-      await auditedChange(tx, actor, actionInternalAudit, async () => {
+      await auditedChange(tx, actor, taskAudit, async () => {
+        // Die Aufgabe ist privat wie der Hinweis; sie trägt ihn als Quelle (PLT-04)
         const [action] = await tx
-          .insert(schema.action)
+          .insert(schema.task)
           .values({
             relationshipId,
-            ownerOrgId: orgId,
-            visibility: 'internal',
+            orgId,
             title:
               actionTitles[row.ruleKey] ?? row.suggestedAction ?? row.title ?? 'Hinweis klären',
-            ownerSide: 'buyer',
             ownerUserId: auth.userId,
             ownerName: actor.name,
             dueDate: due,
-            sourceType: 'manual',
+            sourceType: 'hint',
+            sourceId: row.id,
             createdBy: auth.userId,
             createdByName: actor.name,
           })
           .returning();
-        if (!action) throw new Error('Maßnahme nicht angelegt');
-        // Die Quelle ist privat und verweist auf die Maßnahme, nie umgekehrt (PLT-04).
-        await tx.insert(schema.actionPrivateSource).values({
-          actionId: action.id,
-          relationshipId,
-          orgId,
-          sourceType: 'hint',
-          sourceId: row.id,
-        });
+        if (!action) throw new Error('Aufgabe nicht angelegt');
         return {
           relationshipId,
           objectId: action.id,

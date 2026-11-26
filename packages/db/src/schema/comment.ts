@@ -11,7 +11,7 @@ import { relationship } from './relationship.js';
 export const commentObjectTypes = [
   'initiative',
   'commitment',
-  'action',
+  'task',
   'meeting',
   'topic',
   'rule_set',
@@ -44,7 +44,7 @@ export const comment = pgTable(
   (table) => [
     check(
       'comment_object_type',
-      sql`${table.objectType} in ('initiative', 'commitment', 'action', 'meeting', 'topic', 'rule_set')`,
+      sql`${table.objectType} in ('initiative', 'commitment', 'task', 'meeting', 'topic', 'rule_set')`,
     ),
     // Text 1 bis 2000 Zeichen; gelöscht ist er leer.
     check(

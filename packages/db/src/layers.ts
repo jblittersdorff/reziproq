@@ -255,19 +255,6 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by_name: 'Probe',
     }),
   },
-  // QBR-03: Maßnahmen, geteilt oder intern; private Quellen gehören einer Seite.
-  action: {
-    kind: 'shared',
-    testValues: {
-      title: 'Probe',
-      owner_side: 'buyer',
-      owner_name: 'Probe',
-      due_date: '2099-01-01',
-      source_type: 'manual',
-      created_by: 'demo-test-oem-1',
-      created_by_name: 'Probe',
-    },
-  },
   // ZQ-01 (K2-a): Aufgaben, früher interne Maßnahmen; nur die eigene Organisation. Den Raum setzt
   // der Trigger app_task_space aus der Seite der Organisation in der Beziehung.
   task: {
@@ -280,16 +267,20 @@ export const layerRegister: Record<string, LayerEntry> = {
       created_by_name: 'Probe',
     },
   },
-  // QBR-04: was jede Seite zu einer Frist schon verschickt hat, und Einstellungen je Organisation.
-  action_notification: {
+  // ZQ-01 (K2-a.3): private Quelle einer geteilten Zusage (z. B. Hinweis) und Versandlog der
+  // Erinnerungen je Zusage oder Aufgabe; beide nur für die eigene Organisation.
+  reminder_sent: {
     kind: 'org_private',
     appendOnly: true,
-    testValues: ({ buyer, probe }) => ({
-      action_id: buyer && probe('action', buyer),
+    // Eine Zeile je Beziehung und Organisation: das Objekt je Zeile neu, sonst greift die Einmal-Regel
+    testValues: () => ({
+      object_type: 'task',
+      object_id: randomUUID(),
       kind: 'reminder',
       due_date: '2099-01-01',
     }),
   },
+  // QBR-04: was jede Seite zu einer Frist schon verschickt hat, und Einstellungen je Organisation.
   org_setting: {
     kind: 'org_private',
     testValues: { key: 'action_reminder_days', value: '3', updated_by: 'probe' },
@@ -341,7 +332,7 @@ export const layerRegister: Record<string, LayerEntry> = {
   comment: {
     kind: 'shared',
     testValues: {
-      object_type: 'action',
+      object_type: 'task',
       object_id: '0190a0a0-0000-7000-8000-000000000001',
       author_id: 'demo-test-oem-1',
       author_name: 'Probe',
@@ -382,14 +373,6 @@ export const layerRegister: Record<string, LayerEntry> = {
   },
   // FS-01: Hinweise; nur die eigene Organisation sieht sie, der Lieferant nie.
   hint: { kind: 'org_private', testValues: { rule_key: 'no_feedback', fingerprint: 'probe' } },
-  action_private_source: {
-    kind: 'org_private',
-    testValues: ({ buyer, probe }) => ({
-      action_id: buyer && probe('action', buyer),
-      source_type: 'hint',
-      source_id: '0190a0a0-0000-7000-8000-000000000001',
-    }),
-  },
   // JBP-01: Gemeinsamer Plan, geteilt; der Zyklus-Verweis ist käuferprivat.
   jbp: {
     kind: 'shared',
@@ -621,6 +604,14 @@ export const layerRegister: Record<string, LayerEntry> = {
       due_on: '2027-03-31',
       created_by: 'demo-test-oem-1',
       created_by_name: 'Probe',
+    }),
+  },
+  commitment_private_source: {
+    kind: 'org_private',
+    testValues: ({ buyer, probe }) => ({
+      commitment_id: buyer && probe('commitment', buyer),
+      source_type: 'hint',
+      source_id: '00000000-0000-7000-8000-0000000000f1',
     }),
   },
   jbp_business_update: {

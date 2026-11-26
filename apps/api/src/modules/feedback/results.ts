@@ -10,6 +10,7 @@ import {
   surveyDimensions,
   surveyGap,
 } from '@reziproq/shared';
+import { workRows } from '../actions/action-rows.js';
 
 // PUL-03: Ergebnisse einer aufgedeckten Welle aus survey_result und survey_free_text. Beide Seiten
 // lesen dieselben Zeilen; nur die Freitexte zeigen jeweils die der anderen Seite.
@@ -121,22 +122,16 @@ export async function resultsOf(
       ),
     )
     .orderBy(asc(schema.surveyFreeText.position));
-  // PUL-06: Maßnahmen aus Lücken dieser Welle; RLS zeigt interne nur der eigenen Seite.
+  // PUL-06, ZQ-01 (K2-a.3): Zusagen und Aufgaben aus Lücken dieser Welle; RLS zeigt Aufgaben nur
+  // der eigenen Seite.
   const overallIds = overall.map((row) => row.id);
-  const actions =
-    overallIds.length === 0
-      ? []
-      : await tx
-          .select({ action: schema.action, dimension: schema.surveyResult.dimension })
-          .from(schema.action)
-          .innerJoin(schema.surveyResult, eq(schema.surveyResult.id, schema.action.sourceId))
-          .where(
-            and(
-              eq(schema.action.sourceType, 'feedback_gap'),
-              inArray(schema.action.sourceId, overallIds),
-            ),
-          )
-          .orderBy(asc(schema.action.dueDate));
+  const relationshipId = overall[0]?.relationshipId;
+  const actions = relationshipId
+    ? await workRows(tx, {
+        relationshipIds: [relationshipId],
+        source: { type: 'feedback_gap', ids: overallIds },
+      })
+    : [];
   const ownOrg = await tx.execute<{ id: string }>(sql`select app_current_organization_id() as id`);
   const count = (side: SurveySide) => overall.find((row) => row.side === side)?.n ?? 0;
   return {
@@ -147,10 +142,10 @@ export async function resultsOf(
     functions,
     questions: sortByGap(questions),
     freeTexts: texts.map((row) => row.text),
-    actions: actions.map(({ action, dimension }) => ({
+    actions: actions.map((action) => ({
       id: action.id,
       title: action.title,
-      dimension: dimension as SurveyDimension,
+      dimension: action.gapDimension as SurveyDimension,
       status: action.status,
       visibility: action.visibility,
       own: action.ownerOrgId === ownOrg.rows[0]?.id,

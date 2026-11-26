@@ -243,7 +243,8 @@ describe('KI-07 Termin-Briefing', () => {
     const ids = Object.values(orgs);
     await db.execute(sql`delete from ai_draft where org_id in ${ids}`);
     await db.execute(sql`delete from comment where relationship_id = ${relationshipId}`);
-    await db.execute(sql`delete from action where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from task where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from meeting where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from kpi_value where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from scorecard_kpi where relationship_id = ${relationshipId}`);
@@ -283,10 +284,11 @@ describe('KI-07 Termin-Briefing', () => {
     expect(await runsOf(meetings.outlook)).toHaveLength(1);
     // Verhandlung in fünf Tagen liegt außerhalb ihres Vorlaufs von drei Tagen
     expect(await runsOf(meetings.later)).toHaveLength(0);
+    // ZQ-01 (K2-a.3): interne Aufgaben des Briefings, früher interne Maßnahmen
     const tasks = await db
       .select()
-      .from(schema.action)
-      .where(sql`${schema.action.relationshipId} = ${relationshipId}`);
+      .from(schema.task)
+      .where(sql`${schema.task.relationshipId} = ${relationshipId}`);
     const titles = tasks.map((task) => task.title).sort();
     expect(titles).toEqual([
       'JBP vorbereiten: Briefing prüfen',
@@ -294,7 +296,7 @@ describe('KI-07 Termin-Briefing', () => {
       'Verhandlung vorbereiten: Briefing prüfen',
     ]);
     expect(tasks.every((task) => task.ownerUserId === users.sro)).toBe(true);
-    expect(tasks.every((task) => task.visibility === 'internal')).toBe(true);
+    // Aufgaben sind immer intern (ZQ-01); es gibt sie nur in der Tabelle task
   });
 
   it('mit Testdaten entstehen alle acht Teile, jede Aussage mit Quelle; Kennzahl hinter Plan als Risiko', async () => {
@@ -379,16 +381,17 @@ describe('KI-07 Termin-Briefing', () => {
     const actionId = data(after, 'internalQuestions').questions.find(
       (entry) => entry.key === question?.key,
     )?.actionId;
+    // Die Frage ist eine Aufgabe (immer intern), die Antwort ein Kommentar daran
     const [task] = await db
       .select()
-      .from(schema.action)
-      .where(eq(schema.action.id, actionId as string));
-    expect(task).toMatchObject({ ownerUserId: users.colleague, visibility: 'internal' });
+      .from(schema.task)
+      .where(eq(schema.task.id, actionId as string));
+    expect(task).toMatchObject({ ownerUserId: users.colleague });
     await db.insert(schema.comment).values({
       relationshipId,
       ownerOrgId: orgs.buyer,
       visibility: 'internal',
-      objectType: 'action',
+      objectType: 'task',
       objectId: actionId as string,
       authorId: users.colleague,
       authorName: 'Jonas Feld',

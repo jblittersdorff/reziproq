@@ -340,6 +340,16 @@ export const actionInternalAudit = auditedObject({
   fields: ['title', 'owner_name', 'due_date', 'status'],
 });
 
+/**
+ * Aufgaben (ZQ-01, K2-a.3), früher interne Maßnahmen: Verlauf nur für die eigene Seite. Die
+ * Einträge action und action_internal bleiben für den Verlauf vor der Migration.
+ */
+export const taskAudit = auditedObject({
+  type: 'task',
+  visibility: 'internal',
+  fields: ['title', 'owner_name', 'due_date', 'status'],
+});
+
 /** Kontaktpunkte (PLB-06): Verlauf folgt der Sichtbarkeit der Zeile. */
 const touchpointFields = [
   'buyer_name',
@@ -470,6 +480,7 @@ export const auditedObjects: readonly AuditedObject[] = [
   touchpointReviewAudit,
   planApprovalRequestAudit,
   actionInternalAudit,
+  taskAudit,
   ruleCatalogAudit,
   formatCatalogAudit,
   relationshipAssignmentAudit,

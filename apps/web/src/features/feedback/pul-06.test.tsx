@@ -107,7 +107,8 @@ const withActions: SurveyResults = {
       id: uuid(50),
       title: 'Prognose monatlich teilen',
       dimension: 'transparency',
-      status: 'in_progress',
+      // ZQ-01 (K2-a.3): geteilt ist eine Zusage, intern eine Aufgabe
+      status: 'kept',
       visibility: 'shared',
       own: true,
       ownerName: 'Ida Roth',
@@ -117,7 +118,7 @@ const withActions: SurveyResults = {
       id: uuid(51),
       title: 'Zweitquelle prüfen',
       dimension: 'trust',
-      status: 'open',
+      status: 'in_progress',
       visibility: 'internal',
       own: true,
       ownerName: 'Sara Ost',
@@ -212,7 +213,8 @@ describe('PUL-06 Maßnahmen aus Lücken und Verlauf in der Oberfläche', () => {
     ).parentElement as HTMLElement;
     const items = within(section).getAllByRole('listitem');
     expect(items[0]?.textContent).toContain('Prognose monatlich teilen');
-    expect(items[0]?.textContent).toContain('In Arbeit');
+    expect(items[0]?.textContent).toContain('Gehalten');
+    expect(items[1]?.textContent).toContain('In Arbeit');
     expect(items[1]?.textContent).toContain('Intern');
   });
 
@@ -225,7 +227,8 @@ describe('PUL-06 Maßnahmen aus Lücken und Verlauf in der Oberfläche', () => {
     );
     expect(screen.getByText('Aus der Feedback-Lücke „Transparenz“')).toBeDefined();
     fireEvent.change(screen.getByLabelText('Frist'), { target: { value: '2027-06-30' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Maßnahme anlegen' }));
+    // Aus einer Lücke entsteht zunächst eine Zusage an die andere Seite (geteilt)
+    fireEvent.click(screen.getByRole('button', { name: 'Zusage anlegen' }));
     await waitFor(() => expect(sent).toHaveLength(1));
     expect(sent[0]?.body).toMatchObject({ sourceType: 'feedback_gap', sourceId: transparency });
   });

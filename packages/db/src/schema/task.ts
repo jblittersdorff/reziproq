@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { check, date, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { check, date, index, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { originColumns, originConstraint } from './columns.js';
+import { commitment } from './initiative.js';
 import { organization } from './organization.js';
 import { relationship } from './relationship.js';
 
@@ -55,5 +56,61 @@ export const task = pgTable(
     check('task_owner', sql`length(trim(${table.ownerName})) between 1 and 200`),
     index('task_relationship').on(table.relationshipId, table.dueDate),
     index('task_owner_user').on(table.ownerUserId),
+  ],
+);
+
+/**
+ * ZQ-01 (K2-a.3): Private Quelle einer geteilten Zusage, z. B. ein Hinweis (FS-01); nur die eigene
+ * Seite sieht sie. Früher action_private_source; Aufgaben tragen ihre Quelle selbst.
+ */
+export const commitmentPrivateSource = pgTable(
+  'commitment_private_source',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    commitmentId: uuid()
+      .notNull()
+      .references(() => commitment.id, { onDelete: 'cascade' }),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    sourceType: text().notNull(),
+    sourceId: uuid().notNull(),
+  },
+  (table) => [index('commitment_private_source_commitment').on(table.commitmentId)],
+);
+
+/** QBR-04, ZQ-01 (K2-a.3): Was jede Seite zu einer Frist schon verschickt hat, je Zusage oder Aufgabe */
+export const reminderKinds = ['reminder', 'escalation'] as const;
+export const reminderObjectTypes = ['commitment', 'task'] as const;
+
+export const reminderSent = pgTable(
+  'reminder_sent',
+  {
+    id: uuid().primaryKey().default(sql`uuidv7()`),
+    objectType: text({ enum: reminderObjectTypes }).notNull(),
+    objectId: uuid().notNull(),
+    relationshipId: uuid()
+      .notNull()
+      .references(() => relationship.id),
+    orgId: uuid()
+      .notNull()
+      .references(() => organization.id),
+    kind: text({ enum: reminderKinds }).notNull(),
+    dueDate: date().notNull(),
+    sentAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
+  },
+  (table) => [
+    check('reminder_sent_kind', sql`${table.kind} in ('reminder', 'escalation')`),
+    check('reminder_sent_object_type', sql`${table.objectType} in ('commitment', 'task')`),
+    unique('reminder_sent_einmal').on(
+      table.orgId,
+      table.objectType,
+      table.objectId,
+      table.kind,
+      table.dueDate,
+    ),
   ],
 );

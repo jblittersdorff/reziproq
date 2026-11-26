@@ -88,9 +88,6 @@ describe('PLT-02 in der Datenbank', () => {
       order by c.relname
     `);
     expect(tables.rows.map((row) => row.relname)).toEqual([
-      'action',
-      'action_notification',
-      'action_private_source',
       'addin_registration',
       'agent',
       'agent_org_state',
@@ -109,6 +106,7 @@ describe('PLT-02 in der Datenbank', () => {
       'comment',
       'comment_mention',
       'commitment',
+      'commitment_private_source',
       'confirm_token',
       'connection',
       'connection_secret',
@@ -211,6 +209,7 @@ describe('PLT-02 in der Datenbank', () => {
       'relationship_side',
       'relationship_spend',
       'relationship_target',
+      'reminder_sent',
       'role_description',
       'rule_catalog_item',
       'rule_set',

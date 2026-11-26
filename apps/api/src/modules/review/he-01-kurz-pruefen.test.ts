@@ -212,7 +212,8 @@ describe('HE-01 Kurz prüfen (K1-e.2)', () => {
     await db.execute(sql`delete from ai_draft where org_id in ${ids}`);
     await db.execute(sql`delete from focus_item where org_id in ${ids}`);
     await db.execute(sql`delete from inbound_item where org_id in ${ids}`);
-    await db.execute(sql`delete from action where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from task where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from meeting where relationship_id = ${relationshipId}`);
     await deleteRelationships(db, ids);
     await db.execute(sql`delete from audit_log where org_id in ${ids}`).catch(() => undefined);
@@ -280,7 +281,10 @@ describe('HE-01 Kurz prüfen (K1-e.2)', () => {
     expect(draft).toEqual({ status: 'accepted', decided_by: users.sro });
     const [action] = (
       await db.execute<{ origin: string; origin_user_id: string; origin_run_id: string }>(
-        sql`select origin, origin_user_id, origin_run_id from action
+        sql`select origin, origin_user_id, origin_run_id from (
+              select relationship_id, title, origin, origin_user_id, origin_run_id from commitment
+              union all
+              select relationship_id, title, origin, origin_user_id, origin_run_id from task) w
             where relationship_id = ${relationshipId} and title = ${`Prognose teilen ${run}`}`,
       )
     ).rows;

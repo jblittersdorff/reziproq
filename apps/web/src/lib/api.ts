@@ -2,7 +2,6 @@ import {
   type AcceptInvitationRequest,
   type AcceptPreRead,
   type ActionReminderSetting,
-  type ActionStatus,
   type ActivityFeed,
   type ActivityFilter,
   type AddAssignment,
@@ -339,6 +338,7 @@ import {
   valueOpportunitiesSchema,
   valueOverviewSchema,
   type WorkerLevel,
+  type WorkItemStatus,
   whyViewSchema,
 } from '@reziproq/shared';
 import { queryOptions } from '@tanstack/react-query';
@@ -3704,16 +3704,18 @@ export const updateAction = (
   request: SaveAction,
 ) => sendJson('PUT', `${base}/massnahmen/${actionId}`, request, actionItemSchema, accessToken);
 
+/** Status je Art; „gehalten“ einer Zusage nur mit Beleg (ZQ-01 Regel 2) */
 export const setActionStatus = (
   accessToken: string,
   base: MeetingBase,
   actionId: string,
-  status: ActionStatus,
+  status: WorkItemStatus,
+  evidence?: CommitmentEvidence,
 ) =>
   sendJson(
     'PUT',
     `${base}/massnahmen/${actionId}/status`,
-    { status },
+    evidence ? { status, evidence } : { status },
     actionItemSchema,
     accessToken,
   );

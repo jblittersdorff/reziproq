@@ -13,6 +13,7 @@ import { TenantDatabase } from '../../common/database.module.js';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { doneToday, orgModulesOf, timelineItems } from './my-day-data.js';
+import { insertWorkItems, type LegacyActionRow } from '../../testing/work-items.js';
 
 // NAV-10 1.1 / UX-20 Phase 2: Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“.
 // Ein Käufer ohne Zugriff auf einen Lieferanten sieht ihn in keiner Zahl, keiner Zeile und keiner
@@ -120,7 +121,7 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
       title: string,
       dueDate: string,
       owner: string,
-      extra: Partial<typeof schema.action.$inferInsert> = {},
+      extra: Partial<LegacyActionRow> = {},
     ) => ({
       relationshipId,
       ownerOrgId: orgs.oem,
@@ -135,7 +136,7 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
       createdByName: 'Pat',
       ...extra,
     });
-    await db.insert(schema.action).values([
+    await insertWorkItems(db, [
       action(rels.seen, `Überfällig ${run}`, day(-2), users.member),
       action(rels.seen, `Heute ${run}`, day(0), users.member),
       action(rels.seen, `Wartet ${run}`, day(1), users.other),
@@ -162,7 +163,8 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
 
   afterAll(async () => {
     const ids = Object.values(rels);
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from meeting where relationship_id in ${ids}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
@@ -178,8 +180,14 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
     expect(status).toBe(200);
     const timeline = timelineSchema.parse(body);
     const mine = timeline.items.filter((item) => item.title.endsWith(run));
-    expect(mine.map((item) => item.title)).toEqual([`QBR sichtbar ${run}`]);
-    const [meeting] = mine;
+    // ZQ-01 (K2-a.3): Die früheren geteilten Maßnahmen sind Zusagen und stehen mit ihrer Frist in
+    // der Schiene, wie zuvor die Zusagen des Gemeinsamen Plans; erledigte und überfällige nicht.
+    expect(mine.map((item) => item.title)).toEqual([
+      `Heute ${run}`,
+      `Wartet ${run}`,
+      `QBR sichtbar ${run}`,
+    ]);
+    const meeting = mine.find((item) => item.kind === 'meeting');
     expect(meeting).toMatchObject({
       kind: 'meeting',
       date: day(3),
@@ -188,6 +196,12 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
     });
     expect(meeting?.href).toMatch(
       new RegExp(`^/lieferanten/${rels.seen}/umsetzung/termine/[0-9a-f-]{36}$`),
+    );
+    // Eine Zusage ohne Gemeinsamen Plan öffnet bis zur Akte (K2-c) die Maßnahmen-Seite.
+    const commitment = mine.find((item) => item.title === `Heute ${run}`);
+    expect(commitment).toMatchObject({ kind: 'commitment', date: day(0) });
+    expect(commitment?.href).toMatch(
+      new RegExp(`^/lieferanten/${rels.seen}/umsetzung/massnahmen#[0-9a-f-]{36}$`),
     );
     expect(JSON.stringify(body)).not.toContain(rels.hidden);
   });
@@ -209,7 +223,11 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
     expect(myDay.todayItems.map((item) => item.detail)).not.toContain(`Überfällig ${run}`);
     expect(myDay.doneToday).toBe(1);
     expect(myDay.waiting.map((item) => item.title)).toEqual([`Wartet ${run}`]);
-    expect(myDay.timeline.map((item) => item.title)).toEqual([`QBR sichtbar ${run}`]);
+    expect(myDay.timeline.map((item) => item.title)).toEqual([
+      `Heute ${run}`,
+      `Wartet ${run}`,
+      `QBR sichtbar ${run}`,
+    ]);
     expect(JSON.stringify(body)).not.toContain(rels.hidden);
   });
 
@@ -217,8 +235,9 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
     const next = await get<{ next: NextAction | null }>(users.member, '/start/als-naechstes');
     expect(next.body.next?.item.detail).toBe(`Überfällig ${run}`);
     const needs = await get<NeedsYou>(users.member, '/start/brauchen-dich');
+    // ZQ-01 (K2-a.3): Die fällige geteilte Maßnahme ist jetzt eine Zusage
     expect(needs.body.items).toEqual([
-      { relationshipId: rels.seen, reason: 'due', title: 'action' },
+      { relationshipId: rels.seen, reason: 'due', title: 'commitment' },
     ]);
   });
 
@@ -231,7 +250,12 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
     expect(myDay.next).toMatchObject({ overdueDays: 2 });
     expect(myDay.todayItems.map((item) => item.detail)).toContain(`Nacht heute ${run}`);
     expect(myDay.doneToday).toBe(1);
-    expect(myDay.timeline.map((item) => item.title)).toEqual([`Nacht früh ${run}`]);
+    // Termin um 00:45 und Zusage mit Frist am 27.11. gehören zu heute, der Termin um 23:30 nicht.
+    // Ohne Reihenfolge: das Datum eines Termins in der Schiene folgt noch UTC (B-33, Rest offen).
+    expect(myDay.timeline.map((item) => item.title).sort()).toEqual([
+      `Nacht früh ${run}`,
+      `Nacht heute ${run}`,
+    ]);
   });
 
   it('B-33: Termine und „erledigt heute“ nach Berlin, auch in einer Datenbank-Sitzung in UTC', async () => {
@@ -248,7 +272,10 @@ describe('UX-20 Phase 2: Mein Tag und Terminschiene über die API', () => {
           { from: '2026-11-27', to: '2026-12-03' },
           { rounds: 'own', modules: await orgModulesOf(tx, orgs.night) },
         );
-        expect(items.map((item) => item.title)).toEqual([`Nacht früh ${run}`]);
+        expect(items.map((item) => item.title).sort()).toEqual([
+          `Nacht früh ${run}`,
+          `Nacht heute ${run}`,
+        ]);
       },
       { readOnly: true },
     );

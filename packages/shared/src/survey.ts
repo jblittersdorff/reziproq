@@ -509,7 +509,17 @@ export const surveyResultsSchema = z.object({
       id: z.uuid(),
       title: z.string(),
       dimension: z.enum(surveyDimensions),
-      status: z.enum(['open', 'in_progress', 'done', 'cancelled']),
+      // ZQ-01 (K2-a.3): Aufgaben wie früher die Maßnahmen, Zusagen mit ihren Status
+      status: z.enum([
+        'open',
+        'in_progress',
+        'done',
+        'cancelled',
+        'kept',
+        'missed',
+        'replaced',
+        'withdrawn',
+      ]),
       visibility: z.enum(['internal', 'shared']),
       own: z.boolean(),
       ownerName: z.string(),

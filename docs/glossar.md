@@ -15,8 +15,8 @@ Die Spalte „Schlüssel“ nennt Stellen, an denen der Begriff vorkommt. Ein Te
 | JBP | JBP | – |
 | QBR | QBR | – |
 | GuV-Wirkung | P&L impact | settings.controllingHint |
-| Maßnahme | Action | workspace.pages.actions.title |
-| Zusage | Commitment | workspace.pages.commitments.title |
+| Zusage | Commitment | workspace.pages.commitments.title, workspace.pages.actions.title, actions.kinds.commitment |
+| Aufgabe | Task | workspace.pages.actions.title, actions.kinds.task |
 | Gemeinsamer Plan | Joint Business Plan | workspace.areas.plan |
 | Spielregeln | Rules of engagement | workspace.pages.rules.title |
 | Ergebnisse | Results | nav.impact, workspace.areas.impact, workspace.tabs.results |

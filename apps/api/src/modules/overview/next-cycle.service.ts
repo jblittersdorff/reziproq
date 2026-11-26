@@ -30,6 +30,7 @@ import { copyPlan } from '../supplier-plans/copy-plan.js';
 import { ownRelationship } from '../suppliers/team.service.js';
 import { CYCLE_STEP_SOURCES, type CycleStepSource, readActiveCycle } from './cycle.js';
 import { canStartCycleOf } from './overview.service.js';
+import { workRows } from '../actions/action-rows.js';
 
 const forbidden = () => new ForbiddenException({ statusCode: 403, code: 'keine_berechtigung' });
 const conflict = (code: string) => new ConflictException({ statusCode: 409, code });
@@ -170,17 +171,10 @@ export class NextCycleService {
                 ),
               ),
           ),
-          openActions: await count(
-            tx
-              .select({ count: sql<number>`count(*)::int` })
-              .from(schema.action)
-              .where(
-                and(
-                  eq(schema.action.relationshipId, relationshipId),
-                  inArray(schema.action.status, ['open', 'in_progress']),
-                ),
-              ),
-          ),
+          // ZQ-01 (K2-a.3): früher offene Maßnahmen, jetzt offene Aufgaben; Zusagen zählt die Zeile davor
+          openActions: (
+            await workRows(tx, { relationshipIds: [relationshipId], kind: 'task', openOnly: true })
+          ).length,
           canStart: await this.canStart(tx, auth, organization.id, relationshipId),
         });
       },

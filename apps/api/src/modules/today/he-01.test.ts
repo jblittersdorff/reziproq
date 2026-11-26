@@ -6,6 +6,7 @@ import { deleteRelationships, insertRelationships } from '../../testing/relation
 import { startTestApp } from '../../testing/test-app.js';
 import { berlinDate, berlinTime } from './berlin.js';
 import { TriageWorker } from './triage.worker.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // HE-01 Triage (K1-c) über die API: jedes Ergebnis genau ein Fokus-Thema, Punktzahl aus Wirkung ×
 // Dringlichkeit × Segmentgewicht, höchstens drei sichtbar (T1-HE1), nur belegte Sätze (T1-HE2),
@@ -180,17 +181,14 @@ describe('HE-01 Triage über die API', () => {
       createdBy: owner,
       createdByName: 'Test',
     });
-    const created = await db
-      .insert(schema.action)
-      .values([
-        action(rels.strategic, orgs.oem, `Strategisch überfällig ${run}`, day(-2), users.member),
-        action(rels.big, orgs.oem, `Groß in fünf Tagen ${run}`, day(5), users.member),
-        action(rels.normal, orgs.oem, `Normal überfällig ${run}`, day(-2), users.member),
-        action(rels.normal, orgs.oem, `Normal heute ${run}`, day(0), users.member),
-        action(rels.normal, orgs.oem, `Normal später ${run}`, day(20), users.member),
-        action(rels.hidden, orgs.oem, `Verborgen überfällig ${run}`, day(-5), users.other),
-      ])
-      .returning({ id: schema.action.id, title: schema.action.title });
+    const created = await insertWorkItems(db, [
+      action(rels.strategic, orgs.oem, `Strategisch überfällig ${run}`, day(-2), users.member),
+      action(rels.big, orgs.oem, `Groß in fünf Tagen ${run}`, day(5), users.member),
+      action(rels.normal, orgs.oem, `Normal überfällig ${run}`, day(-2), users.member),
+      action(rels.normal, orgs.oem, `Normal heute ${run}`, day(0), users.member),
+      action(rels.normal, orgs.oem, `Normal später ${run}`, day(20), users.member),
+      action(rels.hidden, orgs.oem, `Verborgen überfällig ${run}`, day(-5), users.other),
+    ]);
     for (const row of created) actions[row.title] = row.id;
     await db.insert(schema.hint).values({
       orgId: orgs.oem,
@@ -231,7 +229,8 @@ describe('HE-01 Triage über die API', () => {
   afterAll(async () => {
     const ids = Object.values(rels);
     const orgIds = Object.values(orgs);
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from hint where org_id in ${orgIds}`);
     await db.execute(sql`delete from ai_draft where org_id in ${orgIds}`);
     await db.execute(sql`delete from segment_decision where relationship_id in ${ids}`);
@@ -319,7 +318,8 @@ describe('HE-01 Triage über die API', () => {
     const next = await call<{ next: NextAction | null }>(users.member, '/start/als-naechstes');
     expect(next.body.next).toMatchObject({
       scope: 'global',
-      item: { kind: 'action', detail: `Strategisch überfällig ${run}` },
+      // ZQ-01 (K2-a.3): geteilt und vom Käufer, also eine Zusage
+      item: { kind: 'commitment', detail: `Strategisch überfällig ${run}` },
       overdueDays: 2,
     });
     const scoped = await call<{ next: NextAction | null }>(
@@ -373,7 +373,10 @@ describe('HE-01 Triage über die API', () => {
 
   it('Ein erledigtes Ergebnis schließt sein Fokus-Thema; wieder geöffnet ist es wieder offen', async () => {
     const id = actions[`Groß in fünf Tagen ${run}`] as string;
-    await db.execute(sql`update action set status = 'done', done_at = now() where id = ${id}`);
+    // ZQ-01 (K2-a.3): Der Eintrag ist eine Zusage; erledigt heißt gehalten, mit Beleg
+    await db.execute(sql`
+      update commitment set status = 'kept', fulfilled_evidence = '{"kind":"confirmation"}',
+        done_at = now() where id = ${id}`);
     const done = await today(users.member);
     expect(shown(done).map((topic) => topic.title)).not.toContain(`Groß in fünf Tagen ${run}`);
     expect(done.openFocus).toBe(6);
@@ -383,7 +386,9 @@ describe('HE-01 Triage über die API', () => {
       state: 'decided',
       title: `Groß in fünf Tagen ${run}`,
     });
-    await db.execute(sql`update action set status = 'open', done_at = null where id = ${id}`);
+    await db.execute(sql`
+      update commitment set status = 'open', fulfilled_evidence = null, done_at = null
+      where id = ${id}`);
     expect((await today(users.member)).openFocus).toBe(7);
   });
 
@@ -475,19 +480,21 @@ describe('HE-01 Triage über die API', () => {
   it('Der tägliche Lauf um 06:00 nach der Uhr je Mandant legt die Fokus-Themen an', async () => {
     const worker = testApp.app.get(TriageWorker);
     const demoDay = '2026-03-02';
-    await db.insert(schema.action).values({
-      relationshipId: rels.demo,
-      ownerOrgId: orgs.demo,
-      visibility: 'shared',
-      title: `Demo fällig ${run}`,
-      ownerSide: 'buyer',
-      ownerUserId: users.demo,
-      ownerName: 'Demo',
-      dueDate: demoDay,
-      sourceType: 'manual',
-      createdBy: users.demo,
-      createdByName: 'Demo',
-    });
+    await insertWorkItems(db, [
+      {
+        relationshipId: rels.demo,
+        ownerOrgId: orgs.demo,
+        visibility: 'shared',
+        title: `Demo fällig ${run}`,
+        ownerSide: 'buyer',
+        ownerUserId: users.demo,
+        ownerName: 'Demo',
+        dueDate: demoDay,
+        sourceType: 'manual',
+        createdBy: users.demo,
+        createdByName: 'Demo',
+      },
+    ]);
     const setClock = (at: Date) =>
       db.execute(
         sql`update organization set demo_now = ${at.toISOString()}::timestamptz where id = ${orgs.demo}`,

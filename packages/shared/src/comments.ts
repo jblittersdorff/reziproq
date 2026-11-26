@@ -6,7 +6,7 @@ import { z } from 'zod';
 export const commentObjectTypes = [
   'initiative',
   'commitment',
-  'action',
+  'task',
   'meeting',
   'topic',
   'rule_set',

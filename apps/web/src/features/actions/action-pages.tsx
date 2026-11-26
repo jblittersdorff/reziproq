@@ -1,11 +1,13 @@
 import type {
   ActionItem,
   ActionList,
-  ActionStatus,
+  CommitmentEvidence,
   MeetingSide,
   SurveyDimension,
+  WorkItemKind,
+  WorkItemStatus,
 } from '@reziproq/shared';
-import { actionStatuses } from '@reziproq/shared';
+import { actionStatuses, commitmentSettableStatuses } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronRightIcon, ListChecksIcon, PlusIcon } from 'lucide-react';
@@ -24,6 +26,7 @@ import { StatusLine } from '@/components/ui/status-line';
 import { Textarea } from '@/components/ui/textarea';
 import { VisibilityBadge } from '@/components/ui/visibility-badge';
 import { CommentsSection } from '@/features/comments/comments-section';
+import { EvidenceForm, useEvidenceLine } from '@/features/commitments/commitment-evidence';
 import { useHintWhy } from '@/features/hints/hints-pages';
 import {
   apiBase,
@@ -50,15 +53,19 @@ import { cn } from '@/lib/utils';
 
 // QBR-03: Maßnahmen für beide Seiten, wie die Termine unter Umsetzung. Der Käufer arbeitet unter
 // /lieferanten/<id>/umsetzung/massnahmen, der Lieferant unter /kunden/<beziehung>/umsetzung/massnahmen.
+// Seit ZQ-01 (K2-a.3) zeigen die Seiten Zusagen (geteilt, Status je Seite, gehalten mit Beleg) und
+// Aufgaben (intern) unter den alten Adressen, bis die Akte sie übernimmt (K2-c).
 
 export const actionsBase = ({ side, relationshipId }: MeetingPlace) =>
   side === 'buyer'
     ? `/lieferanten/${relationshipId}/umsetzung/massnahmen`
     : `/kunden/${relationshipId}/umsetzung/massnahmen`;
 
-/** Filter in der Adresse: Status (Standard offen), Seite, die angelegt hat, verantwortliche Person. */
+/** Filter in der Adresse: Status (Standard offen), Art, Seite, die angelegt hat, verantwortliche Person. */
 export interface ActionFilter {
-  status?: 'alle' | ActionStatus | undefined;
+  status?: 'alle' | WorkItemStatus | undefined;
+  /** wie in Heute: zusage oder aufgabe */
+  art?: 'zusage' | 'aufgabe' | undefined;
   seite?: MeetingSide | undefined;
   person?: string | undefined;
 }
@@ -82,7 +89,17 @@ function useRefreshActions() {
   return () => queryClient.invalidateQueries({ queryKey: ['actions'] });
 }
 
-const open = (status: ActionStatus) => status === 'open' || status === 'in_progress';
+const artOf = (kind: WorkItemKind) => (kind === 'commitment' ? 'zusage' : 'aufgabe');
+
+/** Offen heißt bei einer Aufgabe offen oder in Arbeit, bei einer Zusage offen (ZQ-01) */
+const isOpen = (action: Pick<ActionItem, 'kind' | 'status'>) =>
+  action.status === 'open' || (action.kind === 'task' && action.status === 'in_progress');
+
+/** Status, nach denen sich filtern lässt, je Art; „Offen“ gilt für beide */
+const filterStatuses: Record<WorkItemKind, WorkItemStatus[]> = {
+  commitment: ['kept', 'missed', 'replaced', 'withdrawn'],
+  task: ['in_progress', 'done', 'cancelled'],
+};
 
 export function filterActions(actions: ActionItem[], filter: ActionFilter) {
   return actions.filter(
@@ -91,13 +108,14 @@ export function filterActions(actions: ActionItem[], filter: ActionFilter) {
         ? true
         : filter.status
           ? action.status === filter.status
-          : open(action.status)) &&
+          : isOpen(action)) &&
+      (!filter.art || artOf(action.kind) === filter.art) &&
       (!filter.seite || action.side === filter.seite) &&
       (!filter.person || action.ownerName === filter.person),
   );
 }
 
-/** Umsetzung › Maßnahmen: Liste mit Filtern in der Adresse; Status direkt in der Zeile. */
+/** Umsetzung › Zusagen und Aufgaben: Liste mit Filtern in der Adresse; Status direkt in der Zeile. */
 export function ActionsPage({ place, filter }: { place: MeetingPlace; filter: ActionFilter }) {
   const text = useT().actions;
   return (
@@ -154,7 +172,7 @@ function ActionsContent({ place, filter }: { place: MeetingPlace; filter: Action
     <>
       {message && <StatusLine message={message} onHidden={hideMessage} />}
       {newButton && <div>{newButton}</div>}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <FormField label={text.filterStatus}>
           {(field) => (
             <NativeSelect
@@ -166,11 +184,31 @@ function ActionsContent({ place, filter }: { place: MeetingPlace; filter: Action
             >
               <option value="">{text.filterOpen}</option>
               <option value="alle">{text.all}</option>
-              {actionStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {text.statuses[status]}
-                </option>
+              <option value="open">{text.statuses.open}</option>
+              {(['commitment', 'task'] as const).map((kind) => (
+                <optgroup key={kind} label={text.kindsPlural[kind]}>
+                  {filterStatuses[kind].map((status) => (
+                    <option key={status} value={status}>
+                      {text.statuses[status]}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
+            </NativeSelect>
+          )}
+        </FormField>
+        <FormField label={text.filterKind}>
+          {(field) => (
+            <NativeSelect
+              {...field}
+              value={filter.art ?? ''}
+              onChange={(event) =>
+                setFilter({ art: (event.target.value || undefined) as ActionFilter['art'] })
+              }
+            >
+              <option value="">{text.all}</option>
+              <option value="zusage">{text.kindsPlural.commitment}</option>
+              <option value="aufgabe">{text.kindsPlural.task}</option>
             </NativeSelect>
           )}
         </FormField>
@@ -225,73 +263,103 @@ function ActionRow({ place, action }: { place: MeetingPlace; action: ActionItem 
   const format = useFormat();
   const token = useToken();
   const refresh = useRefreshActions();
+  const evidenceLineOf = useEvidenceLine();
   const [failed, setFailed] = useState(false);
-  const change = (status: ActionStatus) => {
+  // ZQ-01 Regel 2: „Gehalten“ fragt in der Zeile nach dem Beleg, statt sofort zu buchen
+  const [asking, setAsking] = useState(false);
+  const change = (status: WorkItemStatus, evidence?: CommitmentEvidence) => {
     setFailed(false);
-    setActionStatus(token, apiBase(place), action.id, status)
-      .then(() => refresh())
+    setActionStatus(token, apiBase(place), action.id, status, evidence)
+      .then(() => {
+        setAsking(false);
+        return refresh();
+      })
       .catch(() => setFailed(true));
   };
+  const choose = (status: WorkItemStatus) => {
+    if (action.kind === 'commitment' && status === 'kept') {
+      setAsking(true);
+      return;
+    }
+    setAsking(false);
+    change(status);
+  };
+  // Eine ersetzte Zusage ist abgeschlossen; ihr Nachfolger trägt den Status weiter (Regel 3)
+  const settable = action.canChangeStatus && action.status !== 'replaced';
+  const statuses: readonly WorkItemStatus[] =
+    action.kind === 'commitment' ? commitmentSettableStatuses : actionStatuses;
+  const evidenceLine = evidenceLineOf(action.status, action.evidence);
   return (
     <li
       id={action.id}
       data-action={action.id}
-      className="flex scroll-mt-32 flex-col gap-3 border-line-soft border-b px-5 py-4 last:border-b-0 sm:flex-row sm:items-center"
+      data-kind={action.kind}
+      className="flex scroll-mt-32 flex-col gap-3 border-line-soft border-b px-5 py-4 last:border-b-0"
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold">{action.title}</span>
-          {action.visibility === 'internal' && (
-            <VisibilityBadge visibility="internal" label={text.internal} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold">{action.title}</span>
+            {action.visibility === 'internal' && (
+              <VisibilityBadge visibility="internal" label={text.internal} />
+            )}
+            <SideBadge place={place} side={action.side} />
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {text.kinds[action.kind]} · {action.ownerName} ·{' '}
+            <span className={cn(action.overdue && 'font-semibold text-destructive')}>
+              {text.due(format.date(action.dueDate))}
+              {action.overdue && ` · ${text.overdue}`}
+            </span>{' '}
+            · {text.sources[action.sourceType]}
+            {action.sourceTitle ? `: ${action.sourceTitle}` : ''}
+            {action.sourceDimension
+              ? `: ${t.settings.survey.dimensions[action.sourceDimension] ?? ''}`
+              : ''}
+          </span>
+          {evidenceLine && <span className="text-muted-foreground text-sm">{evidenceLine}</span>}
+          {failed && <span className="text-destructive text-sm">{text.saveFailed}</span>}
+        </div>
+        <div className="flex items-center gap-3">
+          {settable ? (
+            <div className="w-40 shrink-0">
+              <NativeSelect
+                aria-label={text.statusOf(action.title)}
+                value={asking ? 'kept' : action.status}
+                onChange={(event) => choose(event.target.value as WorkItemStatus)}
+              >
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {text.statuses[status]}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+          ) : (
+            <Badge>{text.statuses[action.status]}</Badge>
           )}
-          <SideBadge place={place} side={action.side} />
-        </span>
-        <span className="text-muted-foreground text-sm">
-          {action.ownerName} ·{' '}
-          <span className={cn(action.overdue && 'font-semibold text-destructive')}>
-            {text.due(format.date(action.dueDate))}
-            {action.overdue && ` · ${text.overdue}`}
-          </span>{' '}
-          · {text.sources[action.sourceType]}
-          {action.sourceTitle ? `: ${action.sourceTitle}` : ''}
-          {action.sourceDimension
-            ? `: ${t.settings.survey.dimensions[action.sourceDimension] ?? ''}`
-            : ''}
-        </span>
-        {failed && <span className="text-destructive text-sm">{text.saveFailed}</span>}
+          {action.canEdit &&
+            routerLink({
+              href: `${actionsBase(place)}/${action.id}`,
+              className: buttonVariants({ variant: 'outline', size: 'sm' }),
+              'aria-label': `${action.title}: ${text.edit}`,
+              children: text.edit,
+            })}
+        </div>
       </div>
-      <div className="flex items-center gap-3">
-        {action.canChangeStatus ? (
-          <div className="w-40 shrink-0">
-            <NativeSelect
-              aria-label={text.statusOf(action.title)}
-              value={action.status}
-              onChange={(event) => change(event.target.value as ActionStatus)}
-            >
-              {actionStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {text.statuses[status]}
-                </option>
-              ))}
-            </NativeSelect>
-          </div>
-        ) : (
-          <Badge>{text.statuses[action.status]}</Badge>
-        )}
-        {action.canEdit &&
-          routerLink({
-            href: `${actionsBase(place)}/${action.id}`,
-            className: buttonVariants({ variant: 'outline', size: 'sm' }),
-            'aria-label': `${action.title}: ${text.edit}`,
-            children: text.edit,
-          })}
-      </div>
+      {settable && asking && (
+        <EvidenceForm
+          title={action.title}
+          onBook={(evidence) => change('kept', evidence)}
+          onCancel={() => setAsking(false)}
+        />
+      )}
     </li>
   );
 }
 
-/** Neue Maßnahme, auf Wunsch aus einem Termin (Quelle Termin). */
-/** PUL-06: Maßnahme aus einer Feedback-Lücke, vorbefüllt mit der Dimension. */
+/** Neue Zusage oder Aufgabe, auf Wunsch aus einem Termin (Quelle Termin). */
+/** PUL-06: aus einer Feedback-Lücke, vorbefüllt mit der Dimension. */
 export interface FeedbackGapSource {
   resultId: string;
   dimension: SurveyDimension;
@@ -322,18 +390,20 @@ export function NewActionPage({
   );
 }
 
-/** Maßnahme bearbeiten: nur die Seite, die sie angelegt hat; die Quelle bleibt. */
+/** Bearbeiten: nur die Seite, die den Eintrag angelegt hat; Art und Quelle bleiben. */
 export function EditActionPage({ place, actionId }: { place: MeetingPlace; actionId: string }) {
   const text = useT().actions;
+  // Der Titel nennt die Aufgabe der Seite: Zusage oder Aufgabe bearbeiten (Regel 9)
+  const kind = useActions(place).data?.actions.find((entry) => entry.id === actionId)?.kind;
+  const title = kind ? text.editTitle[kind] : text.editTitleLoading;
   return (
     <MeetingFrame
       place={place}
       trail={[{ label: text.title, href: actionsBase(place) }]}
-      current={text.editTitle}
-      header={<PageHeader title={text.editTitle} purpose={text.purpose} />}
+      current={title}
+      header={<PageHeader title={title} purpose={text.purpose} />}
     >
       <ActionFormLoader place={place} actionId={actionId} />
-      <CommentsSection place={place} objectType="action" objectId={actionId} />
     </MeetingFrame>
   );
 }
@@ -372,29 +442,39 @@ function ActionFormLoader({
   }
   const existing = actionId ? query.data.actions.find((entry) => entry.id === actionId) : undefined;
   if (actionId && !existing) return <ErrorState title={text.notFound} />;
+  // Kommentare hängen an der Zusage bzw. Aufgabe (ZQ-01), auch ohne Recht zum Bearbeiten
+  const comments = existing && (
+    <CommentsSection place={place} objectType={existing.kind} objectId={existing.id} />
+  );
   if (!query.data.canCreate || (existing && !existing.canEdit)) {
     return (
-      <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
-        {text.noPermission}
-      </p>
+      <>
+        <p role="status" className="rounded-lg bg-card px-4 py-3 text-muted-foreground">
+          {text.noPermission}
+        </p>
+        {comments}
+      </>
     );
   }
   return (
-    <ActionForm
-      place={place}
-      list={query.data}
-      accessToken={query.accessToken}
-      existing={existing}
-      gap={gap}
-      {...(hint.data && {
-        prefill: { title: why(hint.data), description: hint.data.explanation ?? '' },
-      })}
-      meeting={
-        meeting.data
-          ? { id: meeting.data.meeting.id, title: meeting.data.meeting.title }
-          : undefined
-      }
-    />
+    <>
+      <ActionForm
+        place={place}
+        list={query.data}
+        accessToken={query.accessToken}
+        existing={existing}
+        gap={gap}
+        {...(hint.data && {
+          prefill: { title: why(hint.data), description: hint.data.explanation ?? '' },
+        })}
+        meeting={
+          meeting.data
+            ? { id: meeting.data.meeting.id, title: meeting.data.meeting.title }
+            : undefined
+        }
+      />
+      {comments}
+    </>
   );
 }
 
@@ -413,7 +493,7 @@ function ActionForm({
   existing?: ActionItem | undefined;
   meeting?: { id: string; title: string } | undefined;
   gap?: FeedbackGapSource | undefined;
-  /** KI-16: aus einem Hinweis; die Maßnahme bleibt zunächst intern */
+  /** KI-16: aus einem Hinweis; daraus wird zunächst eine Aufgabe */
   prefill?: { title: string; description: string };
 }) {
   const t = useT();
@@ -428,12 +508,16 @@ function ActionForm({
   const [description, setDescription] = useState(
     existing?.description ?? prefill?.description ?? '',
   );
-  const [visibility, setVisibility] = useState(
-    existing?.visibility ?? (prefill ? 'internal' : 'shared'),
+  // ZQ-01 (E-K2-1): Art statt Sichtbarkeit. Eine Zusage ist geteilt, eine Aufgabe intern; nach dem
+  // Anlegen bleiben Art und Sichtbarkeit fest (eine interne Zusage aus dem Termin bleibt intern)
+  const [kind, setKind] = useState<WorkItemKind>(
+    existing?.kind ?? (prefill ? 'task' : 'commitment'),
   );
   const [ownerSide, setOwnerSide] = useState<MeetingSide>(existing?.ownerSide ?? place.side);
+  // Ohne eigene Person (z. B. eine frühere Maßnahme mit Namen) wählt man sie bewusst, statt still
+  // die erste Person einzusetzen
   const [ownerUserId, setOwnerUserId] = useState(
-    existing?.ownerUserId ?? list.people[0]?.userId ?? '',
+    existing ? (existing.ownerUserId ?? '') : (list.people[0]?.userId ?? ''),
   );
   const [ownerName, setOwnerName] = useState(
     existing?.ownerUserId ? '' : (existing?.ownerName ?? ''),
@@ -442,7 +526,9 @@ function ActionForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
-  const ownSide = ownerSide === place.side;
+  // Eine Aufgabe gehört der eigenen Seite; nur eine Zusage kann die andere Seite verantworten
+  const side = kind === 'task' ? place.side : ownerSide;
+  const ownSide = side === place.side;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -457,8 +543,12 @@ function ActionForm({
     const action = {
       title: title.trim(),
       description: description.trim() || null,
-      visibility,
-      ownerSide,
+      visibility: existing
+        ? existing.visibility
+        : kind === 'commitment'
+          ? ('shared' as const)
+          : ('internal' as const),
+      ownerSide: side,
       ownerUserId: ownSide ? ownerUserId : null,
       ownerName: ownSide ? null : ownerName.trim(),
       dueDate,
@@ -504,6 +594,23 @@ function ActionForm({
           )}
         </p>
       )}
+      {/* Die Art zuerst: Sie bestimmt, welche Felder folgen */}
+      {existing ? (
+        <p className="text-muted-foreground">{text.kindFixed(text.kinds[existing.kind])}</p>
+      ) : (
+        <FormField label={text.kind} hint={text.kindHint}>
+          {(field) => (
+            <NativeSelect
+              {...field}
+              value={kind}
+              onChange={(event) => setKind(event.target.value as WorkItemKind)}
+            >
+              <option value="commitment">{text.kinds.commitment}</option>
+              <option value="task">{text.kinds.task}</option>
+            </NativeSelect>
+          )}
+        </FormField>
+      )}
       <FormField label={text.titleLabel} error={errors.title}>
         {(field) => (
           <Input
@@ -524,32 +631,22 @@ function ActionForm({
           />
         )}
       </FormField>
-      <FormField label={text.visibility} hint={text.internalHint}>
-        {(field) => (
-          <NativeSelect
-            {...field}
-            value={visibility}
-            onChange={(event) => setVisibility(event.target.value as 'internal' | 'shared')}
-          >
-            <option value="shared">{text.shared}</option>
-            <option value="internal">{text.internal}</option>
-          </NativeSelect>
-        )}
-      </FormField>
-      <FormField label={text.ownerSide}>
-        {(field) => (
-          <NativeSelect
-            {...field}
-            value={ownerSide}
-            onChange={(event) => setOwnerSide(event.target.value as MeetingSide)}
-          >
-            <option value={place.side}>{sides[place.side]}</option>
-            <option value={place.side === 'buyer' ? 'supplier' : 'buyer'}>
-              {sides[place.side === 'buyer' ? 'supplier' : 'buyer']}
-            </option>
-          </NativeSelect>
-        )}
-      </FormField>
+      {kind === 'commitment' && (
+        <FormField label={text.ownerSide}>
+          {(field) => (
+            <NativeSelect
+              {...field}
+              value={ownerSide}
+              onChange={(event) => setOwnerSide(event.target.value as MeetingSide)}
+            >
+              <option value={place.side}>{sides[place.side]}</option>
+              <option value={place.side === 'buyer' ? 'supplier' : 'buyer'}>
+                {sides[place.side === 'buyer' ? 'supplier' : 'buyer']}
+              </option>
+            </NativeSelect>
+          )}
+        </FormField>
+      )}
       {ownSide ? (
         <FormField label={text.owner} error={errors.owner}>
           {(field) => (
@@ -558,6 +655,7 @@ function ActionForm({
               value={ownerUserId}
               onChange={(event) => setOwnerUserId(event.target.value)}
             >
+              {ownerUserId === '' && <option value="">{text.ownerChoose}</option>}
               {list.people.map((person) => (
                 <option key={person.userId} value={person.userId}>
                   {person.name}
@@ -602,14 +700,14 @@ function ActionForm({
           {text.cancel}
         </Button>
         <Button type="submit" loading={saving}>
-          {existing ? text.save : text.create}
+          {existing ? text.save : text.create[kind]}
         </Button>
       </FormActions>
     </form>
   );
 }
 
-/** /start/massnahmen: offene Maßnahmen aller eigenen Beziehungen, je mit Weg zum Ort. */
+/** /start/massnahmen: offene Zusagen und Aufgaben aller eigenen Beziehungen, je mit Weg zum Ort. */
 export function MyActionsPage() {
   const t = useT();
   const text = t.actions.mine;
@@ -645,7 +743,7 @@ export function MyActionsPage() {
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="font-semibold">{item.title}</span>
                       <span className="text-muted-foreground text-sm">
-                        {item.counterpart} · {item.ownerName} ·{' '}
+                        {t.actions.kinds[item.kind]} · {item.counterpart} · {item.ownerName} ·{' '}
                         <span className={cn(item.overdue && 'font-semibold text-destructive')}>
                           {t.actions.due(format.date(item.dueDate))}
                           {item.overdue && ` · ${t.actions.overdue}`}

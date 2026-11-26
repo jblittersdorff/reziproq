@@ -131,7 +131,8 @@ describe('PUL-06 Maßnahmen aus Lücken und Verlauf', () => {
   });
 
   afterAll(async () => {
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await db.execute(sql`delete from survey_result where relationship_id = ${rel}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);

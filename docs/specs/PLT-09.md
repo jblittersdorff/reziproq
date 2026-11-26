@@ -33,8 +33,10 @@ Als Nutzer arbeite ich in Deutsch oder Englisch. Jede Seite ist in beiden Sprach
 | Business Unit | Business Unit |
 | SRO, JBP, QBR | bleiben gleich |
 | P&L-Impact | P&L Impact |
-| Maßnahme | Action |
 | Zusage | Commitment |
+| Aufgabe | Task |
+
+Seit ZQ-01 (E-K2-1, K2-a.3) gibt es keine Maßnahme mehr: Die geteilte heißt Zusage, die interne Aufgabe.
 
 ## Ablauf
 

@@ -613,8 +613,14 @@ export class MeetingCaptureService {
             sourceType: 'meeting',
             sourceId: meetingId,
           },
+          // ZQ-01 (K2-a.3): Eine Zusage oder ein Eintrag der anderen Seite ist eine Zusage, intern
+          // bis zum Teilen des Protokolls; nur eine eigene Maßnahme ist eine Aufgabe
+          {
+            kind: item.kind === 'commitment' || person.side !== scope.side ? 'commitment' : 'task',
+          },
         );
-        await scope.tx.update(schema.action).set(origin).where(eq(schema.action.id, action.id));
+        const table = action.kind === 'commitment' ? schema.commitment : schema.task;
+        await scope.tx.update(table).set(origin).where(eq(table.id, action.id));
         createdId = `action:${action.id}`;
       } else {
         createdId = `commitment:${createdId}`;

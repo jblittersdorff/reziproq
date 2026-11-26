@@ -9,6 +9,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // Tests zu docs/specs/ZYK-05.md: neuer Zyklus auf Basis des freigegebenen Lieferantenplans und der
 // laufenden Initiativen; der alte bleibt unverändert und im Archiv lesbar.
@@ -45,7 +46,8 @@ describe('ZYK-05 Neuer Zyklus', () => {
     versions: await db.select().from(schema.jbpVersion).where(sql`jbp_id = ${jbpId}`),
     initiatives: await db.select().from(schema.initiative).where(sql`relationship_id = ${rel}`),
     commitments: await db.select().from(schema.commitment).where(sql`relationship_id = ${rel}`),
-    actions: await db.select().from(schema.action).where(sql`relationship_id = ${rel}`),
+    // ZQ-01 (K2-a.3): früher Maßnahmen, jetzt Aufgaben (Zusagen stehen eine Zeile darüber)
+    actions: await db.select().from(schema.task).where(sql`relationship_id = ${rel}`),
   });
 
   beforeAll(async () => {
@@ -153,17 +155,21 @@ describe('ZYK-05 Neuer Zyklus', () => {
       createdBy: users.sro,
       createdByName: 'Sara Ost',
     } as never);
-    await db.insert(schema.action).values({
-      relationshipId: rel,
-      ownerOrgId: orgs.oem,
-      title: 'Audit nachholen',
-      ownerSide: 'buyer',
-      ownerName: 'Sara Ost',
-      dueDate: '2026-12-31',
-      sourceType: 'manual',
-      createdBy: users.sro,
-      createdByName: 'Sara Ost',
-    });
+    // ZQ-01 (K2-a.3): eine Aufgabe (früher interne Maßnahme) neben der Zusage aus dem Plan
+    await insertWorkItems(db, [
+      {
+        relationshipId: rel,
+        ownerOrgId: orgs.oem,
+        visibility: 'internal',
+        title: 'Audit nachholen',
+        ownerSide: 'buyer',
+        ownerName: 'Sara Ost',
+        dueDate: '2026-12-31',
+        sourceType: 'manual',
+        createdBy: users.sro,
+        createdByName: 'Sara Ost',
+      },
+    ]);
     await db.execute(sql`update jbp set status = 'approved' where id = ${jbpId}`);
     await db.insert(schema.jbpVersion).values({
       relationshipId: rel,
@@ -194,7 +200,8 @@ describe('ZYK-05 Neuer Zyklus', () => {
     await db.execute(sql`delete from jbp_cycle_link where relationship_id = ${rel}`);
     // Wie SPL-07: Der Plan nimmt Ziele und Themen mit.
     await db.execute(sql`delete from supplier_plan where relationship_id = ${rel}`);
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
     await db.execute(sql`delete from initiative where relationship_id = ${rel}`);
     await db.execute(sql`delete from jbp_version where relationship_id = ${rel}`);
@@ -289,7 +296,11 @@ describe('ZYK-05 Neuer Zyklus', () => {
     const actions = (await call(users.sro, 'GET', `/suppliers/${rel}/massnahmen`)).body as {
       actions: { title: string }[];
     };
-    expect(actions.actions.map((entry) => entry.title)).toEqual(['Audit nachholen']);
+    // Die Seite der Maßnahmen zeigt Zusagen und Aufgaben der Beziehung; beide bleiben unverändert
+    expect(actions.actions.map((entry) => entry.title).sort()).toEqual([
+      'Audit nachholen',
+      'Musterteile',
+    ]);
     // Im neuen Zyklus ist der Plan noch nicht freigegeben: Der Schritt ist nicht erledigt.
     const overview = supplierOverviewSchema.parse(
       (await call(users.sro, 'GET', `/suppliers/${rel}/overview`)).body,

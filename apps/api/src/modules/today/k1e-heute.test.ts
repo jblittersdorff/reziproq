@@ -12,6 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { berlinDate } from './berlin.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // HE-01 Seite Heute (K1-e.1) über die API: Ansicht Fokus mit „Das Wichtigste“, Kurz prüfen,
 // „Diese Woche“ und „Wartet auf andere“; Ansicht Alles mit jedem offenen Thema der Person in den
@@ -84,10 +85,11 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
       materialGroupId: group?.id as string,
       isPrimary: true,
     });
+    // ZQ-01 (K2-a.3): intern und für die eigene Seite, also Aufgaben (T1-HE5 „jede offene Aufgabe“)
     const action = (relationshipId: string, title: string, dueDate: string, owner: string) => ({
       relationshipId,
       ownerOrgId: orgs.oem,
-      visibility: 'shared' as const,
+      visibility: 'internal' as const,
       title,
       ownerSide: 'buyer' as const,
       ownerUserId: owner,
@@ -97,7 +99,7 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
       createdBy: owner,
       createdByName: 'Test',
     });
-    await db.insert(schema.action).values([
+    await insertWorkItems(db, [
       // Drei überfällige eigene: die drei im Fokus
       action(rels.own, `Eins ${run}`, day(-3), users.me),
       action(rels.own, `Zwei ${run}`, day(-2), users.me),
@@ -166,7 +168,8 @@ describe('HE-01 Heute mit Fokus und Alles (K1-e.1)', () => {
   afterAll(async () => {
     const ids = Object.values(rels);
     const orgIds = Object.values(orgs);
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from hint where org_id in ${orgIds}`);
     await db.execute(sql`delete from ai_draft where org_id in ${orgIds}`);
     await db.execute(sql`delete from inbound_item where org_id in ${orgIds}`);

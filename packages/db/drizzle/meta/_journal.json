@@ -1002,6 +1002,20 @@
       "when": 1795721162161,
       "tag": "0142_k2a_beleg",
       "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "7",
+      "when": 1795728370799,
+      "tag": "0143_k2a_massnahmen",
+      "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1795728484351,
+      "tag": "0144_k2a_massnahmen_weg",
+      "breakpoints": true
     }
   ]
 }

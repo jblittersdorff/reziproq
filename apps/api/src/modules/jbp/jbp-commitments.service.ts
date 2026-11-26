@@ -353,6 +353,7 @@ export class JbpCommitmentsService {
             id: schema.commitment.id,
             title: schema.commitment.title,
             dueOn: schema.commitment.dueOn,
+            jbpId: schema.commitment.jbpId,
           })
           .from(schema.commitment)
           .where(
@@ -369,7 +370,10 @@ export class JbpCommitmentsService {
             supplier: entry.counterpart,
             detail: row.title,
             dueDate: row.dueOn,
-            href: `${entry.base}/plan/zusagen#${row.id}`,
+            // ZQ-01: Zusagen ohne Gemeinsamen Plan stehen bis zur Akte (K2-c) bei den Maßnahmen
+            href: row.jbpId
+              ? `${entry.base}/plan/zusagen#${row.id}`
+              : `${entry.base}/umsetzung/massnahmen#${row.id}`,
           });
         }
         const milestones = await tx

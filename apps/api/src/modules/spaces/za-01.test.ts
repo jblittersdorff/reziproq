@@ -11,6 +11,7 @@ import { DataExportService } from '../data-export/data-export.service.js';
 import { invokePromptTool } from '../prompt/tools.js';
 import { SuppliersService } from '../suppliers/suppliers.service.js';
 import { issueConfirmToken, shareOrDraft } from './share-guard.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // ZA-01 Datenräume (Paket K1-a) über die API: Suche, Frag und Export liefern nicht mehr als die
 // direkte Abfrage derselben Person (T1-ZA3); ein Lauf bringt ohne Token nichts in die Mitte und
@@ -76,7 +77,8 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
   const direct = (session: TenantSession) =>
     withTenant(db, session, async (tx) => {
       const result = await tx.execute<{ title: string }>(
-        sql`select title from action where title like ${`${probe}%`} order by title`,
+        sql`select title from (select title from commitment union all select title from task) w
+          where title like ${`${probe}%`} order by title`,
       );
       return result.rows.map((row) => row.title);
     });
@@ -133,13 +135,11 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
     await insertRelationships(db, [
       { id: relationship, buyer: orgs.buyer, supplier: orgs.supplier },
     ]);
-    await db
-      .insert(schema.action)
-      .values([
-        action(orgs.buyer, 'buyer', titles.buyerPrivate, 'internal'),
-        action(orgs.buyer, 'buyer', titles.shared, 'shared'),
-        action(orgs.supplier, 'supplier', titles.supplierPrivate, 'internal'),
-      ]);
+    await insertWorkItems(db, [
+      action(orgs.buyer, 'buyer', titles.buyerPrivate, 'internal'),
+      action(orgs.buyer, 'buyer', titles.shared, 'shared'),
+      action(orgs.supplier, 'supplier', titles.supplierPrivate, 'internal'),
+    ]);
     const mail = (filedBy: string, visibility: 'team' | 'private', subject: string) => ({
       orgId: orgs.buyer,
       relationshipId: relationship,
@@ -165,7 +165,8 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
     await db.execute(sql`delete from confirm_token where org_id = ${orgs.buyer}`);
     await db.execute(sql`delete from data_export where org_id in ${Object.values(orgs)}`);
     await db.execute(sql`delete from filed_mail where org_id = ${orgs.buyer}`);
-    await db.execute(sql`delete from action where relationship_id = ${relationship}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${relationship}`);
+    await db.execute(sql`delete from task where relationship_id = ${relationship}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
     await db.execute(
@@ -232,7 +233,9 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
       const response = await call(user, 'GET', `/einstellungen/export/${exportId}/datei`);
       expect(response.status).toBe(200);
       const zip = unzipSync(new Uint8Array(await response.arrayBuffer()));
-      return csvTitles(strFromU8(zip['action.csv'] ?? new Uint8Array()))
+      // ZQ-01 (K2-a.3): früher action.csv, jetzt Zusagen und Aufgaben
+      return ['commitment.csv', 'task.csv']
+        .flatMap((file) => csvTitles(strFromU8(zip[file] ?? new Uint8Array())))
         .filter((title) => title.startsWith(probe))
         .sort();
     };
@@ -248,31 +251,43 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
   }, 60_000);
 
   it('T1-ZA4: Ein Wechsel nach shared ohne Token wird abgelehnt und legt einen Entwurf an; mit Token geht er durch', async () => {
+    // ZQ-01 (K2-a.3): Geprüft an internen Zusagen, früher an internen Maßnahmen
+    const internalCommitment = (title: string) => ({
+      relationshipId: relationship,
+      ownerOrgId: orgs.buyer,
+      visibility: 'internal' as const,
+      side: 'buyer' as const,
+      title,
+      ownerName: 'Probe',
+      dueOn: '2099-01-31',
+      createdBy: users.admin,
+      createdByName: 'Probe',
+    });
     const [target, second] = await db
-      .insert(schema.action)
+      .insert(schema.commitment)
       .values([
-        action(orgs.buyer, 'buyer', `${probe} soll in die Mitte`, 'internal'),
-        action(orgs.buyer, 'buyer', `${probe} zweites Objekt`, 'internal'),
+        internalCommitment(`${probe} soll in die Mitte`),
+        internalCommitment(`${probe} zweites Objekt`),
       ])
-      .returning({ id: schema.action.id });
+      .returning({ id: schema.commitment.id });
     const targetId = target?.id as string;
     const secondId = second?.id as string;
     const runId = randomUUID();
     const share = (id: string) => (tx: Parameters<Parameters<typeof withTenant>[2]>[0]) =>
-      tx.update(schema.action).set({ visibility: 'shared' }).where(sql`id = ${id}`);
+      tx.update(schema.commitment).set({ visibility: 'shared' }).where(sql`id = ${id}`);
     const request = (id: string) => ({
       orgId: orgs.buyer,
       userId: users.admin,
       relationshipId: relationship,
       runId,
-      objectType: 'action',
+      objectType: 'commitment',
       objectId: id,
-      summary: 'Maßnahme mit dem Lieferanten teilen',
+      summary: 'Zusage mit dem Lieferanten teilen',
     });
     const visibilityOf = async (id: string) =>
       (
         await db.execute<{ visibility: string }>(
-          sql`select visibility from action where id = ${id}`,
+          sql`select visibility from commitment where id = ${id}`,
         )
       ).rows[0]?.visibility;
 
@@ -291,8 +306,8 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
     await expect(
       withTenant(db, { ...buyerSession, runId }, (tx) =>
         tx
-          .insert(schema.action)
-          .values(action(orgs.buyer, 'buyer', `${probe} neu geteilt`, 'shared')),
+          .insert(schema.commitment)
+          .values({ ...internalCommitment(`${probe} neu geteilt`), visibility: 'shared' }),
       ),
     ).rejects.toMatchObject({ cause: { code: 'RZ001' } });
 
@@ -305,7 +320,7 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
           orgId: orgs.buyer,
           userId: users.member,
           purpose: 'share',
-          objectType: 'action',
+          objectType: 'commitment',
           objectId: targetId,
         }),
     );
@@ -323,7 +338,7 @@ describe('ZA-01 Datenräume über Suche, Frag, Export und den Wechsel in die Mit
         orgId: orgs.buyer,
         userId: users.admin,
         purpose: 'share',
-        objectType: 'action',
+        objectType: 'commitment',
         objectId: targetId,
       }),
     );

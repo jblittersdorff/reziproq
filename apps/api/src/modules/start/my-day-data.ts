@@ -101,8 +101,10 @@ export async function timelineItems(
       owner_name: string;
       side: 'buyer' | 'supplier';
       due_on: string;
+      in_plan: boolean;
     }>(sql`
-      select id, relationship_id, title, owner_name, side, due_on::text from commitment
+      select id, relationship_id, title, owner_name, side, due_on::text, jbp_id is not null as in_plan
+      from commitment
       where relationship_id = any(${uuidArray(relationshipIds)}) and status = 'open'
         and due_on between ${range.from}::date and ${range.to}::date`);
     for (const row of commitments.rows) {
@@ -116,7 +118,10 @@ export async function timelineItems(
         detail: row.side === 'supplier' ? row.owner_name : null,
         startsAt: null,
         progress: null,
-        href: `/lieferanten/${row.relationship_id}/plan/zusagen#${row.id}`,
+        // ZQ-01 (K2-a.3): Zusagen ohne Gemeinsamen Plan stehen bis zur Akte (K2-c) bei den Maßnahmen
+        href: row.in_plan
+          ? `/lieferanten/${row.relationship_id}/plan/zusagen#${row.id}`
+          : `/lieferanten/${row.relationship_id}/umsetzung/massnahmen#${row.id}`,
         relationshipId: row.relationship_id,
         categoryId: null,
       });
@@ -213,8 +218,12 @@ export async function doneToday(
   const [row] = (
     await tx.execute<{ count: number }>(sql`
       select (
-        (select count(*) from action
+        -- ZQ-01 (K2-a.3): früher erledigte Maßnahmen; jetzt erledigte Aufgaben und gehaltene Zusagen
+        (select count(*) from task
           where owner_user_id = ${viewer.userId} and status = 'done'
+            and (done_at at time zone 'Europe/Berlin')::date = ${today}::date)
+        + (select count(*) from commitment
+          where owner_user_id = ${viewer.userId} and status = 'kept'
             and (done_at at time zone 'Europe/Berlin')::date = ${today}::date)
         + (select count(*) from plan_contribution
           where assignee_user_id = ${viewer.userId} and status = 'done'
@@ -315,19 +324,22 @@ export async function waitingOnOthers(
     owner: string;
     relationship_id: string;
     due: string;
+    in_plan: boolean;
   }>(sql`
-    select id::text, 'commitment' as kind, title, owner_name as owner, relationship_id, due_on::text as due
+    select id::text, 'commitment' as kind, title, owner_name as owner, relationship_id, due_on::text as due,
+      jbp_id is not null as in_plan
     from commitment
     where relationship_id = any(${list}) and status = 'open' and due_on <= ${until}::date
       and owner_user_id is distinct from ${viewer.userId}
     union all
-    select id::text, 'action', title, owner_name, relationship_id, due_date::text
-    from action
+    -- ZQ-01 (K2-a.3): früher Maßnahmen, jetzt Aufgaben (kind bleibt action)
+    select id::text, 'action', title, owner_name, relationship_id, due_date::text, false
+    from task
     where relationship_id = any(${list}) and status in ('open', 'in_progress') and due_date <= ${until}::date
       and owner_user_id is distinct from ${viewer.userId}
     union all
     select c.id::text, 'contribution', coalesce(g.name, b.name, ''), coalesce(u.name, ''),
-      c.relationship_id, c.due_date::text
+      c.relationship_id, c.due_date::text, false
     from plan_contribution c
     left join material_group g on g.id = c.material_group_id
     left join business_unit b on b.id = c.business_unit_id
@@ -344,10 +356,11 @@ export async function waitingOnOthers(
       owner: row.owner,
       counterpart: relationships.get(row.relationship_id) ?? '',
       dueDate: row.due,
+      // Zusagen ohne Gemeinsamen Plan stehen bis zur Akte (K2-c) bei den Maßnahmen
       href:
-        row.kind === 'commitment'
+        row.kind === 'commitment' && row.in_plan
           ? `${base}/plan/zusagen#${row.id}`
-          : row.kind === 'action'
+          : row.kind === 'commitment' || row.kind === 'action'
             ? `${base}/umsetzung/massnahmen#${row.id}`
             : `${base}/strategie/lieferantenplan`,
     };

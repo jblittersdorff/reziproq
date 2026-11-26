@@ -323,7 +323,11 @@ export function ResultsSection({
                 {action.visibility === 'internal' && (
                   <VisibilityBadge visibility="internal" label={text.internal} />
                 )}
-                <Badge variant={action.status === 'done' ? 'success' : 'neutral'}>
+                <Badge
+                  variant={
+                    action.status === 'done' || action.status === 'kept' ? 'success' : 'neutral'
+                  }
+                >
                   {t.actions.statuses[action.status]}
                 </Badge>
               </li>

@@ -1,6 +1,5 @@
 import { workers } from '@reziproq/shared';
 import {
-  action,
   agent,
   agentRun,
   agentVersion,
@@ -16,6 +15,7 @@ import {
   meetingParticipant,
   scorecard,
   scorecardKpi,
+  task,
 } from './schema/index.js';
 import type { TenantTransaction } from './tenant.js';
 
@@ -209,14 +209,12 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
     benefitFor: 'both',
   });
 
-  // ——— Fokus 3: eigene Maßnahme, heute fällig
-  await tx.insert(action).values({
+  // ——— Fokus 3: eigene Aufgabe (früher interne Maßnahme, ZQ-01), heute fällig
+  await tx.insert(task).values({
     id: nid(625),
     relationshipId: rheintal.relationshipId,
-    ownerOrgId: orgId,
-    visibility: 'internal',
+    orgId,
     title: 'Kapazitätsplan 2028 mit Rheintal abstimmen',
-    ownerSide: 'buyer',
     ownerUserId: janLuka.id,
     ownerName: janLuka.name,
     dueDate: '2026-11-23',

@@ -1,10 +1,29 @@
 import { z } from 'zod';
+import { commitmentEvidenceSchema, storedCommitmentEvidenceSchema } from './commitments.js';
 import { meetingSides } from './meetings.js';
 import { surveyDimensions } from './survey.js';
 
-// QBR-03: Maßnahmen einer Beziehung, geteilt oder intern, mit genau einer Quelle.
+// QBR-03: Maßnahmen einer Beziehung, geteilt oder intern, mit genau einer Quelle. Seit ZQ-01
+// (K2-a.3) sind geteilte Maßnahmen Zusagen und interne Aufgaben (E-K2-1). Diese Schnittstelle
+// bedient die alten Maßnahmen-Seiten bis K2-c mit beiden; kind sagt, was ein Eintrag ist.
 
+/** Status einer Aufgabe, wie früher die Maßnahmen */
 export const actionStatuses = ['open', 'in_progress', 'done', 'cancelled'] as const;
+/** Zusage (geteilt, ZQ-01) oder Aufgabe (intern) */
+export const workItemKinds = ['commitment', 'task'] as const;
+export type WorkItemKind = (typeof workItemKinds)[number];
+/** Status beider Arten: Aufgabe wie actionStatuses, Zusage wie commitmentStatuses (ZQ-01) */
+export const workItemStatuses = [
+  'open',
+  'in_progress',
+  'done',
+  'cancelled',
+  'kept',
+  'missed',
+  'replaced',
+  'withdrawn',
+] as const;
+export type WorkItemStatus = (typeof workItemStatuses)[number];
 export const actionSourceTypes = ['meeting', 'feedback_gap', 'initiative', 'manual'] as const;
 /** Was die Oberfläche heute anlegen kann; die übrigen Quellen kommen mit ihren Modulen. */
 export const creatableSources = ['manual', 'meeting', 'feedback_gap'] as const;
@@ -13,6 +32,7 @@ export type ActionStatus = (typeof actionStatuses)[number];
 
 export const actionItemSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(workItemKinds),
   title: z.string(),
   description: z.string().nullable(),
   visibility: z.enum(['internal', 'shared']),
@@ -23,7 +43,9 @@ export const actionItemSchema = z.object({
   ownerUserId: z.string().nullable(),
   ownerName: z.string(),
   dueDate: z.iso.date(),
-  status: z.enum(actionStatuses),
+  status: z.enum(workItemStatuses),
+  /** Beleg einer gehaltenen Zusage (ZQ-01 Regel 2) */
+  evidence: storedCommitmentEvidenceSchema.nullable(),
   overdue: z.boolean(),
   sourceType: z.enum(actionSourceTypes),
   sourceId: z.uuid().nullable(),
@@ -75,7 +97,10 @@ export const createActionSchema = z
     path: ['sourceId'],
   });
 
-export const actionStatusSchema = z.object({ status: z.enum(actionStatuses) }).strict();
+/** Status je Art; „gehalten“ einer Zusage braucht einen Beleg (sonst 422 beleg_fehlt) */
+export const actionStatusSchema = z
+  .object({ status: z.enum(workItemStatuses), evidence: commitmentEvidenceSchema.optional() })
+  .strict();
 
 /** /start/massnahmen: offene Maßnahmen aller eigenen Beziehungen (QBR-03). */
 export const myActionsSchema = z.object({

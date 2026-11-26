@@ -14,7 +14,9 @@ import { deleteRelationships, insertRelationships } from '../../testing/relation
 import { startTestApp } from '../../testing/test-app.js';
 
 // Tests zu docs/specs/QBR-03.md: Maßnahmen beider Seiten mit genau einer Quelle, Status über die
-// Seiten hinweg, interne bleiben intern, Start und /start/massnahmen, Verlauf.
+// Seiten hinweg, interne bleiben intern, Start und /start/massnahmen, Verlauf. Seit ZQ-01 (K2-a.3)
+// sind geteilte Maßnahmen Zusagen (Status offen, gehalten mit Beleg, verfehlt, zurückgezogen) und
+// interne Aufgaben; die Schnittstelle der Maßnahmen bedient beide bis zur Akte (K2-c).
 describe('QBR-03 Maßnahmen über die API', () => {
   let testApp: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
@@ -105,8 +107,9 @@ describe('QBR-03 Maßnahmen über die API', () => {
   });
 
   afterAll(async () => {
-    await db.execute(sql`delete from action_private_source where relationship_id = ${rel}`);
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment_private_source where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await db.execute(sql`delete from meeting where relationship_id = ${rel}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
@@ -125,6 +128,7 @@ describe('QBR-03 Maßnahmen über die API', () => {
     const created = actionItemSchema.parse(body);
     shared = created.id;
     expect(created).toMatchObject({
+      kind: 'commitment',
       sourceType: 'meeting',
       sourceId: meetingId,
       sourceTitle: 'Quartalsreview Q1',
@@ -148,14 +152,14 @@ describe('QBR-03 Maßnahmen über die API', () => {
       sourceId: null,
     });
     expect(none.status).toBe(400);
-    // Auch die Datenbank lässt keine Maßnahme ohne oder mit zwei Quellen zu.
+    // Auch die Datenbank lässt keine Aufgabe ohne oder mit zwei Quellen zu.
     await expect(
       db.execute(sql`
-        insert into action (relationship_id, owner_org_id, title, owner_side, owner_name, due_date,
-          source_type, source_id, created_by, created_by_name)
-        values (${rel}, ${orgs.oem}, 'x', 'buyer', 'x', '2099-01-01', 'manual', ${meetingId}, 'x', 'x')
+        insert into task (relationship_id, org_id, title, owner_name, due_date, source_type,
+          source_id, created_by, created_by_name)
+        values (${rel}, ${orgs.oem}, 'x', 'x', '2099-01-01', 'manual', ${meetingId}, 'x', 'x')
       `),
-    ).rejects.toMatchObject({ cause: { constraint: 'action_one_source' } });
+    ).rejects.toMatchObject({ cause: { constraint: 'task_one_source' } });
   });
 
   it('interne Maßnahmen sieht die andere Seite nie', async () => {
@@ -164,7 +168,9 @@ describe('QBR-03 Maßnahmen über die API', () => {
       sourceType: 'manual',
       sourceId: null,
     });
-    internal = actionItemSchema.parse(body).id;
+    const created = actionItemSchema.parse(body);
+    internal = created.id;
+    expect(created.kind).toBe('task');
     const own = await list(users.sro, buyer);
     expect(own.actions.map((entry) => entry.id).sort()).toEqual([shared, internal].sort());
     const theirs = await list(users.kam, supplier);
@@ -172,19 +178,36 @@ describe('QBR-03 Maßnahmen über die API', () => {
     expect((await call(users.kam, 'GET', `${supplier}/${internal}`)).status).toBe(404);
   });
 
-  it('der Lieferant ändert den Status der geteilten Maßnahme, aber nicht ihren Inhalt', async () => {
+  it('der Lieferant ändert den Status der geteilten Zusage, aber nicht ihren Inhalt', async () => {
     const theirs = await list(users.kam, supplier);
     expect(theirs.actions[0]).toMatchObject({ own: false, canEdit: false, canChangeStatus: true });
+    // „In Arbeit“ gibt es nur bei Aufgaben; gehalten nur mit Beleg (ZQ-01 Regel 2)
+    expect(
+      (await call(users.kam, 'PUT', `${supplier}/${shared}/status`, { status: 'in_progress' }))
+        .status,
+    ).toBe(400);
+    expect(
+      await call(users.kam, 'PUT', `${supplier}/${shared}/status`, { status: 'kept' }),
+    ).toMatchObject({ status: 422, body: { code: 'beleg_fehlt' } });
     const changed = await call(users.kam, 'PUT', `${supplier}/${shared}/status`, {
-      status: 'in_progress',
+      status: 'kept',
+      evidence: { kind: 'confirmation', note: 'Muster freigegeben' },
     });
     expect(changed.status).toBe(200);
-    expect(actionItemSchema.parse(changed.body).status).toBe('in_progress');
+    expect(actionItemSchema.parse(changed.body)).toMatchObject({
+      status: 'kept',
+      evidence: { kind: 'confirmation', note: 'Muster freigegeben' },
+    });
+    // Der SRO öffnet sie wieder; die folgenden Fälle brauchen sie offen
+    const reopened = await call(users.sro, 'PUT', `${buyer}/${shared}/status`, { status: 'open' });
+    expect(actionItemSchema.parse(reopened.body).status).toBe('open');
     const edit = await call(users.kam, 'PUT', `${supplier}/${shared}`, action({ title: 'Anders' }));
     expect(edit.status).toBe(403);
     // Die Leserin im Team sieht, ändert aber nichts.
     expect((await list(users.viewer, buyer)).canCreate).toBe(false);
-    const viewer = await call(users.viewer, 'PUT', `${buyer}/${shared}/status`, { status: 'done' });
+    const viewer = await call(users.viewer, 'PUT', `${buyer}/${shared}/status`, {
+      status: 'missed',
+    });
     expect(viewer.status).toBe(403);
   });
 
@@ -210,7 +233,10 @@ describe('QBR-03 Maßnahmen über die API', () => {
 
   it('überfällige Maßnahmen sind markiert und stehen auf Start der verantwortlichen Person', async () => {
     const start = startSchema.parse((await call(users.sro, 'GET', '/start')).body);
-    const due = start.due.items.filter((item) => item.kind === 'action');
+    // Aufgaben kommen als action, Zusagen als commitment (ohne Plan mit Link auf die Maßnahmen)
+    const due = start.due.items.filter(
+      (item) => item.kind === 'action' || item.kind === 'commitment',
+    );
     expect(due.map((item) => item.detail).sort()).toEqual(
       ['Preisspielraum klären', 'Zweitquelle Gehäuse'].sort(),
     );
@@ -248,21 +274,121 @@ describe('QBR-03 Maßnahmen über die API', () => {
       ['Kapazitätsplan teilen', 'Zweitquelle Gehäuse'].sort(),
     );
     expect(section?.items.find((item) => item.title === 'Zweitquelle Gehäuse')).toMatchObject({
-      status: 'in_progress',
+      status: 'open',
       dueDate: '2020-01-31',
     });
   });
 
-  it('Änderungen geteilter Maßnahmen stehen im Verlauf, beide Seiten sehen ihn', async () => {
-    await call(users.sro, 'PUT', `${buyer}/${shared}/status`, { status: 'done' });
+  it('Änderungen geteilter Zusagen stehen im Verlauf, beide Seiten sehen ihn', async () => {
+    await call(users.sro, 'PUT', `${buyer}/${shared}/status`, {
+      status: 'kept',
+      evidence: { kind: 'goods_receipt' },
+    });
     const history = auditResponseSchema.parse(
-      (await call(users.sro, 'GET', `/audit?object_type=action&object_id=${shared}`)).body,
+      (await call(users.sro, 'GET', `/audit?object_type=commitment&object_id=${shared}`)).body,
     );
-    expect(history.entries.map((entry) => entry.action)).toEqual(['updated', 'updated', 'created']);
-    expect(history.entries[1]?.changes.status).toEqual({ from: 'open', to: 'in_progress' });
-    expect(history.entries[1]?.organization).toBe(`QBR3-Lieferant ${run}`);
+    expect(history.entries.map((entry) => entry.action)).toEqual([
+      'updated',
+      'updated',
+      'updated',
+      'created',
+    ]);
+    expect(history.entries[2]?.changes.status).toEqual({ from: 'open', to: 'kept' });
+    expect(history.entries[2]?.organization).toBe(`QBR3-Lieferant ${run}`);
     // Erledigt verschwindet von Start.
     const start = startSchema.parse((await call(users.sro, 'GET', '/start')).body);
     expect(start.due.items.map((item) => item.detail)).not.toContain('Zweitquelle Gehäuse');
+  });
+
+  it('ZQ-01: Aufgaben nur für die eigene Seite, Art und Sichtbarkeit fest, Status je Art', async () => {
+    const forSupplier = await call(users.sro, 'POST', buyer, {
+      action: action({
+        title: 'Für den Lieferanten',
+        visibility: 'internal',
+        ownerSide: 'supplier',
+        ownerUserId: null,
+        ownerName: 'Kim Kaiser',
+      }),
+      sourceType: 'manual',
+      sourceId: null,
+    });
+    expect(forSupplier).toMatchObject({ status: 400, body: { code: 'aufgabe_eigene_seite' } });
+    // Eine Aufgabe wird beim Bearbeiten keine Zusage, eine geteilte Zusage nicht wieder intern
+    const shareTask = await call(
+      users.sro,
+      'PUT',
+      `${buyer}/${internal}`,
+      action({ title: 'Preisspielraum klären', visibility: 'shared' }),
+    );
+    expect(shareTask).toMatchObject({ status: 400, body: { code: 'art_fest' } });
+    const hide = await call(
+      users.sro,
+      'PUT',
+      `${buyer}/${shared}`,
+      action({ visibility: 'internal' }),
+    );
+    expect(hide).toMatchObject({ status: 400, body: { code: 'art_fest' } });
+    // Gehalten gibt es nur bei Zusagen, erledigt nur bei Aufgaben
+    const keptTask = await call(users.sro, 'PUT', `${buyer}/${internal}/status`, {
+      status: 'kept',
+      evidence: { kind: 'document' },
+    });
+    expect(keptTask).toMatchObject({ status: 400, body: { code: 'status_unpassend' } });
+    const doneCommitment = await call(users.sro, 'PUT', `${buyer}/${shared}/status`, {
+      status: 'done',
+    });
+    expect(doneCommitment).toMatchObject({ status: 400, body: { code: 'status_unpassend' } });
+    const doneTask = await call(users.sro, 'PUT', `${buyer}/${internal}/status`, {
+      status: 'done',
+    });
+    expect(actionItemSchema.parse(doneTask.body)).toMatchObject({ kind: 'task', status: 'done' });
+
+    // Eine interne Zusage aus dem Termin bleibt bearbeitbar und intern
+    const [note] = await db
+      .insert(schema.commitment)
+      .values({
+        relationshipId: rel,
+        ownerOrgId: orgs.oem,
+        visibility: 'internal',
+        side: 'supplier',
+        title: 'Muster bis März',
+        ownerName: 'Kim Kaiser',
+        dueOn: '2099-03-31',
+        sourceType: 'meeting',
+        sourceRef: meetingId,
+        createdBy: users.sro,
+        createdByName: 'Sara Ost',
+      })
+      .returning({ id: schema.commitment.id });
+    const noteId = note?.id as string;
+    const supplierNote = (overrides: Record<string, unknown>) =>
+      action({
+        visibility: 'internal',
+        ownerSide: 'supplier',
+        ownerUserId: null,
+        ownerName: 'Kim Kaiser',
+        ...overrides,
+      });
+    const edited = await call(
+      users.sro,
+      'PUT',
+      `${buyer}/${noteId}`,
+      supplierNote({ title: 'Muster bis April', dueDate: '2099-04-30' }),
+    );
+    expect(edited.status).toBe(200);
+    expect(actionItemSchema.parse(edited.body)).toMatchObject({
+      kind: 'commitment',
+      visibility: 'internal',
+      title: 'Muster bis April',
+      dueDate: '2099-04-30',
+    });
+    const shareNote = await call(
+      users.sro,
+      'PUT',
+      `${buyer}/${noteId}`,
+      supplierNote({ visibility: 'shared' }),
+    );
+    expect(shareNote).toMatchObject({ status: 400, body: { code: 'art_fest' } });
+    expect((await call(users.kam, 'GET', `${supplier}/${noteId}`)).status).toBe(404);
   });
 });

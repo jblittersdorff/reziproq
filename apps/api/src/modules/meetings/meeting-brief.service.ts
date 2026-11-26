@@ -480,7 +480,8 @@ export class MeetingBriefService {
       .from(schema.comment)
       .where(
         and(
-          eq(schema.comment.objectType, 'action'),
+          // ZQ-01 (K2-a.3): Fragen ans Team sind Aufgaben, die Antworten Kommentare daran
+          eq(schema.comment.objectType, 'task'),
           inArray(
             schema.comment.objectId,
             sent.map((question) => question.actionId),

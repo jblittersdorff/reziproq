@@ -149,10 +149,10 @@ export function dueSentence(
 /** Frist, Freigabe oder Gespräch aus einem Modul (DueItem) */
 export function fromDue(item: DueItem, today: string, locale: Locale): TriageCandidate {
   const objectId = firstUuid(item.id);
-  const { sentence, facts } = dueSentence(locale, item.dueDate, today, {
-    objectType: item.kind,
-    objectId,
-  });
+  // ZQ-01 (K2-a.3): DueItem kind action ist eine Aufgabe. Die Quell-ID bleibt bei action, damit
+  // vorhandene Fokus-Themen dieselben bleiben (Migration 0143 hat ihre Objektart umgestellt).
+  const objectType = item.kind === 'action' ? 'task' : item.kind;
+  const { sentence, facts } = dueSentence(locale, item.dueDate, today, { objectType, objectId });
   return {
     sourceType: 'due',
     sourceId: sourceIdOf('due', `${item.kind}:${item.id}`),
@@ -161,7 +161,7 @@ export function fromDue(item: DueItem, today: string, locale: Locale): TriageCan
     title: titleOf(item.detail, item.supplier, item.kind),
     sentence,
     facts,
-    objectType: item.kind,
+    objectType,
     objectId,
     relationshipId: relationshipOfHref(item.href),
     counterpart: item.supplier.trim() || null,

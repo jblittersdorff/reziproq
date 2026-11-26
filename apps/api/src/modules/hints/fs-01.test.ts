@@ -304,8 +304,9 @@ describe('FS-01 Hinweise', () => {
   afterAll(async () => {
     const ids = Object.values(rel);
     await db.execute(sql`delete from hint where org_id = ${buyer}`);
-    await db.execute(sql`delete from action_private_source where relationship_id in ${ids}`);
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment_private_source where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
     await db.execute(sql`delete from jbp where relationship_id in ${ids}`);
     await db.execute(sql`delete from cycle where relationship_id in ${ids}`);
@@ -406,25 +407,18 @@ describe('FS-01 Hinweise', () => {
     expect(accepted.actionHref).toMatch(
       new RegExp(`^/lieferanten/${rel.team}/umsetzung/massnahmen/`),
     );
-    const [action] = await db
-      .select()
-      .from(schema.action)
-      .where(sql`relationship_id = ${rel.team}`);
-    expect(action).toMatchObject({ visibility: 'internal', ownerSide: 'buyer' });
-    const [source] = await db
-      .select()
-      .from(schema.actionPrivateSource)
-      .where(sql`action_id = ${action?.id}`);
-    expect(source).toMatchObject({ sourceType: 'hint', sourceId: hint?.id, orgId: buyer });
-    // Kein Fremdschlüssel von der geteilten Maßnahme auf etwas Privates; die Quelle verweist auf sie.
+    // ZQ-01 (K2-a.3): Der angenommene Hinweis wird eine Aufgabe der eigenen Seite, er ist ihre Quelle
+    const [action] = await db.select().from(schema.task).where(sql`relationship_id = ${rel.team}`);
+    expect(action).toMatchObject({ sourceType: 'hint', sourceId: hint?.id, orgId: buyer });
+    // Die Aufgabe ist privat; sie verweist nur auf Organisation und Beziehung (PLT-04)
     const foreignKeys = await db.execute<{ table_name: string; foreign_table: string }>(sql`
       select tc.table_name, ccu.table_name as foreign_table
       from information_schema.table_constraints tc
       join information_schema.constraint_column_usage ccu on ccu.constraint_name = tc.constraint_name
-      where tc.constraint_type = 'FOREIGN KEY' and tc.table_name in ('action', 'hint')`);
+      where tc.constraint_type = 'FOREIGN KEY' and tc.table_name in ('task', 'hint')`);
     expect(
       foreignKeys.rows
-        .filter((row) => row.table_name === 'action')
+        .filter((row) => row.table_name === 'task')
         .map((row) => row.foreign_table)
         .sort(),
     ).toEqual(['organization', 'relationship']);

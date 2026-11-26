@@ -60,12 +60,13 @@ export function commentObjectPath(type: CommentObjectType, objectId: string): st
   switch (type) {
     case 'initiative':
       return `/plan/initiativen/${objectId}`;
+    // ZQ-01 (K2-a.3): Zusagen und Aufgaben zeigt bis zur Akte (K2-c) die Seite der Maßnahmen; dort
+    // steht jede Zusage der Beziehung, auch ohne Gemeinsamen Plan
     case 'commitment':
-      return `/plan/zusagen/${objectId}`;
+    case 'task':
+      return `/umsetzung/massnahmen/${objectId}`;
     case 'topic':
       return `/plan/themen/${objectId}`;
-    case 'action':
-      return `/umsetzung/massnahmen/${objectId}`;
     case 'meeting':
       return `/umsetzung/termine/${objectId}`;
     case 'rule_set':
@@ -140,7 +141,6 @@ export class CommentsService {
       table:
         | typeof schema.initiative
         | typeof schema.commitment
-        | typeof schema.action
         | typeof schema.meeting
         | typeof schema.jbpTopic,
     ) => {
@@ -153,8 +153,14 @@ export class CommentsService {
     let found: { visibility: 'internal' | 'shared'; title: string } | undefined;
     if (type === 'initiative') found = await pick(schema.initiative);
     else if (type === 'commitment') found = await pick(schema.commitment);
-    else if (type === 'action') found = await pick(schema.action);
-    else if (type === 'meeting') found = await pick(schema.meeting);
+    else if (type === 'task') {
+      // Aufgaben sind immer intern (ZQ-01); RLS zeigt nur die eigenen
+      const [row] = await tx
+        .select({ title: schema.task.title })
+        .from(schema.task)
+        .where(and(eq(schema.task.id, objectId), eq(schema.task.relationshipId, relationshipId)));
+      found = row && { visibility: 'internal', title: row.title };
+    } else if (type === 'meeting') found = await pick(schema.meeting);
     else if (type === 'topic') found = await pick(schema.jbpTopic);
     else {
       const [row] = await tx

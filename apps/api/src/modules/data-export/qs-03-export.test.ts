@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { DataExportService, exportTables } from './data-export.service.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // Tests zu docs/specs/QS-03.md, Gesamtexport: nur Admins, eine ZIP-Datei mit jeder Tabelle der
 // Organisation und keiner Zeile anderer Organisationen, Link 24 Stunden gültig, Mail mit Link.
@@ -119,7 +120,7 @@ describe('QS-03 Gesamtexport', () => {
       createdBy: 'probe',
       createdByName: 'Probe',
     });
-    await db.insert(schema.action).values([
+    await insertWorkItems(db, [
       action(rels.own, orgs.oem, `Eigene Maßnahme ${run}`),
       // Geteilt, aber vom Lieferanten: sichtbar für den Käufer, gehört aber nicht ihm.
       {
@@ -132,7 +133,8 @@ describe('QS-03 Gesamtexport', () => {
 
   afterAll(async () => {
     await db.execute(sql`delete from data_export where org_id in ${Object.values(orgs)}`);
-    await db.execute(sql`delete from action where relationship_id in ${Object.values(rels)}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${Object.values(rels)}`);
+    await db.execute(sql`delete from task where relationship_id in ${Object.values(rels)}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
     await db.execute(
@@ -176,9 +178,11 @@ describe('QS-03 Gesamtexport', () => {
     const description = JSON.parse(files['spalten.json'] ?? '{}') as {
       tables: Record<string, { columns: { name: string }[] }>;
     };
-    expect(description.tables.action?.columns.map((column) => column.name)).toContain('title');
+    expect(description.tables.commitment?.columns.map((column) => column.name)).toContain('title');
+    expect(description.tables.task?.columns.map((column) => column.name)).toContain('title');
 
-    const actions = parseCsv(files['action.csv'] ?? '');
+    // ZQ-01 (K2-a.3): Die geteilten Maßnahmen sind Zusagen (commitment.csv)
+    const actions = parseCsv(files['commitment.csv'] ?? '');
     expect(actions.map((row) => row.title)).toContain(`Eigene Maßnahme ${run}`);
     expect(actions.map((row) => row.title)).not.toContain(`Maßnahme des Lieferanten ${run}`);
     expect(actions.map((row) => row.title)).not.toContain(`Fremde Maßnahme ${run}`);
@@ -232,7 +236,7 @@ describe('QS-03 Gesamtexport', () => {
     const response = await call(users.kam, 'GET', `/einstellungen/export/${id}/datei`);
     expect(response.status).toBe(200);
     const zip = unzipSync(new Uint8Array(await response.arrayBuffer()));
-    const actions = parseCsv(strFromU8(zip['action.csv'] ?? new Uint8Array()));
+    const actions = parseCsv(strFromU8(zip['commitment.csv'] ?? new Uint8Array()));
     expect(actions.map((row) => row.title)).toEqual([`Maßnahme des Lieferanten ${run}`]);
     const relationships = parseCsv(strFromU8(zip['relationship.csv'] ?? new Uint8Array()));
     // Beide Beziehungen des Lieferanten, je im Kontext ihres Kunden gelesen.

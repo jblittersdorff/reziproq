@@ -111,15 +111,17 @@ describe('QS-02 Kommentare über die API', () => {
       (await call(users.sro, 'GET', `/suppliers/${rel}/massnahmen`)).body,
     );
     actionId = actions.actions[0]?.id ?? '';
-    buyer = `/suppliers/${rel}/kommentare/action/${actionId}`;
-    supplier = `/kunden/${rel}/kommentare/action/${actionId}`;
+    // ZQ-01 (K2-a.3): Die geteilte Maßnahme ist eine Zusage; Kommentare hängen an commitment
+    buyer = `/suppliers/${rel}/kommentare/commitment/${actionId}`;
+    supplier = `/kunden/${rel}/kommentare/commitment/${actionId}`;
   });
 
   afterAll(async () => {
     await db.execute(
       sql`delete from outbox_event where object_type = 'comment_mention' and email_recipient like ${`qs2-%-${run}@example.com`}`,
     );
-    await db.execute(sql`delete from action where relationship_id = ${rel}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${rel}`);
+    await db.execute(sql`delete from task where relationship_id = ${rel}`);
     await deleteRelationships(db, Object.values(orgs));
     await db.execute(sql`delete from app_user where organization_id in ${Object.values(orgs)}`);
     await db.execute(sql`delete from organization_feature where organization_id = ${orgs.oem}`);

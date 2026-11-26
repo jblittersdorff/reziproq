@@ -1,12 +1,11 @@
 import type {
   Commitment,
   CommitmentEvidence,
-  CommitmentEvidenceKind,
   CommitmentStatus,
   Commitments,
   MeetingSide,
 } from '@reziproq/shared';
-import { commitmentEvidenceKinds, commitmentSettableStatuses } from '@reziproq/shared';
+import { commitmentSettableStatuses } from '@reziproq/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { PlusIcon, TriangleAlertIcon } from 'lucide-react';
@@ -20,6 +19,7 @@ import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { StatusLine } from '@/components/ui/status-line';
 import { CommentsSection } from '@/features/comments/comments-section';
+import { EvidenceForm, useEvidenceLine } from '@/features/commitments/commitment-evidence';
 import { apiBase, type MeetingPlace } from '@/features/meetings/meeting-pages';
 import { routerLink } from '@/features/shell/navigation';
 import { PageHeader } from '@/features/shell/page-header';
@@ -179,8 +179,7 @@ function CommitmentRow({
   const [failed, setFailed] = useState(false);
   // ZQ-01 Regel 2: „Gehalten“ fragt in der Zeile nach dem Beleg, statt sofort zu buchen
   const [asking, setAsking] = useState(false);
-  const [kind, setKind] = useState<CommitmentEvidenceKind | ''>('');
-  const [note, setNote] = useState('');
+  const evidenceLineOf = useEvidenceLine();
   const change = async (status: CommitmentStatus, evidence?: CommitmentEvidence) => {
     setFailed(false);
     try {
@@ -199,30 +198,7 @@ function CommitmentRow({
     setAsking(false);
     void change(status);
   };
-  const cancel = () => {
-    setAsking(false);
-    setKind('');
-    setNote('');
-  };
-  const book = (event: FormEvent) => {
-    event.preventDefault();
-    if (!kind) return;
-    void change('kept', { kind, ...(note.trim() ? { note: note.trim() } : {}) });
-  };
-  const evidence = commitment.evidence;
-  const evidenceLine =
-    commitment.status === 'kept' && evidence && evidence.kind !== 'legacy'
-      ? [
-          text.evidence.shown(
-            text.evidence.kinds[evidence.kind] ?? evidence.kind,
-            evidence.byName ?? null,
-          ),
-          evidence.ref?.title,
-          evidence.note,
-        ]
-          .filter(Boolean)
-          .join(' · ')
-      : null;
+  const evidenceLine = evidenceLineOf(commitment.status, commitment.evidence);
   // Eine ersetzte Zusage ist abgeschlossen; ihr Nachfolger trägt den Status weiter (Regel 3)
   const settable = editable && commitment.status !== 'replaced';
   return (
@@ -279,47 +255,11 @@ function CommitmentRow({
         </div>
       )}
       {settable && asking && (
-        <form
-          className="flex flex-col gap-3 rounded-md bg-paper p-4"
-          aria-label={text.evidence.legend(commitment.title)}
-          onSubmit={book}
-        >
-          <p className="text-muted-foreground text-sm">{text.evidence.hint}</p>
-          <FormField label={text.evidence.kind}>
-            {(field) => (
-              <NativeSelect
-                {...field}
-                value={kind}
-                onChange={(event) => setKind(event.target.value as CommitmentEvidenceKind | '')}
-              >
-                <option value="">{text.evidence.choose}</option>
-                {commitmentEvidenceKinds.map((value) => (
-                  <option key={value} value={value}>
-                    {text.evidence.kinds[value]}
-                  </option>
-                ))}
-              </NativeSelect>
-            )}
-          </FormField>
-          <FormField label={text.evidence.note}>
-            {(field) => (
-              <Input
-                {...field}
-                value={note}
-                maxLength={500}
-                onChange={(event) => setNote(event.target.value)}
-              />
-            )}
-          </FormField>
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={!kind}>
-              {text.evidence.submit}
-            </Button>
-            <Button type="button" variant="ghost" onClick={cancel}>
-              {text.evidence.cancel}
-            </Button>
-          </div>
-        </form>
+        <EvidenceForm
+          title={commitment.title}
+          onBook={(evidence) => void change('kept', evidence)}
+          onCancel={() => setAsking(false)}
+        />
       )}
       {failed && <p className="text-destructive text-sm">{text.saveFailed}</p>}
     </li>

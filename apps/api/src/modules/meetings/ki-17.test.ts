@@ -171,7 +171,8 @@ describe('KI-17 Ergebnisse nach dem Termin', () => {
     const ids = Object.values(orgs);
     await db.execute(sql`delete from ai_draft where org_id in ${ids}`);
     await db.execute(sql`delete from meeting_capture where org_id in ${ids}`);
-    await db.execute(sql`delete from action where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from commitment where relationship_id = ${relationshipId}`);
+    await db.execute(sql`delete from task where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from commitment where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from meeting where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from jbp where relationship_id = ${relationshipId}`);
@@ -191,8 +192,8 @@ describe('KI-17 Ergebnisse nach dem Termin', () => {
     expect(await worker.captureDue([orgs.buyer], today)).toBe(0);
     const [task] = await db
       .select()
-      .from(schema.action)
-      .where(sql`${schema.action.sourceId} = ${otherMeeting}`);
+      .from(schema.task)
+      .where(sql`${schema.task.sourceId} = ${otherMeeting}`);
     expect(task).toMatchObject({ title: 'Ergebnisse erfassen', ownerUserId: users.sro });
   });
 

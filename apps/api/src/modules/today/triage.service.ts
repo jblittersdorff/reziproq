@@ -702,7 +702,8 @@ async function openCommitments(
     select relationship_id, title, due_on::text as due from commitment
     where relationship_id = any(${uuidArray(ids)}) and status = 'open'
     union all
-    select relationship_id, title, due_date::text from action
+    -- ZQ-01 (K2-a.3): früher Maßnahmen, jetzt Aufgaben
+    select relationship_id, title, due_date::text from task
     where relationship_id = any(${uuidArray(ids)}) and status in ('open', 'in_progress')
     order by due, title`);
   const [first] = rows.rows;

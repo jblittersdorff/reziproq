@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, currentTime, eq, inArray, schema, type TenantTransaction } from '@reziproq/db';
+import { and, currentTime, eq, schema, sql, type TenantTransaction } from '@reziproq/db';
 import { offsetCycleDate, type UserLocale } from '@reziproq/shared';
 import { ActionDueStore, TenantDatabase } from '../../common/database.module.js';
 import { readReminderDays } from '../actions/action-settings.js';
@@ -63,46 +63,50 @@ export class ActionReminderService {
         reminder: offsetCycleDate(today, days),
         escalation: offsetCycleDate(today, -1),
       };
-      const actions = await tx
-        .select({
-          id: schema.action.id,
-          relationshipId: schema.action.relationshipId,
-          title: schema.action.title,
-          dueDate: schema.action.dueDate,
-          ownerUserId: schema.action.ownerUserId,
-        })
-        .from(schema.action)
-        .innerJoin(schema.relationship, eq(schema.relationship.id, schema.action.relationshipId))
-        .where(
-          and(
-            inArray(schema.action.status, ['open', 'in_progress']),
-            eq(schema.action.ownerSide, side),
-            inArray(schema.action.dueDate, [dates.reminder, dates.escalation]),
-            eq(schema.relationship.status, 'active'),
-            side === 'buyer'
-              ? eq(schema.relationship.buyerOrgId, orgId)
-              : and(
-                  eq(schema.relationship.supplierOrgId, orgId),
-                  eq(schema.relationship.buyerOrgId, customerOrgId as string),
-                ),
-          ),
-        );
+      // ZQ-01 (K2-a.3): früher Maßnahmen; jetzt offene Zusagen der eigenen Seite (wer zusagt) und
+      // die eigenen offenen Aufgaben
+      const ofRelationship =
+        side === 'buyer'
+          ? sql`r.buyer_org_id = ${orgId}`
+          : sql`r.supplier_org_id = ${orgId} and r.buyer_org_id = ${customerOrgId}`;
+      const dueDays = sql`(${dates.reminder}::date, ${dates.escalation}::date)`;
+      const actions = (
+        await tx.execute<{
+          objectType: 'commitment' | 'task';
+          id: string;
+          relationshipId: string;
+          title: string;
+          dueDate: string;
+          ownerUserId: string | null;
+        }>(sql`
+          select 'commitment' as "objectType", c.id, c.relationship_id as "relationshipId",
+            c.title, c.due_on::text as "dueDate", c.owner_user_id as "ownerUserId"
+          from commitment c join relationship r on r.id = c.relationship_id
+          where c.status = 'open' and c.side = ${side} and c.due_on in ${dueDays}
+            and r.status = 'active' and ${ofRelationship}
+          union all
+          select 'task', t.id, t.relationship_id, t.title, t.due_date::text, t.owner_user_id
+          from task t join relationship r on r.id = t.relationship_id
+          where t.status in ('open', 'in_progress') and t.org_id = ${orgId}
+            and t.due_date in ${dueDays} and r.status = 'active' and ${ofRelationship}`)
+      ).rows;
 
       let queued = 0;
       for (const action of actions) {
         for (const kind of ['reminder', 'escalation'] as const) {
           if (action.dueDate !== dates[kind]) continue;
           const [sent] = await tx
-            .insert(schema.actionNotification)
+            .insert(schema.reminderSent)
             .values({
-              actionId: action.id,
+              objectType: action.objectType,
+              objectId: action.id,
               relationshipId: action.relationshipId,
               orgId,
               kind,
               dueDate: action.dueDate,
             })
             .onConflictDoNothing()
-            .returning({ id: schema.actionNotification.id });
+            .returning({ id: schema.reminderSent.id });
           if (!sent) continue;
 
           const owner = action.ownerUserId ? await this.person(tx, action.ownerUserId) : null;
@@ -189,7 +193,7 @@ export class ActionReminderService {
         ownerOrgId: orgId,
         visibility: 'internal',
         relationshipId,
-        objectType: 'action_notification',
+        objectType: 'reminder_sent',
         objectId: notificationId,
         action: 'created',
         changes: { kind: { from: null, to: kind } },
@@ -199,7 +203,7 @@ export class ActionReminderService {
     const email = this.emails.prepare(input);
     await tx.insert(schema.outboxEvent).values({
       eventType: `email.${kind}`,
-      objectType: 'action_notification',
+      objectType: 'reminder_sent',
       objectId: notificationId,
       auditEventId: event.id,
       orgId,

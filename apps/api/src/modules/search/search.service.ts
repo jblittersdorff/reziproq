@@ -146,7 +146,12 @@ export class SearchService {
   ) {
     const result = await tx.execute<Row>(sql`
       select t.id, t.relationship_id, t.title, ${this.supplierName(side)} as detail
-      from action t
+      -- ZQ-01 (K2-a.3): früher Maßnahmen, jetzt Zusagen und Aufgaben (RLS wie zuvor)
+      from (
+        select id, relationship_id, title, due_on as due_date from commitment
+        union all
+        select id, relationship_id, title, due_date from task
+      ) t
       where (${relationshipId}::uuid is null or t.relationship_id = ${relationshipId}::uuid)
         and (
           to_tsvector('german', t.title) @@ to_tsquery('german', ${query})

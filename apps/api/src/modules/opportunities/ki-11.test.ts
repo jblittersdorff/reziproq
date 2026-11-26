@@ -119,7 +119,8 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     await db.execute(sql`delete from initiative_topic where relationship_id in ${rels}`);
     await db.execute(sql`delete from initiative where relationship_id in ${rels}`);
     await db.execute(sql`delete from jbp where relationship_id in ${rels}`);
-    await db.execute(sql`delete from action where relationship_id in ${rels}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${rels}`);
+    await db.execute(sql`delete from task where relationship_id in ${rels}`);
     await db.execute(sql`delete from ai_draft where relationship_id in ${rels}`);
     await db.execute(sql`delete from agent where org_id in ${orgIds}`);
     await db.execute(sql`delete from model_call where org_id in ${orgIds}`);
@@ -439,8 +440,12 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     expect(draft?.title).toBe('Daten bereitstellen: Zollwert der betroffenen Vorprodukte');
     // Keine Zahl aus Spend oder Rechenweg (der Testname des Lieferanten enthält Ziffern)
     expect(`${draft?.title} ${draft?.description}`).not.toMatch(/3000000|300000000|0\.3/);
+    // ZQ-01 (K2-a.3): Die Bitte an den Lieferanten ist eine geteilte Zusage seiner Seite
     const actions = () =>
-      db.select().from(schema.action).where(sql`${schema.action.relationshipId} = ${rel.a}`);
+      db
+        .select()
+        .from(schema.commitment)
+        .where(sql`${schema.commitment.relationshipId} = ${rel.a}`);
     expect(await actions()).toHaveLength(0);
     const sent = valueOpportunitiesSchema.parse(
       (
@@ -458,7 +463,7 @@ describe('KI-11 Wertpotenzial-Finder', () => {
     const [created] = await actions();
     expect(created).toMatchObject({
       visibility: 'shared',
-      ownerSide: 'supplier',
+      side: 'supplier',
       title: 'Daten bereitstellen: Zollwert der betroffenen Vorprodukte',
     });
   });

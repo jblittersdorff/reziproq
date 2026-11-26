@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { type Database, eq, inArray, schema, sql } from '@reziproq/db';
+import { type Database, inArray, schema, sql } from '@reziproq/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 import { ActionReminderService } from '../email/action-reminder.service.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // Tests zu docs/specs/QBR-04.md: Erinnerung an den eingestellten Tagen vor der Frist, Eskalation
 // genau am Tag danach, beides einmal; Erledigte und Abgebrochene lösen nichts aus; interne
@@ -110,7 +111,8 @@ describe('QBR-04 Erinnerung und Eskalation', () => {
       { relationshipId: rel, orgId: orgs.oem, userId: users.sro, teamRole: 'sro' },
       { relationshipId: rel, orgId: orgs.supplier, userId: users.kam, teamRole: 'sro' },
     ]);
-    await db.insert(schema.action).values([
+    // ZQ-01 (K2-a.3): als Zusagen und Aufgaben, wie die Migration die Maßnahmen abbildet
+    await insertWorkItems(db, [
       action('Erinnern', '2099-06-13'),
       action('Eskalieren', '2099-06-09'),
       action('Erledigt', '2099-06-13', { status: 'done' }),
@@ -121,7 +123,7 @@ describe('QBR-04 Erinnerung und Eskalation', () => {
       action('Lieferant nicht erinnert', '2099-06-13', { side: 'supplier' }),
       action('Intern beim Käufer', '2099-06-09', { visibility: 'internal' }),
       // Interne Maßnahme des Käufers, die er dem Lieferanten zuschreibt: niemand beim Lieferanten
-      // sieht sie, also schreibt ihm auch niemand.
+      // sieht sie, also schreibt ihm auch niemand. Seit ZQ-01 (K2-a.3) eine Aufgabe des Käufers.
       action('Intern für den Lieferanten', '2099-06-09', {
         side: 'supplier',
         owner: null,
@@ -134,9 +136,8 @@ describe('QBR-04 Erinnerung und Eskalation', () => {
   afterAll(async () => {
     const orgIds = Object.values(orgs);
     await db.delete(schema.outboxEvent).where(inArray(schema.outboxEvent.orgId, orgIds));
-    await db.execute(sql`delete from action_notification where org_id in ${orgIds}`);
+    await db.execute(sql`delete from reminder_sent where org_id in ${orgIds}`);
     await db.execute(sql`delete from org_setting where org_id in ${orgIds}`);
-    await db.delete(schema.action).where(eq(schema.action.relationshipId, rel));
     await deleteRelationships(db, orgIds);
     await db.execute(sql`delete from app_user where organization_id in ${orgIds}`);
     await db.execute(sql`delete from organization_feature where organization_id = ${orgs.oem}`);
@@ -172,6 +173,8 @@ describe('QBR-04 Erinnerung und Eskalation', () => {
         `escalation Eskalieren → ${mail(users.anna)}`,
         `escalation Intern beim Käufer → ${mail(users.sro)}`,
         `escalation Intern beim Käufer → ${mail(users.anna)}`,
+        // Aufgabe des Käufers ohne eigene verantwortliche Person: nur an den SRO des Käufers
+        `escalation Intern für den Lieferanten → ${mail(users.sro)}`,
         // Lieferant mit fünf Tagen: Key Account Manager und verantwortliche Person.
         `reminder Lieferant erinnert → ${mail(users.lea)}`,
         `escalation Lieferant eskaliert → ${mail(users.kam)}`,

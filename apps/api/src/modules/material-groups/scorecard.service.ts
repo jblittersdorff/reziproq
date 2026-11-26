@@ -30,6 +30,7 @@ import {
 } from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { workRows } from '../actions/action-rows.js';
 import { can } from '../auth/can.js';
 import { StrategyService } from './strategy.service.js';
 
@@ -541,25 +542,16 @@ export class ScorecardService {
           .orderBy(asc(schema.commitment.dueOn))
           .limit(50)
       : [];
-    const actions = ids.length
-      ? await tx
-          .select({
-            id: schema.action.id,
-            relationshipId: schema.action.relationshipId,
-            title: schema.action.title,
-            dueDate: schema.action.dueDate,
-            status: schema.action.status,
-          })
-          .from(schema.action)
-          .where(
-            and(
-              inArray(schema.action.relationshipId, ids),
-              inArray(schema.action.status, ['open', 'in_progress']),
-            ),
-          )
-          .orderBy(asc(schema.action.dueDate))
-          .limit(50)
-      : [];
+    // ZQ-01 (K2-a.3): früher Maßnahmen; offene Zusagen stehen oben, hier die offenen Aufgaben
+    const actions = (await workRows(tx, { relationshipIds: ids, kind: 'task', openOnly: true }))
+      .slice(0, 50)
+      .map((row) => ({
+        id: row.id,
+        relationshipId: row.relationshipId,
+        title: row.title,
+        dueDate: row.dueDate,
+        status: row.status,
+      }));
     const [heldBy] = review.heldBy
       ? await tx
           .select({ name: schema.appUser.name })

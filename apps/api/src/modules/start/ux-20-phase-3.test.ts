@@ -4,6 +4,7 @@ import type { NextAction, SupplierOverview, Timeline } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { insertWorkItems } from '../../testing/work-items.js';
 
 // NAV-10 1.1 / UX-20 Phase 3: Überblick des Lieferanten. „Als Nächstes“ (scope relationship) und
 // „Termine und Fristen“ nur für diesen Lieferanten und nur mit Zugriff; Kennzahlen aus ihrem Ort.
@@ -89,12 +90,10 @@ describe('UX-20 Phase 3: Lieferanten-Überblick über die API', () => {
       createdBy: users.member,
       createdByName: 'Pat',
     });
-    await db
-      .insert(schema.action)
-      .values([
-        action(rels.seen, `Bei Sichtbar fällig ${run}`, day(1), users.member),
-        action(rels.hidden, `Bei Verborgen überfällig ${run}`, day(-3), users.member),
-      ]);
+    await insertWorkItems(db, [
+      action(rels.seen, `Bei Sichtbar fällig ${run}`, day(1), users.member),
+      action(rels.hidden, `Bei Verborgen überfällig ${run}`, day(-3), users.member),
+    ]);
     // Spend: 2024 und 2025 für den ganzen Lieferanten; 2025 dazu je Warengruppe
     await db
       .insert(schema.materialGroup)
@@ -120,7 +119,8 @@ describe('UX-20 Phase 3: Lieferanten-Überblick über die API', () => {
 
   afterAll(async () => {
     const ids = Object.values(rels);
-    await db.execute(sql`delete from action where relationship_id in ${ids}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
+    await db.execute(sql`delete from task where relationship_id in ${ids}`);
     await db.execute(sql`delete from meeting where relationship_id in ${ids}`);
     await db.execute(sql`delete from relationship_spend where relationship_id in ${ids}`);
     await db.execute(sql`delete from relationship_material_group where relationship_id in ${ids}`);

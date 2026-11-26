@@ -77,7 +77,9 @@ function routes(side: Side) {
       @Param('actionId', ParseUUIDPipe) actionId: string,
       @Body(new ZodValidationPipe(actionStatusSchema)) body: ActionStatusChange,
     ): Promise<ActionItem> {
-      return this.run(auth, id, (scope) => this.actions.setStatus(scope, actionId, body.status));
+      return this.run(auth, id, (scope) =>
+        this.actions.setStatus(scope, actionId, body.status, body.evidence),
+      );
     }
   }
   return SideActionsController;
