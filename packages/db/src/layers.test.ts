@@ -320,6 +320,43 @@ describe('PLT-04: Drei Datenebenen', () => {
     );
   });
 
+  // AK-01 T2-S01 (K2-a.4): Der Raum einer Zeile ist keine Spalte, sondern abgeleitet (ZA-01,
+  // E-K0-03): app_row_space aus Ebene, Beziehung, besitzender Organisation und Sichtbarkeit.
+  // Geprüft wird jede Zeile, die eine Abfrage der Käuferseite in irgendeiner Tabelle liefert.
+  it('T2-S01: Keine Abfrage der Käuferseite liefert Zeilen mit space = supplier_private', async () => {
+    const spaces = new Map<string, string | null>();
+    const spaceOf = async (meta: RowMeta) => {
+      const relationshipId = meta.relationship ? relationships[meta.relationship].id : null;
+      const owner = meta.owner ?? meta.org ?? null;
+      const key = [meta.kind, relationshipId, owner, meta.visibility].join('|');
+      if (!spaces.has(key)) {
+        const result = await withTenant(temp.db, session(viewer('Test-OEM')), (tx) =>
+          tx.execute<{ space: string | null }>(sql`
+            select app_row_space(${meta.kind}, ${relationshipId}::uuid, ${owner}::uuid,
+              ${meta.visibility ?? null}) as space`),
+        );
+        spaces.set(key, result.rows[0]?.space ?? null);
+      }
+      return spaces.get(key);
+    };
+    const supplierPrivate = new Set<string>();
+    for (const [id, meta] of rows) {
+      if ((await spaceOf(meta)) === 'supplier_private') supplierPrivate.add(id);
+    }
+    const offenders: string[] = [];
+    for (const { table } of tables) {
+      for (const who of [viewer('Test-OEM'), viewer('Zweit-OEM')]) {
+        for (const id of await visible(who, table)) {
+          if (supplierPrivate.has(id)) offenders.push(`${table} (${who.name})`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+    // Gegenprobe: Lieferantenprivate Zeilen gibt es in vielen Tabellen, sonst prüfte der Test nichts
+    const tablesWith = new Set([...supplierPrivate].map((id) => rows.get(id)?.table));
+    expect(tablesWith.size).toBeGreaterThan(20);
+  });
+
   describe.each(tables)('$table ($kind)', ({ table, kind }) => {
     it.each(viewers)('$name sieht genau, was die Regeln erlauben', async (who) => {
       expect(await visible(who, table)).toEqual(expected(who, table));
