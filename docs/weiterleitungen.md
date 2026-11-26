@@ -4,7 +4,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 
 - **aktiv** (13): leitet mit 301 vom Server und in der App weiter.
 - **geplant** (181): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
-- **bleibt** (80): Die Adresse gilt auch nach NAV-10 2.0.
+- **bleibt** (81): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
 |---|---|---|---|
@@ -56,6 +56,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/einstellungen/segmentmodell/gewichte` | – | NAV-10 | bleibt |
 | `/einstellungen/segmentmodell/grenzen` | – | NAV-10 | bleibt |
 | `/einstellungen/segmentmodell/kriterium/$key` | – | NAV-10 | bleibt |
+| `/einstellungen/segmentmodell/raster` | – | NAV-10 | bleibt |
 | `/einstellungen/segmentmodell/typ/$pair` | – | NAV-10 | bleibt |
 | `/einstellungen/spielregeln` | – | NAV-10 | bleibt |
 | `/einstellungen/spielregeln/formate` | – | NAV-10 | bleibt |

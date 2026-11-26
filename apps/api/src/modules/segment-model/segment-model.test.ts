@@ -183,4 +183,83 @@ describe('SEG-01 Segmentmodell über die API', () => {
       { version: 2, status: 'active' },
     ]);
   });
+
+  // E-K0-33 (K2-b.1): Matrix 2 × 2 oder 3 × 3 je Modell, Achsen je Kunde
+  it('E-K0-33: Raster 2 × 2 mit eigenen Achsen; vier Typen, eine Grenze, Aktivierung mit vier', async () => {
+    const changed = await call(users.admin, 'PATCH', '/segment-model/draft/grid', {
+      gridSize: 2,
+      impactLabel: 'Versorgungsrisiko',
+      qualityLabel: 'Wertbeitrag',
+    });
+    expect(changed.status).toBe(200);
+    let response = segmentModelResponseSchema.parse(changed.body);
+    expect(response.draft).toMatchObject({
+      gridSize: 2,
+      impactLabel: 'Versorgungsrisiko',
+      qualityLabel: 'Wertbeitrag',
+      lowMax: 50,
+      midMax: 100,
+    });
+    expect(response.draft?.types.map((type) => `${type.impactLevel}-${type.qualityLevel}`)).toEqual(
+      ['1-1', '1-2', '2-1', '2-2'],
+    );
+    // Das aktive Modell bleibt 3 × 3, bis der Entwurf aktiv ist
+    expect(response.active).toMatchObject({ gridSize: 3, impactLabel: 'Business Impact' });
+
+    // Bei 2 × 2 gilt nur lowMax; ein Typ auf Stufe 3 existiert nicht
+    const boundaries = await call(users.admin, 'PATCH', '/segment-model/draft/boundaries', {
+      lowMax: 60,
+      midMax: 70,
+    });
+    response = segmentModelResponseSchema.parse(boundaries.body);
+    expect(response.draft).toMatchObject({ lowMax: 60, midMax: 100 });
+    const outside = await call(users.admin, 'PATCH', '/segment-model/draft/types/3/3', {
+      name: 'Gibt es nicht',
+      description: 'Außerhalb des Rasters.',
+    });
+    expect(outside.status).toBe(404);
+    const named = await call(users.admin, 'PATCH', '/segment-model/draft/types/2/2', {
+      name: 'Strategisch',
+      description: 'Hohes Versorgungsrisiko, hoher Wertbeitrag.',
+    });
+    expect(named.status).toBe(200);
+
+    const activated = await call(users.admin, 'POST', '/segment-model/draft/activate');
+    expect(activated.status).toBe(201);
+    response = segmentModelResponseSchema.parse(activated.body);
+    expect(response.active).toMatchObject({ gridSize: 2, impactLabel: 'Versorgungsrisiko' });
+    expect(response.active?.types).toHaveLength(4);
+    expect(response.active?.types.at(-1)?.name).toBe('Strategisch');
+
+    // Zurück zu 3 × 3: neun Typen, zwei Grenzen; nur Admins, nur 2 oder 3
+    expect(
+      (
+        await call(users.member, 'PATCH', '/segment-model/draft/grid', {
+          gridSize: 3,
+          impactLabel: 'Business Impact',
+          qualityLabel: 'Beziehungsqualität',
+        })
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await call(users.admin, 'PATCH', '/segment-model/draft/grid', {
+          gridSize: 4,
+          impactLabel: 'A',
+          qualityLabel: 'B',
+        })
+      ).status,
+    ).toBe(400);
+    const back = segmentModelResponseSchema.parse(
+      (
+        await call(users.admin, 'PATCH', '/segment-model/draft/grid', {
+          gridSize: 3,
+          impactLabel: 'Business Impact',
+          qualityLabel: 'Beziehungsqualität',
+        })
+      ).body,
+    );
+    expect(back.draft).toMatchObject({ gridSize: 3, lowMax: 33, midMax: 66 });
+    expect(back.draft?.types).toHaveLength(9);
+  });
 });

@@ -2,6 +2,7 @@
 import {
   defaultSegmentCriteria,
   defaultSegmentTypes,
+  defaultSegmentTypesFor,
   type SegmentModelResponse,
 } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
@@ -30,6 +31,9 @@ const activeModel: SegmentModelResponse['active'] = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   version: 1,
   status: 'active',
+  gridSize: 3,
+  impactLabel: 'Business Impact',
+  qualityLabel: 'Beziehungsqualität',
   lowMax: 33,
   midMax: 66,
   deviationThreshold: 30,
@@ -73,6 +77,24 @@ beforeEach(() => {
               body[criterion.axis].find((entry) => entry.key === criterion.key)?.weight ??
               criterion.weight,
           })),
+        },
+      };
+      return Response.json(response);
+    }
+    if (request.url === '/api/segment-model/draft/grid') {
+      const body = request.body as { gridSize: 2 | 3; impactLabel: string; qualityLabel: string };
+      response = {
+        active: activeModel,
+        draft: {
+          ...activeModel,
+          ...body,
+          id: '550e8400-e29b-41d4-a716-446655440001',
+          version: 2,
+          status: 'draft',
+          activatedAt: null,
+          lowMax: 50,
+          midMax: 100,
+          types: defaultSegmentTypesFor(body.gridSize),
         },
       };
       return Response.json(response);
@@ -190,5 +212,46 @@ describe('Einstellungen › Segmentmodell', () => {
     expect(writes.some((request) => request.url === '/api/segment-model/draft/activate')).toBe(
       true,
     );
+  });
+
+  // E-K0-33 (K2-b.1): Matrix 2 × 2 mit eigenen Achsen
+  it('ändert das Raster auf 2 × 2 mit eigenen Achsen; die Seite zeigt vier Typen und eine Grenze', async () => {
+    const router = renderAt('/einstellungen/segmentmodell');
+    expect(
+      await screen.findByText('Matrix 3 × 3 · Zeilen Business Impact, Spalten Beziehungsqualität'),
+    ).toBeDefined();
+    // Die Bearbeiten-Links erscheinen, sobald die Rechte geladen sind
+    fireEvent.click(await screen.findByRole('link', { name: 'Raster ändern' }));
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe('/einstellungen/segmentmodell/raster'),
+    );
+    fireEvent.change(await screen.findByLabelText('Größe der Matrix'), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Name der Achse in den Zeilen'), {
+      target: { value: 'Versorgungsrisiko' },
+    });
+    fireEvent.change(screen.getByLabelText('Name der Achse in den Spalten'), {
+      target: { value: 'Wertbeitrag' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Speichern' }));
+    await waitFor(() =>
+      expect(writes).toContainEqual(
+        expect.objectContaining({
+          method: 'PATCH',
+          url: '/api/segment-model/draft/grid',
+          body: { gridSize: 2, impactLabel: 'Versorgungsrisiko', qualityLabel: 'Wertbeitrag' },
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe('/einstellungen/segmentmodell'),
+    );
+    expect(
+      await screen.findByText('Matrix 2 × 2 · Zeilen Versorgungsrisiko, Spalten Wertbeitrag'),
+    ).toBeDefined();
+    expect(screen.getAllByText('Versorgungsrisiko').length).toBeGreaterThan(0);
+    // Eine Grenze, zwei Stufen: keine mittlere Stufe, hoch ab 51
+    expect(screen.queryByText('Mittlere Stufe bis')).toBeNull();
+    expect(screen.getByText('Hohe Stufe ab 51')).toBeDefined();
+    expect(screen.queryAllByText(/Mittel$/)).toHaveLength(0);
   });
 });

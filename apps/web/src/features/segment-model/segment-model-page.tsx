@@ -3,8 +3,10 @@ import {
   type SegmentModel,
   type SegmentModelResponse,
   type SegmentType,
+  segmentGridSizes,
   updateSegmentBoundariesSchema,
   updateSegmentCriterionSchema,
+  updateSegmentGridSchema,
   updateSegmentTypeSchema,
   updateSegmentWeightsSchema,
 } from '@reziproq/shared';
@@ -20,6 +22,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { FormActions, FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
+import { NativeSelect } from '@/components/ui/native-select';
 import { SettingsGroup } from '@/components/ui/settings-group';
 import { StatusLine } from '@/components/ui/status-line';
 import {
@@ -40,6 +43,7 @@ import {
   segmentModelQueryOptions,
   updateSegmentBoundaries,
   updateSegmentCriterion,
+  updateSegmentGrid,
   updateSegmentType,
   updateSegmentWeights,
 } from '@/lib/api';
@@ -100,12 +104,30 @@ function percent(value: number, locale: string) {
   }).format(value);
 }
 
-function levelName(level: number, t: ReturnType<typeof useT>) {
+function levelName(level: number, t: ReturnType<typeof useT>, gridSize = 3) {
+  // E-K0-33: Bei 2 × 2 gibt es nur niedrig und hoch
+  if (gridSize === 2) return level === 1 ? t.segmentModel.level1 : t.segmentModel.level3;
   return level === 1
     ? t.segmentModel.level1
     : level === 2
       ? t.segmentModel.level2
       : t.segmentModel.level3;
+}
+
+/** Stufen einer Achse je Größe der Matrix */
+const levelsOf = (model: SegmentModel) => (model.gridSize === 2 ? [1, 2] : [1, 2, 3]);
+
+/**
+ * Name einer Achse: der eigene des Kunden (E-K0-33); die Standardnamen der Datenbank zeigt die
+ * Oberfläche in der gewählten Sprache
+ */
+function axisLabel(model: SegmentModel, axis: SegmentAxis, t: ReturnType<typeof useT>) {
+  if (axis === 'impact') {
+    return model.impactLabel === 'Business Impact' ? t.segmentModel.impactAxis : model.impactLabel;
+  }
+  return model.qualityLabel === 'Beziehungsqualität'
+    ? t.segmentModel.qualityAxis
+    : model.qualityLabel;
 }
 
 export function SegmentModelPage() {
@@ -204,6 +226,7 @@ export function SegmentModelPage() {
               )}
             </section>
           )}
+          <GridSummary model={model} canManage={canManage} />
           <CriteriaTable model={model} axis="impact" canManage={canManage} locale={locale} />
           <CriteriaTable model={model} axis="quality" canManage={canManage} locale={locale} />
           {canManage &&
@@ -221,6 +244,129 @@ export function SegmentModelPage() {
   );
 }
 
+function GridSummary({ model, canManage }: { model: SegmentModel; canManage: boolean }) {
+  const t = useT();
+  return (
+    <section className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="font-semibold text-lg">{t.segmentModel.grid}</h2>
+        {canManage &&
+          routerLink({
+            href: `${modelPath}/raster`,
+            className:
+              'inline-flex min-h-11 items-center text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+            children: t.segmentModel.editGrid,
+          })}
+      </div>
+      <p className="rounded-lg bg-card px-4 py-3">
+        {t.segmentModel.gridSummary(
+          model.gridSize,
+          axisLabel(model, 'impact', t),
+          axisLabel(model, 'quality', t),
+        )}
+      </p>
+    </section>
+  );
+}
+
+/** E-K0-33 (K2-b.1): Raster 2 × 2 oder 3 × 3 und Namen der Achsen */
+export function SegmentGridPage() {
+  const t = useT();
+  const canManage = useCan('segmentmodell.verwalten');
+  const query = useSegmentModel();
+  const model = visibleModel(query.data, canManage);
+
+  return (
+    <EditorFrame title={t.segmentModel.gridTitle} purpose={t.segmentModel.gridHint}>
+      <EditorState model={model} isError={query.isError} isLoading={!query.data}>
+        {(current) => {
+          if (!canManage) return <ReadOnlyNotice />;
+          return <GridForm key={current.id} model={current} accessToken={query.accessToken} />;
+        }}
+      </EditorState>
+    </EditorFrame>
+  );
+}
+
+function GridForm({ model, accessToken }: { model: SegmentModel; accessToken: string }) {
+  const t = useT();
+  const [gridSize, setGridSize] = useState(String(model.gridSize));
+  const [impactLabel, setImpactLabel] = useState(model.impactLabel);
+  const [qualityLabel, setQualityLabel] = useState(model.qualityLabel);
+  const [invalid, setInvalid] = useState(false);
+  const { save, saving, failure } = useSegmentSave();
+  const goBack = useGoBack(modelPath);
+  return (
+    <form
+      noValidate
+      className="flex max-w-xl flex-col gap-6"
+      onSubmit={(event: FormEvent) => {
+        event.preventDefault();
+        const parsed = updateSegmentGridSchema.safeParse({
+          gridSize: Number(gridSize),
+          impactLabel,
+          qualityLabel,
+        });
+        if (!parsed.success) {
+          setInvalid(true);
+          return;
+        }
+        setInvalid(false);
+        void save(() => updateSegmentGrid(accessToken, parsed.data));
+      }}
+    >
+      <SaveError failure={failure} />
+      {invalid && (
+        <p role="alert" className="text-destructive text-sm">
+          {t.segmentModel.invalidGrid}
+        </p>
+      )}
+      <FormField label={t.segmentModel.gridSize}>
+        {(field) => (
+          <NativeSelect
+            {...field}
+            value={gridSize}
+            onChange={(event) => setGridSize(event.target.value)}
+          >
+            {segmentGridSizes.map((size) => (
+              <option key={size} value={String(size)}>
+                {t.segmentModel.gridSizes[size]}
+              </option>
+            ))}
+          </NativeSelect>
+        )}
+      </FormField>
+      <FormField label={t.segmentModel.impactLabel}>
+        {(field) => (
+          <Input
+            {...field}
+            maxLength={80}
+            value={impactLabel}
+            onChange={(event) => {
+              setInvalid(false);
+              setImpactLabel(event.target.value);
+            }}
+          />
+        )}
+      </FormField>
+      <FormField label={t.segmentModel.qualityLabel}>
+        {(field) => (
+          <Input
+            {...field}
+            maxLength={80}
+            value={qualityLabel}
+            onChange={(event) => {
+              setInvalid(false);
+              setQualityLabel(event.target.value);
+            }}
+          />
+        )}
+      </FormField>
+      <SaveActions saving={saving} onCancel={goBack} />
+    </form>
+  );
+}
+
 function CriteriaTable({
   model,
   axis,
@@ -234,7 +380,7 @@ function CriteriaTable({
 }) {
   const t = useT();
   const criteria = model.criteria.filter((criterion) => criterion.axis === axis);
-  const title = axis === 'impact' ? t.segmentModel.impactAxis : t.segmentModel.qualityAxis;
+  const title = axisLabel(model, axis, t);
   return (
     <SettingsGroup title={title}>
       <ul className="divide-y divide-line-soft">
@@ -286,12 +432,16 @@ function BoundariesSummary({ model, canManage }: { model: SegmentModel; canManag
           <dt>{t.segmentModel.lowMax}</dt>
           <dd className="font-medium tabular-nums">{model.lowMax}</dd>
         </div>
+        {model.gridSize === 3 && (
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
+            <dt>{t.segmentModel.midMax}</dt>
+            <dd className="font-medium tabular-nums">{model.midMax}</dd>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <dt>{t.segmentModel.midMax}</dt>
-          <dd className="font-medium tabular-nums">{model.midMax}</dd>
-        </div>
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <dt>{t.segmentModel.highFrom(model.midMax + 1)}</dt>
+          <dt>
+            {t.segmentModel.highFrom((model.gridSize === 2 ? model.lowMax : model.midMax) + 1)}
+          </dt>
           <dd className="font-medium">100</dd>
         </div>
         <div className="flex items-center justify-between gap-4 px-4 py-3">
@@ -309,19 +459,22 @@ function BoundariesSummary({ model, canManage }: { model: SegmentModel; canManag
 
 function TypesMatrix({ model, canManage }: { model: SegmentModel; canManage: boolean }) {
   const t = useT();
-  const levels = [1, 2, 3] as const;
+  const levels = levelsOf(model);
+  const impact = axisLabel(model, 'impact', t);
+  const quality = axisLabel(model, 'quality', t);
+  const level = (value: number) => levelName(value, t, model.gridSize);
   const byCell = new Map(
     model.types.map((entry) => [`${entry.impactLevel}-${entry.qualityLevel}`, entry]),
   );
   return (
     <section className="flex flex-col gap-3">
       <h2 className="font-semibold text-lg">{t.segmentModel.relationshipTypes}</h2>
-      <p className="text-muted-foreground text-sm">{t.segmentModel.typeMatrix}</p>
+      <p className="text-muted-foreground text-sm">{t.segmentModel.typeMatrix(impact, quality)}</p>
       <div className="flex flex-col gap-4 md:hidden">
         {levels.map((impactLevel) => (
           <section key={impactLevel} className="flex flex-col gap-2">
             <h3 className="font-medium">
-              {t.segmentModel.impactAxis}: {levelName(impactLevel, t)}
+              {impact}: {level(impactLevel)}
             </h3>
             <ul className="divide-y divide-line-soft rounded-lg bg-card">
               {levels.map((qualityLevel) => {
@@ -329,7 +482,7 @@ function TypesMatrix({ model, canManage }: { model: SegmentModel; canManage: boo
                 return (
                   <li key={qualityLevel} className="flex flex-col gap-2 px-4 py-3">
                     <p className="text-muted-foreground text-sm">
-                      {t.segmentModel.qualityAxis}: {levelName(qualityLevel, t)}
+                      {quality}: {level(qualityLevel)}
                     </p>
                     {entry ? (
                       <TypeCell type={entry} canManage={canManage} t={t} />
@@ -345,13 +498,13 @@ function TypesMatrix({ model, canManage }: { model: SegmentModel; canManage: boo
       </div>
       <div className="hidden md:block">
         <Table className="table-fixed">
-          <caption className="sr-only">{t.segmentModel.matrixCaption}</caption>
+          <caption className="sr-only">{t.segmentModel.matrixCaption(impact, quality)}</caption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[18%]">{t.segmentModel.impactAxis}</TableHead>
-              {levels.map((level) => (
-                <TableHead key={level} className="text-center">
-                  {levelName(level, t)}
+              <TableHead className="w-[18%]">{impact}</TableHead>
+              {levels.map((value) => (
+                <TableHead key={value} className="text-center">
+                  {level(value)}
                 </TableHead>
               ))}
             </TableRow>
@@ -359,7 +512,7 @@ function TypesMatrix({ model, canManage }: { model: SegmentModel; canManage: boo
           <TableBody>
             {levels.map((impactLevel) => (
               <TableRow key={impactLevel}>
-                <TableHead scope="row">{levelName(impactLevel, t)}</TableHead>
+                <TableHead scope="row">{level(impactLevel)}</TableHead>
                 {levels.map((qualityLevel) => {
                   const entry = byCell.get(`${impactLevel}-${qualityLevel}`);
                   if (!entry) {
@@ -725,7 +878,8 @@ function BoundariesForm({ model, accessToken }: { model: SegmentModel; accessTok
   const goBack = useGoBack(modelPath);
   const request = {
     lowMax: lowMax === '' ? Number.NaN : Number(lowMax),
-    midMax: midMax === '' ? Number.NaN : Number(midMax),
+    // E-K0-33: Bei 2 × 2 trennt lowMax die Stufen; midMax bleibt 100
+    midMax: model.gridSize === 2 ? 100 : midMax === '' ? Number.NaN : Number(midMax),
     deviationThreshold: deviation === '' ? Number.NaN : Number(deviation),
     focusSpendShare: focusShare === '' ? Number.NaN : Number(focusShare),
   };
@@ -766,25 +920,27 @@ function BoundariesForm({ model, accessToken }: { model: SegmentModel; accessTok
           />
         )}
       </FormField>
-      <FormField
-        label={t.segmentModel.midMax}
-        hint={t.segmentModel.highFrom((request.midMax || model.midMax) + 1)}
-      >
-        {(field) => (
-          <Input
-            {...field}
-            type="number"
-            min="1"
-            max="100"
-            step="1"
-            value={midMax}
-            onChange={(event) => {
-              setInvalid(false);
-              setMidMax(event.target.value);
-            }}
-          />
-        )}
-      </FormField>
+      {model.gridSize === 3 && (
+        <FormField
+          label={t.segmentModel.midMax}
+          hint={t.segmentModel.highFrom((request.midMax || model.midMax) + 1)}
+        >
+          {(field) => (
+            <Input
+              {...field}
+              type="number"
+              min="1"
+              max="100"
+              step="1"
+              value={midMax}
+              onChange={(event) => {
+                setInvalid(false);
+                setMidMax(event.target.value);
+              }}
+            />
+          )}
+        </FormField>
+      )}
       <FormField label={t.segmentModel.deviationThreshold} hint={t.segmentModel.deviationHint}>
         {(field) => (
           <Input
@@ -836,7 +992,14 @@ export function SegmentTypePage({ pair }: { pair: string }) {
   const title = type ? t.segmentModel.editType(type.name) : t.segmentModel.typeTitle;
 
   return (
-    <EditorFrame title={title} purpose={t.segmentModel.typeMatrix}>
+    <EditorFrame
+      title={title}
+      purpose={
+        model
+          ? t.segmentModel.typeMatrix(axisLabel(model, 'impact', t), axisLabel(model, 'quality', t))
+          : t.segmentModel.relationshipTypes
+      }
+    >
       <EditorState model={model} isError={query.isError} isLoading={!query.data}>
         {(current) => {
           const currentType = current.types.find(

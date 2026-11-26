@@ -11,10 +11,12 @@ import {
 } from '@nestjs/common';
 import {
   type UpdateSegmentBoundaries,
+  type UpdateSegmentGrid,
   type UpdateSegmentCriterion,
   type UpdateSegmentType,
   type UpdateSegmentWeights,
   updateSegmentBoundariesSchema,
+  updateSegmentGridSchema,
   updateSegmentCriterionSchema,
   updateSegmentTypeSchema,
   updateSegmentWeightsSchema,
@@ -58,6 +60,16 @@ export class SegmentModelController {
     @Body(new ZodValidationPipe(updateSegmentWeightsSchema)) body: UpdateSegmentWeights,
   ) {
     return this.segments.updateWeights(auth, body);
+  }
+
+  // E-K0-33 (K2-b.1): Raster 2 × 2 oder 3 × 3 und Namen der Achsen
+  @Patch('draft/grid')
+  @Requires('segmentmodell.verwalten')
+  updateGrid(
+    @CurrentUser() auth: AuthContext,
+    @Body(new ZodValidationPipe(updateSegmentGridSchema)) body: UpdateSegmentGrid,
+  ) {
+    return this.segments.updateGrid(auth, body);
   }
 
   @Patch('draft/boundaries')

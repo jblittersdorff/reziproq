@@ -326,6 +326,7 @@ import {
   type UpdateObjectiveCategory,
   type UpdatePlanSummary,
   type UpdateSegmentBoundaries,
+  type UpdateSegmentGrid,
   type UpdateSegmentCriterion,
   type UpdateSegmentType,
   type UpdateSegmentWeights,
@@ -500,6 +501,10 @@ export const updateSegmentBoundaries = (accessToken: string, request: UpdateSegm
     segmentModelResponseSchema,
     accessToken,
   );
+
+/** E-K0-33 (K2-b.1): Raster 2 × 2 oder 3 × 3 und Namen der Achsen des Entwurfs */
+export const updateSegmentGrid = (accessToken: string, request: UpdateSegmentGrid) =>
+  sendJson('PATCH', '/segment-model/draft/grid', request, segmentModelResponseSchema, accessToken);
 
 export const updateSegmentType = (
   accessToken: string,

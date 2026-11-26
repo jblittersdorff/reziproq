@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export const segmentAxes = ['impact', 'quality'] as const;
 export const segmentStatuses = ['draft', 'active', 'retired'] as const;
+/** E-K0-33: Größe der Matrix je Segmentmodell; Standard 3 × 3, Hollmann 2 × 2 */
+export const segmentGridSizes = [2, 3] as const;
 
 const axisSchema = z.enum(segmentAxes);
 const weightSchema = z.number().min(0).max(100).multipleOf(0.01);
@@ -23,10 +25,17 @@ export const segmentTypeSchema = z.object({
   description: modelText(500),
 });
 
+const gridSizeSchema = z.union([z.literal(2), z.literal(3)]);
+const axisLabel = modelText(80);
+
 export const segmentModelSchema = z.object({
   id: z.uuid(),
   version: z.number().int().positive(),
   status: z.enum(segmentStatuses),
+  /** E-K0-33: 2 × 2 oder 3 × 3; bei 2 × 2 trennt lowMax die Stufen, midMax ist 100 */
+  gridSize: gridSizeSchema,
+  impactLabel: axisLabel,
+  qualityLabel: axisLabel,
   lowMax: z.number().int().min(0).max(99),
   midMax: z.number().int().min(1).max(100),
   deviationThreshold: z.number().int().min(1).max(100),
@@ -85,6 +94,11 @@ export const updateSegmentTypeSchema = z.object({
   description: modelText(500),
 });
 
+/** E-K0-33: Raster und Namen der Achsen des Entwurfs; ein anderes Raster legt die Typen neu an */
+export const updateSegmentGridSchema = z
+  .object({ gridSize: gridSizeSchema, impactLabel: axisLabel, qualityLabel: axisLabel })
+  .strict();
+
 export type SegmentAxis = (typeof segmentAxes)[number];
 export type SegmentStatus = (typeof segmentStatuses)[number];
 export type SegmentCriterion = z.infer<typeof segmentCriterionSchema>;
@@ -95,6 +109,8 @@ export type UpdateSegmentCriterion = z.infer<typeof updateSegmentCriterionSchema
 export type UpdateSegmentWeights = z.infer<typeof updateSegmentWeightsSchema>;
 export type UpdateSegmentBoundaries = z.infer<typeof updateSegmentBoundariesSchema>;
 export type UpdateSegmentType = z.infer<typeof updateSegmentTypeSchema>;
+export type UpdateSegmentGrid = z.infer<typeof updateSegmentGridSchema>;
+export type SegmentGridSize = (typeof segmentGridSizes)[number];
 
 const impactNames = ['Niedriger', 'Mittlerer', 'Hoher'] as const;
 const qualityNames = ['schwache', 'ausbaufähige', 'starke'] as const;
@@ -192,15 +208,29 @@ export const defaultSegmentCriteria: readonly SegmentCriterion[] = [
   },
 ];
 
-export const defaultSegmentTypes: readonly SegmentType[] = impactNames.flatMap(
-  (impactName, impactIndex) =>
-    qualityNames.map((qualityName, qualityIndex) => ({
-      impactLevel: impactIndex + 1,
-      qualityLevel: qualityIndex + 1,
-      name: `${impactName} Impact · ${qualityName} Beziehung`,
+/** Standardtypen je Größe der Matrix; bei 2 × 2 die äußeren Stufen der 3 × 3-Matrix */
+export function defaultSegmentTypesFor(size: SegmentGridSize): SegmentType[] {
+  const indexes = size === 2 ? [0, 2] : [0, 1, 2];
+  return indexes.flatMap((impactIndex, impactPosition) =>
+    indexes.map((qualityIndex, qualityPosition) => ({
+      impactLevel: impactPosition + 1,
+      qualityLevel: qualityPosition + 1,
+      name: `${impactNames[impactIndex]} Impact · ${qualityNames[qualityIndex]} Beziehung`,
       description: `${impactDescriptions[impactIndex]} ${qualityDescriptions[qualityIndex]}`,
     })),
-);
+  );
+}
+
+export const defaultSegmentTypes: readonly SegmentType[] = defaultSegmentTypesFor(3);
+
+/** Stufe einer Achse: bei 2 × 2 bis lowMax Stufe 1, sonst 2; bei 3 × 3 drei Stufen */
+export function segmentLevel(
+  score: number,
+  model: Readonly<Pick<SegmentModel, 'lowMax' | 'midMax' | 'gridSize'>>,
+): number {
+  if (model.gridSize === 2) return score <= model.lowMax ? 1 : 2;
+  return score <= model.lowMax ? 1 : score <= model.midMax ? 2 : 3;
+}
 
 /**
  * HE-01, E-K0-17: Startgewicht eines Segmenttyps in der Triage. Der strategische Typ, also höchste
@@ -214,7 +244,7 @@ export function defaultTriageWeight(
 }
 
 export function calculateSegment(
-  model: Readonly<Pick<SegmentModel, 'lowMax' | 'midMax'>> & {
+  model: Readonly<Pick<SegmentModel, 'lowMax' | 'midMax' | 'gridSize'>> & {
     readonly criteria: readonly SegmentCriterion[];
     readonly types: readonly SegmentType[];
   },
@@ -243,9 +273,8 @@ export function calculateSegment(
   };
   const impactScore = axisScore('impact');
   const qualityScore = axisScore('quality');
-  const level = (score: number) => (score <= model.lowMax ? 1 : score <= model.midMax ? 2 : 3);
-  const impactLevel = level(impactScore);
-  const qualityLevel = level(qualityScore);
+  const impactLevel = segmentLevel(impactScore, model);
+  const qualityLevel = segmentLevel(qualityScore, model);
   const type = model.types.find(
     (entry) => entry.impactLevel === impactLevel && entry.qualityLevel === qualityLevel,
   );

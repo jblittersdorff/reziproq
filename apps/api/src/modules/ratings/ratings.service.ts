@@ -441,11 +441,16 @@ export class RatingsService implements OverviewMetricSource {
       .orderBy(asc(schema.segmentType.impactLevel), asc(schema.segmentType.qualityLevel));
     return {
       version: header.version,
+      // E-K0-33 (K2-b.1): 2 × 2 oder 3 × 3 je Modell
+      gridSize: header.gridSize === 2 ? 2 : 3,
       lowMax: header.lowMax,
       midMax: header.midMax,
       criteria,
       types,
-    } satisfies Pick<SegmentModel, 'version' | 'lowMax' | 'midMax' | 'criteria' | 'types'>;
+    } satisfies Pick<
+      SegmentModel,
+      'version' | 'gridSize' | 'lowMax' | 'midMax' | 'criteria' | 'types'
+    >;
   }
 
   private outcome(

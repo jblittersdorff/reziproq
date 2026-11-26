@@ -4966,7 +4966,23 @@ export const en: Messages = {
     boundaries: 'Level boundaries',
     boundariesHint: 'Values from 0 to 100; the boundary itself belongs to the lower level.',
     relationshipTypes: 'Relationship types',
-    matrixCaption: 'Relationship types by business impact and relationship quality',
+    matrixCaption: (impact: string, quality: string) =>
+      `Relationship types by ${impact} and ${quality}`,
+    grid: 'Grid',
+    gridSummary: (size: number, impact: string, quality: string) =>
+      `${size} × ${size} matrix · rows ${impact}, columns ${quality}`,
+    editGrid: 'Change grid',
+    gridTitle: 'Change grid and axes',
+    gridHint:
+      'A different grid recreates the relationship types with default names and resets the boundaries. Running ratings keep their version.',
+    gridSize: 'Matrix size',
+    gridSizes: { 2: '2 × 2, two levels per axis', 3: '3 × 3, three levels per axis' } as Record<
+      number,
+      string
+    >,
+    impactLabel: 'Name of the axis in the rows',
+    qualityLabel: 'Name of the axis in the columns',
+    invalidGrid: 'Both axes need a name of at most 80 characters.',
     editCriterion: (name: string) => `Edit ${name}`,
     editWeights: 'Adjust weights',
     editBoundaries: 'Change boundaries',
@@ -4986,7 +5002,7 @@ export const en: Messages = {
       'Percent (1 to 100) of spend that the suggested focus suppliers make up together.',
     deviationHint: 'Points (1 to 100) above which a deviation between ratings stays open.',
     highFrom: (score: number) => `High level from ${score}`,
-    typeMatrix: 'Rows: business impact · columns: relationship quality',
+    typeMatrix: (impact: string, quality: string) => `Rows: ${impact} · columns: ${quality}`,
     save: 'Save',
     saving: 'Saving …',
     cancel: 'Cancel',
@@ -5473,7 +5489,11 @@ export const en: Messages = {
     search: {
       title: 'Results',
       hint: 'From three characters Reziproq searches as you type, without AI.',
-      kinds: { suppliers: 'Suppliers', initiatives: 'Initiatives', actions: 'Commitments and tasks' },
+      kinds: {
+        suppliers: 'Suppliers',
+        initiatives: 'Initiatives',
+        actions: 'Commitments and tasks',
+      },
       none: (q: string) => `No results for “${q}”.`,
       loading: 'Reziproq is searching …',
       failed: 'The search did not work just now.',

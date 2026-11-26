@@ -98,6 +98,8 @@ Ersetzt die Phasen 2 bis 10 des bisherigen Plans. Phase 1 (Modul-Schalter `org_m
 - K1-g: Umfang am 26.11.2026 mit dem Gründer geklärt. Die Schritte 5 bis 7 des Drehbuchs K1 brauchen Wert-Engine und Reibung (K4-a, K4-d) und stehen im Test als „folgt mit K4“. Die Mail in Erledigt mit Zurücknehmen baut K1-g mit.
 - Demo-Mandant umbenannt am 26.11.2026 (Wunsch des Gründers): Hollmann Antriebe statt Nordwind, überall in Code, IDs, Adressen, Befehl (`pnpm demo:hollmann`), Doku und Bildvorlagen. Die Einträge oben nennen deshalb schon den neuen Namen.
 - Nur ein `pnpm dev` zur Zeit, seit 26.11.2026: `scripts/dev-guard.mjs` bricht bei belegtem Port ab, und `pnpm dev:stop` beendet alle Dev-Prozesse des Projekts.
+- K2-b.1 fertig am 27.11.2026: Segmentmodell 2 × 2 oder 3 × 3 je Kunde (E-K0-33). Die Achsen tragen eigene Namen. Bei 2 × 2 gibt es eine Grenze und vier Typen; das Raster ist in den Einstellungen änderbar (SEG-01, Umsetzung).
+- K2-b: Umfang am 27.11.2026 (Go des Gründers): Lieferanten mit den Linsen Liste und Segmente, Sortierung nach Aufmerksamkeit, Mini-Spiegel der Zusagequoten (BZ-01 T2-01 bis T2-03). Vorher kommt das Segmentmodell 2 × 2, das die Linse Segmente für Hollmann braucht (E-K0-33). Die Karten der Bewertungsrunde bringt K2-e.
 - K2-a.6 fertig am 27.11.2026: Wörter und Weiterleitungen. „Maßnahme“ kommt in der Oberfläche nicht mehr vor (B-36). Die Weiterleitung der alten Maßnahmen-Seiten in die Akte schaltet K2-c ein; bis dahin bleiben sie unter ihren Adressen (`docs/weiterleitungen.md`). Damit ist K2-a fertig.
   - Erledigt: ZQ-01 T2-ZQ1, T2-ZQ2, T2-05; AK-01 T2-S01, T2-S03.
   - Offen mit späteren Paketen: T2-09 (Akte K2-c, Ersatz aus der Mail K2-d) und T2-ZQ3 (Aufgabe „Zusagen nachhalten“, K2-b).

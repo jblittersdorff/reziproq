@@ -1016,6 +1016,13 @@
       "when": 1795728484351,
       "tag": "0144_k2a_massnahmen_weg",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1795735222837,
+      "tag": "0145_k2b_segmentraster",
+      "breakpoints": true
     }
   ]
 }

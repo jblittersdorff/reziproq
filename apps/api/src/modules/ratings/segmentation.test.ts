@@ -29,6 +29,7 @@ describe('SEG-05 Segmentierung je Lieferant über die API', () => {
   const units = { a: randomUUID(), b: randomUUID() };
   const criteria = defaultSegmentCriteria.map((criterion) => criterion.key);
   const model = {
+    gridSize: 3 as const,
     lowMax: 33,
     midMax: 66,
     criteria: defaultSegmentCriteria,
@@ -86,6 +87,7 @@ describe('SEG-05 Segmentierung je Lieferant über die API', () => {
         orgId: orgs.oem,
         version: 1,
         status: 'active',
+        gridSize: 3 as const,
         lowMax: 33,
         midMax: 66,
         activatedAt: new Date(),

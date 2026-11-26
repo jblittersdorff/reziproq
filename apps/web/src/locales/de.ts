@@ -5088,7 +5088,24 @@ export const de = {
     boundaries: 'Grenzen der Stufen',
     boundariesHint: 'Werte von 0 bis 100; die Grenze selbst gehört zur niedrigeren Stufe.',
     relationshipTypes: 'Beziehungstypen',
-    matrixCaption: 'Beziehungstypen nach Business Impact und Beziehungsqualität',
+    matrixCaption: (impact: string, quality: string) =>
+      `Beziehungstypen nach ${impact} und ${quality}`,
+    // E-K0-33 (K2-b.1): Raster 2 × 2 oder 3 × 3 und eigene Namen der Achsen
+    grid: 'Raster',
+    gridSummary: (size: number, impact: string, quality: string) =>
+      `Matrix ${size} × ${size} · Zeilen ${impact}, Spalten ${quality}`,
+    editGrid: 'Raster ändern',
+    gridTitle: 'Raster und Achsen ändern',
+    gridHint:
+      'Ein anderes Raster legt die Beziehungstypen mit Standardnamen neu an und setzt die Grenzen zurück. Laufende Bewertungen behalten ihre Version.',
+    gridSize: 'Größe der Matrix',
+    gridSizes: { 2: '2 × 2, zwei Stufen je Achse', 3: '3 × 3, drei Stufen je Achse' } as Record<
+      number,
+      string
+    >,
+    impactLabel: 'Name der Achse in den Zeilen',
+    qualityLabel: 'Name der Achse in den Spalten',
+    invalidGrid: 'Beide Achsen brauchen einen Namen mit höchstens 80 Zeichen.',
     editCriterion: (name: string) => `${name} bearbeiten`,
     editWeights: 'Gewichte anpassen',
     editBoundaries: 'Grenzen ändern',
@@ -5108,7 +5125,7 @@ export const de = {
       'Prozent (1 bis 100) des Spend, den die vorgeschlagenen Fokuslieferanten zusammen ausmachen.',
     deviationHint: 'Punkte (1 bis 100), ab denen eine Abweichung in den Bewertungen offen bleibt.',
     highFrom: (score: number) => `Hohe Stufe ab ${score}`,
-    typeMatrix: 'Zeilen: Business Impact · Spalten: Beziehungsqualität',
+    typeMatrix: (impact: string, quality: string) => `Zeilen: ${impact} · Spalten: ${quality}`,
     save: 'Speichern',
     saving: 'Wird gespeichert …',
     cancel: 'Abbrechen',
@@ -5606,7 +5623,11 @@ export const de = {
     search: {
       title: 'Treffer',
       hint: 'Ab drei Zeichen sucht Reziproq schon beim Tippen, ohne KI.',
-      kinds: { suppliers: 'Lieferanten', initiatives: 'Initiativen', actions: 'Zusagen und Aufgaben' },
+      kinds: {
+        suppliers: 'Lieferanten',
+        initiatives: 'Initiativen',
+        actions: 'Zusagen und Aufgaben',
+      },
       none: (q: string) => `Keine Treffer für „${q}“.`,
       loading: 'Reziproq sucht …',
       failed: 'Die Suche hat gerade nicht geklappt.',

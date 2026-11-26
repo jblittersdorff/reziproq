@@ -51,6 +51,7 @@ const segmentation = {
     decision: null,
     model: {
       version: 1,
+      gridSize: 3,
       lowMax: 33,
       midMax: 66,
       criteria: criteriaDefs.map(([axis, name], index) => ({

@@ -59,6 +59,7 @@ Alle Tests für Datenebenen und Mandanten (`layers.test.ts`, `rls.test.ts`, `za-
 ## 5. Wackelige Tests
 
 - **`layers.test.ts` (behoben am 27.11.2026, K2-a.6):** Testzeilen von `relationship_ebit_target` und `material_group_strategy` bekamen ein zufälliges Jahr zwischen 2000 und 2099. Lagen mehrere auf derselben Beziehung bzw. Warengruppe, kollidierten sie gelegentlich mit dem eindeutigen Index, und der Aufbau des Tests scheiterte (rund 1 bis 6 % der Läufe). Jetzt gibt es ein fortlaufendes Jahr je Testzeile (`nextProbeYear` in `layers.ts`).
+- **`ls-01.test.ts` (27.11.2026, K2-b.1):** Die zwei Funktionstests fragen die Liste mit 2.000 Lieferanten ab. Unter der Last von `pnpm check` überschritt einer einmal die Grenze von 15 s, allein braucht er 0,2 s. Die Grenze dieser zwei Tests ist jetzt 60 s; die Zeitmessung von LS-01 läuft weiter getrennt in `test:perf`.
 
 ## Vorschlag
 

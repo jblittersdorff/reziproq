@@ -13,10 +13,15 @@ import type {
   SegmentModelResponse,
   UpdateSegmentBoundaries,
   UpdateSegmentCriterion,
+  UpdateSegmentGrid,
   UpdateSegmentType,
   UpdateSegmentWeights,
 } from '@reziproq/shared';
-import { segmentModelResponseSchema } from '@reziproq/shared';
+import {
+  defaultSegmentTypesFor,
+  defaultTriageWeight,
+  segmentModelResponseSchema,
+} from '@reziproq/shared';
 import { type AccountOrganization, TenantDatabase } from '../../common/database.module.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 
@@ -151,11 +156,16 @@ export class SegmentModelService {
   ): Promise<SegmentModelResponse> {
     await this.run(auth, async (tx, organization) => {
       const modelId = await this.ensureDraft(tx, organization.id);
+      const [draft] = await tx
+        .select({ gridSize: schema.segmentModel.gridSize })
+        .from(schema.segmentModel)
+        .where(eq(schema.segmentModel.id, modelId));
       await tx
         .update(schema.segmentModel)
         .set({
           lowMax: input.lowMax,
-          midMax: input.midMax,
+          // E-K0-33: Bei 2 × 2 trennt lowMax die beiden Stufen; midMax bleibt 100
+          midMax: draft?.gridSize === 2 ? 100 : input.midMax,
           ...(input.deviationThreshold !== undefined && {
             deviationThreshold: input.deviationThreshold,
           }),
@@ -175,6 +185,7 @@ export class SegmentModelService {
     if (![1, 2, 3].includes(impactLevel) || ![1, 2, 3].includes(qualityLevel)) {
       throw notFound();
     }
+    // Ein Typ außerhalb des Rasters (z. B. Stufe 3 bei 2 × 2) existiert nicht; dann 404 unten
     await this.run(auth, async (tx, organization) => {
       const modelId = await this.ensureDraft(tx, organization.id);
       const rows = await tx
@@ -193,6 +204,49 @@ export class SegmentModelService {
     return this.get(auth);
   }
 
+  /**
+   * E-K0-33 (K2-b.1): Raster und Namen der Achsen des Entwurfs. Ein anderes Raster legt die Typen
+   * mit Standardnamen neu an und passt die Grenzen an: bei 2 × 2 eine Grenze (midMax 100), bei
+   * 3 × 3 wieder zwei.
+   */
+  async updateGrid(auth: AuthContext, input: UpdateSegmentGrid): Promise<SegmentModelResponse> {
+    await this.run(auth, async (tx, organization) => {
+      const modelId = await this.ensureDraft(tx, organization.id);
+      const [draft] = await tx
+        .select()
+        .from(schema.segmentModel)
+        .where(eq(schema.segmentModel.id, modelId));
+      if (!draft) throw notFound();
+      const changed = draft.gridSize !== input.gridSize;
+      // Neues Raster, Standardgrenzen: 2 × 2 trennt bei 50, 3 × 3 bei 33 und 66
+      const boundaries = !changed
+        ? {}
+        : input.gridSize === 2
+          ? { lowMax: 50, midMax: 100 }
+          : { lowMax: 33, midMax: 66 };
+      await tx
+        .update(schema.segmentModel)
+        .set({
+          gridSize: input.gridSize,
+          impactLabel: input.impactLabel,
+          qualityLabel: input.qualityLabel,
+          ...boundaries,
+        })
+        .where(eq(schema.segmentModel.id, modelId));
+      if (changed) {
+        await tx.delete(schema.segmentType).where(eq(schema.segmentType.modelId, modelId));
+        await tx.insert(schema.segmentType).values(
+          defaultSegmentTypesFor(input.gridSize).map((type) => ({
+            ...type,
+            modelId,
+            triageWeight: defaultTriageWeight(type, input.gridSize),
+          })),
+        );
+      }
+    });
+    return this.get(auth);
+  }
+
   async activateDraft(auth: AuthContext): Promise<SegmentModelResponse> {
     await this.run(auth, async (tx, organization) => {
       const models = await tx
@@ -206,12 +260,12 @@ export class SegmentModelService {
       if (
         complete.criteria.filter((criterion) => criterion.axis === 'impact').length === 0 ||
         complete.criteria.filter((criterion) => criterion.axis === 'quality').length === 0 ||
-        complete.types.length !== 9
+        complete.types.length !== complete.gridSize * complete.gridSize
       ) {
         throw new ConflictException({
           statusCode: 409,
           code: 'incomplete_model',
-          message: 'Das Segmentmodell braucht Kriterien auf beiden Achsen und alle neun Typen.',
+          message: 'Das Segmentmodell braucht Kriterien auf beiden Achsen und einen Typ je Feld.',
         });
       }
 
@@ -259,6 +313,9 @@ export class SegmentModelService {
         orgId,
         version: active.version + 1,
         status: 'draft',
+        gridSize: active.gridSize,
+        impactLabel: active.impactLabel,
+        qualityLabel: active.qualityLabel,
         lowMax: active.lowMax,
         midMax: active.midMax,
         deviationThreshold: active.deviationThreshold,
@@ -305,6 +362,9 @@ export class SegmentModelService {
       id: row.id,
       version: row.version,
       status: row.status,
+      gridSize: row.gridSize === 2 ? 2 : 3,
+      impactLabel: row.impactLabel,
+      qualityLabel: row.qualityLabel,
       lowMax: row.lowMax,
       midMax: row.midMax,
       deviationThreshold: row.deviationThreshold,

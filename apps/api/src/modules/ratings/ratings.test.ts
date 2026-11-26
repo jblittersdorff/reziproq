@@ -116,6 +116,7 @@ describe('SEG-04 Bewertung abgeben über die API', () => {
         orgId: orgs.oem,
         version: 1,
         status: 'active',
+        gridSize: 3 as const,
         lowMax: 33,
         midMax: 66,
         activatedAt: new Date(),
@@ -242,6 +243,7 @@ describe('SEG-04 Bewertung abgeben über die API', () => {
     await fillAll(users.raterA, assignmentA, 80, 20);
     const result = await detail(users.raterA, assignmentA);
     const model = {
+      gridSize: 3 as const,
       lowMax: 33,
       midMax: 66,
       criteria: defaultSegmentCriteria,

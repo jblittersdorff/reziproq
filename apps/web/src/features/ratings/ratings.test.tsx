@@ -59,6 +59,7 @@ beforeEach(() => {
     editable: true,
     model: {
       version: 1,
+      gridSize: 3,
       lowMax: 33,
       midMax: 66,
       criteria: defaultSegmentCriteria.map((criterion) => ({ ...criterion })),

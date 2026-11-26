@@ -68,6 +68,16 @@ Je Kriterium ein Test.
 Die unveränderliche Modellversion einer laufenden Bewertungsrunde wird beim Anlegen der Runde
 gespeichert und in SEG-03 getestet.
 
+## Umsetzung E-K0-33 (K2-b.1, 27.11.2026)
+
+- **Daten:** `segment_model.grid_size` (2 oder 3, Standard 3), `impact_label` und `quality_label` (Namen der Achsen je Kunde, Standard „Business Impact“ und „Beziehungsqualität“; Migration `0145`).
+  - Bei 2 × 2 trennt `low_max` die beiden Stufen, `mid_max` bleibt 100 (Check `segment_model_grid_boundaries`).
+  - Löschen darf die App nur Typen eines Entwurfs (Policy `segment_type_delete_draft`); aktive und abgelöste Modelle bleiben, wie sie sind.
+- **Rechnung:** `segmentLevel` und `calculateSegment` in `packages/shared/src/segment.ts` rechnen je Größe. Die Standardtypen für 2 × 2 sind die äußeren Stufen der 3 × 3-Matrix.
+- **Dienst:** `PATCH /api/segment-model/draft/grid` setzt Raster und Achsen des Entwurfs. Ein anderes Raster legt die Typen mit Standardnamen neu an und setzt die Grenzen zurück (2 × 2: 50; 3 × 3: 33 und 66). Aktivieren verlangt einen Typ je Feld.
+- **Seite:** Abschnitt „Raster“ mit eigener Seite `/einstellungen/segmentmodell/raster`; Achsennamen aus dem Modell; bei 2 × 2 eine Grenze und eine 2 × 2-Matrix.
+- **Tests:** `packages/shared/src/segment.test.ts`, `packages/db/src/segment.test.ts`, `apps/api/src/modules/segment-model/segment-model.test.ts`, `apps/web/src/features/segment-model/segment-model.test.tsx`, `apps/web/e2e/seg-01.spec.ts`.
+
 ## Nicht Teil dieser Funktion
 
 - Mehr oder weniger als drei Stufen je Achse

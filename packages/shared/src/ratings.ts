@@ -61,6 +61,8 @@ export const ratingDetailSchema = z.object({
   editable: z.boolean(),
   model: z.object({
     version: z.number().int().positive(),
+    // E-K0-33 (K2-b.1): 2 × 2 oder 3 × 3
+    gridSize: z.union([z.literal(2), z.literal(3)]),
     lowMax: z.number().int(),
     midMax: z.number().int(),
     criteria: z.array(segmentCriterionSchema),

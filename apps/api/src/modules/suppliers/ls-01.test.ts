@@ -149,6 +149,8 @@ describe('LS-01 Lieferantenliste', () => {
     30_000,
   );
 
+  // Funktionstests über die Liste mit 2.000 Lieferanten: unter der Last von pnpm check dauerte das
+  // einmal über 15 s (27.11.2026); die Zeitmessung selbst läuft getrennt in test:perf
   it('liefert Hauptwarengruppe nach Spend und SRO, aber nie den globalen Organisationsnamen', async () => {
     const body = suppliersResponseSchema.parse(
       await (await testApp.get('/api/suppliers', await token(users.a))).json(),
@@ -166,7 +168,7 @@ describe('LS-01 Lieferantenliste', () => {
       await (await testApp.get(`/api/suppliers/${rel}/overview`, await token(users.a))).json(),
     );
     expect(overview).toMatchObject({ overdueCommitments: 0, openDrafts: 1 });
-  });
+  }, 60_000);
 
   it('ein Käufer sieht nur seine Lieferanten, auch nicht über die Detailleiste; der Lieferant nie', async () => {
     const other = suppliersResponseSchema.parse(
@@ -177,5 +179,5 @@ describe('LS-01 Lieferantenliste', () => {
       404,
     );
     expect((await testApp.get('/api/suppliers', await token(users.supplier))).status).toBe(403);
-  });
+  }, 60_000);
 });

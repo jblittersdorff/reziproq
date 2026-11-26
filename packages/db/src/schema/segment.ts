@@ -28,6 +28,12 @@ export const segmentModel = pgTable(
     deviationThreshold: smallint('deviation_threshold').notNull().default(30),
     // SEG-02: Fokus-Vorschlag, wenn die größten Lieferanten zusammen diesen Prozentsatz des Spends ausmachen.
     focusSpendShare: smallint('focus_spend_share').notNull().default(80),
+    // E-K0-33 (K2-b.1): Größe der Matrix je Modell, 2 × 2 oder 3 × 3. Bei 2 × 2 trennt lowMax die
+    // beiden Stufen, midMax bleibt 100. Die Achsen heißen je Kunde, z. B. Versorgungsrisiko und
+    // Wertbeitrag statt Business Impact und Beziehungsqualität.
+    gridSize: smallint('grid_size').notNull().default(3),
+    impactLabel: text('impact_label').notNull().default('Business Impact'),
+    qualityLabel: text('quality_label').notNull().default('Beziehungsqualität'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`app_now()`),
     activatedAt: timestamp('activated_at', { withTimezone: true }),
   },
@@ -40,6 +46,12 @@ export const segmentModel = pgTable(
     check('segment_model_deviation', sql`${table.deviationThreshold} between 1 and 100`),
     check('segment_model_focus_share', sql`${table.focusSpendShare} between 1 and 100`),
     check('segment_model_version', sql`${table.version} > 0`),
+    check('segment_model_grid_size', sql`${table.gridSize} in (2, 3)`),
+    check('segment_model_grid_boundaries', sql`${table.gridSize} = 3 or ${table.midMax} = 100`),
+    check(
+      'segment_model_axis_labels',
+      sql`length(trim(${table.impactLabel})) between 1 and 80 and length(trim(${table.qualityLabel})) between 1 and 80`,
+    ),
     check(
       'segment_model_activation',
       sql`(${table.status} = 'draft' and ${table.activatedAt} is null) or
