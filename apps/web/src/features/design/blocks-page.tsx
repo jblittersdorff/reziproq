@@ -489,6 +489,18 @@ export function BlocksPage() {
             value={<Badge variant="neutral">{t.akte.agentChip}</Badge>}
           />
         </RowGroup>
+        {/* AK-01 (K2-c.4): Von <Gegenüber> – weiße Gruppe mit Petrol-Kante links */}
+        <RowGroup tone="counterpart" label={t.akte.counterpartLabel}>
+          {t.akte.counterpartRows.map(([title, detail]) => (
+            <Row
+              key={title}
+              lead={<Monogram name={detail} tone="petrol" />}
+              title={title}
+              detail={detail}
+              wrap
+            />
+          ))}
+        </RowGroup>
 
         {section('segmented', t.sections.segmented)}
         {/* MA-01 (K1-f.3): Stufen-Umschalter wie in Mein Agent; eine nicht erlaubte Stufe ist gesperrt */}

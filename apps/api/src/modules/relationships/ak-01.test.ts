@@ -1,5 +1,5 @@
 import { hollmann, hollmannPeople, hollmannSuppliers, supplierPeople } from '@reziproq/db';
-import { akteHeadSchema, akteSharedSchema } from '@reziproq/shared';
+import { akteCounterpartSchema, akteHeadSchema, akteSharedSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { hollmannTimeout, seedHollmannExclusive } from '../../testing/hollmann.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -131,5 +131,41 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
         .status,
     ).toBe(403);
     expect((await call(`/beziehungen/${hollmann.org.id}/gemeinsam`)).status).toBe(404);
+  });
+
+  it('Von Rheintal (K2-c.4): nur was Rheintal geteilt hat, neueste zuerst, je Kennzahl der jüngste Wert', async () => {
+    const response = await call(`/beziehungen/${rheintal.relationshipId}/geteilt`);
+    expect(response.status).toBe(200);
+    const view = akteCounterpartSchema.parse(response.body);
+    expect(view.counterpart).toBe('Rheintal Elektronik');
+    // Kommentar von Nils Ott am JBP (18.11.), Kennzahlen Oktober von Tom Weber (04.11.), Unterschrift
+    // von Kim Kaiser (08.12.2025); die Prognosetreue gehört Hollmann und fehlt
+    expect(view.items.map((item) => [item.kind, item.personName])).toEqual([
+      ['comment', supplierPeople.nilsOtt.name],
+      ['kpi_value', supplierPeople.tomWeber.name],
+      ['kpi_value', supplierPeople.tomWeber.name],
+      ['signature', supplierPeople.kimKaiser.name],
+    ]);
+    const [comment, ...rest] = view.items;
+    expect(comment).toMatchObject({ objectType: 'meeting', context: 'JBP Rheintal 2027' });
+    expect(comment?.kind === 'comment' && comment.body).toContain('Kapazitätsplanung 2028');
+    expect(
+      rest.flatMap((item) =>
+        item.kind === 'kpi_value' ? [[item.name, item.period, item.value, item.awaitingOwn]] : [],
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        ['Liefertreue', '2026-10-01', '94.0000', false],
+        ['Reklamationen je Mio. Teile', '2026-10-01', '28.0000', false],
+      ]),
+    );
+    expect(view.items.at(-1)).toMatchObject({ kind: 'signature', planYear: 2026 });
+    // Rheintal hat im Demo noch keine geteilten Spielregeln (kommen mit K2-c.5)
+    expect(view.obligations).toBeNull();
+    expect(
+      (await call(`/beziehungen/${rheintal.relationshipId}/geteilt`, supplierPeople.kimKaiser.id))
+        .status,
+    ).toBe(403);
+    expect((await call(`/beziehungen/${hollmann.org.id}/geteilt`)).status).toBe(404);
   });
 });

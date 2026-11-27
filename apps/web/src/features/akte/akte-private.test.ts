@@ -14,8 +14,8 @@ import {
   openTasks,
   orderedEntries,
   planFacts,
-  segmentFacts,
   segmentDistance,
+  segmentFacts,
   unpairedContacts,
 } from './akte-private';
 

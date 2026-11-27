@@ -186,7 +186,7 @@ test('T2-04: der Umschalter setzt die Adresse; ?sicht=privat und ?sicht=geteilt 
   );
   await views.getByRole('link', { name: /Von Rheintal Elektronik/ }).click();
   await expect(page).toHaveURL(/\?sicht=geteilt$/);
-  await expect(page.getByRole('link', { name: /Spielregeln/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: /Von Rheintal Elektronik geteilt/ })).toBeVisible();
   await page.goBack();
   await expect(page).toHaveURL(/\?sicht=privat$/);
   await views.getByRole('link', { name: /Gemeinsam/ }).click();
@@ -260,6 +260,55 @@ test('Nur für dich (K2-c.3): Das Wichtigste, Segment, Verlauf mit neuer Notiz u
   await expect(history.getByRole('button', { name: /Mail von / }).first()).toBeVisible();
 });
 
+test('Von Rheintal (K2-c.4): Geteiltes von Rheintal, was Rheintal sieht und nie sieht, Rheintal in Reziproq', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openAkte(page);
+  await page
+    .getByRole('navigation', { name: 'Sicht auf die Beziehung' })
+    .getByRole('link', { name: /Von Rheintal Elektronik/ })
+    .click();
+  await expect(page).toHaveURL(/\?sicht=geteilt$/);
+  // Vorlage K2-Akte-Geteilt: nur was Rheintal aktiv geteilt hat (E-K0-31), Sätze aus Zahlen (G-6)
+  await expect(page.getByRole('region', { name: 'Das Wichtigste' })).toContainText(
+    'Rheintal Elektronik hat 2 Kennzahlwerte, 1 Kommentar und 1 Unterschrift mit euch geteilt, zuletzt am 18.11.',
+  );
+  const shared = page.getByRole('region', { name: /Von Rheintal Elektronik geteilt · 4/ });
+  await expect(shared.locator('b')).toHaveText([
+    'Kommentar zu „JBP Rheintal 2027“',
+    /Oktober/,
+    /Oktober/,
+    'Scorecard 2026 unterschrieben',
+  ]);
+  await expect(shared.getByRole('link', { name: /Kommentar zu/ })).toContainText(
+    'Nils Ott · 18.11. · „@Jan-Luka',
+  );
+  await expect(shared.getByRole('link', { name: /Liefertreue Oktober: 94/ })).toContainText(
+    'Tom Weber · 04.11.',
+  );
+  await expect(
+    page.getByRole('region', { name: 'Was Rheintal Elektronik nie sieht' }),
+  ).toContainText('Beziehungsnetz');
+  await expect(
+    page.getByRole('region', { name: 'Was Rheintal Elektronik von euch sieht' }),
+  ).toContainText('Alles unter Gemeinsam');
+  await expect(
+    page.getByRole('region', { name: 'Pflichten von Rheintal Elektronik' }),
+  ).toContainText('Noch keine geteilten Spielregeln');
+  const people = page.getByRole('region', { name: 'Rheintal Elektronik in Reziproq' });
+  await expect(people).toContainText('Kim KaiserSponsoraktiv');
+  await expect(people).toContainText('noch nicht eingeladen');
+  await page.waitForLoadState('networkidle');
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({
+      path: `${process.env.UX_SHOTS}/ak-01-geteilt-1440.png`,
+      fullPage: true,
+    });
+  }
+});
+
 test('Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitliches Scrollen', async ({
   page,
 }) => {
@@ -292,5 +341,16 @@ test('Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitlic
   expect(await sideOverflow(page)).toEqual([]);
   if (process.env.UX_SHOTS) {
     await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-privat-390.png`, fullPage: true });
+  }
+  await views.getByRole('link', { name: 'Rheintal Elektronik' }).click();
+  await expect(page).toHaveURL(/\?sicht=geteilt$/);
+  await expect(page.getByRole('region', { name: /Von Rheintal Elektronik geteilt/ })).toBeVisible();
+  expect(await switchLines(page)).toEqual([1, 1, 1]);
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({
+      path: `${process.env.UX_SHOTS}/ak-01-geteilt-390.png`,
+      fullPage: true,
+    });
   }
 });

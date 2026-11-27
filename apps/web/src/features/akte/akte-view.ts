@@ -1,5 +1,7 @@
 import type { AkteCommitment, AkteShared } from '@reziproq/shared';
 import { z } from 'zod';
+import type { Locale } from '@/lib/i18n';
+import { localeTags } from '@/lib/money';
 
 // AK-01 (K2-c.2): Regeln der Akte ohne Oberfläche. Die Sicht steht in der Adresse
 // (`?sicht=privat`, `?sicht=geteilt`); ohne Angabe Gemeinsam (T2-04).
@@ -42,6 +44,23 @@ export function monthOf(period: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' }).format(
     new Date(`${period}T00:00:00Z`),
   );
+}
+
+/**
+ * Tag eines Zeitpunkts in Berlin im Format der Sprache, z. B. „18.11.“ oder „18/11“. Liegt er in
+ * einem anderen Jahr als `now`, steht das Jahr dabei („08.12.2025“).
+ */
+export function dayMonth(iso: string, locale: Locale, now?: Date): string {
+  const at = new Date(iso);
+  const yearIn = (date: Date) =>
+    new Intl.DateTimeFormat('en-CA', { year: 'numeric', timeZone: 'Europe/Berlin' }).format(date);
+  const other = now !== undefined && yearIn(at) !== yearIn(now);
+  return new Intl.DateTimeFormat(localeTags[locale], {
+    day: '2-digit',
+    month: '2-digit',
+    ...(other ? { year: 'numeric' as const } : {}),
+    timeZone: 'Europe/Berlin',
+  }).format(at);
 }
 
 /** Liegt ein Tag höchstens `days` Tage nach heute? Dann steht der Wochentag dabei („bis Fr 27.11.“) */

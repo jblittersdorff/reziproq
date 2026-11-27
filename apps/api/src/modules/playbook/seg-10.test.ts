@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import {
+  akteCounterpartSchema,
   customerRuleSetSchema,
   customerWorkspaceSchema,
   defaultSegmentCriteria,
@@ -181,6 +182,16 @@ describe('SEG-10 Beziehungstyp und Spielregeln an den Lieferanten freigeben', ()
     );
     expect(head.relationshipType).toBe(preview.typeName);
     expect((await call(users.sro, 'POST', `${buyerPath}/teilen`)).status).toBe(409);
+    // AK-01 (K2-c.4): Die Akte, Sicht Von <Gegenüber>, nennt die Pflichten genau dieser Version
+    const akte = akteCounterpartSchema.parse(
+      (await call(users.sro, 'GET', `/beziehungen/${rel}/geteilt`)).body,
+    );
+    expect(akte.obligations).toMatchObject({ version: 1, typeName: preview.typeName });
+    const duties = preview.items.filter((item) => item.kind === 'obligation');
+    expect(duties.length).toBeGreaterThan(0);
+    expect(akte.obligations?.items.map((item) => [item.title, item.cadence])).toEqual(
+      duties.map((item) => [item.title, item.cadence]),
+    );
   });
 
   it('Bewertungen, Ist-Typ und Begründungen sind für den Lieferanten in keiner Schnittstelle sichtbar', async () => {

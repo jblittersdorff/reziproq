@@ -1,8 +1,10 @@
 import { z } from 'zod';
+import { commentObjectTypes } from './comments.js';
 import { jbpPlanStatuses } from './jbp.js';
-import { moneySchema } from './money.js';
 import { meetingSides } from './meetings.js';
+import { moneySchema } from './money.js';
 import { teamRoles } from './permissions.js';
+import { formatCadences, localizedTextSchema } from './playbook.js';
 import { sideQuoteSchema } from './relationships.js';
 import { ruleSetStatuses } from './rule-sets.js';
 import { kpiTracks } from './scorecard.js';
@@ -192,6 +194,88 @@ export const akteSharedSchema = z.object({
   }),
 });
 export type AkteShared = z.infer<typeof akteSharedSchema>;
+
+/** Stand eines Themas fürs JBP (JBP-02): vorgeschlagen, im Plan aufgegangen oder geparkt */
+export const akteTopicStatuses = ['proposed', 'merged', 'parked'] as const;
+
+const counterpartBase = {
+  id: z.uuid(),
+  /** Wann das Gegenüber es geteilt hat */
+  at: z.iso.datetime({ offset: true }),
+  /** Wer beim Gegenüber es geteilt hat; null, wenn das Objekt keine Person kennt */
+  personName: z.string().nullable(),
+};
+
+/**
+ * Was das Gegenüber aktiv geteilt hat (E-K0-31, E-K2-9): geteilte Zeilen, die dem Gegenüber
+ * gehören. Kennzahlwerte nur der jüngste je Kennzahl; Zusagen stehen in Gemeinsam.
+ */
+export const akteCounterpartItemSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('kpi_value'),
+    ...counterpartBase,
+    kpiId: z.uuid(),
+    name: z.string(),
+    unit: z.string(),
+    /** Erster Tag des Monats */
+    period: z.iso.date(),
+    value: z.string(),
+    /** Die eigene Bestätigung fehlt noch (ZA-01) */
+    awaitingOwn: z.boolean(),
+  }),
+  z.object({
+    kind: z.literal('topic'),
+    ...counterpartBase,
+    title: z.string(),
+    status: z.enum(akteTopicStatuses),
+    planYear: z.number().int().nullable(),
+  }),
+  z.object({
+    kind: z.literal('comment'),
+    ...counterpartBase,
+    objectType: z.enum(commentObjectTypes),
+    objectId: z.uuid(),
+    /** Titel des Objekts, etwa des Termins; null, wenn es keinen gibt */
+    context: z.string().nullable(),
+    body: z.string(),
+  }),
+  z.object({
+    kind: z.literal('signature'),
+    ...counterpartBase,
+    planYear: z.number().int().nullable(),
+  }),
+  z.object({
+    kind: z.literal('business_update'),
+    ...counterpartBase,
+    planYear: z.number().int().nullable(),
+    text: z.string(),
+  }),
+]);
+export type AkteCounterpartItem = z.infer<typeof akteCounterpartItemSchema>;
+
+/** Sicht Von <Gegenüber> (`?sicht=geteilt`): Geteiltes des Gegenübers und seine Pflichten */
+export const akteCounterpartSchema = z.object({
+  /** Name der Organisation des Gegenübers; den Anzeigenamen bildet die Seite */
+  counterpart: z.string(),
+  /** Neueste zuerst */
+  items: z.array(akteCounterpartItemSchema),
+  /** Pflichten des Lieferanten aus der zuletzt geteilten Fassung der Spielregeln (PLB-01, SEG-10) */
+  obligations: z
+    .object({
+      version: z.number().int().positive(),
+      typeName: z.string(),
+      sharedAt: z.iso.datetime({ offset: true }),
+      items: z.array(
+        z.object({
+          id: z.uuid(),
+          title: localizedTextSchema(200),
+          cadence: z.enum(formatCadences).nullable(),
+        }),
+      ),
+    })
+    .nullable(),
+});
+export type AkteCounterpart = z.infer<typeof akteCounterpartSchema>;
 
 /**
  * Jahr eines Gemeinsamen Plans aus seiner Anlage: Pläne entstehen zum JBP im Herbst für das

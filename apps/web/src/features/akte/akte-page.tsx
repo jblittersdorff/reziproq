@@ -30,6 +30,7 @@ import {
 import { type Format, useFormat } from '@/lib/format';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { CounterpartView } from './akte-counterpart-view';
 import { akteMessages } from './akte-messages';
 import { PrivateView } from './akte-private-view';
 import { comparison, isNear, measureText, monthOf, oldPage, overdueOf, viewOf } from './akte-view';
@@ -41,8 +42,8 @@ const old = oldPage;
 /**
  * Akte einer Beziehung (AK-01, nach den Vorlagen L-Ueberblick, K2-Akte-Privat und A-Lieferant): Kopf
  * mit Aktionen und Sichten-Umschalter, der die Adresse setzt (T2-04). Gemeinsam (K2-c.2) zeigt, was
- * beide Seiten gleich sehen, Nur für dich (K2-c.3) was nur das eigene Team sieht. Von <Gegenüber>
- * baut K2-c.4; bis dahin führt es zu den bisherigen Seiten (E-K2-12).
+ * beide Seiten gleich sehen, Nur für dich (K2-c.3) was nur das eigene Team sieht, Von <Gegenüber>
+ * (K2-c.4) was das Gegenüber aktiv geteilt hat (Vorlage K2-Akte-Geteilt).
  */
 export function AktePage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
@@ -165,7 +166,7 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
       ) : view === 'privat' ? (
         <PrivateView relationshipId={relationshipId} name={name} />
       ) : (
-        <Bridge relationshipId={relationshipId} name={name} text={text} />
+        <CounterpartView relationshipId={relationshipId} name={name} />
       )}
     </div>
   );
@@ -689,52 +690,6 @@ function Team({
         renderLink={routerLink}
       />
     </RowGroup>
-  );
-}
-
-/**
- * Von <Gegenüber> bis K2-c.4: die bisherigen Seiten dieser Inhalte (E-K2-12), damit nichts verloren
- * geht. Vorlage K2-Akte-Geteilt: was beide Seiten sehen, als geteilte Gruppe (Mint mit Doppelring).
- */
-function Bridge({
-  relationshipId,
-  name,
-  text,
-}: {
-  relationshipId: string;
-  name: string;
-  text: Text;
-}) {
-  const rows = [
-    {
-      key: 'spielregeln',
-      title: text.bridge.rules,
-      detail: text.bridge.rulesSub,
-      path: '/beziehung/spielregeln',
-    },
-    { key: 'team', title: text.bridge.team, detail: text.bridge.teamSub, path: '/beziehung/team' },
-    {
-      key: 'feedback',
-      title: text.bridge.feedback,
-      detail: text.bridge.feedbackSub,
-      path: '/beziehung/feedback',
-    },
-  ];
-  return (
-    <div className="max-w-3xl">
-      <RowGroup tone="shared" label={text.bridge.counterpart(name)}>
-        {rows.map((row) => (
-          <Row
-            key={row.key}
-            href={old(relationshipId, row.path)}
-            title={row.title}
-            detail={row.detail}
-            wrap
-            renderLink={routerLink}
-          />
-        ))}
-      </RowGroup>
-    </div>
   );
 }
 

@@ -45,4 +45,11 @@ export class RelationshipsController {
   shared(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
     return this.akte.shared(auth, id);
   }
+
+  /** Akte, Sicht Von <Gegenüber> (AK-01, K2-c.4): was das Gegenüber aktiv geteilt hat */
+  @Get(':id/geteilt')
+  @Requires('lieferanten.sehen')
+  counterpart(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.akte.counterpart(auth, id);
+  }
 }

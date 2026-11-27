@@ -178,7 +178,7 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Kennzeichnung | Doppelring 14 px und Chip: „mit Reziproq“ und „Reziproq“ geteilt (`#e1f3ed` / `#0a5c50`), „Mensch“ neutral; daneben Name und Zeit | `K5-Deal.dc.html` |
 | Entwurf von Reziproq | wie KI-Entwurf; Zeile „Zusammengefasst von Reziproq“ mit Quellen-Pillen über Sätzen | `Main.dc.html` |
 | Sichten-Umschalter | Segment-Umschalter mit Symbolen: Doppelring Gemeinsam, Schloss Nur für dich, Petrol-Punkt Von <Gegenüber>; setzt die Adresse. Auf dem Telefon ohne Symbole und mit kurzen Namen („Für dich“), jede Sicht in einer Zeile | `K2-Akte-Privat.dc.html`, `A-Lieferant.dc.html` |
-| Von <Gegenüber> | weiße Gruppe mit Petrol-Kante links 4 px | `K2-Akte-Geteilt.dc.html` |
+| Von <Gegenüber> | weiße Gruppe mit Petrol-Kante links 4 px, Petrol-Punkt vor dem Label; „Was <Gegenüber> nie sieht“ als private Fläche mit Chip „nie“ | `K2-Akte-Geteilt.dc.html` |
 | Monogramm nach Seite | eigene Personen Tinte, Personen des Gegenübers Petrol; beim Lieferanten umgekehrt zugeordnet | `L5-Akte.dc.html` |
 | Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite; erlaubt nach E-K0-01 | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
 | Datumskreis | Kreis 44 px mit Tag und Monat; Petrol, wenn das Gegenüber am Zug ist; im Termin-Kopf 56 px | `Termin-Briefing.dc.html` |

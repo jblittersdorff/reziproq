@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { akteCounterpartSample } from '@/testing/akte-counterpart-sample';
 import { aktePrivateSample } from '@/testing/akte-private-sample';
 import {
   api,
@@ -29,6 +30,7 @@ beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
   api.aktePrivate = aktePrivateSample();
+  api.akteCounterpart = akteCounterpartSample();
 });
 afterEach(tearDownApp);
 
@@ -78,10 +80,10 @@ describe('AK-01 Akte, Kopf und Sichten', () => {
     expect(note.textContent).toContain('Nur für dich und euer Teamprivat');
     fireEvent.click(link(/Von Rheintal Elektronik/));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ sicht: 'geteilt' }));
-    const rules = await screen.findByRole('link', { name: /Spielregeln/ });
-    expect(rules.getAttribute('href')).toBe(`/lieferanten/${id}/beziehung/spielregeln`);
-    expect(rules.closest('[data-tone]')?.getAttribute('data-tone')).toBe('shared');
-    expect(document.querySelector('[data-slot="private-note"]')).toBeNull();
+    // K2-c.4: Von <Gegenüber> mit dem Geteilten des Gegenübers (ak-01-geteilt.test.tsx)
+    const shared = await screen.findByRole('region', { name: /Von Rheintal Elektronik geteilt/ });
+    expect(shared.querySelector('[data-tone="counterpart"]')).toBeTruthy();
+    expect(screen.queryByRole('region', { name: 'Verlauf · nur euer Team' })).toBeNull();
     fireEvent.click(link(/Gemeinsam/));
     await waitFor(() => expect(router.state.location.search).toEqual({}));
     expect(await screen.findByRole('region', { name: 'Das Wichtigste' })).toBeTruthy();

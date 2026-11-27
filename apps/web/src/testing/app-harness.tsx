@@ -26,6 +26,7 @@ import { expect, vi } from 'vitest';
 import { resetBusinessTime } from '@/lib/clock';
 import { LocaleProvider } from '@/lib/i18n';
 import { routeTree } from '@/routeTree.gen';
+import type { AkteCounterpartSample } from './akte-counterpart-sample';
 import type { AktePrivateSample } from './akte-private-sample';
 
 // Gemeinsamer Aufbau für Oberflächentests mit jsdom: echter Router, nachgebauter Login,
@@ -698,6 +699,11 @@ export const api = {
    * Wert, Kontaktpunkte, Verlauf mit Notizen und Aufgaben. Ohne Angabe antworten sie mit 404.
    */
   aktePrivate: null as AktePrivateSample | null,
+  /**
+   * Sicht Von <Gegenüber> (AK-01, K2-c.4): GET /api/beziehungen/<id>/geteilt, Team und Einladungen.
+   * Ohne Angabe antworten sie mit 404.
+   */
+  akteCounterpart: null as AkteCounterpartSample | null,
   /** GET /api/beziehungen/segmente (BZ-01, K2-b.5) */
   relationshipSegments: { status: 200, body: sampleSegments as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
@@ -792,6 +798,16 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   }
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
+  }
+  const counterpart =
+    /^\/api\/(?:beziehungen\/[0-9a-f-]{36}\/geteilt|suppliers\/[0-9a-f-]{36}\/(team|einladungen))$/.exec(
+      url,
+    );
+  if (counterpart && api.akteCounterpart && (init?.method ?? 'GET') === 'GET') {
+    const key = counterpart[1] === 'team' ? 'team' : counterpart[1] ? 'invitations' : 'view';
+    const status = api.akteCounterpart.status[key];
+    if (status && status !== 200) return Response.json({ statusCode: status }, { status });
+    return Response.json(api.akteCounterpart[key]);
   }
   const akte = /^\/api\/beziehungen\/([0-9a-f-]{36})(\/gemeinsam)?$/.exec(url);
   if (akte) {
@@ -998,6 +1014,7 @@ export function setUpApp() {
   api.relationshipSegments = { status: 200, body: sampleSegments };
   api.akte = { status: 200, head: sampleAkteHead, shared: sampleAkteShared };
   api.aktePrivate = null;
+  api.akteCounterpart = null;
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];

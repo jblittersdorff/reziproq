@@ -30,20 +30,12 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { entriesByMonth, orderedEntries } from './akte-private';
 import { aktePrivateMessages } from './akte-private-messages';
+import { dayMonth } from './akte-view';
 
 type FilterValue = ActivityFilter | 'all';
 
 /** So viele Einträge stehen vorn; der Rest kommt mit „Alles anzeigen“ nach Monaten */
 const firstCount = 5;
-
-/** Tag eines Eintrags in Berlin, z. B. „20.11.“ */
-function dayMonth(iso: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    timeZone: 'Europe/Berlin',
-  }).format(new Date(iso));
-}
 
 /** Notizen und Mails ändern den Verlauf; danach lädt er neu (wie Aktivitäten, NAV-10) */
 function useFeedUpdate(relationshipId: string) {

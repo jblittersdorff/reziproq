@@ -156,15 +156,6 @@ export const akteMessages = defineMessages({
       footnote: (name: string) =>
         `Was hier steht, sieht ${name} genauso. Die eigenen Notizen von ${name} siehst du nie, und ${name} deine nicht.`,
     },
-    bridge: {
-      counterpart: (name: string) => `Mit ${name} geteilt`,
-      rules: 'Spielregeln',
-      rulesSub: 'Rechte, Pflichten und Formate',
-      team: 'Team',
-      teamSub: 'Personen beider Seiten und Einladungen',
-      feedback: 'Feedback',
-      feedbackSub: 'Wellen und Ergebnisse',
-    },
   },
   en: {
     back: 'Suppliers',
@@ -297,15 +288,6 @@ export const akteMessages = defineMessages({
         `${own} with you, ${counterpart} with ${name}`,
       footnote: (name: string) =>
         `${name} sees what is here exactly the same way. You never see the own notes of ${name}, and ${name} never sees yours.`,
-    },
-    bridge: {
-      counterpart: (name: string) => `Shared with ${name}`,
-      rules: 'Ground rules',
-      rulesSub: 'Rights, duties and formats',
-      team: 'Team',
-      teamSub: 'People of both sides and invitations',
-      feedback: 'Feedback',
-      feedbackSub: 'Waves and results',
     },
   },
 });

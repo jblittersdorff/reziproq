@@ -9,7 +9,8 @@ import { defaultRenderLink, type RenderLink } from './nav-link';
  * Gruppe mit Zeilen (UX-20 `RowGroup`, Designsprache 2, Vorlage `Main.dc.html`): graues
  * Abschnittslabel in Versalien über einer weißen Gruppe; Zeilen 56 px mit Trenner. `shared` ist
  * Geteiltes (Regel „geteilt Mint mit Doppelring“, Vorlage L-Ueberblick): Fläche Mint mit Rand und
- * der Doppelring vor dem Label.
+ * der Doppelring vor dem Label. `counterpart` ist Von <Gegenüber> (Vorlage K2-Akte-Geteilt): weiß
+ * mit Petrol-Kante links 4 px und Petrol-Punkt vor dem Label.
  */
 function RowGroup({
   label,
@@ -27,7 +28,8 @@ function RowGroup({
   action?: React.ReactNode;
   /** Zwischen Label und Gruppe, z. B. Frag-Zeile und Filter im Verlauf (Vorlage K2-Akte-Privat) */
   intro?: React.ReactNode;
-  tone?: 'default' | 'shared';
+  /** shared: Geteiltes (Mint, Doppelring); counterpart: Von <Gegenüber> (weiß, Petrol-Kante links) */
+  tone?: 'default' | 'shared' | 'counterpart';
   /** Ebene der Überschrift; 3 für Untergruppen, etwa die Monate im Verlauf */
   level?: 2 | 3;
   /** Sprungmarke, z. B. „verlauf“ für /beziehungen/<id>?sicht=privat#verlauf */
@@ -43,6 +45,9 @@ function RowGroup({
       className="flex min-w-0 flex-1 items-center gap-2 px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label"
     >
       {tone === 'shared' && <BrandMark className="h-3.5 w-5" />}
+      {tone === 'counterpart' && (
+        <span aria-hidden className="size-2 shrink-0 rounded-full bg-petrol" />
+      )}
       {label}
     </Heading>
   );
@@ -68,7 +73,9 @@ function RowGroup({
           'flex flex-col divide-y overflow-hidden rounded-md',
           tone === 'shared'
             ? 'border border-mint-line bg-mint-soft divide-mint-line'
-            : 'divide-row-line bg-card',
+            : tone === 'counterpart'
+              ? 'border-petrol border-l-4 bg-card divide-row-line'
+              : 'divide-row-line bg-card',
         )}
       >
         {children}

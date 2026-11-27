@@ -27,6 +27,7 @@ import {
   agentsResponseSchema,
   aiSettingsResponseSchema,
   aiUsageSchema,
+  akteCounterpartSchema,
   akteHeadSchema,
   akteSharedSchema,
   analysisStepSchema,
@@ -2317,6 +2318,15 @@ export const akteSharedQueryOptions = (accessToken: string, relationshipId: stri
     queryKey: ['beziehungen', relationshipId, 'gemeinsam'],
     queryFn: () =>
       getJson(`/beziehungen/${relationshipId}/gemeinsam`, akteSharedSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** AK-01 (K2-c.4): Akte, Sicht Von <Gegenüber>: was das Gegenüber aktiv geteilt hat */
+export const akteCounterpartQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['beziehungen', relationshipId, 'geteilt'],
+    queryFn: () =>
+      getJson(`/beziehungen/${relationshipId}/geteilt`, akteCounterpartSchema, accessToken),
     retry: retryUnlessDenied,
   });
 

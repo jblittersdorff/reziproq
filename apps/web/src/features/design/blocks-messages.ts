@@ -156,6 +156,15 @@ export const blocksMessages = defineMessages({
       agentTitle: 'Reziproq hat die Ziele fürs Briefing entworfen',
       agentDetail: '23.11. · Entwurf offen',
       agentChip: 'Reziproq',
+      // K2-c.4: Von <Gegenüber>
+      counterpartLabel: 'Von Rheintal geteilt · 2',
+      counterpartRows: [
+        [
+          'Kommentar zu „JBP Rheintal 2027“',
+          'Nils Ott · 18.11. · „Können wir die Kapazitätsplanung 2028 vorziehen?“',
+        ],
+        ['Liefertreue Oktober: 94 %', 'Tom Weber · 04.11.'],
+      ] as [string, string][],
     },
     sectionCard: {
       label: 'Signale einspielen',
@@ -491,6 +500,15 @@ export const blocksMessages = defineMessages({
       agentTitle: 'Reziproq drafted the goals for the briefing',
       agentDetail: 'Nov 23 · draft open',
       agentChip: 'Reziproq',
+      // K2-c.4: From the counterpart
+      counterpartLabel: 'Shared by Rheintal · 2',
+      counterpartRows: [
+        [
+          'Comment on “JBP Rheintal 2027”',
+          'Nils Ott · 18/11 · “Can we bring capacity planning 2028 forward?”',
+        ],
+        ['Delivery reliability October: 94 %', 'Tom Weber · 04/11'],
+      ] as [string, string][],
     },
     sectionCard: {
       label: 'Play signals',

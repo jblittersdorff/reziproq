@@ -2,10 +2,13 @@ import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nest
 import { currentTime, sql } from '@reziproq/db';
 import {
   type AkteCommitment,
+  type AkteCounterpart,
+  type AkteCounterpartItem,
   type AkteHead,
   type AkteShared,
-  akteHeadSchema,
   type AkteWeek,
+  akteCounterpartSchema,
+  akteHeadSchema,
   akteSharedSchema,
   offsetCycleDate,
   planYearOf,
@@ -355,7 +358,217 @@ export class AkteService {
       },
     });
   }
+
+  /**
+   * Sicht Von <Gegenüber> (`?sicht=geteilt`, K2-c.4): was das Gegenüber aktiv geteilt hat, also
+   * geteilte Zeilen, die ihm gehören (E-K0-31, E-K2-9): seine Kennzahlwerte (je Kennzahl der
+   * jüngste), Themen fürs JBP, Kommentare, Unterschriften und die Lage im JBP. Dazu die Pflichten
+   * aus der zuletzt geteilten Fassung der Spielregeln (SEG-10). Zusagen stehen in Gemeinsam.
+   */
+  async counterpart(auth: AuthContext, relationshipId: string): Promise<AkteCounterpart> {
+    const organization = auth.organization;
+    if (!organization?.buyer) throw forbidden();
+    const orgId = organization.id;
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: orgId },
+      async (tx) => {
+        const [relationship] = (
+          await tx.execute<{ counterpart: string; other: string }>(sql`
+            select o.name as counterpart, r.supplier_org_id as other from relationship r
+            join organization o on o.id = r.supplier_org_id
+            where r.id = ${relationshipId} and r.buyer_org_id = ${orgId}`)
+        ).rows;
+        if (!relationship) throw notFound();
+        const other = relationship.other;
+
+        const values = (
+          await tx.execute<{
+            id: string;
+            kpi_id: string;
+            name: string;
+            unit: string;
+            period: string;
+            value: string;
+            entered_by_name: string;
+            entered_at: Date | string;
+            confirm_state: ConfirmState;
+          }>(sql`
+            select distinct on (v.kpi_id) v.id, v.kpi_id, k.name, k.unit, v.period::text as period,
+              v.value::text as value, v.entered_by_name, v.entered_at, v.confirm_state
+            from kpi_value v join scorecard_kpi k on k.id = v.kpi_id
+            where v.relationship_id = ${relationshipId} and v.owner_org_id = ${other}
+              and v.visibility = 'shared'
+            order by v.kpi_id, v.period desc, v.entered_at desc`)
+        ).rows;
+        const topics = (
+          await tx.execute<{
+            id: string;
+            title: string;
+            status: 'proposed' | 'merged' | 'parked';
+            created_by_name: string;
+            created_at: Date | string;
+            plan_created: Date | string | null;
+          }>(sql`
+            select t.id, t.title, t.status, t.created_by_name, t.created_at,
+              j.created_at as plan_created
+            from jbp_topic t left join jbp j on j.id = t.jbp_id
+            where t.relationship_id = ${relationshipId} and t.owner_org_id = ${other}
+              and t.visibility = 'shared'`)
+        ).rows;
+        const comments = (
+          await tx.execute<{
+            id: string;
+            object_type: AkteCounterpartComment['objectType'];
+            object_id: string;
+            author_name: string;
+            body: string;
+            created_at: Date | string;
+            context: string | null;
+          }>(sql`
+            select c.id, c.object_type, c.object_id, c.author_name, c.body, c.created_at,
+              case c.object_type
+                when 'meeting' then (select m.title from meeting m where m.id = c.object_id)
+                when 'commitment' then (select x.title from commitment x where x.id = c.object_id)
+                when 'topic' then (select t.title from jbp_topic t where t.id = c.object_id)
+              end as context
+            from comment c
+            where c.relationship_id = ${relationshipId} and c.owner_org_id = ${other}
+              and c.visibility = 'shared' and c.deleted_at is null`)
+        ).rows;
+        const signatures = (
+          await tx.execute<{
+            id: string;
+            user_name: string;
+            signed_at: Date | string;
+            plan_created: Date | string | null;
+          }>(sql`
+            select s.id, s.user_name, s.signed_at, j.created_at as plan_created
+            from scorecard_signature s
+            join scorecard sc on sc.id = s.scorecard_id
+            left join jbp j on j.id = sc.jbp_id
+            where s.relationship_id = ${relationshipId} and s.owner_org_id = ${other}
+              and s.visibility = 'shared'`)
+        ).rows;
+        const updates = (
+          await tx.execute<{
+            id: string;
+            text: string;
+            updated_at: Date | string;
+            plan_created: Date | string | null;
+          }>(sql`
+            select u.id, u.text, u.updated_at, j.created_at as plan_created
+            from jbp_business_update u join jbp j on j.id = u.jbp_id
+            where u.relationship_id = ${relationshipId} and u.owner_org_id = ${other}
+              and u.visibility = 'shared' and length(trim(u.text)) > 0`)
+        ).rows;
+        const items: AkteCounterpartItem[] = [
+          ...values.map((row) => ({
+            kind: 'kpi_value' as const,
+            id: row.id,
+            at: iso(row.entered_at),
+            personName: row.entered_by_name,
+            kpiId: row.kpi_id,
+            name: row.name,
+            unit: row.unit,
+            period: row.period,
+            value: row.value,
+            awaitingOwn: row.confirm_state === 'supplier_confirmed',
+          })),
+          ...topics.map((row) => ({
+            kind: 'topic' as const,
+            id: row.id,
+            at: iso(row.created_at),
+            personName: row.created_by_name,
+            title: row.title,
+            status: row.status,
+            planYear: yearOfPlan(row.plan_created),
+          })),
+          ...comments.map((row) => ({
+            kind: 'comment' as const,
+            id: row.id,
+            at: iso(row.created_at),
+            personName: row.author_name,
+            objectType: row.object_type,
+            objectId: row.object_id,
+            context: row.context,
+            body: row.body,
+          })),
+          ...signatures.map((row) => ({
+            kind: 'signature' as const,
+            id: row.id,
+            at: iso(row.signed_at),
+            personName: row.user_name,
+            planYear: yearOfPlan(row.plan_created),
+          })),
+          ...updates.map((row) => ({
+            kind: 'business_update' as const,
+            id: row.id,
+            at: iso(row.updated_at),
+            personName: null,
+            planYear: yearOfPlan(row.plan_created),
+            text: row.text,
+          })),
+        ].sort((a, b) => b.at.localeCompare(a.at) || a.id.localeCompare(b.id));
+
+        // Pflichten der Fassung, die das Gegenüber gerade sieht (SEG-10)
+        const [rules] = (
+          await tx.execute<{
+            rule_set_id: string;
+            version: number;
+            type_name: string;
+            shared_at: Date | string;
+          }>(sql`
+            select s.id as rule_set_id, t.rule_set_version as version, t.type_name, t.shared_at
+            from relationship_target t
+            join rule_set s on s.relationship_id = t.relationship_id
+              and s.version = t.rule_set_version
+            where t.relationship_id = ${relationshipId} and t.owner_org_id = ${orgId}
+              and t.visibility = 'shared'
+            limit 1`)
+        ).rows;
+        const duties = rules
+          ? (
+              await tx.execute<{
+                id: string;
+                title: { de: string; en: string };
+                cadence: AkteCounterpartObligation['cadence'];
+              }>(sql`
+                select id, title, cadence from rule_set_item
+                where rule_set_id = ${rules.rule_set_id} and kind = 'obligation'
+                order by position, id`)
+            ).rows
+          : [];
+
+        return akteCounterpartSchema.parse({
+          counterpart: relationship.counterpart,
+          items,
+          obligations: rules
+            ? {
+                version: rules.version,
+                typeName: rules.type_name,
+                sharedAt: iso(rules.shared_at),
+                items: duties.map((row) => ({
+                  id: row.id,
+                  title: row.title,
+                  cadence: row.cadence,
+                })),
+              }
+            : null,
+        });
+      },
+      { readOnly: true },
+    );
+  }
 }
+
+type AkteCounterpartComment = Extract<AkteCounterpartItem, { kind: 'comment' }>;
+type AkteCounterpartObligation = NonNullable<AkteCounterpart['obligations']>['items'][number];
+
+/** Zeitpunkt aus der Datenbank als ISO-Text */
+const iso = (value: Date | string) => new Date(value).toISOString();
+
+/** Jahr des Plans aus seiner Anlage; ohne Plan null */
+const yearOfPlan = (created: Date | string | null) => (created ? planYearOf(iso(created)) : null);
 
 /** Tag eines Eintrags in Nächste Wochen, für die Sortierung */
 function dayOf(entry: AkteWeek): string {
