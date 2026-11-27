@@ -46,6 +46,10 @@ const row = (overrides: Partial<RowInput> = {}): RowInput => ({
   openCommitments: 0,
   overdue: null,
   hint: null,
+  businessUnitIds: [],
+  materialGroupIds: [],
+  targetType: null,
+  categorySegments: [],
   ...overrides,
 });
 
@@ -82,6 +86,19 @@ describe('BZ-01 Aufmerksamkeit: der stärkste Grund zählt', () => {
       reason: { kind: 'unrated' },
       attention: 2,
     });
+  });
+
+  it('eine beendete Beziehung hat keinen Grund und steht zuletzt (PLT-03)', () => {
+    const ended = row({
+      name: 'Beendet',
+      status: 'ended',
+      spend: eur(9),
+      overdue: { count: 1, title: 'x' },
+    });
+    expect(reasonOf(ended)).toEqual({ reason: null, attention: 0 });
+    expect(
+      rankRows([ended, row({ name: 'Klein', spend: eur(0.1) })]).map((entry) => entry.name),
+    ).toEqual(['Klein', 'Beendet']);
   });
 
   it('sortiert nach Punkten, dann nach Spend, dann nach Name; ohne Spend zuletzt', () => {

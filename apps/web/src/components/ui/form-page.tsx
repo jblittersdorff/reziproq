@@ -70,7 +70,7 @@ function FormGroup({ label, children }: { label?: string; children: React.ReactN
   return (
     <fieldset className="flex flex-col gap-2">
       {label && (
-        <legend className="mb-2 px-1 font-semibold text-input-border text-sm uppercase tracking-label">
+        <legend className="mb-2 px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label">
           {label}
         </legend>
       )}

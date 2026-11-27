@@ -107,7 +107,7 @@ function SoWhat({
         )}
         {(source || action) && (
           <div className="flex flex-wrap items-center justify-between gap-2">
-            {source && <p className="text-chip text-input-border">{source}</p>}
+            {source && <p className="text-chip text-muted-foreground">{source}</p>}
             {action}
           </div>
         )}

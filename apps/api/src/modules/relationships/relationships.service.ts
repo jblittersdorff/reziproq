@@ -19,6 +19,7 @@ import type { AuthContext } from '../auth/auth.guard.js';
 import { can } from '../auth/can.js';
 import { HintsService } from '../hints/hints.service.js';
 import { PortfolioService } from '../portfolio/portfolio.service.js';
+import { readFilters } from '../suppliers/suppliers.service.js';
 import { berlinDate } from '../today/berlin.js';
 import {
   type PortfolioEntry,
@@ -48,7 +49,7 @@ interface Base {
   isMine: boolean;
 }
 
-/** Aktive Beziehungen und Entwürfe der Käuferorganisation; beendete zählen nicht mehr */
+/** Alle Beziehungen der Käuferorganisation: aktiv, Entwurf und beendet (PLT-03) */
 async function readBase(tx: TenantTransaction, orgId: string, userId: string): Promise<Base[]> {
   const rows = await tx.execute<{
     id: string;
@@ -69,7 +70,7 @@ async function readBase(tx: TenantTransaction, orgId: string, userId: string): P
     from relationship r
     join organization o on o.id = r.supplier_org_id
     left join relationship_side side on side.relationship_id = r.id and side.org_id = r.buyer_org_id
-    where r.buyer_org_id = ${orgId} and r.status in ('active', 'draft')`);
+    where r.buyer_org_id = ${orgId}`);
   return rows.rows.map((row) => ({
     relationshipId: row.id,
     status: row.status,
@@ -99,16 +100,22 @@ async function readSpend(tx: TenantTransaction, orgId: string, year: number) {
   return spend;
 }
 
-/** Segment aus der jüngsten Gesamtentscheidung, mit dem Namen des Typs ihrer Modellversion */
+/**
+ * Segment (Ist) und Soll-Typ aus der jüngsten Gesamtentscheidung, mit den Namen der Typen ihrer
+ * Modellversion
+ */
 async function readSegments(tx: TenantTransaction, orgId: string) {
   const decisions = await tx.execute<{
     relationship_id: string;
     impact: number;
     quality: number;
+    soll_impact: number;
+    soll_quality: number;
     model_version: number;
   }>(sql`
     select distinct on (d.relationship_id) d.relationship_id, d.ist_impact_level as impact,
-      d.ist_quality_level as quality, d.model_version
+      d.ist_quality_level as quality, d.soll_impact_level as soll_impact,
+      d.soll_quality_level as soll_quality, d.model_version
     from segment_decision d join relationship r on r.id = d.relationship_id
     where r.buyer_org_id = ${orgId} and d.scope = 'total'
     order by d.relationship_id, d.version desc`);
@@ -125,15 +132,61 @@ async function readSegments(tx: TenantTransaction, orgId: string) {
   const names = new Map(
     types.map((type) => [`${type.version}:${type.impactLevel}-${type.qualityLevel}`, type.name]),
   );
-  const segments = new Map<string, { key: string; name: string }>();
+  const named = (version: number, key: string) => ({
+    key,
+    name: names.get(`${version}:${key}`) ?? key,
+  });
+  const segments = new Map<
+    string,
+    { ist: { key: string; name: string }; soll: { key: string; name: string } }
+  >();
   for (const row of decisions.rows) {
-    const key = `${row.impact}-${row.quality}`;
     segments.set(row.relationship_id, {
-      key,
-      name: names.get(`${row.model_version}:${key}`) ?? key,
+      ist: named(row.model_version, `${row.impact}-${row.quality}`),
+      soll: named(row.model_version, `${row.soll_impact}-${row.soll_quality}`),
     });
   }
-  return segments;
+  // WG-18: je Warengruppe die jüngste Entscheidung
+  const categories = await tx.execute<{
+    relationship_id: string;
+    material_group_id: string;
+    impact: number;
+    quality: number;
+    model_version: number;
+  }>(sql`
+    select distinct on (d.relationship_id, d.material_group_id) d.relationship_id,
+      d.material_group_id, d.ist_impact_level as impact, d.ist_quality_level as quality,
+      d.model_version
+    from segment_decision d join relationship r on r.id = d.relationship_id
+    where r.buyer_org_id = ${orgId} and d.scope = 'category' and d.material_group_id is not null
+    order by d.relationship_id, d.material_group_id, d.version desc`);
+  const byCategory = new Map<string, { materialGroupId: string; key: string; name: string }[]>();
+  for (const row of categories.rows) {
+    byCategory.set(row.relationship_id, [
+      ...(byCategory.get(row.relationship_id) ?? []),
+      {
+        materialGroupId: row.material_group_id,
+        ...named(row.model_version, `${row.impact}-${row.quality}`),
+      },
+    ]);
+  }
+  return { segments, byCategory };
+}
+
+/** Business Units und Warengruppen je Beziehung, für „Mehr Filter“ (NAV-12) */
+async function readAssignments(tx: TenantTransaction, orgId: string) {
+  const units = await tx.execute<{ relationship_id: string; ids: string[] }>(sql`
+    select rb.relationship_id, array_agg(rb.business_unit_id::text order by rb.business_unit_id) as ids
+    from relationship_business_unit rb join relationship r on r.id = rb.relationship_id
+    where r.buyer_org_id = ${orgId} group by rb.relationship_id`);
+  const groups = await tx.execute<{ relationship_id: string; ids: string[] }>(sql`
+    select rg.relationship_id, array_agg(rg.material_group_id::text order by rg.material_group_id) as ids
+    from relationship_material_group rg join relationship r on r.id = rg.relationship_id
+    where r.buyer_org_id = ${orgId} group by rg.relationship_id`);
+  return {
+    units: new Map(units.rows.map((row) => [row.relationship_id, row.ids])),
+    groups: new Map(groups.rows.map((row) => [row.relationship_id, row.ids])),
+  };
 }
 
 /** Offene und überfällige Zusagen je Beziehung, beide Seiten; Entwürfe zählen nicht */
@@ -221,7 +274,8 @@ export class RelationshipsService {
     return this.run(auth, async (tx, orgId) => {
       const base = await readBase(tx, orgId, auth.userId);
       const spend = await readSpend(tx, orgId, year);
-      const segments = await readSegments(tx, orgId);
+      const { segments, byCategory } = await readSegments(tx, orgId);
+      const assignments = await readAssignments(tx, orgId);
       const commitments = await readCommitments(tx, orgId, today);
       const quotas = await readQuotas(tx, orgId, year);
       const disputed = await this.disputedIn(tx, orgId);
@@ -250,7 +304,11 @@ export class RelationshipsService {
         return {
           ...entry,
           spend: spend.get(entry.relationshipId) ?? null,
-          segment: segments.get(entry.relationshipId) ?? null,
+          segment: segments.get(entry.relationshipId)?.ist ?? null,
+          targetType: segments.get(entry.relationshipId)?.soll ?? null,
+          businessUnitIds: assignments.units.get(entry.relationshipId) ?? [],
+          materialGroupIds: assignments.groups.get(entry.relationshipId) ?? [],
+          categorySegments: byCategory.get(entry.relationshipId) ?? [],
           disputed: disputed.has(entry.relationshipId),
           quota: quotas.get(entry.relationshipId) ?? null,
           openCommitments: open?.open ?? 0,
@@ -262,14 +320,20 @@ export class RelationshipsService {
         };
       });
       const active = inputs.filter((input) => input.status === 'active');
-      // E-K2-10: die Liste zeigt aktive Beziehungen, mit „Portfolio“ auch die Entwürfe
-      const shown = query.portfolio ? inputs : active;
+      // E-K2-10: die Liste zeigt aktive Beziehungen, mit „Portfolio“ auch die Entwürfe; beendete
+      // nur mit „Beendete zeigen“ (PLT-03)
+      const shown = inputs.filter(
+        (input) =>
+          input.status === 'active' ||
+          (input.status === 'draft' && query.portfolio) ||
+          (input.status === 'ended' && query.beendet),
+      );
       return relationshipsResponseSchema.parse({
         year,
         head: {
           active: active.length,
           spend: totalsOf(active.map((input) => input.spend)),
-          portfolio: inputs.length,
+          portfolio: inputs.filter((input) => input.status !== 'ended').length,
         },
         counts: {
           alle: shown.length,
@@ -278,7 +342,9 @@ export class RelationshipsService {
           offeneZusagen: shown.filter((input) => input.openCommitments > 0).length,
         },
         rows: rankRows(shown),
-        summary: summaryOf(shown),
+        // Das Wichtigste spricht über die laufenden Beziehungen, nicht über beendete
+        summary: summaryOf(shown.filter((input) => input.status !== 'ended')),
+        filters: await readFilters(tx),
       });
     });
   }
@@ -315,17 +381,20 @@ export class RelationshipsService {
         : [];
       const base = await readBase(tx, orgId, auth.userId);
       const spend = await readSpend(tx, orgId, year);
-      const segments = await readSegments(tx, orgId);
+      const { segments } = await readSegments(tx, orgId);
       const disputed = await this.disputedIn(tx, orgId);
 
-      const entries: PortfolioEntry[] = base.map((entry) => ({
-        relationshipId: entry.relationshipId,
-        name: entry.name,
-        status: entry.status,
-        spend: spend.get(entry.relationshipId) ?? null,
-        disputed: disputed.has(entry.relationshipId),
-        segmentKey: segments.get(entry.relationshipId)?.key ?? null,
-      }));
+      // Das Portfolio: aktive Beziehungen und Entwürfe, ohne beendete
+      const entries: PortfolioEntry[] = base
+        .filter((entry) => entry.status !== 'ended')
+        .map((entry) => ({
+          relationshipId: entry.relationshipId,
+          name: entry.name,
+          status: entry.status,
+          spend: spend.get(entry.relationshipId) ?? null,
+          disputed: disputed.has(entry.relationshipId),
+          segmentKey: segments.get(entry.relationshipId)?.ist.key ?? null,
+        }));
       const { fields, unrated } = segmentFields(types, entries);
       const ratedSpend = totalsOf(fields.flatMap((field) => field.suppliers.map((s) => s.spend)));
       const size = model?.gridSize ?? 3;

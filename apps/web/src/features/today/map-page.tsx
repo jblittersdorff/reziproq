@@ -148,7 +148,7 @@ function Folder({ data }: { data: FocusMap }) {
             <Row title={text.optionLater} detail={text.optionLaterDetail} />
             {data.hintId && <Row title={text.optionDismiss} detail={text.optionDismissDetail} />}
           </RowGroup>
-          <p className="px-1 text-input-border text-sm">{text.valueLater}</p>
+          <p className="px-1 text-muted-foreground text-sm">{text.valueLater}</p>
         </div>
         <aside className="flex min-w-0 flex-col gap-5.5">
           <RowGroup label={text.nextLabel}>

@@ -23,7 +23,7 @@ function SectionCard({
       <section aria-labelledby={headingId} className="flex flex-col gap-4">
         <h2
           id={headingId}
-          className="font-semibold text-input-border text-sm uppercase tracking-label"
+          className="font-semibold text-muted-foreground text-sm uppercase tracking-label"
         >
           {label}
         </h2>

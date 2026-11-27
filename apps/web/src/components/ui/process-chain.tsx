@@ -42,7 +42,7 @@ function ProcessChain({
       data-slot="process-chain"
       className={cn('flex min-w-0 flex-col gap-2', className)}
     >
-      <span className="px-1 font-semibold text-input-border text-sm uppercase tracking-label">
+      <span className="px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label">
         {label}
       </span>
       <ol className="flex items-start gap-1.5 overflow-x-auto rounded-md bg-card p-3.5">
@@ -56,7 +56,7 @@ function ProcessChain({
                 'flex size-6.5 items-center justify-center rounded-full font-display font-semibold text-chip',
                 state === 'done' && 'bg-petrol text-primary-foreground',
                 state === 'current' && 'bg-mint text-ink ring-3 ring-ink',
-                state === 'open' && 'bg-line-soft text-input-border',
+                state === 'open' && 'bg-line-soft text-muted-foreground',
               )}
             >
               {state === 'done' ? <CheckIcon className="size-3.5" /> : index + 1}
@@ -67,7 +67,7 @@ function ProcessChain({
               className={cn(
                 // Lange Wörter auf dem Telefon trennen statt in die Nachbarn zu laufen
                 'w-full hyphens-auto text-center text-chip [overflow-wrap:anywhere]',
-                state === 'current' ? 'font-bold text-ink' : 'text-input-border',
+                state === 'current' ? 'font-bold text-ink' : 'text-muted-foreground',
               )}
             >
               {step.label}

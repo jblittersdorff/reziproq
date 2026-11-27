@@ -211,6 +211,7 @@ import {
   type ReviewDecision,
   ratingAssignmentListSchema,
   ratingDetailSchema,
+  relationshipsResponseSchema,
   reviewResultSchema,
   reviewStackSchema,
   roleDescriptionSchema,
@@ -326,8 +327,8 @@ import {
   type UpdateObjectiveCategory,
   type UpdatePlanSummary,
   type UpdateSegmentBoundaries,
-  type UpdateSegmentGrid,
   type UpdateSegmentCriterion,
+  type UpdateSegmentGrid,
   type UpdateSegmentType,
   type UpdateSegmentWeights,
   type UpdateSupplierRequest,
@@ -2262,6 +2263,34 @@ export const timelineQueryOptions = (accessToken: string, days = 28, relationshi
   });
 
 const nextActionResponseSchema = z.object({ next: nextActionSchema.nullable() });
+
+/** BZ-01: „Als Nächstes“ der Seite Lieferanten, nur Themen mit Beziehung (scope relationships) */
+export const relationshipsNextQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['start', 'als-naechstes', 'beziehungen'],
+    queryFn: () =>
+      getJson('/start/als-naechstes?bereich=beziehungen', nextActionResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/**
+ * BZ-01 (K2-b.4): Linse Liste der Seite Lieferanten; mit `portfolio` auch die Entwürfe (E-K2-10),
+ * mit `ended` die beendeten Beziehungen (PLT-03)
+ */
+export const relationshipsQueryOptions = (
+  accessToken: string,
+  options: { portfolio?: boolean; ended?: boolean } = {},
+) => {
+  const query = new URLSearchParams();
+  if (options.portfolio) query.set('portfolio', '1');
+  if (options.ended) query.set('beendet', '1');
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  return queryOptions({
+    queryKey: ['beziehungen', 'liste', options.portfolio === true, options.ended === true],
+    queryFn: () => getJson(`/beziehungen${suffix}`, relationshipsResponseSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+};
 
 /** „Als Nächstes“ über alle Bereiche; mit `relationshipId` für einen Lieferanten */
 export const nextActionQueryOptions = (accessToken: string, relationshipId?: string) =>

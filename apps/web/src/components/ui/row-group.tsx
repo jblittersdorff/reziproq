@@ -25,7 +25,7 @@ function RowGroup({
   const heading = label && (
     <h2
       id={headingId}
-      className="min-w-0 flex-1 px-1 font-semibold text-input-border text-sm uppercase tracking-label"
+      className="min-w-0 flex-1 px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label"
     >
       {label}
     </h2>
@@ -86,7 +86,9 @@ function Row({
         {lead && <span className="flex shrink-0 items-center">{lead}</span>}
         <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-0.5">
           <b className="font-semibold text-ink text-row">{title}</b>
-          {detail && <span className="text-pretty text-detail text-input-border">{detail}</span>}
+          {detail && (
+            <span className="text-pretty text-detail text-muted-foreground">{detail}</span>
+          )}
         </span>
         <span className="max-w-full flex-none">{control}</span>
       </div>
@@ -98,7 +100,9 @@ function Row({
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <b className="truncate font-semibold text-ink text-row">{title}</b>
         {detail && (
-          <span className={cn('text-detail text-input-border', wrap ? 'text-pretty' : 'truncate')}>
+          <span
+            className={cn('text-detail text-muted-foreground', wrap ? 'text-pretty' : 'truncate')}
+          >
             {detail}
           </span>
         )}
@@ -107,7 +111,7 @@ function Row({
         <span
           className={cn(
             'shrink-0 whitespace-nowrap text-base',
-            valueTone === 'accent' ? 'font-semibold text-petrol' : 'text-input-border',
+            valueTone === 'accent' ? 'font-semibold text-petrol' : 'text-muted-foreground',
           )}
         >
           {value}
@@ -142,4 +146,30 @@ function Row({
   });
 }
 
-export { Row, RowGroup };
+/**
+ * Spaltenköpfe über einer Gruppe (Vorlage Lieferanten: „Beziehung · Segment · Zusagen gehalten“):
+ * graue Labels wie das Abschnittslabel, erst ab 761 px; auf dem Telefon trägt jede Zeile alles
+ * selbst. Für Screenreader verborgen, weil jede Zeile ihre Werte selbst nennt.
+ */
+function RowHeads({ children }: { children: React.ReactNode }) {
+  return (
+    <div aria-hidden data-slot="row-heads" className="hidden items-center gap-3 px-3.5 shell:flex">
+      {children}
+    </div>
+  );
+}
+
+function RowHead({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <span
+      className={cn(
+        'font-semibold text-muted-foreground text-sm uppercase tracking-label',
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+export { Row, RowGroup, RowHead, RowHeads };

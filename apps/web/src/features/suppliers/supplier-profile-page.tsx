@@ -282,12 +282,12 @@ function ProfileTop({
                 key={label}
                 className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 py-2.5"
               >
-                <dt className="text-detail text-input-border">{label}</dt>
+                <dt className="text-detail text-muted-foreground">{label}</dt>
                 <dd className="min-w-0 text-base [overflow-wrap:anywhere]">{value}</dd>
               </div>
             ))}
           </dl>
-          <p className="text-chip text-input-border">{t.suppliers.masterDataHint}</p>
+          <p className="text-chip text-muted-foreground">{t.suppliers.masterDataHint}</p>
         </section>
         <section
           aria-labelledby="kontakte"
@@ -315,7 +315,7 @@ function ProfileTop({
                 >
                   <span className="flex min-w-0 flex-col">
                     <b className="truncate font-semibold text-ink text-row">{contact.name}</b>
-                    <span className="truncate text-detail text-input-border">
+                    <span className="truncate text-detail text-muted-foreground">
                       {[contact.position, contact.email].filter(Boolean).join(' · ')}
                     </span>
                   </span>

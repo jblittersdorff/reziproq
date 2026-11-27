@@ -19,8 +19,13 @@ export type RelationshipChip = (typeof relationshipChips)[number];
 export const relationshipSorts = ['aufmerksamkeit', 'spend'] as const;
 export type RelationshipSort = (typeof relationshipSorts)[number];
 
-/** Abfrage der Liste: `portfolio=1` nimmt die importierten Lieferanten ohne Anbindung dazu */
-export const relationshipsQuerySchema = z.object({ portfolio: z.literal('1').optional() }).strict();
+/**
+ * Abfrage der Liste: `portfolio=1` nimmt die importierten Lieferanten ohne Anbindung dazu,
+ * `beendet=1` die beendeten Beziehungen (PLT-03 „Beendete zeigen“)
+ */
+export const relationshipsQuerySchema = z
+  .object({ portfolio: z.literal('1').optional(), beendet: z.literal('1').optional() })
+  .strict();
 export type RelationshipsQuery = z.infer<typeof relationshipsQuerySchema>;
 
 /**
@@ -101,8 +106,24 @@ export const relationshipRowSchema = z.object({
   /** Fokuslieferant (E-K0-09), Chip „Strategisch“ */
   isFocus: z.boolean(),
   openCommitments: z.number().int().min(0),
+  /** Für „Mehr Filter“ (NAV-12): Business Units, Warengruppen und Soll-Typ der Konsolidierung */
+  businessUnitIds: z.array(z.string()),
+  materialGroupIds: z.array(z.string()),
+  targetType: relationshipSegmentSchema.nullable(),
+  /** WG-18: Segment je Warengruppe (jüngste Entscheidung); mit Filter Warengruppe im Chip */
+  categorySegments: z.array(relationshipSegmentSchema.extend({ materialGroupId: z.string() })),
 });
 export type RelationshipRow = z.infer<typeof relationshipRowSchema>;
+
+/** Auswahl für „Mehr Filter“, wie in der bisherigen Liste (NAV-12) */
+export const relationshipFiltersSchema = z.object({
+  businessUnits: z.array(z.object({ id: z.string(), name: z.string() })),
+  materialGroups: z.array(
+    z.object({ id: z.string(), name: z.string(), parentId: z.string().nullable() }),
+  ),
+  targetTypes: z.array(z.object({ key: z.string(), name: z.string() })),
+});
+export type RelationshipFilters = z.infer<typeof relationshipFiltersSchema>;
 
 /** Ab so vielen Punkten Abstand haltet ihr eure Zusagen „deutlich besser“ als der Lieferant */
 export const keptBetterPoints = 10;
@@ -169,9 +190,10 @@ export const relationshipsResponseSchema = z.object({
     strategisch: z.number().int().min(0),
     offeneZusagen: z.number().int().min(0),
   }),
-  /** Nach Aufmerksamkeit, dann nach Spend */
+  /** Nach Aufmerksamkeit, dann nach Spend; beendete zuletzt */
   rows: z.array(relationshipRowSchema),
   summary: relationshipsSummarySchema,
+  filters: relationshipFiltersSchema,
 });
 export type RelationshipsResponse = z.infer<typeof relationshipsResponseSchema>;
 

@@ -29,6 +29,12 @@ import {
 /** Feste IDs im eigenen Bereich, getrennt von den Test-Mandanten (de300000-…) */
 const nid = (n: number) => `4e0a0000-0000-7000-8000-${String(n).padStart(12, '0')}`;
 
+/**
+ * Sperre für Tests, die Hollmann in die gemeinsame Testdatenbank spielen (API und E2E): feste IDs,
+ * also immer nur eine Datei zur Zeit (pg_advisory_lock mit diesem Schlüssel)
+ */
+export const hollmannLockKey = 41_011_123;
+
 /** DM-01: Start jeder Vorführung, Mo 23.11.2026, 07:30 in Berlin */
 export const hollmannStart = new Date('2026-11-23T06:30:00.000Z');
 const actor = 'system:hollmann';

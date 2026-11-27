@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import type {
   Kpi,
+  RelationshipRow,
   ScorecardView,
   SupplierCycle,
   SupplierDetail,
   SupplierOverview,
-  SuppliersResponse,
   TouchpointList,
 } from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
@@ -14,14 +14,14 @@ import {
   actionsFor,
   api,
   renderAt,
-  sampleSuppliers,
+  sampleRelationships,
   setUpApp,
   signedIn,
   tearDownApp,
 } from '@/testing/app-harness';
 import { spendOverviewOf } from '@/testing/spend';
 
-// UX-20 Phase 3 (NAV-10 1.1): Lieferantenliste mit Umschalter und Gruppen, Überblick des
+// UX-20 Phase 3 (NAV-10 1.1): Lieferantenliste (seit BZ-01 mit Filter-Chips), Überblick des
 // Lieferanten, Profil und Spend. Höchstens eine Karte „Als Nächstes“, außerhalb kein Hauptknopf.
 
 const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
@@ -48,26 +48,6 @@ const primaryOutsideNext = () =>
     (element) => !element.closest('[data-slot="next-card"]'),
   );
 
-const supplier = (
-  n: number,
-  extra: Partial<SuppliersResponse['suppliers'][number]> = {},
-): SuppliersResponse['suppliers'][number] => ({
-  relationshipId: rel(n),
-  name: `Lieferant ${n}`,
-  country: 'DE',
-  externalRef: null,
-  status: 'active',
-  spend: { amountCents: 1_000_000 * (10 - n), currency: 'EUR' },
-  primaryMaterialGroup: 'Guss',
-  materialGroups: ['Guss'],
-  businessUnitIds: [],
-  materialGroupIds: [],
-  targetType: null,
-  isFocus: false,
-  isMine: false,
-  ...extra,
-});
-
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
@@ -76,100 +56,89 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-describe('Lieferantenliste (NAV-10 1.1, F-UX-06)', () => {
+// BZ-01 (K2-b.4): Die Gruppen „Brauchen dich“ und „Laufen gut“ und der Ampelpunkt sind gestrichen.
+// Der wichtigste Grund steht als Text in der grauen Zeile; die Reihenfolge ist die Aufmerksamkeit.
+describe('Lieferantenliste (NAV-10 1.1, BZ-01)', () => {
+  const line = (n: number, extra: Partial<RelationshipRow> = {}): RelationshipRow => ({
+    ...(sampleRelationships.rows[3] as RelationshipRow),
+    relationshipId: rel(n),
+    name: `Lieferant ${n}`,
+    reason: null,
+    attention: 0,
+    segment: null,
+    ...extra,
+  });
   beforeEach(() => {
-    api.suppliers = {
+    api.relationships = {
       status: 200,
       body: {
-        ...sampleSuppliers,
-        suppliers: [
-          supplier(1, { isFocus: true }),
-          supplier(2, { isMine: true }),
-          supplier(3),
-          supplier(4, { isFocus: true, isMine: true }),
-        ],
-        count: 4,
-      },
-    };
-    api.handle = (request) => {
-      if (request.url === '/api/start/brauchen-dich') {
-        return Response.json({
-          items: [
-            { relationshipId: rel(3), reason: 'hint', title: 'performance_drop' },
-            { relationshipId: rel(2), reason: 'commitment', title: 'Musterteile bestätigen' },
-          ],
-        });
-      }
-      if (request.url.startsWith('/api/start/termine')) {
-        return Response.json({
-          from: today,
-          to: inDays(59),
-          items: [
-            {
-              id: 'm1',
-              date: inDays(5),
-              kind: 'meeting',
-              source: 'meeting',
-              title: 'QBR',
-              counterpart: 'Lieferant 1',
-              detail: null,
-              startsAt: `${inDays(5)}T09:00:00.000Z`,
-              progress: null,
-              href: `/lieferanten/${rel(1)}/umsetzung/termine/m1`,
-              relationshipId: rel(1),
-              categoryId: null,
+        ...sampleRelationships,
+        rows: [
+          line(2, {
+            reason: { kind: 'overdue', count: 1, title: 'Musterteile bestätigen' },
+            attention: 5,
+            isMine: true,
+          }),
+          line(3, {
+            reason: {
+              kind: 'hint',
+              hint: {
+                id: rel(50),
+                ruleKey: 'performance_drop',
+                severity: 'medium',
+                status: 'open',
+                title: null,
+                metric: null,
+                value: null,
+              },
             },
-          ],
-        });
-      }
-      return undefined;
+            attention: 3,
+          }),
+          line(1, { isFocus: true }),
+          line(4, { isFocus: true, isMine: true }),
+        ],
+      },
+      drafts: [],
+      ended: [],
     };
   });
 
-  const namesIn = (list: HTMLElement) =>
-    [...list.querySelectorAll('[data-slot="supplier-name"]')].map((name) => name.textContent);
+  const names = () =>
+    [
+      ...(document
+        .querySelector('[data-slot="relationship-rows"]')
+        ?.querySelectorAll('a[href^="/lieferanten/"] b') ?? []),
+    ].map((name) => name.firstChild?.textContent?.trim());
 
-  it('„Brauchen dich“ mit Ampelpunkt, Status als Text und Grund; „Laufen gut“ mit nächstem Termin', async () => {
+  it('Grund als Text in der grauen Zeile, ohne Ampelpunkt und ohne Gruppen', async () => {
     renderAt('/lieferanten');
-    const needs = await screen.findByRole('list', { name: 'Brauchen dich' });
-    expect(namesIn(needs)).toEqual(['Lieferant 2', 'Lieferant 3']);
-    const [second, third] = within(needs).getAllByRole('listitem');
-    expect(second?.querySelector('[data-slot="status-dot"]')?.textContent).toBe(
-      'Zusage überfällig',
-    );
-    expect(second?.textContent).toContain('Musterteile bestätigen');
-    // Ein Hinweis ohne Titel trägt den Namen seiner Regel, nie den Schlüssel.
+    await screen.findByRole('group', { name: 'Filter' });
+    expect(names()).toEqual(['Lieferant 2', 'Lieferant 3', 'Lieferant 1', 'Lieferant 4']);
+    const list = document.querySelector('[data-slot="relationship-rows"]') as HTMLElement;
+    const [second, third] = within(list).getAllByRole('link');
+    expect(second?.textContent).toContain('1 Zusage überfällig');
+    // Ein Hinweis ohne Kennzahl trägt den Namen seiner Regel, nie den Schlüssel
     expect(third?.textContent).toContain('Leistung kippt');
     expect(third?.textContent).not.toContain('performance_drop');
-    const good = screen.getByRole('list', { name: 'Lieferanten' });
-    expect(namesIn(good)).toEqual(['Lieferant 1', 'Lieferant 4']);
-    const first = within(good).getAllByRole('listitem')[0] as HTMLElement;
-    expect(first.querySelector('[data-slot="status-dot"]')?.textContent).toBe('läuft');
-    expect(first.textContent).toMatch(/QBR am/);
-    expect(screen.getByRole('heading', { name: 'Brauchen dich' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Laufen gut' })).toBeTruthy();
+    expect(document.querySelector('[data-slot="status-dot"]')).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Brauchen dich' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Laufen gut' })).toBeNull();
     expect(primaryOutsideNext()).toEqual([]);
   });
 
-  it('Umschalter Meine, Strategisch, Alle steht in der Adresse', async () => {
+  it('Filter-Chips Meine, Strategisch, Alle stehen in der Adresse', async () => {
     const router = renderAt('/lieferanten');
-    await screen.findByRole('list', { name: 'Brauchen dich' });
-    expect((screen.getByRole('radio', { name: 'Alle' }) as HTMLInputElement).checked).toBe(true);
-    fireEvent.click(screen.getByRole('radio', { name: 'Meine' }));
-    await waitFor(() => expect(router.state.location.search).toMatchObject({ meine: 1 }));
-    await waitFor(() =>
-      expect(
-        [...document.querySelectorAll('[data-slot="supplier-name"]')].map((n) => n.textContent),
-      ).toEqual(['Lieferant 2', 'Lieferant 4']),
+    const chips = await screen.findByRole('group', { name: 'Filter' });
+    expect(within(chips).getByRole('button', { name: /^Alle/ }).getAttribute('aria-pressed')).toBe(
+      'true',
     );
-    fireEvent.click(screen.getByRole('radio', { name: 'Strategisch' }));
-    await waitFor(() => expect(router.state.location.search).toEqual({ fokus: 1 }));
-    await waitFor(() =>
-      expect(
-        [...document.querySelectorAll('[data-slot="supplier-name"]')].map((n) => n.textContent),
-      ).toEqual(['Lieferant 1', 'Lieferant 4']),
-    );
-    fireEvent.click(screen.getByRole('radio', { name: 'Alle' }));
+    fireEvent.click(within(chips).getByRole('button', { name: /^Meine/ }));
+    await waitFor(() => expect(router.state.location.search).toMatchObject({ filter: 'meine' }));
+    await waitFor(() => expect(names()).toEqual(['Lieferant 2', 'Lieferant 4']));
+    fireEvent.click(within(chips).getByRole('button', { name: /^Strategisch/ }));
+    await waitFor(() => expect(router.state.location.search).toEqual({ filter: 'strategisch' }));
+    await waitFor(() => expect(names()).toEqual(['Lieferant 1', 'Lieferant 4']));
+    fireEvent.click(within(chips).getByRole('button', { name: /^Alle/ }));
     await waitFor(() => expect(router.state.location.search).toEqual({}));
   });
 });

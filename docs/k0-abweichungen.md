@@ -251,6 +251,9 @@ Weitere Punkte:
   - **Behoben:** Der Seed hat jetzt die Begründungen und die Runde 2026 mit Bewertungen. Die beiden echten Lagen sind übernommene Hinweise. Ein API-Test prüft, dass ein Lauf der Regeln keinen offenen Hinweis anlegt und Heute bei drei bleibt.
   - **Entschieden (E-K2-11):** Die Läufe Hinweise, Triage, Briefings und Wertfinder gehen nach Zeitplan nur über echte Kunden (Migration 0146). Für Demo-Mandanten startet sie nur die Regie; ein Test in `dm-01-regie.test.ts` prüft das.
   - **Noch in Echtzeit, auch für Demo-Mandanten:** Benachrichtigungen (07:30, Zusammenfassung 08:00), Erinnerungen an Zyklen (07:00) und Aufgaben (07:15) sowie die Jobs der Warengruppen (Reviews, Strategiejahr, Zusammenführen). Die Regie startet sie nicht, und sie verändern den Stand von Heute nicht. Ob sie für Demo-Mandanten ruhen sollen, entscheidest du, wenn ein Drehbuch sie braucht.
+- **B-40 Grauer Text mit zu wenig Kontrast (gefunden am 27.11.2026 in K2-b.4, behoben).**
+  - **Befund:** Abschnittslabels, Unterzeilen und Quellen nutzten die Farbe `input-border` (`#7b8389`). Auf Weiß hat sie nur etwa 3,9:1 Kontrast; verlangt sind 4,5:1. Die Designsprache 3 sieht dafür `#5a636b` vor.
+  - **Behoben:** In 17 Dateien der App ist Text in `text-input-border` jetzt `text-muted-foreground` (`#5a636b`, gut 6:1). `input-border` bleibt die Farbe der Ränder von Eingaben.
 ## c) Widersprüche zwischen den Specs
 
 Je Punkt: Fundstellen, welche Quelle nach der Rangfolge gilt und wie ich ohne deine Antwort weiterarbeiten würde.

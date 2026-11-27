@@ -67,7 +67,7 @@ function DateCircle({
         aria-hidden
         className={cn(
           'text-micro tracking-wider',
-          !next && !tone && variant === 'ring' && 'text-input-border',
+          !next && !tone && variant === 'ring' && 'text-muted-foreground',
         )}
       >
         {month}

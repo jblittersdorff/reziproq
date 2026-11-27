@@ -62,7 +62,9 @@ function TimelineRail({
           {item.kind}
         </span>
         <b className="font-semibold text-sm leading-snug">{item.title}</b>
-        {item.sub && <span className="text-detail text-input-border leading-snug">{item.sub}</span>}
+        {item.sub && (
+          <span className="text-detail text-muted-foreground leading-snug">{item.sub}</span>
+        )}
       </>
     );
     const box = 'relative flex flex-col gap-1.5 text-ink no-underline';

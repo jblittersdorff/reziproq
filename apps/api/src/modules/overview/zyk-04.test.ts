@@ -155,10 +155,19 @@ describe('ZYK-04 Stand der Zyklen', () => {
     expect((await call(users.lead, '/portfolio/zyklen?sortierung=quer')).status).toBe(400);
   });
 
-  it('Die Seite lädt bei 50 Fokuslieferanten in unter zwei Sekunden (lokal gemessen)', async () => {
-    const started = performance.now();
-    const result = await status();
-    expect(performance.now() - started).toBeLessThan(2000);
-    expect(result.rows).toHaveLength(50);
+  it('Die Seite zeigt alle 50 Fokuslieferanten', async () => {
+    expect((await status()).rows).toHaveLength(50);
   });
+
+  // Die Zeitmessung läuft allein im Schritt test:perf von pnpm check (REZIPROQ_PERF=1), nicht neben
+  // allen Testdateien: Unter deren Last brauchte die Abfrage einmal 2,8 s, allein deutlich unter 2 s
+  it.skipIf(process.env.REZIPROQ_PERF !== '1')(
+    'Die Seite lädt bei 50 Fokuslieferanten in unter zwei Sekunden (Zeitmessung)',
+    async () => {
+      const started = performance.now();
+      const result = await status();
+      expect(performance.now() - started).toBeLessThan(2000);
+      expect(result.rows).toHaveLength(50);
+    },
+  );
 });

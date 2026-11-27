@@ -5,6 +5,8 @@ import type {
   MyDay,
   OrganizationResponse,
   PromptEvent,
+  RelationshipRow,
+  RelationshipsResponse,
   Supplier,
   SuppliersResponse,
   TodayAll,
@@ -174,6 +176,196 @@ export const sampleSuppliers: SuppliersResponse = {
   totalSpend: [{ amountCents: mio(10.23), currency: 'EUR' }],
 };
 
+const relationshipId = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, '0')}`;
+const eur = (euro: number) => ({ amountCents: mio(euro), currency: 'EUR' });
+const strategic = { key: '3-3', name: 'Strategisch' };
+const relationshipRow = (overrides: Partial<RelationshipRow>): RelationshipRow => ({
+  relationshipId: relationshipId(99),
+  name: 'Lieferant',
+  status: 'active',
+  country: 'DE',
+  materialGroup: null,
+  spend: null,
+  reason: null,
+  attention: 0,
+  segment: null,
+  disputed: false,
+  quota: null,
+  isMine: false,
+  isFocus: false,
+  openCommitments: 0,
+  businessUnitIds: [],
+  materialGroupIds: [],
+  targetType: null,
+  categorySegments: [],
+  ...overrides,
+});
+const quote = (kept: number, due: number) => ({
+  kept,
+  due,
+  percent: Math.round((100 * kept) / due),
+});
+
+/**
+ * Seite Lieferanten (BZ-01), wie GET /api/beziehungen sie liefert: vier aktive Beziehungen nach
+ * Aufmerksamkeit. Mit `portfolio=1` kommt der Entwurf dazu, mit `beendet=1` die beendete.
+ */
+export const sampleRelationships: RelationshipsResponse = {
+  year: 2026,
+  head: { active: 4, spend: [eur(11.83)], portfolio: 5 },
+  counts: { alle: 4, meine: 2, strategisch: 2, offeneZusagen: 2 },
+  rows: [
+    relationshipRow({
+      relationshipId: relationshipId(1),
+      name: 'Rheintal Elektronik GmbH (Demo)',
+      materialGroup: 'Leiterplatten',
+      spend: eur(4.82),
+      reason: { kind: 'overdue', count: 1, title: '8D-Bericht Charge 4711' },
+      attention: 5,
+      segment: strategic,
+      quota: { own: quote(9, 10), counterpart: quote(7, 9) },
+      isMine: true,
+      isFocus: true,
+      openCommitments: 2,
+      businessUnitIds: ['bu-1'],
+      materialGroupIds: ['mg-lp'],
+      targetType: strategic,
+      categorySegments: [{ materialGroupId: 'mg-lp', key: '1-1', name: 'Hebeln' }],
+    }),
+    relationshipRow({
+      relationshipId: relationshipId(2),
+      name: 'Silesia Guss Sp. z o.o. (Demo)',
+      country: 'PL',
+      materialGroup: 'Sandguss',
+      spend: eur(3.15),
+      reason: {
+        kind: 'hint',
+        hint: {
+          id: relationshipId(50),
+          ruleKey: 'performance_drop',
+          severity: 'high',
+          status: 'in_progress',
+          title: '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter',
+          metric: 'Liefertreue',
+          value: '86 %',
+        },
+      },
+      attention: 4,
+      segment: strategic,
+      quota: { own: quote(5, 5), counterpart: quote(3, 5) },
+      isMine: true,
+      isFocus: true,
+      openCommitments: 1,
+      businessUnitIds: ['bu-1'],
+      materialGroupIds: ['mg-gu-sand'],
+      targetType: strategic,
+    }),
+    relationshipRow({
+      relationshipId: relationshipId(3),
+      name: 'Kessler Präzision GmbH (Demo)',
+      materialGroup: 'Drehteile',
+      spend: eur(1.6),
+      reason: { kind: 'disputed' },
+      attention: 3,
+      segment: { key: '3-1', name: 'Entwickeln' },
+      disputed: true,
+      quota: { own: quote(7, 8), counterpart: quote(4, 5) },
+      businessUnitIds: ['bu-1'],
+      materialGroupIds: ['mg-dt'],
+      targetType: strategic,
+    }),
+    relationshipRow({
+      relationshipId: relationshipId(4),
+      name: 'Alpen Sensorik GmbH (Demo)',
+      country: 'AT',
+      materialGroup: 'Sensorik',
+      spend: eur(2.26),
+      reason: { kind: 'unrated' },
+      attention: 2,
+      businessUnitIds: ['bu-2'],
+      materialGroupIds: ['mg-se'],
+    }),
+  ],
+  summary: {
+    keptBetter: 2,
+    unrated: {
+      relationshipId: relationshipId(4),
+      name: 'Alpen Sensorik GmbH (Demo)',
+      spend: eur(2.26),
+      largest: false,
+    },
+    rows: [
+      {
+        kind: 'counterpart_low',
+        relationshipId: relationshipId(2),
+        name: 'Silesia Guss Sp. z o.o. (Demo)',
+        kept: 3,
+        due: 5,
+        hint: {
+          id: relationshipId(50),
+          ruleKey: 'performance_drop',
+          severity: 'high',
+          status: 'in_progress',
+          title: null,
+          metric: 'Liefertreue',
+          value: '86 %',
+        },
+      },
+      {
+        kind: 'unrated',
+        relationshipId: relationshipId(4),
+        name: 'Alpen Sensorik GmbH (Demo)',
+        spend: eur(2.26),
+      },
+      {
+        kind: 'quota_gap',
+        relationshipId: relationshipId(1),
+        name: 'Rheintal Elektronik GmbH (Demo)',
+        own: 90,
+        counterpart: 78,
+        overdue: { count: 1, title: '8D-Bericht Charge 4711' },
+      },
+    ],
+  },
+  filters: {
+    businessUnits: [
+      { id: 'bu-1', name: 'Antriebstechnik' },
+      { id: 'bu-2', name: 'Sensorsysteme' },
+    ],
+    materialGroups: [
+      { id: 'mg-lp', name: 'Leiterplatten', parentId: null },
+      { id: 'mg-gu', name: 'Guss', parentId: null },
+      { id: 'mg-gu-sand', name: 'Sandguss', parentId: 'mg-gu' },
+      { id: 'mg-dt', name: 'Drehteile', parentId: null },
+      { id: 'mg-se', name: 'Sensorik', parentId: null },
+    ],
+    targetTypes: [
+      strategic,
+      { key: '3-1', name: 'Entwickeln' },
+      { key: '1-3', name: 'Absichern' },
+      { key: '1-1', name: 'Hebeln' },
+    ],
+  },
+};
+
+/** Entwurf aus dem Import (E-K2-10) und eine beendete Beziehung (PLT-03) */
+export const sampleDraftRelationship = relationshipRow({
+  relationshipId: relationshipId(5),
+  name: 'Test-Lieferant (Demo)',
+  status: 'draft',
+  reason: { kind: 'unrated' },
+  attention: 2,
+});
+export const sampleEndedRelationship = relationshipRow({
+  relationshipId: relationshipId(6),
+  name: 'Lombardia Fonderie S.p.A. (Demo)',
+  status: 'ended',
+  country: 'IT',
+  materialGroup: 'Guss',
+  spend: eur(2.71),
+  segment: { key: '1-1', name: 'Hebeln' },
+});
+
 export const sampleOrganization: OrganizationResponse = {
   name: 'Beispiel-OEM (Demo)',
   country: 'DE',
@@ -207,6 +399,13 @@ export const api = {
   /** Status von GET /api/me; alles außer 200 lässt die Anfrage scheitern. */
   meStatus: 200,
   suppliers: { status: 200, body: sampleSuppliers as unknown },
+  /** GET /api/beziehungen (BZ-01): Antwort; drafts und ended kommen mit portfolio=1 und beendet=1 */
+  relationships: {
+    status: 200,
+    body: sampleRelationships as unknown,
+    drafts: [sampleDraftRelationship] as RelationshipRow[],
+    ended: [sampleEndedRelationship] as RelationshipRow[],
+  },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
   prompt: { status: 200, events: [] as PromptEvent[], hold: false },
   /** Alle Anfragen an /api/prompt, z. B. um den mitgeschickten Verlauf zu prüfen. */
@@ -300,6 +499,20 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
   }
+  if (url === '/api/beziehungen' || url.startsWith('/api/beziehungen?')) {
+    const { status, body, drafts, ended } = api.relationships;
+    if (status !== 200) return Response.json(body, { status });
+    const query = new URL(url, 'http://reziproq.test').searchParams;
+    const response = body as RelationshipsResponse;
+    return Response.json({
+      ...response,
+      rows: [
+        ...response.rows,
+        ...(query.get('portfolio') === '1' ? drafts : []),
+        ...(query.get('beendet') === '1' ? ended : []),
+      ],
+    });
+  }
   // NAV-10 1.1: Mein Tag, Terminschiene, „Als Nächstes“ und „Brauchen dich“ ohne eigene Antwort leer
   if (url === '/api/start/mein-tag') return Response.json(myDayResponse());
   if (url.startsWith('/api/start/termine')) {
@@ -387,6 +600,12 @@ export function setUpApp() {
   api.permissions = actionsFor.member;
   api.meStatus = 200;
   api.suppliers = { status: 200, body: sampleSuppliers };
+  api.relationships = {
+    status: 200,
+    body: sampleRelationships,
+    drafts: [sampleDraftRelationship],
+    ended: [sampleEndedRelationship],
+  };
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];

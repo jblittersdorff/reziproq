@@ -33,7 +33,13 @@ const move = (
 export const routeMoves: readonly RouteMove[] = [
   // Neue Hauptadressen (K1-d); ihre Seiten kommen mit K1-e (Heute), K2-b, K4-b und K1-f.
   move('/heute', '/heute', 'K1-e', 'bleibt', 'Fokus und Alles'),
-  move('/beziehungen', '/beziehungen', 'K1-d', 'bleibt', 'zeigt bis K2-b die Lieferantenliste'),
+  move(
+    '/beziehungen',
+    '/beziehungen',
+    'K1-d',
+    'bleibt',
+    'Seite Lieferanten mit Liste (K2-b.4) und Segmenten',
+  ),
   move('/wert', '/wert', 'K1-d', 'bleibt', 'zeigt bis K4-b die Übersicht'),
   move('/mein-agent', '/mein-agent', 'K1-f.3', 'bleibt', 'Mein Agent'),
   // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person, nur im Demo-Mandanten

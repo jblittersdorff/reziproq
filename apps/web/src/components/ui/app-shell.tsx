@@ -69,7 +69,7 @@ function AppShell({
         'flex min-h-11 items-center gap-2.5 rounded-nav px-2.5 text-base no-underline [&_svg]:size-5',
         item.key === activeKey
           ? 'bg-card font-semibold text-ink shadow-nav [&_svg]:text-petrol'
-          : 'font-medium text-muted-strong hover:bg-control hover:text-ink [&_svg]:text-input-border',
+          : 'font-medium text-muted-strong hover:bg-control hover:text-ink [&_svg]:text-muted-foreground',
       ),
       children: (
         <>
@@ -176,7 +176,7 @@ function AppShell({
         {(tabs ?? items).map((item) => {
           const className = cn(
             'flex min-h-11 min-w-11 flex-col items-center gap-0.5 rounded-nav font-semibold text-tab no-underline outline-none focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-6',
-            item.key === activeKey ? 'text-petrol' : 'text-input-border',
+            item.key === activeKey ? 'text-petrol' : 'text-muted-foreground',
           );
           return (
             <span key={item.key} className="contents">
@@ -215,7 +215,7 @@ function SearchContent({ search }: { search: { label: string; shortcut?: string 
       <SearchIcon aria-hidden />
       <span className="flex-1">{search.label}</span>
       {search.shortcut && (
-        <kbd className="font-semibold text-input-border text-tab">{search.shortcut}</kbd>
+        <kbd className="font-semibold text-muted-foreground text-tab">{search.shortcut}</kbd>
       )}
     </>
   );

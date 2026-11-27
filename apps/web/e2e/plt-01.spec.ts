@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel, issuer } from './fake-zitadel.js';
+import { relationshipList, routeRelationships, silesia } from './relationships.js';
 
 // Tests zu docs/specs/PLT-01.md, die einen echten Browser brauchen: Anmelden mit PKCE über ein
 // nachgebautes Zitadel, Erneuerung im Hintergrund, Abmelden.
@@ -16,22 +17,6 @@ const ada = {
   permissions: { viewOrganizationSettings: false, viewSuppliers: true, switchCustomer: false },
 };
 
-const suppliers = {
-  suppliers: [
-    {
-      relationshipId: 'rel-1',
-      name: 'Silesia Guss Sp. z o.o. (Demo)',
-      country: 'PL',
-      externalRef: null,
-      status: 'active',
-      spend: { amountCents: 315_000_000, currency: 'EUR' },
-    },
-  ],
-  count: 1,
-  spendYear: 2025,
-  totalSpend: [{ amountCents: 315_000_000, currency: 'EUR' }],
-};
-
 /** Beantwortet die API und merkt sich, mit welchem Token sie aufgerufen wurde. */
 async function fakeApi(page: Page) {
   const tokens: string[] = [];
@@ -40,9 +25,9 @@ async function fakeApi(page: Page) {
     record(route.request().headers().authorization);
     return route.fulfill({ json: ada });
   });
-  await page.route('**/api/suppliers', (route) => {
-    record(route.request().headers().authorization);
-    return route.fulfill({ json: suppliers });
+  // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen
+  await routeRelationships(page, [silesia], {
+    onRequest: (request) => record(request.headers().authorization),
   });
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
   return tokens;
@@ -66,7 +51,7 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
   await fakeApi(page);
 
   // 1. Ohne Sitzung direkt eine Unterseite öffnen: Die App leitet ohne Klick zu Zitadel weiter.
-  await page.goto('/beziehungen?suche=guss');
+  await page.goto('/beziehungen?sortierung=spend');
   await expect(page.getByText('Zitadel-Login')).toBeVisible();
   const params = zitadel.authorizeRequests[0];
   expect(params?.get('response_type')).toBe('code');
@@ -84,7 +69,7 @@ test('Ohne Anmeldung leitet jede Seite zu Zitadel; nach dem Login geht es zur ur
     waitUntil: 'commit',
   });
 
-  await expect(page).toHaveURL('http://localhost:5174/beziehungen?suche=guss');
+  await expect(page).toHaveURL('http://localhost:5174/beziehungen?sortierung=spend');
   await expect(
     page.locator('#inhalt').getByRole('heading', { level: 1, name: 'Lieferanten' }),
   ).toBeVisible();
@@ -129,11 +114,11 @@ test('Geschützte Seiten zeigen vor abgeschlossener Anmeldung keine Inhalte', as
   await expect(page.getByRole('status')).toHaveText('Anmeldung wird geprüft …');
   await page.waitForTimeout(300);
   await expect(page.locator('#inhalt')).toHaveCount(0);
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toHaveCount(0);
+  await expect(page.getByText('Silesia Guss')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
   release();
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
+  await expect(relationshipList(page).getByRole('link', { name: /Silesia Guss/ })).toBeVisible();
   expect(zitadel.tokenRequests).toHaveLength(1);
 });
 
@@ -157,7 +142,7 @@ test('Die App erneuert ein abgelaufenes Token ohne Neuanmeldung', async ({ page 
     .getByRole('navigation', { name: 'Hauptnavigation' })
     .getByRole('link', { name: 'Lieferanten' })
     .click();
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
+  await expect(relationshipList(page).getByRole('link', { name: /Silesia Guss/ })).toBeVisible();
   expect(apiTokens.at(-1)).toMatch(/^access-token-erneuert-\d+$/);
   expect(zitadel.authorizeRequests).toHaveLength(1);
   await expect(page.getByRole('alert')).toHaveCount(0);
@@ -171,16 +156,17 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
   zitadel.reply.refreshWorks = false;
   await fakeApi(page);
 
-  await page.goto('/beziehungen');
-  // Erst tippen, wenn die Liste nach der Anmeldung steht – wie ein Mensch auch.
-  await expect(page.getByText('Silesia Guss Sp. z o.o. (Demo)')).toBeVisible();
+  // BZ-01 hat keine eigene Suche mehr; das Feld „Name“ im Formular trägt die Eingabe (UMB-02)
+  await page.goto('/lieferanten/neu');
+  const name = page.getByRole('textbox', { name: /Name/ }).first();
+  // Erst tippen, wenn das Formular nach der Anmeldung steht – wie ein Mensch auch.
+  await expect(name).toBeVisible();
   await page.waitForLoadState('networkidle');
-  const search = page.getByRole('searchbox');
-  await search.fill('Silesia');
+  await name.fill('Silesia');
 
   const notice = page.getByRole('alert').filter({ hasText: 'Bitte melde dich neu an' });
   await expect(notice).toBeVisible();
-  await expect(search).toHaveValue('Silesia');
+  await expect(name).toHaveValue('Silesia');
   expect(zitadel.authorizeRequests).toHaveLength(1);
 
   // Neu anmelden über eine Weiterleitung; die Eingabe kommt aus dem Entwurf zurück (UMB-02).
@@ -189,10 +175,10 @@ test('Scheitert die Erneuerung, erscheint „Bitte melde dich neu an“; Eingabe
   const before = page.url();
   await notice.getByRole('button', { name: 'Neu anmelden' }).click();
 
-  // Zurück auf dieselbe Adresse; seit PLT-03 steht die Suche auch darin.
+  // Zurück auf dieselbe Adresse, mit der Eingabe aus dem Entwurf
   await expect(page).toHaveURL(before);
-  expect(before).toBe('http://localhost:5174/beziehungen?suche=Silesia');
-  await expect(search).toHaveValue('Silesia');
+  expect(before).toBe('http://localhost:5174/lieferanten/neu');
+  await expect(name).toHaveValue('Silesia');
   await expect(notice).toHaveCount(0);
 });
 

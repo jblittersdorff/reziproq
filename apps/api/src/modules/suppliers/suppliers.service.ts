@@ -708,8 +708,11 @@ export async function listSuppliers(
   );
 }
 
-/** Auswahl für die Filter: aktive Business Units und Warengruppen, Soll-Typen des aktiven Modells. */
-async function readFilters(
+/**
+ * Auswahl für die Filter: aktive Business Units und Warengruppen, Soll-Typen des aktiven Modells.
+ * Auch für „Mehr Filter“ der Seite Lieferanten (BZ-01).
+ */
+export async function readFilters(
   tx: TenantTransaction,
 ): Promise<NonNullable<SuppliersResponse['filters']>> {
   const units = await tx

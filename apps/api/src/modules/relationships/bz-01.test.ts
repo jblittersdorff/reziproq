@@ -1,4 +1,5 @@
-import { hollmannPeople, supplierPeople } from '@reziproq/db';
+import { randomUUID } from 'node:crypto';
+import { eq, hollmann, hollmannPeople, schema, supplierPeople } from '@reziproq/db';
 import {
   nextActionSchema,
   relationshipSegmentsSchema,
@@ -7,6 +8,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { hollmannTimeout, seedHollmannExclusive } from '../../testing/hollmann.js';
+import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // BZ-01 (K2-b.3): Seite Lieferanten über die echten Dienste, am Seed von Hollmann (Mo 23.11.2026).
@@ -141,6 +143,51 @@ describe('BZ-01 Lieferanten im Demo-Mandanten Hollmann (K2-b.3)', () => {
     // Kopf bleibt: aktive Beziehungen und ihr Spend
     expect(page.head.active).toBe(16);
     expect((await call('/beziehungen?portfolio=ja')).status).toBe(400);
+  });
+
+  it('Mehr Filter: Business Unit, Warengruppe und Soll-Typ je Zeile, mit Auswahl (NAV-12)', async () => {
+    const page = await list();
+    expect(page.filters.businessUnits.map((unit) => unit.name)).toContain('Antriebstechnik');
+    expect(page.filters.targetTypes.map((type) => type.name).sort()).toEqual([
+      'Absichern',
+      'Entwickeln',
+      'Hebeln',
+      'Strategisch',
+    ]);
+    const rheintal = page.rows.find((row) => row.name === 'Rheintal Elektronik');
+    expect(rheintal?.targetType).toMatchObject({ key: '2-2', name: 'Strategisch' });
+    expect(rheintal?.businessUnitIds).toHaveLength(1);
+    expect(rheintal?.materialGroupIds).toEqual([
+      page.filters.materialGroups.find((group) => group.name === 'Leiterplatten')?.id,
+    ]);
+    // Pearl River ist ohne Bewertung, also auch ohne Soll-Typ
+    expect(page.rows.find((row) => row.name === 'Pearl River Components')?.targetType).toBeNull();
+  });
+
+  it('PLT-03: Beendete erscheinen nur mit „Beendete zeigen“, zuletzt und ohne Grund', async () => {
+    const supplier = randomUUID();
+    await app.adminDb
+      .insert(schema.organization)
+      .values({ id: supplier, name: 'Saale Beschläge', country: 'DE', isDemo: true });
+    await insertRelationships(app.adminDb, [
+      { id: randomUUID(), buyer: hollmann.org.id, supplier, status: 'ended' },
+    ]);
+    try {
+      expect((await list()).rows.map((row) => row.name)).not.toContain('Saale Beschläge');
+      const page = await list('?beendet=1');
+      expect(page.rows).toHaveLength(17);
+      expect(page.rows.at(-1)).toMatchObject({
+        name: 'Saale Beschläge',
+        status: 'ended',
+        reason: null,
+      });
+      // Kopf und Portfolio zählen keine beendeten
+      expect(page.head).toMatchObject({ active: 16, portfolio: 46 });
+      expect((await segments()).portfolio).toBe(46);
+    } finally {
+      await deleteRelationships(app.adminDb, [supplier]);
+      await app.adminDb.delete(schema.organization).where(eq(schema.organization.id, supplier));
+    }
   });
 
   it('T2-03: Linse Segmente: Felder 9, 8, 9, 12; Kessler strittig; „Ohne Bewertung · 8“', async () => {

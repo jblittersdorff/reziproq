@@ -61,6 +61,8 @@ Alle Tests für Datenebenen und Mandanten (`layers.test.ts`, `rls.test.ts`, `za-
 - **`layers.test.ts` (behoben am 27.11.2026, K2-a.6):** Testzeilen von `relationship_ebit_target` und `material_group_strategy` bekamen ein zufälliges Jahr zwischen 2000 und 2099. Lagen mehrere auf derselben Beziehung bzw. Warengruppe, kollidierten sie gelegentlich mit dem eindeutigen Index, und der Aufbau des Tests scheiterte (rund 1 bis 6 % der Läufe). Jetzt gibt es ein fortlaufendes Jahr je Testzeile (`nextProbeYear` in `layers.ts`).
 - **`ls-01.test.ts` (27.11.2026, K2-b.1):** Die zwei Funktionstests fragen die Liste mit 2.000 Lieferanten ab. Unter der Last von `pnpm check` überschritt einer einmal die Grenze von 15 s, allein braucht er 0,2 s. Die Grenze dieser zwei Tests ist jetzt 60 s; die Zeitmessung von LS-01 läuft weiter getrennt in `test:perf`.
 
+- **`zyk-04.test.ts` (27.11.2026, K2-b.4):** Der Test „lädt bei 50 Fokuslieferanten in unter zwei Sekunden“ maß mitten im parallelen Lauf von `pnpm check` und brauchte dort einmal 2,8 s; allein bleibt er deutlich darunter. Die Zeitgrenze läuft jetzt wie bei LS-01 nur in `test:perf`; im normalen Lauf prüft der Test die 50 Zeilen.
+
 ## Vorschlag
 
 Abschnitte 1 und 2 als eigener kleiner Schritt nach K1-a. Er spart etwa 4,5 Minuten je `pnpm check` und entfernt fünf Bausteine und zwei Testseiten. Abschnitt 3 läuft mit den Paketen.

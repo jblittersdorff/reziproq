@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { routeRelationships } from './relationships.js';
 import { mockToday } from './today-fixture.js';
 
 // Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: globale Leiste, Maße,
@@ -67,6 +68,8 @@ async function signIn(page: Page, { admin = false } = {}) {
   await page.route('**/api/suppliers', (route) =>
     route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } }),
   );
+  // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen; ohne Lieferanten der leere Zustand
+  await routeRelationships(page, []);
   await page.route('**/api/organisation', (route) =>
     route.fulfill({
       json: {

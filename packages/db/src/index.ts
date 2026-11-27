@@ -13,6 +13,16 @@ export { createDatabase, type Database } from './client.js';
 export { currentTime, systemTime, withDemoClock } from './clock.js';
 export { apiDatabaseUrl, databaseUrl, jobsDatabaseUrl } from './env.js';
 export {
+  type HollmannResult,
+  hollmann,
+  hollmannLockKey,
+  hollmannPeople,
+  hollmannStart,
+  hollmannSuppliers,
+  seedHollmann,
+  supplierPeople,
+} from './hollmann.js';
+export {
   checkLayers,
   type LayerEntry,
   type LayerKind,
@@ -24,15 +34,6 @@ export {
   loadMaterialGroupDefaults,
   seedMaterialGroupDefaults,
 } from './material-group-defaults.js';
-export {
-  type HollmannResult,
-  hollmann,
-  hollmannPeople,
-  hollmannStart,
-  hollmannSuppliers,
-  seedHollmann,
-  supplierPeople,
-} from './hollmann.js';
 export { ensureApiRole } from './roles.js';
 export * as schema from './schema/index.js';
 export { type TenantSession, type TenantTransaction, withTenant } from './tenant.js';

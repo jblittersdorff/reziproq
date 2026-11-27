@@ -1,24 +1,21 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { relationshipList, relationshipRow, routeRelationships } from './relationships.js';
 
-const rel = (n: number, extra = {}) => ({
-  relationshipId: `550e8400-e29b-41d4-a716-${String(n).padStart(12, '0')}`,
-  name: `Lieferant ${n} Werkzeugbau`,
-  country: 'DE',
-  externalRef: `L-${n}`,
-  status: 'active',
-  spend: { amountCents: (10 - n) * 100_000_000, currency: 'EUR' },
-  primaryMaterialGroup: 'Blech',
-  materialGroups: ['Blech'],
-  businessUnits: ['Antrieb'],
-  businessUnitIds: ['bu1'],
-  materialGroupIds: ['wg1'],
-  targetType: '3-3',
-  isFocus: n % 2 === 0,
-  isMine: n % 3 === 0,
-  ...extra,
+// NAV-12 seit BZ-01 (K2-b.4): Seite Lieferanten mit Filter-Chips und „Mehr Filter“
+const rows = Array.from({ length: 6 }, (_, index) => {
+  const n = index + 1;
+  return relationshipRow(n, {
+    name: `Lieferant ${n} Werkzeugbau`,
+    spend: { amountCents: (10 - n) * 100_000_000, currency: 'EUR' },
+    materialGroup: 'Blech',
+    businessUnitIds: ['bu1'],
+    materialGroupIds: ['wg1'],
+    targetType: { key: '3-3', name: 'Partner' },
+    isFocus: n % 2 === 0,
+    isMine: n % 3 === 0,
+  });
 });
-const suppliers = Array.from({ length: 6 }, (_, n) => rel(n + 1));
 
 test.use({ locale: 'de-DE' });
 
@@ -50,24 +47,18 @@ async function setUp(page: Page) {
     }),
   );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
-  await page.route('**/api/suppliers', (route) =>
-    route.fulfill({
-      json: {
-        suppliers,
-        count: 6,
-        spendYear: 2025,
-        totalSpend: [{ amountCents: 2_100_000_000, currency: 'EUR' }],
-        filters: {
-          businessUnits: [{ id: 'bu1', name: 'Antrieb' }],
-          materialGroups: [
-            { id: 'wg0', name: 'Stahl', parentId: null },
-            { id: 'wg1', name: 'Blech', parentId: 'wg0' },
-          ],
-          targetTypes: [{ key: '3-3', name: 'Partner' }],
-        },
+  await routeRelationships(page, rows, {
+    overrides: {
+      filters: {
+        businessUnits: [{ id: 'bu1', name: 'Antrieb' }],
+        materialGroups: [
+          { id: 'wg0', name: 'Stahl', parentId: null },
+          { id: 'wg1', name: 'Blech', parentId: 'wg0' },
+        ],
+        targetTypes: [{ key: '3-3', name: 'Partner' }],
       },
-    }),
-  );
+    },
+  });
 }
 
 async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, name: string) {
@@ -96,11 +87,18 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
 
 test('NAV-12 Filter', async ({ page }, testInfo) => {
   await setUp(page);
-  await page.goto('/lieferanten?fokus=1&wg=wg0');
-  await expect(page.getByText('3 Treffer')).toBeVisible();
-  await expect(page).toHaveURL(/fokus=1/);
+  // Strategisch als Chip, Warengruppe Stahl mit Untergruppe Blech unter „Mehr Filter“
+  await page.goto('/lieferanten?filter=strategisch&wg=wg0');
+  const chips = page.getByRole('group', { name: 'Filter' });
+  await expect(chips.getByRole('button', { name: 'Strategisch · 3' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(relationshipList(page).getByRole('link')).toHaveCount(3);
+  await expect(page).toHaveURL(/filter=strategisch/);
   await shoot(page, testInfo, 'filter');
   await page.getByRole('button', { name: 'Filter zurücksetzen' }).click();
-  await expect(page.getByText('6 Treffer')).toBeVisible();
-  await expect(page).not.toHaveURL(/fokus=1/);
+  await expect(page).not.toHaveURL(/wg=/);
+  await expect(chips.getByRole('button', { name: 'Alle · 6' })).toBeVisible();
+  await expect(relationshipList(page).getByRole('link')).toHaveCount(3);
 });

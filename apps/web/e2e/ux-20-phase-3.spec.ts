@@ -1,8 +1,9 @@
 import { expect, type Page, test } from '@playwright/test';
+import { relationshipList, relationshipRow, routeRelationships } from './relationships.js';
 import { signIn } from './route-walk.js';
 
 // UX-20 Phase 3 (NAV-10 1.1, Ablauf 2 „Lieferant“): Liste → Überblick → Profil und Spend nur über
-// Zeilen und Links. Liste mit Umschalter und den Gruppen „Brauchen dich“ und „Laufen gut“,
+// Zeilen und Links. Liste nach Aufmerksamkeit mit Filter-Chips (seit BZ-01, K2-b.4),
 // Lieferantenkopf auf jeder Seite des Lieferanten, Überblick mit vier Phasen und genau einer Karte
 // „Als Nächstes“. Bei 390 px kein seitliches Scrollen. Die Zahlen sind Testdaten.
 
@@ -103,6 +104,54 @@ async function mock(page: Page) {
     spendYear: 2025,
     totalSpend: [{ amountCents: mio(19.9), currency: 'EUR' }],
   });
+  // BZ-01: Die Liste liest GET /api/beziehungen, nach Aufmerksamkeit geordnet
+  const byId = new Map(suppliers.map((entry) => [entry[0], entry]));
+  const listRow = (
+    n: 10 | 11 | 12 | 13 | 14 | 15,
+    extra: Parameters<typeof relationshipRow>[1] = {},
+  ) => {
+    const [, name, country, group, spend, focus] = byId.get(n) ?? suppliers[0];
+    return relationshipRow(n, {
+      relationshipId: id(n),
+      name,
+      country,
+      materialGroup: group,
+      spend: { amountCents: mio(spend), currency: 'EUR' },
+      isFocus: focus,
+      isMine: n !== 11,
+      segment: n === 13 ? null : { key: '3-2', name: 'Strategisch' },
+      ...extra,
+    });
+  };
+  await routeRelationships(page, [
+    listRow(10, {
+      reason: { kind: 'overdue', count: 1, title: 'Musterteile bestätigen' },
+      attention: 5,
+      quota: {
+        own: { kept: 9, due: 10, percent: 90 },
+        counterpart: { kept: 7, due: 9, percent: 78 },
+      },
+    }),
+    listRow(12, {
+      reason: {
+        kind: 'hint',
+        hint: {
+          id: id(70),
+          ruleKey: 'performance_drop',
+          severity: 'medium',
+          status: 'open',
+          title: null,
+          metric: null,
+          value: null,
+        },
+      },
+      attention: 3,
+    }),
+    listRow(13, { reason: { kind: 'unrated' }, attention: 2 }),
+    listRow(11),
+    listRow(14),
+    listRow(15),
+  ]);
   await json('**/api/start/brauchen-dich', {
     items: [
       { relationshipId: id(12), reason: 'hint', title: 'performance_drop' },
@@ -441,19 +490,20 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
   await mock(page);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/beziehungen');
-  const needs = page.getByRole('list', { name: 'Brauchen dich' });
-  await expect(needs.locator('[data-slot="supplier-name"]')).toHaveText([
-    'Pearl River Components',
+  const list = relationshipList(page);
+  // Nach Aufmerksamkeit: überfällige Zusage, Hinweis, ohne Bewertung, dann nach Spend
+  await expect(list.locator('a[href^="/lieferanten/"] b')).toHaveText([
     'Rheintal Elektronik',
     'Silesia Guss',
+    'Lombardia Fonderie',
+    'Pearl River Components',
+    'Alpen Sensorik',
+    'Moravia Plast',
   ]);
-  await expect(needs.getByRole('listitem').nth(2)).toContainText('Leistung kippt');
-  await expect(page.getByRole('list', { name: 'Lieferanten' })).toContainText(
-    'QBR Alpen Sensorik am',
-  );
-  // Zeile wählen, Detailleiste, Lieferant öffnen
-  await needs.getByRole('button', { name: /Rheintal Elektronik/ }).click();
-  await page.getByRole('link', { name: 'Lieferant öffnen' }).click();
+  // Ein Hinweis ohne Kennzahl trägt den Namen seiner Regel
+  await expect(list.getByRole('link', { name: /Silesia Guss/ })).toContainText('Leistung kippt');
+  // BZ-01: Die Zeile öffnet den Lieferanten direkt, ohne Detailleiste
+  await list.getByRole('link', { name: /Rheintal Elektronik/ }).click();
   await expect(page).toHaveURL(new RegExp(`${base}$`));
   await expect(page.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeVisible();
   // Vier Phasen, JBP ist jetzt
@@ -483,17 +533,24 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
   }
 });
 
-test('Liste auf dem Telefon: Umschalter Meine, Strategisch, Alle; Zeile öffnet die Detailseite', async ({
+test('Liste auf dem Telefon: Filter-Chips Meine, Strategisch, Alle; Zeile öffnet die Detailseite', async ({
   page,
 }) => {
   await mock(page);
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/beziehungen');
-  await page.getByText('Strategisch', { exact: true }).click();
-  await expect(page).toHaveURL(/fokus=1/);
-  await expect(page.locator('[data-slot="supplier-name"]')).toHaveText([
+  await page
+    .getByRole('group', { name: 'Filter' })
+    .getByRole('button', { name: /^Strategisch/ })
+    .click();
+  await expect(page).toHaveURL(/filter=strategisch/);
+  await expect(relationshipList(page).locator('a[href^="/lieferanten/"] b')).toHaveText([
     'Rheintal Elektronik',
     'Silesia Guss',
   ]);
   expect(await sideScroll(page)).toBe(0);
+  await relationshipList(page)
+    .getByRole('link', { name: /Silesia Guss/ })
+    .click();
+  await expect(page).toHaveURL(new RegExp(`/lieferanten/${id(12)}$`));
 });

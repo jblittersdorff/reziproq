@@ -34,13 +34,22 @@ export interface RowInput {
   overdue: { count: number; title: string } | null;
   /** Stärkster sichtbarer Hinweis */
   hint: RelationshipHint | null;
+  /** Für „Mehr Filter“ (NAV-12) */
+  businessUnitIds: string[];
+  materialGroupIds: string[];
+  targetType: { key: string; name: string } | null;
+  categorySegments: { materialGroupId: string; key: string; name: string }[];
 }
 
-/** Der stärkste Grund und seine Punkte; bei Gleichstand gilt die Reihenfolge der Prüfung. */
+/**
+ * Der stärkste Grund und seine Punkte; bei Gleichstand gilt die Reihenfolge der Prüfung. Eine
+ * beendete Beziehung braucht keine Aufmerksamkeit mehr (PLT-03).
+ */
 export function reasonOf(input: RowInput): {
   reason: RelationshipReason | null;
   attention: number;
 } {
+  if (input.status === 'ended') return { reason: null, attention: 0 };
   const candidates: { reason: RelationshipReason; points: number }[] = [];
   if (input.overdue) {
     candidates.push({
@@ -103,17 +112,20 @@ export function strongestHints(
   );
 }
 
-/** Zeilen der Liste: nach Aufmerksamkeit, dann nach Spend, dann nach Name */
+/** Zeilen der Liste: nach Aufmerksamkeit, dann nach Spend, dann nach Name; beendete zuletzt */
 export function rankRows(inputs: RowInput[]): RelationshipRow[] {
-  return inputs
-    // overdue und hint bleiben am Objekt; das Schema der Antwort lässt sie weg
-    .map((input) => ({ ...input, ...reasonOf(input) }))
-    .sort(
-      (a, b) =>
-        b.attention - a.attention ||
-        cents(b.spend) - cents(a.spend) ||
-        a.name.localeCompare(b.name, 'de'),
-    );
+  return (
+    inputs
+      // overdue und hint bleiben am Objekt; das Schema der Antwort lässt sie weg
+      .map((input) => ({ ...input, ...reasonOf(input) }))
+      .sort(
+        (a, b) =>
+          Number(a.status === 'ended') - Number(b.status === 'ended') ||
+          b.attention - a.attention ||
+          cents(b.spend) - cents(a.spend) ||
+          a.name.localeCompare(b.name, 'de'),
+      )
+  );
 }
 
 /** Abstand der Quoten zugunsten eurer Seite in Punkten; null ohne fällige Zusagen auf einer Seite */
@@ -222,9 +234,7 @@ export function segmentFields(
     .sort((a, b) => b.impactLevel - a.impactLevel || a.qualityLevel - b.qualityLevel)
     .map((type) => {
       const key = `${type.impactLevel}-${type.qualityLevel}`;
-      const suppliers = entries
-        .filter((entry) => entry.segmentKey === key)
-        .sort(bySupplierOrder);
+      const suppliers = entries.filter((entry) => entry.segmentKey === key).sort(bySupplierOrder);
       return {
         key,
         impactLevel: type.impactLevel,

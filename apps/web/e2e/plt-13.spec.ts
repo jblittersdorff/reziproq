@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { relationshipsResponse } from './relationships.js';
 
 // Tests zu docs/specs/PLT-13.md und UMB-01.md im echten Browser: Kunde wechseln auf eigener
 // Seite, Hinweisleiste, Maße.
@@ -42,6 +43,10 @@ async function signInAsOperator(page: Page) {
     if (url.pathname === '/api/betreiber/kunden') return route.fulfill({ json: { customers } });
     if (url.pathname === '/api/suppliers') {
       return route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } });
+    }
+    // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen
+    if (url.pathname === '/api/beziehungen') {
+      return route.fulfill({ json: relationshipsResponse([]) });
     }
     return route.fulfill({ json: { status: 'ok' } });
   });

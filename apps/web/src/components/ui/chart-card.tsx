@@ -30,10 +30,10 @@ function ChartCard({
       data-slot="chart-card"
       className={cn('flex min-w-0 flex-col gap-3.5 rounded-lg bg-card px-5.5 py-5', className)}
     >
-      {label && <span className="font-semibold text-input-border text-sm">{label}</span>}
+      {label && <span className="font-semibold text-muted-foreground text-sm">{label}</span>}
       <h2 className="text-balance font-display font-semibold text-lg tracking-section">{title}</h2>
       {children}
-      {source && <p className="text-chip text-input-border">{source}</p>}
+      {source && <p className="text-chip text-muted-foreground">{source}</p>}
       {link &&
         renderLink({
           href: link.href,
@@ -101,7 +101,7 @@ function ChartFigures({
     <dl className={stacked ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
       {items.map((item) => (
         <div key={item.key} className="flex flex-col">
-          <dt className="order-2 text-detail text-input-border">{item.label}</dt>
+          <dt className="order-2 text-detail text-muted-foreground">{item.label}</dt>
           <dd className="order-1 font-display font-semibold text-figure tabular-nums">
             {item.value}
           </dd>
@@ -133,7 +133,7 @@ function ChartColumns({
       {items.map((item) => (
         <li
           key={item.key}
-          className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5 text-chip text-input-border"
+          className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5 text-chip text-muted-foreground"
         >
           <b className="font-semibold text-ink text-sm tabular-nums">{item.value}</b>
           <span aria-hidden className="flex w-full flex-1 items-end justify-center">

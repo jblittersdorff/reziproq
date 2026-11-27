@@ -239,7 +239,7 @@ function DoneEntry({ row }: { row: DoneRow }) {
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="text-pretty font-medium text-ink text-row">{rowText(text, row)}</span>
-        <span className="text-detail text-input-border">
+        <span className="text-detail text-muted-foreground">
           {text.detail(text.tasks[row.task] ?? row.taskName, row.counterpart)}
         </span>
         {blocked && (

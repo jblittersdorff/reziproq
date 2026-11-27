@@ -210,7 +210,7 @@ export function OverviewRows({
         renderLink={routerLink}
       />
       <Row
-        lead={<LockIcon aria-hidden className="size-4 text-input-border" />}
+        lead={<LockIcon aria-hidden className="size-4 text-muted-foreground" />}
         title={text.strategy}
         detail={join([
           segment
@@ -559,7 +559,7 @@ export function ContactsCard({ relationshipId, name }: { relationshipId: string;
                 <b className="truncate font-semibold text-ink text-row">
                   {touchpoint.supplierName}
                 </b>
-                <span className="truncate text-detail text-input-border">
+                <span className="truncate text-detail text-muted-foreground">
                   {`${t.touchpoints.levels[touchpoint.supplierLevel] ?? ''} · ${touchpoint.buyerName}`}
                 </span>
               </span>
@@ -568,7 +568,7 @@ export function ContactsCard({ relationshipId, name }: { relationshipId: string;
           ))}
           {gap && (
             <li className="flex min-h-14 items-center gap-3 py-2">
-              <span className="min-w-0 flex-1 text-detail text-input-border">
+              <span className="min-w-0 flex-1 text-detail text-muted-foreground">
                 {text.gapText(gapTitle)}
               </span>
               <Badge variant="danger">{text.gap}</Badge>

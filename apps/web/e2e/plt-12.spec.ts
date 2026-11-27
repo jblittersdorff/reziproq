@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { routeRelationships } from './relationships.js';
 
 // Tests zu docs/specs/PLT-12.md, die einen echten Browser brauchen: Tastenkürzel, Fokus, Maße.
 // Seit NAV-10 2.0 (K1-d) liegt das Gespräch in der Überlagerung Frag Reziproq (E-K0-01).
@@ -32,6 +33,8 @@ async function signIn(page: Page) {
   await page.route('**/api/suppliers', (route) =>
     route.fulfill({ json: { suppliers: [], count: 0, totalSpend: [], spendYear: 2025 } }),
   );
+  // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen
+  await routeRelationships(page, []);
   await page.route('**/api/prompt', (route) => {
     const question = route.request().postDataJSON().messages.at(-1).content as string;
     const events = question.includes('Portfolio')

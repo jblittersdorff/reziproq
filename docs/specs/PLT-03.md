@@ -78,7 +78,7 @@ Je Kriterium ein Test.
 - [x] Anlegen, Ändern und Beenden erzeugen Verlaufseinträge, ohne Spend oder Notizen in geteilten Einträgen.
 - [x] Spend liegt in Cent in der Datenbank und erscheint als Euro im deutschen Format.
 - [x] Anzahl und Gesamtspend stimmen mit der Datenbank überein.
-- [x] Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse.
+- [x] Suche, Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse. Seit BZ-01 (K2-b.4) ohne eigene Suche (Frag Reziproq übernimmt); Sortierung nach Aufmerksamkeit oder Spend, „Beendete zeigen“ unter „Mehr Filter“.
 - [x] Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.
 - [x] Pflichtfelder und Formate werden auf der Seite und in der API geprüft (zod in `packages/shared`).
 

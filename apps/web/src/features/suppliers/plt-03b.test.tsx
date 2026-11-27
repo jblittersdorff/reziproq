@@ -95,7 +95,8 @@ const field = (label: string) => screen.getByLabelText(label, { exact: false });
 describe('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.', () => {
   it('der Knopf „Lieferant hinzufügen“ öffnet /lieferanten/neu, Abbrechen führt zurück', async () => {
     const router = renderAt('/beziehungen');
-    fireEvent.click(await screen.findByRole('link', { name: 'Lieferant hinzufügen' }));
+    // BZ-01: „Lieferant hinzufügen“ ist eine Zeile der Gruppe „Lieferanten pflegen“
+    fireEvent.click(await screen.findByRole('link', { name: /Lieferant hinzufügen/ }));
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Lieferant hinzufügen' }),
     ).toBeDefined();
@@ -255,8 +256,8 @@ describe('Beenden und Rechte', () => {
   it('zeigt ohne Recht weder Hinzufügen noch Bearbeiten, Beenden oder Jahr hinzufügen', async () => {
     api.permissions = actionsFor.viewer;
     renderAt('/beziehungen');
-    await screen.findByText(/^4 Lieferanten/);
-    expect(screen.queryByRole('link', { name: 'Lieferant hinzufügen' })).toBeNull();
+    await screen.findByRole('link', { name: /Lieferanten importieren/ });
+    expect(screen.queryByRole('link', { name: /Lieferant hinzufügen/ })).toBeNull();
     tearDownApp();
     setUpApp();
     api.permissions = actionsFor.viewer;
@@ -281,14 +282,14 @@ describe('Beenden und Rechte', () => {
     ).toBeDefined();
   });
 
-  it('die Zeilen der Liste führen über die Detailleiste in den Arbeitsbereich (LS-01)', async () => {
+  it('die Zeilen der Liste führen direkt in den Arbeitsbereich (BZ-01, ohne Detailleiste)', async () => {
     const router = renderAt('/beziehungen');
-    const list = await screen.findByRole('list', { name: 'Lieferanten' });
-    fireEvent.click(within(list).getAllByRole('button')[0] as HTMLElement);
-    fireEvent.click(await screen.findByRole('link', { name: 'Lieferant öffnen' }));
+    await screen.findByRole('group', { name: 'Filter' });
+    const list = document.querySelector('[data-slot="relationship-rows"]') as HTMLElement;
+    fireEvent.click(within(list).getAllByRole('link')[0] as HTMLElement);
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(
-        '/lieferanten/rel-Rheintal Elektronik GmbH (Demo)',
+        '/lieferanten/00000000-0000-7000-8000-000000000001',
       ),
     );
   });

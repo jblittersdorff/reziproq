@@ -10,11 +10,14 @@ export function formatMoney(
     compact = false,
     signed = false,
     wholeUnits = false,
+    fractionDigits,
   }: {
     compact?: boolean;
     signed?: boolean;
     /** Ohne Nachkommastellen, z. B. 4.820.000 € (Spend auf Lieferantenkarten, PLT-02). */
     wholeUnits?: boolean;
+    /** Höchstens so viele Nachkommastellen, z. B. 2 für „3,15 Mio. €“ (BZ-01) */
+    fractionDigits?: number;
   } = {},
 ): string {
   if (!Number.isInteger(money.amountCents)) {
@@ -25,7 +28,7 @@ export function formatMoney(
     currency: money.currency,
     notation: compact ? 'compact' : 'standard',
     minimumFractionDigits: wholeUnits ? 0 : undefined,
-    maximumFractionDigits: wholeUnits ? 0 : compact ? 1 : 2,
+    maximumFractionDigits: fractionDigits ?? (wholeUnits ? 0 : compact ? 1 : 2),
     signDisplay: signed ? 'exceptZero' : 'auto',
   }).format(money.amountCents / 100);
 }

@@ -359,15 +359,12 @@ describe('Zuordnung eines Lieferanten', () => {
     expect(writes()).toEqual([]);
   });
 
-  it('Die Lieferantenkarten zeigen die Haupt-Warengruppe. Die Suche findet auch Warengruppen.', async () => {
-    renderAt('/lieferanten?suche=kabel');
-    const list = await screen.findByRole('list', { name: 'Lieferanten' });
-    const cards = within(list).getAllByRole('listitem');
-    expect(cards).toHaveLength(1);
-    // LS-01: Zeile mit Anzeigename (voller Name im Tooltip) und Hauptwarengruppe · Land
-    expect(cards[0]?.querySelector('[data-slot="supplier-name"]')?.getAttribute('title')).toBe(
-      'Rheintal Elektronik GmbH (Demo)',
-    );
-    expect(cards[0]?.textContent).toContain('Elektronik · Deutschland');
+  // Seit BZ-01 (K2-b.4) ohne eigene Suche; Frag Reziproq findet Warengruppen (PLT-12)
+  it('Die Zeilen der Liste zeigen die Haupt-Warengruppe vor dem Land', async () => {
+    renderAt('/lieferanten');
+    await screen.findByRole('group', { name: 'Filter' });
+    const list = document.querySelector('[data-slot="relationship-rows"]') as HTMLElement;
+    const rheintal = within(list).getByRole('link', { name: /Rheintal Elektronik/ });
+    expect(rheintal.textContent).toContain('Leiterplatten · Deutschland');
   });
 });

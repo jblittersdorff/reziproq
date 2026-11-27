@@ -3,6 +3,7 @@ import {
   type Database,
   databaseUrl,
   hollmann,
+  hollmannLockKey,
   seedHollmann,
   sql,
 } from '@reziproq/db';
@@ -11,8 +12,8 @@ import {
 // reziproq_test; spielten zwei zugleich Hollmann ein, leerte die eine, was die andere gerade liest.
 // Deshalb hält jede Datei eine Sitzungssperre auf eigener Verbindung, vom Einspielen bis zum Aufräumen.
 
-/** Schlüssel der Sperre; frei gewählt, nur für Hollmann */
-const lockKey = 41_011_123;
+/** Schlüssel der Sperre, derselbe wie in den E2E-Tests mit Hollmann */
+const lockKey = hollmannLockKey;
 
 /** Zeitgrenze für beforeAll: Wer wartet, wartet, bis die andere Datei fertig ist. */
 export const hollmannTimeout = 180_000;

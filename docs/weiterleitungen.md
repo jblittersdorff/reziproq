@@ -19,7 +19,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/bewertungen/$id` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/bewertungen/$id/qualitaet` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
 | `/bewertungen/$id/zusammenfassung` | offen (Bewertung in Kurz prüfen) | K2-e | geplant |
-| `/beziehungen` | – (zeigt bis K2-b die Lieferantenliste) | K1-d | bleibt |
+| `/beziehungen` | – (Seite Lieferanten mit Liste (K2-b.4) und Segmenten) | K1-d | bleibt |
 | `/demo` | – (Demo-Regie) | K1-g.4 | bleibt |
 | `/demo/als/$person` | – (Demo-Sitzung) | K1-b.2 | bleibt |
 | `/design` | `/bausteine` | K1-d.3 | geplant |

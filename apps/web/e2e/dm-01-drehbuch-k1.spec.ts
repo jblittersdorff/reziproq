@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { lockHollmann } from './hollmann-lock.js';
 
 // DM-01, Drehbuch K1 „Morgen mit Reziproq“ (K1-g.5) als E2E-Test gegen die echte API im
 // Demo-Mandanten Hollmann. Einstieg über die Demo-Sitzung (E-K0-05), jede Handlung über die
@@ -21,6 +22,7 @@ type Database = import('../../../packages/db/src/client.js').Database;
 type BrowserTestApp = { adminDb: Database; baseUrl: string; close: () => Promise<void> };
 
 let testApp: BrowserTestApp | undefined;
+let unlock: (() => Promise<void>) | undefined;
 let apiEnv: { DEMO_SESSIONS: string } | undefined;
 let demoSessionsBefore = 'false';
 
@@ -34,6 +36,9 @@ test.beforeAll(async () => {
   process.env.DATABASE_URL = db.testDatabaseUrl(db.databaseUrl());
   process.env.API_DATABASE_URL = db.testDatabaseUrl(db.apiDatabaseUrl());
   await db.ensureTestDatabase(db.databaseUrl());
+  // Hollmann hat feste IDs: Dateien mit Hollmann laufen nacheinander, schon ab dem Einrichten der
+  // Rolle (zwei gleichzeitige ALTER ROLE scheitern)
+  unlock = await lockHollmann(db);
   await db.ensureApiRole(db.databaseUrl(), db.apiDatabaseUrl());
   const { startTestApp } = (await import(
     new URL('../../api/dist/testing/test-app.js', import.meta.url).href
@@ -65,6 +70,7 @@ test.afterAll(async () => {
       await testApp.adminDb.execute(sql`delete from organization where id in ${orgs}`);
     }
   } finally {
+    await unlock?.();
     await testApp.close();
   }
 });

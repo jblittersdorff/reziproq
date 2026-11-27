@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { relationshipRow, routeRelationships } from './relationships.js';
 
 // Tests zu docs/specs/PLT-03.md (Teil b), die einen echten Browser brauchen: eigene Seiten fürs
 // Anlegen, Bearbeiten und den Spend, Speichern und Abbrechen mit dem Zurück-Knopf, 390 px.
@@ -129,6 +130,10 @@ async function signIn(page: Page) {
   });
   await page.route('**/api/audit**', (route) => route.fulfill({ json: { entries: [] } }));
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
+  // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen
+  await routeRelationships(page, [
+    relationshipRow(1, { relationshipId: id, name: supplier.name, country: 'PL' }),
+  ]);
 }
 
 test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speichern und Abbrechen führen zurück.', async ({
@@ -136,7 +141,8 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
 }) => {
   await signIn(page);
   await page.goto('/beziehungen');
-  await page.getByRole('link', { name: 'Lieferant hinzufügen' }).click();
+  // BZ-01: „Lieferant hinzufügen“ ist eine Zeile der Gruppe „Lieferanten pflegen“
+  await page.getByRole('link', { name: /Lieferant hinzufügen/ }).click();
   await expect(page).toHaveURL(url('/lieferanten/neu'));
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
@@ -145,7 +151,7 @@ test('Anlegen, Bearbeiten und Spend-Erfassung laufen über eigene Seiten. Speich
   await expect(page).toHaveURL(url('/beziehungen'));
 
   // Anlegen führt zum neuen Lieferanten; Zurück führt danach zur Liste, nicht ins Formular.
-  await page.getByRole('link', { name: 'Lieferant hinzufügen' }).click();
+  await page.getByRole('link', { name: /Lieferant hinzufügen/ }).click();
   await page.getByLabel('Name', { exact: true }).fill('Neu GmbH (Demo)');
   await page.getByLabel('Land').selectOption('PL');
   await page.getByRole('button', { name: 'Speichern' }).click();

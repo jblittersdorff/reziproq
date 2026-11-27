@@ -505,7 +505,7 @@ function AllView({ filters }: { filters: TodayFilters }) {
       <div className="grid gap-5.5 wide:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5.5">
           <AllGroups data={data} filters={filters} />
-          <p className="px-1 text-input-border text-sm">{text.all.footer}</p>
+          <p className="px-1 text-muted-foreground text-sm">{text.all.footer}</p>
         </div>
         <AllAside data={data} />
       </div>
@@ -584,7 +584,7 @@ function AllGroups({ data, filters }: { data: TodayAll; filters: TodayFilters })
               {...(topic.href ? { href: topic.href } : {})}
               lead={
                 <span className="flex items-center gap-3">
-                  <span className="w-5.5 text-right font-semibold text-input-border text-sm tabular-nums">
+                  <span className="w-5.5 text-right font-semibold text-muted-foreground text-sm tabular-nums">
                     <span className="sr-only">{text.all.rank(topic.rank)}</span>
                     <span aria-hidden>{topic.rank}</span>
                   </span>
@@ -750,7 +750,7 @@ function AllAside({ data }: { data: TodayAll }) {
       </section>
       {fourth && (
         <section className="flex flex-col gap-3 rounded-lg bg-card p-5">
-          <h2 className="font-semibold text-input-border text-sm uppercase tracking-label">
+          <h2 className="font-semibold text-muted-foreground text-sm uppercase tracking-label">
             {text.all.whyNot.label}
           </h2>
           <p className="font-display font-semibold text-lg tracking-section">

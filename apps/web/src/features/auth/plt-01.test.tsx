@@ -85,18 +85,19 @@ describe('Erneuerung gescheitert', () => {
 
   it('zeigt „Bitte melde dich neu an“ oben im Seitenfluss, die Eingaben bleiben erhalten', async () => {
     auth.state = signedIn;
-    renderAt('/lieferanten');
-    const search = await screen.findByRole('searchbox', { name: /Lieferant/ });
-    fireEvent.change(search, { target: { value: 'Silesia' } });
+    // Seit BZ-01 (K2-b.4) hat die Liste keine eigene Suche; das Formular trägt die Eingabe
+    renderAt('/lieferanten/neu');
+    const name = (await screen.findAllByRole('textbox', { name: /^Name/ }))[0] as HTMLInputElement;
+    fireEvent.change(name, { target: { value: 'Silesia' } });
 
     act(() => auth.set(renewFailed));
 
     const notice = await screen.findByRole('alert');
     expect(notice.textContent).toContain('Bitte melde dich neu an');
     expect(notice.className).not.toMatch(/\bfixed\b/);
-    expect((screen.getByRole('searchbox', { name: /Lieferant/ }) as HTMLInputElement).value).toBe(
-      'Silesia',
-    );
+    expect(
+      ((await screen.findAllByRole('textbox', { name: /^Name/ }))[0] as HTMLInputElement).value,
+    ).toBe('Silesia');
   });
 
   it('leitet ohne Fenster zu Zitadel weiter und kehrt zur selben Adresse zurück (UMB-02)', async () => {

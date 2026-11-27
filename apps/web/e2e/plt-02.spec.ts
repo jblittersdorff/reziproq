@@ -1,18 +1,20 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { relationshipList, relationshipRow, routeRelationships } from './relationships.js';
 
-// Tests zu docs/specs/PLT-02.md, die einen echten Browser brauchen: Spalten und Breite.
+// Tests zu docs/specs/PLT-02.md, die einen echten Browser brauchen: Zeilen und Breite.
 
 test.use({ locale: 'de-DE' });
 
-const suppliers = Array.from({ length: 8 }, (_, index) => ({
-  relationshipId: `rel-${index}`,
-  name: `Lieferant ${index + 1} (Demo)`,
-  country: ['DE', 'PL', 'CZ', 'IT'][index % 4],
-  externalRef: `L-${10_001 + index}`,
-  status: 'active',
-  spend: { amountCents: (9 - index) * 100_000_000, currency: 'EUR' },
-}));
+// Seit BZ-01 (K2-b.4): Seite Lieferanten mit Zeilen aus GET /api/beziehungen
+const rows = Array.from({ length: 8 }, (_, index) =>
+  relationshipRow(index + 1, {
+    name: `Lieferant ${index + 1} (Demo)`,
+    country: ['DE', 'PL', 'CZ', 'IT'][index % 4] ?? 'DE',
+    spend: { amountCents: (9 - index) * 100_000_000, currency: 'EUR' },
+    isMine: index % 2 === 0,
+  }),
+);
 
 async function signIn(page: Page) {
   // Seit PLT-01 über den echten Ablauf mit nachgebautem Zitadel; Tokens liegen nur im Speicher.
@@ -33,27 +35,12 @@ async function signIn(page: Page) {
       },
     }),
   );
-  await page.route('**/api/suppliers', (route) =>
-    route.fulfill({
-      json: {
-        suppliers,
-        count: suppliers.length,
-        spendYear: 2025,
-        totalSpend: [
-          {
-            amountCents: suppliers.reduce((sum, s) => sum + s.spend.amountCents, 0),
-            currency: 'EUR',
-          },
-        ],
-      },
-    }),
-  );
+  await routeRelationships(page, rows);
 }
 
-const rows = (page: Page) =>
-  page.getByRole('list', { name: 'Lieferanten' }).locator('[data-slot="supplier-row"]');
+const lines = (page: Page) => relationshipList(page).getByRole('link');
 
-// LS-01: Liste mit festen Spalten statt Karten; alle Zeilen gleich hoch, rechts die Detailleiste.
+// BZ-01: alle Zeilen gleich hoch, ohne Detailleiste; die Zeile öffnet den Lieferanten
 for (const width of [1440, 390]) {
   test(`Bei ${width} px haben alle Zeilen dieselbe Höhe, ohne waagerechte Scrollleiste`, async ({
     page,
@@ -61,35 +48,30 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await signIn(page);
     await page.goto('/lieferanten');
-    await expect(rows(page)).toHaveCount(suppliers.length);
-    const heights = await rows(page).evaluateAll((items) =>
-      items.map((item) => Math.round(item.getBoundingClientRect().height)),
+    await expect(lines(page)).toHaveCount(rows.length);
+    // Ohne Rand gemessen: Der Trennstrich steht unter jeder Zeile außer der letzten
+    const heights = await lines(page).evaluateAll((items) =>
+      items.map((item) => item.clientHeight),
     );
     expect(new Set(heights).size).toBe(1);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBe(0);
-    // Breit: Detailleiste neben der Liste; schmal: erst nach Auswahl als eigene Ansicht
-    const panel = page.getByRole('region', { name: /^Details zu/ });
-    if (width === 1440) await expect(panel).toBeVisible();
-    else {
-      await expect(panel).toHaveCount(0);
-      await rows(page).first().click();
-      await expect(panel).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Zurück zur Liste' })).toBeVisible();
-    }
+    await expect(page.getByRole('region', { name: /^Details zu/ })).toHaveCount(0);
   });
 }
 
-test('Die Suche filtert schon beim Tippen', async ({ page }) => {
+// BZ-01 streicht die eigene Suche (Frag Reziproq übernimmt); die Chips filtern sofort
+test('Die Filter-Chips filtern sofort und stehen in der Adresse', async ({ page }) => {
   await signIn(page);
   await page.goto('/lieferanten');
-  const cards = rows(page);
-  await expect(cards).toHaveCount(8);
+  await expect(lines(page)).toHaveCount(8);
   await page
-    .getByRole('searchbox', { name: 'Lieferant oder eigene Nummer suchen' })
-    .pressSequentially('L-10003');
-  await expect(cards).toHaveCount(1);
-  await expect(cards.first()).toContainText('Lieferant 3');
+    .getByRole('group', { name: 'Filter' })
+    .getByRole('button', { name: 'Meine · 4' })
+    .click();
+  await expect(lines(page)).toHaveCount(4);
+  await expect(page).toHaveURL(/filter=meine/);
+  await expect(lines(page).first()).toContainText('Lieferant 1');
 });

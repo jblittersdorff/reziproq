@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
-import type { CategorySegmentation, PortfolioMatrix, SuppliersResponse } from '@reziproq/shared';
+import type {
+  CategorySegmentation,
+  PortfolioMatrix,
+  RelationshipsResponse,
+} from '@reziproq/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { spendBySegment } from '@/features/portfolio/matrix-page';
@@ -8,7 +12,7 @@ import {
   anna,
   api,
   renderAt,
-  sampleSuppliers,
+  sampleRelationships,
   setUpApp,
   signedIn,
   tearDownApp,
@@ -262,20 +266,20 @@ describe('WG-18 Portfolio mit Filter Warengruppe', () => {
 });
 
 describe('WG-18 Lieferantenliste', () => {
+  // Seit BZ-01 (K2-b.4) heißt das Segment nach dem Typ des Modells
   it('zeigt das Gesamtsegment; mit Filter Warengruppe das Segment dort mit ihrem Namen', async () => {
-    const base = sampleSuppliers.suppliers[0] as SuppliersResponse['suppliers'][number];
-    const body: SuppliersResponse = {
-      ...sampleSuppliers,
-      suppliers: [
+    const base = sampleRelationships.rows[0] as RelationshipsResponse['rows'][number];
+    const body: RelationshipsResponse = {
+      ...sampleRelationships,
+      rows: [
         {
           ...base,
           name: 'Rheintal Elektronik',
           materialGroupIds: [group],
-          segmentType: '1-1',
-          categorySegments: [{ materialGroupId: group, type: '3-3' }],
+          segment: { key: '1-1', name: 'Routine' },
+          categorySegments: [{ materialGroupId: group, key: '3-3', name: 'Strategisch' }],
         },
       ],
-      count: 1,
       filters: {
         businessUnits: [],
         materialGroups: [{ id: group, name: 'Leiterplatten', parentId: null }],
@@ -285,15 +289,21 @@ describe('WG-18 Lieferantenliste', () => {
         ],
       },
     };
-    api.suppliers = { status: 200, body };
+    const rowOf = async () => {
+      await screen.findByRole('group', { name: 'Filter' });
+      const list = document.querySelector('[data-slot="relationship-rows"]') as HTMLElement;
+      return within(list).getByRole('link', { name: /Rheintal Elektronik/ });
+    };
+    api.relationships = { status: 200, body, drafts: [], ended: [] };
     renderAt('/lieferanten');
-    expect(await screen.findByText('Niedriger Impact · schwach')).toBeTruthy();
+    expect(within(await rowOf()).getByText('Routine')).toBeTruthy();
     tearDownApp();
     setUpApp();
-    api.suppliers = { status: 200, body };
+    api.relationships = { status: 200, body, drafts: [], ended: [] };
     renderAt(`/lieferanten?wg=${group}`);
-    expect(await screen.findByText('Hoher Impact · stark')).toBeTruthy();
+    const row = await rowOf();
+    expect(within(row).getByText('Strategisch')).toBeTruthy();
+    expect(within(row).queryByText('Routine')).toBeNull();
     expect(screen.getByText('Segment in Leiterplatten')).toBeTruthy();
-    expect(screen.queryByText('Niedriger Impact · schwach')).toBeNull();
   });
 });

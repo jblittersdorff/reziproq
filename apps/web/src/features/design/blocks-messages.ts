@@ -40,6 +40,27 @@ export const blocksMessages = defineMessages({
       ask: 'AskOverlay · Frag Reziproq',
       segmented: 'SegmentedControl · Schalter',
       sectionCard: 'SectionCard · Karte mit Label',
+      filterChips: 'FilterChips · Filter als Pillen',
+      mirror: 'MiniMirror · Mini-Spiegel mit Spaltenköpfen',
+    },
+    filterChips: {
+      label: 'Filter',
+      options: [
+        ['alle', 'Alle', 16],
+        ['meine', 'Meine', 6],
+        ['strategisch', 'Strategisch', 8],
+      ] as [string, string, number][],
+      more: 'Mehr Filter',
+      panel: 'Hier öffnen sich weitere Filter, z. B. Segment und Warengruppe.',
+    },
+    mirror: {
+      heads: ['Beziehung', 'Zusagen gehalten'] as [string, string],
+      rows: [
+        ['Rheintal Elektronik', 'Leiterplatten · Deutschland · 4,2 Mio. €', 90, 78],
+        ['Silesia Guss', 'Guss · Polen · 3,15 Mio. €', 100, 60],
+      ] as [string, string, number, number][],
+      label: (name: string, own: number, counterpart: number) =>
+        `Zusagen gehalten: ihr ${own} %, ${name} ${counterpart} %`,
     },
     sectionCard: {
       label: 'Signale einspielen',
@@ -259,6 +280,27 @@ export const blocksMessages = defineMessages({
       ask: 'AskOverlay · Ask Reziproq',
       segmented: 'SegmentedControl · switch',
       sectionCard: 'SectionCard · card with label',
+      filterChips: 'FilterChips · filters as pills',
+      mirror: 'MiniMirror · mini mirror with column heads',
+    },
+    filterChips: {
+      label: 'Filters',
+      options: [
+        ['alle', 'All', 16],
+        ['meine', 'Mine', 6],
+        ['strategisch', 'Strategic', 8],
+      ] as [string, string, number][],
+      more: 'More filters',
+      panel: 'More filters open here, such as segment and material group.',
+    },
+    mirror: {
+      heads: ['Relationship', 'Commitments kept'] as [string, string],
+      rows: [
+        ['Rheintal Elektronik', 'PCBs · Germany · €4.2M', 90, 78],
+        ['Silesia Guss', 'Castings · Poland · €3.15M', 100, 60],
+      ] as [string, string, number, number][],
+      label: (name: string, own: number, counterpart: number) =>
+        `Commitments kept: you ${own} %, ${name} ${counterpart} %`,
     },
     sectionCard: {
       label: 'Play signals',

@@ -15,13 +15,15 @@ import { ChartBars, ChartCard, ChartColumns, ChartFigures } from '@/components/u
 import { Collapsible } from '@/components/ui/collapsible';
 import { DateList } from '@/components/ui/date-list';
 import { CategoryHeader, SupplierHeader } from '@/components/ui/entity-header';
+import { FilterChips } from '@/components/ui/filter-chips';
 import { FormField } from '@/components/ui/form-field';
 import { FormGroup, FormPage } from '@/components/ui/form-page';
 import { Input } from '@/components/ui/input';
+import { MiniMirror } from '@/components/ui/mini-mirror';
 import { Monogram } from '@/components/ui/monogram';
 import { NextCard } from '@/components/ui/next-card';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
-import { Row, RowGroup } from '@/components/ui/row-group';
+import { Row, RowGroup, RowHead, RowHeads } from '@/components/ui/row-group';
 import { SectionCard } from '@/components/ui/section-card';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Sheet } from '@/components/ui/sheet';
@@ -46,6 +48,8 @@ export function BlocksPage() {
   const { locale, setLocale } = useLocale();
   const [sent, setSent] = useState(false);
   const [sheet, setSheet] = useState(false);
+  const [chip, setChip] = useState('alle');
+  const [moreOpen, setMoreOpen] = useState(false);
   const [ask, setAsk] = useState(false);
   const [level, setLevel] = useState<'suggest' | 'prepare' | 'do'>('prepare');
   useEffect(() => {
@@ -90,7 +94,7 @@ export function BlocksPage() {
   const section = (id: string, label: string) => (
     <h2
       id={id}
-      className="px-1 pt-4 font-semibold text-input-border text-sm uppercase tracking-label"
+      className="px-1 pt-4 font-semibold text-muted-foreground text-sm uppercase tracking-label"
     >
       {label}
     </h2>
@@ -308,6 +312,67 @@ export function BlocksPage() {
             value={t.rows.waiting[3]}
           />
         </RowGroup>
+
+        {section('filter-chips', t.sections.filterChips)}
+        {/* BZ-01 (K2-b.4): Filter-Chips der Seite Lieferanten, Vorlage Lieferanten */}
+        <FilterChips
+          label={t.filterChips.label}
+          value={chip}
+          onChange={setChip}
+          options={t.filterChips.options.map(([value, label, count]) => ({ value, label, count }))}
+          more={{
+            label: t.filterChips.more,
+            expanded: moreOpen,
+            active: 0,
+            onToggle: () => setMoreOpen(!moreOpen),
+            controls: 'bausteine-mehr-filter',
+          }}
+        />
+        {moreOpen && (
+          <p id="bausteine-mehr-filter" className="rounded-lg bg-card p-4 text-base">
+            {t.filterChips.panel}
+          </p>
+        )}
+
+        {section('mirror', t.sections.mirror)}
+        <div className="flex flex-col gap-2">
+          <RowHeads>
+            <RowHead className="flex-1">{t.mirror.heads[0]}</RowHead>
+            <RowHead className="w-50 text-center">{t.mirror.heads[1]}</RowHead>
+            <span className="w-4" />
+          </RowHeads>
+          <RowGroup>
+            {t.mirror.rows.map(([name, detail, own, counterpart]) => (
+              <Row
+                key={name}
+                href="/beziehungen"
+                lead={<Monogram name={name} tone="petrol" />}
+                title={name}
+                detail={detail}
+                value={
+                  <>
+                    <span className="hidden shell:flex">
+                      <MiniMirror
+                        own={own}
+                        counterpart={counterpart}
+                        label={t.mirror.label(name, own, counterpart)}
+                      />
+                    </span>
+                    <span className="flex shell:hidden">
+                      <MiniMirror
+                        size="sm"
+                        own={own}
+                        counterpart={counterpart}
+                        label={t.mirror.label(name, own, counterpart)}
+                      />
+                    </span>
+                  </>
+                }
+                renderLink={routerLink}
+              />
+            ))}
+          </RowGroup>
+        </div>
 
         {section('segmented', t.sections.segmented)}
         {/* MA-01 (K1-f.3): Stufen-Umschalter wie in Mein Agent; eine nicht erlaubte Stufe ist gesperrt */}

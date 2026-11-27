@@ -28,7 +28,7 @@ function Collapsible({
         <span>{title}</span>
         <ChevronRightIcon
           aria-hidden
-          className="size-4 shrink-0 text-input-border transition-transform group-open:rotate-90"
+          className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
         />
       </summary>
       <div className="flex flex-col gap-3 px-4 pt-1 pb-4 text-base">{children}</div>
