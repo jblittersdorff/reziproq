@@ -500,6 +500,10 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
     startedAt: berlin('2026-11-23', '06:02'),
     finishedAt: briefAt,
     createdAt: berlin('2026-11-23', '06:02'),
+    // K2-c.6a: Prüfsumme der Eingaben zum Stand des Seeds (KI-07). Damit gilt das Briefing als
+    // aktuell: „Briefing JBP“ in der Akte öffnet es ohne neuen Lauf, und der Zeitplan der Regie
+    // startet keinen. Ändert sich der Seed von Rheintal, nennt ak-01.test.ts (API) den neuen Wert.
+    inputChecksum: '089fe90f64437175:76b9f9c525c8ba73a68a8dc9f889edc3',
   });
 
   // ——— Notizen der beiden vergangenen Termine

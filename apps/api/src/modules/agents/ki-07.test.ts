@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { type Database, eq, schema, sql } from '@reziproq/db';
+import { and, type Database, eq, schema, sql } from '@reziproq/db';
 import {
   agendaMinutes,
   agentRunDetailSchema,
@@ -16,6 +16,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
+import { type BriefInputs, MeetingBriefService } from '../meetings/meeting-brief.service.js';
 import { AgentRunner } from './agent-runner.js';
 import { MeetingBriefWorker } from './meeting-brief.worker.js';
 
@@ -241,6 +242,11 @@ describe('KI-07 Termin-Briefing', () => {
 
   afterAll(async () => {
     const ids = Object.values(orgs);
+    await db.execute(sql`delete from value_opportunity where relationship_id = ${relationshipId}`);
+    await db.execute(
+      sql`delete from value_market_signal where relationship_id = ${relationshipId}`,
+    );
+    await db.execute(sql`delete from value_data_gap where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from ai_draft where org_id in ${ids}`);
     await db.execute(sql`delete from comment where relationship_id = ${relationshipId}`);
     await db.execute(sql`delete from commitment where relationship_id = ${relationshipId}`);
@@ -526,5 +532,95 @@ describe('KI-07 Termin-Briefing', () => {
     expect(saved.body).toMatchObject({
       leadDays: { jbp: 10, other: 2, negotiation: 3, escalation: 0, quarterly_review: 7 },
     });
+  });
+
+  // K2-c.6a: Der Wertfinder (KI-11) legt seine Datenlücken bei jedem Lauf neu an. Ohne neuen Inhalt
+  // bleibt das Briefing aktuell, sonst startete „Briefing JBP“ in der Akte nach jedem „Wert finden“
+  // einen neuen Lauf.
+  it('„Wert finden“ ohne neuen Inhalt lässt das Briefing aktuell; neue Datenlücken nicht', async () => {
+    const findValue = async () => {
+      const run = await call(users.sro, 'POST', `/suppliers/${relationshipId}/wertpotenziale/lauf`);
+      expect(run.status).toBe(201);
+    };
+    const openGaps = () =>
+      db
+        .select({ id: schema.valueDataGap.id, description: schema.valueDataGap.description })
+        .from(schema.valueDataGap)
+        .where(
+          and(
+            eq(schema.valueDataGap.relationshipId, relationshipId),
+            eq(schema.valueDataGap.status, 'open'),
+          ),
+        )
+        .orderBy(schema.valueDataGap.createdAt, schema.valueDataGap.id);
+    const startBrief = () =>
+      call(users.sro, 'POST', `/ki/agenten/${agentId}/starten`, {
+        relationshipId,
+        meetingId: meetings.jbp,
+        isTest: false,
+      });
+
+    expect((await brief()).freshness.unchanged).toBe(true);
+    // Erster Lauf: Ohne Warengruppe fehlen Eingaben; die Datenlücken sind neue Eingaben
+    await findValue();
+    const gaps = await openGaps();
+    expect(gaps.length).toBeGreaterThan(0);
+    expect((await brief()).freshness.unchanged).toBe(false);
+    const started = await startBrief();
+    expect(started.status).toBe(201);
+    await process(agentRunDetailSchema.parse(started.body).run.id);
+    expect((await brief()).freshness.unchanged).toBe(true);
+
+    // Zweiter Lauf ohne neuen Inhalt: dieselben Lücken mit neuen IDs, das Briefing bleibt aktuell
+    await findValue();
+    const again = await openGaps();
+    expect(again.map((gap) => gap.description)).toEqual(gaps.map((gap) => gap.description));
+    expect(again.some((gap) => gaps.some((earlier) => earlier.id === gap.id))).toBe(false);
+    expect((await brief()).freshness.unchanged).toBe(true);
+    const repeat = await startBrief();
+    expect(repeat.status).toBe(409);
+    expect((repeat.body as { code: string }).code).toBe('briefing_aktuell');
+  });
+
+  it('die Prüfsumme zählt Wertpotenziale mit ihrem Inhalt statt der ID und Marktsignale gar nicht', () => {
+    const service = app.app.get(MeetingBriefService);
+    const chance = { id: randomUUID(), title: 'Indexklausel', low: 1_000_000, high: 2_500_000 };
+    const inputs: BriefInputs = {
+      meeting: {
+        id: meetings.jbp,
+        type: 'jbp',
+        title: 'JBP',
+        startsAt: `${isoDay(7)}T08:00:00.000Z`,
+        durationMinutes: 120,
+        participants: [{ name: 'Sara Ost', side: 'buyer' }],
+      },
+      supplier: 'Lieferant',
+      team: [],
+      spend: null,
+      kpis: [],
+      commitments: [],
+      feedbackGaps: [],
+      opportunities: [chance],
+      dataGaps: [{ id: randomUUID(), description: 'Spend je Warengruppe fehlt' }],
+      hints: [],
+      topics: [],
+      signals: [{ id: randomUUID(), title: 'Kupferpreis steigt' }],
+      earlierQuestions: [],
+      notes: 0,
+      previousQuestions: [],
+    };
+    const before = service.checksum(inputs);
+    // Wie ein neuer Lauf des Wertfinders mit demselben Ergebnis: neue IDs und ein weiteres Signal
+    const rerun: BriefInputs = {
+      ...inputs,
+      opportunities: [{ ...chance, id: randomUUID() }],
+      dataGaps: [{ id: randomUUID(), description: 'Spend je Warengruppe fehlt' }],
+      signals: [...inputs.signals, { id: randomUUID(), title: 'Kupferpreis steigt' }],
+    };
+    expect(service.checksum(rerun)).toBe(before);
+    // Ein anderer Wert ist eine neue Eingabe
+    expect(
+      service.checksum({ ...inputs, opportunities: [{ ...chance, high: 3_000_000 }] }),
+    ).not.toBe(before);
   });
 });

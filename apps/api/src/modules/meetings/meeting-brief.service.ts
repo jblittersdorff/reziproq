@@ -500,10 +500,21 @@ export class MeetingBriefService {
   /**
    * Prüfsummen: „meeting“ über Zeit, Dauer und Teilnehmer (bei Änderung läuft der Agent erneut),
    * „all“ über alle gelesenen Objekte (ohne Änderung startet kein neuer Lauf).
+   *
+   * Wertpotenziale und Datenlücken legt jeder Lauf des Wertfinders neu an, auch ohne neuen Inhalt
+   * (KI-11); sie zählen deshalb mit ihrem Inhalt, nicht mit der ID. Marktsignale zählen nicht: Die
+   * Entwürfe lesen sie nicht, die Ansicht nennt nur ihre Zahl. Sonst gälte das Briefing nach jedem
+   * „Wert finden“ als geändert (K2-c.6a).
    */
   checksum(inputs: BriefInputs) {
     const { id, startsAt, durationMinutes, participants } = inputs.meeting;
-    return `${sha({ id, startsAt, durationMinutes, participants }).slice(0, 16)}:${sha(inputs).slice(0, 32)}`;
+    const { signals: _onlyCounted, ...read } = inputs;
+    const content = {
+      ...read,
+      opportunities: read.opportunities.map(({ title, low, high }) => ({ title, low, high })),
+      dataGaps: read.dataGaps.map(({ description }) => description),
+    };
+    return `${sha({ id, startsAt, durationMinutes, participants }).slice(0, 16)}:${sha(content).slice(0, 32)}`;
   }
 
   /** Drei Sätze zur Lage, jede Zahl aus der Datenbank */

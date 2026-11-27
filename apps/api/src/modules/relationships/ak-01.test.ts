@@ -1,8 +1,24 @@
-import { hollmann, hollmannPeople, hollmannSuppliers, supplierPeople } from '@reziproq/db';
-import { akteCounterpartSchema, akteHeadSchema, akteSharedSchema } from '@reziproq/shared';
+import {
+  eq,
+  hollmann,
+  hollmannPeople,
+  hollmannSuppliers,
+  schema,
+  supplierPeople,
+} from '@reziproq/db';
+import {
+  agentsResponseSchema,
+  akteCounterpartSchema,
+  akteHeadSchema,
+  akteSharedSchema,
+  meetingBriefSchema,
+} from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AccountStore } from '../../common/database.module.js';
 import { hollmannTimeout, seedHollmannExclusive } from '../../testing/hollmann.js';
 import { startTestApp } from '../../testing/test-app.js';
+import type { AuthContext } from '../auth/auth.guard.js';
+import { MeetingBriefService } from '../meetings/meeting-brief.service.js';
 
 // AK-01 (K2-c.1): Akte Rheintal, Sicht Gemeinsam, gegen die echte API im Demo-Mandanten Hollmann
 // (Mo 23.11.2026, Demo-Uhr), nach der Vorlage L-Ueberblick. Nur die Käuferseite.
@@ -181,5 +197,47 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
         .status,
     ).toBe(403);
     expect((await call(`/beziehungen/${hollmann.org.id}/geteilt`)).status).toBe(404);
+  });
+
+  it('K2-c.6a: Das Briefing zum JBP aus dem Seed ist aktuell; „Briefing JBP“ öffnet es ohne neuen Lauf', async () => {
+    const head = akteHeadSchema.parse((await call(`/beziehungen/${rheintal.relationshipId}`)).body);
+    const meetingId = head.nextMeeting?.id ?? '';
+    const brief = meetingBriefSchema.parse(
+      (await call(`/suppliers/${rheintal.relationshipId}/termine/${meetingId}/briefing`)).body,
+    );
+    // Der Seed trägt die Prüfsumme seiner Eingaben (packages/db/src/hollmann-morgen.ts, Lauf des
+    // Briefings). Ändert sich der Seed von Rheintal, nennt dieser Vergleich den neuen Wert.
+    const membership = await app.app.get(AccountStore).membershipOf(hollmannPeople.janLuka.id);
+    const auth: AuthContext = {
+      userId: hollmannPeople.janLuka.id,
+      accessToken: '',
+      orgRole: membership?.orgRole ?? null,
+      isControlling: membership?.isControlling ?? false,
+      isOperator: false,
+      tokenRoles: [],
+      organization: membership?.organization ?? null,
+    };
+    const current = await app.app
+      .get(MeetingBriefService)
+      .checksumFor(auth, rheintal.relationshipId, meetingId);
+    const [run] = await app.adminDb
+      .select({ checksum: schema.agentRun.inputChecksum })
+      .from(schema.agentRun)
+      .where(eq(schema.agentRun.id, brief.freshness.runId ?? ''));
+    expect(run?.checksum, 'Prüfsumme des Briefing-Laufs im Seed').toBe(current);
+    expect(brief.freshness).toMatchObject({ unchanged: true, running: false });
+    // Die API startet ohne Änderung keinen neuen Lauf (KI-07)
+    const agents = agentsResponseSchema.parse((await call('/ki/agenten')).body);
+    const agent = agents.agents.find((entry) => entry.key === 'meeting_brief');
+    const start = await fetch(`${app.baseUrl}/api/ki/agenten/${agent?.id}/starten`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${await app.signToken({ subject: hollmannPeople.janLuka.id })}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ relationshipId: rheintal.relationshipId, meetingId, isTest: false }),
+    });
+    expect(start.status).toBe(409);
+    expect(((await start.json()) as { code: string }).code).toBe('briefing_aktuell');
   });
 });

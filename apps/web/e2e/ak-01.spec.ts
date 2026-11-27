@@ -172,6 +172,28 @@ test('Gemeinsam: Kopf, Spiegel 90 zu 78 %, sechs offene Zusagen, Scorecard und r
   }
 });
 
+// K2-c.6a: Vor jeder Änderung (die Notiz in „Nur für dich“ ist eine neue Eingabe) ist das Briefing
+// aus dem Seed aktuell; der Klick öffnet den Termin, ohne einen Lauf zu starten
+test('K2-c.6a: „Briefing JBP“ öffnet das vorbereitete Briefing aus dem Seed ohne neuen Lauf', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openAkte(page);
+  const starts: string[] = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && request.url().endsWith('/starten')) {
+      starts.push(request.url());
+    }
+  });
+  await page
+    .getByRole('navigation', { name: 'Aktionen von Reziproq' })
+    .getByRole('button', { name: 'Briefing JBP' })
+    .click();
+  await expect(page).toHaveURL(/\/lieferanten\/[0-9a-f-]{36}\/umsetzung\/termine\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('JBP Rheintal 2027');
+  expect(starts).toEqual([]);
+});
+
 test('T2-04: der Umschalter setzt die Adresse; ?sicht=privat und ?sicht=geteilt zeigen die anderen Sichten', async ({
   page,
 }) => {
