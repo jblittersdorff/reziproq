@@ -2,6 +2,9 @@ import { and, eq, sql } from 'drizzle-orm';
 import {
   businessUnit,
   commitment,
+  hint,
+  jbp,
+  kpiValue,
   organization,
   rating,
   ratingAssignment,
@@ -9,6 +12,8 @@ import {
   relationshipBusinessUnit,
   relationshipSide,
   relationshipSpend,
+  scorecard,
+  scorecardKpi,
   segmentationRound,
   segmentCriterion,
   segmentDecision,
@@ -28,6 +33,9 @@ import type { TenantTransaction } from './tenant.js';
 //   2, 4 und 5 (25, 75 und 100 Punkte), nach der letzten Entscheidung (SEG-07).
 // - Acht Fokuslieferanten (E-K0-09), Zusagequoten wie in der Vorlage, offene Zusagen bei 11
 //   Beziehungen. Alle Namen sind ausgedacht (G-10).
+// - K2-b.3: Hinweis Silesia „Liefertreue 86 %“, belegt aus der Scorecard des Plans 2026; die
+//   Segmente aus der Runde 2026 mit Bewertungen, Fokus mit Begründung. Ein Lauf der Regeln legt
+//   keine offenen Hinweise an (Heute bleibt wie im Drehbuch K1).
 
 type Person = { id: string; name: string };
 type GroupKey = 'lp' | 'gu' | 'dt' | 'el' | 'ku' | 'se' | 'lo' | 'vp' | 'ka';
@@ -37,8 +45,8 @@ export interface PortfolioRefs {
   nid: (n: number) => string;
   hollmannOrgId: string;
   people: Record<'janLuka' | 'saraOst' | 'idaRoth' | 'jonasFeld', Person>;
-  /** Organisation und Beziehung eines der 16 aktiven Lieferanten */
-  supplier: (key: string) => { orgId: string; relationshipId: string; name: string };
+  /** Organisation, Beziehung und SRO eines der 16 aktiven Lieferanten */
+  supplier: (key: string) => { orgId: string; relationshipId: string; name: string; sro: string };
 }
 
 const mio = (value: number) => Math.round(value * 100_000_000);
@@ -71,17 +79,21 @@ const activeSegments: Record<string, Segment> = {
   elbe: 'absichern',
 };
 
-/** Fokuslieferanten (E-K0-09), „Strategisch · 8“ in der Liste */
-const focusKeys = [
-  'rheintal',
-  'silesia',
-  'kessler',
-  'nordwerk',
-  'saar',
-  'pearlRiver',
-  'lombardia',
-  'alpenSensorik',
-];
+/**
+ * Fokuslieferanten (E-K0-09), „Strategisch · 8“ in der Liste, mit Begründung: Ohne sie meldet die
+ * Regel „Großlieferant automatisch Fokus“ (FS-01) jeden als Hinweis.
+ */
+const focusReasons: Record<string, string> = {
+  rheintal: 'Einziger Lieferant der Mehrlagen-Leiterplatten für die Baureihe 2027',
+  silesia: 'Gussgehäuse für alle Antriebe; ein Wechsel dauert mehr als ein Jahr',
+  kessler: 'Präzisionswellen der neuen Baureihe, gemeinsam entwickelt',
+  nordwerk: 'Zweite Quelle für Guss, sichert die Mengen bei Engpässen',
+  saar: 'Leiterplatten der Steuerungen; ein Wechsel braucht die Freigabe des Kunden',
+  pearlRiver: 'Elektronik für alle Steuergeräte, größter Lieferant',
+  lombardia: 'Großguss für Getriebegehäuse, kaum andere Quellen in Europa',
+  alpenSensorik: 'Sensoren mit eigener Zulassung; ein Wechsel verlangt eine neue Prüfung',
+};
+const focusKeys = Object.keys(focusReasons);
 
 /** 30 importierte Lieferanten ohne Anbindung: Name, Land, Warengruppe, Spend 2026, Segment */
 const imported: [string, string, GroupKey, number, Segment | null][] = [
@@ -352,7 +364,7 @@ export async function seedPortfolio(tx: TenantTransaction, refs: PortfolioRefs) 
   for (const key of focusKeys) {
     await tx
       .update(relationshipSide)
-      .set({ isFocus: true })
+      .set({ isFocus: true, focusReason: focusReasons[key] ?? null })
       .where(
         and(
           eq(relationshipSide.relationshipId, refs.supplier(key).relationshipId),
@@ -388,6 +400,8 @@ export async function seedPortfolio(tx: TenantTransaction, refs: PortfolioRefs) 
       origin: 'round' as const,
     })),
   );
+
+  await seedRound2026(tx, refs, unitId);
 
   // ——— Offene Runde 2027: Kessler mit drei Bewertungen, bei Qualität 2, 4 und 5 (SEG-07)
   const roundId = nid(1400);
@@ -508,4 +522,223 @@ export async function seedPortfolio(tx: TenantTransaction, refs: PortfolioRefs) 
     });
   }
   await tx.insert(commitment).values(rows);
+
+  await seedSilesiaHint(tx, refs);
+  await seedTakenHints(tx, refs);
+}
+
+/** Werte je Segment, die das Modell genau in dieses Feld rechnet (Grenze 50 Punkte) */
+const values2026: Record<Segment, Record<string, number>> = {
+  strategisch: { versorgungsrisiko: 75, wertbeitrag: 75, qualitaet: 75, innovation: 75 },
+  entwickeln: { versorgungsrisiko: 75, wertbeitrag: 25, qualitaet: 50, innovation: 25 },
+  absichern: { versorgungsrisiko: 25, wertbeitrag: 75, qualitaet: 75, innovation: 50 },
+  hebeln: { versorgungsrisiko: 25, wertbeitrag: 25, qualitaet: 50, innovation: 25 },
+};
+
+/**
+ * K2-b.3: Die Segmente der 15 bewerteten aktiven Beziehungen stammen aus der Bewertungsrunde
+ * 2026 (abgeschlossen, je Beziehung die Bewertung des SRO). Ohne Bewertungen meldete die Regel
+ * „Segment nur aus Spend“ (FS-01) jede Beziehung als Hinweis.
+ */
+async function seedRound2026(tx: TenantTransaction, refs: PortfolioRefs, unitId: string) {
+  const { nid, hollmannOrgId, people } = refs;
+  const roundId = nid(1420);
+  await tx.insert(segmentationRound).values({
+    id: roundId,
+    orgId: hollmannOrgId,
+    name: 'Bewertungsrunde 2026',
+    dueDate: '2026-02-27',
+    status: 'open',
+    scope: 'portfolio',
+    modelVersion: 1,
+    createdBy: people.saraOst.id,
+    createdAt: day('2026-01-15'),
+    startedAt: day('2026-01-15'),
+  });
+  const entries = Object.entries(activeSegments).map(([key, segment], index) => ({
+    id: nid(1430 + index),
+    found: refs.supplier(key),
+    segment,
+  }));
+  await tx.insert(ratingAssignment).values(
+    entries.map((entry) => ({
+      id: entry.id,
+      roundId,
+      relationshipId: entry.found.relationshipId,
+      businessUnitId: unitId,
+      function: 'purchasing' as const,
+      raterUserId: entry.found.sro,
+      status: 'submitted' as const,
+      createdAt: day('2026-01-15'),
+    })),
+  );
+  await tx.insert(rating).values(
+    entries.flatMap((entry) =>
+      Object.entries(values2026[entry.segment]).map(([criterionKey, value]) => ({
+        assignmentId: entry.id,
+        relationshipId: entry.found.relationshipId,
+        criterionKey,
+        modelVersion: 1,
+        ist: value,
+        soll: value,
+        updatedAt: day('2026-02-20'),
+        submittedAt: day('2026-02-20'),
+      })),
+    ),
+  );
+  // Geschlossen wird die Runde erst nach den Bewertungen (eine geschlossene nimmt keine mehr an)
+  await tx
+    .update(segmentationRound)
+    .set({ status: 'closed', closedAt: day('2026-03-20') })
+    .where(eq(segmentationRound.id, roundId));
+}
+
+/**
+ * K2-b.3: Zwei Lagen, die die Regeln am 23.11. finden, hat Jan-Luka schon übernommen (in Arbeit):
+ * das seit dem 05.11. überfällige 8D von Rheintal und die Abweichung der Bewertungen von Kessler.
+ * So legt der tägliche Lauf keine offenen Hinweise an, und Heute bleibt wie im Drehbuch K1.
+ */
+async function seedTakenHints(tx: TenantTransaction, refs: PortfolioRefs) {
+  const { nid, hollmannOrgId, people } = refs;
+  const rheintal = refs.supplier('rheintal');
+  const kessler = refs.supplier('kessler');
+  await tx.insert(hint).values([
+    {
+      id: nid(1607),
+      orgId: hollmannOrgId,
+      relationshipId: rheintal.relationshipId,
+      ruleKey: 'supplier_commitment_overdue',
+      fingerprint: 'medium|1',
+      severity: 'medium',
+      // 2 (mittel) × 4,2/30,1 × 1,5 × 2 (Fokus) × 10 000
+      score: 8372,
+      title: 'Eine Zusage des Lieferanten ist überfällig',
+      detail: { count: 1, days: 18 },
+      evidence: {
+        metric: 'Überfällige Zusagen des Lieferanten',
+        values: [{ label: '8D-Bericht Charge 4711', value: '18 Tage' }],
+        threshold: 'mehr als 14 Tage',
+        refs: [{ objectType: 'commitment', objectId: nid(840), title: '8D-Bericht Charge 4711' }],
+      },
+      suggestedAction: 'Zusage nachfassen',
+      status: 'in_progress',
+      ownerUserId: people.janLuka.id,
+      createdAt: day('2026-11-20'),
+      firstSeenAt: day('2026-11-20'),
+      lastSeenAt: new Date('2026-11-23T05:30:00.000Z'),
+    },
+    {
+      id: nid(1608),
+      orgId: hollmannOrgId,
+      relationshipId: kessler.relationshipId,
+      ruleKey: 'unexplained_deviation',
+      // Größte Abweichung vom Mittel: Qualität 25 gegen 66,7 Punkte
+      fingerprint: '41.7',
+      severity: 'medium',
+      score: 3189,
+      detail: { deviation: 41.7, threshold: 30 },
+      suggestedAction: 'Annehmen',
+      status: 'in_progress',
+      ownerUserId: people.janLuka.id,
+      createdAt: day('2026-11-19'),
+      firstSeenAt: day('2026-11-19'),
+      lastSeenAt: new Date('2026-11-23T05:30:00.000Z'),
+    },
+  ]);
+}
+
+/**
+ * K2-b.3: Silesia Guss liefert seit drei Monaten unter Ziel und schlechter (performance_drop,
+ * KI-16): Liefertreue 91, 89 und 86 % bei Ziel 95 % in der Scorecard des Plans 2026. Der Hinweis
+ * hat die Schwere hoch (Fokuslieferant), Jan-Luka hat ihn übernommen (in Arbeit: Eskalation am
+ * 25.11., Ursachenanalyse bis 11.12.). So bleibt Heute am 23.11. wie im Drehbuch K1, und der
+ * tägliche Lauf der Regeln findet dieselbe Lage wieder, statt den Hinweis zu schließen.
+ */
+async function seedSilesiaHint(tx: TenantTransaction, refs: PortfolioRefs) {
+  const { nid, hollmannOrgId, people } = refs;
+  const silesia = refs.supplier('silesia');
+  const plan = nid(1600);
+  const card = nid(1601);
+  const kpi = nid(1602);
+  const shared = {
+    relationshipId: silesia.relationshipId,
+    ownerOrgId: hollmannOrgId,
+    visibility: 'shared' as const,
+  };
+  await tx.insert(jbp).values({
+    id: plan,
+    ...shared,
+    status: 'approved',
+    createdBy: people.janLuka.id,
+    createdByName: people.janLuka.name,
+    createdAt: day('2025-12-10'),
+  });
+  await tx.insert(scorecard).values({
+    id: card,
+    ...shared,
+    jbpId: plan,
+    status: 'signed',
+    createdAt: day('2025-12-10'),
+  });
+  await tx.insert(scorecardKpi).values({
+    id: kpi,
+    ...shared,
+    scorecardId: card,
+    name: 'Liefertreue',
+    unit: '%',
+    direction: 'higher',
+    baseline: '93',
+    target: '95',
+    targetDate: '2026-12-31',
+    ownerSide: 'supplier',
+    ownerName: silesia.name,
+    benefitFor: 'both',
+    createdAt: day('2025-12-10'),
+  });
+  const values = [
+    ['2026-08-01', 91, '2026-09-04'],
+    ['2026-09-01', 89, '2026-10-05'],
+    ['2026-10-01', 86, '2026-11-04'],
+  ] as const;
+  await tx.insert(kpiValue).values(
+    values.map(([period, value, entered], index) => ({
+      id: nid(1603 + index),
+      ...shared,
+      kpiId: kpi,
+      period,
+      value: String(value),
+      source: 'manual' as const,
+      enteredBy: people.idaRoth.id,
+      enteredByName: people.idaRoth.name,
+      enteredAt: day(entered),
+      confirmState: 'both_confirmed' as const,
+    })),
+  );
+  // Wie die Regel performance_drop ihn schreibt (Fingerabdruck „Kennzahl#Schwere“, Beleg, score)
+  await tx.insert(hint).values({
+    id: nid(1606),
+    orgId: hollmannOrgId,
+    relationshipId: silesia.relationshipId,
+    ruleKey: 'performance_drop',
+    fingerprint: `${kpi}#high`,
+    severity: 'high',
+    // score = 3 (hoch) × 3,15/30,1 (Spendanteil) × 1,5 (Versorgungsrisiko hoch) × 2 (Fokus) × 10 000
+    score: 9419,
+    title: '„Liefertreue“ seit 3 Monaten unter Ziel und schlechter',
+    detail: { kpi: 'Liefertreue', months: 3 },
+    evidence: {
+      metric: 'Liefertreue',
+      unit: '%',
+      values: values.map(([period, value]) => ({ label: period.slice(0, 7), value: `${value} %` })),
+      threshold: 'Ziel 95 %',
+      period: '2026-08 bis 2026-10',
+      refs: [{ objectType: 'scorecard_kpi', objectId: kpi, title: 'Liefertreue' }],
+    },
+    suggestedAction: 'Maßnahme anlegen',
+    status: 'in_progress',
+    ownerUserId: people.janLuka.id,
+    createdAt: day('2026-11-04'),
+    firstSeenAt: day('2026-11-04'),
+    lastSeenAt: new Date('2026-11-23T05:30:00.000Z'),
+  });
 }

@@ -625,6 +625,21 @@ export class HintsService {
   }
 
   /**
+   * BZ-01 (K2-b.3): offene und übernommene Hinweise, die die Person sieht, für die graue Zeile der
+   * Seite Lieferanten. Läuft in der Session des Aufrufers und prüft die Regeln nicht neu.
+   */
+  async activeIn(tx: TenantTransaction, auth: AuthContext, orgId: string): Promise<HintRow[]> {
+    const rows = await tx
+      .select()
+      .from(schema.hint)
+      .where(
+        and(eq(schema.hint.orgId, orgId), inArray(schema.hint.status, ['open', 'in_progress'])),
+      )
+      .orderBy(desc(schema.hint.score));
+    return this.visibleTo(tx, auth, rows);
+  }
+
+  /**
    * HE-01 (K1-c): offene Hinweise, die die Person sieht, für die Triage. Liest nur, prüft die Regeln
    * nicht neu (das macht der tägliche Job und die Liste).
    */

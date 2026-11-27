@@ -60,6 +60,7 @@ export * from './playbook.js';
 export * from './portfolio.js';
 export * from './prompt.js';
 export * from './ratings.js';
+export * from './relationships.js';
 export * from './review.js';
 export * from './rounds.js';
 export * from './route-moves.js';

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   HttpCode,
@@ -79,14 +80,26 @@ export class TodayController {
     return this.triage.snooze(auth, id);
   }
 
-  /** „Als Nächstes“ (`next_action`): scope global, mit `beziehung` scope relationship */
+  /**
+   * „Als Nächstes“ (`next_action`): scope global, mit `beziehung` scope relationship, mit
+   * `bereich=beziehungen` scope relationships (BZ-01, Seite Lieferanten)
+   */
   @Get('start/als-naechstes')
   @Requires('start.sehen')
   async next(
     @CurrentUser() auth: AuthContext,
     @Query('beziehung', new ParseUUIDPipe({ optional: true })) relationshipId: string | undefined,
+    @Query('bereich') area: string | undefined,
   ) {
-    return { next: await this.triage.nextAction(auth, { relationshipId }) };
+    if (area !== undefined && area !== 'beziehungen') {
+      throw new BadRequestException({ statusCode: 400, code: 'bereich_unbekannt' });
+    }
+    return {
+      next: await this.triage.nextAction(auth, {
+        relationshipId,
+        relationshipsOnly: area === 'beziehungen',
+      }),
+    };
   }
 
   /** NAV-10 1.1: Mein Tag mit „Als Nächstes“ aus der Triage, Heute, Diese Woche, Wartet auf andere */

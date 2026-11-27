@@ -523,7 +523,12 @@ export class TriageService {
    */
   async nextAction(
     auth: AuthContext,
-    options: { relationshipId?: string | undefined; due?: DueItem[] | undefined } = {},
+    options: {
+      relationshipId?: string | undefined;
+      /** BZ-01: nur Themen mit Beziehung, für die Seite Lieferanten */
+      relationshipsOnly?: boolean;
+      due?: DueItem[] | undefined;
+    } = {},
   ): Promise<NextAction | null> {
     const session = this.session(auth);
     const organization = auth.organization;
@@ -551,6 +556,7 @@ export class TriageService {
           select source_type, source_id from next_action
           where org_id = ${session.organizationId} and user_id = ${session.userId}
             ${relationshipId ? sql`and relationship_id = ${relationshipId}` : sql``}
+            ${options.relationshipsOnly ? sql`and relationship_id is not null` : sql``}
           order by score desc, due_at asc nulls last, created_at, id`),
       { readOnly: true },
     );
@@ -559,7 +565,11 @@ export class TriageService {
       const item = candidates.get(keyOf(sourceOf(row)))?.dueItem;
       if (!item) continue;
       return nextActionSchema.parse({
-        scope: relationshipId ? 'relationship' : 'global',
+        scope: relationshipId
+          ? 'relationship'
+          : options.relationshipsOnly
+            ? 'relationships'
+            : 'global',
         item,
         overdueDays: daysBetween(item.dueDate, today),
         minutes: dueMinutes[item.kind] ?? null,

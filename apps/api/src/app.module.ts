@@ -41,6 +41,7 @@ import { PlaybookModule } from './modules/playbook/playbook.module.js';
 import { PortfolioModule } from './modules/portfolio/portfolio.module.js';
 import { PromptModule } from './modules/prompt/prompt.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
+import { RelationshipsModule } from './modules/relationships/relationships.module.js';
 import { ReviewModule } from './modules/review/review.module.js';
 import { RoundsModule } from './modules/rounds/rounds.module.js';
 import { SearchModule } from './modules/search/search.module.js';
@@ -83,6 +84,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     PortfolioModule,
     FocusModule,
     RatingsModule,
+    RelationshipsModule,
     RoundsModule,
     StartModule,
     TodayModule,

@@ -1,4 +1,4 @@
-import { type Database, hollmann, hollmannPeople, seedHollmann, sql } from '@reziproq/db';
+import { type Database, hollmann, hollmannPeople, sql } from '@reziproq/db';
 import {
   demoRoles,
   doneListSchema,
@@ -7,6 +7,7 @@ import {
   todayPageSchema,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { hollmannTimeout, seedHollmannExclusive } from '../../testing/hollmann.js';
 import { startTestApp } from '../../testing/test-app.js';
 
 // DM-01, Drehbuch K1 „Morgen mit Reziproq“ (K1-g.3): Der Seed von Hollmann ergibt um Mo 23.11.,
@@ -17,6 +18,7 @@ import { startTestApp } from '../../testing/test-app.js';
 describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
   let app: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
+  let release: (() => Promise<void>) | undefined;
   const janLuka = hollmannPeople.janLuka.id;
 
   async function call(method: string, path: string, body?: unknown) {
@@ -36,17 +38,11 @@ describe('DM-01 Drehbuch K1: Stand am Mo 23.11., 07:30 (K1-g.3)', () => {
   beforeAll(async () => {
     app = await startTestApp();
     db = app.adminDb;
-    await seedHollmann(db, { nodeEnv: 'test' });
-  });
+    release = await seedHollmannExclusive(db);
+  }, hollmannTimeout);
 
   afterAll(async () => {
-    const orgs = (
-      await db.execute<{ id: string }>(
-        sql`select app_demo_orgs_von(${hollmann.org.id}::uuid) as id`,
-      )
-    ).rows.map((row) => row.id);
-    await db.execute(sql`select app_demo_leeren(${hollmann.org.id}::uuid)`);
-    if (orgs.length > 0) await db.execute(sql`delete from organization where id in ${orgs}`);
+    await release?.();
     await app.close();
   });
 

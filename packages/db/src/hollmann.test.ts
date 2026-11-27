@@ -364,4 +364,75 @@ describe('demo:hollmann', () => {
       where r.buyer_org_id = ${hollmann.org.id} and r.status = 'active' and c.status = 'open'`);
     expect(open?.n).toBe(11);
   });
+
+  it('K2-b.3: Hinweis Silesia „Liefertreue 86 %“ in Arbeit bei Jan-Luka, belegt aus der Scorecard', async () => {
+    const silesia = hollmannSuppliers.find((entry) => entry.key === 'silesia');
+    const hints = await query<{
+      rule_key: string;
+      status: string;
+      severity: string;
+      owner_user_id: string;
+      fingerprint: string;
+      kpi: string | null;
+    }>(sql`
+      select h.rule_key, h.status, h.severity, h.owner_user_id, h.fingerprint,
+        h.evidence -> 'refs' -> 0 ->> 'objectId' as kpi
+      from hint h where h.org_id = ${hollmann.org.id} order by h.rule_key`);
+    // Drei Lagen, alle übernommen; offen ist keine, Heute bleibt wie im Drehbuch K1
+    expect(hints.map((row) => [row.rule_key, row.status, row.severity])).toEqual([
+      ['performance_drop', 'in_progress', 'high'],
+      ['supplier_commitment_overdue', 'in_progress', 'medium'],
+      ['unexplained_deviation', 'in_progress', 'medium'],
+    ]);
+    expect(hints.every((row) => row.owner_user_id === hollmannPeople.janLuka.id)).toBe(true);
+    const drop = hints.find((row) => row.rule_key === 'performance_drop');
+    expect(drop?.fingerprint).toBe(`${drop?.kpi}#high`);
+    // Die Regel braucht drei Monate unter Ziel und schlechter werdend (KI-16)
+    const values = await query<{ period: string; value: string; target: string; name: string }>(sql`
+      select v.period::text, v.value::text, k.target::text, k.name
+      from kpi_value v join scorecard_kpi k on k.id = v.kpi_id
+      where k.id = ${drop?.kpi}::uuid order by v.period`);
+    expect(values.map((row) => [row.period, Number(row.value)])).toEqual([
+      ['2026-08-01', 91],
+      ['2026-09-01', 89],
+      ['2026-10-01', 86],
+    ]);
+    expect(values.every((row) => row.name === 'Liefertreue' && Number(row.target) === 95)).toBe(
+      true,
+    );
+    const [card] = await query<{ status: string; plan: string; relationship_id: string }>(sql`
+      select s.status, j.status as plan, s.relationship_id from scorecard s
+      join jbp j on j.id = s.jbp_id
+      where s.id = (select scorecard_id from scorecard_kpi where id = ${drop?.kpi}::uuid)`);
+    expect(card).toEqual({
+      status: 'signed',
+      plan: 'approved',
+      relationship_id: silesia?.relationshipId,
+    });
+  });
+
+  it('K2-b.3: Segmente aus der Runde 2026 mit Bewertungen; Fokus mit Begründung (FS-01)', async () => {
+    const [round] = await query<{ status: string; assignments: number; ratings: number }>(sql`
+      select sr.status,
+        (select count(*)::int from rating_assignment a where a.round_id = sr.id) as assignments,
+        (select count(*)::int from rating v join rating_assignment a on a.id = v.assignment_id
+          where a.round_id = sr.id) as ratings
+      from segmentation_round sr
+      where sr.org_id = ${hollmann.org.id} and sr.name = 'Bewertungsrunde 2026'`);
+    expect(round).toEqual({ status: 'closed', assignments: 15, ratings: 60 });
+    // Jede aktive Beziehung mit Segment hat Bewertungen außer Spend (Regel „Segment nur aus Spend“)
+    const [unrated] = await query<{ n: number }>(sql`
+      select count(*)::int as n from segment_decision d
+      join relationship r on r.id = d.relationship_id
+      where r.buyer_org_id = ${hollmann.org.id} and r.status = 'active' and d.scope = 'total'
+        and not exists (select 1 from rating v join rating_assignment a on a.id = v.assignment_id
+          where a.relationship_id = d.relationship_id and v.criterion_key <> 'spend'
+            and v.ist is not null)`);
+    expect(unrated?.n).toBe(0);
+    const reasons = await query<{ reason: string | null }>(sql`
+      select focus_reason as reason from relationship_side
+      where org_id = ${hollmann.org.id} and is_focus`);
+    expect(reasons).toHaveLength(8);
+    expect(reasons.every((row) => (row.reason ?? '').trim().length >= 20)).toBe(true);
+  });
 });

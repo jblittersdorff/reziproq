@@ -652,7 +652,12 @@ export async function seedHollmann(
       },
       supplier: (key) => {
         const found = byKey(key);
-        return { orgId: found.id, relationshipId: found.relationshipId, name: found.name };
+        return {
+          orgId: found.id,
+          relationshipId: found.relationshipId,
+          name: found.name,
+          sro: found.sro,
+        };
       },
     });
     await tx.execute(sql`select app_demo_schnappschuss(${hollmann.org.id}::uuid, 'start')`);

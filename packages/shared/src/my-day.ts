@@ -76,7 +76,14 @@ export function compareDue(
     a.id.localeCompare(b.id);
 }
 
-export const nextActionScopes = ['global', 'relationship', 'category', 'page'] as const;
+// BZ-01: `relationships` ist „Als Nächstes“ der Seite Lieferanten, über alle Beziehungen
+export const nextActionScopes = [
+  'global',
+  'relationship',
+  'relationships',
+  'category',
+  'page',
+] as const;
 
 /** Genau ein nächster Schritt je Ort; ohne Kandidat null, und die Seite zeigt keine Karte. */
 export const nextActionSchema = z.object({
