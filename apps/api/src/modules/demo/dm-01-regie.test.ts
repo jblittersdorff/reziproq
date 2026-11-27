@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { type Database, schema, sql } from '@reziproq/db';
 import { businessTimeHeader, demoRegieSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ActionDueStore } from '../../common/database.module.js';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
 import { startTestApp } from '../../testing/test-app.js';
 
@@ -12,7 +13,12 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
   let app: Awaited<ReturnType<typeof startTestApp>>;
   let db: Database;
   const run = randomUUID().slice(0, 8);
-  const orgs = { demo: randomUUID(), supplier: randomUUID(), kunde: randomUUID() };
+  const orgs = {
+    demo: randomUUID(),
+    supplier: randomUUID(),
+    kunde: randomUUID(),
+    kundeLieferant: randomUUID(),
+  };
   const users = { demo: `dm01r-demo-${run}`, kunde: `dm01r-kunde-${run}` };
   const relationshipId = randomUUID();
   const start = new Date('2026-11-23T06:30:00.000Z');
@@ -46,6 +52,7 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
       { id: orgs.demo, name: `DM01R Demo ${run}`, isDemo: true, demoNow: start },
       { id: orgs.supplier, name: `DM01R Lieferant ${run}`, isDemo: true, demoNow: start },
       { id: orgs.kunde, name: `DM01R Kunde ${run}` },
+      { id: orgs.kundeLieferant, name: `DM01R Lieferant des Kunden ${run}` },
     ]);
     await db.insert(schema.organizationFeature).values([
       { organizationId: orgs.demo, feature: 'buyer' },
@@ -64,6 +71,7 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
       .values([person(users.demo, orgs.demo), person(users.kunde, orgs.kunde)]);
     await insertRelationships(db, [
       { id: relationshipId, buyer: orgs.demo, supplier: orgs.supplier },
+      { id: randomUUID(), buyer: orgs.kunde, supplier: orgs.kundeLieferant },
     ]);
     // Der Seed hält „start“ fest; hier für die kleine Demo dieses Tests
     await db.execute(sql`select app_demo_schnappschuss(${orgs.demo}::uuid, 'start')`);
@@ -139,6 +147,14 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
     expect(
       await call(users.demo, 'POST', '/demo/regie/zeit', { aktion: 'datum', datum: '2026-11-30' }),
     ).toMatchObject({ status: 400, body: { code: 'nur_vorwaerts' } });
+  });
+
+  it('B-39, E-K2-11: Läufe nach Zeitplan gehen nicht über Demo-Mandanten; die startet die Regie', async () => {
+    // Die Liste der Läufe Hinweise, Triage, Briefings und Wertfinder (app_hint_orgs)
+    const scheduled = await app.app.get(ActionDueStore).hintOrganizations();
+    expect(scheduled).toContain(orgs.kunde);
+    expect(scheduled).not.toContain(orgs.demo);
+    // Die Regie führt die fälligen Läufe weiter für alle Organisationen der Demo aus (T1-DM5)
   });
 
   it('T1-DM3: Zurücksetzen lädt „start“; jede Aktion steht im Protokoll', async () => {

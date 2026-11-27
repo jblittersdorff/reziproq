@@ -242,14 +242,15 @@ Weitere Punkte:
   - **Befund:** In einem Lauf des Drehbuchs K1 brach ein Aufruf mit `insert into focus_item … on conflict … do update` ab (ExceptionsHandler). Der Test blieb grün, in zwei weiteren Läufen trat es nicht auf.
   - **Vermutung:** Zwei gleichzeitige Anfragen derselben Person (etwa Heute und Alles) führen die Triage parallel aus und schreiben dieselben Zeilen. Dabei können sie sich gegenseitig sperren.
   - **Vorschlag:** Die Triage je Person serialisieren, mit einer Sperre in der Transaktion (`pg_advisory_xact_lock`).
-- **B-39 Ein Lauf der Regeln veränderte den Demo-Stand (gefunden am 27.11.2026 in K2-b.3, behoben; eine Frage offen).**
+- **B-39 Ein Lauf der Regeln veränderte den Demo-Stand (gefunden am 27.11.2026 in K2-b.3, behoben).**
   - **Befund:** Ein Lauf der Hinweis-Regeln legte im Seed von Hollmann elf offene Hinweise an. Danach zeigte Heute für Jan-Luka 14 statt 3 Fokus-Themen. Auslöser sind der tägliche Job um 06:30, die Liste der Hinweise und „Neuer Tag“ in der Regie.
   - **Grund:** Seit K2-a.5 und K2-b.2 fehlten im Seed Daten, die die Regeln erwarten:
     - Fokus ohne Begründung (FS-01 „Großlieferant automatisch Fokus“).
     - Segmente ohne Bewertungen („Segment nur aus Spend“).
     - Das überfällige 8D von Rheintal und die Abweichung bei Kessler standen nicht als Hinweise im Seed.
   - **Behoben:** Der Seed hat jetzt die Begründungen und die Runde 2026 mit Bewertungen. Die beiden echten Lagen sind übernommene Hinweise. Ein API-Test prüft, dass ein Lauf der Regeln keinen offenen Hinweis anlegt und Heute bei drei bleibt.
-  - **Offen (Frage an dich):** Die täglichen Jobs (Hinweise, Triage, Briefings, Wertpotenziale) laufen auch für Demo-Mandanten, mit deren Demo-Uhr. In der Vorschau wiederholen sie also jede Nacht den 23.11. Vorschlag: Demo-Mandanten aus den Echtzeit-Jobs nehmen; ihre Läufe startet nur die Regie („Neuer Tag“).
+  - **Entschieden (E-K2-11):** Die Läufe Hinweise, Triage, Briefings und Wertfinder gehen nach Zeitplan nur über echte Kunden (Migration 0146). Für Demo-Mandanten startet sie nur die Regie; ein Test in `dm-01-regie.test.ts` prüft das.
+  - **Noch in Echtzeit, auch für Demo-Mandanten:** Benachrichtigungen (07:30, Zusammenfassung 08:00), Erinnerungen an Zyklen (07:00) und Aufgaben (07:15) sowie die Jobs der Warengruppen (Reviews, Strategiejahr, Zusammenführen). Die Regie startet sie nicht, und sie verändern den Stand von Heute nicht. Ob sie für Demo-Mandanten ruhen sollen, entscheidest du, wenn ein Drehbuch sie braucht.
 ## c) Widersprüche zwischen den Specs
 
 Je Punkt: Fundstellen, welche Quelle nach der Rangfolge gilt und wie ich ohne deine Antwort weiterarbeiten würde.
