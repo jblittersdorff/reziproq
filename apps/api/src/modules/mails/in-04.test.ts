@@ -525,6 +525,97 @@ describe('IN-04 Mails ablegen', () => {
     expect(left.rows).toHaveLength(0);
   });
 
+  // PO-01 (K2-d.2): Reziproq ordnet ab Konfidenz 0,9 selbst zu (E-K2-5), sonst als Entwurf; eine
+  // Mail zu mehreren Lieferanten ergibt je Lieferant einen Entwurf und keine Zuordnung (E-K7-4)
+  const original = (from: string, to: string, subject: string, extra = '') =>
+    `-----Ursprüngliche Nachricht-----\nVon: ${from}\nAn: ${to}${extra}\nBetreff: ${subject}\n\nText zu ${subject}.`;
+  const inboundRows = async (subject: string) =>
+    (
+      await db.execute<{
+        id: string;
+        suggested: string[];
+        confidence: string | null;
+        kind: string;
+      }>(
+        sql`select id, suggested_relationship_ids as suggested, suggest_confidence as confidence,
+              suggestion_kind as kind
+            from inbound_item where org_id = ${orgs.a} and subject = ${subject} and status = 'needs_review'
+            order by id`,
+      )
+    ).rows;
+  const filedRows = async (subject: string) =>
+    (
+      await db.execute<{ assigned_by: string; assign_confidence: string | null }>(
+        sql`select assigned_by, assign_confidence from filed_mail
+            where org_id = ${orgs.a} and subject = ${subject}`,
+      )
+    ).rows;
+
+  it('PO-01: schreibt die bekannte Ansprechpartnerin, legt Reziproq selbst ab, mit Konfidenz 0,98', async () => {
+    await db.insert(schema.supplierContact).values({
+      relationshipId: rel.rheintal,
+      name: 'Kim Kaiser',
+      email: `kim@${domains.rheintal}`,
+    });
+    await forward(`fwd-po01-sicher-${run}`, {
+      subject: 'WG: Abrufe Dezember',
+      messageId: `<fwd-po01-sicher-${run}@${own}>`,
+      text: original(`Kim <kim@${domains.rheintal}>`, mail('anna'), 'Abrufe Dezember'),
+    });
+    expect(await filedRows('Abrufe Dezember')).toEqual([
+      { assigned_by: 'reziproq', assign_confidence: '0.98' },
+    ]);
+    expect(await inboundRows('Abrufe Dezember')).toEqual([]);
+  });
+
+  it('T2-PO1: unter Konfidenz 0,9 entsteht ein Zuordnungs-Entwurf statt einer Zuordnung', async () => {
+    // Bert schrieb selbst an Rheintal; nur die Empfängerin gehört zum Lieferanten
+    await forward(`fwd-po01-unsicher-${run}`, {
+      subject: 'WG: Rückfrage Zeichnung',
+      messageId: `<fwd-po01-unsicher-${run}@${own}>`,
+      text: original(
+        `Bert <${mail('bert')}>`,
+        `einkauf@${domains.rheintal}`,
+        'Rückfrage Zeichnung',
+      ),
+    });
+    const [draft] = await inboundRows('Rückfrage Zeichnung');
+    expect(draft).toMatchObject({
+      suggested: [rel.rheintal],
+      confidence: '0.75',
+      kind: 'supplier',
+    });
+    expect(await filedRows('Rückfrage Zeichnung')).toEqual([]);
+    // Von Hand zugeordnet: ein Mensch hat zugeordnet, die Konfidenz des Vorschlags bleibt
+    await call(users.admin, 'POST', `/mein-tag/eingang/${draft?.id}/entscheiden`, {
+      action: 'assign',
+      relationshipIds: [rel.rheintal],
+      type: 'other',
+    });
+    expect(await filedRows('Rückfrage Zeichnung')).toEqual([
+      { assigned_by: 'human', assign_confidence: '0.75' },
+    ]);
+  });
+
+  it('T2-PO2: eine Mail zu zwei Lieferanten erzeugt zwei Entwürfe und keine Zuordnung', async () => {
+    await forward(`fwd-po02-${run}`, {
+      subject: 'WG: Gemeinsame Lieferung',
+      messageId: `<fwd-po02-${run}@${own}>`,
+      text: original(
+        `Kim <kim@${domains.rheintal}>`,
+        mail('anna'),
+        'Gemeinsame Lieferung',
+        `\nCc: jan@${domains.silesia}`,
+      ),
+    });
+    const drafts = await inboundRows('Gemeinsame Lieferung');
+    expect(drafts.map((entry) => entry.suggested).sort()).toEqual(
+      [[rel.rheintal], [rel.silesia]].sort(),
+    );
+    expect(drafts.every((entry) => entry.kind === 'supplier')).toBe(true);
+    expect(await filedRows('Gemeinsame Lieferung')).toEqual([]);
+  });
+
   it('der Test-Lieferant sieht keine abgelegte Mail', async () => {
     const response = await call(users.supplier, 'GET', `/suppliers/${rel.rheintal}/aktivitaeten`);
     expect(response.status).toBeGreaterThanOrEqual(400);

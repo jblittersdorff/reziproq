@@ -38,6 +38,7 @@ import { IntegrationsService } from '../integrations/integrations.service.js';
 import { type ItemContext, ItemHandlers, type ItemOutcome } from '../integrations/item-handlers.js';
 import { ownRelationship, sroOf } from '../suppliers/team.service.js';
 import { recordDone } from '../today/erledigt.js';
+import { assignConfidence, autoAssignThreshold } from './assign-confidence.js';
 import {
   cleanMailText,
   fallbackSummary,
@@ -169,6 +170,7 @@ export class MailsService implements OnModuleInit {
     visibility: 'team' | 'private',
     source: 'addin' | 'forward',
     mail: IncomingMail,
+    assignment: Assignment = { by: 'human', confidence: null },
   ): Promise<FileMailResult> {
     const { organizationId, organization } = this.session(auth);
     if (!can(auth, 'notizen.schreiben')) throw forbidden();
@@ -178,10 +180,16 @@ export class MailsService implements OnModuleInit {
     );
     const mailId = await this.tenant.run({ userId: auth.userId, organizationId }, async (tx) => {
       await ownRelationship(tx, organization, relationshipId);
-      return this.insert(tx, auth.userId, organizationId, relationshipId, visibility, source, {
-        ...mail,
-        attachments,
-      });
+      return this.insert(
+        tx,
+        auth.userId,
+        organizationId,
+        relationshipId,
+        visibility,
+        source,
+        { ...mail, attachments },
+        assignment,
+      );
     });
     if (!mailId) {
       // Schon abgelegt: die eben gespeicherten Dateien wieder entfernen
@@ -233,6 +241,7 @@ export class MailsService implements OnModuleInit {
     visibility: 'team' | 'private',
     source: 'addin' | 'forward',
     mail: Omit<IncomingMail, 'attachments'> & { attachments: StoredAttachment[] },
+    assignment: Assignment,
   ): Promise<string | null> {
     const [row] = await tx
       .insert(schema.filedMail)
@@ -249,6 +258,8 @@ export class MailsService implements OnModuleInit {
         subject: mail.subject || '–',
         bodyText: mail.bodyText,
         source,
+        assignedBy: assignment.by,
+        assignConfidence: assignment.confidence,
       })
       // Dieselbe Mail beim selben Lieferanten nur einmal, auch wenn sie jemand anderes privat hat
       .onConflictDoNothing()
@@ -429,17 +440,34 @@ export class MailsService implements OnModuleInit {
           (domain) => domain && !own.has(domain) && !isPublicDomain(domain),
         );
         const matches = domains.length > 0 ? await this.matches(tx, orgId, domains) : [];
-        return { domains, matches };
+        // PO-01 (K2-d.2): Ist die Absenderin Ansprechpartnerin? Das hebt die Konfidenz.
+        const contacts = await tx.execute<{ relationship_id: string }>(sql`
+          select c.relationship_id from supplier_contact c
+          join relationship r on r.id = c.relationship_id and r.buyer_org_id = ${orgId}
+          where lower(c.email) = ${originalFrom.toLowerCase()}`);
+        return {
+          domains,
+          matches,
+          contactOf: new Set(contacts.rows.map((row) => row.relationship_id)),
+        };
       },
     );
+    const confidenceOf = (match: { relationshipId: string; domains: string[] }) =>
+      assignConfidence({
+        senderEmail: originalFrom,
+        domains: match.domains,
+        senderIsContact: prepared.contactOf.has(match.relationshipId),
+      });
     const only = prepared.matches.length === 1 ? prepared.matches[0] : undefined;
-    // MA-01 (K1-f): selbst ablegen nur auf Stufe Erledigen der Aufgabe Postfach
+    // MA-01 (K1-f): selbst ablegen nur auf Stufe Erledigen der Aufgabe Postfach; PO-01 (K2-d.2):
+    // dazu nur bei genau einem Lieferanten und ab Konfidenz 0,9 (E-K2-5, E-K7-4)
     const inboxLevel = await this.tenant.run(
       { userId: forwarder, organizationId: orgId },
       (tx) => workerLevelFor(tx, { orgId, userId: forwarder }, 'inbox'),
       { readOnly: true },
     );
-    if (only && inboxLevel === 'do') {
+    const sure = only !== undefined && confidenceOf(only) >= autoAssignThreshold;
+    if (only && inboxLevel === 'do' && sure) {
       const actor = await this.tenant.run({ userId: forwarder, organizationId: orgId }, (tx) =>
         actorIn(tx, orgId, forwarder),
       );
@@ -451,68 +479,81 @@ export class MailsService implements OnModuleInit {
           mail,
           attachments,
           match: only,
+          confidence: confidenceOf(only),
         }).catch(() => null);
         if (result) return result;
       }
     }
 
-    // Unklar oder ohne Zugriff: „Neu eingegangen“, an die Person bzw. den SRO des Lieferanten
-    const stored = await this.storeFiles(orgId, attachments);
-    const kind =
-      prepared.matches.length === 0
-        ? ('none' as const)
-        : prepared.matches.length > 1
-          ? ('several' as const)
-          : ('supplier' as const);
-    const id = await this.tenant.run({ userId: systemUser, organizationId: orgId }, async (tx) => {
-      let assignee = forwarder;
-      if (kind === 'supplier' && only) {
-        const organization = await this.organizationOf(tx, orgId);
-        assignee = (await sroOf(tx, organization, only.relationshipId))?.userId ?? forwarder;
-      }
-      const [row] = await tx
-        .insert(schema.inboundItem)
-        .values({
+    // Unklar oder ohne Zugriff: „Neu eingegangen“, an die Person bzw. den SRO des Lieferanten.
+    // E-K7-4: Betrifft die Mail mehrere Lieferanten, entsteht je Lieferant ein eigener Entwurf, mit
+    // eigenen Anhängen, damit „Ignorieren“ beim einen den anderen nicht berührt.
+    const targets =
+      prepared.matches.length > 1
+        ? prepared.matches.slice(0, 5).map((match) => [match])
+        : [prepared.matches];
+    let first: string | null = null;
+    for (const target of targets) {
+      const match = target[0];
+      const stored = await this.storeFiles(orgId, attachments);
+      const others = prepared.matches.filter((entry) => entry !== match).map((entry) => entry.name);
+      const reason = !match
+        ? prepared.domains.length > 0
+          ? `Absender und Empfänger von ${prepared.domains.join(', ')} sind noch keinem Lieferanten zugeordnet.`
+          : 'In der weitergeleiteten Mail steht keine Adresse eines Lieferanten.'
+        : `${match.name}: ${match.domains.join(', ')}.${
+            others.length > 0
+              ? ` Die Mail betrifft auch ${others.join(', ')}; Reziproq ordnet sie deshalb nicht selbst zu.`
+              : inboxLevel === 'do' && !sure
+                ? ' Die Zuordnung ist nicht sicher genug, um sie selbst abzulegen.'
+                : supplierReason(inboxLevel)
+          }`;
+      const id = await this.tenant.run(
+        { userId: systemUser, organizationId: orgId },
+        async (tx) => {
+          let assignee = forwarder;
+          if (match) {
+            const organization = await this.organizationOf(tx, orgId);
+            assignee = (await sroOf(tx, organization, match.relationshipId))?.userId ?? forwarder;
+          }
+          const [row] = await tx
+            .insert(schema.inboundItem)
+            .values({
+              orgId,
+              kind: 'mail',
+              source: 'inbound_mail',
+              fromEmail: from,
+              subject: mail.subject || '–',
+              details: pendingDetails(mail, forwarder, stored),
+              suggestedRelationshipIds: match ? [match.relationshipId] : [],
+              suggestionKind: match ? 'supplier' : 'none',
+              suggestionReason: reason,
+              suggestConfidence: match ? confidenceOf(match) : null,
+              suggestedType: 'other',
+              status: 'needs_review',
+              ownerUserId: forwarder,
+              assigneeUserId: assignee,
+            })
+            .returning({ id: schema.inboundItem.id });
+          return row ? { id: row.id, assignee } : null;
+        },
+      );
+      // IN-06: „Neu eingegangen“ an die Person, die zuordnen soll
+      if (id) {
+        first ??= id.id;
+        await this.bus.emit({
           orgId,
-          kind: 'mail',
-          source: 'inbound_mail',
-          fromEmail: from,
-          subject: mail.subject || '–',
-          details: pendingDetails(mail, forwarder, stored),
-          suggestedRelationshipIds: prepared.matches
-            .slice(0, 5)
-            .map((match) => match.relationshipId),
-          suggestionKind: kind,
-          suggestionReason:
-            kind === 'none'
-              ? prepared.domains.length > 0
-                ? `Absender und Empfänger von ${prepared.domains.join(', ')} sind noch keinem Lieferanten zugeordnet.`
-                : 'In der weitergeleiteten Mail steht keine Adresse eines Lieferanten.'
-              : `${prepared.matches.map((match) => `${match.name}: ${match.domains.join(', ')}`).join(' · ')}.${
-                  kind === 'supplier' ? supplierReason(inboxLevel) : ''
-                }`,
-          suggestedType: 'other',
-          status: 'needs_review',
-          ownerUserId: forwarder,
-          assigneeUserId: assignee,
-        })
-        .returning({ id: schema.inboundItem.id });
-      return row ? { id: row.id, assignee } : null;
-    });
-    // IN-06: „Neu eingegangen“ an die Person, die zuordnen soll
-    if (id) {
-      await this.bus.emit({
-        orgId,
-        userIds: [id.assignee],
-        kind: 'inbound_review',
-        objectType: 'inbound_item',
-        objectId: id.id,
-        title: `Neu eingegangen: ${mail.subject.slice(0, 160) || '–'}`,
-        line: null,
-        href: '/kurz-pruefen',
-      });
+          userIds: [id.assignee],
+          kind: 'inbound_review',
+          objectType: 'inbound_item',
+          objectId: id.id,
+          title: `Neu eingegangen: ${mail.subject.slice(0, 160) || '–'}`,
+          line: null,
+          href: '/kurz-pruefen',
+        });
+      }
     }
-    return { status: 'applied', objectType: 'inbound_item', objectId: id?.id ?? null };
+    return { status: 'applied', objectType: 'inbound_item', objectId: first };
   }
 
   /**
@@ -530,6 +571,7 @@ export class MailsService implements OnModuleInit {
       mail: IncomingMail;
       attachments: IncomingMail['attachments'];
       match: { relationshipId: string; name: string; domains: string[] };
+      confidence: number;
     },
   ): Promise<ItemOutcome> {
     const { orgId, forwarder, mail, match } = input;
@@ -548,6 +590,7 @@ export class MailsService implements OnModuleInit {
           suggestedRelationshipIds: [match.relationshipId],
           suggestionKind: 'supplier',
           suggestionReason: `${match.name}: ${match.domains.join(', ')}.`,
+          suggestConfidence: input.confidence,
           suggestedType: 'other',
           status: 'auto_assigned',
           ownerUserId: forwarder,
@@ -566,7 +609,7 @@ export class MailsService implements OnModuleInit {
     let mailId: string | null = null;
     try {
       if (!inboundId) throw new Error('Eingang nicht angelegt');
-      mailId = await this.assignInbound(actor, inboundId, match.relationshipId);
+      mailId = await this.assignInbound(actor, inboundId, match.relationshipId, 'reziproq');
     } catch (error) {
       await this.removeFiles(stored);
       await dropInbound();
@@ -606,7 +649,17 @@ export class MailsService implements OnModuleInit {
   }
 
   /** „Neu eingegangen“ → Lieferant: die Mail wird mit den Rechten der entscheidenden Person abgelegt */
-  private async assignInbound(auth: AuthContext, inboundId: string, relationshipId: string) {
+  /**
+   * Legt eine wartende Mail beim Lieferanten ab. PO-01 (K2-d.2): Reziproq selbst (ab Konfidenz 0,9)
+   * oder ein Mensch; die Konfidenz des Vorschlags bleibt an der Mail, wenn der Lieferant der
+   * vorgeschlagene war (E-K2-5: Schwelle nach zwei Wochen prüfen).
+   */
+  private async assignInbound(
+    auth: AuthContext,
+    inboundId: string,
+    relationshipId: string,
+    by: Assignment['by'] = 'human',
+  ) {
     const { organizationId } = this.session(auth);
     const row = await this.tenant.run({ userId: auth.userId, organizationId }, async (tx) => {
       const [found] = await tx
@@ -619,16 +672,28 @@ export class MailsService implements OnModuleInit {
     });
     const pending = row?.details.mail;
     if (!row || !pending) throw notFound();
-    const result = await this.file(auth, relationshipId, 'team', 'forward', {
-      messageId: pending.messageId,
-      fromEmail: pending.fromEmail,
-      fromName: pending.fromName,
-      toEmails: pending.toEmails,
-      sentAt: new Date(pending.sentAt),
-      subject: row.subject,
-      bodyText: pending.bodyText,
-      attachments: [],
-    });
+    const suggested = row.suggestedRelationshipIds.includes(relationshipId);
+    const assignment: Assignment = {
+      by,
+      confidence: suggested ? (row.suggestConfidence ?? null) : null,
+    };
+    const result = await this.file(
+      auth,
+      relationshipId,
+      'team',
+      'forward',
+      {
+        messageId: pending.messageId,
+        fromEmail: pending.fromEmail,
+        fromName: pending.fromName,
+        toEmails: pending.toEmails,
+        sentAt: new Date(pending.sentAt),
+        subject: row.subject,
+        bodyText: pending.bodyText,
+        attachments: [],
+      },
+      assignment,
+    );
     if (result.mailId) {
       // Die schon gespeicherten Anhänge gehören jetzt zur abgelegten Mail
       const stored = pending.attachments;
@@ -861,4 +926,10 @@ async function senderOf(tx: TenantTransaction, relationshipId: string, email: st
       limit 1`)
   ).rows;
   return contact?.name ?? email;
+}
+
+/** PO-01 (K2-d.2): Wer eine Mail zugeordnet hat und wie sicher der Vorschlag war */
+interface Assignment {
+  by: 'reziproq' | 'human';
+  confidence: number | null;
 }

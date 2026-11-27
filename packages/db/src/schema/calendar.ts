@@ -5,6 +5,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -115,6 +116,8 @@ export const inboundItem = pgTable(
     suggestedRelationshipIds: jsonb().$type<string[]>().notNull().default([]),
     suggestionKind: text({ enum: ['supplier', 'several', 'event', 'none'] }).notNull(),
     suggestionReason: text(),
+    // PO-01 (K2-d.2): Konfidenz des Vorschlags; ab 0,9 ordnet Reziproq selbst zu (E-K2-5)
+    suggestConfidence: numeric({ precision: 3, scale: 2, mode: 'number' }),
     suggestedType: text().notNull().default('other'),
     status: text({
       enum: ['auto_assigned', 'needs_review', 'assigned', 'ignored', 'rejected'],
@@ -136,6 +139,10 @@ export const inboundItem = pgTable(
     check(
       'inbound_item_source',
       sql`${table.source} in ('outlook_addin', 'inbound_mail', 'calendar_sync')`,
+    ),
+    check(
+      'inbound_item_confidence',
+      sql`${table.suggestConfidence} is null or ${table.suggestConfidence} between 0 and 1`,
     ),
     index('inbound_item_org').on(table.orgId, table.status, table.receivedAt),
     index('inbound_item_uid').on(table.orgId, table.icalUid),

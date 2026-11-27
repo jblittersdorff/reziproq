@@ -1,0 +1,2 @@
+ALTER TABLE "inbound_item" ADD COLUMN "suggest_confidence" numeric(3, 2);--> statement-breakpoint
+ALTER TABLE "inbound_item" ADD CONSTRAINT "inbound_item_confidence" CHECK ("inbound_item"."suggest_confidence" is null or "inbound_item"."suggest_confidence" between 0 and 1);
