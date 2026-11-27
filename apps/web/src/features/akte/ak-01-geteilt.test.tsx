@@ -154,7 +154,7 @@ describe('AK-01 Von Rheintal: rechte Spalte', () => {
     expect(rules.textContent).toContain('Version 2, geteilt am 15.10.2026');
   });
 
-  it('Rheintal in Reziproq: Mitglieder aktiv, Einladungen mit Ablauf, Ansprechpartner ohne Einladung', async () => {
+  it('T2-I24: Rheintal in Reziproq: Mitglieder aktiv, Einladungen mit Ablauf, Ansprechpartner ohne Einladung', async () => {
     renderAt(geteilt);
     const people = await region('Rheintal Elektronik in Reziproq');
     await within(people).findByText('Kim Kaiser');

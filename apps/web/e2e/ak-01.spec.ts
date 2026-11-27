@@ -197,6 +197,20 @@ test('K2-c.6a: „Briefing JBP“ öffnet das vorbereitete Briefing aus dem Seed
   expect(starts).toEqual([]);
 });
 
+// K2-c.7 (E-K2-12, T2-15): Die bisherige Seite Aktivitäten leitet in den Verlauf. Die Akte springt
+// dorthin und bleibt dort, auch wenn darüber noch Abschnitte laden.
+test('K2-c.7: die alte Adresse Aktivitäten führt in den Verlauf der Akte', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openAkte(page);
+  const id = new URL(page.url()).pathname.split('/')[2] ?? '';
+  await page.goto(`/lieferanten/${id}/aktivitaeten`);
+  await expect(page).toHaveURL(new RegExp(`/beziehungen/${id}\\?sicht=privat#verlauf$`));
+  const history = page.getByRole('region', { name: 'Verlauf · nur euer Team' });
+  await expect(history).toBeVisible();
+  await expect(page.locator('[data-slot="next-card"]')).toBeVisible();
+  await expect.poll(async () => (await history.boundingBox())?.y ?? 9999).toBeLessThan(120);
+});
+
 test('T2-04: der Umschalter setzt die Adresse; ?sicht=privat und ?sicht=geteilt zeigen die anderen Sichten', async ({
   page,
 }) => {
@@ -419,7 +433,7 @@ test('Aktionen (K2-c.6): „Wert finden“ startet den Wertfinder, „Briefing J
   await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('JBP Rheintal 2027');
 });
 
-test('Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitliches Scrollen', async ({
+test('T2-I30: Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitliches Scrollen', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 900 });

@@ -79,7 +79,7 @@ describe('AK-01 Nur für dich: Das Wichtigste und Aufgaben', () => {
     );
   });
 
-  it('Aufgaben: nur offene interne, nach Frist, überfällige mit Chip; ohne offene keine Gruppe', async () => {
+  it('T2-I22: Aufgaben: nur offene interne, nach Frist, überfällige mit Chip; ohne offene keine Gruppe', async () => {
     renderAt(privat);
     const tasks = await region('Aufgaben · nur euer Team');
     const rows = within(tasks).getAllByRole('link');
@@ -165,7 +165,7 @@ describe('AK-01 Nur für dich: Verlauf (T2-I19)', () => {
     ).toBe('true');
   });
 
-  it('Neue Notiz „Nur ich“: gespeichert steht sie im Verlauf mit „nur du“', async () => {
+  it('T2-I19: Neue Notiz „Nur ich“: gespeichert steht sie im Verlauf mit „nur du“', async () => {
     renderAt(privat);
     const history = await region('Verlauf · nur euer Team');
     fireEvent.click(await within(history).findByRole('button', { name: 'Neue Notiz' }));
@@ -239,7 +239,7 @@ describe('AK-01 Nur für dich: Verlauf (T2-I19)', () => {
 });
 
 describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
-  it('Beziehungsnetz: Gesprächspaare mit Takt und Notiz, geteilte mit Chip, Fußnote', async () => {
+  it('T2-I26: Beziehungsnetz: Gesprächspaare mit Takt und Notiz, geteilte mit Chip, Fußnote', async () => {
     renderAt(privat);
     const network = await region('Beziehungsnetz');
     const prices = await within(network).findByRole('link', { name: /Preise und Verträge/ });
@@ -282,7 +282,7 @@ describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
     expect(gap.textContent).toContain('fehlt');
   });
 
-  it('Segment und Bewertung: Abstand, Runde, Festlegung, Kriterien mit der größten Spanne', async () => {
+  it('T2-I13: Segment und Bewertung: Abstand, Runde, Festlegung, Kriterien mit der größten Spanne', async () => {
     renderAt(privat);
     const segment = await region('Segment und Bewertung');
     const head = await within(segment).findByRole('link', {
@@ -297,7 +297,7 @@ describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
     expect(segment.textContent).toContain('Versorgungsrisiko 72 · Spanne 26 bei Qualität');
   });
 
-  it('Lieferantenplan: Version und Freigabe, Themen fürs JBP nach Rang, Ziele, die intern bleiben', async () => {
+  it('T2-I23: Lieferantenplan: Version und Freigabe, Themen fürs JBP nach Rang, Ziele, die intern bleiben', async () => {
     renderAt(privat);
     const plan = await region('Lieferantenplan');
     const head = await within(plan).findByRole('link', { name: /Version 2 · freigegeben/ });
@@ -330,7 +330,7 @@ describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
     expect(await region('Segment und Bewertung')).toBeTruthy();
   });
 
-  it('Warengruppen: Spend, Lead, Stärke, Absicht, Strategie; ein offener Widerspruch als Chip', async () => {
+  it('T2-I12: Warengruppen: Spend, Lead, Stärke, Absicht, Strategie; ein offener Widerspruch als Chip', async () => {
     renderAt(privat);
     const groups = await region('Warengruppen');
     const row = (name: RegExp) => within(groups).getByRole('link', { name });
@@ -346,7 +346,7 @@ describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
     expect(row(/Leiterplatten/).textContent).not.toContain('widerspricht');
   });
 
-  it('Wert: gesichert gegen Ziel und Potenzial nur als EBIT; ohne Recht kein Abschnitt', async () => {
+  it('T2-I06: Wert: gesichert gegen Ziel und Potenzial nur als EBIT; ohne Recht kein Abschnitt', async () => {
     renderAt(privat);
     const value = await region('Wert');
     const results = await within(value).findByRole('link', { name: /Ergebnisse 2026/ });
@@ -423,7 +423,7 @@ describe('AK-01 Nur für dich: Verlauf statt der Seite Aktivitäten (K2-c.7)', (
     mine: false,
   };
 
-  it('die bisherige Adresse Aktivitäten führt in den Verlauf der Akte', async () => {
+  it('T2-I07: die bisherige Adresse Aktivitäten führt in den Verlauf der Akte', async () => {
     const router = renderAt(`/lieferanten/${id}/aktivitaeten`);
     expect(await region('Verlauf · nur euer Team')).toBeTruthy();
     expect(router.state.location.pathname).toBe(`/beziehungen/${id}`);

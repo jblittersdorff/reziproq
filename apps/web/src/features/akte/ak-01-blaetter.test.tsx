@@ -55,7 +55,7 @@ const plain = (value: string | null | undefined) => (value ?? '').replace(/[Â â€
 const sheet = (name: string) => screen.findByRole('dialog', { name });
 
 describe('AK-01 Blatt Profil (Vorlage K2-Profil)', () => {
-  it('Das Wichtigste: Wachstum und Rang nach Spend, Spend zum Vorjahr und fehlender Draht', async () => {
+  it('T2-I10: Das Wichtigste: Wachstum und Rang nach Spend, Spend zum Vorjahr und fehlender Draht', async () => {
     renderAt(`${akte}/profil`);
     const profile = await sheet('Profil');
     expect(
@@ -79,7 +79,7 @@ describe('AK-01 Blatt Profil (Vorlage K2-Profil)', () => {
     ).toBe(`${akte}?sicht=privat#netz`);
   });
 
-  it('Stammdaten, Spend je Jahr, Kontakte, Team beider Seiten, Bearbeiten und Import', async () => {
+  it('T2-I11, T2-I25: Stammdaten, Spend je Jahr, Kontakte, Team beider Seiten, Bearbeiten und Import', async () => {
     renderAt(`${akte}/profil`);
     const profile = await sheet('Profil');
     const master = await within(profile).findByRole('region', { name: 'Stammdaten' });
@@ -145,7 +145,7 @@ describe('AK-01 Blatt Profil (Vorlage K2-Profil)', () => {
 });
 
 describe('AK-01 Blatt Spielregeln', () => {
-  it('Rechte und Pflichten von Rheintal mit Gruppe und Takt, Formate, geteilt am', async () => {
+  it('T2-I27: Rechte und Pflichten von Rheintal mit Gruppe und Takt, Formate, geteilt am', async () => {
     renderAt(`${akte}/spielregeln`);
     const rules = await sheet('Spielregeln');
     expect(
@@ -207,7 +207,7 @@ describe('AK-01 Blatt Spielregeln', () => {
 });
 
 describe('AK-01 Blatt Kennzahl-Verlauf (E-K4-4)', () => {
-  it('aus der Scorecard-Zeile: Stand, Basis und Ziel, Werte mit Herkunft, wer erfasst', async () => {
+  it('T2-I21: aus der Scorecard-Zeile: Stand, Basis und Ziel, Werte mit Herkunft, wer erfasst', async () => {
     renderAt(`${akte}/kennzahlen/${akteSheetsKpi}`);
     const kpi = await sheet('Liefertreue');
     expect(

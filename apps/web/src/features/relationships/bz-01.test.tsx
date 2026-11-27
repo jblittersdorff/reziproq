@@ -52,7 +52,7 @@ const requested = (prefix: string) =>
     .filter((url) => url.startsWith(prefix));
 
 describe('BZ-01 Linse Liste', () => {
-  it('Kopf mit Zahl, Spend und Portfolio; Umschalter Liste und Segmente', async () => {
+  it('T2-I01: Kopf mit Zahl, Spend und Portfolio; Umschalter Liste und Segmente', async () => {
     renderAt('/beziehungen');
     expect(await screen.findByRole('heading', { level: 1, name: 'Lieferanten' })).toBeTruthy();
     expect(
@@ -73,7 +73,7 @@ describe('BZ-01 Linse Liste', () => {
     expect(document.title).toContain('Lieferanten');
   });
 
-  it('Zeilen nach Aufmerksamkeit mit Anzeigename, grauer Zeile, Segment-Chip und Mini-Spiegel', async () => {
+  it('T2-I03: Zeilen nach Aufmerksamkeit mit Anzeigename, grauer Zeile, Segment-Chip und Mini-Spiegel', async () => {
     renderAt('/beziehungen');
     await screen.findByText('Rheintal Elektronik');
     expect(names()).toEqual([
@@ -154,7 +154,7 @@ describe('BZ-01 Linse Liste', () => {
     await waitFor(() => expect(router.state.location.search).toEqual({}));
   });
 
-  it('sortiert nach Aufmerksamkeit (Standard) oder nach Spend; aus der Adresse wieder hergestellt', async () => {
+  it('T2-I02: sortiert nach Aufmerksamkeit (Standard) oder nach Spend; aus der Adresse wieder hergestellt', async () => {
     const router = renderAt('/beziehungen');
     const sort = await screen.findByRole('combobox', { name: 'Sortierung' });
     expect((sort as HTMLSelectElement).value).toBe('aufmerksamkeit');
@@ -206,7 +206,7 @@ describe('BZ-01 Linse Liste', () => {
     await waitFor(() => expect(names()).toHaveLength(4));
   });
 
-  it('Mehr Filter: Segment, Soll-Typ, Warengruppe mit Untergruppen und Business Unit (NAV-12)', async () => {
+  it('T2-I02: Mehr Filter: Segment, Soll-Typ, Warengruppe mit Untergruppen und Business Unit (NAV-12)', async () => {
     renderAt('/beziehungen?wg=mg-gu');
     // Guss schließt Sandguss ein; mit gesetztem Filter ist „Mehr Filter“ offen
     await waitFor(() => expect(names()).toEqual(['Silesia Guss']));
@@ -260,7 +260,7 @@ describe('BZ-01 Linse Liste', () => {
     await waitFor(() => expect(names()).toHaveLength(12));
   });
 
-  it('Pflege: Importieren immer, Hinzufügen nur mit Recht (PLT-03b)', async () => {
+  it('T2-I01: Pflege: Importieren immer, Hinzufügen nur mit Recht (PLT-03b)', async () => {
     renderAt('/beziehungen');
     expect(
       (await screen.findByRole('link', { name: /Lieferanten importieren/ })).getAttribute('href'),
@@ -364,7 +364,7 @@ describe('BZ-01 Linse Segmente (K2-b.5, Vorlage K2-Segmente)', () => {
     expect(document.title).toBe('Lieferanten – Reziproq');
   });
 
-  it('T2-03: Felder 9, 8, 9, 12; Kessler mit gelbem Rand; „Ohne Bewertung · 8“', async () => {
+  it('T2-I14: T2-03: Felder 9, 8, 9, 12; Kessler mit gelbem Rand; „Ohne Bewertung · 8“', async () => {
     renderAt(segmentsAt);
     await screen.findByRole('list', { name: 'Matrix der Segmente' });
     const fields = within(matrix()).getAllByRole('listitem');

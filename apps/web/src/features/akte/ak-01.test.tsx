@@ -60,6 +60,67 @@ describe('AK-01 Akte, Kopf und Sichten', () => {
     expect(document.title).toBe('Rheintal Elektronik – Reziproq');
   });
 
+  it('T2-I04: die graue Zeile nennt den Schritt im Jahreszyklus', async () => {
+    const step = (key: string, status: string) => ({ key, status, href: null, dueDate: null });
+    api.handle = (request) =>
+      request.url === `/api/suppliers/${id}/overview`
+        ? Response.json({
+            head: { segment: null, sro: null, nextMeeting: null, isFocus: true },
+            metrics: [],
+            cycle: {
+              id: '0190a0a0-0000-7000-8000-000000000002',
+              label: '2026',
+              startedAt: '2026-01-01T00:00:00.000Z',
+              jbpDate: null,
+              schedule: [
+                ['feedback', -8],
+                ['touchpoints', -6],
+                ['supplierPlan', -2],
+                ['jbp', 0],
+                ['scorecard', 3],
+              ].map(([key, weeks]) => ({
+                step: key,
+                weeksRelativeToJbp: weeks,
+                reminderDaysBefore: 7,
+                dueDate: null,
+              })),
+              steps: [
+                step('segment', 'completed'),
+                step('feedback', 'completed'),
+                step('touchpoints', 'completed'),
+                step('supplierPlan', 'completed'),
+                step('jbp', 'in_progress'),
+                step('scorecard', 'unavailable'),
+                step('execution', 'unavailable'),
+              ],
+            },
+            canStartCycle: false,
+            canSetJbpDate: false,
+          })
+        : undefined;
+    renderAt(akte);
+    await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik' });
+    const head = document.querySelector('[data-slot="akte-head"]') as HTMLElement;
+    await waitFor(() =>
+      expect(plain(head.textContent)).toContain(
+        'Lead Sara Ost · im Jahreszyklus: Gemeinsamer Plan',
+      ),
+    );
+  });
+
+  it('T2-I08: Claims und Risiken sind als Modul aus und erscheinen in keiner Sicht', async () => {
+    for (const view of ['', '?sicht=privat', '?sicht=geteilt']) {
+      tearDownApp();
+      setUpApp();
+      api.aktePrivate = aktePrivateSample();
+      api.akteCounterpart = akteCounterpartSample();
+      renderAt(`${akte}${view}`);
+      await screen.findByRole('heading', { level: 1, name: 'Rheintal Elektronik' });
+      await screen.findAllByRole('region');
+      expect(document.body.textContent ?? '', view || 'Gemeinsam').not.toMatch(/Claim|Risiken/);
+    }
+  });
+
   it('T2-04: ohne Parameter Gemeinsam; der Umschalter setzt die Adresse für die anderen Sichten', async () => {
     const router = renderAt(akte);
     const views = await screen.findByRole('navigation', { name: 'Sicht auf die Beziehung' });
@@ -128,7 +189,7 @@ describe('AK-01 Sicht Gemeinsam (Vorlage L-Ueberblick)', () => {
     );
   });
 
-  it('Zusagen beider Seiten in der geteilten Gruppe, mit Seite, Person, Frist, Herkunft und Stand', async () => {
+  it('T2-I20: Zusagen beider Seiten in der geteilten Gruppe, mit Seite, Person, Frist, Herkunft und Stand', async () => {
     renderAt(akte);
     const commitments = await screen.findByRole('region', { name: /Zusagen · 5 offen/ });
     expect(commitments.querySelector('[data-tone="shared"]')).toBeTruthy();
@@ -160,7 +221,7 @@ describe('AK-01 Sicht Gemeinsam (Vorlage L-Ueberblick)', () => {
     ).toBe(`/lieferanten/${id}/umsetzung/massnahmen?status=kept&art=zusage`);
   });
 
-  it('Scorecard mit Stand je Kennzahl als Text und der fehlenden eigenen Unterschrift', async () => {
+  it('T2-I09: Scorecard mit Stand je Kennzahl als Text und der fehlenden eigenen Unterschrift', async () => {
     renderAt(akte);
     const card = await screen.findByRole('region', { name: /Scorecard 2026 · Kennzahlen Oktober/ });
     const row = (name: string) => within(card).getByRole('link', { name: new RegExp(name) });
@@ -179,7 +240,7 @@ describe('AK-01 Sicht Gemeinsam (Vorlage L-Ueberblick)', () => {
     );
   });
 
-  it('rechts: Nächste Wochen, Plan und Spielregeln, Feedback, Team beider Seiten und die Fußnote', async () => {
+  it('T2-I05: rechts: Nächste Wochen, Plan und Spielregeln, Feedback, Team beider Seiten und die Fußnote', async () => {
     renderAt(akte);
     const weeks = await screen.findByRole('region', { name: 'Nächste Wochen' });
     expect(
