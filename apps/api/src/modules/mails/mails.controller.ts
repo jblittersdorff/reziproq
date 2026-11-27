@@ -7,20 +7,27 @@ import {
   Inject,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Res,
 } from '@nestjs/common';
 import {
   type FileMailRequest,
   fileMailRequestSchema,
+  type MailCommitmentsUpdate,
   type MailDetectRequest,
+  type MailReplyVariant,
+  mailCommitmentsUpdateSchema,
   mailDetectRequestSchema,
+  mailDiscardSchema,
+  mailReplyVariantSchema,
 } from '@reziproq/shared';
 import type { Response } from 'express';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe.js';
 import type { AuthContext } from '../auth/auth.guard.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { Requires } from '../auth/requires.decorator.js';
+import { MailDraftsService } from './mail-drafts.service.js';
 import { MailsService } from './mails.service.js';
 
 /** Inhalte, die der Browser anzeigen darf; alles andere nur als Download (z. B. HTML aus Mails) */
@@ -98,5 +105,49 @@ export class FiledMailsController {
     @Param('mailId', ParseUUIDPipe) mailId: string,
   ) {
     await this.mails.remove(auth, id, mailId);
+  }
+}
+
+/** PO-01 (K2-d.3b): Entwurf „Zusagen aus Mail“ ansehen, anpassen, verwerfen, Ton der Antwort */
+@Controller('postfach/entwuerfe')
+export class MailDraftsController {
+  constructor(@Inject(MailDraftsService) private readonly drafts: MailDraftsService) {}
+
+  @Get(':draftId')
+  @Requires('aktivitaeten.sehen')
+  view(@CurrentUser() auth: AuthContext, @Param('draftId', ParseUUIDPipe) draftId: string) {
+    return this.drafts.view(auth, draftId);
+  }
+
+  @Patch(':draftId')
+  @Requires('aktivitaeten.sehen')
+  update(
+    @CurrentUser() auth: AuthContext,
+    @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(mailCommitmentsUpdateSchema)) body: MailCommitmentsUpdate,
+  ) {
+    return this.drafts.update(auth, draftId, body);
+  }
+
+  @Post(':draftId/antwort')
+  @HttpCode(200)
+  @Requires('aktivitaeten.sehen')
+  variant(
+    @CurrentUser() auth: AuthContext,
+    @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(mailReplyVariantSchema)) body: { variant: MailReplyVariant },
+  ) {
+    return this.drafts.variant(auth, draftId, body.variant);
+  }
+
+  @Post(':draftId/verwerfen')
+  @HttpCode(200)
+  @Requires('aktivitaeten.sehen')
+  discard(
+    @CurrentUser() auth: AuthContext,
+    @Param('draftId', ParseUUIDPipe) draftId: string,
+    @Body(new ZodValidationPipe(mailDiscardSchema)) body: { reason: string },
+  ) {
+    return this.drafts.discard(auth, draftId, body.reason);
   }
 }

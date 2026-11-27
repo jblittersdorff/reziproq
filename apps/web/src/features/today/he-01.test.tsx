@@ -360,6 +360,26 @@ describe('HE-01 Heute, Ansicht Fokus (Vorlage Main)', () => {
     expect(within(nav).getByRole('link', { name: /Heute/ }).textContent).toContain('5');
   });
 
+  it('PO-01 (K2-d.3b): Zusagen aus einer Mail öffnen die Seite ihres Entwurfs', async () => {
+    const draft = '0190a0a0-0000-7000-8000-0000000d0001';
+    const mailTopic = topic(9, {
+      kind: 'decision',
+      title: 'Zusagen aus der Mail von Kim Kaiser',
+      objectType: 'filed_mail',
+      href: `/mappe/mail/${draft}`,
+      art: 'mail',
+    });
+    api.today = focusPage({ next: mailTopic, more: [], openFocus: 1 });
+    renderAt('/heute');
+    const kicker = await screen.findByText(/Als Nächstes · Fokus 1 von 1/);
+    const card = kicker.closest('[data-slot="next-card"]') as HTMLElement;
+    expect(
+      within(card)
+        .getByRole('link', { name: /öffnen/ })
+        .getAttribute('href'),
+    ).toBe(`/mappe/mail/${draft}`);
+  });
+
   it('„Morgen erinnern“ stellt das Thema zurück und lädt Heute neu', async () => {
     const posted: string[] = [];
     api.handle = (request) => {

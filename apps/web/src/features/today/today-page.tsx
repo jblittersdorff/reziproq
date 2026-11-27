@@ -229,7 +229,9 @@ function NextTopic({ data, topic }: { data: TodayPageData; topic: FocusTopic }) 
   });
   const shown = 1 + data.more.length;
   // HE-01 (K1-e.4): „Als Nächstes“ öffnet die Fokus-Mappe des Themas
-  const href = `/mappe/${topic.art}/${topic.id}`;
+  // PO-01 (K2-d.3b): Zusagen aus einer Mail haben ihre eigene Seite zum Entwurf
+  const href =
+    topic.art === 'mail' && topic.href ? topic.href : `/mappe/${topic.art}/${topic.id}`;
   return (
     <div className="flex flex-col gap-2">
       <NextCard

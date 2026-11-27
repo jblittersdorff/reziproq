@@ -453,7 +453,10 @@ export class MailsService implements OnModuleInit {
       const known = contacts.find(
         (contact) => contact.email.toLowerCase() === mail.fromEmail.toLowerCase(),
       );
-      const sender = { name: mail.fromName ?? known?.name ?? mail.fromEmail, email: mail.fromEmail };
+      const sender = {
+        name: mail.fromName ?? known?.name ?? mail.fromEmail,
+        email: mail.fromEmail,
+      };
       const signer = filer?.name ?? userId;
       const commitments = resolveCommitments(items, {
         body: mail.bodyText,

@@ -7,6 +7,7 @@ import {
   fileMailResultSchema,
   inboxSchema,
   integrationsSchema,
+  mailCommitmentsViewSchema,
 } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { deleteRelationships, insertRelationships } from '../../testing/relationships.js';
@@ -704,6 +705,56 @@ describe('IN-04 Mails ablegen', () => {
     }
     expect(content.reply.to).toBe(`kim@${domains.rheintal}`);
     expect(content.reply.text.startsWith('Guten Tag Kim Kaiser,')).toBe(true);
+  });
+
+  it('PO-01 (K2-d.3b): Entwurf ansehen, anpassen, Ton ändern, verwerfen; danach gesperrt', async () => {
+    const [draft] = (
+      await db.execute<{ id: string }>(
+        sql`select d.id from ai_draft d join filed_mail m on m.id = d.object_id
+            where d.kind = 'commitment_from_mail' and m.org_id = ${orgs.a}
+              and m.subject = 'Musterteile Starrflex und 8D 4711'`,
+      )
+    ).rows;
+    const path = `/postfach/entwuerfe/${draft?.id}`;
+    const view = mailCommitmentsViewSchema.parse((await call(users.admin, 'GET', path)).body);
+    expect(view).toMatchObject({
+      status: 'draft',
+      canDecide: true,
+      relationship: { id: rel.rheintal },
+      mail: { fromName: 'Kim Kaiser', assignedBy: 'reziproq' },
+    });
+    expect(view.commitments).toHaveLength(3);
+    // Anpassen: Frist der Zeichnung und eigener Antworttext
+    const changed = mailCommitmentsViewSchema.parse(
+      (
+        await call(users.admin, 'PATCH', path, {
+          commitments: [{ index: 1, dueOn: '2026-12-01' }],
+          replyText: 'Guten Tag Kim Kaiser,\n\nso halten wir es fest.',
+        })
+      ).body,
+    );
+    expect(changed.commitments[1]?.dueOn).toBe('2026-12-01');
+    expect(changed.reply.text).toBe('Guten Tag Kim Kaiser,\n\nso halten wir es fest.');
+    // Auf Englisch: der ganze Text neu, mit der angepassten Frist
+    const english = mailCommitmentsViewSchema.parse(
+      (await call(users.admin, 'POST', `${path}/antwort`, { variant: 'englisch' })).body,
+    );
+    expect(english.reply.text.startsWith('Hello Kim Kaiser,')).toBe(true);
+    expect(english.reply.text).toContain('- Zeichnung Rev. C by Tue 1 Dec');
+    // Der Lieferant sieht den Entwurf nie
+    expect((await call(users.supplier, 'GET', path)).status).toBeGreaterThanOrEqual(400);
+    // Verwerfen mit Grund; danach lässt er sich nicht mehr ändern
+    const discarded = mailCommitmentsViewSchema.parse(
+      (
+        await call(users.admin, 'POST', `${path}/verwerfen`, {
+          reason: 'schon telefonisch geklärt',
+        })
+      ).body,
+    );
+    expect(discarded).toMatchObject({ status: 'discarded', canDecide: false });
+    expect(
+      (await call(users.admin, 'POST', `${path}/antwort`, { variant: 'kuerzer' })).status,
+    ).toBe(409);
   });
 
   it('der Test-Lieferant sieht keine abgelegte Mail', async () => {

@@ -17,6 +17,7 @@ const artsDe: Record<FocusArt, string> = {
   gespraech: 'Gespräch',
   hinweis: 'Hinweis',
   entscheidung: 'Entscheidung',
+  mail: 'Mail',
 };
 const artsEn: Record<FocusArt, string> = {
   wert: 'Value',
@@ -29,6 +30,7 @@ const artsEn: Record<FocusArt, string> = {
   gespraech: 'Conversation',
   hinweis: 'Hint',
   entscheidung: 'Decision',
+  mail: 'Mail',
 };
 
 const sourcesDe: Record<SummarySource, string> = {

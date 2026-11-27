@@ -3,6 +3,7 @@ import {
   type OpenCommitment,
   replacedBy,
   replyText,
+  replyVariant,
   resolveCommitments,
 } from './mail-commitments.js';
 import { parseMailLocally } from './mail-extract.js';
@@ -68,5 +69,31 @@ describe('Zusagen aus der Mail auflösen (PO-01)', () => {
     expect(text).toContain('- 8D-Bericht Charge 4711 bis Fr 27.11. (Nils Ott)');
     expect(text).toContain('- Zeichnung Rev. C bis Mo 30.11. (Jan-Luka von Blittersdorff)');
     expect(text.endsWith('Viele Grüße\nJan-Luka von Blittersdorff')).toBe(true);
+  });
+});
+
+describe('Antwort in anderem Ton (PO-01, K2-d.3b)', () => {
+  const commitments = resolveCommitments(parseMailLocally(body, '2026-11-23').items, context);
+  const variant = (value: 'kuerzer' | 'foermlicher' | 'englisch') =>
+    replyVariant({
+      sender: 'Kim Kaiser',
+      commitments,
+      signer: 'Jan-Luka von Blittersdorff',
+      variant: value,
+    });
+
+  it('kürzer, förmlicher und auf Englisch, mit allen Zusagen und ohne geratene Anrede', () => {
+    expect(variant('kuerzer')).toContain(
+      'danke, so halten wir es fest: Musterteile Starrflex bis Fr 11.12.; 8D-Bericht Charge 4711 bis Fr 27.11.; Zeichnung Rev. C bis Mo 30.11. Bitte kurz über den Link bestätigen.',
+    );
+    expect(variant('foermlicher')).toContain('Mit freundlichen Grüßen\nJan-Luka von Blittersdorff');
+    expect(variant('foermlicher')).toContain(
+      '- 8D-Bericht Charge 4711 bis Fr 27.11., verantwortlich Nils Ott',
+    );
+    expect(variant('englisch')).toContain('- Musterteile Starrflex by Fri 11 Dec (Kim Kaiser)');
+    expect(variant('englisch').startsWith('Hello Kim Kaiser,')).toBe(true);
+    for (const text of [variant('kuerzer'), variant('foermlicher'), variant('englisch')]) {
+      expect(text).not.toMatch(/Herr Kaiser|Frau Kaiser|Mr |Ms /);
+    }
   });
 });

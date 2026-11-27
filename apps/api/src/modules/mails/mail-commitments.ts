@@ -133,3 +133,83 @@ export function replyText(input: {
     input.signer,
   ].join('\n');
 }
+
+const englishDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const englishMonth = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+const englishDate = (iso: string) => {
+  const date = new Date(`${iso}T12:00:00Z`);
+  return `${englishDay[date.getUTCDay()]} ${date.getUTCDate()} ${englishMonth[date.getUTCMonth()]}`;
+};
+
+/**
+ * PO-01 (K2-d.3b): Antwort kürzer, förmlicher oder auf Englisch, ohne Modell als feste Umformung.
+ * Die Zusagen bleiben vollständig, nur der Ton ändert sich; die Anrede rät nie ein Geschlecht.
+ */
+export function replyVariant(input: {
+  sender: string;
+  commitments: MailCommitment[];
+  signer: string;
+  variant: 'kuerzer' | 'foermlicher' | 'englisch';
+}): string {
+  const ordered = [
+    ...input.commitments.filter((entry) => entry.side === 'supplier'),
+    ...input.commitments.filter((entry) => entry.side === 'buyer'),
+  ];
+  if (input.variant === 'kuerzer') {
+    const points = ordered
+      .map((entry) => `${entry.title}${entry.dueOn ? ` bis ${shortDate(entry.dueOn)}` : ''}`)
+      .join('; ');
+    // Eine Frist endet schon auf einem Punkt („11.12.“); kein zweiter dahinter
+    return [
+      `Guten Tag ${input.sender},`,
+      '',
+      `danke, so halten wir es fest: ${points}${points.endsWith('.') ? '' : '.'} Bitte kurz über den Link bestätigen.`,
+      '',
+      'Viele Grüße',
+      input.signer,
+    ].join('\n');
+  }
+  if (input.variant === 'foermlicher') {
+    return [
+      `Guten Tag ${input.sender},`,
+      '',
+      'vielen Dank für Ihre Nachricht. Wir haben die folgenden Vereinbarungen festgehalten:',
+      ...ordered.map(
+        (entry) =>
+          `- ${entry.title}${entry.dueOn ? ` bis ${shortDate(entry.dueOn)}` : ''}, verantwortlich ${entry.ownerName}`,
+      ),
+      '',
+      'Wir bitten Sie, diese über den Link zu bestätigen, den Sie in Kürze erhalten.',
+      '',
+      'Mit freundlichen Grüßen',
+      input.signer,
+    ].join('\n');
+  }
+  return [
+    `Hello ${input.sender},`,
+    '',
+    'thank you for your reply. This is what we have noted:',
+    ...ordered.map(
+      (entry) =>
+        `- ${entry.title}${entry.dueOn ? ` by ${englishDate(entry.dueOn)}` : ''} (${entry.ownerName})`,
+    ),
+    '',
+    'All points are now in Reziproq; please confirm them briefly via the link you will receive shortly.',
+    '',
+    'Best regards',
+    input.signer,
+  ].join('\n');
+}

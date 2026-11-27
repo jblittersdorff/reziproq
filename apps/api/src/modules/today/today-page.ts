@@ -85,6 +85,8 @@ const artSources: Record<FocusArt, SummarySource> = {
   gespraech: 'kommentare',
   hinweis: 'hinweise',
   entscheidung: 'termine',
+  // PO-01 (K2-d.3b): Zusagen aus einer Mail
+  mail: 'zusagen',
 };
 
 /** Quellen-Chips: woher die gezeigten Themen kommen, in der Reihenfolge der Themen */

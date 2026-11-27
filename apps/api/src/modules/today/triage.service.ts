@@ -846,9 +846,12 @@ async function draftsOf(tx: TenantTransaction, auth: AuthContext): Promise<Draft
               : null
           : !relationshipId
             ? null
-            : meetingPage
-              ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.object_id}`
-              : preparedHref(row.kind, row.object_id, relationshipId),
+            : row.kind === 'commitment_from_mail'
+              ? // PO-01 (K2-d.3b): eigene Seite zum Entwurf „Zusagen aus Mail“
+                `/mappe/mail/${row.id}`
+              : meetingPage
+                ? `/lieferanten/${relationshipId}/umsetzung/termine/${row.object_id}`
+                : preparedHref(row.kind, row.object_id, relationshipId),
     };
   });
 }

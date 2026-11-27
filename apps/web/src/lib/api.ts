@@ -151,11 +151,14 @@ import {
   kpiImportPreviewSchema,
   kpiListSchema,
   type LeverChoiceRequest,
+  type MailCommitmentsUpdate,
   type MailDetectRequest,
+  type MailReplyVariant,
   type MarketAnalysis,
   type MaterialGroupRequest,
   type MergeMaterialGroup,
   type MilestoneRequest,
+  mailCommitmentsViewSchema,
   marketAnalysisSchema,
   materialGroupDetailSchema,
   materialGroupImportPreviewSchema,
@@ -2162,6 +2165,46 @@ export const focusMapQueryOptions = (accessToken: string, id: string) =>
     queryFn: () => getJson(`/mappe/${id}`, focusMapSchema, accessToken),
     retry: retryUnlessDenied,
   });
+
+/** PO-01 (K2-d.3b): Entwurf „Zusagen aus Mail“ zum Prüfen und Anpassen */
+export const mailDraftQueryOptions = (accessToken: string, draftId: string) =>
+  queryOptions({
+    queryKey: ['postfach', 'entwurf', draftId],
+    queryFn: () =>
+      getJson(`/postfach/entwuerfe/${draftId}`, mailCommitmentsViewSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+export const updateMailDraft = (
+  accessToken: string,
+  draftId: string,
+  input: MailCommitmentsUpdate,
+) =>
+  sendJson(
+    'PATCH',
+    `/postfach/entwuerfe/${draftId}`,
+    input,
+    mailCommitmentsViewSchema,
+    accessToken,
+  );
+
+export const mailDraftVariant = (accessToken: string, draftId: string, variant: MailReplyVariant) =>
+  sendJson(
+    'POST',
+    `/postfach/entwuerfe/${draftId}/antwort`,
+    { variant },
+    mailCommitmentsViewSchema,
+    accessToken,
+  );
+
+export const discardMailDraft = (accessToken: string, draftId: string, reason: string) =>
+  sendJson(
+    'POST',
+    `/postfach/entwuerfe/${draftId}/verwerfen`,
+    { reason },
+    mailCommitmentsViewSchema,
+    accessToken,
+  );
 
 /** HE-01 Erledigt im Hintergrund (K1-e.3): Läufe von Reziproq für die Person */
 export const doneQueryOptions = (accessToken: string) =>

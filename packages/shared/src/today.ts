@@ -32,6 +32,8 @@ export const focusArts = [
   'gespraech',
   'hinweis',
   'entscheidung',
+  // PO-01 (K2-d.3b): Zusagen aus einer Mail, eigene Seite unter /mappe/mail/<Entwurf>
+  'mail',
 ] as const;
 export type FocusArt = (typeof focusArts)[number];
 
@@ -70,6 +72,7 @@ export function artOf(topic: {
 }): FocusArt {
   if (topic.item) return dueArts[topic.item.kind];
   if (topic.objectType === 'hint') return 'hinweis';
+  if (topic.objectType === 'filed_mail') return 'mail';
   if (topic.kind === 'approval') return 'freigabe';
   if (topic.kind === 'conversation') return 'gespraech';
   // Zusage der eigenen Seite aus dem Protokoll (E-K0-27)
