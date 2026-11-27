@@ -4,6 +4,7 @@ import {
   check,
   index,
   jsonb,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -20,6 +21,7 @@ import { relationship } from './relationship.js';
 
 export const filedMailVisibilities = ['team', 'private'] as const;
 export const filedMailSources = ['addin', 'forward'] as const;
+export const filedMailAssigners = ['reziproq', 'human'] as const;
 
 export const filedMail = pgTable(
   'filed_mail',
@@ -46,11 +48,23 @@ export const filedMail = pgTable(
     // Zwei Sätze der KI als Entwurf (ai_draft, Art mail_summary); leer, wenn verworfen
     summaryDraftId: uuid(),
     source: text({ enum: filedMailSources }).notNull(),
+    // PO-01 (K2-d): wer zugeordnet hat; Reziproq ab Konfidenz 0,9 selbst (E-K2-5), sonst ein Mensch
+    assignedBy: text({ enum: filedMailAssigners }).notNull().default('human'),
+    assignConfidence: numeric({ precision: 3, scale: 2, mode: 'number' }),
+    // Erkannte Zusagen, Termine und Änderungen mit Textstelle; leer, solange nichts erkannt ist
+    extracted: jsonb(),
+    // Antwortentwurf im Ton der Organisation (ai_draft)
+    replyDraftId: uuid(),
     createdAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
     check('filed_mail_visibility', sql`${table.visibility} in ('team', 'private')`),
     check('filed_mail_source', sql`${table.source} in ('addin', 'forward')`),
+    check('filed_mail_assigned_by', sql`${table.assignedBy} in ('reziproq', 'human')`),
+    check(
+      'filed_mail_confidence',
+      sql`${table.assignConfidence} is null or ${table.assignConfidence} between 0 and 1`,
+    ),
     unique('filed_mail_eindeutig').on(table.orgId, table.relationshipId, table.messageId),
     index('filed_mail_relationship').on(table.relationshipId, table.sentAt),
   ],

@@ -355,6 +355,9 @@ export async function seedMorning(tx: TenantTransaction, refs: MorningRefs) {
       subject,
       bodyText: `${entry.subject || 'Kurze Rückfrage'} – siehe Anhang, Gruß ${entry.from.name}`,
       source: 'forward',
+      // PO-01 (K2-d.1): Reziproq hat selbst zugeordnet, an der Absender-Domain (E-K2-5: ab 0,9)
+      assignedBy: 'reziproq',
+      assignConfidence: 0.95,
       createdAt: entry.at,
     });
     await tx.insert(inboundItem).values({

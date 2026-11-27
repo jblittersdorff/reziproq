@@ -107,6 +107,8 @@ describe('PLT-02 in der Datenbank', () => {
       'comment_mention',
       'commitment',
       'commitment_private_source',
+      'confirm_credential',
+      'confirm_link',
       'confirm_token',
       'connection',
       'connection_secret',

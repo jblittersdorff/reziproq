@@ -5,6 +5,7 @@ export * from './audit.js';
 export * from './calendar.js';
 export * from './columns.js';
 export * from './comment.js';
+export * from './confirm-link.js';
 export * from './data-export.js';
 export * from './demo.js';
 export * from './focus.js';

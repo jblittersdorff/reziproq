@@ -1069,6 +1069,27 @@ export const layerRegister: Record<string, LayerEntry> = {
       size: 1,
     }),
   },
+  // BL-01 (K2-d.1): Bestätigungslink und Passkey der Person beim Lieferanten; nur die Käuferseite,
+  // die den Link erzeugt hat, sieht die Zeilen. Der Lieferant liest seinen Link nur mit dem Token.
+  confirm_link: {
+    kind: 'org_private',
+    testValues: ({ orgUser }) => ({
+      name: 'Probe',
+      email: 'probe@example.com',
+      object_ids: '{00000000-0000-7000-8000-000000000001}',
+      token_hash: randomBytes(32).toString('hex'),
+      created_by: orgUser,
+      expires_at: new Date('2099-01-01T00:00:00Z'),
+    }),
+  },
+  confirm_credential: {
+    kind: 'org_private',
+    testValues: ({ org, probe }) => ({
+      link_id: org && probe('confirm_link', org),
+      credential_id: `probe-${randomBytes(8).toString('hex')}`,
+      public_key: 'probe',
+    }),
+  },
   // IN-06: Benachrichtigungen; Einstellungen und Teams-Verbindung nur für die Person selbst
   notification_pref: {
     kind: 'org_private',

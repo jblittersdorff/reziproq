@@ -1037,6 +1037,13 @@
       "when": 1795765674039,
       "tag": "0147_k2b_zusagen_nachhalten",
       "breakpoints": true
+    },
+    {
+      "idx": 148,
+      "version": "7",
+      "when": 1795792627983,
+      "tag": "0148_k2d_postfach_bestaetigen",
+      "breakpoints": true
     }
   ]
 }
