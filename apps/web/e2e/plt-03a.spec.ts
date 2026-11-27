@@ -58,7 +58,7 @@ async function signIn(page: Page) {
 /** Namen der Zeilen der Liste in ihrer Folge (Anzeigename ohne Rechtsform, LS-01) */
 const names = (page: Page) =>
   relationshipList(page)
-    .locator('a[href^="/lieferanten/"] b')
+    .locator('a[href^="/beziehungen/"] b')
     .evaluateAll((items) => items.map((item) => item.firstChild?.textContent?.trim()));
 
 test('Sortierung und der Filter „Beendete zeigen“ funktionieren und stehen in der Adresse', async ({

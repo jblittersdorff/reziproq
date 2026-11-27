@@ -1,21 +1,52 @@
 import { z } from 'zod';
 import { jbpPlanStatuses } from './jbp.js';
+import { moneySchema } from './money.js';
 import { meetingSides } from './meetings.js';
 import { teamRoles } from './permissions.js';
 import { sideQuoteSchema } from './relationships.js';
 import { ruleSetStatuses } from './rule-sets.js';
 import { kpiTracks } from './scorecard.js';
+import { relationshipStatuses } from './suppliers.js';
 import { surveyKinds } from './survey.js';
 
 // AK-01 (K2-c): Akte einer Beziehung unter /beziehungen/<id> mit drei Sichten: Gemeinsam (ohne
 // Parameter), Nur für dich (?sicht=privat) und Von <Gegenüber> (?sicht=geteilt). Die Seite des
-// Käufers; die Akte des Lieferanten kommt mit LP-01. Den Kopf (Name, Segment, Warengruppen, Spend,
-// Schritt im Jahreszyklus) liest die Seite wie bisher aus Lieferant und Überblick.
+// Käufers; die Akte des Lieferanten kommt mit LP-01.
 
 export const akteViews = ['gemeinsam', 'privat', 'geteilt'] as const;
 export type AkteView = (typeof akteViews)[number];
 
 const side = z.enum(meetingSides);
+
+/**
+ * Kopf der Akte (Baustein AkteKopf, AK-01): Name, Segment, Warengruppen mit Lead der
+ * Haupt-Warengruppe, Spend des laufenden Jahres und Fokus. Den Schritt im Jahreszyklus liest die
+ * Seite aus dem Überblick.
+ */
+export const akteHeadSchema = z.object({
+  relationshipId: z.uuid(),
+  /** Name der Organisation des Gegenübers; den Anzeigenamen bildet die Seite */
+  name: z.string(),
+  status: z.enum(relationshipStatuses),
+  segment: z.object({ key: z.string(), name: z.string() }).nullable(),
+  isFocus: z.boolean(),
+  /** Warengruppen der Zuordnung, die Haupt-Warengruppe zuerst */
+  materialGroups: z.array(z.string()),
+  /** Lead der Haupt-Warengruppe (WG-01) */
+  lead: z.string().nullable(),
+  year: z.number().int(),
+  spend: moneySchema.nullable(),
+  /** Nächster wichtiger geteilter Termin (nicht „Sonstiges“), für die Aktion „Briefing JBP“ */
+  nextMeeting: z
+    .object({
+      id: z.uuid(),
+      type: z.string(),
+      title: z.string(),
+      startsAt: z.iso.datetime({ offset: true }),
+    })
+    .nullable(),
+});
+export type AkteHead = z.infer<typeof akteHeadSchema>;
 
 /** Herkunft einer Zusage (ZQ-01 Regel 6); plan: aus einem Gemeinsamen Plan ohne eigene Herkunft */
 export const akteCommitmentOrigins = [

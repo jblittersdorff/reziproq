@@ -3,13 +3,17 @@ import {
   CircleDotDashedIcon,
   HouseIcon,
   LayersIcon,
+  LockIcon,
   MessageCircleQuestionIcon,
   SettingsIcon,
   UsersRoundIcon,
 } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
+import { AkteHead } from '@/components/ui/akte-head';
 import { AppShell, ShellContent } from '@/components/ui/app-shell';
 import { AskOverlay } from '@/components/ui/ask-overlay';
+import { Badge } from '@/components/ui/badge';
+import { BrandMark } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
 import { ChartBars, ChartCard, ChartColumns, ChartFigures } from '@/components/ui/chart-card';
 import { Collapsible } from '@/components/ui/collapsible';
@@ -20,12 +24,13 @@ import { FormField } from '@/components/ui/form-field';
 import { FormGroup, FormPage } from '@/components/ui/form-page';
 import { Input } from '@/components/ui/input';
 import { MiniMirror } from '@/components/ui/mini-mirror';
-import { SegmentMatrix } from '@/components/ui/segment-matrix';
+import { Mirror } from '@/components/ui/mirror';
 import { Monogram } from '@/components/ui/monogram';
 import { NextCard } from '@/components/ui/next-card';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
 import { Row, RowGroup, RowHead, RowHeads } from '@/components/ui/row-group';
 import { SectionCard } from '@/components/ui/section-card';
+import { SegmentMatrix } from '@/components/ui/segment-matrix';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Sheet } from '@/components/ui/sheet';
 import { SoWhat, type SoWhatTone } from '@/components/ui/so-what';
@@ -393,6 +398,63 @@ export function BlocksPage() {
             names: names.map(([label, disputed]) => ({ key: label, label, disputed })),
           }))}
         />
+
+        {section('akte', t.sections.akte)}
+        {/* AK-01 (K2-c.2): Kopf der Akte mit Sichten, Spiegel und Gruppe „geteilt“ */}
+        <AkteHead
+          back={{ label: t.akte.back, href: '/beziehungen' }}
+          name={t.akte.name}
+          meta={t.akte.meta}
+          actionsLabel={t.akte.actions}
+          actions={[
+            { key: 'wert', label: t.akte.value, href: '#akte' },
+            { key: 'briefing', label: t.akte.briefing, href: '#akte' },
+          ]}
+          more={{ label: t.akte.more, href: '#akte' }}
+          views={{
+            label: t.akte.views,
+            active: 'gemeinsam',
+            items: [
+              {
+                key: 'gemeinsam',
+                label: t.akte.shared,
+                href: '#akte',
+                icon: <BrandMark className="h-3.5 w-5" />,
+              },
+              {
+                key: 'privat',
+                label: t.akte.private,
+                href: '#akte',
+                icon: <LockIcon aria-hidden className="size-3.5 shrink-0" />,
+              },
+              {
+                key: 'geteilt',
+                label: t.akte.counterpart,
+                href: '#akte',
+                icon: <span aria-hidden className="size-2 shrink-0 rounded-full bg-petrol" />,
+              },
+            ],
+          }}
+          renderLink={routerLink}
+        />
+        <Mirror
+          className="rounded-lg bg-card p-5"
+          label={t.akte.mirrorLabel}
+          own={{ percent: 90, text: t.akte.own }}
+          counterpart={{ percent: 78, text: t.akte.other }}
+          caption={t.akte.caption}
+        />
+        <RowGroup tone="shared" label={t.akte.group}>
+          {t.akte.rows.map(([title, detail, chip]) => (
+            <Row
+              key={title}
+              lead={<Monogram name="Rheintal" tone="petrol" />}
+              title={title}
+              detail={detail}
+              value={<Badge variant="neutral">{chip}</Badge>}
+            />
+          ))}
+        </RowGroup>
 
         {section('segmented', t.sections.segmented)}
         {/* MA-01 (K1-f.3): Stufen-Umschalter wie in Mein Agent; eine nicht erlaubte Stufe ist gesperrt */}

@@ -101,7 +101,7 @@ async function openList(page: Page) {
 
 const names = (page: Page) =>
   relationshipList(page)
-    .locator('a[href^="/lieferanten/"] b')
+    .locator('a[href^="/beziehungen/"] b')
     .evaluateAll((items) => items.map((item) => item.firstChild?.textContent?.trim()));
 
 const sideOverflow = (page: Page) =>

@@ -28,6 +28,7 @@ import { Route as UmfrageTokenRouteImport } from './routes/umfrage/$token'
 import { Route as AppBetreiberKundenRouteImport } from './routes/_app/betreiber/kunden'
 import { Route as AppBewertungenIndexRouteImport } from './routes/_app/bewertungen/index'
 import { Route as AppBeziehungenIndexRouteImport } from './routes/_app/beziehungen/index'
+import { Route as AppBeziehungenIdRouteImport } from './routes/_app/beziehungen/$id'
 import { Route as AppEinstellungenIndexRouteImport } from './routes/_app/einstellungen/index'
 import { Route as AppEinstellungenAnbindungenRouteImport } from './routes/_app/einstellungen/anbindungen'
 import { Route as AppEinstellungenErinnerungenRouteImport } from './routes/_app/einstellungen/erinnerungen'
@@ -368,6 +369,11 @@ const AppBewertungenIndexRoute = AppBewertungenIndexRouteImport.update({
 const AppBeziehungenIndexRoute = AppBeziehungenIndexRouteImport.update({
   id: '/beziehungen/',
   path: '/beziehungen/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBeziehungenIdRoute = AppBeziehungenIdRouteImport.update({
+  id: '/beziehungen/$id',
+  path: '/beziehungen/$id',
   getParentRoute: () => AppRoute,
 } as any)
 const AppEinstellungenIndexRoute = AppEinstellungenIndexRouteImport.update({
@@ -1842,6 +1848,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/beziehungen/$id': typeof AppBeziehungenIdRoute
   '/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -2106,6 +2113,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/beziehungen/$id': typeof AppBeziehungenIdRoute
   '/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -2374,6 +2382,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
+  '/_app/beziehungen/$id': typeof AppBeziehungenIdRoute
   '/_app/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/_app/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -2643,6 +2652,7 @@ export interface FileRouteTypes {
     | '/kunden/$id'
     | '/lieferanten/$id'
     | '/betreiber/kunden'
+    | '/beziehungen/$id'
     | '/einstellungen/anbindungen'
     | '/einstellungen/erinnerungen'
     | '/einstellungen/export'
@@ -2907,6 +2917,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/umfrage/$token'
     | '/betreiber/kunden'
+    | '/beziehungen/$id'
     | '/einstellungen/anbindungen'
     | '/einstellungen/erinnerungen'
     | '/einstellungen/export'
@@ -3174,6 +3185,7 @@ export interface FileRouteTypes {
     | '/_app/kunden/$id'
     | '/_app/lieferanten/$id'
     | '/_app/betreiber/kunden'
+    | '/_app/beziehungen/$id'
     | '/_app/einstellungen/anbindungen'
     | '/_app/einstellungen/erinnerungen'
     | '/_app/einstellungen/export'
@@ -3569,6 +3581,13 @@ declare module '@tanstack/react-router' {
       path: '/beziehungen'
       fullPath: '/beziehungen/'
       preLoaderRoute: typeof AppBeziehungenIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/beziehungen/$id': {
+      id: '/_app/beziehungen/$id'
+      path: '/beziehungen/$id'
+      fullPath: '/beziehungen/$id'
+      preLoaderRoute: typeof AppBeziehungenIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/einstellungen/': {
@@ -5748,6 +5767,7 @@ interface AppRouteChildren {
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
+  AppBeziehungenIdRoute: typeof AppBeziehungenIdRoute
   AppEinstellungenAnbindungenRoute: typeof AppEinstellungenAnbindungenRoute
   AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
   AppEinstellungenExportRoute: typeof AppEinstellungenExportRoute
@@ -5855,6 +5875,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
+  AppBeziehungenIdRoute: AppBeziehungenIdRoute,
   AppEinstellungenAnbindungenRoute: AppEinstellungenAnbindungenRoute,
   AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
   AppEinstellungenExportRoute: AppEinstellungenExportRoute,

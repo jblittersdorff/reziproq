@@ -32,6 +32,13 @@ export class RelationshipsController {
     return this.relationships.segments(auth);
   }
 
+  /** Kopf der Akte (AK-01, K2-c.2) */
+  @Get(':id')
+  @Requires('lieferanten.sehen')
+  head(@CurrentUser() auth: AuthContext, @Param('id', ParseUUIDPipe) id: string) {
+    return this.akte.head(auth, id);
+  }
+
   /** Akte, Sicht Gemeinsam (AK-01, K2-c.1): was beide Seiten gleich sehen */
   @Get(':id/gemeinsam')
   @Requires('lieferanten.sehen')

@@ -2,15 +2,19 @@ import { ChevronRightIcon } from 'lucide-react';
 import type * as React from 'react';
 import { useId } from 'react';
 import { cn } from '@/lib/utils';
+import { BrandMark } from './brand-mark';
 import { defaultRenderLink, type RenderLink } from './nav-link';
 
 /**
  * Gruppe mit Zeilen (UX-20 `RowGroup`, Designsprache 2, Vorlage `Main.dc.html`): graues
- * Abschnittslabel in Versalien über einer weißen Gruppe; Zeilen 56 px mit Trenner.
+ * Abschnittslabel in Versalien über einer weißen Gruppe; Zeilen 56 px mit Trenner. `shared` ist
+ * Geteiltes (Regel „geteilt Mint mit Doppelring“, Vorlage L-Ueberblick): Fläche Mint mit Rand und
+ * der Doppelring vor dem Label.
  */
 function RowGroup({
   label,
   action,
+  tone = 'default',
   className,
   children,
 }: {
@@ -18,6 +22,7 @@ function RowGroup({
   label?: React.ReactNode;
   /** Zweitknopf rechts neben dem Label, z. B. „Durchgehen“ (Vorlage Main) */
   action?: React.ReactNode;
+  tone?: 'default' | 'shared';
   className?: string;
   children: React.ReactNode;
 }) {
@@ -25,8 +30,9 @@ function RowGroup({
   const heading = label && (
     <h2
       id={headingId}
-      className="min-w-0 flex-1 px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label"
+      className="flex min-w-0 flex-1 items-center gap-2 px-1 font-semibold text-muted-foreground text-sm uppercase tracking-label"
     >
+      {tone === 'shared' && <BrandMark className="h-3.5 w-5" />}
       {label}
     </h2>
   );
@@ -44,7 +50,15 @@ function RowGroup({
       ) : (
         heading
       )}
-      <div className="flex flex-col divide-y divide-row-line overflow-hidden rounded-md bg-card">
+      <div
+        data-tone={tone}
+        className={cn(
+          'flex flex-col divide-y overflow-hidden rounded-md',
+          tone === 'shared'
+            ? 'border border-mint-line bg-mint-soft divide-mint-line'
+            : 'divide-row-line bg-card',
+        )}
+      >
         {children}
       </div>
     </section>
@@ -74,7 +88,7 @@ function Row({
   detail?: React.ReactNode;
   value?: React.ReactNode;
   valueTone?: 'muted' | 'accent';
-  /** Unterzeile umbrechen statt kürzen, für erklärende Sätze (Vorlage K1-Kurz-Pruefen) */
+  /** Titel und Unterzeile umbrechen statt kürzen, für erklärende Sätze (Vorlage K1-Kurz-Pruefen) */
   wrap?: boolean;
   /** Schalter in der Zeile, z. B. die Stufe einer Aufgabe; bricht auf Telefonbreite unter den Text */
   control?: React.ReactNode;
@@ -98,7 +112,9 @@ function Row({
     <>
       {lead && <span className="flex shrink-0 items-center">{lead}</span>}
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <b className="truncate font-semibold text-ink text-row">{title}</b>
+        <b className={cn('font-semibold text-ink text-row', wrap ? 'text-pretty' : 'truncate')}>
+          {title}
+        </b>
         {detail && (
           <span
             className={cn('text-detail text-muted-foreground', wrap ? 'text-pretty' : 'truncate')}

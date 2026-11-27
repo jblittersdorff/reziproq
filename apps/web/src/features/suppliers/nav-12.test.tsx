@@ -84,7 +84,7 @@ const names = async () => {
   return [
     ...(document
       .querySelector('[data-slot="relationship-rows"]')
-      ?.querySelectorAll('a[href^="/lieferanten/"] b') ?? []),
+      ?.querySelectorAll('a[href^="/beziehungen/"] b') ?? []),
   ].map((name) => name.firstChild?.textContent?.trim());
 };
 
@@ -127,9 +127,9 @@ describe('NAV-12 Filter der Lieferantenliste', () => {
     await waitFor(() =>
       expect(router.state.location.search).toMatchObject({ filter: 'strategisch' }),
     );
-    // BZ-01: Die Zeile öffnet den Lieferanten direkt, ohne Detailleiste
+    // BZ-01: Die Zeile öffnet den Lieferanten direkt, ohne Detailleiste; seit K2-c.2 die Akte
     fireEvent.click(await screen.findByRole('link', { name: /Lieferant 1/ }));
-    await waitFor(() => expect(router.state.location.pathname).toContain('/lieferanten/0190'));
+    await waitFor(() => expect(router.state.location.pathname).toContain('/beziehungen/0190'));
     act(() => router.history.back());
     await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
     expect(router.state.location.search).toMatchObject({ filter: 'strategisch' });

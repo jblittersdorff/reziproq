@@ -27,6 +27,8 @@ import {
   agentsResponseSchema,
   aiSettingsResponseSchema,
   aiUsageSchema,
+  akteHeadSchema,
+  akteSharedSchema,
   analysisStepSchema,
   apiKeysSchema,
   approvalSettingsViewSchema,
@@ -2298,6 +2300,23 @@ export const relationshipSegmentsQueryOptions = (accessToken: string) =>
   queryOptions({
     queryKey: ['beziehungen', 'segmente'],
     queryFn: () => getJson('/beziehungen/segmente', relationshipSegmentsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** AK-01 (K2-c.2): Kopf der Akte, für alle drei Sichten */
+export const akteHeadQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['beziehungen', relationshipId, 'kopf'],
+    queryFn: () => getJson(`/beziehungen/${relationshipId}`, akteHeadSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
+
+/** AK-01 (K2-c.2): Akte, Sicht Gemeinsam */
+export const akteSharedQueryOptions = (accessToken: string, relationshipId: string) =>
+  queryOptions({
+    queryKey: ['beziehungen', relationshipId, 'gemeinsam'],
+    queryFn: () =>
+      getJson(`/beziehungen/${relationshipId}/gemeinsam`, akteSharedSchema, accessToken),
     retry: retryUnlessDenied,
   });
 

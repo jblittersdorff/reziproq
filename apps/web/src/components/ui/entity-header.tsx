@@ -4,9 +4,18 @@ import { cn } from '@/lib/utils';
 import { BackLink } from './back-link';
 import { defaultRenderLink, type NavItem, type RenderLink } from './nav-link';
 
+/** Segment des Umschalters; mit Symbol und eigenem Text für das Telefon (Sichten der Akte) */
+export interface SwitchItem extends NavItem {
+  /** Symbol vor dem Text, erst ab 761 px: auf dem Telefon nur Text (Vorlage A-Lieferant) */
+  icon?: React.ReactNode;
+  /** Kürzerer Text unter 761 px, z. B. „Für dich“ statt „Nur für dich“ */
+  shortLabel?: string;
+}
+
 /**
  * Bereiche oder Ansichten als Segment-Umschalter aus Links: Fläche `track`, aktives Segment weiß
- * mit Schatten (Lieferanten- und Warengruppenkopf, Ansichten von „Alle Aufgaben“).
+ * mit Schatten (Lieferanten- und Warengruppenkopf, Ansichten von „Alle Aufgaben“, Sichten der Akte
+ * mit Symbolen).
  */
 function AreaSwitch({
   label,
@@ -15,7 +24,7 @@ function AreaSwitch({
   renderLink,
 }: {
   label: string;
-  areas: NavItem[];
+  areas: SwitchItem[];
   active: string | undefined;
   renderLink: RenderLink;
 }) {
@@ -31,12 +40,28 @@ function AreaSwitch({
             'aria-current': area.key === active ? 'page' : undefined,
             className: cn(
               // Schrumpft auf dem Telefon und bricht dann um, statt über den Rand zu ragen
-              'inline-flex min-h-11 min-w-0 flex-[1_1_auto] items-center justify-center text-balance rounded-segment-item px-3 py-1 text-center text-detail leading-tight no-underline shell:px-4.5',
+              'inline-flex min-h-11 min-w-0 flex-[1_1_auto] items-center justify-center gap-2 text-balance rounded-segment-item px-3 py-1 text-center text-detail leading-tight no-underline shell:px-4.5',
               area.key === active
                 ? 'bg-card font-semibold text-ink shadow-segment'
                 : 'font-medium text-muted-strong hover:text-ink',
             ),
-            children: area.label,
+            children: (
+              <>
+                {area.icon && (
+                  <span className="hidden shrink-0 items-center shell:inline-flex">
+                    {area.icon}
+                  </span>
+                )}
+                {area.shortLabel ? (
+                  <>
+                    <span className="shell:hidden">{area.shortLabel}</span>
+                    <span className="hidden shell:inline">{area.label}</span>
+                  </>
+                ) : (
+                  area.label
+                )}
+              </>
+            ),
           })}
         </span>
       ))}

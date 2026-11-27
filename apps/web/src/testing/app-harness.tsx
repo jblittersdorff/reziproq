@@ -1,5 +1,7 @@
 import type {
   Action,
+  AkteHead,
+  AkteShared,
   CustomersResponse,
   MeResponse,
   MyDay,
@@ -494,6 +496,158 @@ export const sampleSegments: RelationshipSegments = {
   },
 };
 
+/**
+ * Akte Rheintal (AK-01, K2-c.2), wie GET /api/beziehungen/<id> und …/gemeinsam sie liefern: Kopf,
+ * Spiegel 90 zu 78 %, sechs offene Zusagen, Scorecard mit vier Kennzahlen, Nächste Wochen, Plan,
+ * Team beider Seiten (Vorlage L-Ueberblick)
+ */
+export const sampleAkteHead: AkteHead = {
+  relationshipId: relationshipId(1),
+  name: 'Rheintal Elektronik GmbH (Demo)',
+  status: 'active',
+  segment: { key: '3-3', name: 'Strategisch' },
+  isFocus: true,
+  materialGroups: ['Leiterplatten', 'Baugruppen', 'Kabelsätze'],
+  lead: 'Sara Ost',
+  year: 2026,
+  spend: eur(4.2),
+  nextMeeting: {
+    id: '00000000-0000-7000-8000-000000000501',
+    type: 'jbp',
+    title: 'JBP Rheintal 2027',
+    startsAt: '2026-12-04T09:00:00.000Z',
+  },
+};
+const akteCommitment = (
+  n: number,
+  title: string,
+  extra: Partial<AkteShared['commitments'][number]>,
+): AkteShared['commitments'][number] => ({
+  id: relationshipId(800 + n),
+  title,
+  side: 'supplier',
+  ownerName: 'Kim Kaiser',
+  dueOn: '2026-12-15',
+  measure: null,
+  origin: 'manual',
+  planYear: null,
+  enteredBy: 'supplier',
+  state: 'open',
+  ...extra,
+});
+export const sampleAkteShared: AkteShared = {
+  year: 2026,
+  counterpart: 'Rheintal Elektronik GmbH (Demo)',
+  quota: {
+    own: { kept: 9, due: 10, percent: 90 },
+    counterpart: { kept: 7, due: 9, percent: 78 },
+  },
+  commitments: [
+    akteCommitment(1, '8D-Bericht Charge 4711', {
+      ownerName: 'Nils Ott',
+      dueOn: '2026-11-05',
+      state: 'overdue',
+    }),
+    akteCommitment(2, 'Beitrag Machbarkeit Lieferzeit', {
+      ownerName: 'Tom Weber',
+      dueOn: '2026-11-27',
+    }),
+    akteCommitment(3, 'Prognose monatlich teilen', {
+      side: 'buyer',
+      ownerName: 'Ida Roth',
+      measure: 'monatlich ab 15.12.',
+      origin: 'feedback',
+      enteredBy: 'buyer',
+    }),
+    akteCommitment(4, 'Musterteile Starrflex liefern', {
+      enteredBy: 'buyer',
+      state: 'awaiting_counterpart',
+    }),
+    akteCommitment(5, 'Abnahmeplan SMT-Linie', {
+      dueOn: '2027-02-28',
+      origin: 'plan',
+      planYear: 2026,
+    }),
+  ],
+  kept: { count: 16, last: { title: 'Abrufmengen 6 Monate im Voraus', side: 'buyer' } },
+  scorecard: {
+    status: 'signed',
+    signed: { own: false, counterpart: true },
+    period: '2026-10-01',
+    kpis: [
+      {
+        id: relationshipId(1703),
+        name: 'Liefertreue',
+        ownerSide: 'supplier',
+        unit: '%',
+        target: '97.0000',
+        latest: { period: '2026-10-01', value: '94.0000' },
+        track: 'close',
+      },
+      {
+        id: relationshipId(1705),
+        name: 'Prognosetreue',
+        ownerSide: 'buyer',
+        unit: '%',
+        target: '85.0000',
+        latest: { period: '2026-10-01', value: '72.0000' },
+        track: 'off',
+      },
+      {
+        id: relationshipId(1706),
+        name: 'Durchlaufzeit Musterteile',
+        ownerSide: 'supplier',
+        unit: 'Tage',
+        target: '14.0000',
+        latest: null,
+        track: null,
+      },
+    ],
+  },
+  weeks: [
+    {
+      kind: 'commitment',
+      id: relationshipId(802),
+      dueOn: '2026-11-27',
+      title: 'Beitrag Machbarkeit Lieferzeit',
+      side: 'supplier',
+      state: 'open',
+    },
+    {
+      kind: 'meeting',
+      id: '00000000-0000-7000-8000-000000000501',
+      startsAt: '2026-12-04T09:00:00.000Z',
+      title: 'JBP Rheintal 2027',
+      location: 'Hollmann, Werk Mannheim',
+    },
+  ],
+  plan: { id: relationshipId(850), status: 'approved', version: 1, year: 2026 },
+  rules: {
+    typeName: 'Strategisch',
+    status: 'approved',
+    since: '2026-10-15T10:00:00.000Z',
+    unshared: true,
+  },
+  feedback: [
+    {
+      id: relationshipId(900),
+      kind: 'pulse',
+      dueDate: '2026-11-28',
+      closed: false,
+      revealed: false,
+      own: { completed: 4, invited: 5 },
+      counterpart: { completed: 1, invited: 5 },
+    },
+  ],
+  team: {
+    own: [
+      { name: 'Jan-Luka', teamRole: 'sro' },
+      { name: 'Ida Roth', teamRole: 'member' },
+    ],
+    counterpart: [{ name: 'Kim Kaiser', teamRole: 'sponsor' }],
+  },
+};
+
 export const sampleOrganization: OrganizationResponse = {
   name: 'Beispiel-OEM (Demo)',
   country: 'DE',
@@ -534,6 +688,8 @@ export const api = {
     drafts: [sampleDraftRelationship] as RelationshipRow[],
     ended: [sampleEndedRelationship] as RelationshipRow[],
   },
+  /** GET /api/beziehungen/<id> und …/gemeinsam (AK-01, K2-c.2) */
+  akte: { status: 200, head: sampleAkteHead as unknown, shared: sampleAkteShared as unknown },
   /** GET /api/beziehungen/segmente (BZ-01, K2-b.5) */
   relationshipSegments: { status: 200, body: sampleSegments as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
@@ -628,6 +784,12 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   }
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
+  }
+  const akte = /^\/api\/beziehungen\/([0-9a-f-]{36})(\/gemeinsam)?$/.exec(url);
+  if (akte) {
+    const { status, head, shared } = api.akte;
+    if (status !== 200) return Response.json(head, { status });
+    return Response.json(akte[2] ? shared : head);
   }
   if (url === '/api/beziehungen/segmente') {
     return Response.json(api.relationshipSegments.body, {
@@ -742,6 +904,7 @@ export function setUpApp() {
     ended: [sampleEndedRelationship],
   };
   api.relationshipSegments = { status: 200, body: sampleSegments };
+  api.akte = { status: 200, head: sampleAkteHead, shared: sampleAkteShared };
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];

@@ -107,7 +107,7 @@ describe('Lieferantenliste (NAV-10 1.1, BZ-01)', () => {
     [
       ...(document
         .querySelector('[data-slot="relationship-rows"]')
-        ?.querySelectorAll('a[href^="/lieferanten/"] b') ?? []),
+        ?.querySelectorAll('a[href^="/beziehungen/"] b') ?? []),
     ].map((name) => name.firstChild?.textContent?.trim());
 
   it('Grund als Text in der grauen Zeile, ohne Ampelpunkt und ohne Gruppen', async () => {

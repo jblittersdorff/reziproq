@@ -83,7 +83,7 @@ async function readBase(tx: TenantTransaction, orgId: string, userId: string): P
 }
 
 /** Ist-Spend des Jahres je Beziehung; bei mehreren Währungen die größte */
-async function readSpend(tx: TenantTransaction, orgId: string, year: number) {
+export async function readSpend(tx: TenantTransaction, orgId: string, year: number) {
   const rows = await tx.execute<{ relationship_id: string; currency: string; amount: string }>(sql`
     select s.relationship_id, s.currency, sum(s.amount_cents)::text as amount
     from relationship_spend s join relationship r on r.id = s.relationship_id
@@ -104,7 +104,7 @@ async function readSpend(tx: TenantTransaction, orgId: string, year: number) {
  * Segment (Ist) und Soll-Typ aus der jüngsten Gesamtentscheidung, mit den Namen der Typen ihrer
  * Modellversion
  */
-async function readSegments(tx: TenantTransaction, orgId: string) {
+export async function readSegments(tx: TenantTransaction, orgId: string) {
   const decisions = await tx.execute<{
     relationship_id: string;
     impact: number;

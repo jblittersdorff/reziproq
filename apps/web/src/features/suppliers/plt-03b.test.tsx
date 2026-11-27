@@ -282,14 +282,14 @@ describe('Beenden und Rechte', () => {
     ).toBeDefined();
   });
 
-  it('die Zeilen der Liste führen direkt in den Arbeitsbereich (BZ-01, ohne Detailleiste)', async () => {
+  it('die Zeilen der Liste führen direkt in die Akte (BZ-01 ohne Detailleiste, AK-01)', async () => {
     const router = renderAt('/beziehungen');
     await screen.findByRole('group', { name: 'Filter' });
     const list = document.querySelector('[data-slot="relationship-rows"]') as HTMLElement;
     fireEvent.click(within(list).getAllByRole('link')[0] as HTMLElement);
     await waitFor(() =>
       expect(router.state.location.pathname).toBe(
-        '/lieferanten/00000000-0000-7000-8000-000000000001',
+        '/beziehungen/00000000-0000-7000-8000-000000000001',
       ),
     );
   });

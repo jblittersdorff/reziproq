@@ -41,7 +41,7 @@ const list = () =>
   document.querySelector<HTMLElement>('[data-slot="relationship-rows"]') as HTMLElement;
 /** Namen der Zeilen in der Reihenfolge der Liste */
 const names = () =>
-  [...(list()?.querySelectorAll('a[href^="/lieferanten/"] b') ?? [])].map((name) =>
+  [...(list()?.querySelectorAll('a[href^="/beziehungen/"] b') ?? [])].map((name) =>
     plain(name.firstChild?.textContent).trim(),
   );
 const line = (name: RegExp) => within(list()).getByRole('link', { name });
@@ -106,7 +106,7 @@ describe('BZ-01 Linse Liste', () => {
     expect(within(alpen).getByText('ohne Segment')).toBeTruthy();
     expect(within(alpen).getByText('noch keine Zusagen')).toBeTruthy();
     // Jede Zeile führt in die Akte des Lieferanten, ohne Detailleiste
-    expect(rheintal.getAttribute('href')).toBe('/lieferanten/00000000-0000-7000-8000-000000000001');
+    expect(rheintal.getAttribute('href')).toBe('/beziehungen/00000000-0000-7000-8000-000000000001');
   });
 
   it('Das Wichtigste: Satz aus belegten Zahlen und die Zeilen Hakt, Fehlt, Info', async () => {
@@ -288,7 +288,7 @@ describe('BZ-01 Linse Liste', () => {
                 supplier: 'Rheintal Elektronik',
                 detail: null,
                 dueDate: '2026-11-23',
-                href: '/lieferanten/00000000-0000-7000-8000-000000000001',
+                href: '/beziehungen/00000000-0000-7000-8000-000000000001',
               },
               overdueDays: 0,
               minutes: 15,

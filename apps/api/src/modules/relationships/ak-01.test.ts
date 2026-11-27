@@ -1,5 +1,5 @@
 import { hollmann, hollmannPeople, hollmannSuppliers, supplierPeople } from '@reziproq/db';
-import { akteSharedSchema } from '@reziproq/shared';
+import { akteHeadSchema, akteSharedSchema } from '@reziproq/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { hollmannTimeout, seedHollmannExclusive } from '../../testing/hollmann.js';
 import { startTestApp } from '../../testing/test-app.js';
@@ -32,6 +32,25 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
     } finally {
       await app.close();
     }
+  });
+
+  it('Kopf: Name, Segment, Fokus, Warengruppen mit Lead der Haupt-Warengruppe, Spend 2026', async () => {
+    const response = await call(`/beziehungen/${rheintal.relationshipId}`);
+    expect(response.status).toBe(200);
+    const head = akteHeadSchema.parse(response.body);
+    expect(head).toMatchObject({
+      name: 'Rheintal Elektronik',
+      status: 'active',
+      segment: { name: 'Strategisch' },
+      isFocus: true,
+      year: 2026,
+      spend: { amountCents: 420_000_000, currency: 'EUR' },
+    });
+    // Vorlage: „Leiterplatten, Baugruppen, Kabelsätze · Lead Sara Ost“; im Seed nur die eine (G-9)
+    expect(head.materialGroups).toEqual(['Leiterplatten']);
+    expect(head.lead).toBe('Sara Ost');
+    // Der nächste wichtige Termin ist das JBP am 04.12. („Briefing JBP“), nicht die Abstimmung heute
+    expect(head.nextMeeting).toMatchObject({ type: 'jbp', title: 'JBP Rheintal 2027' });
   });
 
   it('Spiegel 90 zu 78 %, sechs offene Zusagen nach Frist mit Seite, Person, Herkunft und Stand', async () => {
@@ -105,6 +124,8 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
     ]);
     expect(akte.plan).toMatchObject({ status: 'approved', year: 2026 });
     expect(akte.team.own.map((member) => member.name)).toContain(hollmannPeople.janLuka.name);
+    // Vom Lieferanten nur die geteilten Mitglieder: Kim Kaiser als Sponsorin (Vorlage L-Ueberblick)
+    expect(akte.team.counterpart).toEqual([{ name: 'Kim Kaiser', teamRole: 'sponsor' }]);
     expect(
       (await call(`/beziehungen/${rheintal.relationshipId}/gemeinsam`, supplierPeople.kimKaiser.id))
         .status,

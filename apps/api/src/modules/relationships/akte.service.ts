@@ -2,7 +2,9 @@ import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nest
 import { currentTime, sql } from '@reziproq/db';
 import {
   type AkteCommitment,
+  type AkteHead,
   type AkteShared,
+  akteHeadSchema,
   type AkteWeek,
   akteSharedSchema,
   offsetCycleDate,
@@ -15,6 +17,7 @@ import { JbpService } from '../jbp/jbp.service.js';
 import { JbpScorecardService } from '../jbp/jbp-scorecard.service.js';
 import { TeamService } from '../suppliers/team.service.js';
 import { berlinDate } from '../today/berlin.js';
+import { readSegments, readSpend } from './relationships.service.js';
 
 // AK-01 (K2-c.1): Akte einer Beziehung, Sicht Gemeinsam. Was hier steht, sieht das Gegenüber
 // genauso: nur geteilte Objekte (Zusagen, Termine, Plan, Spielregeln, Feedback). Nur für die
@@ -48,6 +51,77 @@ export class AkteService {
     @Inject(JbpScorecardService) private readonly scorecards: JbpScorecardService,
     @Inject(TeamService) private readonly teams: TeamService,
   ) {}
+
+  /** Kopf der Akte, für alle drei Sichten */
+  async head(auth: AuthContext, relationshipId: string): Promise<AkteHead> {
+    const organization = auth.organization;
+    if (!organization?.buyer) throw forbidden();
+    const orgId = organization.id;
+    const year = Number(berlinDate(currentTime()).slice(0, 4));
+    return this.tenant.run(
+      { userId: auth.userId, organizationId: orgId },
+      async (tx) => {
+        const [row] = (
+          await tx.execute<{
+            name: string;
+            status: 'draft' | 'active' | 'ended';
+            is_focus: boolean;
+            groups: string[];
+            lead: string | null;
+          }>(sql`
+            select o.name, r.status, coalesce(s.is_focus, false) as is_focus,
+              coalesce((
+                select array_agg(g.name order by rg.is_primary desc, g.name)
+                from relationship_material_group rg
+                join material_group g on g.id = rg.material_group_id
+                where rg.relationship_id = r.id
+              ), '{}') as groups,
+              (select u.name from relationship_material_group rg
+                join material_group g on g.id = rg.material_group_id
+                join app_user u on u.id = g.lead_user_id
+                where rg.relationship_id = r.id
+                order by rg.is_primary desc, g.name limit 1) as lead
+            from relationship r
+            join organization o on o.id = r.supplier_org_id
+            left join relationship_side s on s.relationship_id = r.id and s.org_id = ${orgId}
+            where r.id = ${relationshipId} and r.buyer_org_id = ${orgId}`)
+        ).rows;
+        if (!row) throw notFound();
+        const { segments } = await readSegments(tx, orgId);
+        const spend = await readSpend(tx, orgId, year);
+        const [meeting] = (
+          await tx.execute<{ id: string; type: string; title: string; starts_at: Date | string }>(
+            sql`
+            select id, type, title, starts_at from meeting
+            where relationship_id = ${relationshipId} and visibility = 'shared'
+              and status = 'planned' and type <> 'other'
+              and starts_at >= ${currentTime().toISOString()}::timestamptz
+            order by starts_at limit 1`,
+          )
+        ).rows;
+        return akteHeadSchema.parse({
+          relationshipId,
+          name: row.name,
+          status: row.status,
+          segment: segments.get(relationshipId)?.ist ?? null,
+          isFocus: row.is_focus,
+          materialGroups: row.groups,
+          lead: row.lead,
+          year,
+          spend: spend.get(relationshipId) ?? null,
+          nextMeeting: meeting
+            ? {
+                id: meeting.id,
+                type: meeting.type,
+                title: meeting.title,
+                startsAt: new Date(meeting.starts_at).toISOString(),
+              }
+            : null,
+        });
+      },
+      { readOnly: true },
+    );
+  }
 
   /** Sicht Gemeinsam (`/beziehungen/<id>`) */
   async shared(auth: AuthContext, relationshipId: string): Promise<AkteShared> {

@@ -250,6 +250,139 @@ export async function signIn(page: Page, stored: { locale: 'de' | 'en' }) {
       },
     }),
   );
+  // Akte (AK-01, K2-c.2): Kopf und Sicht Gemeinsam mit je einem Fall, damit der Rundgang ihre Texte
+  // in beiden Sprachen sieht
+  const uuid = (n: number) => `0190a0a0-0000-7000-8000-${String(n).padStart(12, '0')}`;
+  const commitment = {
+    side: 'supplier',
+    ownerName: 'Kim Kaiser',
+    dueOn: '2026-12-15',
+    measure: null,
+    origin: 'manual',
+    planYear: null,
+    enteredBy: 'supplier',
+    state: 'open',
+  };
+  await page.route(`**/api/beziehungen/${id}`, (route) =>
+    route.fulfill({
+      json: {
+        relationshipId: id,
+        name: supplier.name,
+        status: 'active',
+        segment: null,
+        isFocus: false,
+        materialGroups: ['Elektronik'],
+        lead: 'Lena Berger',
+        year: 2026,
+        spend: { amountCents: 4_820_000_00, currency: 'EUR' },
+        nextMeeting: {
+          id: uuid(501),
+          type: 'jbp',
+          title: 'JBP 2027',
+          startsAt: '2026-12-04T09:00:00.000Z',
+        },
+      },
+    }),
+  );
+  await page.route(`**/api/beziehungen/${id}/gemeinsam`, (route) =>
+    route.fulfill({
+      json: {
+        year: 2026,
+        counterpart: supplier.name,
+        quota: {
+          own: { kept: 9, due: 10, percent: 90 },
+          counterpart: { kept: 7, due: 9, percent: 78 },
+        },
+        commitments: [
+          { ...commitment, id: uuid(801), title: '8D 4711', dueOn: '2026-11-05', state: 'overdue' },
+          {
+            ...commitment,
+            id: uuid(802),
+            title: 'Forecast',
+            side: 'buyer',
+            ownerName: 'Lena Berger',
+            measure: null,
+            origin: 'plan',
+            planYear: 2026,
+            state: 'awaiting_own',
+          },
+          {
+            ...commitment,
+            id: uuid(803),
+            title: 'Samples',
+            enteredBy: 'buyer',
+            state: 'awaiting_counterpart',
+          },
+          { ...commitment, id: uuid(804), title: 'Capacity', origin: 'feedback' },
+        ],
+        kept: { count: 16, last: { title: 'Call-offs', side: 'buyer' } },
+        scorecard: {
+          status: 'signed',
+          signed: { own: false, counterpart: true },
+          period: '2026-10-01',
+          kpis: [
+            {
+              id: uuid(1703),
+              name: 'OTD',
+              ownerSide: 'supplier',
+              unit: '%',
+              target: '97.0000',
+              latest: { period: '2026-10-01', value: '94.0000' },
+              track: 'close',
+            },
+            {
+              id: uuid(1706),
+              name: 'Lead time',
+              ownerSide: 'buyer',
+              unit: 'd',
+              target: '14.0000',
+              latest: null,
+              track: null,
+            },
+          ],
+        },
+        weeks: [
+          {
+            kind: 'meeting',
+            id: uuid(501),
+            startsAt: '2026-12-04T09:00:00.000Z',
+            title: 'JBP 2027',
+            location: null,
+          },
+          {
+            kind: 'commitment',
+            id: uuid(803),
+            dueOn: '2026-12-15',
+            title: 'Samples',
+            side: 'supplier',
+            state: 'awaiting_counterpart',
+          },
+        ],
+        plan: { id: uuid(850), status: 'approved', version: 1, year: 2026 },
+        rules: {
+          typeName: 'Elektronik',
+          status: 'approved',
+          since: '2026-10-15T10:00:00.000Z',
+          unshared: true,
+        },
+        feedback: [
+          {
+            id: uuid(900),
+            kind: 'pulse',
+            dueDate: '2026-11-28',
+            closed: false,
+            revealed: false,
+            own: { completed: 4, invited: 5 },
+            counterpart: { completed: 1, invited: 5 },
+          },
+        ],
+        team: {
+          own: [{ name: 'Lena Berger', teamRole: 'sro' }],
+          counterpart: [{ name: 'Kim Kaiser', teamRole: 'sponsor' }],
+        },
+      },
+    }),
+  );
   await page.route('**/api/health', (route) => route.fulfill({ json: { status: 'ok' } }));
   return zitadel;
 }

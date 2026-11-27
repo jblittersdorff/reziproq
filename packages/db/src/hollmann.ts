@@ -415,6 +415,9 @@ export async function seedHollmann(
         orgId: rheintal.id,
         userId: supplierPeople.kimKaiser.id,
         teamRole: 'sponsor' as const,
+        // K2-c.2: Kim Kaiser ist für Hollmann sichtbar („Team beider Seiten“, Vorlage L-Ueberblick)
+        visibility: 'shared' as const,
+        memberName: supplierPeople.kimKaiser.name,
       },
       {
         relationshipId: rheintal.relationshipId,

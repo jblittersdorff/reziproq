@@ -292,7 +292,8 @@ function ListSummary({
         {summary.rows.length > 0 && (
           <div className="flex flex-col divide-y divide-row-line overflow-hidden rounded-md border border-row-line">
             {summary.rows.map((row) => {
-              const base = `/lieferanten/${row.relationshipId}`;
+              // AK-01 (K2-c.2): Zeilen öffnen die Akte
+              const base = `/beziehungen/${row.relationshipId}`;
               switch (row.kind) {
                 case 'counterpart_low': {
                   const what = row.hint?.metric
@@ -700,7 +701,7 @@ function RelationshipLine({
     ) : null;
   return (
     <Row
-      href={`/lieferanten/${row.relationshipId}`}
+      href={`/beziehungen/${row.relationshipId}`}
       lead={<Monogram name={shown.name} tone="petrol" />}
       title={
         shown.demo ? (

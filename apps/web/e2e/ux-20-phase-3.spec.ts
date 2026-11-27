@@ -2,8 +2,8 @@ import { expect, type Page, test } from '@playwright/test';
 import { relationshipList, relationshipRow, routeRelationships } from './relationships.js';
 import { signIn } from './route-walk.js';
 
-// UX-20 Phase 3 (NAV-10 1.1, Ablauf 2 „Lieferant“): Liste → Überblick → Profil und Spend nur über
-// Zeilen und Links. Liste nach Aufmerksamkeit mit Filter-Chips (seit BZ-01, K2-b.4),
+// UX-20 Phase 3 (NAV-10 1.1, Ablauf 2 „Lieferant“): Liste → Akte (AK-01, seit K2-c.2) → Profil und
+// Spend → Überblick nur über Zeilen und Links. Liste nach Aufmerksamkeit mit Filter-Chips (seit BZ-01, K2-b.4),
 // Lieferantenkopf auf jeder Seite des Lieferanten, Überblick mit vier Phasen und genau einer Karte
 // „Als Nächstes“. Bei 390 px kein seitliches Scrollen. Die Zahlen sind Testdaten.
 
@@ -418,6 +418,35 @@ async function mock(page: Page) {
     share: null,
     canEdit: true,
   });
+  // AK-01 (K2-c.2): Die Zeile öffnet die Akte; Kopf und Sicht Gemeinsam, ohne offene Zusagen
+  await json(`**/api/beziehungen/${rheintal}`, {
+    relationshipId: rheintal,
+    name: 'Rheintal Elektronik',
+    status: 'active',
+    segment: { key: '3-2', name: 'Strategisch' },
+    isFocus: true,
+    materialGroups: ['Leiterplatten'],
+    lead: 'Sara Ost',
+    year: 2026,
+    spend: { amountCents: mio(4.2), currency: 'EUR' },
+    nextMeeting: null,
+  });
+  await json(`**/api/beziehungen/${rheintal}/gemeinsam`, {
+    year: 2026,
+    counterpart: 'Rheintal Elektronik',
+    quota: {
+      own: { kept: 9, due: 10, percent: 90 },
+      counterpart: { kept: 7, due: 9, percent: 78 },
+    },
+    commitments: [],
+    kept: { count: 16, last: null },
+    scorecard: null,
+    weeks: [],
+    plan: null,
+    rules: null,
+    feedback: [],
+    team: { own: [], counterpart: [] },
+  });
   await page.route('**/api/audit**', (route) => route.fulfill({ json: { entries: [] } }));
 }
 
@@ -484,7 +513,7 @@ for (const target of pages) {
   }
 }
 
-test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und Links', async ({
+test('Ablauf 2: Liste → Akte → Profil und Spend → Überblick nur über Zeilen und Links', async ({
   page,
 }) => {
   await mock(page);
@@ -492,7 +521,7 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
   await page.goto('/beziehungen');
   const list = relationshipList(page);
   // Nach Aufmerksamkeit: überfällige Zusage, Hinweis, ohne Bewertung, dann nach Spend
-  await expect(list.locator('a[href^="/lieferanten/"] b')).toHaveText([
+  await expect(list.locator('a[href^="/beziehungen/"] b')).toHaveText([
     'Rheintal Elektronik',
     'Silesia Guss',
     'Lombardia Fonderie',
@@ -502,8 +531,22 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
   ]);
   // Ein Hinweis ohne Kennzahl trägt den Namen seiner Regel
   await expect(list.getByRole('link', { name: /Silesia Guss/ })).toContainText('Leistung kippt');
-  // BZ-01: Die Zeile öffnet den Lieferanten direkt, ohne Detailleiste
+  // BZ-01, AK-01 (K2-c.2): Die Zeile öffnet die Akte direkt, ohne Detailleiste
   await list.getByRole('link', { name: /Rheintal Elektronik/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/beziehungen/${rheintal}$`));
+  await expect(page.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeVisible();
+  // Bis zum Blatt Profil (K2-c.5) führt „···“ der Akte zum bisherigen Profil (E-K2-12)
+  await page.getByRole('link', { name: 'Profil, Team und Mandat' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Profil und Spend' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Stammdaten' })).toContainText('DE123456789');
+  await expect(page.getByRole('list', { name: 'Spend je Jahr' }).getByRole('listitem')).toHaveCount(
+    4,
+  );
+  // Der bisherige Überblick bleibt über den Lieferantenkopf erreichbar, bis K2-c.7 ihn umleitet
+  await page
+    .getByRole('navigation', { name: 'Bereiche des Lieferanten' })
+    .getByRole('link', { name: 'Überblick' })
+    .click();
   await expect(page).toHaveURL(new RegExp(`${base}$`));
   await expect(page.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeVisible();
   // Vier Phasen, JBP ist jetzt
@@ -519,13 +562,6 @@ test('Ablauf 2: Liste → Überblick → Profil und Spend nur über Zeilen und L
   await expect(aside.getByRole('link', { name: /JBP Rheintal/ })).toHaveAttribute(
     'href',
     `${base}/umsetzung/termine/m3`,
-  );
-  // Weiter mit „···“ zu Profil und Spend
-  await page.getByRole('link', { name: 'Profil, Segmentierung und Team' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Profil und Spend' })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Stammdaten' })).toContainText('DE123456789');
-  await expect(page.getByRole('list', { name: 'Spend je Jahr' }).getByRole('listitem')).toHaveCount(
-    4,
   );
   // UX-20: keine Links zu Claims, Risiken oder Verträgen, solange die Module aus sind
   for (const path of ['/claims', '/risiken', '/vertrag']) {
@@ -544,7 +580,7 @@ test('Liste auf dem Telefon: Filter-Chips Meine, Strategisch, Alle; Zeile öffne
     .getByRole('button', { name: /^Strategisch/ })
     .click();
   await expect(page).toHaveURL(/filter=strategisch/);
-  await expect(relationshipList(page).locator('a[href^="/lieferanten/"] b')).toHaveText([
+  await expect(relationshipList(page).locator('a[href^="/beziehungen/"] b')).toHaveText([
     'Rheintal Elektronik',
     'Silesia Guss',
   ]);
@@ -552,5 +588,6 @@ test('Liste auf dem Telefon: Filter-Chips Meine, Strategisch, Alle; Zeile öffne
   await relationshipList(page)
     .getByRole('link', { name: /Silesia Guss/ })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/lieferanten/${id(12)}$`));
+  // AK-01 (K2-c.2): die Akte
+  await expect(page).toHaveURL(new RegExp(`/beziehungen/${id(12)}$`));
 });

@@ -40,7 +40,7 @@ const cardNames = async () => {
   return [
     ...(document
       .querySelector('[data-slot="relationship-rows"]')
-      ?.querySelectorAll('a[href^="/lieferanten/"] b') ?? []),
+      ?.querySelectorAll('a[href^="/beziehungen/"] b') ?? []),
   ].map((name) => name.firstChild?.textContent?.trim());
 };
 const row = (name: RegExp) =>

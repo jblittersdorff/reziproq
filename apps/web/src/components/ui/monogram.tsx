@@ -42,8 +42,8 @@ function Monogram({
   emphasis?: boolean;
   tone?: MonogramTone;
   ring?: boolean;
-  /** sm 28, md 38, lg 52 px */
-  size?: 'sm' | 'md' | 'lg';
+  /** sm 28, md 38, lg 52 px, xl 56 px (Akte-Kopf) */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string | undefined;
 }) {
   const resolved = tone ?? (emphasis ? 'ink' : 'neutral');
@@ -57,6 +57,7 @@ function Monogram({
         size === 'sm' && 'size-7 text-chip',
         size === 'md' && 'size-9.5 text-chip',
         size === 'lg' && 'size-13 text-base',
+        size === 'xl' && 'size-14 text-lg',
         ring ? 'bg-mint-soft text-petrol-dark ring-2 ring-petrol ring-inset' : tones[resolved],
         className,
       )}
