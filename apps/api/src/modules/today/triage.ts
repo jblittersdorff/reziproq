@@ -235,6 +235,18 @@ const captureFields = captureItemSchema
   .partial();
 
 function bindingCapture(draft: DraftRow): { title: string } | null {
+  // PO-01 (K2-d.3): Zusagen aus einer Mail sind ein Fokus-Thema, sobald eine der eigenen Seite dabei
+  // ist (E-K0-27); sonst Kurz prüfen
+  if (draft.kind === 'commitment_from_mail') {
+    try {
+      const content = JSON.parse(draft.content) as { commitments?: { side?: unknown }[] };
+      return content.commitments?.some((entry) => entry.side === 'buyer')
+        ? { title: draft.subject ?? '' }
+        : null;
+    } catch {
+      return null;
+    }
+  }
   if (draft.kind !== 'capture_commitment' && draft.kind !== 'capture_commitment_change') {
     return null;
   }

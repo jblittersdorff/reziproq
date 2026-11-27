@@ -1051,6 +1051,13 @@
       "when": 1795793203070,
       "tag": "0149_k2d_zuordnen_konfidenz",
       "breakpoints": true
+    },
+    {
+      "idx": 150,
+      "version": "7",
+      "when": 1795793705886,
+      "tag": "0150_k2d_zusagen_aus_mail",
+      "breakpoints": true
     }
   ]
 }

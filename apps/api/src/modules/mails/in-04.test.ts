@@ -202,6 +202,7 @@ describe('IN-04 Mails ablegen', () => {
     await db.execute(sql`delete from agent_run where org_id = ${orgs.a}`);
     await db.execute(sql`delete from agent_version where org_id = ${orgs.a}`);
     await db.execute(sql`delete from agent where org_id = ${orgs.a}`);
+    await db.execute(sql`delete from commitment where relationship_id in ${ids}`);
     await db.execute(sql`delete from supplier_contact where relationship_id in ${ids}`);
     await db.execute(sql`delete from supplier_domain where org_id = ${orgs.a}`);
     await db.execute(sql`delete from relationship_member where relationship_id in ${ids}`);
@@ -614,6 +615,95 @@ describe('IN-04 Mails ablegen', () => {
     );
     expect(drafts.every((entry) => entry.kind === 'supplier')).toBe(true);
     expect(await filedRows('Gemeinsame Lieferung')).toEqual([]);
+  });
+
+  it('T2-06: die Mail von Kim Kaiser ergibt genau einen Entwurf mit drei Zusagen, jede mit Textstelle; die Zuordnung steht in Erledigt', async () => {
+    await db.insert(schema.supplierContact).values({
+      relationshipId: rel.rheintal,
+      name: 'Nils Ott',
+      email: `nils@${domains.rheintal}`,
+    });
+    const open = (title: string, dueOn: string) => ({
+      relationshipId: rel.rheintal,
+      ownerOrgId: orgs.a,
+      side: 'supplier' as const,
+      title,
+      ownerName: 'Kim Kaiser',
+      dueOn,
+      createdBy: users.admin,
+      createdByName: 'Admin',
+    });
+    const [eightD, samples] = await db
+      .insert(schema.commitment)
+      .values([
+        open('8D-Bericht Charge 4711', '2026-11-05'),
+        open('Musterteile Starrflex liefern', '2026-12-15'),
+      ])
+      .returning({ id: schema.commitment.id });
+    const body =
+      'Hallo Herr von Blittersdorff, die Musterteile Starrflex können wir bis 11.12. liefern, wenn wir Ihre Zeichnung Rev. C bis 30.11. haben. Den 8D-Bericht zur Charge 4711 schickt Herr Ott bis Freitag. Viele Grüße Kim Kaiser';
+    await forward(`fwd-t206-${run}`, {
+      subject: 'WG: Musterteile Starrflex und 8D 4711',
+      messageId: `<fwd-t206-${run}@${own}>`,
+      sentAt: '2026-11-23T08:12:00Z',
+      text: `-----Ursprüngliche Nachricht-----\nVon: Kim Kaiser <kim@${domains.rheintal}>\nAn: ${mail('anna')}\nBetreff: Musterteile Starrflex und 8D 4711\n\n${body}`,
+    });
+    // Zugeordnet von Reziproq, in Erledigt
+    const done = doneListSchema.parse((await call(users.anna, 'GET', '/erledigt')).body);
+    expect(
+      done.rows.find(
+        (entry) =>
+          entry.action === 'mail_assign' && entry.subject === 'Musterteile Starrflex und 8D 4711',
+      ),
+    ).toBeDefined();
+    // Genau ein Entwurf „Zusagen aus Mail“ mit drei Zusagen
+    const [filed] = (
+      await db.execute<{ id: string; body_text: string; reply_draft_id: string | null }>(
+        sql`select id, body_text, reply_draft_id from filed_mail
+            where org_id = ${orgs.a} and subject = 'Musterteile Starrflex und 8D 4711'`,
+      )
+    ).rows;
+    const found = (
+      await db.execute<{ id: string; subject: string; content: string }>(
+        sql`select id, subject, content from ai_draft
+            where kind = 'commitment_from_mail' and object_id = ${filed?.id ?? ''}`,
+      )
+    ).rows;
+    expect(found).toHaveLength(1);
+    expect(found[0]?.subject).toBe('Zusagen aus der Mail von Kim Kaiser');
+    expect(filed?.reply_draft_id).toBe(found[0]?.id);
+    const content = JSON.parse(found[0]?.content ?? '{}') as {
+      commitments: {
+        title: string;
+        side: string;
+        ownerName: string;
+        dueOn: string;
+        span: [number, number] | null;
+        quote: string;
+        replaces: { id: string } | null;
+      }[];
+      reply: { to: string; text: string };
+    };
+    expect(
+      content.commitments.map((entry) => [
+        entry.title,
+        entry.side,
+        entry.ownerName,
+        entry.dueOn,
+        entry.replaces?.id ?? null,
+      ]),
+    ).toEqual([
+      ['Musterteile Starrflex', 'supplier', 'Kim Kaiser', '2026-12-11', samples?.id],
+      ['Zeichnung Rev. C', 'buyer', 'anna', '2026-11-30', null],
+      ['8D-Bericht Charge 4711', 'supplier', 'Nils Ott', '2026-11-27', eightD?.id],
+    ]);
+    // Jede Zusage mit ihrer Textstelle im gespeicherten Mailtext
+    for (const entry of content.commitments) {
+      expect(entry.span).not.toBeNull();
+      expect(filed?.body_text.slice(entry.span?.[0], entry.span?.[1])).toBe(entry.quote);
+    }
+    expect(content.reply.to).toBe(`kim@${domains.rheintal}`);
+    expect(content.reply.text.startsWith('Guten Tag Kim Kaiser,')).toBe(true);
   });
 
   it('der Test-Lieferant sieht keine abgelegte Mail', async () => {

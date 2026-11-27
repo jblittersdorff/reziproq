@@ -66,7 +66,8 @@ export const workers: readonly Worker[] = [
     defaultLevel: 'do',
     // K1-f: Termine und Mails selbst zuordnen, als Entwurf in Kurz prüfen oder als Vorschlag in Alles
     liveLevels: all,
-    features: ['mail_summary'],
+    // PO-01 (K2-d.3): Zusagen aus der abgelegten Mail erkennen
+    features: ['mail_summary', 'mail_commitments'],
     enabledByDefault: true,
     reviewSeconds: 20,
     tools: [

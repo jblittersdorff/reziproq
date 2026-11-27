@@ -92,6 +92,25 @@ describe('Triage: Abbildung der Ergebnisse (HE-01)', () => {
     expect(fromDraft(draft('capture_commitment', '', 'supplier'), 'de').level).toBe('review');
   });
 
+  it('PO-01 (K2-d.3): Zusagen aus einer Mail mit Zusage der eigenen Seite im Fokus, sonst Kurz prüfen', () => {
+    const mailDraft = (sides: ('buyer' | 'supplier')[]) => ({
+      ...draft(
+        'commitment_from_mail',
+        JSON.stringify({ commitments: sides.map((side) => ({ title: 'Zusage', side })) }),
+      ),
+      subject: 'Zusagen aus der Mail von Kim Kaiser',
+    });
+    expect(fromDraft(mailDraft(['supplier', 'buyer', 'supplier']), 'de')).toMatchObject({
+      level: 'focus',
+      kind: 'decision',
+      title: 'Zusagen aus der Mail von Kim Kaiser',
+    });
+    expect(fromDraft(mailDraft(['supplier', 'supplier']), 'de')).toMatchObject({
+      level: 'review',
+      kind: 'draft',
+    });
+  });
+
   it('Ergebnisse nach dem Termin tragen den Titel des Punkts, nicht seine Art (K1-g.3)', () => {
     const capture = {
       ...draft('capture_action'),

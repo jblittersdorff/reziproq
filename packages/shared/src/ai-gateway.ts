@@ -28,6 +28,8 @@ export const aiFeatureClasses = {
   import_assist: 'small',
   // IN-04: zwei Sätze zu einer abgelegten Mail
   mail_summary: 'small',
+  // PO-01: Zusagen mit Person, Frist und Textstelle aus einer abgelegten Mail
+  mail_commitments: 'standard',
   // KI-09: Prüfung der Aufgabe eines eigenen Agenten (keine Personenbewertung) und sein Lauf
   agent_check: 'small',
   custom_agent: 'standard',
