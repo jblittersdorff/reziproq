@@ -1,6 +1,6 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
-import { seedAkte, seedAktePrivate } from './hollmann-akte.js';
+import { seedAkte, seedAktePrivate, seedAkteRules } from './hollmann-akte.js';
 import { seedMorning } from './hollmann-morgen.js';
 import { seedPortfolio } from './hollmann-portfolio.js';
 import { seedCommitments } from './hollmann-zusagen.js';
@@ -681,6 +681,16 @@ export async function seedHollmann(
         leaBrandt: { id: nid(722), name: supplierPeople.leaBrandt.name },
         miaKuhn: { id: nid(723), name: supplierPeople.miaKuhn.name },
       },
+    });
+    // Akte Rheintal, Spielregeln „Strategisch“ geteilt (K2-c.5): Blatt Spielregeln, Pflichten in
+    // Von Rheintal, Plan und Spielregeln in Gemeinsam
+    await seedAkteRules(tx, {
+      nid,
+      hollmannOrgId: hollmann.org.id,
+      relationshipId: rheintal.relationshipId,
+      saraOst: person(hollmannPeople.saraOst),
+      typeDescription:
+        'Hohes Versorgungsrisiko und hoher Wertbeitrag: gemeinsam planen und entwickeln.',
     });
     // Portfolio für die Seite Lieferanten (K2-b.2): Segmentmodell 2 × 2, 46 Lieferanten,
     // Segmente, Fokus, Runde 2027 mit Kessler, Zusagequoten und offene Zusagen

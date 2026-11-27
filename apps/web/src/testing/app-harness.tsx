@@ -28,6 +28,7 @@ import { LocaleProvider } from '@/lib/i18n';
 import { routeTree } from '@/routeTree.gen';
 import type { AkteCounterpartSample } from './akte-counterpart-sample';
 import type { AktePrivateSample } from './akte-private-sample';
+import type { AkteSheetsSample } from './akte-sheets-sample';
 
 // Gemeinsamer Aufbau für Oberflächentests mit jsdom: echter Router, nachgebauter Login,
 // nachgebaute API. Die vi.mock-Aufrufe für react-oidc-context und @/lib/auth stehen in jeder
@@ -704,6 +705,8 @@ export const api = {
    * Ohne Angabe antworten sie mit 404.
    */
   akteCounterpart: null as AkteCounterpartSample | null,
+  /** Blätter der Akte (AK-01, K2-c.5): Lieferant, Spend, Kontakte, Zuordnung, Spielregeln, Kennzahl */
+  akteSheets: null as AkteSheetsSample | null,
   /** GET /api/beziehungen/segmente (BZ-01, K2-b.5) */
   relationshipSegments: { status: 200, body: sampleSegments as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
@@ -847,6 +850,30 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (api.aktePrivate) {
     const answer = aktePrivateAnswer(api.aktePrivate, init?.method ?? 'GET', url, init?.body);
     if (answer) return answer;
+  }
+  if (api.akteSheets && (init?.method ?? 'GET') === 'GET') {
+    const sheet =
+      /^\/api\/suppliers\/[0-9a-f-]{36}(\/spend|\/contacts|\/zuordnung|\/spielregeln|\/jbp\/scorecard\/kennzahlen\/[0-9a-f-]{36})?$/.exec(
+        url,
+      );
+    if (sheet) {
+      const part = sheet[1] ?? '';
+      const key: Exclude<keyof AkteSheetsSample, 'status'> =
+        part === '/spend'
+          ? 'spend'
+          : part === '/contacts'
+            ? 'contacts'
+            : part === '/zuordnung'
+              ? 'assignment'
+              : part === '/spielregeln'
+                ? 'rules'
+                : part
+                  ? 'kpi'
+                  : 'supplier';
+      const status = api.akteSheets.status[key];
+      if (status && status !== 200) return Response.json({ statusCode: status }, { status });
+      return Response.json(api.akteSheets[key]);
+    }
   }
   return Response.json({ statusCode: 404 }, { status: 404 });
 }
@@ -1015,6 +1042,7 @@ export function setUpApp() {
   api.akte = { status: 200, head: sampleAkteHead, shared: sampleAkteShared };
   api.aktePrivate = null;
   api.akteCounterpart = null;
+  api.akteSheets = null;
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];

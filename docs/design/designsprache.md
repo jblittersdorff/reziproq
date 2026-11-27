@@ -180,7 +180,7 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Sichten-Umschalter | Segment-Umschalter mit Symbolen: Doppelring Gemeinsam, Schloss Nur für dich, Petrol-Punkt Von <Gegenüber>; setzt die Adresse. Auf dem Telefon ohne Symbole und mit kurzen Namen („Für dich“), jede Sicht in einer Zeile | `K2-Akte-Privat.dc.html`, `A-Lieferant.dc.html` |
 | Von <Gegenüber> | weiße Gruppe mit Petrol-Kante links 4 px, Petrol-Punkt vor dem Label; „Was <Gegenüber> nie sieht“ als private Fläche mit Chip „nie“ | `K2-Akte-Geteilt.dc.html` |
 | Monogramm nach Seite | eigene Personen Tinte, Personen des Gegenübers Petrol; beim Lieferanten umgekehrt zugeordnet | `L5-Akte.dc.html` |
-| Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite; erlaubt nach E-K0-01 | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
+| Blatt | 620 px von rechts, Fläche `paper`, Schatten `-12px 0 40px #0f1b2233`, Hintergrund Tinte 25 %; Titel Outfit 28, darunter eine graue Zeile (Quelle, Stand), runder Schließen-Knopf 44 px; Esc schließt; mobil volle Seite; erlaubt nach E-K0-01. Über der Akte eine eigene Adresse; die Sicht dahinter bleibt | `K2-Profil.dc.html`, `K5-Szenarien.dc.html` |
 | Datumskreis | Kreis 44 px mit Tag und Monat; Petrol, wenn das Gegenüber am Zug ist; im Termin-Kopf 56 px | `Termin-Briefing.dc.html` |
 | Phasen-Umschalter | Schrittkreise 22 px mit Linie: aktiv Tinte mit Mint-Ziffer, erledigt Petrol mit Haken, offen Ring `#b9bfba`; Text darunter | `Termin-Briefing.dc.html` |
 | Teile-Umschalter | wie Phasen-Umschalter, je Teil Stand als Text (bestätigt, jetzt, Entwurf) | `K6-Strategie.dc.html` |

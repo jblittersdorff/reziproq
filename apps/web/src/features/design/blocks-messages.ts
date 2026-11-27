@@ -183,6 +183,7 @@ export const blocksMessages = defineMessages({
     sheet: {
       open: 'Blatt öffnen',
       title: 'Profil Rheintal Elektronik',
+      subtitle: 'Rheintal Elektronik GmbH · Stammdaten aus dem Import',
       close: 'Schließen',
       rows: [
         ['Spend 2025', '4,82 Mio. €'],
@@ -526,6 +527,7 @@ export const blocksMessages = defineMessages({
     sheet: {
       open: 'Open sheet',
       title: 'Rheintal Elektronik profile',
+      subtitle: 'Rheintal Elektronik GmbH · master data from the import',
       close: 'Close',
       rows: [
         ['Spend 2025', '€4.82m'],

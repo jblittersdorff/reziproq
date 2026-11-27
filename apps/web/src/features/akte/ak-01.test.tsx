@@ -59,7 +59,7 @@ describe('AK-01 Akte, Kopf und Sichten', () => {
     );
     expect(
       within(actions).getByRole('link', { name: 'Profil, Team und Mandat' }).getAttribute('href'),
-    ).toBe(`/lieferanten/${id}/strategie/profil`);
+    ).toBe(`/beziehungen/${id}/profil`);
     expect(document.title).toBe('Rheintal Elektronik – Reziproq');
   });
 

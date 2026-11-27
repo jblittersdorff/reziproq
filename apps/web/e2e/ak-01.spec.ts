@@ -293,9 +293,10 @@ test('Von Rheintal (K2-c.4): Geteiltes von Rheintal, was Rheintal sieht und nie 
   await expect(
     page.getByRole('region', { name: 'Was Rheintal Elektronik von euch sieht' }),
   ).toContainText('Alles unter Gemeinsam');
+  // K2-c.5: Spielregeln „Strategisch“ sind mit Rheintal geteilt
   await expect(
     page.getByRole('region', { name: 'Pflichten von Rheintal Elektronik' }),
-  ).toContainText('Noch keine geteilten Spielregeln');
+  ).toContainText('Kapazität jedes Quartal melden');
   const people = page.getByRole('region', { name: 'Rheintal Elektronik in Reziproq' });
   await expect(people).toContainText('Kim KaiserSponsoraktiv');
   await expect(people).toContainText('noch nicht eingeladen');
@@ -306,6 +307,65 @@ test('Von Rheintal (K2-c.4): Geteiltes von Rheintal, was Rheintal sieht und nie 
       path: `${process.env.UX_SHOTS}/ak-01-geteilt-1440.png`,
       fullPage: true,
     });
+  }
+});
+
+test('Blätter (K2-c.5): Spielregeln aus Gemeinsam, Kennzahl aus der Scorecard, Profil über „···“', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openAkte(page);
+  const akteUrl = /\/beziehungen\/[0-9a-f-]{36}$/;
+  // Spielregeln „Strategisch“, am 15.10. mit Rheintal geteilt
+  await page
+    .getByRole('region', { name: 'Plan und Spielregeln' })
+    .getByRole('link', { name: /Spielregeln „Strategisch“/ })
+    .click();
+  await expect(page).toHaveURL(/\/spielregeln$/);
+  const rules = page.getByRole('dialog', { name: 'Spielregeln' });
+  await expect(rules).toContainText('„Strategisch“ · Version 1 · geteilt am 15.10.2026');
+  await expect(
+    rules.getByRole('region', { name: 'Pflichten von Rheintal Elektronik' }),
+  ).toContainText('Kapazität jedes Quartal meldenquartalsweise');
+  await expect(rules.getByRole('region', { name: 'Formate' })).toContainText(
+    'Preise und Verträgequartalsweise · Management',
+  );
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-spielregeln-1440.png` });
+  }
+  await rules.getByRole('button', { name: 'Schließen' }).click();
+  await expect(page).toHaveURL(akteUrl);
+  // Kennzahl-Verlauf aus der Zeile der Scorecard (E-K4-4); Esc schließt
+  await page
+    .getByRole('region', { name: /Scorecard 2026/ })
+    .getByRole('link', { name: /Liefertreue/ })
+    .click();
+  const kpi = page.getByRole('dialog', { name: 'Liefertreue' });
+  await expect(kpi).toContainText('zuletzt 94 % im Oktober');
+  await expect(kpi.getByRole('region', { name: 'Werte' })).toContainText('Oktober 2026');
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-kennzahl-1440.png` });
+  }
+  await page.keyboard.press('Escape');
+  await expect(page).toHaveURL(akteUrl);
+  // Profil über „···“: Rang nach Spend aus der Liste, Kontakte aus dem Import
+  await page.getByRole('link', { name: 'Profil, Team und Mandat' }).click();
+  const profile = page.getByRole('dialog', { name: 'Profil' });
+  await expect(profile).toContainText('euer zweitgrößter Lieferant');
+  await expect(
+    profile.getByRole('region', { name: 'Kontakte bei Rheintal Elektronik · 5' }),
+  ).toBeVisible();
+  await expect(profile.getByRole('region', { name: 'Team in Reziproq' })).toContainText(
+    'Kim KaiserSponsoraktiv',
+  );
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-profil-1440.png` });
+  }
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(profile).toBeVisible();
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-profil-390.png` });
   }
 });
 

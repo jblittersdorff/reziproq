@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { CounterpartView } from './akte-counterpart-view';
 import { akteMessages } from './akte-messages';
 import { PrivateView } from './akte-private-view';
+import { sheetHref } from './akte-sheet';
 import { comparison, isNear, measureText, monthOf, oldPage, overdueOf, viewOf } from './akte-view';
 
 type Text = (typeof akteMessages)['de'];
@@ -132,7 +133,7 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
               ]
             : []),
         ]}
-        more={{ label: text.actions.more, href: old(relationshipId, '/strategie/profil') }}
+        more={{ label: text.actions.more, href: sheetHref(relationshipId, 'profil', view) }}
         views={{
           label: text.views.label,
           active: view,
@@ -459,7 +460,7 @@ function Scorecard({
         {card.kpis.map((kpi) => (
           <Row
             key={kpi.id}
-            href={old(relationshipId, `/plan/scorecard/${kpi.id}`)}
+            href={sheetHref(relationshipId, `kennzahlen/${kpi.id}`)}
             title={kpi.name}
             detail={
               kpi.latest
@@ -588,7 +589,7 @@ function PlanAndRules({
       )}
       {akte.rules ? (
         <Row
-          href={old(relationshipId, '/beziehung/spielregeln')}
+          href={sheetHref(relationshipId, 'spielregeln')}
           title={text.aside.rules(akte.rules.typeName)}
           detail={[
             akte.rules.since ? text.aside.rulesSince(format.date(akte.rules.since)) : null,
@@ -605,7 +606,7 @@ function PlanAndRules({
         />
       ) : (
         <Row
-          href={old(relationshipId, '/beziehung/spielregeln')}
+          href={sheetHref(relationshipId, 'spielregeln')}
           title={text.aside.rulesNone}
           detail={text.aside.rulesNoneText}
           wrap
@@ -683,7 +684,7 @@ function Team({
   return (
     <RowGroup label={text.aside.team}>
       <Row
-        href={old(relationshipId, '/beziehung/team')}
+        href={sheetHref(relationshipId, 'profil', 'gemeinsam', 'team')}
         title={text.aside.teamTitle(akte.team.own.length, akte.team.counterpart.length, name)}
         detail={names || undefined}
         wrap

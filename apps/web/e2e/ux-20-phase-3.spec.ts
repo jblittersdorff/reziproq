@@ -2,8 +2,8 @@ import { expect, type Page, test } from '@playwright/test';
 import { relationshipList, relationshipRow, routeRelationships } from './relationships.js';
 import { signIn } from './route-walk.js';
 
-// UX-20 Phase 3 (NAV-10 1.1, Ablauf 2 „Lieferant“): Liste → Akte (AK-01, seit K2-c.2) → Profil und
-// Spend → Überblick nur über Zeilen und Links. Liste nach Aufmerksamkeit mit Filter-Chips (seit BZ-01, K2-b.4),
+// UX-20 Phase 3 (NAV-10 1.1, Ablauf 2 „Lieferant“): Liste → Akte (AK-01, seit K2-c.2) → Blatt Profil
+// (K2-c.5) → Profil bearbeiten → Überblick nur über Zeilen und Links. Liste nach Aufmerksamkeit mit Filter-Chips (seit BZ-01, K2-b.4),
 // Lieferantenkopf auf jeder Seite des Lieferanten, Überblick mit vier Phasen und genau einer Karte
 // „Als Nächstes“. Bei 390 px kein seitliches Scrollen. Die Zahlen sind Testdaten.
 
@@ -513,7 +513,7 @@ for (const target of pages) {
   }
 }
 
-test('Ablauf 2: Liste → Akte → Profil und Spend → Überblick nur über Zeilen und Links', async ({
+test('Ablauf 2: Liste → Akte → Blatt Profil → Bearbeiten → Überblick nur über Zeilen und Links', async ({
   page,
 }) => {
   await mock(page);
@@ -535,14 +535,15 @@ test('Ablauf 2: Liste → Akte → Profil und Spend → Überblick nur über Zei
   await list.getByRole('link', { name: /Rheintal Elektronik/ }).click();
   await expect(page).toHaveURL(new RegExp(`/beziehungen/${rheintal}$`));
   await expect(page.getByRole('heading', { level: 1, name: 'Rheintal Elektronik' })).toBeVisible();
-  // Bis zum Blatt Profil (K2-c.5) führt „···“ der Akte zum bisherigen Profil (E-K2-12)
+  // K2-c.5: „···“ öffnet das Blatt Profil über der Akte (Vorlage K2-Profil)
   await page.getByRole('link', { name: 'Profil, Team und Mandat' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Profil und Spend' })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Stammdaten' })).toContainText('DE123456789');
-  await expect(page.getByRole('list', { name: 'Spend je Jahr' }).getByRole('listitem')).toHaveCount(
-    4,
-  );
-  // Der bisherige Überblick bleibt über den Lieferantenkopf erreichbar, bis K2-c.7 ihn umleitet
+  const profile = page.getByRole('dialog', { name: 'Profil' });
+  await expect(profile.getByRole('region', { name: 'Stammdaten' })).toContainText('DE123456789');
+  await expect(profile.getByRole('region', { name: 'Spend je Jahr' }).locator('b')).toHaveCount(4);
+  // Bearbeiten führt bis K2-f auf die bisherige Seite; ihr Lieferantenkopf führt zum bisherigen
+  // Überblick, bis K2-c.7 ihn umleitet
+  await profile.getByRole('link', { name: 'Bearbeiten' }).click();
+  await expect(page).toHaveURL(new RegExp(`${base}/strategie/profil/bearbeiten$`));
   await page
     .getByRole('navigation', { name: 'Bereiche des Lieferanten' })
     .getByRole('link', { name: 'Überblick' })

@@ -160,8 +160,15 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
       ]),
     );
     expect(view.items.at(-1)).toMatchObject({ kind: 'signature', planYear: 2026 });
-    // Rheintal hat im Demo noch keine geteilten Spielregeln (kommen mit K2-c.5)
-    expect(view.obligations).toBeNull();
+    // K2-c.5: Spielregeln „Strategisch“, am 15.10. geteilt, mit den Pflichten von Rheintal
+    expect(view.obligations).toMatchObject({ version: 1, typeName: 'Strategisch' });
+    expect(view.obligations?.items.map((item) => [item.title.de, item.cadence])).toEqual([
+      ['Kapazität jedes Quartal melden', 'quarterly'],
+      ['Liefertreue monatlich melden', 'monthly'],
+      ['Prozessänderungen vorher ankündigen', null],
+      ['Kostenstruktur bei Preisanpassungen offenlegen', null],
+      ['Vorschläge zu Verfahren und Werkstoffen', 'semiannual'],
+    ]);
     expect(
       (await call(`/beziehungen/${rheintal.relationshipId}/geteilt`, supplierPeople.kimKaiser.id))
         .status,

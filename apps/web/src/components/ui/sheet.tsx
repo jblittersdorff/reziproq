@@ -6,13 +6,14 @@ import { closeOnBackdrop, useModalDialog } from './modal-dialog';
 /**
  * Blatt (Designsprache „Bausteine für Reziproq“, NAV-10 Seitenregel 4, erlaubt nach E-K0-01): Details
  * zu einer Zeile, 620 px von rechts über der Seite, Fläche Papier, Hintergrund Tinte 25 %. Titel in
- * Outfit 28, runder Schließen-Knopf 44 px; Esc schließt, der Fokus bleibt im Blatt. Bis 760 px eine
- * volle Seite. Ohne `open` ist nichts eingehängt.
+ * Outfit 28 mit optionaler grauer Unterzeile (Vorlage K2-Profil), runder Schließen-Knopf 44 px; Esc
+ * schließt, der Fokus bleibt im Blatt. Bis 760 px eine volle Seite. Ohne `open` ist nichts eingehängt.
  */
 function Sheet({
   open,
   onClose,
   title,
+  subtitle,
   closeLabel,
   className,
   children,
@@ -20,6 +21,8 @@ function Sheet({
   open: boolean;
   onClose: () => void;
   title: string;
+  /** Graue Zeile unter dem Titel, z. B. „Rheintal Elektronik GmbH · Stammdaten aus dem Import“ */
+  subtitle?: string;
   /** Name des Schließen-Knopfs, z. B. „Schließen“ */
   closeLabel: string;
   className?: string;
@@ -27,7 +30,13 @@ function Sheet({
 }) {
   if (!open) return null;
   return (
-    <SheetPanel onClose={onClose} title={title} closeLabel={closeLabel} className={className}>
+    <SheetPanel
+      onClose={onClose}
+      title={title}
+      subtitle={subtitle}
+      closeLabel={closeLabel}
+      className={className}
+    >
       {children}
     </SheetPanel>
   );
@@ -36,12 +45,14 @@ function Sheet({
 function SheetPanel({
   onClose,
   title,
+  subtitle,
   closeLabel,
   className,
   children,
 }: {
   onClose: () => void;
   title: string;
+  subtitle?: string | undefined;
   closeLabel: string;
   className?: string | undefined;
   children: React.ReactNode;
@@ -63,9 +74,12 @@ function SheetPanel({
     >
       <div className="flex min-h-full flex-col gap-6 px-4 py-5 sm:px-8 shell:py-7">
         <header className="flex items-start justify-between gap-4">
-          <h2 id={titleId} className="pt-1.5 font-display font-bold text-figure tracking-section">
-            {title}
-          </h2>
+          <span className="flex min-w-0 flex-col gap-1 pt-1.5">
+            <h2 id={titleId} className="font-display font-bold text-figure tracking-section">
+              {title}
+            </h2>
+            {subtitle && <p className="text-detail text-muted-foreground">{subtitle}</p>}
+          </span>
           <button
             type="button"
             onClick={onClose}

@@ -19,6 +19,7 @@ import { useFormat } from '@/lib/format';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { excerpt, kindCounts, uninvited, waitingItems } from './akte-counterpart';
 import { akteCounterpartMessages } from './akte-counterpart-messages';
+import { sheetHref } from './akte-sheet';
 import { dayMonth, measureText, monthOf, oldPage } from './akte-view';
 
 type Text = (typeof akteCounterpartMessages)['de'];
@@ -154,7 +155,7 @@ function Summary({
 function hrefOf(item: AkteCounterpartItem, relationshipId: string): string | undefined {
   switch (item.kind) {
     case 'kpi_value':
-      return oldPage(relationshipId, `/plan/scorecard/${item.kpiId}`);
+      return sheetHref(relationshipId, `kennzahlen/${item.kpiId}`, 'geteilt');
     case 'topic':
     case 'business_update':
       return oldPage(relationshipId, '/plan/themen');
@@ -274,7 +275,7 @@ function Duties({
   const t = useT();
   const format = useFormat();
   const { locale } = useLocale();
-  const href = oldPage(relationshipId, '/beziehung/spielregeln');
+  const href = sheetHref(relationshipId, 'spielregeln', 'geteilt');
   return (
     <RowGroup id="pflichten" label={text.duties.label(name)}>
       {failed ? (
@@ -322,7 +323,26 @@ function People({
   name: string;
   text: Text;
 }) {
+  return (
+    <RowGroup id="team" label={text.people.label(name)}>
+      <CounterpartPeopleRows relationshipId={relationshipId} name={name} />
+    </RowGroup>
+  );
+}
+
+/**
+ * Zeilen „<Gegenüber> in Reziproq“ aus Team und Einladungen, auch im Blatt Profil (K2-c.5): geteilte
+ * Mitglieder „aktiv“, offene und abgelaufene Einladungen, Ansprechpartner ohne Einladung
+ */
+export function CounterpartPeopleRows({
+  relationshipId,
+  name,
+}: {
+  relationshipId: string;
+  name: string;
+}) {
   const t = useT();
+  const text = useMessages(akteCounterpartMessages);
   const format = useFormat();
   const accessToken = useToken();
   const enabled = accessToken !== '';
@@ -338,63 +358,60 @@ function People({
   );
   const missing = uninvited(invitations.data?.suggestions ?? [], members);
   const ready = team.data !== undefined || team.isError;
+  if (!ready) return <Row title={text.loading} />;
+  if (team.isError) return <Row title={text.failed} />;
+  if (members.length === 0 && open.length === 0 && missing.names.length === 0) {
+    return (
+      <Row
+        href={href}
+        title={text.people.none(name)}
+        detail={text.people.noneText}
+        wrap
+        renderLink={routerLink}
+      />
+    );
+  }
   return (
-    <RowGroup id="team" label={text.people.label(name)}>
-      {!ready ? (
-        <Row title={text.loading} />
-      ) : team.isError ? (
-        <Row title={text.failed} />
-      ) : members.length === 0 && open.length === 0 && missing.names.length === 0 ? (
+    <>
+      {members.map((member) => (
         <Row
+          key={member.name}
+          lead={<Monogram name={member.name} tone="petrol" />}
+          title={member.name}
+          detail={t.team.supplierRoles[member.teamRole] ?? member.teamRole}
+          value={<Badge variant="success">{text.people.active}</Badge>}
+          wrap
+        />
+      ))}
+      {open.map((entry) => (
+        <Row
+          key={entry.id}
           href={href}
-          title={text.people.none(name)}
-          detail={text.people.noneText}
+          lead={<Monogram name={entry.email} tone="petrol" />}
+          title={entry.email}
+          detail={
+            entry.status === 'open'
+              ? text.people.expires(format.date(entry.expiresAt))
+              : text.people.expiredOn(format.date(entry.expiresAt))
+          }
+          value={
+            <Badge variant={entry.status === 'open' ? 'warning' : 'neutral'}>
+              {entry.status === 'open' ? text.people.invited : text.people.expired}
+            </Badge>
+          }
           wrap
           renderLink={routerLink}
         />
-      ) : (
-        <>
-          {members.map((member) => (
-            <Row
-              key={member.name}
-              lead={<Monogram name={member.name} tone="petrol" />}
-              title={member.name}
-              detail={t.team.supplierRoles[member.teamRole] ?? member.teamRole}
-              value={<Badge variant="success">{text.people.active}</Badge>}
-              wrap
-            />
-          ))}
-          {open.map((entry) => (
-            <Row
-              key={entry.id}
-              href={href}
-              lead={<Monogram name={entry.email} tone="petrol" />}
-              title={entry.email}
-              detail={
-                entry.status === 'open'
-                  ? text.people.expires(format.date(entry.expiresAt))
-                  : text.people.expiredOn(format.date(entry.expiresAt))
-              }
-              value={
-                <Badge variant={entry.status === 'open' ? 'warning' : 'neutral'}>
-                  {entry.status === 'open' ? text.people.invited : text.people.expired}
-                </Badge>
-              }
-              wrap
-              renderLink={routerLink}
-            />
-          ))}
-          {missing.names.length > 0 && (
-            <Row
-              href={href}
-              title={text.people.uninvited(missing.names, missing.more)}
-              detail={text.people.uninvitedText}
-              wrap
-              renderLink={routerLink}
-            />
-          )}
-        </>
+      ))}
+      {missing.names.length > 0 && (
+        <Row
+          href={href}
+          title={text.people.uninvited(missing.names, missing.more)}
+          detail={text.people.uninvitedText}
+          wrap
+          renderLink={routerLink}
+        />
       )}
-    </RowGroup>
+    </>
   );
 }

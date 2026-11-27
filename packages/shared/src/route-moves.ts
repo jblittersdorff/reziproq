@@ -41,6 +41,21 @@ export const routeMoves: readonly RouteMove[] = [
     'Seite Lieferanten mit Liste (K2-b.4) und Segmenten',
   ),
   move('/beziehungen/$id', '/beziehungen/$id', 'K2-c', 'bleibt', 'Akte mit drei Sichten'),
+  move('/beziehungen/$id/profil', '/beziehungen/$id/profil', 'K2-c', 'bleibt', 'Blatt Profil'),
+  move(
+    '/beziehungen/$id/spielregeln',
+    '/beziehungen/$id/spielregeln',
+    'K2-c',
+    'bleibt',
+    'Blatt Spielregeln',
+  ),
+  move(
+    '/beziehungen/$id/kennzahlen/$kpiId',
+    '/beziehungen/$id/kennzahlen/$kpiId',
+    'K2-c',
+    'bleibt',
+    'Blatt Kennzahl-Verlauf',
+  ),
   move('/wert', '/wert', 'K1-d', 'bleibt', 'zeigt bis K4-b die Übersicht'),
   move('/mein-agent', '/mein-agent', 'K1-f.3', 'bleibt', 'Mein Agent'),
   // DM-01, E-K0-05 (K1-b.2): Demo-Sitzung je Person, nur im Demo-Mandanten

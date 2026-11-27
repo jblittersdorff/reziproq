@@ -1,6 +1,9 @@
 import {
   kpiValue,
   note,
+  relationshipTarget,
+  ruleSet,
+  ruleSetItem,
   scorecard,
   scorecardKpi,
   scorecardSignature,
@@ -277,4 +280,224 @@ export async function seedAktePrivate(tx: TenantTransaction, refs: AktePrivateRe
       updatedAt: new Date('2026-11-02T09:30:00.000Z'),
     },
   ]);
+}
+
+export interface AkteRulesRefs {
+  nid: (n: number) => string;
+  hollmannOrgId: string;
+  relationshipId: string;
+  saraOst: Person;
+  /** Beschreibung des Typs „Strategisch“ im Segmentmodell von Hollmann */
+  typeDescription: string;
+}
+
+type Text = { de: string; en: string };
+
+/**
+ * DM-01 K2 (K2-c.5): Spielregeln „Strategisch“ für Rheintal, Version 1, am 15.10. mit Rheintal
+ * geteilt (SEG-10). Zu jedem Recht gibt es eine Pflicht derselben Gruppe, sonst schlüge der Hinweis
+ * „Recht ohne Pflicht“ an. Die Formate heißen wie die Gesprächspaare der Kontaktpunkte (K2-c.3);
+ * so entsteht im Beziehungsnetz keine Lücke. Alle Formate mindestens quartalsweise: Seit dem Teilen
+ * am 15.10. ist bis Mitte Januar keines überfällig, die Regel „Format nicht eingehalten“ schlägt im
+ * Demo nicht an (B-39). Eigene Einträge, kein Katalog.
+ */
+export async function seedAkteRules(tx: TenantTransaction, refs: AkteRulesRefs) {
+  const { nid, hollmannOrgId, relationshipId } = refs;
+  const setId = nid(1740);
+  await tx.insert(ruleSet).values({
+    id: setId,
+    relationshipId,
+    ownerOrgId: hollmannOrgId,
+    visibility: 'shared',
+    version: 1,
+    status: 'shared',
+    targetImpactLevel: 2,
+    targetQualityLevel: 2,
+    typeName: 'Strategisch',
+    createdBy: refs.saraOst.id,
+    createdAt: day('2026-10-10'),
+    approvedBy: refs.saraOst.id,
+    approvedByName: refs.saraOst.name,
+    approvedAt: day('2026-10-14'),
+  });
+  const items: {
+    kind: 'right' | 'obligation' | 'format';
+    group: 'cost' | 'protection' | 'collaboration' | 'growth' | null;
+    title: Text;
+    description: Text;
+    cadence: 'monthly' | 'quarterly' | 'semiannual' | null;
+    level: 'management' | 'operational' | null;
+  }[] = [
+    {
+      kind: 'right',
+      group: 'collaboration',
+      title: { de: 'Prognosen 12 Monate im Voraus', en: 'Forecasts 12 months ahead' },
+      description: {
+        de: 'Hollmann teilt den Bedarf rollierend für zwölf Monate.',
+        en: 'Hollmann shares its demand on a rolling twelve-month basis.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'obligation',
+      group: 'collaboration',
+      title: { de: 'Kapazität jedes Quartal melden', en: 'Report capacity every quarter' },
+      description: {
+        de: 'Auslastung und Engpässe vor jedem Quartal.',
+        en: 'Utilisation and bottlenecks before every quarter.',
+      },
+      cadence: 'quarterly',
+      level: null,
+    },
+    {
+      kind: 'obligation',
+      group: 'collaboration',
+      title: { de: 'Liefertreue monatlich melden', en: 'Report delivery reliability monthly' },
+      description: {
+        de: 'Der Wert des Monats steht in der Scorecard.',
+        en: 'The monthly value goes into the scorecard.',
+      },
+      cadence: 'monthly',
+      level: null,
+    },
+    {
+      kind: 'right',
+      group: 'protection',
+      title: {
+        de: 'Änderungen sechs Monate vorher erfahren',
+        en: 'Hear about changes six months ahead',
+      },
+      description: {
+        de: 'Hollmann kündigt Änderungen an Bedarf und Spezifikation früh an.',
+        en: 'Hollmann announces changes to demand and specification early.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'obligation',
+      group: 'protection',
+      title: {
+        de: 'Prozessänderungen vorher ankündigen',
+        en: 'Announce process changes in advance',
+      },
+      description: {
+        de: 'Prozess- und Standortänderungen mindestens drei Monate vorher.',
+        en: 'Process and site changes at least three months ahead.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'right',
+      group: 'cost',
+      title: { de: 'Rahmenvertrag über drei Jahre', en: 'Three-year framework agreement' },
+      description: {
+        de: 'Mengen und Preise mit Gleitklausel für Kupfer.',
+        en: 'Volumes and prices with a copper escalation clause.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'obligation',
+      group: 'cost',
+      title: {
+        de: 'Kostenstruktur bei Preisanpassungen offenlegen',
+        en: 'Disclose cost structure for price changes',
+      },
+      description: {
+        de: 'Material, Arbeit und Energie getrennt.',
+        en: 'Material, labour and energy separately.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'right',
+      group: 'growth',
+      title: { de: 'Früh in neue Baureihen eingebunden', en: 'Early involvement in new series' },
+      description: {
+        de: 'Ab der Konzeptphase der Baureihe 2028.',
+        en: 'From the concept phase of the 2028 series.',
+      },
+      cadence: null,
+      level: null,
+    },
+    {
+      kind: 'obligation',
+      group: 'growth',
+      title: {
+        de: 'Vorschläge zu Verfahren und Werkstoffen',
+        en: 'Proposals on processes and materials',
+      },
+      description: {
+        de: 'Zweimal im Jahr, vorgestellt im JBP und im Halbjahresgespräch.',
+        en: 'Twice a year, presented in the JBP and the half-year meeting.',
+      },
+      cadence: 'semiannual',
+      level: null,
+    },
+    {
+      kind: 'format',
+      group: null,
+      title: { de: 'Preise und Verträge', en: 'Prices and contracts' },
+      description: { de: 'Einkauf und Key Account.', en: 'Purchasing and key account.' },
+      cadence: 'quarterly',
+      level: 'management',
+    },
+    {
+      kind: 'format',
+      group: null,
+      title: { de: 'Rohstoffe', en: 'Raw materials' },
+      description: { de: 'Commodity Management und Rohstoffeinkauf.', en: 'Commodity management.' },
+      cadence: 'quarterly',
+      level: 'operational',
+    },
+    {
+      kind: 'format',
+      group: null,
+      title: { de: 'Qualität', en: 'Quality' },
+      description: { de: 'Reklamationen, 8D und Audits.', en: 'Complaints, 8D and audits.' },
+      cadence: 'quarterly',
+      level: 'operational',
+    },
+    {
+      kind: 'format',
+      group: null,
+      title: { de: 'Technik', en: 'Engineering' },
+      description: {
+        de: 'Werk, Verfahren und neue Baureihen.',
+        en: 'Plant, processes and new series.',
+      },
+      cadence: 'semiannual',
+      level: 'management',
+    },
+  ];
+  await tx.insert(ruleSetItem).values(
+    items.map((item, index) => ({
+      id: nid(1741 + index),
+      ruleSetId: setId,
+      relationshipId,
+      ownerOrgId: hollmannOrgId,
+      visibility: 'shared' as const,
+      ...item,
+      origin: 'custom' as const,
+      position: index + 1,
+    })),
+  );
+  await tx.insert(relationshipTarget).values({
+    id: nid(1760),
+    relationshipId,
+    ownerOrgId: hollmannOrgId,
+    visibility: 'shared',
+    typeName: 'Strategisch',
+    typeDescription: refs.typeDescription,
+    ruleSetId: setId,
+    ruleSetVersion: 1,
+    sharedAt: day('2026-10-15'),
+    sharedBy: refs.saraOst.id,
+    sharedByName: refs.saraOst.name,
+  });
 }

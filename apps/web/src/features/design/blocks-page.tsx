@@ -600,6 +600,7 @@ export function BlocksPage() {
           open={sheet}
           onClose={() => setSheet(false)}
           title={t.sheet.title}
+          subtitle={t.sheet.subtitle}
           closeLabel={t.sheet.close}
         >
           <RowGroup>

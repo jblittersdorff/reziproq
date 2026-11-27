@@ -79,8 +79,9 @@ describe('AK-01 Von Rheintal: Das Wichtigste und das Geteilte', () => {
     expect(row(/Kapazität 2028/).textContent).toContain('vorgeschlagen');
     expect(row(/Prognosen früher teilen/).textContent).toContain('im JBP');
     expect(row(/Liefertreue Oktober/).textContent).toContain('Tom Weber · 05.11.Bestätigung fehlt');
+    // K2-c.5: Die Kennzahl öffnet ihr Blatt über derselben Sicht
     expect(row(/Liefertreue Oktober/).getAttribute('href')).toBe(
-      `/lieferanten/${id}/plan/scorecard/00000000-0000-7000-8000-000000001703`,
+      `/beziehungen/${id}/kennzahlen/00000000-0000-7000-8000-000000001703?sicht=geteilt`,
     );
     expect(row(/Lage fürs JBP/).textContent).toContain('15.11. · SMT-Linie 2 ab Februar');
     expect(
@@ -105,7 +106,7 @@ describe('AK-01 Von Rheintal: Das Wichtigste und das Geteilte', () => {
       within(await region('Pflichten von Rheintal Elektronik'))
         .getByRole('link', { name: /Noch keine geteilten Spielregeln/ })
         .getAttribute('href'),
-    ).toBe(`/lieferanten/${id}/beziehung/spielregeln`);
+    ).toBe(`/beziehungen/${id}/spielregeln?sicht=geteilt`);
     expect(
       await within(await region('Rheintal Elektronik in Reziproq')).findByText(
         'Konnte nicht geladen werden.',

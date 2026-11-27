@@ -65,6 +65,8 @@ import { Route as EinladungTokenPasskeyRouteImport } from './routes/einladung/$t
 import { Route as AppBewertungenIdIndexRouteImport } from './routes/_app/bewertungen/$id/index'
 import { Route as AppBewertungenIdQualitaetRouteImport } from './routes/_app/bewertungen/$id/qualitaet'
 import { Route as AppBewertungenIdZusammenfassungRouteImport } from './routes/_app/bewertungen/$id/zusammenfassung'
+import { Route as AppBeziehungenIdProfilRouteImport } from './routes/_app/beziehungen/$id/profil'
+import { Route as AppBeziehungenIdSpielregelnRouteImport } from './routes/_app/beziehungen/$id/spielregeln'
 import { Route as AppEinstellungenBusinessUnitsIndexRouteImport } from './routes/_app/einstellungen/business-units/index'
 import { Route as AppEinstellungenBusinessUnitsNeuRouteImport } from './routes/_app/einstellungen/business-units/neu'
 import { Route as AppEinstellungenFragebogenIndexRouteImport } from './routes/_app/einstellungen/fragebogen/index'
@@ -100,6 +102,7 @@ import { Route as AppWarengruppenIdIndexRouteImport } from './routes/_app/wareng
 import { Route as AppWarengruppenIdSegmentierungRouteImport } from './routes/_app/warengruppen/$id/segmentierung'
 import { Route as AppWirkungFreigabenIndexRouteImport } from './routes/_app/wirkung/freigaben/index'
 import { Route as AppWirkungFreigabenValidationIdRouteImport } from './routes/_app/wirkung/freigaben/$validationId'
+import { Route as AppBeziehungenIdKennzahlenKpiIdRouteImport } from './routes/_app/beziehungen/$id/kennzahlen/$kpiId'
 import { Route as AppEinstellungenBusinessUnitsIdBearbeitenRouteImport } from './routes/_app/einstellungen/business-units/$id/bearbeiten'
 import { Route as AppEinstellungenDatenImportIndexRouteImport } from './routes/_app/einstellungen/daten/import/index'
 import { Route as AppEinstellungenDatenImportBatchIdRouteImport } from './routes/_app/einstellungen/daten/import/$batchId'
@@ -565,6 +568,17 @@ const AppBewertungenIdZusammenfassungRoute =
     path: '/bewertungen/$id/zusammenfassung',
     getParentRoute: () => AppRoute,
   } as any)
+const AppBeziehungenIdProfilRoute = AppBeziehungenIdProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => AppBeziehungenIdRoute,
+} as any)
+const AppBeziehungenIdSpielregelnRoute =
+  AppBeziehungenIdSpielregelnRouteImport.update({
+    id: '/spielregeln',
+    path: '/spielregeln',
+    getParentRoute: () => AppBeziehungenIdRoute,
+  } as any)
 const AppEinstellungenBusinessUnitsIndexRoute =
   AppEinstellungenBusinessUnitsIndexRouteImport.update({
     id: '/einstellungen/business-units/',
@@ -766,6 +780,12 @@ const AppWirkungFreigabenValidationIdRoute =
     id: '/wirkung/freigaben/$validationId',
     path: '/wirkung/freigaben/$validationId',
     getParentRoute: () => AppRoute,
+  } as any)
+const AppBeziehungenIdKennzahlenKpiIdRoute =
+  AppBeziehungenIdKennzahlenKpiIdRouteImport.update({
+    id: '/kennzahlen/$kpiId',
+    path: '/kennzahlen/$kpiId',
+    getParentRoute: () => AppBeziehungenIdRoute,
   } as any)
 const AppEinstellungenBusinessUnitsIdBearbeitenRoute =
   AppEinstellungenBusinessUnitsIdBearbeitenRouteImport.update({
@@ -1848,7 +1868,7 @@ export interface FileRoutesByFullPath {
   '/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
-  '/beziehungen/$id': typeof AppBeziehungenIdRoute
+  '/beziehungen/$id': typeof AppBeziehungenIdRouteWithChildren
   '/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -1884,6 +1904,8 @@ export interface FileRoutesByFullPath {
   '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
+  '/beziehungen/$id/profil': typeof AppBeziehungenIdProfilRoute
+  '/beziehungen/$id/spielregeln': typeof AppBeziehungenIdSpielregelnRoute
   '/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
   '/einstellungen/guv-zeilen/neu': typeof AppEinstellungenGuvZeilenNeuRoute
   '/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
@@ -1921,6 +1943,7 @@ export interface FileRoutesByFullPath {
   '/warengruppen/$id/': typeof AppWarengruppenIdIndexRoute
   '/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
+  '/beziehungen/$id/kennzahlen/$kpiId': typeof AppBeziehungenIdKennzahlenKpiIdRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
@@ -2113,7 +2136,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/umfrage/$token': typeof UmfrageTokenRoute
   '/betreiber/kunden': typeof AppBetreiberKundenRoute
-  '/beziehungen/$id': typeof AppBeziehungenIdRoute
+  '/beziehungen/$id': typeof AppBeziehungenIdRouteWithChildren
   '/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -2149,6 +2172,8 @@ export interface FileRoutesByTo {
   '/einladung/$token': typeof EinladungTokenIndexRoute
   '/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
+  '/beziehungen/$id/profil': typeof AppBeziehungenIdProfilRoute
+  '/beziehungen/$id/spielregeln': typeof AppBeziehungenIdSpielregelnRoute
   '/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
   '/einstellungen/guv-zeilen/neu': typeof AppEinstellungenGuvZeilenNeuRoute
   '/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
@@ -2185,6 +2210,7 @@ export interface FileRoutesByTo {
   '/portfolio/runden': typeof AppPortfolioRundenIndexRoute
   '/warengruppen/$id': typeof AppWarengruppenIdIndexRoute
   '/wirkung/freigaben': typeof AppWirkungFreigabenIndexRoute
+  '/beziehungen/$id/kennzahlen/$kpiId': typeof AppBeziehungenIdKennzahlenKpiIdRoute
   '/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
@@ -2382,7 +2408,7 @@ export interface FileRoutesById {
   '/_app/kunden/$id': typeof AppKundenIdRouteRouteWithChildren
   '/_app/lieferanten/$id': typeof AppLieferantenIdRouteRouteWithChildren
   '/_app/betreiber/kunden': typeof AppBetreiberKundenRoute
-  '/_app/beziehungen/$id': typeof AppBeziehungenIdRoute
+  '/_app/beziehungen/$id': typeof AppBeziehungenIdRouteWithChildren
   '/_app/einstellungen/anbindungen': typeof AppEinstellungenAnbindungenRoute
   '/_app/einstellungen/erinnerungen': typeof AppEinstellungenErinnerungenRoute
   '/_app/einstellungen/export': typeof AppEinstellungenExportRoute
@@ -2418,6 +2444,8 @@ export interface FileRoutesById {
   '/einladung/$token/': typeof EinladungTokenIndexRoute
   '/_app/bewertungen/$id/qualitaet': typeof AppBewertungenIdQualitaetRoute
   '/_app/bewertungen/$id/zusammenfassung': typeof AppBewertungenIdZusammenfassungRoute
+  '/_app/beziehungen/$id/profil': typeof AppBeziehungenIdProfilRoute
+  '/_app/beziehungen/$id/spielregeln': typeof AppBeziehungenIdSpielregelnRoute
   '/_app/einstellungen/business-units/neu': typeof AppEinstellungenBusinessUnitsNeuRoute
   '/_app/einstellungen/guv-zeilen/neu': typeof AppEinstellungenGuvZeilenNeuRoute
   '/_app/einstellungen/organisation/$nutzer': typeof AppEinstellungenOrganisationNutzerRoute
@@ -2455,6 +2483,7 @@ export interface FileRoutesById {
   '/_app/warengruppen/$id/': typeof AppWarengruppenIdIndexRoute
   '/_app/wirkung/freigaben/': typeof AppWirkungFreigabenIndexRoute
   '/_app/lieferanten/$id/strategie/lieferantenplan': typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
+  '/_app/beziehungen/$id/kennzahlen/$kpiId': typeof AppBeziehungenIdKennzahlenKpiIdRoute
   '/_app/einstellungen/business-units/$id/bearbeiten': typeof AppEinstellungenBusinessUnitsIdBearbeitenRoute
   '/_app/einstellungen/daten/import/$batchId': typeof AppEinstellungenDatenImportBatchIdRoute
   '/_app/einstellungen/fragebogen/$kind/$questionKey': typeof AppEinstellungenFragebogenKindQuestionKeyRoute
@@ -2688,6 +2717,8 @@ export interface FileRouteTypes {
     | '/einladung/$token/'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
+    | '/beziehungen/$id/profil'
+    | '/beziehungen/$id/spielregeln'
     | '/einstellungen/business-units/neu'
     | '/einstellungen/guv-zeilen/neu'
     | '/einstellungen/organisation/$nutzer'
@@ -2725,6 +2756,7 @@ export interface FileRouteTypes {
     | '/warengruppen/$id/'
     | '/wirkung/freigaben/'
     | '/lieferanten/$id/strategie/lieferantenplan'
+    | '/beziehungen/$id/kennzahlen/$kpiId'
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/daten/import/$batchId'
     | '/einstellungen/fragebogen/$kind/$questionKey'
@@ -2953,6 +2985,8 @@ export interface FileRouteTypes {
     | '/einladung/$token'
     | '/bewertungen/$id/qualitaet'
     | '/bewertungen/$id/zusammenfassung'
+    | '/beziehungen/$id/profil'
+    | '/beziehungen/$id/spielregeln'
     | '/einstellungen/business-units/neu'
     | '/einstellungen/guv-zeilen/neu'
     | '/einstellungen/organisation/$nutzer'
@@ -2989,6 +3023,7 @@ export interface FileRouteTypes {
     | '/portfolio/runden'
     | '/warengruppen/$id'
     | '/wirkung/freigaben'
+    | '/beziehungen/$id/kennzahlen/$kpiId'
     | '/einstellungen/business-units/$id/bearbeiten'
     | '/einstellungen/daten/import/$batchId'
     | '/einstellungen/fragebogen/$kind/$questionKey'
@@ -3221,6 +3256,8 @@ export interface FileRouteTypes {
     | '/einladung/$token/'
     | '/_app/bewertungen/$id/qualitaet'
     | '/_app/bewertungen/$id/zusammenfassung'
+    | '/_app/beziehungen/$id/profil'
+    | '/_app/beziehungen/$id/spielregeln'
     | '/_app/einstellungen/business-units/neu'
     | '/_app/einstellungen/guv-zeilen/neu'
     | '/_app/einstellungen/organisation/$nutzer'
@@ -3258,6 +3295,7 @@ export interface FileRouteTypes {
     | '/_app/warengruppen/$id/'
     | '/_app/wirkung/freigaben/'
     | '/_app/lieferanten/$id/strategie/lieferantenplan'
+    | '/_app/beziehungen/$id/kennzahlen/$kpiId'
     | '/_app/einstellungen/business-units/$id/bearbeiten'
     | '/_app/einstellungen/daten/import/$batchId'
     | '/_app/einstellungen/fragebogen/$kind/$questionKey'
@@ -3842,6 +3880,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBewertungenIdZusammenfassungRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/beziehungen/$id/profil': {
+      id: '/_app/beziehungen/$id/profil'
+      path: '/profil'
+      fullPath: '/beziehungen/$id/profil'
+      preLoaderRoute: typeof AppBeziehungenIdProfilRouteImport
+      parentRoute: typeof AppBeziehungenIdRoute
+    }
+    '/_app/beziehungen/$id/spielregeln': {
+      id: '/_app/beziehungen/$id/spielregeln'
+      path: '/spielregeln'
+      fullPath: '/beziehungen/$id/spielregeln'
+      preLoaderRoute: typeof AppBeziehungenIdSpielregelnRouteImport
+      parentRoute: typeof AppBeziehungenIdRoute
+    }
     '/_app/einstellungen/business-units/': {
       id: '/_app/einstellungen/business-units/'
       path: '/einstellungen/business-units'
@@ -4086,6 +4138,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/wirkung/freigaben/$validationId'
       preLoaderRoute: typeof AppWirkungFreigabenValidationIdRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/beziehungen/$id/kennzahlen/$kpiId': {
+      id: '/_app/beziehungen/$id/kennzahlen/$kpiId'
+      path: '/kennzahlen/$kpiId'
+      fullPath: '/beziehungen/$id/kennzahlen/$kpiId'
+      preLoaderRoute: typeof AppBeziehungenIdKennzahlenKpiIdRouteImport
+      parentRoute: typeof AppBeziehungenIdRoute
     }
     '/_app/einstellungen/business-units/$id/bearbeiten': {
       id: '/_app/einstellungen/business-units/$id/bearbeiten'
@@ -5756,6 +5815,21 @@ const AppLieferantenIdRouteRouteWithChildren =
     AppLieferantenIdRouteRouteChildren,
   )
 
+interface AppBeziehungenIdRouteChildren {
+  AppBeziehungenIdProfilRoute: typeof AppBeziehungenIdProfilRoute
+  AppBeziehungenIdSpielregelnRoute: typeof AppBeziehungenIdSpielregelnRoute
+  AppBeziehungenIdKennzahlenKpiIdRoute: typeof AppBeziehungenIdKennzahlenKpiIdRoute
+}
+
+const AppBeziehungenIdRouteChildren: AppBeziehungenIdRouteChildren = {
+  AppBeziehungenIdProfilRoute: AppBeziehungenIdProfilRoute,
+  AppBeziehungenIdSpielregelnRoute: AppBeziehungenIdSpielregelnRoute,
+  AppBeziehungenIdKennzahlenKpiIdRoute: AppBeziehungenIdKennzahlenKpiIdRoute,
+}
+
+const AppBeziehungenIdRouteWithChildren =
+  AppBeziehungenIdRoute._addFileChildren(AppBeziehungenIdRouteChildren)
+
 interface AppRouteChildren {
   AppSplatRoute: typeof AppSplatRoute
   AppDemoRoute: typeof AppDemoRoute
@@ -5767,7 +5841,7 @@ interface AppRouteChildren {
   AppKundenIdRouteRoute: typeof AppKundenIdRouteRouteWithChildren
   AppLieferantenIdRouteRoute: typeof AppLieferantenIdRouteRouteWithChildren
   AppBetreiberKundenRoute: typeof AppBetreiberKundenRoute
-  AppBeziehungenIdRoute: typeof AppBeziehungenIdRoute
+  AppBeziehungenIdRoute: typeof AppBeziehungenIdRouteWithChildren
   AppEinstellungenAnbindungenRoute: typeof AppEinstellungenAnbindungenRoute
   AppEinstellungenErinnerungenRoute: typeof AppEinstellungenErinnerungenRoute
   AppEinstellungenExportRoute: typeof AppEinstellungenExportRoute
@@ -5875,7 +5949,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppKundenIdRouteRoute: AppKundenIdRouteRouteWithChildren,
   AppLieferantenIdRouteRoute: AppLieferantenIdRouteRouteWithChildren,
   AppBetreiberKundenRoute: AppBetreiberKundenRoute,
-  AppBeziehungenIdRoute: AppBeziehungenIdRoute,
+  AppBeziehungenIdRoute: AppBeziehungenIdRouteWithChildren,
   AppEinstellungenAnbindungenRoute: AppEinstellungenAnbindungenRoute,
   AppEinstellungenErinnerungenRoute: AppEinstellungenErinnerungenRoute,
   AppEinstellungenExportRoute: AppEinstellungenExportRoute,

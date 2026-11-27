@@ -196,7 +196,8 @@ export class JbpScorecardService {
           .select()
           .from(schema.scorecardKpi)
           .where(eq(schema.scorecardKpi.scorecardId, card.id))
-          .orderBy(asc(schema.scorecardKpi.createdAt))
+          // Bei gleicher Anlagezeit entscheidet die ID, damit die Reihenfolge feststeht
+          .orderBy(asc(schema.scorecardKpi.createdAt), asc(schema.scorecardKpi.id))
       : [];
     const initiatives = plan
       ? await tx
