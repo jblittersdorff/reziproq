@@ -8,12 +8,13 @@ export interface RouterContext {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   // NAV-10 TN-07: Alte Adressen leiten auch in der App auf die neuen weiter (der Server antwortet
-  // mit 301); Tabelle in packages/shared/src/route-moves.ts. Der Suchteil bleibt erhalten.
+  // mit 301); Tabelle in packages/shared/src/route-moves.ts. Der Suchteil bleibt erhalten. Eine
+  // Sprungmarke des Ziels (K2-c.7: `#verlauf`) geht vor die der alten Adresse.
   beforeLoad: ({ location }) => {
     const target = movedTo(location.pathname, location.searchStr);
     if (target)
       throw redirect({
-        href: `${target}${location.hash ? `#${location.hash}` : ''}`,
+        href: target.includes('#') || !location.hash ? target : `${target}#${location.hash}`,
         replace: true,
       });
   },

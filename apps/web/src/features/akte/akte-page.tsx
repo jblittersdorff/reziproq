@@ -386,7 +386,10 @@ function Commitments({
             />
           );
         })}
+        {/* K2-c.7 (E-K2-12): Die Liste der Zusagen und Aufgaben mit Filtern und „Neu“ bleibt, bis
+            ihr Paket sie ersetzt; aus der Akte führt diese Zeile hin */}
         <Row
+          href={old(relationshipId, '/umsetzung/massnahmen?status=kept&art=zusage')}
           title={text.commitments.kept(akte.kept.count, akte.year)}
           detail={
             akte.kept.last
@@ -394,6 +397,7 @@ function Commitments({
               : text.commitments.noneKept
           }
           wrap
+          renderLink={routerLink}
         />
       </RowGroup>
     </div>

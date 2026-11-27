@@ -2,8 +2,8 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (14): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (180): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **aktiv** (15): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (179): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
 - **bleibt** (85): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
@@ -146,25 +146,25 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/kunden/$id/wirkung/initiativen/$initiativeId/nutzen` | offen (gespiegelte Akte) | K5-b | geplant |
 | `/kurz-pruefen` | – (Kurz prüfen) | K1-e.2 | bleibt |
 | `/lieferanten` | `/beziehungen` | K1-d | aktiv |
-| `/lieferanten/$id` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/aktivitaeten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
+| `/lieferanten/$id` | `/beziehungen/$id` (Überblick; nur die Zielkarte (AW-01) fehlt der Akte noch) | K4-c | geplant |
+| `/lieferanten/$id/aktivitaeten` | `/beziehungen/$id?sicht=privat#verlauf` (Verlauf in Nur für dich) | K2-c.7 | aktiv |
+| `/lieferanten/$id/beziehung` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
 | `/lieferanten/$id/beziehung/feedback` | `/beziehungen/$id/feedback` | K2-f | geplant |
 | `/lieferanten/$id/beziehung/feedback/$waveId` | `/beziehungen/$id/feedback` | K2-f | geplant |
 | `/lieferanten/$id/beziehung/feedback/$waveId/einladen` | `/beziehungen/$id/feedback` | K2-f | geplant |
 | `/lieferanten/$id/beziehung/feedback/$waveId/frist` | `/beziehungen/$id/feedback` | K2-f | geplant |
 | `/lieferanten/$id/beziehung/feedback/neu` | `/beziehungen/$id/feedback` | K2-f | geplant |
-| `/lieferanten/$id/beziehung/kontaktpunkte` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/kontaktpunkte/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/spielregeln` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/spielregeln/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/spielregeln/teilen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/spielregeln/vorschlag` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/team` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/team/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/team/einladen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/beziehung/team/sro` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
+| `/lieferanten/$id/beziehung/kontaktpunkte` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/kontaktpunkte/$touchpointId` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/kontaktpunkte/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/spielregeln` | `/beziehungen/$id/spielregeln` (Blatt Spielregeln, sobald es freigeben kann) | K2-f | geplant |
+| `/lieferanten/$id/beziehung/spielregeln/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/spielregeln/teilen` | offen (Änderungen teilen als Entwurf) | K2-f | geplant |
+| `/lieferanten/$id/beziehung/spielregeln/vorschlag` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/team` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/team/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/beziehung/team/einladen` | offen (Einladung als Entwurf) | K2-f | geplant |
+| `/lieferanten/$id/beziehung/team/sro` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
 | `/lieferanten/$id/plan` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
 | `/lieferanten/$id/plan/freigabe` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
 | `/lieferanten/$id/plan/initiativen` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
@@ -189,37 +189,37 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/$id/plan/zusagen` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
 | `/lieferanten/$id/plan/zusagen/$commitmentId` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
 | `/lieferanten/$id/plan/zusagen/neu` | `/beziehungen/$id/plan` (Gemeinsamer Plan) | K4-e | geplant |
-| `/lieferanten/$id/strategie` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/beitraege/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/beitrag/$contributionId` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/freigabe` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/themen/$topicId/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/themen/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/versionen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/ziele/$objectiveId/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/ziele/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/bearbeiten` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/einschaetzung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/geschaeftsleitung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/kennzahlen/import` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/kennzahlen/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/unternehmen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/profil/zuordnung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
+| `/lieferanten/$id/strategie` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/beitraege/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/beitrag/$contributionId` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/freigabe` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/themen/$topicId/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/themen/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/versionen` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/ziele/$objectiveId/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/ziele/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/lieferantenplan/zusammenfassung/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/bearbeiten` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/einschaetzung` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/geschaeftsleitung` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/kennzahlen/$kennzahl` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/kennzahlen/import` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/kennzahlen/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/unternehmen` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/profil/zuordnung` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
 | `/lieferanten/$id/strategie/segmentierung` | offen (Segment-Mappe) | K2-e | geplant |
 | `/lieferanten/$id/strategie/segmentierung/konsolidieren` | offen (Segment-Mappe) | K2-e | geplant |
 | `/lieferanten/$id/strategie/segmentierung/kriterium/$key` | offen (Segment-Mappe) | K2-e | geplant |
-| `/lieferanten/$id/strategie/spend` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/spend/$eintrag` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/spend/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/strategie/warengruppen` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/umsetzung` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen/$actionId` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
-| `/lieferanten/$id/umsetzung/massnahmen/neu` | `/beziehungen/$id` (Zusagen und Aufgaben; bis dahin die alte Seite) | K2-c | geplant |
+| `/lieferanten/$id/strategie/spend` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/spend/$eintrag` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/spend/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/strategie/warengruppen` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/umsetzung` | offen (führt zu den Terminen) | K3-a | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen/$actionId` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/umsetzung/massnahmen/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
 | `/lieferanten/$id/umsetzung/termine` | offen (Termin /termine/<id>) | K3-a | geplant |
 | `/lieferanten/$id/umsetzung/termine/$meetingId` | offen (Termin /termine/<id>) | K3-a | geplant |
 | `/lieferanten/$id/umsetzung/termine/$meetingId/agenda` | offen (Termin /termine/<id>) | K3-a | geplant |
@@ -240,10 +240,10 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/lieferanten/$id/wirkung/initiativen/$initiativeId/savings` | `/beziehungen/$id/wert` (Wertkonto) | K4-b | geplant |
 | `/lieferanten/$id/wirkung/initiativen/$initiativeId/teilung` | `/beziehungen/$id/wert` (Wertkonto) | K4-b | geplant |
 | `/lieferanten/$id/wirkung/wertpotenziale` | `/beziehungen/$id/wert` (Wertkonto) | K4-b | geplant |
-| `/lieferanten/$id/zyklus/archiv` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/zyklus/neu` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/zyklus/start` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
-| `/lieferanten/$id/zyklus/termin` | `/beziehungen/$id` (Sichten und Blätter der Akte) | K2-c | geplant |
+| `/lieferanten/$id/zyklus/archiv` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/zyklus/neu` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/zyklus/start` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
+| `/lieferanten/$id/zyklus/termin` | offen (Pflege, aus der Akte erreichbar) | offen | geplant |
 | `/lieferanten/importieren` | offen | K2-b | geplant |
 | `/lieferanten/neu` | offen | K2-b | geplant |
 | `/mappe/$art/$id` | – (Fokus-Mappe) | K1-e.4 | bleibt |

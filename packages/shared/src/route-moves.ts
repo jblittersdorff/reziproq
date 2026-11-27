@@ -101,23 +101,56 @@ export const routeMoves: readonly RouteMove[] = [
   move('/design', '/bausteine', 'K1-d.3', 'geplant'),
   move('/styleguide', '/bausteine', 'K1-d.3', 'geplant'),
 
-  // Beziehungen (BZ-01) und Akte (AK-01); Einzelregeln je Unterseite mit K2-c
+  // Beziehungen (BZ-01) und Akte (AK-01)
   move('/lieferanten/neu', null, 'K2-b', 'geplant'),
   move('/lieferanten/importieren', null, 'K2-b', 'geplant'),
-  move('/lieferanten/$id/umsetzung/termine/*', null, 'K3-a', 'geplant', 'Termin /termine/<id>'),
-  // ZQ-01 (Gründer, 26.11.2026): Die alten Seiten zeigen Zusagen und Aufgaben, bis die Akte sie hat
+  // E-K2-12 (K2-c.7): Alte Seiten, deren Inhalt samt Funktionen in der Akte steht, leiten weiter.
   move(
-    '/lieferanten/$id/umsetzung/massnahmen/*',
-    '/beziehungen/$id',
-    'K2-c',
-    'geplant',
-    'Zusagen und Aufgaben; bis dahin die alte Seite',
+    '/lieferanten/$id/aktivitaeten',
+    '/beziehungen/$id?sicht=privat#verlauf',
+    'K2-c.7',
+    'aktiv',
+    'Verlauf in Nur für dich',
   ),
+  // Die übrigen bleiben aus der Akte erreichbar, bis ihr Paket sie ersetzt (E-K2-12).
+  move(
+    '/lieferanten/$id',
+    '/beziehungen/$id',
+    'K4-c',
+    'geplant',
+    'Überblick; nur die Zielkarte (AW-01) fehlt der Akte noch',
+  ),
+  move('/lieferanten/$id/umsetzung', null, 'K3-a', 'geplant', 'führt zu den Terminen'),
+  move('/lieferanten/$id/umsetzung/termine/*', null, 'K3-a', 'geplant', 'Termin /termine/<id>'),
   move('/lieferanten/$id/plan/*', '/beziehungen/$id/plan', 'K4-e', 'geplant', 'Gemeinsamer Plan'),
   move('/lieferanten/$id/wirkung/*', '/beziehungen/$id/wert', 'K4-b', 'geplant', 'Wertkonto'),
   move('/lieferanten/$id/strategie/segmentierung/*', null, 'K2-e', 'geplant', 'Segment-Mappe'),
   move('/lieferanten/$id/beziehung/feedback/*', '/beziehungen/$id/feedback', 'K2-f', 'geplant'),
-  move('/lieferanten/$id/*', '/beziehungen/$id', 'K2-c', 'geplant', 'Sichten und Blätter der Akte'),
+  move(
+    '/lieferanten/$id/beziehung/team/einladen',
+    null,
+    'K2-f',
+    'geplant',
+    'Einladung als Entwurf',
+  ),
+  // Das Blatt zeigt die geltende Fassung; Freigabe, Abweichungen und Vorschlag hat nur die Seite
+  move(
+    '/lieferanten/$id/beziehung/spielregeln',
+    '/beziehungen/$id/spielregeln',
+    'K2-f',
+    'geplant',
+    'Blatt Spielregeln, sobald es freigeben kann',
+  ),
+  move(
+    '/lieferanten/$id/beziehung/spielregeln/teilen',
+    null,
+    'K2-f',
+    'geplant',
+    'Änderungen teilen als Entwurf',
+  ),
+  // Pflege (Zusagen und Aufgaben, Team, Kontaktpunkte, Profil, Spend, Lieferantenplan,
+  // Warengruppen, Jahreszyklus): Der Plan nennt dafür noch kein Paket.
+  move('/lieferanten/$id/*', null, 'offen', 'geplant', 'Pflege, aus der Akte erreichbar'),
   move('/portfolio', '/beziehungen?linse=segmente', 'K2-b', 'aktiv', 'Linse Segmente'),
   move('/portfolio/*', null, 'K2-e', 'geplant', 'Bewertungsrunden und Segmente'),
   move('/bewertungen/*', null, 'K2-e', 'geplant', 'Bewertung in Kurz prüfen'),
@@ -192,12 +225,13 @@ export function routeMoveFor(
 
 /**
  * Neue Adresse, wenn eine aktive Regel greift; der Suchteil der alten Adresse bleibt erhalten,
- * Angaben des Ziels gehen vor. Sonst null.
+ * Angaben des Ziels gehen vor. Eine Sprungmarke des Ziels (`#verlauf`) steht am Ende. Sonst null.
  */
 export function movedTo(pathname: string, search = ''): string | null {
   const found = routeMoveFor(pathname);
   if (found?.move.status !== 'aktiv' || !found.move.to) return null;
-  const [path = '', query = ''] = found.move.to.split('?');
+  const [address = '', hash = ''] = found.move.to.split('#');
+  const [path = '', query = ''] = address.split('?');
   const target = segments(path)
     .map((part) =>
       part === '*'
@@ -209,7 +243,7 @@ export function movedTo(pathname: string, search = ''): string | null {
     .filter(Boolean)
     .join('/');
   const rest = mergeQuery(query, search);
-  return `/${target}${rest ? `?${rest}` : ''}`;
+  return `/${target}${rest ? `?${rest}` : ''}${hash ? `#${hash}` : ''}`;
 }
 
 /**

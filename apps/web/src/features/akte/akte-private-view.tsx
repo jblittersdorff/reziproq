@@ -498,6 +498,21 @@ function Value({ relationshipId }: { relationshipId: string }) {
             wrap
             renderLink={routerLink}
           />
+          {/* K2-c.7 (E-K2-12): Ziel vorschlagen und freigeben hat bis K4-c nur der bisherige
+              Überblick (Zielkarte, AW-01); ein freigegebenes Ziel steht schon in der Zeile oben */}
+          {!data.target?.approved && (
+            <Row
+              href={oldPage(relationshipId, '')}
+              title={text.target(data.fiscalYear)}
+              detail={
+                data.target
+                  ? text.targetProposed(money(data.target.ebitTargetCents))
+                  : text.targetMissing
+              }
+              wrap
+              renderLink={routerLink}
+            />
+          )}
           {counts && counts.new + counts.adopted > 0 && (
             <Row
               href={oldPage(relationshipId, '/wirkung/wertpotenziale')}

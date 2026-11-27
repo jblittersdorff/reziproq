@@ -155,8 +155,11 @@ test('Gemeinsam: Kopf, Spiegel 90 zu 78 %, sechs offene Zusagen, Scorecard und r
     }),
   ).toBeVisible();
   const commitments = page.getByRole('region', { name: /Zusagen · 6 offen/ });
-  await expect(commitments.getByRole('link')).toHaveCount(6);
-  await expect(commitments).toContainText('16 gehaltene Zusagen 2026');
+  // Sechs offene Zusagen; die Zeile der gehaltenen führt zur Liste (K2-c.7, E-K2-12)
+  await expect(commitments.getByRole('link')).toHaveCount(7);
+  await expect(
+    commitments.getByRole('link', { name: /16 gehaltene Zusagen 2026/ }),
+  ).toHaveAttribute('href', /\/umsetzung\/massnahmen\?status=kept&art=zusage$/);
   const card = page.getByRole('region', { name: /Scorecard 2026 · Kennzahlen Oktober/ });
   await expect(card.getByRole('link')).toHaveCount(4);
   await expect(card).toContainText('von beiden Seiten unterschrieben');

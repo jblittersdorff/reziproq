@@ -11,7 +11,8 @@ const base = `/lieferanten/${id}`;
 const url = (path: string) => `http://localhost:5174${path}`;
 // NAV-10 1.1: Lieferantenkopf mit vier Bereichen und dem Knopf „···“ für das Profil
 const areas = [
-  ['Aktivitäten', 'aktivitaeten'],
+  // K2-c.7: Der Verlauf steht in der Akte; im alten Rahmen führt Aktivitäten zu den Terminen
+  ['Aktivitäten', 'umsetzung/termine'],
   ['Plan', 'plan/vorbereitung'],
   ['Ergebnisse', 'wirkung/bruecke'],
   ['Profil, Segmentierung und Team', 'strategie/profil'],

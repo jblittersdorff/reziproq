@@ -192,6 +192,18 @@ describe('AK-01 Blatt Spielregeln', () => {
     });
     expect(none.getAttribute('href')).toBe(`/lieferanten/${id}/beziehung/spielregeln/vorschlag`);
   });
+
+  it('K2-c.7: ein Entwurf führt zur Freigabe auf der bisherigen Übersicht (bis K2-f)', async () => {
+    const current = sheets.rules.current;
+    if (!current) throw new Error('Spielregeln fehlen im Beispiel');
+    sheets.rules.current = { ...current, version: 2, status: 'draft', visibility: 'internal' };
+    renderAt(`${akte}/spielregeln`);
+    const rules = await sheet('Spielregeln');
+    const approve = await within(rules).findByRole('link', { name: 'Freigeben' });
+    expect(approve.getAttribute('href')).toBe(`/lieferanten/${id}/beziehung/spielregeln`);
+    // Ein Entwurf wird nicht geteilt
+    expect(within(rules).queryByRole('link', { name: 'Änderungen teilen' })).toBeNull();
+  });
 });
 
 describe('AK-01 Blatt Kennzahl-Verlauf (E-K4-4)', () => {

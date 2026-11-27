@@ -179,7 +179,7 @@ describe('HE-01 Erledigt im Hintergrund', () => {
           action: 'mail_assign',
           subject: 'Kapazitätsplanung 2028',
           sender: 'Tom Weber',
-          href: `/lieferanten/${rheintal}/aktivitaeten?filter=mails#mail-${uuid(60)}`,
+          href: `/beziehungen/${rheintal}?sicht=privat#mail-${uuid(60)}`,
         }),
         row(6, { action: 'mail_assign', subject: null, sender: 'Nils Ott' }),
       ],

@@ -27,6 +27,7 @@ import {
 } from '@/lib/api';
 import { appNow } from '@/lib/clock';
 import { useFormat } from '@/lib/format';
+import { useHashScroll } from '@/lib/hash-scroll';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { entriesByMonth, orderedEntries } from './akte-private';
 import { aktePrivateMessages } from './akte-private-messages';
@@ -83,6 +84,9 @@ export function History({ relationshipId, name }: { relationshipId: string; name
     ...activitiesQueryOptions(accessToken, relationshipId, filter === 'all' ? undefined : filter),
     enabled: accessToken !== '',
   });
+  // K2-c.7: Die bisherige Seite Aktivitäten leitet auf #verlauf weiter, Links auf eine Mail auf
+  // #mail-<id> (Erledigt, Outlook-Add-in)
+  useHashScroll(Boolean(query.data));
   const entries = query.data ? orderedEntries(query.data.items, appNow()) : [];
   const first = entries.slice(0, firstCount);
   const rest = entries.slice(firstCount);
@@ -302,6 +306,7 @@ function Entry({ item, relationshipId }: { item: ActivityItem; relationshipId: s
     const subject = item.title.trim() && item.title.trim() !== '–' ? item.title : null;
     return (
       <DisclosureRow
+        id={`mail-${item.mail.id}`}
         lead={<Monogram name={sender} tone={fromOutside ? 'petrol' : 'ink'} />}
         title={
           fromOutside
@@ -408,8 +413,16 @@ function MailDetails({ item, relationshipId }: { item: ActivityItem; relationshi
     enabled: showText && accessToken !== '' && Boolean(mail),
   });
   if (!mail) return null;
+  // IN-04: Herkunft und Zahl der Anhänge, wie bisher auf der Seite Aktivitäten (K2-c.7)
+  const meta = [
+    text.mail.sources[mail.source],
+    mail.attachments.length > 0 ? text.mail.attachmentCount(mail.attachments.length) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <>
+      {meta && <p className="text-muted-foreground text-sm">{meta}</p>}
       {mail.summary && (
         <AiDraft
           heading={text.mail.summaryHeading}

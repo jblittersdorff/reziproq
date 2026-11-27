@@ -366,6 +366,35 @@ describe('AK-01 Nur für dich: Beziehungsnetz und rechte Spalte', () => {
   });
 });
 
+describe('AK-01 Nur für dich: Ziel bis K4-c auf dem bisherigen Überblick (K2-c.7)', () => {
+  it('ein vorgeschlagenes Ziel führt zur Freigabe; ohne Ziel zum Vorschlagen', async () => {
+    sample.secured = {
+      ...sample.secured,
+      target: { ebitTargetCents: 10_000_000, approved: false },
+    };
+    renderAt(privat);
+    const value = await region('Wert');
+    const target = await within(value).findByRole('link', { name: /Ziel 2026/ });
+    expect(plain(target.textContent)).toContain('100.000 € vorgeschlagen, Freigabe offen');
+    expect(target.getAttribute('href')).toBe(`/lieferanten/${id}`);
+    tearDownApp();
+    setUpApp();
+    sample = aktePrivateSample();
+    sample.secured = { ...sample.secured, target: null };
+    api.aktePrivate = sample;
+    renderAt(privat);
+    const none = await within(await region('Wert')).findByRole('link', { name: /Ziel 2026/ });
+    expect(none.textContent).toContain('noch kein Ziel');
+  });
+
+  it('ein freigegebenes Ziel steht nur in den Ergebnissen', async () => {
+    renderAt(privat);
+    const value = await region('Wert');
+    await within(value).findByRole('link', { name: /Ergebnisse 2026/ });
+    expect(within(value).queryByRole('link', { name: /Ziel 2026/ })).toBeNull();
+  });
+});
+
 describe('AK-01 Nur für dich auf Englisch', () => {
   it('alle Texte der Sicht kommen aus dem englischen Katalog', async () => {
     browserLanguages(['en-GB', 'en']);
@@ -381,5 +410,105 @@ describe('AK-01 Nur für dich auf Englisch', () => {
     expect(await screen.findByRole('region', { name: 'History · your team only' })).toBeTruthy();
     expect(await screen.findByRole('region', { name: 'Relationship network' })).toBeTruthy();
     expect(await screen.findByRole('region', { name: 'Segment and rating' })).toBeTruthy();
+  });
+});
+
+// K2-c.7 (E-K2-12): Die bisherige Seite Aktivitäten leitet in den Verlauf; was sie konnte, steht
+// hier (vorher NAV-10, IN-03 und TN-08 auf der alten Seite)
+describe('AK-01 Nur für dich: Verlauf statt der Seite Aktivitäten (K2-c.7)', () => {
+  const item = {
+    occurredAt: '2026-11-20T13:00:00Z',
+    visibility: 'team' as const,
+    pinned: false,
+    mine: false,
+  };
+
+  it('die bisherige Adresse Aktivitäten führt in den Verlauf der Akte', async () => {
+    const router = renderAt(`/lieferanten/${id}/aktivitaeten`);
+    expect(await region('Verlauf · nur euer Team')).toBeTruthy();
+    expect(router.state.location.pathname).toBe(`/beziehungen/${id}`);
+    expect(router.state.location.search).toMatchObject({ sicht: 'privat' });
+    expect(router.state.location.hash).toBe('verlauf');
+  });
+
+  it('IN-03: ein Termin aus Outlook steht im Verlauf mit „aus Outlook“', async () => {
+    sample.activities = {
+      ...sample.activities,
+      items: [
+        {
+          ...item,
+          id: 'meeting:3',
+          kind: 'meeting',
+          actor: { type: 'person', name: 'Ida Roth' },
+          title: 'Abstimmung Musterteile',
+          code: 'outlook_addin',
+          meta: 'Teams',
+          href: `/lieferanten/${id}/umsetzung/termine/m3`,
+        },
+      ],
+    };
+    renderAt(privat);
+    const history = await region('Verlauf · nur euer Team');
+    const meeting = await within(history).findByRole('link', { name: /Abstimmung Musterteile/ });
+    expect(meeting.textContent).toContain('aus Outlook · Teams');
+  });
+
+  it('ein Eintrag von Reziproq führt zu seinem Objekt', async () => {
+    sample.activities = {
+      ...sample.activities,
+      items: [
+        {
+          ...item,
+          id: 'agent:2',
+          kind: 'agent',
+          actor: { type: 'reziproq' },
+          title: '',
+          code: 'pre_read',
+          meta: 'draft',
+          href: `/lieferanten/${id}/umsetzung/termine/abc`,
+        },
+      ],
+    };
+    renderAt(privat);
+    const history = await region('Verlauf · nur euer Team');
+    const entry = await within(history).findByRole('link', { name: /Pre-Read/ });
+    expect(entry.getAttribute('href')).toBe(`/lieferanten/${id}/umsetzung/termine/abc`);
+  });
+
+  it('eine Telefonnotiz für das Team', async () => {
+    const posted: unknown[] = [];
+    api.handle = (request) => {
+      if (request.method === 'POST' && request.url.endsWith('/notizen')) posted.push(request.body);
+      return undefined;
+    };
+    renderAt(privat);
+    const history = await region('Verlauf · nur euer Team');
+    fireEvent.click(await within(history).findByRole('button', { name: 'Neue Notiz' }));
+    const form = within(history).getByRole('form', { name: 'Neue Notiz' });
+    fireEvent.change(within(form).getByRole('textbox', { name: 'Notiz' }), {
+      target: { value: 'Vor dem Angebot mit Tom sprechen.' },
+    });
+    fireEvent.click(within(form).getByLabelText('Telefonnotiz'));
+    fireEvent.click(within(form).getByRole('button', { name: 'Notiz speichern' }));
+    await waitFor(() =>
+      expect(posted).toEqual([
+        { text: 'Vor dem Angebot mit Tom sprechen.', visibility: 'team', kind: 'call' },
+      ]),
+    );
+  });
+
+  it('TN-08: ⌘K in der Akte öffnet Frag Reziproq mit der Beziehung als Kontext', async () => {
+    renderAt(privat);
+    await region('Verlauf · nur euer Team');
+    fireEvent.keyDown(window, { key: 'k', metaKey: true });
+    const overlay = await screen.findByRole('dialog', { name: 'Frag Reziproq' });
+    fireEvent.change(
+      await within(overlay).findByRole('textbox', { name: 'Deine Frage an Reziproq' }),
+      { target: { value: 'Was ist offen?' } },
+    );
+    fireEvent.click(within(overlay).getByRole('button', { name: 'Fragen' }));
+    await waitFor(() =>
+      expect(api.promptRequests.at(-1)).toMatchObject({ context: { relationshipId: id } }),
+    );
   });
 });

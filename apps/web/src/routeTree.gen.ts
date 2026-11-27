@@ -92,7 +92,6 @@ import { Route as AppEinstellungenZielkategorienIndexRouteImport } from './route
 import { Route as AppEinstellungenZielkategorienNeuRouteImport } from './routes/_app/einstellungen/zielkategorien/neu'
 import { Route as AppKundenIdIndexRouteImport } from './routes/_app/kunden/$id/index'
 import { Route as AppLieferantenIdIndexRouteImport } from './routes/_app/lieferanten/$id/index'
-import { Route as AppLieferantenIdAktivitaetenRouteImport } from './routes/_app/lieferanten/$id/aktivitaeten'
 import { Route as AppMappeArtIdRouteImport } from './routes/_app/mappe/$art/$id'
 import { Route as AppPortfolioFokusIndexRouteImport } from './routes/_app/portfolio/fokus/index'
 import { Route as AppPortfolioFokusIdRouteImport } from './routes/_app/portfolio/fokus/$id'
@@ -727,12 +726,6 @@ const AppLieferantenIdIndexRoute = AppLieferantenIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppLieferantenIdRouteRoute,
 } as any)
-const AppLieferantenIdAktivitaetenRoute =
-  AppLieferantenIdAktivitaetenRouteImport.update({
-    id: '/aktivitaeten',
-    path: '/aktivitaeten',
-    getParentRoute: () => AppLieferantenIdRouteRoute,
-  } as any)
 const AppMappeArtIdRoute = AppMappeArtIdRouteImport.update({
   id: '/mappe/$art/$id',
   path: '/mappe/$art/$id',
@@ -1921,7 +1914,6 @@ export interface FileRoutesByFullPath {
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
-  '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -2189,7 +2181,6 @@ export interface FileRoutesByTo {
   '/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
-  '/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -2461,7 +2452,6 @@ export interface FileRoutesById {
   '/_app/einstellungen/warengruppen/neu': typeof AppEinstellungenWarengruppenNeuRoute
   '/_app/einstellungen/warengruppen/vergabe': typeof AppEinstellungenWarengruppenVergabeRoute
   '/_app/einstellungen/zielkategorien/neu': typeof AppEinstellungenZielkategorienNeuRoute
-  '/_app/lieferanten/$id/aktivitaeten': typeof AppLieferantenIdAktivitaetenRoute
   '/_app/mappe/$art/$id': typeof AppMappeArtIdRoute
   '/_app/portfolio/fokus/$id': typeof AppPortfolioFokusIdRoute
   '/_app/portfolio/runden/neu': typeof AppPortfolioRundenNeuRoute
@@ -2734,7 +2724,6 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
-    | '/lieferanten/$id/aktivitaeten'
     | '/mappe/$art/$id'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
@@ -3002,7 +2991,6 @@ export interface FileRouteTypes {
     | '/einstellungen/warengruppen/neu'
     | '/einstellungen/warengruppen/vergabe'
     | '/einstellungen/zielkategorien/neu'
-    | '/lieferanten/$id/aktivitaeten'
     | '/mappe/$art/$id'
     | '/portfolio/fokus/$id'
     | '/portfolio/runden/neu'
@@ -3273,7 +3261,6 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/warengruppen/neu'
     | '/_app/einstellungen/warengruppen/vergabe'
     | '/_app/einstellungen/zielkategorien/neu'
-    | '/_app/lieferanten/$id/aktivitaeten'
     | '/_app/mappe/$art/$id'
     | '/_app/portfolio/fokus/$id'
     | '/_app/portfolio/runden/neu'
@@ -4067,13 +4054,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/lieferanten/$id/'
       preLoaderRoute: typeof AppLieferantenIdIndexRouteImport
-      parentRoute: typeof AppLieferantenIdRouteRoute
-    }
-    '/_app/lieferanten/$id/aktivitaeten': {
-      id: '/_app/lieferanten/$id/aktivitaeten'
-      path: '/aktivitaeten'
-      fullPath: '/lieferanten/$id/aktivitaeten'
-      preLoaderRoute: typeof AppLieferantenIdAktivitaetenRouteImport
       parentRoute: typeof AppLieferantenIdRouteRoute
     }
     '/_app/mappe/$art/$id': {
@@ -5558,7 +5538,6 @@ const AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren =
   )
 
 interface AppLieferantenIdRouteRouteChildren {
-  AppLieferantenIdAktivitaetenRoute: typeof AppLieferantenIdAktivitaetenRoute
   AppLieferantenIdIndexRoute: typeof AppLieferantenIdIndexRoute
   AppLieferantenIdStrategieLieferantenplanRouteRoute: typeof AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren
   AppLieferantenIdPlanFreigabeRoute: typeof AppLieferantenIdPlanFreigabeRoute
@@ -5650,7 +5629,6 @@ interface AppLieferantenIdRouteRouteChildren {
 }
 
 const AppLieferantenIdRouteRouteChildren: AppLieferantenIdRouteRouteChildren = {
-  AppLieferantenIdAktivitaetenRoute: AppLieferantenIdAktivitaetenRoute,
   AppLieferantenIdIndexRoute: AppLieferantenIdIndexRoute,
   AppLieferantenIdStrategieLieferantenplanRouteRoute:
     AppLieferantenIdStrategieLieferantenplanRouteRouteWithChildren,

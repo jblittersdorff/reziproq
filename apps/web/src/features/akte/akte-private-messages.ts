@@ -137,6 +137,9 @@ export const aktePrivateMessages = defineMessages({
       opportunities: 'Wertpotenziale',
       opportunitiesDetail: (fresh: number, adopted: number) =>
         `${fresh} neu, ${adopted} übernommen`,
+      target: (year: number) => `Ziel ${year}`,
+      targetProposed: (amount: string) => `${amount} vorgeschlagen, Freigabe offen`,
+      targetMissing: 'noch kein Ziel',
     },
   },
   en: {
@@ -261,6 +264,9 @@ export const aktePrivateMessages = defineMessages({
       potential: (low: string, high: string) => `${low} to ${high} potential`,
       opportunities: 'Value potentials',
       opportunitiesDetail: (fresh: number, adopted: number) => `${fresh} new, ${adopted} adopted`,
+      target: (year: number) => `Target ${year}`,
+      targetProposed: (amount: string) => `${amount} proposed, approval pending`,
+      targetMissing: 'no target yet',
     },
   },
 });

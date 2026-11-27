@@ -115,6 +115,14 @@ export function RulesSheet({ relationshipId }: { relationshipId: string }) {
           )}
           {data.canManage && (
             <div className="flex flex-wrap gap-2">
+              {/* K2-c.7 (E-K2-12): Die Freigabe mit Rückfrage hat bis K2-f nur die bisherige
+                  Übersicht der Spielregeln; das Blatt führt dorthin */}
+              {current.status === 'draft' &&
+                routerLink({
+                  href: base,
+                  className: buttonVariants({ variant: 'secondary' }),
+                  children: text.approve,
+                })}
               {unshared &&
                 current.status !== 'draft' &&
                 routerLink({

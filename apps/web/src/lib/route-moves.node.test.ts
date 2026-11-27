@@ -30,7 +30,7 @@ describe('Weiterleitungen alt → neu (TN-07)', () => {
   it('jede aktive Regel zeigt auf eine bestehende Seite, und keine Seite des Baums wird umgeleitet', () => {
     const known = new Set(routes);
     for (const move of routeMoves.filter((entry) => entry.status === 'aktiv')) {
-      const target = move.to?.split('?')[0] ?? '';
+      const target = move.to?.split(/[?#]/)[0] ?? '';
       expect(known.has(normalizeRoute(target)), `${move.from} → ${move.to}`).toBe(true);
       expect(known.has(normalizeRoute(move.from)), `${move.from} hat noch eine eigene Seite`).toBe(
         false,
@@ -54,8 +54,30 @@ describe('Weiterleitungen alt → neu (TN-07)', () => {
     expect(movedTo('/portfolio/runden/550e8400-e29b-41d4-a716-446655440050')).toBeNull();
     expect(movedTo('/agenten')).toBe('/mein-agent');
     expect(movedTo('/einstellungen/ki/agenten')).toBe('/mein-agent');
-    // Unterseiten folgen mit ihren Paketen (K2-c)
-    expect(movedTo('/lieferanten/550e8400-e29b-41d4-a716-446655440010/plan')).toBeNull();
+    // AK-01, E-K2-12 (K2-c.7, T2-15): Die Aktivitäten stehen im Verlauf der Akte; der Suchteil
+    // bleibt, die Sprungmarke des Ziels steht am Ende
+    const rel = '550e8400-e29b-41d4-a716-446655440010';
+    expect(movedTo(`/lieferanten/${rel}/aktivitaeten`)).toBe(
+      `/beziehungen/${rel}?sicht=privat#verlauf`,
+    );
+    expect(movedTo(`/lieferanten/${rel}/aktivitaeten`, 'filter=mails')).toBe(
+      `/beziehungen/${rel}?sicht=privat&filter=mails#verlauf`,
+    );
+    // Die übrigen bleiben bis zu ihrem Paket: Überblick (Zielkarte, K4-c), Spielregeln (Freigabe,
+    // K2-f), Pflege, Unterseiten
+    for (const path of [
+      '',
+      '/plan',
+      '/beziehung/spielregeln',
+      '/beziehung/spielregeln/teilen',
+      '/beziehung/team',
+    ]) {
+      expect(movedTo(`/lieferanten/${rel}${path}`), path).toBeNull();
+    }
+    expect(routeMoveFor(`/lieferanten/${rel}`)?.move.package).toBe('K4-c');
+    expect(routeMoveFor(`/lieferanten/${rel}/beziehung/spielregeln`)?.move.package).toBe('K2-f');
+    expect(routeMoveFor(`/lieferanten/${rel}/beziehung/team/einladen`)?.move.package).toBe('K2-f');
+    expect(routeMoveFor(`/lieferanten/${rel}/strategie/spend`)?.move.package).toBe('offen');
     expect(movedTo('/heute')).toBeNull();
     // MA-01 T1-MA5 (K1-f.5): keine Seite Agenten mehr; ein Lauf steht im Warum
     expect(movedTo('/einstellungen/ki/agenten/neu')).toBe('/mein-agent');

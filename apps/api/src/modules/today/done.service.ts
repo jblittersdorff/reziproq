@@ -148,9 +148,10 @@ export class DoneService {
               subject: mail.subject.trim() && mail.subject !== '–' ? mail.subject : null,
               sender: mail.sender,
               counterpart: names.get(mail.relationshipId) ?? counterpart,
+              // K2-c.7: die Mail im Verlauf der Akte
               href: row.undone_at
                 ? null
-                : `/lieferanten/${mail.relationshipId}/aktivitaeten?filter=mails#mail-${mail.mailId}`,
+                : `/beziehungen/${mail.relationshipId}?sicht=privat#mail-${mail.mailId}`,
               openDrafts: 0,
               undo: { possible: blocker === null, blocker },
             });

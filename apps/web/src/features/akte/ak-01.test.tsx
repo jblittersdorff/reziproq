@@ -152,6 +152,12 @@ describe('AK-01 Sicht Gemeinsam (Vorlage L-Ueberblick)', () => {
     expect(commitments.textContent).toContain(
       '16 gehaltene Zusagen 2026zuletzt: Abrufmengen 6 Monate im Voraus, eure Seite',
     );
+    // K2-c.7 (E-K2-12): Die Liste mit Filtern und „Neu“ bleibt; die Zeile führt hin
+    expect(
+      within(commitments)
+        .getByRole('link', { name: /16 gehaltene Zusagen 2026/ })
+        .getAttribute('href'),
+    ).toBe(`/lieferanten/${id}/umsetzung/massnahmen?status=kept&art=zusage`);
   });
 
   it('Scorecard mit Stand je Kennzahl als Text und der fehlenden eigenen Unterschrift', async () => {

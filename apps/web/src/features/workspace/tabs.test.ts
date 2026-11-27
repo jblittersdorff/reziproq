@@ -31,7 +31,7 @@ describe('NAV-10 Reiter der Lieferantenleiste', () => {
   it('jede Adresse findet ihren Reiter, auch Unterseiten und Zyklus', () => {
     const id = '0190a0a0-0000-7000-8000-000000000001';
     expect(tabOf(`/lieferanten/${id}`).tab).toBe('overview');
-    expect(tabOf(`/lieferanten/${id}/aktivitaeten`).tab).toBe('activities');
+    // K2-c.7: /aktivitaeten leitet in den Verlauf der Akte; im alten Rahmen bleiben die Termine
     expect(tabOf(`/lieferanten/${id}/umsetzung/termine/abc`).tab).toBe('activities');
     expect(tabOf(`/lieferanten/${id}/umsetzung/massnahmen`).tab).toBe('plan');
     expect(tabOf(`/lieferanten/${id}/plan/versionen`).tab).toBe('plan');

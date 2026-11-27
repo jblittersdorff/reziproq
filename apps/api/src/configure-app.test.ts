@@ -41,6 +41,15 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
         '/einstellungen/ki/agenten/laeufe/550e8400-e29b-41d4-a716-446655440042',
         '/warum/550e8400-e29b-41d4-a716-446655440042',
       ],
+      // AK-01 T2-15 (K2-c.7, E-K2-12): Die Aktivitäten stehen im Verlauf der Akte
+      [
+        '/lieferanten/550e8400-e29b-41d4-a716-446655440010/aktivitaeten',
+        '/beziehungen/550e8400-e29b-41d4-a716-446655440010?sicht=privat#verlauf',
+      ],
+      [
+        '/lieferanten/550e8400-e29b-41d4-a716-446655440010/aktivitaeten?filter=mails',
+        '/beziehungen/550e8400-e29b-41d4-a716-446655440010?sicht=privat&filter=mails#verlauf',
+      ],
     ];
     for (const [from, to] of moves) {
       const response = await open(from);
@@ -54,6 +63,12 @@ describe('Weiterleitungen mit 301 (TN-07)', () => {
     for (const path of [
       '/heute',
       '/lieferanten/550e8400-e29b-41d4-a716-446655440010/plan',
+      // Bis zu ihrem Paket aus der Akte erreichbar (E-K2-12): Überblick mit Zielkarte, Spielregeln
+      // mit Freigabe, Pflege
+      '/lieferanten/550e8400-e29b-41d4-a716-446655440010',
+      '/lieferanten/550e8400-e29b-41d4-a716-446655440010/beziehung/spielregeln',
+      '/lieferanten/550e8400-e29b-41d4-a716-446655440010/beziehung/spielregeln/bearbeiten',
+      '/lieferanten/550e8400-e29b-41d4-a716-446655440010/umsetzung/massnahmen',
       '/kurz-pruefen',
       '/mein-agent',
       '/einstellungen/ki',

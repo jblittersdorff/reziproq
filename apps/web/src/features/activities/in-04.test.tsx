@@ -13,7 +13,7 @@ import {
   tearDownApp,
 } from '@/testing/app-harness';
 
-// Tests zu docs/specs/IN-04.md in der Oberfläche: Mail in den Aktivitäten mit Zusammenfassung,
+// Tests zu docs/specs/IN-04.md in der Oberfläche: Mail im Verlauf der Akte mit Zusammenfassung,
 // Anhängen, Text zum Aufklappen und Filter „Mails“; weitergeleitete Mail in „Neu eingegangen“
 // ohne Termintyp; Outlook-Add-in legt eine gelesene Mail mit Sichtbarkeit ab.
 
@@ -101,6 +101,20 @@ beforeEach(() => {
   api.permissions = [...actionsFor.member, 'termine.sehen', 'notizen.schreiben'];
   api.handle = (request) => {
     if (request.url === `/api/suppliers/${rel}`) return Response.json(detail);
+    if (request.url === `/api/beziehungen/${rel}`) {
+      return Response.json({
+        relationshipId: rel,
+        name: 'Rheintal Elektronik GmbH',
+        status: 'active',
+        segment: null,
+        isFocus: false,
+        materialGroups: [],
+        lead: null,
+        year: 2026,
+        spend: null,
+        nextMeeting: null,
+      });
+    }
     if (request.url.startsWith(`/api/suppliers/${rel}/aktivitaeten`)) {
       sent.push(request);
       return Response.json(feed);
@@ -123,12 +137,19 @@ beforeEach(() => {
 
 afterEach(tearDownApp);
 
-describe('IN-04 Mails in den Aktivitäten', () => {
+// K2-c.7: Die Seite Aktivitäten leitet in den Verlauf der Akte (Nur für dich); dort klappt die Mail
+// auf und zeigt, was bisher in ihrer Zeile stand
+describe('IN-04 Mails im Verlauf der Akte', () => {
+  const openMail = async () => {
+    renderAt(`/beziehungen/${rel}?sicht=privat`);
+    const history = await screen.findByRole('region', { name: 'Verlauf · nur euer Team' });
+    const button = await within(history).findByRole('button', { name: /Mail von Tom Weber/ });
+    fireEvent.click(button);
+    return button.closest('[data-slot="disclosure-row"]') as HTMLElement;
+  };
+
   it('zeigt die Mail mit Absender, Herkunft, Zusammenfassung von Reziproq und Anhängen', async () => {
-    renderAt(`/lieferanten/${rel}/aktivitaeten`);
-    const entry = (await screen.findByText('Mail „Kapazitätsplanung 2028“ von Tom Weber')).closest(
-      'li',
-    ) as HTMLElement;
+    const entry = await openMail();
     expect(within(entry).getByText('abgelegt mit dem Add-in · 2 Anhänge')).toBeTruthy();
     const draft = entry.querySelector('[data-slot="ai-draft"]') as HTMLElement;
     expect(within(draft).getByText('Zusammengefasst von Reziproq')).toBeTruthy();
@@ -138,21 +159,20 @@ describe('IN-04 Mails in den Aktivitäten', () => {
   });
 
   it('der Text kommt erst beim Aufklappen; der Filter „Mails“ fragt nur Mails ab', async () => {
-    renderAt(`/lieferanten/${rel}/aktivitaeten`);
-    const entry = (await screen.findByText(/Kapazitätsplanung 2028/)).closest('li') as HTMLElement;
+    const entry = await openMail();
     expect(within(entry).queryByText(/wir planen 2028/)).toBeNull();
     fireEvent.click(within(entry).getByRole('button', { name: 'Text anzeigen' }));
     expect(await within(entry).findByText(/wir planen 2028 eine zweite Linie/)).toBeTruthy();
     expect(within(entry).getByText('An: sara@hollmann.example')).toBeTruthy();
-    fireEvent.click(screen.getByRole('radio', { name: 'Mails' }));
+    const history = screen.getByRole('region', { name: 'Verlauf · nur euer Team' });
+    fireEvent.click(within(history).getByRole('button', { name: 'Mails' }));
     await waitFor(() =>
       expect(sent.some((request) => request.url.endsWith('/aktivitaeten?filter=mails'))).toBe(true),
     );
   });
 
   it('eigene Mail löschen nach Bestätigung auf der Seite', async () => {
-    renderAt(`/lieferanten/${rel}/aktivitaeten`);
-    const entry = (await screen.findByText(/Kapazitätsplanung 2028/)).closest('li') as HTMLElement;
+    const entry = await openMail();
     fireEvent.click(within(entry).getByRole('button', { name: 'Löschen' }));
     expect(within(entry).getByText('Mail mit Text und Anhängen löschen?')).toBeTruthy();
     const row = entry.querySelector('[data-slot="confirm-row"]') as HTMLElement;
@@ -257,7 +277,7 @@ describe('IN-04 Outlook-Add-in in einer gelesenen Mail', () => {
         return Response.json({
           created: true,
           mailId,
-          href: `/lieferanten/${rel}/aktivitaeten?filter=mails#mail-${mailId}`,
+          href: `/beziehungen/${rel}?sicht=privat#mail-${mailId}`,
         });
       }
       return undefined;
@@ -281,7 +301,7 @@ describe('IN-04 Outlook-Add-in in einer gelesenen Mail', () => {
       await screen.findByText('Abgelegt. Die Mail steht in den Aktivitäten des Lieferanten.'),
     ).toBeTruthy();
     expect(screen.getByRole('link', { name: 'In Reziproq öffnen' }).getAttribute('href')).toBe(
-      `/lieferanten/${rel}/aktivitaeten?filter=mails#mail-${mailId}`,
+      `/beziehungen/${rel}?sicht=privat#mail-${mailId}`,
     );
   });
 });

@@ -217,6 +217,7 @@ function RowBody({
  * außerhalb auf (`controls`), etwa „Alles anzeigen“.
  */
 function DisclosureRow({
+  id,
   lead,
   title,
   detail,
@@ -226,6 +227,8 @@ function DisclosureRow({
   controls,
   children,
 }: {
+  /** Sprungmarke der Zeile (K2-c.7: `mail-<id>` im Verlauf) */
+  id?: string;
   lead?: React.ReactNode;
   title: React.ReactNode;
   detail?: React.ReactNode;
@@ -238,7 +241,7 @@ function DisclosureRow({
 }) {
   const panelId = useId();
   return (
-    <div data-slot="disclosure-row" className="flex min-w-0 flex-col">
+    <div id={id} data-slot="disclosure-row" className="flex min-w-0 flex-col">
       <button
         type="button"
         aria-expanded={open}

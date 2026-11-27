@@ -56,12 +56,7 @@ export function SupplierWorkspace({ relationshipId }: { relationshipId: string }
   const { tab, page } = tabOf(pathname);
   const pages = tabPages[tab].map((entry) => ({
     key: entry.path,
-    label:
-      entry.key === 'history'
-        ? t.activities.history
-        : entry.key === 'profile'
-          ? text.profile.title
-          : t.workspace.pages[entry.key].title,
+    label: entry.key === 'profile' ? text.profile.title : t.workspace.pages[entry.key].title,
     href: `/lieferanten/${relationshipId}/${entry.path}`,
   }));
 

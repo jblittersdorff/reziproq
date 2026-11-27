@@ -9,16 +9,14 @@ export type SupplierTab = (typeof supplierTabs)[number] | 'profile';
 
 /** Seite unter /lieferanten/<id>/<path> mit ihrem Titel aus workspace.pages oder activities */
 export interface TabPage {
-  key: PageKey | 'history';
+  key: PageKey;
   path: string;
 }
 
 export const tabPages: Record<SupplierTab, TabPage[]> = {
   overview: [],
-  activities: [
-    { key: 'history', path: 'aktivitaeten' },
-    { key: 'meetings', path: 'umsetzung/termine' },
-  ],
+  // K2-c.7: Der Verlauf steht in der Akte (Nur für dich); die bisherige Seite leitet dorthin.
+  activities: [{ key: 'meetings', path: 'umsetzung/termine' }],
   plan: [
     { key: 'preparation', path: 'plan/vorbereitung' },
     { key: 'topics', path: 'plan/themen' },

@@ -327,6 +327,10 @@ Widersprüche zu CLAUDE.md und früheren Festlegungen:
   - IN-06: Die Karte zu einer fälligen Zusage bucht mit dem Knopf „Erledigt“ in Teams.
   - ZQ-01 Regel 2, T2-ZQ2: gehalten nur mit Beleg; ein Klick auf die eigene Zusage ist keiner.
   - Umgesetzt nach ZQ-01, der neueren Spec für Zusagen: Neue Karten haben nur noch den Link zur Zusage. Ein Klick auf einer älteren Karte bucht nichts und sagt, dass ein Beleg nötig ist. KA-01 legt die Knöpfe der Kanäle in K7 neu fest.
+- **C-19 Weiterleitungen der Akte (gefunden am 27.11.2026 in K2-c.7).**
+  - AK-01 „Weiterleitungen“: Überblick, Segmentierung, Warengruppen, Aktivitäten, Lieferantenplan, Zusagen, Scorecard, Team, Netz, Spielregeln teilen und Feedback leiten in die Akte. Die Tabelle nennt Adressen der Bildvorlagen (`/beziehungen/<id>/ueberblick`), nicht die bisherigen unter `/lieferanten/<id>`.
+  - E-K2-12: Weiter leitet nur, was samt Funktionen in der Akte steht; Termine, Plan, Wirkung, Segmentierung, Feedback und die Pflege von Spend, Scorecard und Lieferantenplan bleiben bis zu ihrem Paket.
+  - Gilt: E-K2-12. Seit K2-c.7 leiten die Aktivitäten in den Verlauf. Überblick (Zielkarte „Ziel vorschlagen“ und „Ziel freigeben“, AW-01) und Spielregeln (interne Freigabe, abgewählte Punkte) fehlen der Akte noch Funktionen und bleiben bis K4-c bzw. K2-f, obwohl E-K2-12 sie nicht unter den bleibenden Seiten nennt. Team, Kontaktpunkte, Profil, Warengruppen und die Liste der Zusagen bleiben als Pflege; der Plan nennt dafür noch kein Paket (`docs/weiterleitungen.md`: „offen“).
 
 ## d) Ist Phase 1 fertig?
 

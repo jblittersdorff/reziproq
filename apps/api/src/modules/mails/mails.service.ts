@@ -102,8 +102,9 @@ export class MailsService implements OnModuleInit {
     return { userId: auth.userId, organizationId: organization.id, organization };
   }
 
+  /** Verlauf in der Akte (K2-c.7), mit Sprungmarke auf die Mail */
   private href(relationshipId: string, mailId?: string | null) {
-    return `/lieferanten/${relationshipId}/aktivitaeten?filter=mails${mailId ? `#mail-${mailId}` : ''}`;
+    return `/beziehungen/${relationshipId}?sicht=privat#${mailId ? `mail-${mailId}` : 'verlauf'}`;
   }
 
   // ------------------------------------------------------------- Weg 1: Outlook-Add-in

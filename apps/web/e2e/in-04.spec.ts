@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test';
 import type { ActivityFeed } from '@reziproq/shared';
 import { id, signIn } from './route-walk.js';
 
-// IN-04: abgelegte Mails in den Aktivitäten und eine weitergeleitete Mail in „Neu eingegangen“,
-// auf Telefonbreite und am Schreibtisch, ohne seitliches Scrollen.
+// IN-04: abgelegte Mails im Verlauf der Akte (seit K2-c.7, vorher die Seite Aktivitäten) und eine
+// weitergeleitete Mail in „Neu eingegangen“, auf Telefonbreite und am Schreibtisch, ohne seitliches
+// Scrollen.
 
 const uuid = (n: number) => `0190a0a0-0000-7000-8000-0000000000${String(n).padStart(2, '0')}`;
 const mailId = uuid(2);
@@ -125,9 +126,29 @@ for (const width of [390, 1440]) {
         },
       }),
     );
+    // K2-c.7: Die bisherige Adresse führt in den Verlauf der Akte (Nur für dich)
+    await page.route(`**/api/beziehungen/${id}`, (route) =>
+      route.fulfill({
+        json: {
+          relationshipId: id,
+          name: 'Rheintal Elektronik',
+          status: 'active',
+          segment: null,
+          isFocus: false,
+          materialGroups: [],
+          lead: null,
+          year: 2026,
+          spend: null,
+          nextMeeting: null,
+        },
+      }),
+    );
     await page.goto(`/lieferanten/${id}/aktivitaeten`);
-    await expect(page.getByText('Zusammengefasst von Reziproq')).toBeVisible();
-    await page.getByRole('button', { name: 'Text anzeigen' }).first().click();
+    await expect(page).toHaveURL(new RegExp(`/beziehungen/${id}\\?sicht=privat#verlauf$`));
+    const history = page.getByRole('region', { name: 'Verlauf · nur euer Team' });
+    await history.getByRole('button', { name: /Kapazitätsplanung 2028/ }).click();
+    await expect(history.getByText('Zusammengefasst von Reziproq')).toBeVisible();
+    await history.getByRole('button', { name: 'Text anzeigen' }).first().click();
     await expect(page.getByText(/zweite Fertigungslinie in Gliwice\. Damit/)).toBeVisible();
     await page.waitForLoadState('networkidle');
     expect(await noScroll(page)).toBe(0);

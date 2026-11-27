@@ -167,7 +167,7 @@ function hrefOf(item: AkteCounterpartItem, relationshipId: string): string | und
         : item.objectType === 'commitment'
           ? oldPage(relationshipId, `/umsetzung/massnahmen/${item.objectId}`)
           : item.objectType === 'rule_set'
-            ? oldPage(relationshipId, '/beziehung/spielregeln')
+            ? sheetHref(relationshipId, 'spielregeln', 'geteilt')
             : undefined;
   }
 }

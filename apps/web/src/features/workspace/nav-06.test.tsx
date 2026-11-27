@@ -173,7 +173,8 @@ describe('Arbeitsbereich eines Lieferanten', () => {
       within(areas()).getByRole('link', { name: 'Überblick' }).getAttribute('aria-current'),
     ).toBe('page');
     for (const [label, path] of [
-      ['Aktivitäten', 'aktivitaeten'],
+      // K2-c.7: Der Verlauf steht in der Akte; im alten Rahmen führt Aktivitäten zu den Terminen
+      ['Aktivitäten', 'umsetzung/termine'],
       ['Plan', 'plan/vorbereitung'],
       ['Ergebnisse', 'wirkung/bruecke'],
     ] as const) {
@@ -223,7 +224,8 @@ describe('Arbeitsbereich eines Lieferanten', () => {
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       `${base}/wirkung/bruecke`,
-      `${base}/aktivitaeten`,
+      // K2-c.7: Der Verlauf steht in der Akte
+      `/beziehungen/${id}?sicht=privat#verlauf`,
       `${base}/plan/vorbereitung`,
       `${base}/beziehung/team`,
       `${base}/strategie/segmentierung`,

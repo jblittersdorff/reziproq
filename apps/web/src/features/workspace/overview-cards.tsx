@@ -172,7 +172,8 @@ export function OverviewRows({
               : undefined
         }
         value={drafts > 0 ? <Badge variant="shared">{text.toReview(drafts)}</Badge> : undefined}
-        href={`${base}/aktivitaeten`}
+        // K2-c.7: Der Verlauf steht in der Akte, Nur für dich (E-K2-12)
+        href={`/beziehungen/${relationshipId}?sicht=privat#verlauf`}
         renderLink={routerLink}
       />
       <Row
