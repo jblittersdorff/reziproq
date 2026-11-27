@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { LoadingState } from '@/components/ui/loading-state';
 import { NativeSelect } from '@/components/ui/native-select';
 import { useMe } from '@/features/auth/use-me';
+import { routerLink } from '@/features/shell/navigation';
 import { useToken } from '@/features/ratings/use-rating';
 import { SupplierCard } from '@/features/suppliers/supplier-card';
 import { customerListQueryOptions } from '@/lib/api';
@@ -217,8 +218,13 @@ function Turn({ turn }: { turn: PromptTurn }) {
           )}
 
           {turn.destination?.type === 'area' && (
+            // Ein Bereich kann eine alte Adresse sein, die weiterleitet (/portfolio, K2-b.5)
             <Button asChild variant="secondary" className="w-fit">
-              <Link to={turn.destination.path}>{t.prompt.openArea}</Link>
+              {routerLink({
+                href: turn.destination.path,
+                className: '',
+                children: t.prompt.openArea,
+              })}
             </Button>
           )}
           {turn.destination?.type === 'supplierSpend' && (

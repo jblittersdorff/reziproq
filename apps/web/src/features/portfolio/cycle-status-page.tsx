@@ -25,6 +25,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { cycleStatusQueryOptions } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 export function useCycleStatus(query: CycleStatusQuery = {}) {
   const auth = useAuth();
@@ -83,7 +84,10 @@ export function CycleStatusPage() {
 
   return (
     <>
-      <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
+      <PagePath
+        trail={[{ label: t.portfolio.segmentsLabel, href: segmentsHref }]}
+        current={text.title}
+      />
       <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.data && (
         <dl aria-label={text.metricsLabel} className="grid gap-3 sm:grid-cols-3">

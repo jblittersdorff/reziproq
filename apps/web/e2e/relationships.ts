@@ -1,5 +1,9 @@
 import type { Page } from '@playwright/test';
-import type { RelationshipRow, RelationshipsResponse } from '@reziproq/shared';
+import type {
+  RelationshipRow,
+  RelationshipSegments,
+  RelationshipsResponse,
+} from '@reziproq/shared';
 
 // BZ-01 (K2-b.4): Antworten von GET /api/beziehungen für die E2E-Tests mit nachgebauter API.
 // Mit `portfolio=1` kommen die Entwürfe dazu, mit `beendet=1` die beendeten, wie in der API.
@@ -105,3 +109,69 @@ export async function routeRelationships(
 
 /** Die Liste unter den Filtern, ohne die Zeilen von „Das Wichtigste“ */
 export const relationshipList = (page: Page) => page.locator('[data-slot="relationship-rows"]');
+
+const segmentSupplier = (n: number, name: string, spend: number, status: 'active' | 'draft') => ({
+  relationshipId: `0190a0a0-0000-7000-8000-${String(n).padStart(12, '0')}`,
+  name,
+  status,
+  spend: mio(spend),
+  disputed: false,
+});
+
+/**
+ * BZ-01 (K2-b.5): Antwort von GET /api/beziehungen/segmente, ein kleines Portfolio im Modell 2 × 2
+ * mit einem Lieferanten je Feld und einem ohne Bewertung
+ */
+export function segmentsResponse(
+  overrides: Partial<RelationshipSegments> = {},
+): RelationshipSegments {
+  const field = (key: string, name: string, n: number, spend: number) => {
+    const [impactLevel = 1, qualityLevel = 1] = key.split('-').map(Number);
+    return {
+      key,
+      impactLevel,
+      qualityLevel,
+      name,
+      count: 1,
+      spend: [mio(spend)],
+      suppliers: [segmentSupplier(n, `Lieferant ${n}`, spend, 'active')],
+    };
+  };
+  return {
+    year: 2026,
+    model: {
+      id: '0190a0a0-0000-7000-8000-000000000a01',
+      version: 1,
+      gridSize: 2,
+      impactLabel: 'Versorgungsrisiko',
+      qualityLabel: 'Wertbeitrag',
+    },
+    portfolio: 5,
+    rated: 4,
+    ratedSpend: [mio(10)],
+    round: null,
+    fields: [
+      field('2-1', 'Entwickeln', 1, 1),
+      field('2-2', 'Strategisch', 2, 5),
+      field('1-1', 'Hebeln', 3, 3),
+      field('1-2', 'Absichern', 4, 1),
+    ],
+    unrated: {
+      count: 1,
+      spend: [mio(0.5)],
+      suppliers: [segmentSupplier(5, 'Lieferant 5', 0.5, 'draft')],
+    },
+    summary: {
+      top: { key: '2-2', name: 'Strategisch', count: 1, spend: [mio(5)], share: 50 },
+      disputed: [],
+    },
+    ...overrides,
+  };
+}
+
+/** Beantwortet GET /api/beziehungen/segmente (Linse Segmente, `/portfolio`) */
+export async function routeSegments(page: Page, overrides: Partial<RelationshipSegments> = {}) {
+  await page.route('**/api/beziehungen/segmente', (route) =>
+    route.fulfill({ json: segmentsResponse(overrides) }),
+  );
+}

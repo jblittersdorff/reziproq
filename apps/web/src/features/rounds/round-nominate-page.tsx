@@ -15,6 +15,7 @@ import { addRoundAssignment, roundRatersQueryOptions } from '@/lib/api';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import { errorCode, isNotFound, linkClass, roundsPath, useRound, useToken } from './use-round';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 /** Nachnominierung (SEG-03): eine weitere Person bewertet einen Lieferanten der laufenden Runde. */
 export function RoundNominatePage({ id }: { id: string }) {
@@ -25,7 +26,7 @@ export function RoundNominatePage({ id }: { id: string }) {
     <>
       <PagePath
         trail={[
-          { label: t.portfolio.title, href: '/portfolio' },
+          { label: t.portfolio.segmentsLabel, href: segmentsHref },
           { label: t.rounds.title, href: roundsPath },
           { label: round?.name ?? t.rounds.title, href: `${roundsPath}/${id}` },
         ]}

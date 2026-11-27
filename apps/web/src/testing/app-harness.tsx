@@ -6,7 +6,9 @@ import type {
   OrganizationResponse,
   PromptEvent,
   RelationshipRow,
+  RelationshipSegments,
   RelationshipsResponse,
+  SegmentSupplier,
   Supplier,
   SuppliersResponse,
   TodayAll,
@@ -366,6 +368,132 @@ export const sampleEndedRelationship = relationshipRow({
   segment: { key: '1-1', name: 'Hebeln' },
 });
 
+/** Lieferant in einem Feld der Linse Segmente; Entwürfe ohne Anbindung mit `status: 'draft'` */
+const segmentSupplier = (
+  n: number,
+  name: string,
+  spend: number | null,
+  extra: Partial<SegmentSupplier> = {},
+): SegmentSupplier => ({
+  relationshipId: relationshipId(n),
+  name,
+  status: 'active',
+  spend: spend === null ? null : eur(spend),
+  disputed: false,
+  ...extra,
+});
+const importedSuppliers = (from: number, prefix: string, count: number, spend: number) =>
+  Array.from({ length: count }, (_, index) =>
+    segmentSupplier(from + index, `${prefix} ${index + 1}`, spend, { status: 'draft' }),
+  );
+const kesslerId = relationshipId(103);
+
+/**
+ * Linse Segmente (BZ-01, K2-b.5), wie GET /api/beziehungen/segmente sie liefert, mit den Zahlen
+ * von Hollmann (T2-03): Modell 2 × 2, Felder Entwickeln 9, Strategisch 8, Hebeln 9, Absichern 12,
+ * Kessler strittig, 8 ohne Bewertung mit Pearl River als größtem.
+ */
+export const sampleSegments: RelationshipSegments = {
+  year: 2026,
+  model: {
+    id: '00000000-0000-7000-8000-000000000a01',
+    version: 1,
+    gridSize: 2,
+    impactLabel: 'Versorgungsrisiko',
+    qualityLabel: 'Wertbeitrag',
+  },
+  portfolio: 46,
+  rated: 38,
+  ratedSpend: [eur(38)],
+  round: {
+    id: '00000000-0000-7000-8000-000000000a02',
+    name: 'Bewertungsrunde 2027',
+    dueDate: '2026-12-19',
+  },
+  fields: [
+    {
+      key: '2-1',
+      impactLevel: 2,
+      qualityLevel: 1,
+      name: 'Entwickeln',
+      count: 9,
+      spend: [eur(4.3)],
+      suppliers: [
+        segmentSupplier(103, 'Kessler Präzision GmbH (Demo)', 1.6, { disputed: true }),
+        segmentSupplier(105, 'Alpen Kunststofftechnik GmbH (Demo)', 1.3),
+        ...importedSuppliers(200, 'Entwicklung', 7, 0.2),
+      ],
+    },
+    {
+      key: '2-2',
+      impactLevel: 2,
+      qualityLevel: 2,
+      name: 'Strategisch',
+      count: 8,
+      spend: [eur(18.4)],
+      suppliers: [
+        segmentSupplier(101, 'Rheintal Elektronik GmbH (Demo)', 4.2),
+        segmentSupplier(102, 'Silesia Guss Sp. z o.o. (Demo)', 3.15),
+        segmentSupplier(109, 'Nordwerk Guss GmbH (Demo)', 1.6),
+        segmentSupplier(112, 'Saar Circuits GmbH (Demo)', 1.4),
+        ...importedSuppliers(210, 'Strategie', 4, 2),
+      ],
+    },
+    {
+      key: '1-1',
+      impactLevel: 1,
+      qualityLevel: 1,
+      name: 'Hebeln',
+      count: 9,
+      spend: [eur(9.1)],
+      suppliers: [
+        segmentSupplier(106, 'Lombardia Fonderie S.p.A. (Demo)', 2.71),
+        segmentSupplier(108, 'Moravia Plast s.r.o. (Demo)', 1.94),
+        segmentSupplier(114, 'Moldau PCB s.r.o. (Demo)', 0.9),
+        segmentSupplier(115, 'Weser PCB GmbH (Demo)', 0.7),
+        ...importedSuppliers(220, 'Hebel', 5, 0.5),
+      ],
+    },
+    {
+      key: '1-2',
+      impactLevel: 1,
+      qualityLevel: 2,
+      name: 'Absichern',
+      count: 12,
+      spend: [eur(6.2)],
+      suppliers: [
+        segmentSupplier(107, 'Alpen Sensorik GmbH (Demo)', 2.26),
+        segmentSupplier(110, 'Baltic Logistics (Demo)', 1.1),
+        segmentSupplier(111, 'Hanse Verpackung GmbH (Demo)', 0.6),
+        segmentSupplier(113, 'Donau Print GmbH (Demo)', 0.5),
+        segmentSupplier(116, 'Elbe Kabelwerk GmbH (Demo)', 0.5),
+        ...importedSuppliers(230, 'Absicherung', 7, 0.2),
+      ],
+    },
+  ],
+  unrated: {
+    count: 8,
+    spend: [eur(6.9)],
+    suppliers: [
+      segmentSupplier(104, 'Pearl River Components Ltd. (Demo)', 5.64),
+      ...importedSuppliers(240, 'Ohne', 7, 0.18),
+    ],
+  },
+  summary: {
+    top: { key: '2-2', name: 'Strategisch', count: 8, spend: [eur(18.4)], share: 48 },
+    disputed: [
+      {
+        relationshipId: kesslerId,
+        name: 'Kessler Präzision GmbH (Demo)',
+        criterion: { key: 'qualitaet', name: 'Qualität' },
+        min: 25,
+        max: 100,
+        decidesSegment: true,
+      },
+    ],
+  },
+};
+
 export const sampleOrganization: OrganizationResponse = {
   name: 'Beispiel-OEM (Demo)',
   country: 'DE',
@@ -406,6 +534,8 @@ export const api = {
     drafts: [sampleDraftRelationship] as RelationshipRow[],
     ended: [sampleEndedRelationship] as RelationshipRow[],
   },
+  /** GET /api/beziehungen/segmente (BZ-01, K2-b.5) */
+  relationshipSegments: { status: 200, body: sampleSegments as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
   prompt: { status: 200, events: [] as PromptEvent[], hold: false },
   /** Alle Anfragen an /api/prompt, z. B. um den mitgeschickten Verlauf zu prüfen. */
@@ -498,6 +628,11 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   }
   if (url === '/api/suppliers') {
     return Response.json(api.suppliers.body, { status: api.suppliers.status });
+  }
+  if (url === '/api/beziehungen/segmente') {
+    return Response.json(api.relationshipSegments.body, {
+      status: api.relationshipSegments.status,
+    });
   }
   if (url === '/api/beziehungen' || url.startsWith('/api/beziehungen?')) {
     const { status, body, drafts, ended } = api.relationships;
@@ -606,6 +741,7 @@ export function setUpApp() {
     drafts: [sampleDraftRelationship],
     ended: [sampleEndedRelationship],
   };
+  api.relationshipSegments = { status: 200, body: sampleSegments };
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];

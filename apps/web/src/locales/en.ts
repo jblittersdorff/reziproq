@@ -177,6 +177,8 @@ export const en: Messages = {
   },
 
   portfolio: {
+    // K2-b.5: Die Seite Portfolio ist die Linse Segmente der Seite Lieferanten; Pfad zurück dorthin
+    segmentsLabel: 'Segments',
     title: 'Portfolio',
     purpose: 'All suppliers by business impact and relationship quality.',
     emptyTitle: 'No portfolio yet',

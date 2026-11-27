@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
-import { routeRelationships } from './relationships.js';
+import { routeRelationships, routeSegments } from './relationships.js';
 import { mockToday } from './today-fixture.js';
 
 // Tests zu docs/specs/PLT-11.md, die einen echten Browser brauchen: globale Leiste, Maße,
@@ -23,7 +23,8 @@ const barTargets = [
 const routes = [
   { path: '/heute', title: 'Heute' },
   { path: '/beziehungen', title: 'Lieferanten', empty: 'Noch keine Lieferanten.' },
-  { path: '/portfolio', title: 'Matrix' },
+  // BZ-01 (K2-b.5): Linse Segmente der Seite Lieferanten; /portfolio leitet hierher weiter
+  { path: '/beziehungen?linse=segmente', title: 'Lieferanten' },
   // AW-01: die frühere Wirkungsübersicht liegt unter Übersicht · Ergebnisse
   { path: '/uebersicht/ergebnisse', title: 'Ergebnisse', empty: 'Noch keine Ergebnisse' },
   { path: '/profil', title: 'Profil' },
@@ -70,6 +71,7 @@ async function signIn(page: Page, { admin = false } = {}) {
   );
   // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen; ohne Lieferanten der leere Zustand
   await routeRelationships(page, []);
+  await routeSegments(page);
   await page.route('**/api/organisation', (route) =>
     route.fulfill({
       json: {
@@ -260,6 +262,7 @@ test('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Titel u
     ['/uebersicht', '/wert'],
     ['/wirkung', '/wert'],
     ['/lieferanten', '/beziehungen'],
+    ['/portfolio', '/beziehungen?linse=segmente'],
     ['/agenten', '/mein-agent'],
   ]) {
     await page.goto(from ?? '');

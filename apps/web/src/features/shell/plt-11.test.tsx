@@ -53,7 +53,8 @@ const barTargets = [
 const routes = [
   { path: '/heute', title: 'Heute' },
   { path: '/beziehungen', title: 'Lieferanten' },
-  { path: '/portfolio', title: 'Matrix' },
+  // BZ-01 (K2-b.5): Linse Segmente der Seite Lieferanten; /portfolio leitet hierher weiter
+  { path: '/beziehungen?linse=segmente', title: 'Lieferanten' },
   { path: '/wert', title: 'Ergebnisse' },
   { path: '/mein-agent', title: 'Mein Agent' },
   { path: '/profil', title: 'Profil' },
@@ -224,10 +225,11 @@ describe('Jede Route lässt sich über ihre Adresse direkt öffnen und zeigt Tit
   );
 });
 
-it('/portfolio setzt den Tab-Titel', async () => {
+it('/portfolio führt zur Linse Segmente und setzt den Tab-Titel', async () => {
   renderAt('/portfolio');
-  await screen.findByRole('heading', { level: 1, name: 'Matrix' });
-  expect(document.title).toBe('Matrix – Reziproq');
+  await screen.findByRole('list', { name: 'Matrix der Segmente' });
+  expect(screen.getByRole('heading', { level: 1, name: 'Lieferanten' })).toBeDefined();
+  expect(document.title).toBe('Lieferanten – Reziproq');
 });
 
 describe('Der Weg zu allen Einstellungen ist nur für Admins sichtbar, jedes Mitglied sieht Organisation', () => {
@@ -310,8 +312,8 @@ describe('Pfad mit Zurück-Pfeil', () => {
   });
 
   it('zeigt auf der Hauptebene keinen Pfad', async () => {
-    renderAt('/portfolio');
-    await screen.findByRole('heading', { level: 1, name: 'Matrix' });
+    renderAt('/beziehungen?linse=segmente');
+    await screen.findByRole('list', { name: 'Matrix der Segmente' });
     expect(screen.queryByRole('navigation', { name: 'Pfad' })).toBeNull();
   });
 });

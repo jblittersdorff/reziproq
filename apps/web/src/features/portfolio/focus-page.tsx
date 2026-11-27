@@ -10,6 +10,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { useFocus } from './use-portfolio';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 export const focusPath = (relationshipId: string) => `/portfolio/fokus/${relationshipId}`;
 
@@ -47,7 +48,10 @@ export function FocusPage() {
 
   return (
     <>
-      <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
+      <PagePath
+        trail={[{ label: t.portfolio.segmentsLabel, href: segmentsHref }]}
+        current={text.title}
+      />
       <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />

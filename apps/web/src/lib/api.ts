@@ -211,6 +211,7 @@ import {
   type ReviewDecision,
   ratingAssignmentListSchema,
   ratingDetailSchema,
+  relationshipSegmentsSchema,
   relationshipsResponseSchema,
   reviewResultSchema,
   reviewStackSchema,
@@ -2291,6 +2292,14 @@ export const relationshipsQueryOptions = (
     retry: retryUnlessDenied,
   });
 };
+
+/** BZ-01 (K2-b.5): Linse Segmente der Seite Lieferanten, immer das ganze Portfolio (E-K2-10) */
+export const relationshipSegmentsQueryOptions = (accessToken: string) =>
+  queryOptions({
+    queryKey: ['beziehungen', 'segmente'],
+    queryFn: () => getJson('/beziehungen/segmente', relationshipSegmentsSchema, accessToken),
+    retry: retryUnlessDenied,
+  });
 
 /** „Als Nächstes“ über alle Bereiche; mit `relationshipId` für einen Lieferanten */
 export const nextActionQueryOptions = (accessToken: string, relationshipId?: string) =>

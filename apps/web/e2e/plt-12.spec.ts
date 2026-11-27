@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
-import { routeRelationships } from './relationships.js';
+import { routeRelationships, routeSegments } from './relationships.js';
 
 // Tests zu docs/specs/PLT-12.md, die einen echten Browser brauchen: Tastenkürzel, Fokus, Maße.
 // Seit NAV-10 2.0 (K1-d) liegt das Gespräch in der Überlagerung Frag Reziproq (E-K0-01).
@@ -35,6 +35,7 @@ async function signIn(page: Page) {
   );
   // BZ-01: Die Seite Lieferanten liest GET /api/beziehungen
   await routeRelationships(page, []);
+  await routeSegments(page);
   await page.route('**/api/prompt', (route) => {
     const question = route.request().postDataJSON().messages.at(-1).content as string;
     const events = question.includes('Portfolio')
@@ -150,7 +151,7 @@ test('„Frag“ in der Tab-Leiste öffnet auf dem Telefon Frag Reziproq und ste
   await page.keyboard.press('Enter');
   await expect(questions(page).getByText('Hier ist der Link zu Portfolio.')).toBeVisible();
   await page.getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL(/\/beziehungen\?ansicht=matrix$/);
+  await expect(page).toHaveURL(/\/beziehungen\?linse=segmente$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
@@ -177,7 +178,7 @@ test('Vorschlag übernehmen, fragen, Karten sehen, dann zum Portfolio springen',
   await page.keyboard.press('Enter');
   await expect(questions(page).getByRole('link', { name: 'Bereich öffnen' })).toBeVisible();
   await questions(page).getByRole('link', { name: 'Bereich öffnen' }).click();
-  await expect(page).toHaveURL(/\/beziehungen\?ansicht=matrix$/);
+  await expect(page).toHaveURL(/\/beziehungen\?linse=segmente$/);
 });
 
 for (const width of [1440, 390]) {

@@ -134,15 +134,16 @@ describe('NAV-10 Navigation', () => {
   ])('TN-07: die alte Adresse %s leitet auf %s weiter', async (from, to) => {
     const router = renderAt(from);
     await waitFor(() => expect(router.state.location.pathname).toBe(to));
+    // BZ-01 (K2-b.5): /portfolio ist die Linse Segmente der Seite Lieferanten
     if (from === '/portfolio')
-      expect(router.state.location.search).toMatchObject({ ansicht: 'matrix' });
+      expect(router.state.location.search).toMatchObject({ linse: 'segmente' });
   });
 
-  it('WG-18: /portfolio?warengruppe=<id> führt zur Matrix mit Filter Warengruppe', async () => {
+  it('WG-18: /portfolio?warengruppe=<id> führt bis K2-e zur bisherigen Matrix mit Filter Warengruppe', async () => {
     const group = '0190a0a0-0000-7000-8000-000000000077';
     const router = renderAt(`/portfolio?warengruppe=${group}`);
-    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
-    expect(router.state.location.search).toMatchObject({ ansicht: 'matrix', wg: group });
+    await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio/matrix'));
+    expect(router.state.location.search).toMatchObject({ wg: group });
   });
 
   it('TN-08: ⌘K auf der Seite eines Lieferanten öffnet Frag Reziproq mit ihm als Kontext', async () => {

@@ -2,8 +2,8 @@
 
 Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pnpm weiterleitungen`); ein Test schlägt fehl, wenn die Datei veraltet ist. Grundlage: NAV-10 2.0, TN-07 und UX-20 TU-07.
 
-- **aktiv** (13): leitet mit 301 vom Server und in der App weiter.
-- **geplant** (181): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
+- **aktiv** (14): leitet mit 301 vom Server und in der App weiter.
+- **geplant** (180): Das genannte Paket baut das Ziel und schaltet die Regel ein; bis dahin bleibt die Seite.
 - **bleibt** (81): Die Adresse gilt auch nach NAV-10 2.0.
 
 | Adresse | Neue Adresse | Paket | Stand |
@@ -247,7 +247,7 @@ Erzeugt aus `packages/shared/src/route-moves.ts` und dem Routenbaum der App (`pn
 | `/mein-tag` | `/heute` | K1-d | aktiv |
 | `/mein-tag/eingang` | `/heute?ansicht=alles` (Gruppe Zuordnen) | K1-e.3 | aktiv |
 | `/menu` | – | PLT-11 | bleibt |
-| `/portfolio` | `/beziehungen?linse=segmente` | K2-b | geplant |
+| `/portfolio` | `/beziehungen?linse=segmente` (Linse Segmente) | K2-b | aktiv |
 | `/portfolio/fokus` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |
 | `/portfolio/fokus/$id` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |
 | `/portfolio/matrix` | offen (Bewertungsrunden und Segmente) | K2-e | geplant |

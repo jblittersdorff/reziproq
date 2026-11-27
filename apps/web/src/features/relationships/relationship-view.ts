@@ -21,8 +21,12 @@ export const relationshipSearchSchema = z.object({
   typ: z.string().optional().catch(undefined),
   wg: z.string().optional().catch(undefined),
   bu: z.string().optional().catch(undefined),
-  // Bis K2-b.5 zeigt die Linse Segmente die bisherigen Ansichten Matrix und Runde
+  // Alte Adressen (`/lieferanten?ansicht=matrix`, `?ansicht=runde`, `/portfolio?warengruppe=<id>`):
+  // matrix öffnet die Linse Segmente, runde die Bewertungsrunden; mit Warengruppe oder Business Unit
+  // öffnet die Linse Segmente bis K2-e die bisherige Matrix mit Filtern (WG-18), `segmente` ist dort
+  // Ist, Soll oder beides.
   ansicht: z.enum(['matrix', 'runde']).optional().catch(undefined),
+  warengruppe: z.string().optional().catch(undefined),
   segmente: z.enum(['ist', 'soll', 'both']).optional().catch(undefined),
 });
 

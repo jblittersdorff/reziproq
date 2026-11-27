@@ -45,6 +45,13 @@ describe('Weiterleitungen alt → neu (TN-07)', () => {
     expect(movedTo('/uebersicht')).toBe('/wert');
     expect(movedTo('/wirkung', 'sicht=ebit&gj=2026')).toBe('/wert?sicht=ebit&gj=2026');
     expect(movedTo('/lieferanten', 'ansicht=matrix')).toBe('/beziehungen?ansicht=matrix');
+    // BZ-01 (K2-b.5): Portfolio ist die Linse Segmente; Unterseiten folgen mit K2-e
+    expect(movedTo('/portfolio')).toBe('/beziehungen?linse=segmente');
+    expect(movedTo('/portfolio', 'warengruppe=g1')).toBe(
+      '/beziehungen?linse=segmente&warengruppe=g1',
+    );
+    expect(movedTo('/portfolio/matrix')).toBeNull();
+    expect(movedTo('/portfolio/runden/550e8400-e29b-41d4-a716-446655440050')).toBeNull();
     expect(movedTo('/agenten')).toBe('/mein-agent');
     expect(movedTo('/einstellungen/ki/agenten')).toBe('/mein-agent');
     // Unterseiten folgen mit ihren Paketen (K2-c)

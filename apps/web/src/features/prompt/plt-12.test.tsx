@@ -149,9 +149,10 @@ describe('Antworten', () => {
     fireEvent.click(open);
     // Der Link schließt die Überlagerung und führt zur Seite.
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    // /portfolio ist die Matrix der Beziehungen (NAV-10 2.0)
+    // /portfolio ist die Linse Segmente der Seite Lieferanten (BZ-01, K2-b.5)
     await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
-    expect(await screen.findByRole('heading', { level: 1, name: 'Matrix' })).toBeDefined();
+    expect(router.state.location.search).toMatchObject({ linse: 'segmente' });
+    expect(await screen.findByRole('list', { name: 'Matrix der Segmente' })).toBeDefined();
   });
 
   it('verlinkt zum Spend der exakt gefundenen Lieferantenbeziehung', async () => {

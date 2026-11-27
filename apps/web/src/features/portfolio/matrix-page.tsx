@@ -16,6 +16,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { usePortfolioMatrix } from './use-portfolio';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 const cell = (levels: { impactLevel: number; qualityLevel: number }) =>
   `${levels.impactLevel}-${levels.qualityLevel}`;
@@ -87,11 +88,9 @@ type MatrixFilters = {
 export function MatrixContent({
   search,
   update,
-  embedded = false,
 }: {
   search: MatrixFilters;
   update: (next: MatrixFilters) => void;
-  embedded?: boolean;
 }) {
   const t = useT();
   const text = t.portfolio.matrix;
@@ -123,9 +122,10 @@ export function MatrixContent({
 
   return (
     <>
-      {!embedded && (
-        <PagePath trail={[{ label: t.nav.suppliers, href: '/beziehungen' }]} current={text.title} />
-      )}
+      <PagePath
+        trail={[{ label: t.portfolio.segmentsLabel, href: segmentsHref }]}
+        current={text.title}
+      />
       <PageHeader
         size="list"
         title={group ? text.titleFiltered(group.name) : text.title}

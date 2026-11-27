@@ -15,6 +15,7 @@ import { setFocus } from '@/lib/api';
 import { useFormat } from '@/lib/format';
 import { useT } from '@/lib/i18n';
 import { useFocusDetail } from './use-portfolio';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 /** Portfolio › Fokuslieferanten › Lieferant (SEG-02): Kennzahlen und der Schalter mit Pflicht-Begründung. */
 export function FocusDetailPage({ id }: { id: string }) {
@@ -26,7 +27,7 @@ export function FocusDetailPage({ id }: { id: string }) {
     <>
       <PagePath
         trail={[
-          { label: t.portfolio.title, href: '/portfolio' },
+          { label: t.portfolio.segmentsLabel, href: segmentsHref },
           { label: text.title, href: '/portfolio/fokus' },
         ]}
         current={data?.name ?? text.title}

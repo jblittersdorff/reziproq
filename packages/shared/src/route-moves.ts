@@ -102,7 +102,7 @@ export const routeMoves: readonly RouteMove[] = [
   move('/lieferanten/$id/strategie/segmentierung/*', null, 'K2-e', 'geplant', 'Segment-Mappe'),
   move('/lieferanten/$id/beziehung/feedback/*', '/beziehungen/$id/feedback', 'K2-f', 'geplant'),
   move('/lieferanten/$id/*', '/beziehungen/$id', 'K2-c', 'geplant', 'Sichten und Blätter der Akte'),
-  move('/portfolio', '/beziehungen?linse=segmente', 'K2-b', 'geplant'),
+  move('/portfolio', '/beziehungen?linse=segmente', 'K2-b', 'aktiv', 'Linse Segmente'),
   move('/portfolio/*', null, 'K2-e', 'geplant', 'Bewertungsrunden und Segmente'),
   move('/bewertungen/*', null, 'K2-e', 'geplant', 'Bewertung in Kurz prüfen'),
   move('/feedback/*', null, 'K2-f', 'geplant', 'Feedback als Objekt'),

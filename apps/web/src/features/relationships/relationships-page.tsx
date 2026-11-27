@@ -12,7 +12,6 @@ import { type ReactNode, useId, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { AreaSwitch } from '@/components/ui/entity-header';
 import { ErrorState } from '@/components/ui/error-state';
 import { FilterChips } from '@/components/ui/filter-chips';
 import { LoadingState } from '@/components/ui/loading-state';
@@ -51,6 +50,7 @@ import {
   spendTotals,
   topSegmentKey,
 } from './relationship-view';
+import { RelationshipLenses, segmentsHref } from './lenses';
 import { relationshipsMessages } from './relationships-messages';
 
 type Text = (typeof relationshipsMessages)['de'];
@@ -93,23 +93,10 @@ export function RelationshipsPage() {
   const update = (patch: Partial<RelationshipSearch>) =>
     void navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
 
-  const lenses = (
-    <div className="max-w-80">
-      <AreaSwitch
-        label={text.lenses.label}
-        active="liste"
-        renderLink={routerLink}
-        areas={[
-          { key: 'liste', label: text.lenses.list, href: '/beziehungen' },
-          { key: 'segmente', label: text.lenses.segments, href: '/beziehungen?linse=segmente' },
-        ]}
-      />
-    </div>
-  );
   const header = (where?: ReactNode) => (
     <div className="flex flex-col gap-5.5">
       <PageTitle title={t.suppliers.title} where={where} />
-      {lenses}
+      <RelationshipLenses active="liste" />
     </div>
   );
 
@@ -334,7 +321,7 @@ function ListSummary({
                   return (
                     <Row
                       key={row.kind}
-                      href="/beziehungen?linse=segmente"
+                      href={segmentsHref}
                       title={text.summary.unratedRow(displayNameOf(row.name).name)}
                       detail={spendOf(format, row.spend) ?? undefined}
                       value={<Badge variant="warning">{text.summary.chips.unrated}</Badge>}

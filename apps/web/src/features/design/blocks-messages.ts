@@ -42,6 +42,7 @@ export const blocksMessages = defineMessages({
       sectionCard: 'SectionCard · Karte mit Label',
       filterChips: 'FilterChips · Filter als Pillen',
       mirror: 'MiniMirror · Mini-Spiegel mit Spaltenköpfen',
+      matrix: 'SegmentMatrix · Matrix der Segmente',
     },
     filterChips: {
       label: 'Filter',
@@ -61,6 +62,61 @@ export const blocksMessages = defineMessages({
       ] as [string, string, number, number][],
       label: (name: string, own: number, counterpart: number) =>
         `Zusagen gehalten: ihr ${own} %, ${name} ${counterpart} %`,
+    },
+    matrix: {
+      label: 'Matrix der Segmente',
+      disputed: 'strittig',
+      fields: [
+        [
+          'entwickeln',
+          'Entwickeln',
+          9,
+          '4,3 Mio. €',
+          false,
+          [
+            ['Kessler Präzision', true],
+            ['Alpen Kunststofftechnik', false],
+          ],
+          'und 7 weitere',
+        ],
+        [
+          'strategisch',
+          'Strategisch',
+          8,
+          '18,4 Mio. €',
+          true,
+          [
+            ['Rheintal Elektronik', false],
+            ['Silesia Guss', false],
+            ['Nordwerk Guss', false],
+          ],
+          'und 5 weitere',
+        ],
+        [
+          'hebeln',
+          'Hebeln',
+          9,
+          '9,1 Mio. €',
+          false,
+          [
+            ['Lombardia Fonderie', false],
+            ['Moravia Plast', false],
+          ],
+          'und 7 weitere',
+        ],
+        [
+          'absichern',
+          'Absichern',
+          12,
+          '6,2 Mio. €',
+          false,
+          [
+            ['Alpen Sensorik', false],
+            ['Baltic Logistics', false],
+          ],
+          'und 10 weitere',
+        ],
+      ] as [string, string, number, string, boolean, [string, boolean][], string][],
     },
     sectionCard: {
       label: 'Signale einspielen',
@@ -282,6 +338,7 @@ export const blocksMessages = defineMessages({
       sectionCard: 'SectionCard · card with label',
       filterChips: 'FilterChips · filters as pills',
       mirror: 'MiniMirror · mini mirror with column heads',
+      matrix: 'SegmentMatrix · segment matrix',
     },
     filterChips: {
       label: 'Filters',
@@ -301,6 +358,61 @@ export const blocksMessages = defineMessages({
       ] as [string, string, number, number][],
       label: (name: string, own: number, counterpart: number) =>
         `Commitments kept: you ${own} %, ${name} ${counterpart} %`,
+    },
+    matrix: {
+      label: 'Segment matrix',
+      disputed: 'disputed',
+      fields: [
+        [
+          'entwickeln',
+          'Develop',
+          9,
+          '€4.3M',
+          false,
+          [
+            ['Kessler Präzision', true],
+            ['Alpen Kunststofftechnik', false],
+          ],
+          'and 7 more',
+        ],
+        [
+          'strategisch',
+          'Strategic',
+          8,
+          '€18.4M',
+          true,
+          [
+            ['Rheintal Elektronik', false],
+            ['Silesia Guss', false],
+            ['Nordwerk Guss', false],
+          ],
+          'and 5 more',
+        ],
+        [
+          'hebeln',
+          'Leverage',
+          9,
+          '€9.1M',
+          false,
+          [
+            ['Lombardia Fonderie', false],
+            ['Moravia Plast', false],
+          ],
+          'and 7 more',
+        ],
+        [
+          'absichern',
+          'Secure',
+          12,
+          '€6.2M',
+          false,
+          [
+            ['Alpen Sensorik', false],
+            ['Baltic Logistics', false],
+          ],
+          'and 10 more',
+        ],
+      ] as [string, string, number, string, boolean, [string, boolean][], string][],
     },
     sectionCard: {
       label: 'Play signals',

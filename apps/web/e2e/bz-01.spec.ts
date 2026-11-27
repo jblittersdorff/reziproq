@@ -3,9 +3,10 @@ import { fakeZitadel } from './fake-zitadel.js';
 import { lockHollmann } from './hollmann-lock.js';
 import { relationshipList } from './relationships.js';
 
-// BZ-01 (K2-b.4): Seite Lieferanten, Linse Liste, gegen die echte API im Demo-Mandanten Hollmann
-// (Mo 23.11.2026), als Jan-Luka über die Demo-Sitzung (E-K0-05). T2-01 und T2-02 in der
-// Oberfläche, bei 1440 und 390 px ohne seitliches Scrollen; mit UX_SHOTS entstehen Bilder.
+// BZ-01 (K2-b.4, K2-b.5): Seite Lieferanten mit den Linsen Liste und Segmente, gegen die echte API
+// im Demo-Mandanten Hollmann (Mo 23.11.2026), als Jan-Luka über die Demo-Sitzung (E-K0-05). T2-01
+// bis T2-03 in der Oberfläche, bei 1440 und 390 px ohne seitliches Scrollen; mit UX_SHOTS entstehen
+// Bilder.
 
 test.use({ locale: 'de-DE', colorScheme: 'light' });
 // Ein Worker für die ganze Datei: Hollmann hat feste IDs in der gemeinsamen Testdatenbank
@@ -193,5 +194,119 @@ test('Auf dem Telefon: Segment und Grund in der grauen Zeile, kleiner Spiegel, k
   expect(await sideOverflow(page)).toEqual([]);
   if (process.env.UX_SHOTS) {
     await page.screenshot({ path: `${process.env.UX_SHOTS}/bz-01-liste-390.png`, fullPage: true });
+  }
+});
+
+/** /portfolio leitet auf die Linse Segmente (K2-b.5) */
+async function openSegments(page: Page) {
+  await routeToRealApi(page);
+  await page.goto('/demo/als/hollmann-jan-luka');
+  await expect(page).not.toHaveURL(/\/demo\/als\//);
+  await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+  await page.goto('/portfolio');
+  await expect(page).toHaveURL(/\/beziehungen\?linse=segmente$/);
+  await expect(page.locator('#inhalt h1')).toHaveText('Lieferanten');
+  await expect(page.getByRole('list', { name: 'Matrix der Segmente' })).toBeVisible();
+  // Als Nächstes über alle Beziehungen, wie in der Liste (am 23.11. die Erwähnung von Nils Ott)
+  await expect(page.locator('[data-slot="next-card"]')).toBeVisible();
+}
+
+test('T2-03: Linse Segmente: Felder 9, 8, 9, 12; Kessler mit gelbem Rand; „Ohne Bewertung · 8“', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openSegments(page);
+  await expect(page.locator('#inhalt header')).toContainText(
+    '46 Lieferanten im Portfolio · 38 bewertet · Bewertungsrunde 2027 läuft bis Sa 19.12.',
+  );
+  const matrix = page.getByRole('list', { name: 'Matrix der Segmente' });
+  await expect(matrix.locator('li b')).toHaveText([
+    'Entwickeln · 9',
+    'Strategisch · 8',
+    'Hebeln · 9',
+    'Absichern · 12',
+  ]);
+  // Gelber Rand (signal-amber) und das Wort „strittig“
+  const kessler = matrix.locator('[data-disputed="true"]');
+  await expect(kessler).toHaveCount(1);
+  await expect(kessler).toContainText('Kessler Präzision · strittig');
+  await expect(kessler.getByText('· strittig')).toBeVisible();
+  expect(await kessler.evaluate((element) => getComputedStyle(element).boxShadow)).toContain(
+    'rgb(201, 138, 18)',
+  );
+  await expect(matrix.locator('li').nth(1)).toContainText(
+    /Rheintal Elektronik\s*Silesia Guss\s*Nordwerk Guss\s*und 5 weitere/,
+  );
+  await expect(page.getByRole('link', { name: /Ohne Bewertung · 8/ })).toContainText(
+    /darunter Pearl River Components, 5,64\sMio\.\s€/,
+  );
+  const summary = page.getByRole('region', { name: 'Das Wichtigste' });
+  await expect(summary).toContainText(
+    /8 Lieferanten im Segment „Strategisch“ tragen 18,4\sMio\.\s€, fast die Hälfte des bewerteten Spend\./,
+  );
+  await expect(
+    summary.getByRole('link', { name: /Kessler Präzision: Spanne 75 Punkte bei Qualität/ }),
+  ).toBeVisible();
+  await expect(
+    summary.getByRole('link', {
+      name: /8 Lieferanten ohne Bewertung, darunter der größte: Pearl River/,
+    }),
+  ).toBeVisible();
+  const spend = page.locator('section', { hasText: 'Spend 2026 nach Segment' });
+  await expect(spend.locator('li')).toHaveText([
+    /^Strategisch\s*18,4\sMio\.\s€$/,
+    /^Hebeln\s*9,1\sMio\.\s€$/,
+    /^Absichern\s*6,2\sMio\.\s€$/,
+    /^Entwickeln\s*4,3\sMio\.\s€$/,
+  ]);
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({
+      path: `${process.env.UX_SHOTS}/bz-01-segmente-1440.png`,
+      fullPage: true,
+    });
+  }
+});
+
+test('Ein Feld der Matrix öffnet die Liste mit demselben Segment über das Portfolio', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openSegments(page);
+  await page
+    .getByRole('list', { name: 'Matrix der Segmente' })
+    .getByRole('link', { name: /Strategisch · 8/ })
+    .click();
+  await expect(page).toHaveURL(/segment=2-2&portfolio=1/);
+  // Dieselben acht wie im Feld, mit den importierten Lieferanten ohne Anbindung
+  await expect(page.getByRole('button', { name: 'Alle · 8' })).toBeVisible();
+});
+
+test('Linse Segmente auf dem Telefon: Matrix 2 × 2 ohne seitliches Scrollen', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await openSegments(page);
+  await expect(page.locator('#inhalt header')).toContainText('46 im Portfolio · 38 bewertet');
+  const fields = page.getByRole('list', { name: 'Matrix der Segmente' }).locator('li');
+  await expect(fields).toHaveCount(4);
+  // Der Name bleibt lesbar; „strittig“ tragen Rand und Legende, das Wort hören Screenreader
+  const kessler = fields.locator('[data-disputed="true"]');
+  await expect(kessler.getByText('Kessler Präzision')).toBeVisible();
+  expect(
+    await kessler
+      .getByText('Kessler Präzision')
+      .evaluate((element) => element.scrollWidth <= element.clientWidth),
+  ).toBe(true);
+  // Zwei Felder nebeneinander wie auf dem Desktop
+  const [first, second] = await Promise.all([
+    fields.nth(0).boundingBox(),
+    fields.nth(1).boundingBox(),
+  ]);
+  expect(first && second && Math.abs(first.y - second.y)).toBeLessThan(2);
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({
+      path: `${process.env.UX_SHOTS}/bz-01-segmente-390.png`,
+      fullPage: true,
+    });
   }
 });

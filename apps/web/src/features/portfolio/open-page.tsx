@@ -10,6 +10,7 @@ import { PagePath } from '@/features/shell/page-path';
 import { useLocale, useT } from '@/lib/i18n';
 import { segmentationPath } from './matrix-page';
 import { usePortfolioOpen } from './use-portfolio';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 // WG-18: category_newer erscheint nur, wenn es Einträge gibt.
 const reasons = ['ratings_open', 'not_consolidated', 'deviation', 'category_newer'] as const;
@@ -38,7 +39,10 @@ export function OpenPage() {
 
   return (
     <>
-      <PagePath trail={[{ label: t.portfolio.title, href: '/portfolio' }]} current={text.title} />
+      <PagePath
+        trail={[{ label: t.portfolio.segmentsLabel, href: segmentsHref }]}
+        current={text.title}
+      />
       <PageHeader size="list" title={text.title} purpose={text.purpose} />
       {query.isError ? (
         <ErrorState title={text.failed} />

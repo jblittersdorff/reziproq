@@ -16,6 +16,7 @@ import { closeRound, extendRound } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
 import { useLocale, useT } from '@/lib/i18n';
 import { errorCode, formatDate, isNotFound, roundsPath, useRound, useToken } from './use-round';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 const statusVariant = { draft: 'neutral', open: 'selected', closed: 'success' } as const;
 
@@ -30,7 +31,7 @@ export function RoundPage({ id }: { id: string }) {
     <>
       <PagePath
         trail={[
-          { label: t.portfolio.title, href: '/portfolio' },
+          { label: t.portfolio.segmentsLabel, href: segmentsHref },
           { label: t.rounds.title, href: roundsPath },
         ]}
         current={round?.name ?? t.rounds.title}

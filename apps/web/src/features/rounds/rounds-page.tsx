@@ -15,6 +15,7 @@ import { roundsQueryOptions } from '@/lib/api';
 import { useFlash } from '@/lib/flash';
 import { useLocale, useT } from '@/lib/i18n';
 import { formatDate, linkClass, roundsPath, useToken } from './use-round';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 const statusVariant: Record<RoundStatus, 'neutral' | 'selected' | 'success'> = {
   draft: 'neutral',
@@ -35,7 +36,7 @@ export function RoundsPage() {
   return (
     <>
       <PagePath
-        trail={[{ label: t.portfolio.title, href: '/portfolio' }]}
+        trail={[{ label: t.portfolio.segmentsLabel, href: segmentsHref }]}
         current={t.rounds.title}
       />
       <PageHeader size="list" title={t.rounds.title} purpose={t.rounds.purpose} />

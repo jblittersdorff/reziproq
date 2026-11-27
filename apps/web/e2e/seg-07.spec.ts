@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { fakeZitadel } from './fake-zitadel.js';
+import { routeSegments } from './relationships.js';
 
 const id = (n: number) => `550e8400-e29b-41d4-a716-${String(n).padStart(12, '0')}`;
 const names = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'];
@@ -102,11 +103,21 @@ async function shoot(page: Page, testInfo: import('@playwright/test').TestInfo, 
   }
 }
 
-test('SEG-07 Kacheln', async ({ page }, testInfo) => {
+// BZ-01 (K2-b.5): /portfolio ist die Linse Segmente; die Kacheln sind dort Zeilen „Portfolio im
+// Detail“, bis K2-e die Seiten ersetzt.
+test('SEG-07 Wege aus der Linse Segmente', async ({ page }, testInfo) => {
   await setUp(page);
+  await routeSegments(page);
   await page.goto('/portfolio');
-  await expect(page.getByText('Lieferanten in der Matrix')).toBeVisible();
-  await shoot(page, testInfo, 'kacheln');
+  await expect(page).toHaveURL(/\/beziehungen\?linse=segmente$/);
+  await expect(page.getByRole('link', { name: /Offene Entscheidungen/ })).toContainText(
+    '6 Lieferanten warten',
+  );
+  await expect(page.getByRole('link', { name: /Matrix mit Filtern/ })).toHaveAttribute(
+    'href',
+    '/portfolio/matrix',
+  );
+  await shoot(page, testInfo, 'segmente');
 });
 
 test('SEG-07 Matrix mit 50 Lieferanten', async ({ page }, testInfo) => {

@@ -20,6 +20,7 @@ import { FormField } from '@/components/ui/form-field';
 import { FormGroup, FormPage } from '@/components/ui/form-page';
 import { Input } from '@/components/ui/input';
 import { MiniMirror } from '@/components/ui/mini-mirror';
+import { SegmentMatrix } from '@/components/ui/segment-matrix';
 import { Monogram } from '@/components/ui/monogram';
 import { NextCard } from '@/components/ui/next-card';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
@@ -373,6 +374,25 @@ export function BlocksPage() {
             ))}
           </RowGroup>
         </div>
+
+        {section('matrix', t.sections.matrix)}
+        {/* BZ-01 (K2-b.5): Matrix der Linse Segmente, Vorlage K2-Segmente */}
+        <SegmentMatrix
+          size={2}
+          label={t.matrix.label}
+          disputedLabel={t.matrix.disputed}
+          renderLink={routerLink}
+          fields={t.matrix.fields.map(([key, name, count, value, top, names, rest]) => ({
+            key,
+            name,
+            count,
+            value,
+            top,
+            rest,
+            href: '/beziehungen?linse=segmente',
+            names: names.map(([label, disputed]) => ({ key: label, label, disputed })),
+          }))}
+        />
 
         {section('segmented', t.sections.segmented)}
         {/* MA-01 (K1-f.3): Stufen-Umschalter wie in Mein Agent; eine nicht erlaubte Stufe ist gesperrt */}

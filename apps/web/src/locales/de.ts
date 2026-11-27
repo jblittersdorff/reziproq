@@ -184,6 +184,8 @@ export const de = {
 
   // Seiten, deren Inhalt eine spätere Spec liefert (PLT-11)
   portfolio: {
+    // K2-b.5: Die Seite Portfolio ist die Linse Segmente der Seite Lieferanten; Pfad zurück dorthin
+    segmentsLabel: 'Segmente',
     title: 'Portfolio',
     purpose: 'Alle Lieferanten nach Business Impact und Beziehungsqualität.',
     emptyTitle: 'Noch kein Portfolio',

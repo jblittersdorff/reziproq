@@ -24,6 +24,10 @@ Als Leitung des Lieferantenmanagements sehe ich auf einen Blick, wo alle Liefera
 
 ## Ablauf
 
+> **Seit K2-b.5 (27.11.2026):** `/portfolio` leitet auf die Linse Segmente der Seite Lieferanten
+> (`/beziehungen?linse=segmente`, BZ-01). Die Kacheln stehen dort als Zeilen „Portfolio im Detail“
+> und „Bewertungsrunden“ mit ihrer Kennzahl; die Seiten darunter bleiben, bis K2-e sie ersetzt.
+
 1. **Portfolio** (`/portfolio`) zeigt Kacheln:
    - Matrix
    - Offene Entscheidungen

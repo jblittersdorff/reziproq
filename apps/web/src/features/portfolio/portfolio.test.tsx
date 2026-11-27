@@ -84,18 +84,26 @@ beforeEach(() => {
 afterEach(tearDownApp);
 
 describe('SEG-07 Portfolio', () => {
-  it('zeigt fünf Kacheln mit Kennzahl und keine für Ungebautes (UMB-05, ZYK-04)', async () => {
+  it('die Seiten des Portfolios stehen mit Kennzahl in der Linse Segmente (K2-b.5, ZYK-04)', async () => {
+    // BZ-01: /portfolio ist die Linse Segmente; die fünf Kacheln sind dort Zeilen unter
+    // „Portfolio im Detail“ und „Bewertungsrunden“, bis K2-e sie ersetzt.
     renderAt('/portfolio');
-    expect(await screen.findByText('Lieferanten in der Matrix')).toBeTruthy();
-    expect(screen.getByText('offene Entscheidungen')).toBeTruthy();
-    expect(screen.getByText('offene Runde')).toBeTruthy();
-    expect(screen.getByText('Fokuslieferanten', { selector: 'dd,span,p' })).toBeTruthy();
-    expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
-    // ZYK-04 ist gebaut: Die Kachel „Stand der Zyklen“ führt zur Seite.
-    expect(screen.getByText('Stand der Zyklen')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Matrix öffnen' }).getAttribute('href')).toBe(
+    const open = await screen.findByRole('link', { name: /Offene Entscheidungen/ });
+    expect(open.getAttribute('href')).toBe('/portfolio/offen');
+    await waitFor(() => expect(open.textContent).toContain('3 Lieferanten warten'));
+    expect(screen.getByRole('link', { name: /Fokuslieferanten/ }).textContent).toContain(
+      '2 im Fokus',
+    );
+    expect(screen.getByRole('link', { name: /Matrix mit Filtern/ }).getAttribute('href')).toBe(
       '/portfolio/matrix',
     );
+    expect(screen.getByRole('link', { name: /Stand der Zyklen/ }).getAttribute('href')).toBe(
+      '/portfolio/zyklen',
+    );
+    expect(screen.getByRole('link', { name: /Alle Bewertungsrunden/ }).getAttribute('href')).toBe(
+      '/portfolio/runden',
+    );
+    expect(screen.queryByText(/Kommt (mit|nach) Release/)).toBeNull();
   });
 
   it('verteilt 50 Punkte einer Zelle ohne Überlappung innerhalb der Zelle', () => {

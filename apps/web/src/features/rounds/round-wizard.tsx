@@ -28,6 +28,7 @@ import { appNow } from '@/lib/clock';
 import { flash } from '@/lib/flash';
 import { useT } from '@/lib/i18n';
 import { errorCode, isNotFound, linkClass, roundsPath, useRound, useToken } from './use-round';
+import { segmentsHref } from '@/features/relationships/lenses';
 
 const totalSteps = 4;
 
@@ -53,7 +54,7 @@ function StepFrame({
     <>
       <PagePath
         trail={[
-          { label: t.portfolio.title, href: '/portfolio' },
+          { label: t.portfolio.segmentsLabel, href: segmentsHref },
           { label: t.rounds.title, href: roundsPath },
         ]}
         current={title}

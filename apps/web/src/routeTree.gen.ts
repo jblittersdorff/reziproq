@@ -44,7 +44,6 @@ import { Route as AppKundenIdRouteRouteImport } from './routes/_app/kunden/$id/r
 import { Route as AppLieferantenIdRouteRouteImport } from './routes/_app/lieferanten/$id/route'
 import { Route as AppLieferantenImportierenRouteImport } from './routes/_app/lieferanten/importieren'
 import { Route as AppLieferantenNeuRouteImport } from './routes/_app/lieferanten/neu'
-import { Route as AppPortfolioIndexRouteImport } from './routes/_app/portfolio/index'
 import { Route as AppPortfolioMatrixRouteImport } from './routes/_app/portfolio/matrix'
 import { Route as AppPortfolioOffenRouteImport } from './routes/_app/portfolio/offen'
 import { Route as AppPortfolioZyklenRouteImport } from './routes/_app/portfolio/zyklen'
@@ -454,11 +453,6 @@ const AppLieferantenImportierenRoute =
 const AppLieferantenNeuRoute = AppLieferantenNeuRouteImport.update({
   id: '/lieferanten/neu',
   path: '/lieferanten/neu',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPortfolioIndexRoute = AppPortfolioIndexRouteImport.update({
-  id: '/portfolio/',
-  path: '/portfolio/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPortfolioMatrixRoute = AppPortfolioMatrixRouteImport.update({
@@ -1877,7 +1871,6 @@ export interface FileRoutesByFullPath {
   '/einstellungen/': typeof AppEinstellungenIndexRoute
   '/feedback/': typeof AppFeedbackIndexRoute
   '/kunden/': typeof AppKundenIndexRoute
-  '/portfolio/': typeof AppPortfolioIndexRoute
   '/profil/': typeof AppProfilIndexRoute
   '/warengruppen/': typeof AppWarengruppenIndexRoute
   '/wert/': typeof AppWertIndexRoute
@@ -2142,7 +2135,6 @@ export interface FileRoutesByTo {
   '/einstellungen': typeof AppEinstellungenIndexRoute
   '/feedback': typeof AppFeedbackIndexRoute
   '/kunden': typeof AppKundenIndexRoute
-  '/portfolio': typeof AppPortfolioIndexRoute
   '/profil': typeof AppProfilIndexRoute
   '/warengruppen': typeof AppWarengruppenIndexRoute
   '/wert': typeof AppWertIndexRoute
@@ -2411,7 +2403,6 @@ export interface FileRoutesById {
   '/_app/einstellungen/': typeof AppEinstellungenIndexRoute
   '/_app/feedback/': typeof AppFeedbackIndexRoute
   '/_app/kunden/': typeof AppKundenIndexRoute
-  '/_app/portfolio/': typeof AppPortfolioIndexRoute
   '/_app/profil/': typeof AppProfilIndexRoute
   '/_app/warengruppen/': typeof AppWarengruppenIndexRoute
   '/_app/wert/': typeof AppWertIndexRoute
@@ -2681,7 +2672,6 @@ export interface FileRouteTypes {
     | '/einstellungen/'
     | '/feedback/'
     | '/kunden/'
-    | '/portfolio/'
     | '/profil/'
     | '/warengruppen/'
     | '/wert/'
@@ -2946,7 +2936,6 @@ export interface FileRouteTypes {
     | '/einstellungen'
     | '/feedback'
     | '/kunden'
-    | '/portfolio'
     | '/profil'
     | '/warengruppen'
     | '/wert'
@@ -3214,7 +3203,6 @@ export interface FileRouteTypes {
     | '/_app/einstellungen/'
     | '/_app/feedback/'
     | '/_app/kunden/'
-    | '/_app/portfolio/'
     | '/_app/profil/'
     | '/_app/warengruppen/'
     | '/_app/wert/'
@@ -3693,13 +3681,6 @@ declare module '@tanstack/react-router' {
       path: '/lieferanten/neu'
       fullPath: '/lieferanten/neu'
       preLoaderRoute: typeof AppLieferantenNeuRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/portfolio/': {
-      id: '/_app/portfolio/'
-      path: '/portfolio'
-      fullPath: '/portfolio/'
-      preLoaderRoute: typeof AppPortfolioIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/portfolio/matrix': {
@@ -5793,7 +5774,6 @@ interface AppRouteChildren {
   AppEinstellungenIndexRoute: typeof AppEinstellungenIndexRoute
   AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
   AppKundenIndexRoute: typeof AppKundenIndexRoute
-  AppPortfolioIndexRoute: typeof AppPortfolioIndexRoute
   AppProfilIndexRoute: typeof AppProfilIndexRoute
   AppWarengruppenIndexRoute: typeof AppWarengruppenIndexRoute
   AppWertIndexRoute: typeof AppWertIndexRoute
@@ -5901,7 +5881,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppEinstellungenIndexRoute: AppEinstellungenIndexRoute,
   AppFeedbackIndexRoute: AppFeedbackIndexRoute,
   AppKundenIndexRoute: AppKundenIndexRoute,
-  AppPortfolioIndexRoute: AppPortfolioIndexRoute,
   AppProfilIndexRoute: AppProfilIndexRoute,
   AppWarengruppenIndexRoute: AppWarengruppenIndexRoute,
   AppWertIndexRoute: AppWertIndexRoute,

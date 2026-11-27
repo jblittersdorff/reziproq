@@ -8,6 +8,7 @@ import {
   api,
   renderAt,
   sampleRelationships,
+  sampleSegments,
   setUpApp,
   signedIn,
   tearDownApp,
@@ -15,6 +16,7 @@ import {
 
 // BZ-01 (K2-b.4): Seite Lieferanten, Linse Liste, nach Vorlage Lieferanten. Kopf, Als Nächstes,
 // Das Wichtigste, Filter-Chips, „Mehr Filter“, Sortierung, Zeilen mit Mini-Spiegel (ZQ-01).
+// BZ-01 (K2-b.5): Linse Segmente nach Vorlage K2-Segmente, mit den Zahlen von Hollmann (T2-03).
 
 const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
@@ -338,13 +340,214 @@ describe('BZ-01 Linse Liste', () => {
   });
 });
 
-describe('BZ-01 Linse Segmente bis K2-b.5', () => {
-  it('der Umschalter führt zur Linse Segmente; alte Adressen der Matrix öffnen sie', async () => {
-    renderAt('/beziehungen?linse=segmente');
-    const lenses = await screen.findByRole('navigation', { name: 'Ansicht' });
+/** Die Matrix der Linse Segmente */
+const matrix = () => screen.getByRole('list', { name: 'Matrix der Segmente' });
+const segmentsAt = '/beziehungen?linse=segmente';
+
+describe('BZ-01 Linse Segmente (K2-b.5, Vorlage K2-Segmente)', () => {
+  it('Kopf mit Portfolio, Bewerteten und Runde; der Umschalter steht auf Segmente', async () => {
+    renderAt(segmentsAt);
+    expect(await screen.findByRole('heading', { level: 1, name: 'Lieferanten' })).toBeTruthy();
+    expect(
+      await screen.findByText(
+        '46 Lieferanten im Portfolio · 38 bewertet · Bewertungsrunde 2027 läuft bis Sa 19.12.',
+      ),
+    ).toBeTruthy();
+    const lenses = screen.getByRole('navigation', { name: 'Ansicht' });
     expect(
       within(lenses).getByRole('link', { name: 'Segmente' }).getAttribute('aria-current'),
     ).toBe('page');
-    expect(requested('/api/beziehungen')).toEqual([]);
+    // Die Linse holt nur die Segmente, nicht die Liste
+    expect(requested('/api/beziehungen').every((url) => url === '/api/beziehungen/segmente')).toBe(
+      true,
+    );
+    expect(document.title).toBe('Lieferanten – Reziproq');
+  });
+
+  it('T2-03: Felder 9, 8, 9, 12; Kessler mit gelbem Rand; „Ohne Bewertung · 8“', async () => {
+    renderAt(segmentsAt);
+    await screen.findByRole('list', { name: 'Matrix der Segmente' });
+    const fields = within(matrix()).getAllByRole('listitem');
+    expect(fields.map((field) => plain(field.querySelector('b')?.textContent))).toEqual([
+      'Entwickeln · 9',
+      'Strategisch · 8',
+      'Hebeln · 9',
+      'Absichern · 12',
+    ]);
+    // Strittig: gelber Rand und das Wort dazu (Status immer als Text)
+    const kessler = within(matrix()).getByText('Kessler Präzision').closest('[data-disputed]');
+    expect(kessler?.getAttribute('data-disputed')).toBe('true');
+    expect(kessler?.className).toContain('ring-signal-amber');
+    expect(kessler?.textContent).toContain('strittig');
+    // Namen wie in der Vorlage, das Feld mit beiden höchsten Stufen in Mint
+    const strategic = fields[1] as HTMLElement;
+    expect(plain(strategic.textContent)).toContain(
+      'Rheintal ElektronikSilesia GussNordwerk Gussund 5 weitere',
+    );
+    expect(strategic.querySelector('a')?.className).toContain('bg-mint-soft');
+    expect(plain(strategic.textContent)).toContain('18,4 Mio. €');
+    expect(strategic.textContent).toContain('Versorgungsrisiko hoch, Wertbeitrag hoch');
+    const unrated = screen.getByRole('link', { name: /Ohne Bewertung · 8/ });
+    expect(unrated.getAttribute('href')).toBe('/beziehungen?segment=ohne&portfolio=1');
+    expect(plain(unrated.textContent)).toContain('darunter Pearl River Components, 5,64 Mio. €');
+    expect(
+      screen.getByText(
+        'Matrix nach Versorgungsrisiko und Wertbeitrag, aus der letzten Entscheidung je Lieferant. Gelber Rand: Segment strittig.',
+      ),
+    ).toBeTruthy();
+  });
+
+  it('Das Wichtigste: Satz zum Feld Strategisch aus belegten Zahlen, dazu Klären und Fehlt', async () => {
+    renderAt(segmentsAt);
+    const summary = await screen.findByRole('region', { name: 'Das Wichtigste' });
+    expect(plain(summary.textContent)).toContain(
+      '8 Lieferanten im Segment „Strategisch“ tragen 18,4 Mio. €, fast die Hälfte des bewerteten Spend.',
+    );
+    expect(within(summary).getByText('Bewertungsrunde')).toBeTruthy();
+    expect(within(summary).getByText('Segmentmodell')).toBeTruthy();
+    const clarify = within(summary).getByRole('link', {
+      name: /Kessler Präzision: Spanne 75 Punkte bei Qualität, entscheidet über das Segment/,
+    });
+    expect(clarify.textContent).toContain('Klären');
+    expect(clarify.getAttribute('href')).toBe(
+      '/lieferanten/00000000-0000-7000-8000-000000000103/strategie/segmentierung',
+    );
+    const missing = within(summary).getByRole('link', {
+      name: /8 Lieferanten ohne Bewertung, darunter der größte: Pearl River Components/,
+    });
+    expect(missing.textContent).toContain('Fehlt');
+    expect(missing.getAttribute('href')).toBe('/beziehungen?segment=ohne&portfolio=1');
+  });
+
+  it('Spend nach Segment: Balken der Größe nach, Wert rechts', async () => {
+    renderAt(segmentsAt);
+    const card = (await screen.findByText('Spend 2026 nach Segment')).closest(
+      'section',
+    ) as HTMLElement;
+    expect(plain(within(card).getByRole('heading', { level: 2 }).textContent)).toBe(
+      '38 bewertete Lieferanten tragen 38 Mio. €',
+    );
+    expect([...card.querySelectorAll('li')].map((item) => plain(item.textContent))).toEqual([
+      'Strategisch18,4 Mio. €',
+      'Hebeln9,1 Mio. €',
+      'Absichern6,2 Mio. €',
+      'Entwickeln4,3 Mio. €',
+    ]);
+  });
+
+  it('ein Feld öffnet die Liste mit Filter Segment über das ganze Portfolio', async () => {
+    const router = renderAt(segmentsAt);
+    await screen.findByRole('list', { name: 'Matrix der Segmente' });
+    const strategic = within(matrix()).getAllByRole('link')[1] as HTMLElement;
+    expect(strategic.getAttribute('href')).toBe('/beziehungen?segment=2-2&portfolio=1');
+    fireEvent.click(strategic);
+    await waitFor(() =>
+      expect(router.state.location.search).toMatchObject({ segment: '2-2', portfolio: 1 }),
+    );
+    expect(await screen.findByRole('button', { name: 'Mehr Filter · 2' })).toBeTruthy();
+  });
+
+  it('rechts: Bewertungsrunden, Nur für euch, Portfolio im Detail und Segmentmodell', async () => {
+    renderAt(segmentsAt);
+    const round = await screen.findByRole('link', { name: /Bewertungsrunde 2027/ });
+    expect(round.getAttribute('href')).toBe(
+      '/portfolio/runden/00000000-0000-7000-8000-000000000a02',
+    );
+    expect(round.textContent).toContain('läuft bis Sa 19.12.');
+    // BZ-01: /portfolio/runden/<id> führt mit K2-e auf diesen Anker
+    expect(round.closest('#runde')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Alle Bewertungsrunden/ }).getAttribute('href')).toBe(
+      '/portfolio/runden',
+    );
+    expect(screen.getByText(/Lieferanten sehen weder Bewertung noch Segment/)).toBeTruthy();
+    for (const [name, href] of [
+      ['Matrix mit Filtern', '/portfolio/matrix'],
+      ['Offene Entscheidungen', '/portfolio/offen'],
+      ['Fokuslieferanten', '/portfolio/fokus'],
+      ['Stand der Zyklen', '/portfolio/zyklen'],
+      ['Kriterien und Gewicht', '/einstellungen/segmentmodell'],
+    ] as const) {
+      expect(screen.getByRole('link', { name: new RegExp(name) }).getAttribute('href')).toBe(href);
+    }
+    expect(screen.getByRole('link', { name: /Kriterien und Gewicht/ }).textContent).toContain(
+      'Versorgungsrisiko × Wertbeitrag · 2 × 2',
+    );
+  });
+
+  it('ohne Recht auf Runden und Segmentmodell fehlen diese Wege', async () => {
+    api.permissions = actionsFor.member.filter(
+      (action) => action !== 'runden.sehen' && action !== 'segmentmodell.sehen',
+    );
+    renderAt(segmentsAt);
+    await screen.findByRole('list', { name: 'Matrix der Segmente' });
+    await screen.findByRole('link', { name: /Matrix mit Filtern/ });
+    expect(screen.queryByRole('link', { name: /Alle Bewertungsrunden/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Kriterien und Gewicht/ })).toBeNull();
+  });
+
+  it('Fehler, ohne Recht, ohne Segmentmodell und leeres Portfolio', {
+    timeout: 20_000,
+  }, async () => {
+    api.relationshipSegments = {
+      status: 403,
+      body: { statusCode: 403, code: 'keine_berechtigung' },
+    };
+    renderAt(segmentsAt);
+    expect(await screen.findByText('Dir fehlt eine Rolle')).toBeTruthy();
+    expect(screen.getByText(/Die Segmente sieht, wer das Portfolio sehen darf/)).toBeTruthy();
+    tearDownApp();
+    setUpApp();
+    api.relationshipSegments = { status: 500, body: { statusCode: 500 } };
+    renderAt(segmentsAt);
+    // Ein Fehler des Servers wird zweimal wiederholt, bevor die Seite ihn zeigt
+    expect(
+      await screen.findByText('Die Segmente konnten nicht geladen werden.', {}, { timeout: 8000 }),
+    ).toBeTruthy();
+    tearDownApp();
+    setUpApp();
+    api.relationshipSegments = {
+      status: 200,
+      body: { ...sampleSegments, model: null, fields: [], rated: 0, ratedSpend: [] },
+    };
+    renderAt(segmentsAt);
+    expect(await screen.findByText('Noch kein Segmentmodell')).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'Segmentmodell einrichten' }).getAttribute('href'),
+    ).toBe('/einstellungen/segmentmodell');
+    tearDownApp();
+    setUpApp();
+    api.relationshipSegments = {
+      status: 200,
+      body: {
+        ...sampleSegments,
+        portfolio: 0,
+        rated: 0,
+        fields: [],
+        unrated: { count: 0, spend: [], suppliers: [] },
+      },
+    };
+    renderAt(segmentsAt);
+    expect(await screen.findByText('Noch keine Lieferanten im Portfolio')).toBeTruthy();
+  });
+
+  it('Übergänge bis K2-e: /portfolio führt hierher, mit Warengruppe zur bisherigen Matrix, die Runde zu den Bewertungsrunden', async () => {
+    let router = renderAt('/portfolio');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/beziehungen'));
+    expect(router.state.location.search).toMatchObject({ linse: 'segmente' });
+    expect(await screen.findByRole('list', { name: 'Matrix der Segmente' })).toBeTruthy();
+    tearDownApp();
+    setUpApp();
+    const group = '0190a0a0-0000-7000-8000-000000000077';
+    router = renderAt(`/portfolio?warengruppe=${group}`);
+    await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio/matrix'));
+    expect(router.state.location.search).toMatchObject({ wg: group });
+    tearDownApp();
+    setUpApp();
+    router = renderAt('/beziehungen?ansicht=runde');
+    await waitFor(() => expect(router.state.location.pathname).toBe('/portfolio/runden'));
+    tearDownApp();
+    setUpApp();
+    renderAt('/lieferanten?ansicht=matrix');
+    expect(await screen.findByRole('list', { name: 'Matrix der Segmente' })).toBeTruthy();
   });
 });

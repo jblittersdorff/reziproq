@@ -146,6 +146,7 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Ampelpunkt | 10 px am Monogramm, Rot `risk`, Gelb `#c98a12`, Petrol; Grund immer als Text in der Zeile | `A-Lieferanten.dc.html` |
 | Chip | Pille 12 / 600, Fläche und Text nach Status | überall |
 | Filter-Chips | Pillen 44 px hoch mit Name und Zahl („Meine · 6“), gewählt Tinte mit hellem Text, sonst weiß mit Rand `line`; „Mehr Filter“ öffnet einen Bereich darunter und trägt die Zahl der gesetzten Filter | `Lieferanten.dc.html` |
+| Segment-Matrix | Felder des Segmentmodells (2 × 2 oder 3 × 3) als Flächen `paper`, Zeilen nach Impact absteigend, Spalten nach Qualität aufsteigend; das Feld mit beiden höchsten Stufen Mint. Je Feld „Name · Zahl“ in Outfit 17, Spend grau, bis drei Namen als weiße Pillen und „und N weitere“; strittig mit Rand `amber` und dem Wort „strittig“. Ein Feld ist als Ganzes ein Link | `K2-Segmente.dc.html` |
 | Knöpfe | Haupt: nur in „Als Nächstes“ (Mint auf Tinte) oder als Speichern im Formular (Petrol). Zweit: Fläche `#e9ece8`, Text Tinte. Höhe 44, Hauptaktion 50 bis 52 | `Aufgaben.dc.html` |
 | Privat | Fläche `line-soft`, Rand gestrichelt `ring-open`, Schloss, Chip „privat“ | `P-Initiative.dc.html` |
 | Geteilt | Fläche `mint-soft`, Rand `mint-line`, Doppelring, Chip „beide Seiten“ | `L-Ueberblick.dc.html` |
