@@ -1,8 +1,8 @@
 import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
+import { seedAkte, seedAktePrivate } from './hollmann-akte.js';
 import { seedMorning } from './hollmann-morgen.js';
 import { seedPortfolio } from './hollmann-portfolio.js';
-import { seedAkte } from './hollmann-akte.js';
 import { seedCommitments } from './hollmann-zusagen.js';
 import {
   appUser,
@@ -664,6 +664,23 @@ export async function seedHollmann(
       idaRoth: person(hollmannPeople.idaRoth),
       kimKaiser: person(supplierPeople.kimKaiser),
       tomWeber: person(supplierPeople.tomWeber),
+    });
+    // Akte Rheintal, Sicht Nur für dich (K2-c.3): Gesprächspaare und Notizen nach K2-Akte-Privat
+    await seedAktePrivate(tx, {
+      nid,
+      hollmannOrgId: hollmann.org.id,
+      relationshipId: rheintal.relationshipId,
+      janLuka: person(janLuka),
+      saraOst: person(hollmannPeople.saraOst),
+      jonasFeld: person(hollmannPeople.jonasFeld),
+      idaRoth: person(hollmannPeople.idaRoth),
+      tomBerg: person(hollmannPeople.tomBerg),
+      // Ansprechpartner von Rheintal wie oben unter supplier_contact (nid 721 bis 723)
+      contacts: {
+        tomWeber: { id: nid(721), name: supplierPeople.tomWeber.name },
+        leaBrandt: { id: nid(722), name: supplierPeople.leaBrandt.name },
+        miaKuhn: { id: nid(723), name: supplierPeople.miaKuhn.name },
+      },
     });
     // Portfolio für die Seite Lieferanten (K2-b.2): Segmentmodell 2 × 2, 46 Lieferanten,
     // Segmente, Fokus, Runde 2027 mit Kessler, Zusagequoten und offene Zusagen

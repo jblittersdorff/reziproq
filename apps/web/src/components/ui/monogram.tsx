@@ -1,5 +1,6 @@
 import { monogram } from '@/lib/monogram';
 import { cn } from '@/lib/utils';
+import { BrandMark } from './brand-mark';
 
 export type MonogramTone =
   | 'neutral'
@@ -31,6 +32,7 @@ function Monogram({
   emphasis = false,
   tone,
   ring = false,
+  brand = false,
   size = 'md',
   label,
   className,
@@ -42,11 +44,13 @@ function Monogram({
   emphasis?: boolean;
   tone?: MonogramTone;
   ring?: boolean;
+  /** Reziproq selbst (Verlauf der Akte): Doppelring auf Mint statt Buchstaben */
+  brand?: boolean;
   /** sm 28, md 38, lg 52 px, xl 56 px (Akte-Kopf) */
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string | undefined;
 }) {
-  const resolved = tone ?? (emphasis ? 'ink' : 'neutral');
+  const resolved = brand ? 'shared' : (tone ?? (emphasis ? 'ink' : 'neutral'));
   return (
     <span
       aria-hidden
@@ -62,7 +66,7 @@ function Monogram({
         className,
       )}
     >
-      {label ?? monogram(name)}
+      {brand ? <BrandMark className="h-3.5 w-5" /> : (label ?? monogram(name))}
     </span>
   );
 }

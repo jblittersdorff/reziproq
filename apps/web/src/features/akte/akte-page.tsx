@@ -12,7 +12,6 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { Mirror } from '@/components/ui/mirror';
 import { Monogram } from '@/components/ui/monogram';
-import { PrivateNote } from '@/components/ui/private-note';
 import { Row, RowGroup } from '@/components/ui/row-group';
 import { SoWhat } from '@/components/ui/so-what';
 import { useMe } from '@/features/auth/use-me';
@@ -32,26 +31,18 @@ import { type Format, useFormat } from '@/lib/format';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { akteMessages } from './akte-messages';
-import {
-  type AkteViewKey,
-  comparison,
-  isNear,
-  measureText,
-  monthOf,
-  overdueOf,
-  viewOf,
-} from './akte-view';
+import { PrivateView } from './akte-private-view';
+import { comparison, isNear, measureText, monthOf, oldPage, overdueOf, viewOf } from './akte-view';
 
 type Text = (typeof akteMessages)['de'];
 
-/** Alte Seiten unter /lieferanten/<id>, bis ihr Paket sie ersetzt (E-K2-12) */
-const old = (id: string, path = '') => `/lieferanten/${id}${path}`;
+const old = oldPage;
 
 /**
- * Akte einer Beziehung (AK-01, K2-c.2, nach den Vorlagen L-Ueberblick und A-Lieferant): Kopf mit
- * Aktionen und Sichten-Umschalter, der die Adresse setzt (T2-04). Gemeinsam zeigt, was beide Seiten
- * gleich sehen. Nur für dich und Von <Gegenüber> bauen K2-c.3 und K2-c.4; bis dahin führen sie zu den
- * bisherigen Seiten (E-K2-12).
+ * Akte einer Beziehung (AK-01, nach den Vorlagen L-Ueberblick, K2-Akte-Privat und A-Lieferant): Kopf
+ * mit Aktionen und Sichten-Umschalter, der die Adresse setzt (T2-04). Gemeinsam (K2-c.2) zeigt, was
+ * beide Seiten gleich sehen, Nur für dich (K2-c.3) was nur das eigene Team sieht. Von <Gegenüber>
+ * baut K2-c.4; bis dahin führt es zu den bisherigen Seiten (E-K2-12).
  */
 export function AktePage({ relationshipId }: { relationshipId: string }) {
   const t = useT();
@@ -171,8 +162,10 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
       />
       {view === 'gemeinsam' ? (
         <SharedView relationshipId={relationshipId} name={name} text={text} />
+      ) : view === 'privat' ? (
+        <PrivateView relationshipId={relationshipId} name={name} />
       ) : (
-        <Bridge view={view} relationshipId={relationshipId} name={name} text={text} />
+        <Bridge relationshipId={relationshipId} name={name} text={text} />
       )}
     </div>
   );
@@ -700,102 +693,46 @@ function Team({
 }
 
 /**
- * Nur für dich und Von <Gegenüber> bis K2-c.3 und K2-c.4: die bisherigen Seiten dieser Inhalte
- * (E-K2-12), damit nichts verloren geht
+ * Von <Gegenüber> bis K2-c.4: die bisherigen Seiten dieser Inhalte (E-K2-12), damit nichts verloren
+ * geht. Vorlage K2-Akte-Geteilt: was beide Seiten sehen, als geteilte Gruppe (Mint mit Doppelring).
  */
 function Bridge({
-  view,
   relationshipId,
   name,
   text,
 }: {
-  view: Exclude<AkteViewKey, 'gemeinsam'>;
   relationshipId: string;
   name: string;
   text: Text;
 }) {
-  const rows: { key: string; title: string; detail: string; path: string }[] =
-    view === 'privat'
-      ? [
-          {
-            key: 'verlauf',
-            title: text.bridge.history,
-            detail: text.bridge.historySub,
-            path: '/aktivitaeten',
-          },
-          {
-            key: 'segment',
-            title: text.bridge.segment,
-            detail: text.bridge.segmentSub,
-            path: '/strategie/segmentierung',
-          },
-          {
-            key: 'plan',
-            title: text.bridge.plan,
-            detail: text.bridge.planSub,
-            path: '/strategie/lieferantenplan',
-          },
-          {
-            key: 'warengruppen',
-            title: text.bridge.groups,
-            detail: text.bridge.groupsSub,
-            path: '/strategie/warengruppen',
-          },
-          { key: 'wert', title: text.bridge.value, detail: text.bridge.valueSub, path: '/wirkung' },
-          {
-            key: 'kontaktpunkte',
-            title: text.bridge.touchpoints,
-            detail: text.bridge.touchpointsSub,
-            path: '/beziehung/kontaktpunkte',
-          },
-        ]
-      : [
-          {
-            key: 'spielregeln',
-            title: text.bridge.rules,
-            detail: text.bridge.rulesSub,
-            path: '/beziehung/spielregeln',
-          },
-          {
-            key: 'team',
-            title: text.bridge.team,
-            detail: text.bridge.teamSub,
-            path: '/beziehung/team',
-          },
-          {
-            key: 'feedback',
-            title: text.bridge.feedback,
-            detail: text.bridge.feedbackSub,
-            path: '/beziehung/feedback',
-          },
-        ];
-  const links = rows.map((row) => (
-    <Row
-      key={row.key}
-      href={old(relationshipId, row.path)}
-      title={row.title}
-      detail={row.detail}
-      wrap
-      renderLink={routerLink}
-    />
-  ));
-  if (view === 'privat') {
-    // Vorlage K2-Akte-Privat: oben die private Fläche mit Schloss und Chip, darunter weiße Gruppen
-    // mit „nur euer Team“ im Label
-    return (
-      <div className="flex max-w-3xl flex-col gap-5.5">
-        <PrivateNote title={text.bridge.privateTitle} chip={text.bridge.privateChip}>
-          <p>{text.bridge.privateText(name)}</p>
-        </PrivateNote>
-        <RowGroup label={text.bridge.private}>{links}</RowGroup>
-      </div>
-    );
-  }
-  // Vorlage K2-Akte-Geteilt: was beide Seiten sehen, als geteilte Gruppe (Mint mit Doppelring)
+  const rows = [
+    {
+      key: 'spielregeln',
+      title: text.bridge.rules,
+      detail: text.bridge.rulesSub,
+      path: '/beziehung/spielregeln',
+    },
+    { key: 'team', title: text.bridge.team, detail: text.bridge.teamSub, path: '/beziehung/team' },
+    {
+      key: 'feedback',
+      title: text.bridge.feedback,
+      detail: text.bridge.feedbackSub,
+      path: '/beziehung/feedback',
+    },
+  ];
   return (
     <div className="max-w-3xl">
       <RowGroup tone="shared" label={text.bridge.counterpart(name)}>
-        {links}
+        {rows.map((row) => (
+          <Row
+            key={row.key}
+            href={old(relationshipId, row.path)}
+            title={row.title}
+            detail={row.detail}
+            wrap
+            renderLink={routerLink}
+          />
+        ))}
       </RowGroup>
     </div>
   );

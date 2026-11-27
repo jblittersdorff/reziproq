@@ -12,6 +12,10 @@ export type AkteViewKey = 'gemeinsam' | 'privat' | 'geteilt';
 
 export const viewOf = (search: AkteSearch): AkteViewKey => search.sicht ?? 'gemeinsam';
 
+/** Bisherige Seiten unter /lieferanten/<id>, bis ihr Paket sie ersetzt (E-K2-12) */
+export const oldPage = (relationshipId: string, path = '') =>
+  `/lieferanten/${relationshipId}${path}`;
+
 /** Wer hält mehr Zusagen (Das Wichtigste); none, solange eine Seite nichts Fälliges hat */
 export function comparison(quota: AkteShared['quota']): 'more' | 'less' | 'equal' | 'none' {
   const own = quota.own.percent;

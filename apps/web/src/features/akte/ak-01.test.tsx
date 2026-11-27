@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { aktePrivateSample } from '@/testing/akte-private-sample';
 import {
   api,
   renderAt,
@@ -27,6 +28,7 @@ vi.mock('@/lib/auth', async (importOriginal) => ({
 beforeEach(() => {
   auth.state = signedIn;
   setUpApp();
+  api.aktePrivate = aktePrivateSample();
 });
 afterEach(tearDownApp);
 
@@ -69,13 +71,11 @@ describe('AK-01 Akte, Kopf und Sichten', () => {
     fireEvent.click(link(/Nur für dich/));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ sicht: 'privat' }));
     expect(link(/Nur für dich/).getAttribute('aria-current')).toBe('page');
-    // Bis K2-c.3 führt Nur für dich zu den bisherigen Seiten (E-K2-12), privat gekennzeichnet
-    expect((await screen.findByRole('link', { name: /Verlauf/ })).getAttribute('href')).toBe(
-      `/lieferanten/${id}/aktivitaeten`,
-    );
-    const note = document.querySelector('[data-slot="private-note"]') as HTMLElement;
+    // K2-c.3: Nur für dich mit Verlauf, Beziehungsnetz und rechter Spalte (ak-01-privat.test.tsx)
+    expect(await screen.findByRole('region', { name: 'Verlauf · nur euer Team' })).toBeTruthy();
+    const note = await screen.findByRole('region', { name: 'Das Wichtigste' });
+    expect(note.getAttribute('data-slot')).toBe('private-note');
     expect(note.textContent).toContain('Nur für dich und euer Teamprivat');
-    expect(note.textContent).toContain('Rheintal Elektronik sieht davon nichts.');
     fireEvent.click(link(/Von Rheintal Elektronik/));
     await waitFor(() => expect(router.state.location.search).toMatchObject({ sicht: 'geteilt' }));
     const rules = await screen.findByRole('link', { name: /Spielregeln/ });

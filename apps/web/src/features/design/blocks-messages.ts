@@ -140,6 +140,22 @@ export const blocksMessages = defineMessages({
         ['8D-Bericht Charge 4711', 'Rheintal · Nils Ott · war bis 05.11.', 'überfällig'],
         ['Prognose 2028 teilen', 'eure Seite · Ida Roth · bis 31.01.', 'offen'],
       ] as [string, string, string][],
+      // K2-c.3: Nur für dich
+      privateTitle: 'Nur für dich und euer Team',
+      privateChip: 'privat',
+      privateStatement:
+        'Rheintal steht im Segment „Strategisch“, aber knapp: 4 Punkte über der Grenze. Mit Kim Kaiser und Nils Ott spricht bei euch noch niemand direkt.',
+      historyLabel: 'Verlauf · nur euer Team',
+      ask: 'Frag Reziproq zu Rheintal',
+      askExample: 'zum Beispiel: „Was hat Rheintal zuletzt zugesagt?“',
+      noteTitle: 'Deine Notiz',
+      noteDetail: '19.11. · nur du · Gespräch mit Tom Weber, zwei Themen fürs JBP',
+      noteText:
+        'Gespräch mit Tom Weber, zwei Themen fürs JBP: Prognosen früher teilen, Kapazität 2028.',
+      noteChip: 'Notiz',
+      agentTitle: 'Reziproq hat die Ziele fürs Briefing entworfen',
+      agentDetail: '23.11. · Entwurf offen',
+      agentChip: 'Reziproq',
     },
     sectionCard: {
       label: 'Signale einspielen',
@@ -459,6 +475,22 @@ export const blocksMessages = defineMessages({
         ['8D report batch 4711', 'Rheintal · Nils Ott · was due Nov 5', 'overdue'],
         ['Share forecast 2028', 'your side · Ida Roth · due Jan 31', 'open'],
       ] as [string, string, string][],
+      // K2-c.3: Only for you
+      privateTitle: 'Only for you and your team',
+      privateChip: 'private',
+      privateStatement:
+        'Rheintal is in the segment “Strategic”, but only just: 4 points above the boundary. Nobody on your side talks directly with Kim Kaiser and Nils Ott yet.',
+      historyLabel: 'History · your team only',
+      ask: 'Ask Reziproq about Rheintal',
+      askExample: 'for example: “What did Rheintal commit to last?”',
+      noteTitle: 'Your note',
+      noteDetail: 'Nov 19 · only you · Talk with Tom Weber, two topics for the JBP',
+      noteText:
+        'Talk with Tom Weber, two topics for the JBP: share forecasts earlier, capacity 2028.',
+      noteChip: 'Note',
+      agentTitle: 'Reziproq drafted the goals for the briefing',
+      agentDetail: 'Nov 23 · draft open',
+      agentChip: 'Reziproq',
     },
     sectionCard: {
       label: 'Play signals',

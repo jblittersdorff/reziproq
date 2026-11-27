@@ -12,6 +12,7 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { AkteHead } from '@/components/ui/akte-head';
 import { AppShell, ShellContent } from '@/components/ui/app-shell';
 import { AskOverlay } from '@/components/ui/ask-overlay';
+import { AskRow } from '@/components/ui/ask-row';
 import { Badge } from '@/components/ui/badge';
 import { BrandMark } from '@/components/ui/brand-mark';
 import { Button } from '@/components/ui/button';
@@ -27,8 +28,9 @@ import { MiniMirror } from '@/components/ui/mini-mirror';
 import { Mirror } from '@/components/ui/mirror';
 import { Monogram } from '@/components/ui/monogram';
 import { NextCard } from '@/components/ui/next-card';
+import { PrivateNote } from '@/components/ui/private-note';
 import { type ChainState, ProcessChain } from '@/components/ui/process-chain';
-import { Row, RowGroup, RowHead, RowHeads } from '@/components/ui/row-group';
+import { DisclosureRow, Row, RowGroup, RowHead, RowHeads } from '@/components/ui/row-group';
 import { SectionCard } from '@/components/ui/section-card';
 import { SegmentMatrix } from '@/components/ui/segment-matrix';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -57,6 +59,7 @@ export function BlocksPage() {
   const [chip, setChip] = useState('alle');
   const [moreOpen, setMoreOpen] = useState(false);
   const [ask, setAsk] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [level, setLevel] = useState<'suggest' | 'prepare' | 'do'>('prepare');
   useEffect(() => {
     document.title = `${t.title} – Reziproq`;
@@ -454,6 +457,37 @@ export function BlocksPage() {
               value={<Badge variant="neutral">{chip}</Badge>}
             />
           ))}
+        </RowGroup>
+        {/* AK-01 (K2-c.3): Nur für dich – private Fläche mit Aussage, Verlauf mit Frag-Zeile und
+            aufklappender Zeile, Reziproq als Monogramm mit Doppelring */}
+        <PrivateNote
+          label={t.akte.privateTitle}
+          title={t.akte.privateTitle}
+          chip={t.akte.privateChip}
+          statement={t.akte.privateStatement}
+        />
+        <RowGroup
+          label={t.akte.historyLabel}
+          intro={
+            <AskRow label={t.akte.ask} example={t.akte.askExample} onAsk={() => setAsk(true)} />
+          }
+        >
+          <DisclosureRow
+            lead={<Monogram name="Jan-Luka" tone="ink" />}
+            title={t.akte.noteTitle}
+            detail={t.akte.noteDetail}
+            value={<Badge variant="neutral">{t.akte.noteChip}</Badge>}
+            open={noteOpen}
+            onToggle={() => setNoteOpen(!noteOpen)}
+          >
+            <p className="text-base">{t.akte.noteText}</p>
+          </DisclosureRow>
+          <Row
+            lead={<Monogram name="Reziproq" brand />}
+            title={t.akte.agentTitle}
+            detail={t.akte.agentDetail}
+            value={<Badge variant="neutral">{t.akte.agentChip}</Badge>}
+          />
         </RowGroup>
 
         {section('segmented', t.sections.segmented)}

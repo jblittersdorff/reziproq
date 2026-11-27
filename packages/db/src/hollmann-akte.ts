@@ -1,4 +1,11 @@
-import { kpiValue, scorecard, scorecardKpi, scorecardSignature } from './schema/index.js';
+import {
+  kpiValue,
+  note,
+  scorecard,
+  scorecardKpi,
+  scorecardSignature,
+  touchpoint,
+} from './schema/index.js';
 import type { TenantTransaction } from './tenant.js';
 
 // DM-01 K2 (K2-c.1): Akte Rheintal, Sicht Gemeinsam, nach der Vorlage L-Ueberblick. Die Scorecard
@@ -150,4 +157,124 @@ export async function seedAkte(tx: TenantTransaction, refs: AkteRefs) {
     }),
   );
   await tx.insert(kpiValue).values(values);
+}
+
+export interface AktePrivateRefs {
+  nid: (n: number) => string;
+  hollmannOrgId: string;
+  relationshipId: string;
+  janLuka: Person;
+  saraOst: Person;
+  jonasFeld: Person;
+  idaRoth: Person;
+  tomBerg: Person;
+  /** Ansprechpartner von Rheintal (supplier_contact) */
+  contacts: { tomWeber: Person; leaBrandt: Person; miaKuhn: Person };
+}
+
+/**
+ * DM-01 K2 (K2-c.3): Akte Rheintal, Sicht Nur für dich, nach der Vorlage K2-Akte-Privat. Vier interne
+ * Gesprächspaare (Kontaktpunkte, PLB-06) mit den Entscheidern als Notiz; mit Kim Kaiser und Nils Ott
+ * spricht noch niemand direkt. Im Verlauf eine eigene Notiz von Jan-Luka „nur ich“ und die
+ * angeheftete Notiz von Jonas Feld zur Kupferklausel. Rheintal hat im Demo keinen laufenden Zyklus,
+ * die Kontaktpunkte ändern also keinen Schritt. Personen synthetisch (G-10).
+ */
+export async function seedAktePrivate(tx: TenantTransaction, refs: AktePrivateRefs) {
+  const { nid, hollmannOrgId, relationshipId, contacts } = refs;
+  const pair = (
+    n: number,
+    format: string,
+    buyer: Person,
+    buyerLevel: 'management' | 'operational',
+    contact: Person,
+    supplierLevel: 'management' | 'operational',
+    cadence: 'monthly' | 'quarterly' | 'semiannual',
+    notes: string,
+  ) => ({
+    id: nid(1720 + n),
+    relationshipId,
+    ownerOrgId: hollmannOrgId,
+    visibility: 'internal' as const,
+    buyerUserId: buyer.id,
+    buyerName: buyer.name,
+    buyerLevel,
+    supplierContactId: contact.id,
+    supplierName: contact.name,
+    supplierLevel,
+    format,
+    cadence,
+    notes,
+    createdBy: refs.saraOst.id,
+    createdAt: day('2026-10-10'),
+    updatedAt: day('2026-10-10'),
+  });
+  await tx
+    .insert(touchpoint)
+    .values([
+      pair(
+        0,
+        'Preise und Verträge',
+        refs.saraOst,
+        'management',
+        contacts.tomWeber,
+        'management',
+        'quarterly',
+        'Entscheidet: Kim Kaiser, nur über Tom Weber',
+      ),
+      pair(
+        1,
+        'Rohstoffe',
+        refs.jonasFeld,
+        'operational',
+        contacts.leaBrandt,
+        'operational',
+        'monthly',
+        'Entscheidet: Kim Kaiser, nur über Lea Brandt',
+      ),
+      pair(
+        2,
+        'Qualität',
+        refs.idaRoth,
+        'operational',
+        contacts.tomWeber,
+        'management',
+        'monthly',
+        'Entscheidet: Nils Ott',
+      ),
+      pair(
+        3,
+        'Technik',
+        refs.tomBerg,
+        'management',
+        contacts.miaKuhn,
+        'management',
+        'semiannual',
+        'Entscheidet: Mia Kuhn, Werksleitung',
+      ),
+    ]);
+  await tx.insert(note).values([
+    {
+      id: nid(1730),
+      orgId: hollmannOrgId,
+      relationshipId,
+      authorUserId: refs.janLuka.id,
+      visibility: 'private',
+      kind: 'note',
+      text: 'Gespräch mit Tom Weber, zwei Themen fürs JBP: Prognosen früher teilen und Kapazität 2028.',
+      createdAt: new Date('2026-11-19T15:10:00.000Z'),
+      updatedAt: new Date('2026-11-19T15:10:00.000Z'),
+    },
+    {
+      id: nid(1731),
+      orgId: hollmannOrgId,
+      relationshipId,
+      authorUserId: refs.jonasFeld.id,
+      visibility: 'team',
+      kind: 'note',
+      text: 'Linie Kupfer: Basis 10/2026, Anpassung ab 5 % Indexänderung, beide Richtungen.',
+      pinned: true,
+      createdAt: new Date('2026-11-02T09:30:00.000Z'),
+      updatedAt: new Date('2026-11-02T09:30:00.000Z'),
+    },
+  ]);
 }

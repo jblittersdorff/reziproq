@@ -180,17 +180,10 @@ test('T2-04: der Umschalter setzt die Adresse; ?sicht=privat und ?sicht=geteilt 
   const views = page.getByRole('navigation', { name: 'Sicht auf die Beziehung' });
   await views.getByRole('link', { name: /Nur für dich/ }).click();
   await expect(page).toHaveURL(/\?sicht=privat$/);
-  await expect(page.getByRole('link', { name: /Verlauf/ })).toBeVisible();
-  // Bis K2-c.3 die bisherigen Seiten, privat gekennzeichnet (Vorlage K2-Akte-Privat)
+  await expect(page.getByRole('region', { name: 'Verlauf · nur euer Team' })).toBeVisible();
   await expect(page.locator('[data-slot="private-note"]')).toContainText(
     'Nur für dich und euer Team',
   );
-  if (process.env.UX_SHOTS) {
-    await page.screenshot({
-      path: `${process.env.UX_SHOTS}/ak-01-privat-1440.png`,
-      fullPage: true,
-    });
-  }
   await views.getByRole('link', { name: /Von Rheintal Elektronik/ }).click();
   await expect(page).toHaveURL(/\?sicht=geteilt$/);
   await expect(page.getByRole('link', { name: /Spielregeln/ })).toBeVisible();
@@ -198,6 +191,73 @@ test('T2-04: der Umschalter setzt die Adresse; ?sicht=privat und ?sicht=geteilt 
   await expect(page).toHaveURL(/\?sicht=privat$/);
   await views.getByRole('link', { name: /Gemeinsam/ }).click();
   await expect(page).toHaveURL(/\/beziehungen\/[0-9a-f-]{36}$/);
+});
+
+test('Nur für dich (K2-c.3): Das Wichtigste, Segment, Verlauf mit neuer Notiz und Filter, Beziehungsnetz', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openAkte(page);
+  await page
+    .getByRole('navigation', { name: 'Sicht auf die Beziehung' })
+    .getByRole('link', { name: /Nur für dich/ })
+    .click();
+  await expect(page).toHaveURL(/\?sicht=privat$/);
+  // Vorlage K2-Akte-Privat: Sätze aus belegten Zahlen (G-6), privat gekennzeichnet
+  const summary = page.getByRole('region', { name: 'Das Wichtigste' });
+  await expect(summary).toContainText(
+    'Rheintal Elektronik steht im Segment „Strategisch“, 25 Punkte über der Grenze. Mit Kim Kaiser und Nils Ott spricht bei euch noch niemand direkt.',
+  );
+  const segment = page.getByRole('region', { name: 'Segment und Bewertung' });
+  await expect(
+    segment.getByRole('link', { name: /Strategisch · 25 Punkte über der Grenze/ }),
+  ).toBeVisible();
+  await expect(segment).toContainText(
+    'Bewertungsrunde 2026, eine Bewertung · festgelegt 20.03.2026',
+  );
+  const network = page.getByRole('region', { name: 'Beziehungsnetz' });
+  await expect(network.getByRole('link')).toHaveCount(4);
+  await expect(network.getByRole('link', { name: /Preise und Verträge/ })).toContainText(
+    'Sara Ost ↔ Tom Weber · quartalsweise · Entscheidet: Kim Kaiser, nur über Tom Weber',
+  );
+  const history = page.getByRole('region', { name: 'Verlauf · nur euer Team' });
+  // Angeheftetes oben, danach das Vergangene; der JBP am 04.12. steht nicht vorn
+  await expect(history.locator('[data-slot="disclosure-row"] > button').first()).toContainText(
+    'Angeheftet · Jonas Feld',
+  );
+  await expect(history.getByRole('link', { name: /JBP Rheintal 2027/ })).toHaveCount(0);
+  await page.waitForLoadState('networkidle');
+  expect(await sideOverflow(page)).toEqual([]);
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({
+      path: `${process.env.UX_SHOTS}/ak-01-privat-1440.png`,
+      fullPage: true,
+    });
+  }
+  // „Alles anzeigen“: der Rest nach Monaten, mit der eigenen Notiz „nur du“ und dem JBP im Dezember
+  await history.getByRole('button', { name: /Alles anzeigen/ }).click();
+  await expect(page.getByRole('button', { name: /Deine Notiz/ })).toContainText(
+    '19.11. · nur du · Gespräch mit Tom Weber',
+  );
+  await expect(
+    page
+      .getByRole('region', { name: 'Dezember 2026' })
+      .getByRole('link', { name: /JBP Rheintal 2027/ }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: /Mail von Tom Weber/ })).toBeVisible();
+  // Neue Notiz „Nur ich“ steht danach im Verlauf
+  await history.getByRole('button', { name: 'Neue Notiz' }).click();
+  const form = history.getByRole('form', { name: 'Neue Notiz' });
+  await form.getByRole('textbox', { name: 'Notiz' }).fill('Kim Kaiser vor dem JBP anrufen');
+  await form.getByText('Nur ich', { exact: true }).click();
+  await form.getByRole('button', { name: 'Notiz speichern' }).click();
+  await expect(
+    history.getByRole('button', { name: /Kim Kaiser vor dem JBP anrufen/ }),
+  ).toContainText('nur du');
+  // Filter Mails: nur noch Mails
+  await history.getByRole('button', { name: 'Mails', exact: true }).click();
+  await expect(history.getByRole('button', { name: /Angeheftet · Jonas Feld/ })).toHaveCount(0);
+  await expect(history.getByRole('button', { name: /Mail von / }).first()).toBeVisible();
 });
 
 test('Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitliches Scrollen', async ({

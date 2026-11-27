@@ -137,7 +137,10 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Akte-Kopf | Zurück „‹ Lieferanten“ (beim Lieferanten „‹ Kunden“), Monogramm 56 px in der Farbe des Gegenübers, Name groß, graue Zeile (Segment, Warengruppen, Spend, Lead, Jahreszyklus), Aktionen von Reziproq als Zweitknöpfe, „···“ für Profil, Team, Mandat, darunter der Sichten-Umschalter | `SupplierBar.dc.html`, `L-Ueberblick.dc.html`, `L5-Akte.dc.html` |
 | Warengruppenkopf | „‹ Warengruppen“, Monogramm mit 10 px Ecken, Name, graue Zeile (Lieferanten, Spend, Prognose, Lead, Stand der Strategie), Aktionen Strategie und Entwurf fortschreiben | `WG-Start.dc.html` |
 | Als Nächstes | Tinte-Karte, Kurzzeile Mint 13 / 600, Titel Outfit 22, optional ein Satz in `on-dark-muted`, Mint-Knopf; auf dem Telefon Knopf volle Breite, 50 bis 52 px hoch | `Main.dc.html`, `Aufgaben.dc.html` |
-| Gruppe mit Zeilen | weiße Gruppe, Zeilen 56 px mit Trenner `#eef0ec`, links Monogramm oder Punkt, Titel und Unterzeile, rechts Wert grau, grauer Pfeil | `Main.dc.html`, `L-Ueberblick.dc.html` |
+| Gruppe mit Zeilen | weiße Gruppe, Zeilen 56 px mit Trenner `#eef0ec`, links Monogramm oder Punkt, Titel und Unterzeile, rechts Wert grau, grauer Pfeil. Zwischen Label und Gruppe darf ein Vorspann stehen (Frag-Zeile, Filter); Untergruppen wie Monate tragen eine Überschrift dritter Ebene | `Main.dc.html`, `L-Ueberblick.dc.html`, `K2-Akte-Privat.dc.html` |
+| Zeile zum Aufklappen | wie eine Zeile, aber Pfeil nach unten; aufgeklappt stehen Text und Aktionen auf Höhe des Titels darunter, die Unterzeile bricht um. Für Notizen und Mails im Verlauf, „Alles anzeigen“ | `K2-Akte-Privat.dc.html` |
+| Frag-Zeile | weiße Gruppe 56 px mit Lupe und grauem Satz „Frag Reziproq zu <Gegenstand>, zum Beispiel: …“; öffnet Frag Reziproq mit dem Gegenstand als Kontext | `K2-Akte-Privat.dc.html` |
+| Reziproq im Verlauf | Monogramm mit Doppelring auf Mint statt Buchstaben | `K2-Akte-Privat.dc.html` |
 | Abschnittslabel | 13 / 600 Versalien `#5a636b` über einer Gruppe | `Main.dc.html` |
 | Eingeklappt | weiße Zeile 52 px mit Titel 15 / 500 und Pfeil; öffnet den Inhalt darunter; für Leitfragen, Hilfen, Verlauf, Protokoll, Herleitung | `WG-Ziele.dc.html`, `P-Initiative.dc.html` |
 | Segment-Umschalter | Fläche `#e6e9e5`, Segmente gleich breit, aktives Segment weiß mit Schatten | `A-Lieferanten.dc.html` |
@@ -148,7 +151,7 @@ Nennt eine Zeile ein Board, das nicht in `docs/design/referenz/` liegt (`Aufgabe
 | Filter-Chips | Pillen 44 px hoch mit Name und Zahl („Meine · 6“), gewählt Tinte mit hellem Text, sonst weiß mit Rand `line`; „Mehr Filter“ öffnet einen Bereich darunter und trägt die Zahl der gesetzten Filter | `Lieferanten.dc.html` |
 | Segment-Matrix | Felder des Segmentmodells (2 × 2 oder 3 × 3) als Flächen `paper`, Zeilen nach Impact absteigend, Spalten nach Qualität aufsteigend; das Feld mit beiden höchsten Stufen Mint. Je Feld „Name · Zahl“ in Outfit 17, Spend grau, bis drei Namen als weiße Pillen und „und N weitere“; strittig mit Rand `amber` und dem Wort „strittig“. Ein Feld ist als Ganzes ein Link | `K2-Segmente.dc.html` |
 | Knöpfe | Haupt: nur in „Als Nächstes“ (Mint auf Tinte) oder als Speichern im Formular (Petrol). Zweit: Fläche `#e9ece8`, Text Tinte. Höhe 44, Hauptaktion 50 bis 52 | `Aufgaben.dc.html` |
-| Privat | Fläche `line-soft`, Rand gestrichelt `ring-open`, Schloss, Chip „privat“ | `P-Initiative.dc.html` |
+| Privat | Fläche `line-soft`, Rand gestrichelt `ring-open`, Schloss, Chip „privat“; als Das Wichtigste mit Aussage in Outfit 19 | `P-Initiative.dc.html`, `K2-Akte-Privat.dc.html` |
 | Geteilt | Fläche `mint-soft`, Rand `mint-line`, Doppelring, Chip „beide Seiten“ | `L-Ueberblick.dc.html` |
 | KI-Entwurf | Weiß, Rand 1 px `#cfe5dd`, Zeile „Entwurf von Reziproq“ mit Doppelring, Quellen als graue Pillen, Übernehmen / Anpassen / Verwerfen | `WG-Markt.dc.html` |
 | Leitfragen | Fragezeichen neben der Teilüberschrift einer Strategie; geöffnet Fragen mit Petrol-Ring und Ziffer | `K6-Strategie.dc.html` |

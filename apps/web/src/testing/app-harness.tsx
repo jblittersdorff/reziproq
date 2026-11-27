@@ -1,5 +1,7 @@
 import type {
   Action,
+  ActivityFeed,
+  ActivityItem,
   AkteHead,
   AkteShared,
   CustomersResponse,
@@ -24,6 +26,7 @@ import { expect, vi } from 'vitest';
 import { resetBusinessTime } from '@/lib/clock';
 import { LocaleProvider } from '@/lib/i18n';
 import { routeTree } from '@/routeTree.gen';
+import type { AktePrivateSample } from './akte-private-sample';
 
 // Gemeinsamer Aufbau für Oberflächentests mit jsdom: echter Router, nachgebauter Login,
 // nachgebaute API. Die vi.mock-Aufrufe für react-oidc-context und @/lib/auth stehen in jeder
@@ -690,6 +693,11 @@ export const api = {
   },
   /** GET /api/beziehungen/<id> und …/gemeinsam (AK-01, K2-c.2) */
   akte: { status: 200, head: sampleAkteHead as unknown, shared: sampleAkteShared as unknown },
+  /**
+   * Endpunkte der Sicht Nur für dich (AK-01, K2-c.3): Segmentierung, Lieferantenplan, Warengruppen,
+   * Wert, Kontaktpunkte, Verlauf mit Notizen und Aufgaben. Ohne Angabe antworten sie mit 404.
+   */
+  aktePrivate: null as AktePrivateSample | null,
   /** GET /api/beziehungen/segmente (BZ-01, K2-b.5) */
   relationshipSegments: { status: 200, body: sampleSegments as unknown },
   /** Antwort von POST /api/prompt; mit hold bleibt der Strom offen (Ladezustand). */
@@ -820,7 +828,91 @@ function fakeApi(input: RequestInfo | URL, init?: RequestInit) {
   if (url === '/api/start/brauchen-dich') return Response.json({ items: [] });
   if (url === '/api/heute') return Response.json(api.today ?? todayResponse());
   if (url === '/api/heute/alles') return Response.json(api.todayAll ?? todayAllResponse());
+  if (api.aktePrivate) {
+    const answer = aktePrivateAnswer(api.aktePrivate, init?.method ?? 'GET', url, init?.body);
+    if (answer) return answer;
+  }
   return Response.json({ statusCode: 404 }, { status: 404 });
+}
+
+const aktePrivateRoutes: [RegExp, Exclude<keyof AktePrivateSample, 'status'>][] = [
+  [/^\/api\/ratings\/relationship\/[^/]+\/segmentation$/, 'segmentation'],
+  [/^\/api\/suppliers\/[^/]+\/plan$/, 'plan'],
+  [/^\/api\/warengruppen\/lieferanten\/[^/]+$/, 'categories'],
+  [/^\/api\/suppliers\/[^/]+\/ergebnisse\/gesichert$/, 'secured'],
+  [/^\/api\/suppliers\/[^/]+\/wertpotenziale$/, 'opportunities'],
+  [/^\/api\/suppliers\/[^/]+\/kontaktpunkte$/, 'touchpoints'],
+  [/^\/api\/suppliers\/[^/]+\/aktivitaeten(\?.*)?$/, 'activities'],
+  [/^\/api\/suppliers\/[^/]+\/massnahmen$/, 'actions'],
+];
+
+/** Verlauf nach Filter wie die API (NAV-10): Termine, Notizen, Mails, Reziproq */
+function filteredFeed(feed: ActivityFeed, filter: string | null): ActivityFeed {
+  const keep = (item: ActivityItem) =>
+    filter === 'termine'
+      ? item.kind === 'meeting'
+      : filter === 'notizen'
+        ? item.kind === 'note' || item.kind === 'call'
+        : filter === 'mails'
+          ? item.kind === 'mail'
+          : filter === 'reziproq'
+            ? item.actor.type === 'reziproq'
+            : true;
+  return { ...feed, items: feed.items.filter(keep) };
+}
+
+/** Antworten der Sicht Nur für dich; Notizen anlegen, anheften und löschen ändern den Verlauf */
+function aktePrivateAnswer(
+  sample: AktePrivateSample,
+  method: string,
+  url: string,
+  body: BodyInit | null | undefined,
+): Response | undefined {
+  const note = /^\/api\/suppliers\/[^/]+\/notizen(?:\/([^/]+))?$/.exec(url);
+  if (note) {
+    const items = sample.activities.items;
+    if (method === 'POST') {
+      const request = JSON.parse(String(body)) as {
+        text: string;
+        visibility: 'team' | 'private';
+        kind: 'note' | 'call';
+      };
+      items.unshift({
+        id: `note:neu-${items.length}`,
+        kind: request.kind,
+        occurredAt: new Date().toISOString(),
+        actor: { type: 'person', name: api.me.name },
+        title: request.text,
+        code: null,
+        meta: null,
+        href: null,
+        visibility: request.visibility,
+        pinned: false,
+        mine: true,
+      });
+    } else {
+      const index = items.findIndex((item) => item.id === `note:${note[1]}`);
+      const found = items[index];
+      if (method === 'DELETE' && index >= 0) items.splice(index, 1);
+      if (method === 'PATCH' && found) {
+        const change = JSON.parse(String(body)) as { pinned?: boolean };
+        found.pinned = change.pinned ?? found.pinned;
+      }
+    }
+    return Response.json(sample.activities);
+  }
+  if (method !== 'GET') return undefined;
+  for (const [pattern, key] of aktePrivateRoutes) {
+    if (!pattern.test(url)) continue;
+    const status = sample.status[key];
+    if (status && status !== 200) return Response.json({ statusCode: status }, { status });
+    if (key === 'activities') {
+      const filter = new URL(url, 'http://reziproq.test').searchParams.get('filter');
+      return Response.json(filteredFeed(sample.activities, filter));
+    }
+    return Response.json(sample[key]);
+  }
+  return undefined;
 }
 
 /**
@@ -905,6 +997,7 @@ export function setUpApp() {
   };
   api.relationshipSegments = { status: 200, body: sampleSegments };
   api.akte = { status: 200, head: sampleAkteHead, shared: sampleAkteShared };
+  api.aktePrivate = null;
   api.prompt = { status: 200, events: [], hold: false };
   api.promptRequests = [];
   api.requests = [];
