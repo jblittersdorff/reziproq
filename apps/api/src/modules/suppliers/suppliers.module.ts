@@ -31,6 +31,7 @@ import { TeamService } from './team.service.js';
     SpendMetricSource,
     TeamMetricSource,
   ],
-  exports: [SuppliersService, SpendMetricSource, TeamMetricSource],
+  // AK-01 (K2-c): Die Akte liest das Team beider Seiten über den TeamService
+  exports: [SuppliersService, SpendMetricSource, TeamMetricSource, TeamService],
 })
 export class SuppliersModule {}

@@ -17,6 +17,7 @@ const tasksDe: Record<string, string> = {
   segment_suggest: 'Segment vorschlagen',
   early_warning: 'Frühwarnung',
   value_finder: 'Wertfinder',
+  market_signals: 'Marktsignale',
 };
 const tasksEn: Record<string, string> = {
   inbox: 'Inbox',
@@ -30,6 +31,7 @@ const tasksEn: Record<string, string> = {
   segment_suggest: 'Suggest segment',
   early_warning: 'Early warning',
   value_finder: 'Value finder',
+  market_signals: 'Market signals',
 };
 
 export const doneMessages = defineMessages({

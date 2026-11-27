@@ -2,6 +2,7 @@ import { inArray, sql } from 'drizzle-orm';
 import type { Database } from './client.js';
 import { seedMorning } from './hollmann-morgen.js';
 import { seedPortfolio } from './hollmann-portfolio.js';
+import { seedAkte } from './hollmann-akte.js';
 import { seedCommitments } from './hollmann-zusagen.js';
 import {
   appUser,
@@ -644,6 +645,22 @@ export async function seedHollmann(
         leaBrandt: person(supplierPeople.leaBrandt),
         miaKuhn: person(supplierPeople.miaKuhn),
       },
+    });
+    // Akte Rheintal, Sicht Gemeinsam (K2-c.1): Scorecard am Plan 2026 nach L-Ueberblick
+    await seedAkte(tx, {
+      nid,
+      hollmannOrgId: hollmann.org.id,
+      hollmannName: hollmann.org.name,
+      rheintal: {
+        orgId: rheintal.id,
+        relationshipId: rheintal.relationshipId,
+        name: rheintal.name,
+      },
+      plan2026: nid(850),
+      janLuka: person(janLuka),
+      idaRoth: person(hollmannPeople.idaRoth),
+      kimKaiser: person(supplierPeople.kimKaiser),
+      tomWeber: person(supplierPeople.tomWeber),
     });
     // Portfolio für die Seite Lieferanten (K2-b.2): Segmentmodell 2 × 2, 46 Lieferanten,
     // Segmente, Fokus, Runde 2027 mit Kessler, Zusagequoten und offene Zusagen

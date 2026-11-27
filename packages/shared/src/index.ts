@@ -4,6 +4,7 @@ export * from './activities.js';
 export * from './agents.js';
 export * from './ai-drafts.js';
 export * from './ai-gateway.js';
+export * from './akte.js';
 export * from './areas.js';
 export * from './audit.js';
 export * from './calendar.js';
