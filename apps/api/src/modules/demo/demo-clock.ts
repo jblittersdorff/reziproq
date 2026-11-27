@@ -2,7 +2,7 @@ import { type DemoRunKey, demoRunKeys } from '@reziproq/shared';
 import { berlinDate, berlinTime } from '../today/berlin.js';
 
 // DM-01 (K1-g.1): Zeitplan der Demo-Uhr. Die Zeiten folgen dem Betrieb, in Berlin: Wertfinder am 1.
-// des Monats um 05:00, Triage um 06:00, Hinweise um 07:30. Briefing und Ergebnis-Aufgabe laufen im
+// des Monats um 05:00, Zusagen nachhalten und Triage um 06:00, Hinweise um 07:30. Briefing und Ergebnis-Aufgabe laufen im
 // Betrieb alle 15 Minuten, hier an jedem Haltepunkt der Uhr. Andere Jobs (Erinnerungen,
 // Benachrichtigungen, Warengruppen) kommen dazu, sobald ein Drehbuch sie braucht.
 
@@ -16,6 +16,8 @@ interface DailyRun {
 
 const dailyRuns: DailyRun[] = [
   { key: 'wertfinder', hour: 5, minute: 0, monthly: true },
+  // K2-b.6: Zusagen nachhalten um 06:00 wie im Betrieb, vor der Triage (Reihenfolge demoRunKeys)
+  { key: 'nachhalten', hour: 6, minute: 0 },
   { key: 'triage', hour: 6, minute: 0 },
   { key: 'hinweise', hour: 7, minute: 30 },
 ];

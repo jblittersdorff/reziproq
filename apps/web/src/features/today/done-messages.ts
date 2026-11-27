@@ -52,6 +52,8 @@ export const doneMessages = defineMessages({
     chips: {
       inbound_assign: (n: number) => `${n} ${plural(n, 'Termin', 'Termine')} zugeordnet`,
       mail_assign: (n: number) => `${n} ${plural(n, 'Mail', 'Mails')} zugeordnet`,
+      commitment_remind: (n: number) =>
+        `${n} ${plural(n, 'Erinnerung', 'Erinnerungen')} an Zusagen`,
       prepared: (n: number) => `${n} ${plural(n, 'Entwurf', 'Entwürfe')} vorbereitet`,
       run: (n: number) => `${n} ${plural(n, 'Lauf', 'Läufe')}`,
       failed: (n: number) => `${n} fehlgeschlagen`,
@@ -71,6 +73,9 @@ export const doneMessages = defineMessages({
         `Mail${subject ? ` „${subject}“` : ''}${sender ? ` von ${sender}` : ''}${
           counterpart ? ` der Beziehung ${counterpart}` : ''
         } zugeordnet`,
+      // ZQ-01 Regel 5 (K2-b.6, E-K1-5): Die Erinnerung trägt die Kennzeichnung von Reziproq
+      commitment_remind: (title: string | null, recipient: string | null) =>
+        `${recipient ?? 'Lieferant'} an die Zusage „${title ?? ''}“ erinnert, als Nachricht von Reziproq`,
       prepared: (what: string, open: boolean) =>
         open ? `${what} vorbereitet, wartet in Kurz prüfen` : `${what} vorbereitet`,
       run: (what: string) => `${what} ausgeführt`,
@@ -121,6 +126,7 @@ export const doneMessages = defineMessages({
     chips: {
       inbound_assign: (n: number) => `${n} ${plural(n, 'meeting', 'meetings')} assigned`,
       mail_assign: (n: number) => `${n} ${plural(n, 'mail', 'mails')} assigned`,
+      commitment_remind: (n: number) => `${n} commitment ${plural(n, 'reminder', 'reminders')}`,
       prepared: (n: number) => `${n} ${plural(n, 'draft', 'drafts')} prepared`,
       run: (n: number) => `${n} ${plural(n, 'run', 'runs')}`,
       failed: (n: number) => `${n} failed`,
@@ -139,6 +145,8 @@ export const doneMessages = defineMessages({
         `Mail${subject ? ` “${subject}”` : ''}${sender ? ` from ${sender}` : ''} assigned${
           counterpart ? ` to ${counterpart}` : ''
         }`,
+      commitment_remind: (title: string | null, recipient: string | null) =>
+        `Reminded ${recipient ?? 'the supplier'} of the commitment “${title ?? ''}”, as a message from Reziproq`,
       prepared: (what: string, open: boolean) =>
         open ? `${what} prepared, waiting in quick review` : `${what} prepared`,
       run: (what: string) => `${what} completed`,

@@ -22,6 +22,7 @@ import {
 import { AccountStore, TenantDatabase } from '../../common/database.module.js';
 import { MeetingBriefWorker } from '../agents/meeting-brief.worker.js';
 import type { AuthContext } from '../auth/auth.guard.js';
+import { CommitmentFollowupService } from '../commitments/commitment-followup.service.js';
 import { HintsWorker } from '../hints/hints.worker.js';
 import { ItemHandlers } from '../integrations/item-handlers.js';
 import { OpportunitiesWorker } from '../opportunities/opportunities.worker.js';
@@ -51,6 +52,7 @@ export class DemoRegieService {
     @Inject(TenantDatabase) private readonly tenant: TenantDatabase,
     @Inject(AccountStore) private readonly accounts: AccountStore,
     @Inject(TriageWorker) private readonly triage: TriageWorker,
+    @Inject(CommitmentFollowupService) private readonly followup: CommitmentFollowupService,
     @Inject(HintsWorker) private readonly hints: HintsWorker,
     @Inject(MeetingBriefWorker) private readonly brief: MeetingBriefWorker,
     @Inject(OpportunitiesWorker) private readonly opportunities: OpportunitiesWorker,
@@ -202,6 +204,7 @@ export class DemoRegieService {
         await this.brief.runDue(orgs, at);
         await this.brief.captureDue(orgs, at);
       }
+      if (key === 'nachhalten') await this.followup.runDaily(orgs);
       if (key === 'triage') await this.triage.runDue(orgs);
       if (key === 'hinweise') await this.hints.runDaily(orgs);
     } catch (error) {

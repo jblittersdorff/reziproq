@@ -115,6 +115,7 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
       demoNow: '2026-11-24T05:00:00.000Z',
       runs: [
         { key: 'briefing', at: '2026-11-24T05:00:00.000Z' },
+        { key: 'nachhalten', at: '2026-11-24T05:00:00.000Z' },
         { key: 'triage', at: '2026-11-24T05:00:00.000Z' },
       ],
     });
@@ -141,6 +142,7 @@ describe('DM-01 Demo-Regie über die API (K1-g.1)', () => {
       { key: 'wertfinder', at: '2026-12-01T04:00:00.000Z' },
     ]);
     expect(jump.runs.filter((entry) => entry.key === 'triage')).toHaveLength(9);
+    expect(jump.runs.filter((entry) => entry.key === 'nachhalten')).toHaveLength(9);
     expect(jump.runs.filter((entry) => entry.key === 'hinweise')).toHaveLength(10);
 
     // Nur vorwärts

@@ -17,9 +17,11 @@ describe('Zeitplan der Demo-Uhr', () => {
     expect(times(runs, 'hinweise')).toHaveLength(11);
     expect(times(runs, 'hinweise').at(-1)).toBe('2026-12-04T06:30:00.000Z');
     expect(times(runs, 'wertfinder')).toEqual(['2026-12-01T04:00:00.000Z']);
-    // Das Briefing an jedem Haltepunkt, vor der Triage
+    // K2-b.6: Zusagen nachhalten um 06:00 wie die Triage
+    expect(times(runs, 'nachhalten')).toEqual(times(runs, 'triage'));
+    // Das Briefing an jedem Haltepunkt, vor Zusagen nachhalten und der Triage
     expect(times(runs, 'briefing')).toHaveLength(23);
-    expect(runs.slice(0, 2).map((run) => run.key)).toEqual(['briefing', 'triage']);
+    expect(runs.slice(0, 3).map((run) => run.key)).toEqual(['briefing', 'nachhalten', 'triage']);
     const ordered = runs.map((run) => run.at.getTime());
     expect(ordered).toEqual([...ordered].sort((a, b) => a - b));
   });

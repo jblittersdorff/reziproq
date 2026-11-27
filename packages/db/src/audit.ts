@@ -42,7 +42,8 @@ export interface OutboxEmailPayload {
     | 'mention'
     | 'export_ready'
     | 'notification'
-    | 'digest';
+    | 'digest'
+    | 'commitment_followup';
   locale: 'de' | 'en';
   recipient: string;
   firstName?: string;

@@ -83,7 +83,8 @@ export const commitmentPrivateSource = pgTable(
 );
 
 /** QBR-04, ZQ-01 (K2-a.3): Was jede Seite zu einer Frist schon verschickt hat, je Zusage oder Aufgabe */
-export const reminderKinds = ['reminder', 'escalation'] as const;
+// ZQ-01 Regel 5 (K2-b.6): followup ist die Erinnerung von Reziproq im Auftrag des Kunden
+export const reminderKinds = ['reminder', 'escalation', 'followup'] as const;
 export const reminderObjectTypes = ['commitment', 'task'] as const;
 
 export const reminderSent = pgTable(
@@ -103,7 +104,7 @@ export const reminderSent = pgTable(
     sentAt: timestamp({ withTimezone: true }).notNull().default(sql`app_now()`),
   },
   (table) => [
-    check('reminder_sent_kind', sql`${table.kind} in ('reminder', 'escalation')`),
+    check('reminder_sent_kind', sql`${table.kind} in ('reminder', 'escalation', 'followup')`),
     check('reminder_sent_object_type', sql`${table.objectType} in ('commitment', 'task')`),
     unique('reminder_sent_einmal').on(
       table.orgId,

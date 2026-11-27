@@ -1030,6 +1030,13 @@
       "when": 1795739612325,
       "tag": "0146_k2b_jobs_ohne_demo",
       "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "7",
+      "when": 1795765674039,
+      "tag": "0147_k2b_zusagen_nachhalten",
+      "breakpoints": true
     }
   ]
 }

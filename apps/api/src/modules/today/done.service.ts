@@ -13,6 +13,7 @@ import {
   type DoneList,
   type DoneRow,
   doneListSchema,
+  doneWithoutUndo,
   type UndoBlocker,
   type UndoPayload,
   undoDays,
@@ -101,15 +102,17 @@ export class DoneService {
         for (const row of rows.rows) {
           const payload = undoPayloadSchema.safeParse(row.undo_payload);
           const at = new Date(row.finished_at ?? row.created_at);
-          const blocker: UndoBlocker | null = !payload.success
-            ? 'ohne'
-            : row.undone_at
-              ? 'zurueckgenommen'
-              : now.getTime() - at.getTime() > undoDays * day
-                ? 'abgelaufen'
-                : (await changedSince(tx, payload.data, at))
-                  ? 'geaendert'
-                  : null;
+          // Eine gesendete Erinnerung (K2-b.6) lässt sich nicht zurückholen
+          const blocker: UndoBlocker | null =
+            !payload.success || doneWithoutUndo.includes(payload.data.kind)
+              ? 'ohne'
+              : row.undone_at
+                ? 'zurueckgenommen'
+                : now.getTime() - at.getTime() > undoDays * day
+                  ? 'abgelaufen'
+                  : (await changedSince(tx, payload.data, at))
+                    ? 'geaendert'
+                    : null;
           const relationshipId = row.context_relationship_id;
           const counterpart = relationshipId ? (names.get(relationshipId) ?? null) : null;
           if (payload.success && payload.data.kind === 'inbound_assign') {
@@ -150,6 +153,26 @@ export class DoneService {
                 : `/lieferanten/${mail.relationshipId}/aktivitaeten?filter=mails#mail-${mail.mailId}`,
               openDrafts: 0,
               undo: { possible: blocker === null, blocker },
+            });
+            continue;
+          }
+          // ZQ-01 Regel 5 (K2-b.6): Erinnerung an eine Zusage des Lieferanten, als Nachricht von
+          // Reziproq; ansehen bei den Zusagen der Beziehung, ohne Rücknahme
+          if (payload.success && payload.data.kind === 'commitment_remind') {
+            const remind = payload.data;
+            result.push({
+              id: row.id,
+              at: at.toISOString(),
+              task: row.task,
+              taskName: row.task_name,
+              status: row.status === 'failed' ? 'failed' : 'done',
+              action: 'commitment_remind',
+              subject: remind.title,
+              recipient: remind.recipient,
+              counterpart: names.get(remind.relationshipId) ?? counterpart,
+              href: `/lieferanten/${remind.relationshipId}/umsetzung/massnahmen`,
+              openDrafts: 0,
+              undo: { possible: false, blocker: 'ohne' },
             });
             continue;
           }
@@ -213,7 +236,12 @@ export class DoneService {
         );
       if (!run) throw notFound();
       const payload = undoPayloadSchema.safeParse(run.undoPayload);
-      if (!payload.success || run.status !== 'done') {
+      // Ohne Rückweg, oder eine Handlung, die sich nicht zurückholen lässt (gesendete Erinnerung)
+      if (
+        !payload.success ||
+        run.status !== 'done' ||
+        doneWithoutUndo.includes(payload.data.kind)
+      ) {
         throw new ConflictException({ statusCode: 409, code: 'ohne' });
       }
       if (run.undoneAt) throw new ConflictException({ statusCode: 409, code: 'zurueckgenommen' });

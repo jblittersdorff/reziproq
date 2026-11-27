@@ -29,6 +29,11 @@ export const myAgentMessages = defineMessages({
     >,
     tasks: {
       inbox: { name: 'Postfach', does: 'Termine und Mails den Beziehungen zuordnen' },
+      // ZQ-01 Regel 5 (K2-b.6): erinnern wirkt; als gehalten buchen kommt mit seinem Paket
+      commitment_followup: {
+        name: 'Zusagen nachhalten',
+        does: 'Lieferanten an fällige Zusagen erinnern, als Nachricht von Reziproq',
+      },
       meeting_brief: {
         name: 'Termin-Briefing',
         does: 'vor wichtigen Terminen, Vorlauf je Termintyp',
@@ -95,6 +100,10 @@ export const myAgentMessages = defineMessages({
     levels: { suggest: 'Suggest', prepare: 'Prepare', do: 'Do' } as Record<WorkerLevel, string>,
     tasks: {
       inbox: { name: 'Inbox', does: 'Assign meetings and mails to relationships' },
+      commitment_followup: {
+        name: 'Commitment follow-up',
+        does: 'Remind suppliers of due commitments, as a message from Reziproq',
+      },
       meeting_brief: {
         name: 'Meeting briefing',
         does: 'before important meetings, lead time per meeting type',

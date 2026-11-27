@@ -63,6 +63,13 @@ const copy = {
       deadline: 'Stand',
       link: 'Mein Tag öffnen',
     },
+    // ZQ-01 Regel 5 (K2-b.6, E-K1-5): Die Mail sagt, dass Reziproq sie im Auftrag des Kunden schickt
+    commitment_followup: {
+      subject: 'Erinnerung von Reziproq',
+      body: 'Bitte denkt an die folgende Zusage. Ist sie schon erfüllt, tragt es mit Beleg in Reziproq ein.',
+      deadline: 'Frist',
+      link: 'Zusage öffnen',
+    },
   },
   en: {
     invitation: {
@@ -125,6 +132,12 @@ const copy = {
       deadline: 'As of',
       link: 'Open My day',
     },
+    commitment_followup: {
+      subject: 'Reminder from Reziproq',
+      body: 'Please remember the following commitment. If it is already fulfilled, record it with evidence in Reziproq.',
+      deadline: 'Due date',
+      link: 'Open commitment',
+    },
   },
 } as const;
 
@@ -159,18 +172,25 @@ export function renderEmail(content: EmailContent, webAppUrl: string) {
       ? 'Hallo,'
       : 'Hello,';
   const deadlineText = safe.deadline ? `${language.deadline}: ${safe.deadline}` : '';
-  // Einladung eines Lieferanten (LIF-01): Wer einlädt, steht vor dem Kunden im Titel.
-  const senderText = safe.sender
-    ? safe.locale === 'de'
-      ? `${safe.sender} von ${safe.title} lädt dich ein.`
-      : `${safe.sender} from ${safe.title} invites you.`
-    : '';
+  // Einladung eines Lieferanten (LIF-01): Wer einlädt, steht vor dem Kunden im Titel. Erinnerung an
+  // eine Zusage (K2-b.6): die Kennzeichnung als Nachricht von Reziproq im Auftrag des Kunden.
+  const senderText = !safe.sender
+    ? ''
+    : safe.template === 'commitment_followup'
+      ? safe.locale === 'de'
+        ? `Nachricht von Reziproq im Auftrag von ${safe.sender}.`
+        : `Message from Reziproq on behalf of ${safe.sender}.`
+      : safe.locale === 'de'
+        ? `${safe.sender} von ${safe.title} lädt dich ein.`
+        : `${safe.sender} from ${safe.title} invites you.`;
+  // Bei der Einladung steht der Kunde schon im Satz; sonst kommt der Titel als eigene Zeile
+  const titleLine = senderText && safe.template !== 'commitment_followup' ? '' : safe.title;
   const text = [
     greeting,
     senderText,
     language.body,
     safe.message ?? '',
-    senderText ? '' : safe.title,
+    titleLine,
     deadlineText,
     `${language.link}: ${url}`,
   ]

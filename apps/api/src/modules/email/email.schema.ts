@@ -14,6 +14,9 @@ export const emailTemplates = [
   // IN-06: Benachrichtigung (Titel und Link) und Zusammenfassung des Tages
   'notification',
   'digest',
+  // ZQ-01 Regel 5 (K2-b.6): Erinnerung an eine Zusage des Lieferanten, als Nachricht von Reziproq
+  // im Auftrag des Kunden (sender); Titel der Zusage, Frist und Link
+  'commitment_followup',
 ] as const;
 export const emailTemplateSchema = z.enum(emailTemplates);
 export const emailLocaleSchema = z.enum(['de', 'en']);
@@ -75,7 +78,8 @@ export const emailContentSchema = z
     title: shortText(140),
     deadline: shortText(100).optional(),
     link: internalLinkSchema,
-    // Nur supplier_invitation (LIF-01): wer einlädt und eine persönliche Nachricht mit Absätzen.
+    // supplier_invitation (LIF-01): wer einlädt und eine persönliche Nachricht mit Absätzen;
+    // commitment_followup (K2-b.6): der Kunde, in dessen Auftrag Reziproq erinnert.
     sender: shortText(120).optional(),
     message: messageText.optional(),
   })

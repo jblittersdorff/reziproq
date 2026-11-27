@@ -84,7 +84,9 @@ export const workers: readonly Worker[] = [
     chapter: 1,
     allowedLevels: all,
     defaultLevel: 'do',
-    liveLevels: [],
+    // ZQ-01 Regel 5 (K2-b.6): Erinnern an fällige Zusagen des Lieferanten wirkt auf Stufe Erledigen;
+    // Vorbereiten, Vorschlagen und das Buchen als gehalten mit Beleg kommen mit ihren Paketen.
+    liveLevels: ['do'],
     enabledByDefault: true,
     reviewSeconds: 10,
     // E-K1-5: Erinnern nur an Zusagen des Lieferanten, gekennzeichnet als Nachricht von Reziproq

@@ -11,7 +11,8 @@ const workerNames: Record<string, { name: string; description: string }> = {
   inbox: { name: 'Postfach', description: 'Ordnet Mails und Termine Beziehungen zu.' },
   commitment_followup: {
     name: 'Zusagen nachhalten',
-    description: 'Prüft Zusagen, erinnert und bucht sie als erfüllt.',
+    // K2-b.6: erinnern wirkt; als gehalten buchen mit Beleg kommt mit seinem Paket
+    description: 'Erinnert Lieferanten an fällige Zusagen, als Nachricht von Reziproq.',
   },
   import_assign: { name: 'Import zuordnen', description: 'Ordnet Zeilen eines Imports zu.' },
 };

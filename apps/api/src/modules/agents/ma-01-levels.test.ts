@@ -29,6 +29,8 @@ describe('MA-01 Stufen je Aufgabe', () => {
     }
     expect(liveWorkers.map((worker) => worker.key)).toEqual([
       'inbox',
+      // K2-b.6: Zusagen nachhalten wirkt auf Erledigen (ZQ-01 Regel 5)
+      'commitment_followup',
       'meeting_brief',
       'meeting_capture',
       'import_assign',

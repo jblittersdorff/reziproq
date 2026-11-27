@@ -44,8 +44,22 @@ export const undoPayloadSchema = z.discriminatedUnion('kind', [
     sender: z.string(),
     relationshipId: z.uuid(),
   }),
+  // ZQ-01 Regel 5 (K2-b.6): Erinnerung an eine Zusage des Lieferanten, als Nachricht von Reziproq
+  // (E-K1-5). Eine gesendete Mail lässt sich nicht zurückholen: Erledigt zeigt sie ohne Rücknahme.
+  z.object({
+    kind: z.literal('commitment_remind'),
+    commitmentId: z.uuid(),
+    title: z.string(),
+    relationshipId: z.uuid(),
+    dueOn: z.iso.date(),
+    /** Name der Person beim Lieferanten, die die Erinnerung bekam */
+    recipient: z.string(),
+  }),
 ]);
 export type UndoPayload = z.infer<typeof undoPayloadSchema>;
+
+/** Arten, die sich nicht zurücknehmen lassen; Erledigt nennt sie ohne Knopf (Grund „ohne“) */
+export const doneWithoutUndo: readonly UndoPayload['kind'][] = ['commitment_remind'];
 
 /** Warum eine Rücknahme nicht (mehr) geht */
 export const undoBlockers = ['geaendert', 'abgelaufen', 'zurueckgenommen', 'ohne'] as const;
@@ -60,12 +74,17 @@ export const doneRowSchema = z.object({
   /** Name der Aufgabe, wie der Lauf ihn führt */
   taskName: z.string(),
   status: z.enum(['done', 'failed', 'undone']),
-  /** Was getan wurde: Zuordnung von Termin oder Mail, vorbereiteter Entwurf oder ein anderer Lauf */
-  action: z.enum(['inbound_assign', 'mail_assign', 'prepared', 'run']),
+  /**
+   * Was getan wurde: Zuordnung von Termin oder Mail, Erinnerung an eine Zusage des Lieferanten,
+   * vorbereiteter Entwurf oder ein anderer Lauf
+   */
+  action: z.enum(['inbound_assign', 'mail_assign', 'commitment_remind', 'prepared', 'run']),
   /** Titel des Objekts, z. B. Betreff des Termins */
   subject: z.string().nullable(),
   /** Absender einer zugeordneten Mail (K1-g.2) */
   sender: z.string().nullable().optional(),
+  /** Wer beim Lieferanten an seine Zusage erinnert wurde (K2-b.6) */
+  recipient: z.string().nullable().optional(),
   counterpart: z.string().nullable(),
   /** Ort zum Ansehen: Objekt oder Kurz prüfen; null ohne Ziel */
   href: z.string().nullable(),

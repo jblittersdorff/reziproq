@@ -36,6 +36,8 @@ function rowText(text: Text, row: DoneRow) {
     return text.text.inbound_assign(row.subject, row.counterpart);
   if (row.action === 'mail_assign')
     return text.text.mail_assign(row.subject, row.sender ?? null, row.counterpart);
+  if (row.action === 'commitment_remind' && row.status !== 'failed')
+    return text.text.commitment_remind(row.subject, row.recipient ?? null);
   const what = row.subject ?? taskName(text, row);
   if (row.status === 'failed') return text.text.failed(what);
   if (row.action === 'prepared') return text.text.prepared(what, row.openDrafts > 0);
@@ -96,6 +98,7 @@ export function DonePage() {
   const failed = recent.filter((row) => row.status === 'failed').length;
   const chips = [
     count('mail_assign') > 0 && text.chips.mail_assign(count('mail_assign')),
+    count('commitment_remind') > 0 && text.chips.commitment_remind(count('commitment_remind')),
     count('inbound_assign') > 0 && text.chips.inbound_assign(count('inbound_assign')),
     count('prepared') > 0 && text.chips.prepared(count('prepared')),
     count('run') > 0 && text.chips.run(count('run')),

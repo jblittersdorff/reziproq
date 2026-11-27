@@ -132,6 +132,7 @@ describe('MA-01 Mein Agent', () => {
     const agent = await view(users.anna);
     expect(agent.tasks.map((task) => task.key)).toEqual([
       'inbox',
+      'commitment_followup',
       'meeting_brief',
       'meeting_capture',
       'import_assign',
@@ -140,6 +141,13 @@ describe('MA-01 Mein Agent', () => {
       'market_signals',
     ]);
     const byKey = new Map(agent.tasks.map((task) => [task.key, task]));
+    // K2-b.6: Zusagen nachhalten startet auf Erledigen; nur diese Stufe wirkt schon
+    expect(byKey.get('commitment_followup')).toMatchObject({
+      level: 'do',
+      enabled: true,
+      selectable: ['do'],
+      allowedLevels: ['suggest', 'prepare', 'do'],
+    });
     expect(byKey.get('inbox')).toMatchObject({
       level: 'do',
       chosen: null,
@@ -190,8 +198,12 @@ describe('MA-01 Mein Agent', () => {
       400,
     );
     expect(
-      (await call(users.anna, 'PUT', '/mein-agent/commitment_followup', { level: 'do' })).status,
+      (await call(users.anna, 'PUT', '/mein-agent/rating_prefill', { level: 'prepare' })).status,
     ).toBe(404);
+    // K2-b.6: Zusagen nachhalten gibt es, aber nur Erledigen wirkt schon
+    expect(
+      await call(users.anna, 'PUT', '/mein-agent/commitment_followup', { level: 'prepare' }),
+    ).toMatchObject({ status: 400, body: { code: 'stufe_nicht_waehlbar' } });
     expect((await call(users.anna, 'PUT', '/mein-agent/unbekannt', { level: 'do' })).status).toBe(
       404,
     );

@@ -17,6 +17,7 @@ import { CommentsModule } from './modules/comments/comments.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { DataExportModule } from './modules/data-export/data-export.module.js';
 import { DemoModule } from './modules/demo/demo.module.js';
+import { CommitmentsModule } from './modules/commitments/commitments.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { FocusModule } from './modules/focus/focus.module.js';
@@ -80,6 +81,7 @@ const webDist = fileURLToPath(new URL('../../web/dist', import.meta.url));
     SupportModule,
     AuditModule,
     EmailModule,
+    CommitmentsModule,
     SegmentModelModule,
     PortfolioModule,
     FocusModule,

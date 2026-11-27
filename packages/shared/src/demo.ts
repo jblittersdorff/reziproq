@@ -50,7 +50,8 @@ export const demoStations = [
 ] as const;
 
 /** Läufe, die die Regie beim Vorrücken der Uhr ausführt, in dieser Reihenfolge je Zeitpunkt */
-export const demoRunKeys = ['wertfinder', 'briefing', 'triage', 'hinweise'] as const;
+// K2-b.6: nachhalten (Zusagen nachhalten, ZQ-01 Regel 5) läuft um 06:00 vor der Triage
+export const demoRunKeys = ['wertfinder', 'briefing', 'nachhalten', 'triage', 'hinweise'] as const;
 export type DemoRunKey = (typeof demoRunKeys)[number];
 
 export const demoTimeRequestSchema = z.discriminatedUnion('aktion', [

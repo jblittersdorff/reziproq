@@ -65,6 +65,7 @@ export const outboxEvent = pgTable(
         'export_ready',
         'notification',
         'digest',
+        'commitment_followup',
       ],
     }),
     emailLocale: text({ enum: ['de', 'en'] }),
@@ -73,7 +74,8 @@ export const outboxEvent = pgTable(
     emailTitle: text(),
     emailDeadline: text(),
     emailLink: text(),
-    // Nur bei supplier_invitation (LIF-01): wer einlädt und eine kurze persönliche Nachricht.
+    // Bei supplier_invitation (LIF-01) wer einlädt und eine kurze persönliche Nachricht; bei
+    // commitment_followup (K2-b.6) der Kunde, in dessen Auftrag Reziproq erinnert.
     emailSender: text(),
     emailMessage: text(),
   },
@@ -90,7 +92,7 @@ export const outboxEvent = pgTable(
         (${table.emailTemplate} IS NOT NULL
           AND ${table.emailTemplate} IN (
             'invitation', 'reminder', 'approval', 'escalation', 'supplier_invitation', 'survey',
-            'mention', 'export_ready', 'notification', 'digest'
+            'mention', 'export_ready', 'notification', 'digest', 'commitment_followup'
           )
           AND ${table.emailLocale} IS NOT NULL
           AND ${table.emailLocale} IN ('de', 'en')
@@ -127,6 +129,7 @@ export const emailLog = pgTable(
         'survey',
         'mention',
         'export_ready',
+        'commitment_followup',
       ],
     }).notNull(),
     status: text({ enum: ['sending', 'sent', 'failed'] }).notNull(),

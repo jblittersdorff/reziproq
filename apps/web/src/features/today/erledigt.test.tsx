@@ -198,6 +198,39 @@ describe('HE-01 Erledigt im Hintergrund', () => {
     expect(screen.getAllByRole('button', { name: 'Zurücknehmen' })).toHaveLength(2);
   });
 
+  it('T2-ZQ3: eine Erinnerung an eine Zusage des Lieferanten steht als Nachricht von Reziproq da, ohne Rücknahme', async () => {
+    current = {
+      ...list(),
+      recent: 1,
+      rows: [
+        row(7, {
+          task: 'commitment_followup',
+          taskName: 'Zusagen nachhalten',
+          action: 'commitment_remind',
+          subject: '8D-Bericht Charge 4711',
+          recipient: 'Nils Ott',
+          href: `/lieferanten/${rheintal}/umsetzung/massnahmen`,
+          undo: { possible: false, blocker: 'ohne' },
+        }),
+      ],
+      tasks: [...list().tasks, { key: 'commitment_followup', level: 'do' }],
+    };
+    renderAt('/erledigt');
+    expect(
+      await screen.findByText(
+        'Nils Ott an die Zusage „8D-Bericht Charge 4711“ erinnert, als Nachricht von Reziproq',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText('Zusagen nachhalten · Rheintal Elektronik')).toBeTruthy();
+    const summary = screen.getByRole('region', { name: 'Zusammengefasst von Reziproq' });
+    expect(within(summary).getByText('1 Erinnerung an Zusagen')).toBeTruthy();
+    // Eine gesendete Mail lässt sich nicht zurückholen: Ansehen statt Zurücknehmen
+    expect(screen.queryByRole('button', { name: 'Zurücknehmen' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Ansehen' }).getAttribute('href')).toBe(
+      `/lieferanten/${rheintal}/umsetzung/massnahmen`,
+    );
+  });
+
   it('Vorbereitetes führt nach Kurz prüfen; Fehlgeschlagenes steht mit Status als Text', async () => {
     renderAt('/erledigt');
     expect(await screen.findByText('JBP Rheintal vorbereitet, wartet in Kurz prüfen')).toBeTruthy();
