@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { businessTimeHeader, type DemoSession } from '@reziproq/shared';
-import { screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { appNow, businessTimeKey } from '@/lib/clock';
-import { readDemoSession } from '@/lib/demo-session';
+import { demoPersonToRestart, demoRestartHref, readDemoSession } from '@/lib/demo-session';
+import { LocaleProvider } from '@/lib/i18n';
 import { api, renderAt, setUpApp, signedIn, tearDownApp } from '@/testing/app-harness';
+import { DemoSignInPage } from './demo-sign-in-page';
 
 const auth = vi.hoisted(() => globalThis.reziproqTestAuth);
 vi.mock('react-oidc-context', () => ({
@@ -52,6 +54,7 @@ beforeEach(() => {
 
 afterEach(() => {
   window.sessionStorage.clear();
+  window.localStorage.clear();
   tearDownApp();
 });
 
@@ -79,5 +82,59 @@ describe('DM-01 Demo-Sitzung je Person', () => {
     );
     expect(readDemoSession()).toBeNull();
     expect(window.sessionStorage.getItem('reziproq.demo-sitzung')).toBeNull();
+  });
+
+  it('merkt sich die Person, auch über den Ablauf; ein gescheiterter Start vergisst sie', async () => {
+    renderAt('/demo/als/jan-luka');
+    await screen.findByText('Angemeldet als Jan-Luka · Hollmann Antriebe');
+    expect(window.localStorage.getItem('reziproq.demo-person')).toBe('jan-luka');
+    // Abgelaufen: die Person des Tabs bleibt für den Neustart
+    window.sessionStorage.setItem(
+      'reziproq.demo-sitzung',
+      JSON.stringify({ ...session, expiresAt: new Date(Date.now() - 1000).toISOString() }),
+    );
+    expect(demoPersonToRestart()).toBe('jan-luka');
+    // Neuer Tab: die zuletzt im Browser genutzte Person
+    window.sessionStorage.clear();
+    expect(demoPersonToRestart()).toBe('jan-luka');
+    tearDownApp();
+    setUpApp();
+    window.localStorage.setItem('reziproq.demo-person', 'unbekannt');
+    renderAt('/demo/als/unbekannt');
+    expect(await screen.findByText('Keine Demo-Sitzung')).toBeTruthy();
+    await waitFor(() => expect(window.localStorage.getItem('reziproq.demo-person')).toBeNull());
+    expect(demoPersonToRestart()).toBeNull();
+  });
+
+  it('der Neustart führt mit Rückweg zurück, nie aus der Anmeldung heraus', async () => {
+    expect(
+      demoRestartHref('jan-luka', {
+        pathname: '/beziehungen',
+        search: '?linse=segmente',
+        hash: '',
+      }),
+    ).toBe('/demo/als/jan-luka?zurueck=%2Fbeziehungen%3Flinse%3Dsegmente');
+    expect(demoRestartHref('jan-luka', { pathname: '/', search: '', hash: '' })).toBe(
+      '/demo/als/jan-luka',
+    );
+    expect(
+      demoRestartHref('jan-luka', { pathname: '/auth/callback', search: '?code=1', hash: '' }),
+    ).toBe('/demo/als/jan-luka');
+    const leave = vi.fn();
+    render(
+      <LocaleProvider>
+        <DemoSignInPage person="jan-luka" returnTo="/beziehungen?linse=segmente" leave={leave} />
+      </LocaleProvider>,
+    );
+    await waitFor(() => expect(leave).toHaveBeenCalledWith('/beziehungen?linse=segmente'));
+    // Fremde Ziele führen auf die Startseite (safeReturnTo)
+    cleanup();
+    const away = vi.fn();
+    render(
+      <LocaleProvider>
+        <DemoSignInPage person="jan-luka" returnTo="https://example.com" leave={away} />
+      </LocaleProvider>,
+    );
+    await waitFor(() => expect(away).toHaveBeenCalledWith('/'));
   });
 });

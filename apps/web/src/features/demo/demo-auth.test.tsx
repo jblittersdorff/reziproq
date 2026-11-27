@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { DemoSession } from '@reziproq/shared';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useAuth } from 'react-oidc-context';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { businessTimeKey } from '@/lib/clock';
@@ -40,6 +40,9 @@ function Probe() {
 afterEach(() => {
   cleanup();
   window.sessionStorage.clear();
+  window.localStorage.clear();
+  window.history.replaceState(null, '', '/');
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -65,5 +68,57 @@ describe('DM-01 Demo-Provider', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abmelden' }));
     expect(readDemoSession()).toBeNull();
     expect(window.sessionStorage.getItem(businessTimeKey)).toBeNull();
+  });
+
+  it('startet kurz vor dem Ablauf als dieselbe Person neu und kehrt auf die Seite zurück', () => {
+    vi.useFakeTimers({
+      now: new Date('2026-11-27T08:00:00.000Z'),
+      toFake: ['Date', 'setInterval', 'clearInterval'],
+    });
+    window.history.replaceState(null, '', '/beziehungen?linse=segmente');
+    const leave = vi.fn();
+    render(
+      <DemoAuthProvider
+        session={{ ...session, expiresAt: '2026-11-27T08:06:30.000Z' }}
+        leave={leave}
+      >
+        <Probe />
+      </DemoAuthProvider>,
+    );
+    // Noch mehr als fünf Minuten: nichts
+    act(() => vi.advanceTimersByTime(60_000));
+    expect(leave).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(60_000));
+    expect(leave).toHaveBeenCalledWith(
+      '/demo/als/sara-ost?zurueck=%2Fbeziehungen%3Flinse%3Dsegmente',
+    );
+  });
+
+  it('prüft auch, wenn der Tab wieder sichtbar wird (nach dem Ruhezustand)', () => {
+    const leave = vi.fn();
+    render(
+      <DemoAuthProvider
+        session={{ ...session, expiresAt: new Date(Date.now() - 1000).toISOString() }}
+        leave={leave}
+      >
+        <Probe />
+      </DemoAuthProvider>,
+    );
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(leave).toHaveBeenCalledWith('/demo/als/sara-ost');
+  });
+
+  it('Abmelden vergisst die Person, damit kein Neustart folgt', () => {
+    saveDemoSession(session);
+    expect(window.localStorage.getItem('reziproq.demo-person')).toBe('sara-ost');
+    render(
+      <DemoAuthProvider session={session}>
+        <Probe />
+      </DemoAuthProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Abmelden' }));
+    expect(window.localStorage.getItem('reziproq.demo-person')).toBeNull();
   });
 });

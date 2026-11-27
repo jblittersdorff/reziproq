@@ -10,7 +10,7 @@ import { routeTree } from './routeTree.gen';
 import './index.css';
 import { DemoAuthProvider } from '@/features/demo/demo-auth';
 import { startBusinessTime } from '@/lib/clock';
-import { startupDemoSession } from '@/lib/demo-session';
+import { demoRestartHref, startupDemoRestart, startupDemoSession } from '@/lib/demo-session';
 
 const queryClient = new QueryClient();
 
@@ -53,17 +53,26 @@ startBusinessTime(startupDemoSession !== null);
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Element #root fehlt in index.html');
 
-createRoot(rootElement).render(
-  <StrictMode>
-    <LocaleProvider>
-      {/* DM-01, E-K0-05: In einer Demo-Sitzung meldet die Demo-Person ohne Zitadel an */}
-      {startupDemoSession ? (
-        <DemoAuthProvider session={startupDemoSession}>{app}</DemoAuthProvider>
-      ) : authConfig ? (
-        <AuthProvider {...authConfig}>{app}</AuthProvider>
-      ) : (
-        app
-      )}
-    </LocaleProvider>
-  </StrictMode>,
-);
+// DM-01: Ist die Demo-Sitzung abgelaufen oder ist der Tab neu, startet die Demo als dieselbe Person
+// neu und kehrt auf diese Seite zurück, statt zur Anmeldung zu führen. Bis dahin zeigt die App
+// nichts, damit sie nicht zugleich die Anmeldung bei Zitadel beginnt. Nie auf der Seite, die die
+// Demo startet, und nie mitten in einer Anmeldung bei Zitadel (/auth/…).
+const restartPerson = /^\/(demo\/als|auth)\//.test(window.location.pathname)
+  ? null
+  : startupDemoRestart;
+if (restartPerson) window.location.replace(demoRestartHref(restartPerson, window.location));
+else
+  createRoot(rootElement).render(
+    <StrictMode>
+      <LocaleProvider>
+        {/* DM-01, E-K0-05: In einer Demo-Sitzung meldet die Demo-Person ohne Zitadel an */}
+        {startupDemoSession ? (
+          <DemoAuthProvider session={startupDemoSession}>{app}</DemoAuthProvider>
+        ) : authConfig ? (
+          <AuthProvider {...authConfig}>{app}</AuthProvider>
+        ) : (
+          app
+        )}
+      </LocaleProvider>
+    </StrictMode>,
+  );

@@ -5,16 +5,28 @@ import { ErrorState } from '@/components/ui/error-state';
 import { LoadingState } from '@/components/ui/loading-state';
 import { AuthPage } from '@/features/auth/auth-states';
 import { startDemoSession } from '@/lib/api';
-import { saveDemoSession } from '@/lib/demo-session';
+import { safeReturnTo } from '@/lib/auth';
+import { forgetDemoPerson, leaveTo, saveDemoSession } from '@/lib/demo-session';
 import { useMessages } from '@/lib/i18n';
 import { demoMessages } from './demo-messages';
 
 /**
  * DM-01, E-K0-05 (K1-b.2): /demo/als/<Person> startet eine Demo-Sitzung für eine Person des
  * Demo-Mandanten, ohne Zitadel. Danach lädt die App neu, damit sie die Sitzung statt Zitadel nutzt.
- * Die Demo-Regie (K1-g) wechselt die Rolle über dieselbe Adresse.
+ * Die Demo-Regie (K1-g) wechselt die Rolle über dieselbe Adresse. Mit `zurueck` (Neustart einer
+ * abgelaufenen Sitzung) geht es danach auf die Seite zurück, auf der die Person war. Scheitert der
+ * Start, vergisst der Browser die Person, damit kein Neustart im Kreis läuft.
  */
-export function DemoSignInPage({ person }: { person: string }) {
+export function DemoSignInPage({
+  person,
+  returnTo,
+  leave = leaveTo,
+}: {
+  person: string;
+  returnTo?: string;
+  /** Wohin es nach dem Start geht; in Tests ersetzbar */
+  leave?: (href: string) => void;
+}) {
   const text = useMessages(demoMessages);
   const [state, setState] = useState<
     { kind: 'loading' } | { kind: 'failed' } | { kind: 'started'; session: DemoSession }
@@ -28,11 +40,14 @@ export function DemoSignInPage({ person }: { person: string }) {
       (session) => {
         saveDemoSession(session);
         setState({ kind: 'started', session });
-        window.location.replace('/');
+        leave(safeReturnTo(returnTo));
       },
-      () => setState({ kind: 'failed' }),
+      () => {
+        forgetDemoPerson();
+        setState({ kind: 'failed' });
+      },
     );
-  }, [person]);
+  }, [person, returnTo, leave]);
 
   return (
     <AuthPage>
