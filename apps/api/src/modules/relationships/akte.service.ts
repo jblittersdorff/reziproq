@@ -245,10 +245,16 @@ export class AkteService {
             type_name: string;
             approved_at: Date | string | null;
             created_at: Date | string;
+            shared_at: Date | string | null;
           }>(sql`
-            select version, status, type_name, approved_at, created_at from rule_set
-            where relationship_id = ${relationshipId} and owner_org_id = ${orgId}
-            order by version desc`)
+            select s.version, s.status, s.type_name, s.approved_at, s.created_at,
+              t.shared_at
+            from rule_set s
+            left join relationship_target t on t.relationship_id = s.relationship_id
+              and t.owner_org_id = s.owner_org_id and t.visibility = 'shared'
+              and t.rule_set_version = s.version
+            where s.relationship_id = ${relationshipId} and s.owner_org_id = ${orgId}
+            order by s.version desc`)
         ).rows;
         const latestRules = ruleSets[0];
         const sharedRules = ruleSets.find((entry) => entry.status === 'shared');
@@ -309,8 +315,11 @@ export class AkteService {
             ? {
                 typeName: (sharedRules ?? latestRules).type_name,
                 status: latestRules.status,
+                // Geteilte Spielregeln gelten ab dem Teilen (SEG-10), nicht ab der Freigabe
                 since: sharedRules
-                  ? new Date(sharedRules.approved_at ?? sharedRules.created_at).toISOString()
+                  ? new Date(
+                      sharedRules.shared_at ?? sharedRules.approved_at ?? sharedRules.created_at,
+                    ).toISOString()
                   : null,
                 unshared: latestRules.status !== 'shared',
               }

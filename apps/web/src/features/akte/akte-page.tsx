@@ -30,6 +30,7 @@ import {
 import { type Format, useFormat } from '@/lib/format';
 import { useLocale, useMessages, useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { useAkteActions } from './akte-actions';
 import { CounterpartView } from './akte-counterpart-view';
 import { akteMessages } from './akte-messages';
 import { PrivateView } from './akte-private-view';
@@ -60,6 +61,11 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
   const overview = useOverview(relationshipId);
   const name = head.data ? displayNameOf(head.data.name).name : '';
   useDocumentTitle(name || text.back);
+  const runs = useAkteActions({
+    relationshipId,
+    name,
+    nextMeeting: head.data?.nextMeeting ?? null,
+  });
 
   if (me.data && !me.data.organization) return null;
   const denied =
@@ -117,22 +123,7 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
         meta={meta}
         metaShort={[segment, spend].filter(Boolean).join(' · ')}
         actionsLabel={text.actions.label}
-        actions={[
-          {
-            key: 'wert',
-            label: text.actions.value,
-            href: old(relationshipId, '/wirkung/wertpotenziale'),
-          },
-          ...(data.nextMeeting
-            ? [
-                {
-                  key: 'briefing',
-                  label: text.actions.briefing(data.nextMeeting.type),
-                  href: old(relationshipId, `/umsetzung/termine/${data.nextMeeting.id}`),
-                },
-              ]
-            : []),
-        ]}
+        actions={runs.actions}
         more={{ label: text.actions.more, href: sheetHref(relationshipId, 'profil', view) }}
         views={{
           label: text.views.label,
@@ -162,6 +153,7 @@ export function AktePage({ relationshipId }: { relationshipId: string }) {
         }}
         renderLink={routerLink}
       />
+      {runs.status}
       {view === 'gemeinsam' ? (
         <SharedView relationshipId={relationshipId} name={name} text={text} />
       ) : view === 'privat' ? (

@@ -44,6 +44,16 @@ export const akteMessages = defineMessages({
       value: 'Wert finden',
       briefing: (type: string) => `Briefing ${meetingTypesDe[type] ?? 'Termin'}`,
       more: 'Profil, Team und Mandat',
+      // K2-c.6: Läufe mit den Rechten der Person (KN-41)
+      valueFound: (n: number, name: string) =>
+        n === 1
+          ? `Reziproq hat für ${name} ein neues Wertpotenzial gefunden.`
+          : `Reziproq hat für ${name} ${n} neue Wertpotenziale gefunden.`,
+      valueNone: (name: string) => `Reziproq hat für ${name} nichts Neues gefunden.`,
+      valueOpen: 'Wertpotenziale ansehen',
+      valueDisabled: 'Der Wertfinder ist in Mein Agent ausgeschaltet.',
+      agentSettings: 'Mein Agent',
+      failed: 'Das hat nicht geklappt. Bitte versuche es noch einmal.',
     },
     states: {
       loading: 'Akte wird geladen',
@@ -177,6 +187,15 @@ export const akteMessages = defineMessages({
       value: 'Find value',
       briefing: (type: string) => `Briefing ${meetingTypesEn[type] ?? 'meeting'}`,
       more: 'Profile, team and mandate',
+      valueFound: (n: number, name: string) =>
+        n === 1
+          ? `Reziproq found one new value potential for ${name}.`
+          : `Reziproq found ${n} new value potentials for ${name}.`,
+      valueNone: (name: string) => `Reziproq found nothing new for ${name}.`,
+      valueOpen: 'View value potentials',
+      valueDisabled: 'The value finder is switched off in My agent.',
+      agentSettings: 'My agent',
+      failed: 'That did not work. Please try again.',
     },
     states: {
       loading: 'Loading the file',

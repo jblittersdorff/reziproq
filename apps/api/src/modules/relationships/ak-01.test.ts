@@ -123,6 +123,13 @@ describe('AK-01 Akte, Sicht Gemeinsam (Hollmann, Rheintal)', () => {
       'Frist Musterteile Starrflex liefern',
     ]);
     expect(akte.plan).toMatchObject({ status: 'approved', year: 2026 });
+    // K2-c.5: Spielregeln „Strategisch“, geteilt am 15.10.; sie gelten ab dem Teilen
+    expect(akte.rules).toEqual({
+      typeName: 'Strategisch',
+      status: 'shared',
+      since: '2026-10-15T11:00:00.000Z',
+      unshared: false,
+    });
     expect(akte.team.own.map((member) => member.name)).toContain(hollmannPeople.janLuka.name);
     // Vom Lieferanten nur die geteilten Mitglieder: Kim Kaiser als Sponsorin (Vorlage L-Ueberblick)
     expect(akte.team.counterpart).toEqual([{ name: 'Kim Kaiser', teamRole: 'sponsor' }]);

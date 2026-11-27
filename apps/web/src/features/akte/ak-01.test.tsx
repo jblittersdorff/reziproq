@@ -51,12 +51,9 @@ describe('AK-01 Akte, Kopf und Sichten', () => {
       'Strategisch · Leiterplatten, Baugruppen, Kabelsätze · 4,2 Mio. € Spend 2026 · Lead Sara Ost',
     );
     const actions = within(head).getByRole('navigation', { name: 'Aktionen von Reziproq' });
-    expect(within(actions).getByRole('link', { name: 'Wert finden' }).getAttribute('href')).toBe(
-      `/lieferanten/${id}/wirkung/wertpotenziale`,
-    );
-    expect(within(actions).getByRole('link', { name: 'Briefing JBP' }).getAttribute('href')).toBe(
-      `/lieferanten/${id}/umsetzung/termine/00000000-0000-7000-8000-000000000501`,
-    );
+    // K2-c.6: Die Aktionen starten Läufe (ak-01-aktionen.test.tsx)
+    expect(await within(actions).findByRole('button', { name: 'Wert finden' })).toBeTruthy();
+    expect(within(actions).getByRole('button', { name: 'Briefing JBP' })).toBeTruthy();
     expect(
       within(actions).getByRole('link', { name: 'Profil, Team und Mandat' }).getAttribute('href'),
     ).toBe(`/beziehungen/${id}/profil`);

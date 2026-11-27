@@ -144,7 +144,7 @@ test('Gemeinsam: Kopf, Spiegel 90 zu 78 %, sechs offene Zusagen, Scorecard und r
   await expect(page.locator('[data-slot="akte-head"]')).toContainText(
     /Strategisch · Leiterplatten · 4,2\sMio\.\s€ Spend 2026 · Lead Sara Ost/,
   );
-  await expect(page.getByRole('link', { name: 'Briefing JBP' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Briefing JBP' })).toBeVisible();
   const summary = page.getByRole('region', { name: 'Das Wichtigste' });
   await expect(summary).toContainText(
     'Ihr haltet mehr Zusagen als Rheintal Elektronik. Überfällig ist „8D-Bericht Charge 4711“.',
@@ -367,6 +367,31 @@ test('Blätter (K2-c.5): Spielregeln aus Gemeinsam, Kennzahl aus der Scorecard, 
   if (process.env.UX_SHOTS) {
     await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-profil-390.png` });
   }
+});
+
+test('Aktionen (K2-c.6): „Wert finden“ startet den Wertfinder, „Briefing JBP“ öffnet den Termin', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await openAkte(page);
+  const actions = page.getByRole('navigation', { name: 'Aktionen von Reziproq' });
+  // Der Wertfinder läuft mit den Rechten von Jan-Luka (KN-41) und sagt, was er fand
+  await actions.getByRole('button', { name: 'Wert finden' }).click();
+  const status = page
+    .getByRole('status')
+    .filter({ hasText: 'Reziproq hat für Rheintal Elektronik' });
+  await expect(status).toBeVisible();
+  await expect(status.getByRole('link', { name: 'Wertpotenziale ansehen' })).toHaveAttribute(
+    'href',
+    /\/wirkung\/wertpotenziale$/,
+  );
+  if (process.env.UX_SHOTS) {
+    await page.screenshot({ path: `${process.env.UX_SHOTS}/ak-01-wert-finden-1440.png` });
+  }
+  // Das Briefing zum JBP am 04.12. öffnet die Termin-Seite (bis K3)
+  await actions.getByRole('button', { name: 'Briefing JBP' }).click();
+  await expect(page).toHaveURL(/\/lieferanten\/[0-9a-f-]{36}\/umsetzung\/termine\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('JBP Rheintal 2027');
 });
 
 test('Auf dem Telefon: kurze graue Zeile, Sichten mit kurzem Namen, kein seitliches Scrollen', async ({

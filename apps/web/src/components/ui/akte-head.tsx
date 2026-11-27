@@ -2,10 +2,18 @@ import { EllipsisIcon } from 'lucide-react';
 import type * as React from 'react';
 import { cn } from '@/lib/utils';
 import { BackLink } from './back-link';
-import { buttonVariants } from './button';
+import { Button, buttonVariants } from './button';
 import { AreaSwitch, type SwitchItem } from './entity-header';
 import { Monogram } from './monogram';
 import { defaultRenderLink, type RenderLink } from './nav-link';
+
+/**
+ * Aktion von Reziproq im Kopf: Link zu einer Seite oder Knopf, der einen Lauf startet (KN-41); der
+ * Knopf zeigt, solange der Lauf geht, seinen Ladezustand
+ */
+export type AkteAction =
+  | { key: string; label: string; href: string }
+  | { key: string; label: string; onClick: () => void; busy?: boolean };
 
 /**
  * Kopf der Akte (AK-01 `AkteKopf`, Designsprache „Akte-Kopf“, Vorlagen L-Ueberblick und
@@ -33,7 +41,7 @@ function AkteHead({
   metaShort?: React.ReactNode;
   /** Name der Gruppe der Aktionen für Screenreader */
   actionsLabel: string;
-  actions: { key: string; label: string; href: string }[];
+  actions: AkteAction[];
   /** „···“ mit Namen für Screenreader */
   more?: { label: string; href: string };
   views: { label: string; active: string; items: SwitchItem[] };
@@ -66,11 +74,17 @@ function AkteHead({
           <nav aria-label={actionsLabel} className="flex flex-wrap items-center gap-2">
             {actions.map((action) => (
               <span key={action.key} className="contents">
-                {renderLink({
-                  href: action.href,
-                  className: cn(buttonVariants({ variant: 'secondary' }), 'no-underline'),
-                  children: action.label,
-                })}
+                {'href' in action ? (
+                  renderLink({
+                    href: action.href,
+                    className: cn(buttonVariants({ variant: 'secondary' }), 'no-underline'),
+                    children: action.label,
+                  })
+                ) : (
+                  <Button variant="secondary" loading={action.busy ?? false} onClick={action.onClick}>
+                    {action.label}
+                  </Button>
+                )}
               </span>
             ))}
             {more &&
